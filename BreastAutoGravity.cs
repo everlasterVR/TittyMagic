@@ -26,6 +26,11 @@ namespace everlaster
         protected JSONStorableFloat invertedSag;
         protected JSONStorableFloat sidewaysRoll;
 
+        protected JSONStorableString leanForwardInfo = new JSONStorableString("Lean Forward Info", "");
+        protected JSONStorableString leanBackInfo = new JSONStorableString("Lean Backward Info", "");
+        protected JSONStorableString rollLeftInfo = new JSONStorableString("Roll Left Info", "");
+        protected JSONStorableString rollRightInfo = new JSONStorableString("Roll Right Info", "");
+
         public override void Init()
         {
             try
@@ -52,12 +57,24 @@ namespace everlaster
             JSONStorable js = containingAtom.GetStorableByID("geometry");
             DAZCharacterSelector dcs = js as DAZCharacterSelector;
             morphUI = dcs.morphsControlUI;
+
+            // sliders
             forwardDroop = CreateFloatSlider("Forward Droop", 0.5f, 0f, 1.5f);
             forwardCleavage = CreateFloatSlider("Forward Cleavage", 0.5f, -0.5f, 1f);
             reclineSpread = CreateFloatSlider("Recline Spread", 0.5f, 0f, 1f);
             reclineFlatten = CreateFloatSlider("Recline Flatten", 0.15f, 0f, 0.3f);
             invertedSag = CreateFloatSlider("Inverted Sag", 1.5f, 0f, 3f);
             sidewaysRoll = CreateFloatSlider("Sideways Roll", 0.5f, 0f, 1f);
+
+            // debug info
+            CreateInfoHeaderField("Lean Forward");
+            CreateInfoField(leanForwardInfo);
+            CreateInfoHeaderField("Lean Backward");
+            CreateInfoField(leanBackInfo);
+            CreateInfoHeaderField("Roll Left");
+            CreateInfoField(rollLeftInfo);
+            CreateInfoHeaderField("Roll Right");
+            CreateInfoField(rollRightInfo);
         }
 
         JSONStorableFloat CreateFloatSlider(string paramName, float startingValue, float minValue, float maxValue)
@@ -67,6 +84,18 @@ namespace everlaster
             RegisterFloat(storable);
             CreateSlider(storable, false);
             return storable;
+        }
+
+        void CreateInfoHeaderField(string text)
+        {
+            UIDynamicTextField infoHeaderField = CreateTextField(new JSONStorableString(text + " Header", text), true);
+            infoHeaderField.height = 100;
+        }
+
+        void CreateInfoField(JSONStorableString storable)
+        {
+            UIDynamicTextField infoField = CreateTextField(storable, true);
+            infoField.height = 120;
         }
 
         void InitMorphs()
@@ -124,6 +153,11 @@ namespace everlaster
                 breastsTogetherApart.morphValue = Remap(180 - pitch, 0, 90, 0, forwardCleavage.val);
                 breastSag2.morphValue = Remap(180 - pitch, 0, 90, -invertedSag.val, 0);
             }
+
+            string info = $"Forward Breast Droop: {forwardBreastDroop.morphValue}";
+            info += $"\r\nBreasts Together Apart: {breastsTogetherApart.morphValue}";
+            info += $"\r\nBreast Sag 2: {breastSag2.morphValue}";
+            leanForwardInfo.SetVal(info);
         }
 
         void OnLeanBack(float pitch)
@@ -141,6 +175,11 @@ namespace everlaster
                 breastsTogetherApart.morphValue = Remap(180 - Mathf.Abs(pitch), 0, 90, 0, -reclineSpread.val);
                 breastSag2.morphValue = Remap(180 - Mathf.Abs(pitch), 0, 90, -invertedSag.val, 0);
             }
+
+            string info = $"Forward Breast Droop: {forwardBreastDroop.morphValue}";
+            info += $"\r\nBreasts Together Apart: {breastsTogetherApart.morphValue}";
+            info += $"\r\nBreast Sag 2: {breastSag2.morphValue}";
+            leanBackInfo.SetVal(info);
         }
 
         void OnRollLeft(float roll)
@@ -155,6 +194,9 @@ namespace everlaster
             {
                 breastsCenterShift.morphValue = Remap(180 - roll, 0, 90, 0, sidewaysRoll.val);
             }
+
+            string info = $"Breasts Center Shift: {breastsCenterShift.morphValue}";
+            rollLeftInfo.SetVal(info);
         }
 
         void OnRollRight(float roll)
@@ -169,6 +211,9 @@ namespace everlaster
             {
                 breastsCenterShift.morphValue = Remap(180 - Mathf.Abs(roll), 0, 90, 0, -sidewaysRoll.val);
             }
+
+            string info = $"Breasts Center Shift: {breastsCenterShift.morphValue}";
+            rollRightInfo.SetVal(info);
         }
 
         float Remap(float inVal, float min1, float max1, float min2, float max2)
