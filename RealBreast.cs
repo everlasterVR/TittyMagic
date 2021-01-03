@@ -322,6 +322,19 @@ namespace everlaster
             return ratio * inVal + c;
         }
 
+        void OnDestroy()
+        {
+            ZeroLeanBackMorphs();
+            ZeroLeanForwardMorphs();
+            ZeroRollLeftMorphs();
+            ZeroRollRightMorphs();
+            ZeroSagMorphs();
+            ZeroUpsideDownMorphs();
+            breastsTogetherApart.morphValue = 0;
+            centerGapSmooth.morphValue = 0;
+            centreGapNarrow.morphValue = 0;
+        }
+
         void DebugInfo(float pitch, float roll)
         {
             rollAndPitchInfo.SetVal($@"
