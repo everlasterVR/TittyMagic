@@ -139,16 +139,20 @@ namespace everlaster
             Quaternion q = chest.rotation;
 
             float pitch = Mathf.Rad2Deg * Mathf.Atan2(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * q.x * q.x - 2 * q.z * q.z);
+            float roll = Mathf.Rad2Deg * Mathf.Asin(2 * q.x * q.y + 2 * q.z * q.w);
+
+            // Scale pitch effect by roll angle's distance from 90/-90 = person is sideways
+            // -> if person is sideways, pitch related morphs have less effect
+            float scaledPitchEffect = pitchEffect.val * (90 - Mathf.Abs(roll)) / 90;
             if(pitch >= 0)
             {
-                OnLeanForward(pitch);
+                OnLeanForward(pitch, scaledPitchEffect);
             }
             else
             {
-                OnLeanBack(pitch);
+                OnLeanBack(pitch, scaledPitchEffect);
             }
 
-            float roll = Mathf.Rad2Deg * Mathf.Asin(2 * q.x * q.y + 2 * q.z * q.w);
             if(roll >= 0)
             {
                 OnRollLeft(roll);
@@ -158,42 +162,10 @@ namespace everlaster
                 OnRollRight(roll);
             }
 
-            string info = $"Pitch: {pitch}";
-            info += $"\r\nRoll: {roll}";
-            rollAndPitchInfo.SetVal(info);
-
-            string info2 = "";
-            info2 += $"\r\nTogetherApart: {breastsTogetherApart.morphValue}";
-            info2 += $"\r\n";
-            info2 += $"\r\nDepth: {breastsDepth.morphValue}";
-            info2 += $"\r\nHang Forward: {breastsHangForward.morphValue}";
-            info2 += $"\r\nHeight: {breastsHeight.morphValue}";
-            info2 += $"\r\nWidth: {breastsWidth.morphValue}";
-            info2 += $"\r\n";
-            info2 += $"\r\nFlatten: {breastsFlatten.morphValue}";
-            info2 += $"\r\nRotate X Out Right: {breastRotateXOutRight.morphValue}";
-            info2 += $"\r\nRotate X Out Left: {breastRotateXOutLeft.morphValue}";
-            info2 += $"\r\n";
-            info2 += $"\r\nSag1: {breastSag1.morphValue}";
-            info2 += $"\r\nSag2: {breastSag2.morphValue}";
-            info2 += $"\r\nMove Up Right: {breastMoveUpRight.morphValue}";
-            info2 += $"\r\nMove Up Left: {breastMoveUpLeft.morphValue}";
-            info2 += $"\r\nSide Smoother: {breastSideSmoother.morphValue}";
-            info2 += $"\r\nUnder Smoother1: {breastUnderSmoother1.morphValue}";
-            info2 += $"\r\nUnder Smoother3: {breastUnderSmoother3.morphValue}";
-            info2 += $"\r\n";
-            info2 += $"\r\nCenter Shift: {breastsMoveS2SDir.morphValue}";
-            info2 += $"\r\nMove S2S Dir: {breastsMoveS2SDir.morphValue}";
-            info2 += $"\r\nRotate X In Right: {breastRotateXInRight.morphValue}";
-            info2 += $"\r\nRotate X In Left: {breastRotateXInLeft.morphValue}";
-            info2 += $"\r\nMove S2S In Right: {breastMoveS2SInRight.morphValue}";
-            info2 += $"\r\nMove S2S In Left: {breastMoveS2SInLeft.morphValue}";
-            info2 += $"\r\nMove S2S Out Right: {breastMoveS2SOutRight.morphValue}";
-            info2 += $"\r\nMove S2S Out Left: {breastMoveS2SOutLeft.morphValue}";
-            morphInfo.SetVal(info2);
+            DebugInfo(pitch, roll);
         }
 
-        void OnLeanForward(float pitch)
+        void OnLeanForward(float pitch, float effect)
         {
             breastsFlatten.morphValue = 0;
             breastRotateXOutRight.morphValue = 0;
@@ -209,7 +181,7 @@ namespace everlaster
                 breastUnderSmoother1.morphValue = 0;
                 breastUnderSmoother3.morphValue = 0;
 
-                float baseVal = Remap(pitch, 0, 90, 0, pitchEffect.val);
+                float baseVal = Remap(pitch, 0, 90, 0, effect);
                 breastsDepth.morphValue = baseVal / 3;
                 breastsHangForward.morphValue = baseVal / 2;
                 breastsHeight.morphValue = -2 * baseVal / 3;
@@ -219,17 +191,18 @@ namespace everlaster
             //inverted face down
             else
             {
-                float baseVal = Remap(180 - pitch, 0, 90, 0, pitchEffect.val);
+
+                float baseVal = Remap(180 - pitch, 0, 90, 0, effect);
                 breastsDepth.morphValue = baseVal / 3;
                 breastsHangForward.morphValue = baseVal / 2;
                 breastsHeight.morphValue = -2 * baseVal / 3;
                 breastsWidth.morphValue = -2 * baseVal / 3;
                 breastsTogetherApart.morphValue = baseVal / 2;
 
-                breastSag2.morphValue = 3 * Remap(180 - Mathf.Abs(pitch), 0, 90, -pitchEffect.val, 0);
+                breastSag2.morphValue = 3 * Remap(180 - Mathf.Abs(pitch), 0, 90, -effect, 0);
                 breastSag1.morphValue = breastSag2.morphValue / 3;
 
-                float baseVal2 = Remap(180 - Mathf.Abs(pitch), 0, 90, pitchEffect.val, 0);
+                float baseVal2 = Remap(180 - Mathf.Abs(pitch), 0, 90, effect, 0);
                 breastMoveUpRight.morphValue = baseVal2 / 3;
                 breastMoveUpLeft.morphValue = breastMoveUpRight.morphValue;
                 breastSideSmoother.morphValue = 2 * baseVal2 / 3;
@@ -238,7 +211,7 @@ namespace everlaster
             }
         }
 
-        void OnLeanBack(float pitch)
+        void OnLeanBack(float pitch, float effect)
         {
             breastsDepth.morphValue = 0;
             breastsHangForward.morphValue = 0;
@@ -252,7 +225,7 @@ namespace everlaster
             }
             else
             {
-                breastSag2.morphValue = 3 * Remap(180 - Mathf.Abs(pitch), 0, 135, -pitchEffect.val, 0);
+                breastSag2.morphValue = 3 * Remap(180 - Mathf.Abs(pitch), 0, 135, -effect, 0);
                 breastSag1.morphValue = breastSag2.morphValue / 3;
             }
 
@@ -264,7 +237,7 @@ namespace everlaster
                 breastUnderSmoother1.morphValue = 0;
                 breastUnderSmoother3.morphValue = 0;
 
-                float baseVal = Remap(Mathf.Abs(pitch), 0, 90, 0, pitchEffect.val);
+                float baseVal = Remap(Mathf.Abs(pitch), 0, 90, 0, effect);
                 breastsFlatten.morphValue = baseVal / 4;
                 breastsDepth.morphValue = -baseVal / 3;
                 breastsTogetherApart.morphValue = -baseVal / 2;
@@ -274,14 +247,14 @@ namespace everlaster
             //inverted face up
             else
             {
-                float baseVal = Remap(180 - Mathf.Abs(pitch), 0, 90, 0, pitchEffect.val);
+                float baseVal = Remap(180 - Mathf.Abs(pitch), 0, 90, 0, effect);
                 breastsFlatten.morphValue = baseVal / 4;
                 breastsDepth.morphValue = -baseVal / 3;
                 breastsTogetherApart.morphValue = -baseVal / 2;
                 breastRotateXOutRight.morphValue = baseVal / 3;
                 breastRotateXOutLeft.morphValue = breastRotateXOutRight.morphValue;
 
-                float baseVal2 = Remap(180 - Mathf.Abs(pitch), 0, 90, pitchEffect.val, 0);
+                float baseVal2 = Remap(180 - Mathf.Abs(pitch), 0, 90, effect, 0);
                 breastMoveUpRight.morphValue = baseVal2 / 3;
                 breastMoveUpLeft.morphValue = breastMoveUpRight.morphValue;
                 breastSideSmoother.morphValue = 2 * baseVal2 / 3;
@@ -341,6 +314,43 @@ namespace everlaster
             var ratio = (max2 - min2) / (max1 - min1); // max2 / 90
             var c = min2 - ratio * min1; // 0 when min2 and min1 both 0
             return ratio * inVal + c;
+        }
+
+        void DebugInfo(float pitch, float roll)
+        {
+            string info = $"Pitch: {pitch}";
+            info += $"\r\nRoll: {roll}";
+            rollAndPitchInfo.SetVal(info);
+
+            string info2 = "";
+            info2 += $"\r\nTogetherApart: {breastsTogetherApart.morphValue}";
+            info2 += $"\r\n";
+            info2 += $"\r\nDepth: {breastsDepth.morphValue}";
+            info2 += $"\r\nHang Forward: {breastsHangForward.morphValue}";
+            info2 += $"\r\nHeight: {breastsHeight.morphValue}";
+            info2 += $"\r\nWidth: {breastsWidth.morphValue}";
+            info2 += $"\r\n";
+            info2 += $"\r\nFlatten: {breastsFlatten.morphValue}";
+            info2 += $"\r\nRotate X Out Right: {breastRotateXOutRight.morphValue}";
+            info2 += $"\r\nRotate X Out Left: {breastRotateXOutLeft.morphValue}";
+            info2 += $"\r\n";
+            info2 += $"\r\nSag1: {breastSag1.morphValue}";
+            info2 += $"\r\nSag2: {breastSag2.morphValue}";
+            info2 += $"\r\nMove Up Right: {breastMoveUpRight.morphValue}";
+            info2 += $"\r\nMove Up Left: {breastMoveUpLeft.morphValue}";
+            info2 += $"\r\nSide Smoother: {breastSideSmoother.morphValue}";
+            info2 += $"\r\nUnder Smoother1: {breastUnderSmoother1.morphValue}";
+            info2 += $"\r\nUnder Smoother3: {breastUnderSmoother3.morphValue}";
+            info2 += $"\r\n";
+            info2 += $"\r\nCenter Shift: {breastsMoveS2SDir.morphValue}";
+            info2 += $"\r\nMove S2S Dir: {breastsMoveS2SDir.morphValue}";
+            info2 += $"\r\nRotate X In Right: {breastRotateXInRight.morphValue}";
+            info2 += $"\r\nRotate X In Left: {breastRotateXInLeft.morphValue}";
+            info2 += $"\r\nMove S2S In Right: {breastMoveS2SInRight.morphValue}";
+            info2 += $"\r\nMove S2S In Left: {breastMoveS2SInLeft.morphValue}";
+            info2 += $"\r\nMove S2S Out Right: {breastMoveS2SOutRight.morphValue}";
+            info2 += $"\r\nMove S2S Out Left: {breastMoveS2SOutLeft.morphValue}";
+            morphInfo.SetVal(info2);
         }
     }
 }
