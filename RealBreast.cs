@@ -364,38 +364,38 @@ namespace everlaster
             breastPhysicsMesh.softVerticesUseAutoColliderRadius = true;
             breastPhysicsMesh.softVerticesBackForceThresholdDistance = 0.002f;
             breastPhysicsMesh.softVerticesColliderAdditionalNormalOffset = 0.002f;
-            // Main spring/damper
-            breastPhysicsMeshUI.groupASpringMultplierSlider.value = 1.00f;
-            breastPhysicsMeshUI.groupADamperMultplierSlider.value = 1.00f;
-            // Areola spring/damper
-            breastPhysicsMeshUI.groupCSpringMultplierSlider.value = 1.00f;
-            breastPhysicsMeshUI.groupCDamperMultplierSlider.value = 1.00f;
-            // Nipple spring/damper
-            breastPhysicsMeshUI.groupDSpringMultplierSlider.value = 1.00f;
-            breastPhysicsMeshUI.groupDDamperMultplierSlider.value = 1.00f;
         }
 
         void UpdateBreastPhysicsSettings(float sizeVal, float softnessVal)
         {
             float sizeFactor = sizeVal - sizeMin;
-            //                                                min     size adjustment        softness adjustment
-            breastControl.mass                              = 0.10f  + (0.71f  * sizeFactor);
-            breastControl.centerOfGravityPercent            = 0.50f  - (0.05f  * sizeFactor);
-            breastControl.spring                            = 22.0f  + (15.0f  * sizeFactor);
-            breastControl.damper                            = 1.20f  + (0.30f  * sizeFactor);
-            breastControl.positionSpringZ                   = 175f   + (150f   * sizeFactor);
-            breastControl.positionDamperZ                   = 50f    + (10f    * sizeFactor);
-            breastControl.targetRotationX                   = 6.00f  - (2.00f  * sizeFactor);
-            breastPhysicsMesh.softVerticesCombinedSpring    = 105f   + (55f    * sizeFactor);
-            breastPhysicsMesh.softVerticesCombinedDamper    = 1.80f;
-            breastPhysicsMesh.softVerticesMass              = 0.06f  + (0.11f  * sizeFactor);
-            breastPhysicsMesh.softVerticesBackForce         = 5.0f   + (6.0f   * sizeFactor);
-            breastPhysicsMesh.softVerticesBackForceMaxForce = 5.0f   + (2.0f   * sizeFactor);
-            breastPhysicsMesh.softVerticesNormalLimit       = 0.015f + (0.025f * sizeFactor);
+            //                                                 base      size adjustment         softness adjustment
+            breastControl.mass                              =  0.10f  + (0.71f  * sizeFactor);
+            breastControl.centerOfGravityPercent            =  0.50f  - (0.05f  * sizeFactor);
+            breastControl.spring                            =  22.0f  + (28.0f  * sizeFactor) - (0.05f * softnessVal);
+            breastControl.damper                            =  1.20f  + (0.28f  * sizeFactor) + (0.12f * softnessVal);
+            breastControl.positionSpringZ                   =  175f   + (150f   * sizeFactor);
+            breastControl.positionDamperZ                   =  50f    + (10f    * sizeFactor);
+            breastControl.targetRotationX                   =  6.00f  - (2.00f  * sizeFactor);
+            breastPhysicsMesh.softVerticesCombinedSpring    =  105f   + (55f    * sizeFactor);
+            breastPhysicsMesh.softVerticesCombinedDamper    =  1.80f;
+            breastPhysicsMesh.softVerticesMass              =  0.06f  + (0.10f  * sizeFactor) - (0.015f * softnessVal * sizeFactor);
+            breastPhysicsMesh.softVerticesBackForce         =  5.0f   + (9.0f   * sizeFactor) - (3.0f   * softnessVal);
+            breastPhysicsMesh.softVerticesBackForceMaxForce =  5.0f   + (3.0f   * sizeFactor) - (1.0f   * softnessVal);
+            breastPhysicsMesh.softVerticesNormalLimit       =  0.015f + (0.010f * sizeFactor) + (0.010f * softnessVal);
 
+            // Main spring/damper
+            breastPhysicsMeshUI.groupASpringMultplierSlider.value = 1.00f / softnessVal;
+            breastPhysicsMeshUI.groupADamperMultplierSlider.value = 1.00f / softnessVal;
             // Outer spring/damper
-            breastPhysicsMeshUI.groupBSpringMultplierSlider.value = 1.00f + (0.05f * sizeFactor);
-            breastPhysicsMeshUI.groupBDamperMultplierSlider.value = 1.00f + (0.10f * sizeFactor);
+            breastPhysicsMeshUI.groupBSpringMultplierSlider.value = (1.00f + (0.10f * sizeFactor)) / softnessVal;
+            breastPhysicsMeshUI.groupBDamperMultplierSlider.value = (1.00f + (0.20f * sizeFactor)) / softnessVal;
+            // Areola spring/damper
+            breastPhysicsMeshUI.groupCSpringMultplierSlider.value = 1.00f / (0.90f * softnessVal);
+            breastPhysicsMeshUI.groupCDamperMultplierSlider.value = 1.00f / (0.90f * softnessVal);
+            // Nipple spring/damper
+            breastPhysicsMeshUI.groupDSpringMultplierSlider.value = 1.00f / (0.75f * softnessVal);
+            breastPhysicsMeshUI.groupDDamperMultplierSlider.value = 1.00f / (0.75f * softnessVal);
         }
 
         public void Update()
@@ -558,8 +558,14 @@ namespace everlaster
             text += $"fat damper: {breastPhysicsMesh.softVerticesCombinedDamper}\r\n";
             text += $"fat mass: {breastPhysicsMesh.softVerticesMass}\r\n";
             text += $"distance limit: {breastPhysicsMesh.softVerticesNormalLimit}\r\n";
+            text += $"main spring: {breastPhysicsMeshUI.groupASpringMultplierSlider.value}\r\n";
+            text += $"main damper: {breastPhysicsMeshUI.groupADamperMultplierSlider.value}\r\n";
             text += $"outer spring: {breastPhysicsMeshUI.groupBSpringMultplierSlider.value}\r\n";
             text += $"outer damper: {breastPhysicsMeshUI.groupBDamperMultplierSlider.value}\r\n";
+            text += $"areola spring: {breastPhysicsMeshUI.groupCSpringMultplierSlider.value}\r\n";
+            text += $"areola damper: {breastPhysicsMeshUI.groupCDamperMultplierSlider.value}\r\n";
+            text += $"nipple spring: {breastPhysicsMeshUI.groupDSpringMultplierSlider.value}\r\n";
+            text += $"nipple damper: {breastPhysicsMeshUI.groupDDamperMultplierSlider.value}\r\n";
             physicsDebugInfo.SetVal(text);
         }
 
