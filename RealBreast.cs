@@ -13,14 +13,17 @@ namespace everlaster
         private DAZPhysicsMesh breastPhysicsMesh;
         private DAZPhysicsMeshUI breastPhysicsMeshUI;
 
-        private float sizeMin = 0.3f;
-        private float sizeMax = 3.0f;
         private List<SizeConfig> sizeMorphs = new List<SizeConfig>();
         private List<GravityConfig> gravityMorphs = new List<GravityConfig>();
 
         //storables
+        private float sizeMin = 0.3f;
+        private float sizeMax = 3.0f;
         protected JSONStorableFloat softness;
+        private float softnessMin = 0.3f;
+        private float softnessMax = 3.0f;
         protected JSONStorableFloat size;
+        protected JSONStorableBool lockSoftnessToSize;
 
         //DebugInfo storables
         protected JSONStorableString angleDebugInfo = new JSONStorableString("Angle Debug Info", "");
@@ -51,7 +54,8 @@ namespace everlaster
 
                 CreateVersionInfoField();
                 InitPluginUI();
-                UpdateBreastPhysicsSettings(softness.val, size.val);
+                InitListeners();
+                UpdateBreastPhysicsSettings(size.val, softness.val);
 
                 InitSizeMorphs();
                 InitGravityMorphs();
@@ -73,16 +77,10 @@ namespace everlaster
 
         void InitPluginUI()
         {
-            softness = CreateFloatSlider("Breast softness", 1f, 0.3f, 3f);
-            softness.slider.onValueChanged.AddListener((float val) =>
-            {
-                UpdateBreastPhysicsSettings(val, size.val);
-            });
             size = CreateFloatSlider("Breast size", 1f, sizeMin, sizeMax);
-            size.slider.onValueChanged.AddListener((float val) =>
-            {
-                UpdateBreastPhysicsSettings(softness.val, val);
-            });
+            softness = CreateFloatSlider("Breast softness", 1f, softnessMin, softnessMax);
+            this.lockSoftnessToSize = new JSONStorableBool("Lock softness to size", true);
+            UIDynamicToggle lockSoftnessToSize = CreateToggle(this.lockSoftnessToSize, false);
 
             //DebugInfo fields
             UIDynamicTextField angleInfo = CreateTextField(angleDebugInfo, false);
@@ -102,6 +100,26 @@ namespace everlaster
             RegisterFloat(storable);
             CreateSlider(storable, false);
             return storable;
+        }
+
+        void InitListeners()
+        {
+            size.slider.onValueChanged.AddListener((float val) =>
+            {
+                if(lockSoftnessToSize.val)
+                {
+                    softness.val = size.val;
+                }
+                UpdateBreastPhysicsSettings(val, softness.val);
+            });
+            softness.slider.onValueChanged.AddListener((float val) =>
+            {
+                if(lockSoftnessToSize.val)
+                {
+                    size.val = softness.val;
+                }
+                UpdateBreastPhysicsSettings(size.val, val);
+            });
         }
 
         // TODO Zero all BuiltIn breast morphs
@@ -367,7 +385,7 @@ namespace everlaster
             breastPhysicsMeshUI.groupDDamperMultplierSlider.value = 1.00f;
         }
 
-        void UpdateBreastPhysicsSettings(float softnessVal, float sizeVal)
+        void UpdateBreastPhysicsSettings(float sizeVal, float softnessVal)
         {
             float sizeFactor = sizeVal - sizeMin;
             //                                                min     size adjustment        softness adjustment
