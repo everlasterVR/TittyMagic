@@ -23,7 +23,7 @@ namespace everlaster
         private float softnessMin = 0.3f;
         private float softnessMax = 3.0f;
         protected JSONStorableFloat size;
-        protected JSONStorableBool lockSoftnessToSize;
+        protected JSONStorableBool linkSizeAndSoftness;
 
         //DebugInfo storables
         protected JSONStorableString angleDebugInfo = new JSONStorableString("Angle Debug Info", "");
@@ -79,8 +79,8 @@ namespace everlaster
         {
             size = CreateFloatSlider("Breast size", 1f, sizeMin, sizeMax);
             softness = CreateFloatSlider("Breast softness", 1f, softnessMin, softnessMax);
-            this.lockSoftnessToSize = new JSONStorableBool("Lock softness to size", true);
-            UIDynamicToggle lockSoftnessToSize = CreateToggle(this.lockSoftnessToSize, false);
+            this.linkSizeAndSoftness = new JSONStorableBool("Link size and softness", true);
+            UIDynamicToggle linkSizeAndSoftnessToggle = CreateToggle(this.linkSizeAndSoftness, false);
 
             //DebugInfo fields
             UIDynamicTextField angleInfo = CreateTextField(angleDebugInfo, false);
@@ -106,7 +106,7 @@ namespace everlaster
         {
             size.slider.onValueChanged.AddListener((float val) =>
             {
-                if(lockSoftnessToSize.val)
+                if(linkSizeAndSoftness.val)
                 {
                     softness.val = size.val;
                 }
@@ -114,7 +114,7 @@ namespace everlaster
             });
             softness.slider.onValueChanged.AddListener((float val) =>
             {
-                if(lockSoftnessToSize.val)
+                if(linkSizeAndSoftness.val)
                 {
                     size.val = softness.val;
                 }
