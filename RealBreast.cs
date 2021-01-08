@@ -23,7 +23,6 @@ namespace everlaster
         private float softnessMin = 0.3f;
         private float softnessMax = 3.0f;
         protected JSONStorableFloat size;
-        protected JSONStorableBool linkSizeAndSoftness;
 
         //DebugInfo storables
         protected JSONStorableString angleDebugInfo = new JSONStorableString("Angle Debug Info", "");
@@ -55,11 +54,12 @@ namespace everlaster
                 CreateVersionInfoField();
                 InitPluginUI();
                 InitListeners();
-                UpdateBreastPhysicsSettings(size.val, softness.val);
 
                 InitSizeMorphs();
                 InitGravityMorphs();
                 SetAllGravityMorphsToZero();
+
+                UpdateBreastPhysicsSettings(size.val, softness.val);
             }
             catch(Exception e)
             {
@@ -78,9 +78,7 @@ namespace everlaster
         void InitPluginUI()
         {
             size = CreateFloatSlider("Breast size", 1f, sizeMin, sizeMax);
-            softness = CreateFloatSlider("Breast softness", 1f, softnessMin, softnessMax);
-            this.linkSizeAndSoftness = new JSONStorableBool("Link size and softness", true);
-            UIDynamicToggle linkSizeAndSoftnessToggle = CreateToggle(this.linkSizeAndSoftness, false);
+            softness = CreateFloatSlider("Breast softness", 1.5f, softnessMin, softnessMax);;
 
             //DebugInfo fields
             UIDynamicTextField angleInfo = CreateTextField(angleDebugInfo, false);
@@ -106,18 +104,10 @@ namespace everlaster
         {
             size.slider.onValueChanged.AddListener((float val) =>
             {
-                if(linkSizeAndSoftness.val)
-                {
-                    softness.val = size.val;
-                }
                 UpdateBreastPhysicsSettings(val, softness.val);
             });
             softness.slider.onValueChanged.AddListener((float val) =>
             {
-                if(linkSizeAndSoftness.val)
-                {
-                    size.val = softness.val;
-                }
                 UpdateBreastPhysicsSettings(size.val, val);
             });
         }
