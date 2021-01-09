@@ -11,7 +11,7 @@ namespace everlaster
         private Transform chest;
         private AdjustJoints breastControl;
         private DAZPhysicsMesh breastPhysicsMesh;
-        private DAZPhysicsMeshUI breastPhysicsMeshUI;
+        private DAZCharacterSelector geometry;
 
         private List<SizeConfig> sizeMorphs = new List<SizeConfig>();
         private List<GravityConfig> gravityMorphs = new List<GravityConfig>();
@@ -23,6 +23,16 @@ namespace everlaster
         private float softnessMin = 0.3f;
         private float softnessMax = 3.0f;
         protected JSONStorableFloat size;
+
+        // physics storables not directly accessible as attributes of DAZPhysicsMesh
+        private JSONStorableFloat mainSpring;
+        private JSONStorableFloat mainDamper;
+        private JSONStorableFloat outerSpring;
+        private JSONStorableFloat outerDamper;
+        private JSONStorableFloat areolaSpring;
+        private JSONStorableFloat areolaDamper;
+        private JSONStorableFloat nippleSpring;
+        private JSONStorableFloat nippleDamper;
 
         //DebugInfo storables
         protected JSONStorableString angleDebugInfo = new JSONStorableString("Angle Debug Info", "");
@@ -39,17 +49,22 @@ namespace everlaster
                     return;
                 }
 
-                JSONStorable geometryStorable = containingAtom.GetStorableByID("geometry");
-                DAZCharacterSelector geometry = geometryStorable as DAZCharacterSelector;
-                JSONStorable breastControlStorable = containingAtom.GetStorableByID("BreastControl");
-                breastControl = breastControlStorable as AdjustJoints;
-                JSONStorable breastPhysicsMeshStorable = containingAtom.GetStorableByID("BreastPhysicsMesh");
-                breastPhysicsMesh = breastPhysicsMeshStorable as DAZPhysicsMesh;
-                breastPhysicsMeshUI = breastPhysicsMesh.UITransform.GetComponentInChildren<DAZPhysicsMeshUI>();
+                breastControl = containingAtom.GetStorableByID("BreastControl") as AdjustJoints;
+                breastPhysicsMesh = containingAtom.GetStorableByID("BreastPhysicsMesh") as DAZPhysicsMesh;
+                geometry = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
+
+                mainSpring = breastPhysicsMesh.GetFloatJSONParam("groupASpringMultiplier");
+                mainDamper = breastPhysicsMesh.GetFloatJSONParam("groupADamperMultiplier");
+                outerSpring = breastPhysicsMesh.GetFloatJSONParam("groupBSpringMultiplier");
+                outerDamper = breastPhysicsMesh.GetFloatJSONParam("groupBDamperMultiplier");
+                areolaSpring = breastPhysicsMesh.GetFloatJSONParam("groupCSpringMultiplier");
+                areolaDamper = breastPhysicsMesh.GetFloatJSONParam("groupCDamperMultiplier");
+                nippleSpring = breastPhysicsMesh.GetFloatJSONParam("groupDSpringMultiplier");
+                nippleDamper = breastPhysicsMesh.GetFloatJSONParam("groupDDamperMultiplier");
 
                 GlobalVar.MORPH_UI = geometry.morphsControlUI;
                 chest = containingAtom.GetStorableByID("chest").transform;
-                SetBreastPhysicsDefaults(geometry);
+                SetBreastPhysicsDefaults();
 
                 CreateVersionInfoField();
                 InitPluginUI();
@@ -352,13 +367,15 @@ namespace everlaster
             });
         }
 
-        void SetBreastPhysicsDefaults(DAZCharacterSelector geometry)
+        void SetBreastPhysicsDefaults()
         {
             geometry.useAuxBreastColliders = true;
 
             // Right/left angle target
             breastControl.targetRotationY = 0f;
             breastControl.targetRotationZ = 0f;
+            breastControl.positionSpringZ = 500f;
+            breastControl.positionDamperZ = 2f;
             // Soft physics on
             breastPhysicsMesh.on = true;
             breastPhysicsMesh.softVerticesUseAutoColliderRadius = true;
@@ -371,31 +388,25 @@ namespace everlaster
             float sizeFactor = sizeVal - sizeMin;
             //                                                 base      size adjustment         softness adjustment
             breastControl.mass                              =  0.10f  + (0.71f  * sizeFactor);
-            breastControl.centerOfGravityPercent            =  0.50f  - (0.05f  * sizeFactor);
-            breastControl.spring                            =  22.0f  + (28.0f  * sizeFactor) - (0.05f * softnessVal);
-            breastControl.damper                            =  1.20f  + (0.28f  * sizeFactor) + (0.12f * softnessVal);
-            breastControl.positionSpringZ                   =  175f   + (150f   * sizeFactor);
-            breastControl.positionDamperZ                   =  50f    + (10f    * sizeFactor);
-            breastControl.targetRotationX                   =  6.00f  - (2.00f  * sizeFactor);
-            breastPhysicsMesh.softVerticesCombinedSpring    =  105f   + (55f    * sizeFactor);
-            breastPhysicsMesh.softVerticesCombinedDamper    =  1.80f;
-            breastPhysicsMesh.softVerticesMass              =  0.06f  + (0.10f  * sizeFactor) - (0.015f * softnessVal * sizeFactor);
-            breastPhysicsMesh.softVerticesBackForce         =  5.0f   + (9.0f   * sizeFactor) - (3.0f   * softnessVal);
-            breastPhysicsMesh.softVerticesBackForceMaxForce =  5.0f   + (3.0f   * sizeFactor) - (1.0f   * softnessVal);
+            breastControl.centerOfGravityPercent            =  0.30f  + (0.05f  * sizeFactor);
+            breastControl.spring                            =  33.0f  + (20.0f  * sizeFactor);
+            breastControl.damper                            =  2.50f  - (0.33f  * sizeFactor);
+            breastControl.targetRotationX                   =  5.50f  - (1.67f  * sizeFactor) - (1.67f  * softnessVal);
+            breastPhysicsMesh.softVerticesCombinedSpring    =  150f   + (55f    * sizeFactor);
+            breastPhysicsMesh.softVerticesCombinedDamper    =  1.20f  + (0.50f  * sizeFactor) + (0.50f  * softnessVal);
+            breastPhysicsMesh.softVerticesMass              =  0.08f  + (0.08f  * sizeFactor);
+            breastPhysicsMesh.softVerticesBackForce         =  4.0f   + (6.0f   * sizeFactor) - (3.0f   * softnessVal);
+            breastPhysicsMesh.softVerticesBackForceMaxForce =  4.0f   + (3.0f   * sizeFactor) - (1.5f   * softnessVal);
             breastPhysicsMesh.softVerticesNormalLimit       =  0.015f + (0.010f * sizeFactor) + (0.010f * softnessVal);
 
-            // Main spring/damper
-            breastPhysicsMeshUI.groupASpringMultplierSlider.value = 1.00f / softnessVal;
-            breastPhysicsMeshUI.groupADamperMultplierSlider.value = 1.00f / softnessVal;
-            // Outer spring/damper
-            breastPhysicsMeshUI.groupBSpringMultplierSlider.value = (1.00f + (0.10f * sizeFactor)) / softnessVal;
-            breastPhysicsMeshUI.groupBDamperMultplierSlider.value = (1.00f + (0.20f * sizeFactor)) / softnessVal;
-            // Areola spring/damper
-            breastPhysicsMeshUI.groupCSpringMultplierSlider.value = 1.00f / (0.90f * softnessVal);
-            breastPhysicsMeshUI.groupCDamperMultplierSlider.value = 1.00f / (0.90f * softnessVal);
-            // Nipple spring/damper
-            breastPhysicsMeshUI.groupDSpringMultplierSlider.value = 1.00f / (0.75f * softnessVal);
-            breastPhysicsMeshUI.groupDDamperMultplierSlider.value = 1.00f / (0.75f * softnessVal);
+            mainSpring.val      =  1.00f / softnessVal;
+            mainDamper.val      =  1.00f / softnessVal;
+            outerSpring.val     = (1.00f + (0.20f * sizeFactor)) / softnessVal;
+            outerDamper.val     = (1.00f + (0.05f * sizeFactor)) / softnessVal;
+            areolaSpring.val    =  1.00f / (0.90f * softnessVal);
+            areolaDamper.val    =  1.00f / (0.90f * softnessVal);
+            nippleSpring.val    =  1.00f / (0.75f * softnessVal);
+            nippleDamper.val    =  1.00f / (0.75f * softnessVal);
         }
 
         public void Update()
@@ -549,8 +560,8 @@ namespace everlaster
             text += $"center of g: {breastControl.centerOfGravityPercent}\r\n";
             text += $"spring: {breastControl.spring}\r\n";
             text += $"damper: {breastControl.damper}\r\n";
-            text += $"in/out spr: {breastControl.positionSpringZ}\r\n";
-            text += $"in/out dmp: {breastControl.positionDamperZ}\r\n";
+            //text += $"in/out spr: {breastControl.positionSpringZ}\r\n";
+            //text += $"in/out dmp: {breastControl.positionDamperZ}\r\n";
             text += $"up/down target: {breastControl.targetRotationX}\r\n";
 
             text += $"back force: {breastPhysicsMesh.softVerticesBackForce}\r\n";
@@ -558,14 +569,14 @@ namespace everlaster
             text += $"fat damper: {breastPhysicsMesh.softVerticesCombinedDamper}\r\n";
             text += $"fat mass: {breastPhysicsMesh.softVerticesMass}\r\n";
             text += $"distance limit: {breastPhysicsMesh.softVerticesNormalLimit}\r\n";
-            text += $"main spring: {breastPhysicsMeshUI.groupASpringMultplierSlider.value}\r\n";
-            text += $"main damper: {breastPhysicsMeshUI.groupADamperMultplierSlider.value}\r\n";
-            text += $"outer spring: {breastPhysicsMeshUI.groupBSpringMultplierSlider.value}\r\n";
-            text += $"outer damper: {breastPhysicsMeshUI.groupBDamperMultplierSlider.value}\r\n";
-            text += $"areola spring: {breastPhysicsMeshUI.groupCSpringMultplierSlider.value}\r\n";
-            text += $"areola damper: {breastPhysicsMeshUI.groupCDamperMultplierSlider.value}\r\n";
-            text += $"nipple spring: {breastPhysicsMeshUI.groupDSpringMultplierSlider.value}\r\n";
-            text += $"nipple damper: {breastPhysicsMeshUI.groupDDamperMultplierSlider.value}\r\n";
+            text += $"main spring: {mainSpring.val}\r\n";
+            text += $"main damper: {mainDamper.val}\r\n";
+            text += $"outer spring: {outerSpring.val}\r\n";
+            text += $"outer damper: {outerDamper.val}\r\n";
+            text += $"areola spring: {areolaSpring.val}\r\n";
+            text += $"areola damper: {areolaDamper.val}\r\n";
+            text += $"nipple spring: {nippleSpring.val}\r\n";
+            text += $"nipple damper: {nippleDamper.val}\r\n";
             physicsDebugInfo.SetVal(text);
         }
 
