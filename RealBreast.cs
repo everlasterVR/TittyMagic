@@ -95,10 +95,6 @@ namespace everlaster
             softness = CreateFloatSlider("Breast softness", 1.5f, softnessMin, softnessMax);;
             sagMultiplier = CreateFloatSlider("Sag multiplier", 1f, 0f, 1.5f);
 
-            RegisterFloat(size);
-            RegisterFloat(softness);
-            RegisterFloat(sagMultiplier);
-
             //DebugInfo fields
             UIDynamicTextField angleInfo = CreateTextField(angleDebugInfo, false);
             angleInfo.height = 100;
