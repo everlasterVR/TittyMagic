@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace everlaster
 {
-    class RealBreast : MVRScript
+    class TitsMagic : MVRScript
     {
-        const string pluginName = "RealBreast";
+        const string pluginName = "TitsMagic";
         const string pluginVersion = "1.0.0";
         private Transform chest;
         private AdjustJoints breastControl;
@@ -96,14 +96,14 @@ namespace everlaster
             sagMultiplier = CreateFloatSlider("Sag multiplier", 1f, 0f, 1.5f);
 
             //DebugInfo fields
-            UIDynamicTextField angleInfo = CreateTextField(angleDebugInfo, false);
-            angleInfo.height = 100;
-            UIDynamicTextField physicsInfo = CreateTextField(physicsDebugInfo, false);
-            physicsInfo.height = 565;
-            physicsInfo.UItext.fontSize = 26;
-            UIDynamicTextField morphInfo = CreateTextField(morphDebugInfo, true);
-            morphInfo.height = 1200;
-            morphInfo.UItext.fontSize = 26;
+            //UIDynamicTextField angleInfo = CreateTextField(angleDebugInfo, false);
+            //angleInfo.height = 100;
+            //UIDynamicTextField physicsInfo = CreateTextField(physicsDebugInfo, false);
+            //physicsInfo.height = 565;
+            //physicsInfo.UItext.fontSize = 26;
+            //UIDynamicTextField morphInfo = CreateTextField(morphDebugInfo, true);
+            //morphInfo.height = 1200;
+            //morphInfo.UItext.fontSize = 26;
         }
 
         JSONStorableFloat CreateFloatSlider(string paramName, float startingValue, float minValue, float maxValue)
@@ -142,12 +142,8 @@ namespace everlaster
             });
         }
 
-        // Probably need to be able to weight the softness effects by size
         void InitGravityMorphs()
         {
-            // TODO lock left/right and up/down etc. control pose morphs
-            // TODO test size/shape morph so it can be zeroed when leaning forward/back -> compensate with neutral size morph
-            //      -> shape sliders that only adjust shape, not size
             gravityMorphs.AddRange(new List<GravityMorphConfig>
             {
                 //    USAGE: AdjustMorphs function
@@ -248,7 +244,6 @@ namespace everlaster
                 }),
             });
 
-            // LEAN_BACK and LEAN_FORWARD morphs
             gravityMorphs.AddRange(new List<GravityMorphConfig>
             {
                 //    USAGE: AdjustMorphs function
@@ -307,7 +302,6 @@ namespace everlaster
                 }),
             });
 
-            // ROLL_LEFT and ROLL_RIGHT morphs
             gravityMorphs.AddRange(new List<GravityMorphConfig>
             {
                 //    USAGE: AdjustMorphs function
@@ -381,16 +375,14 @@ namespace everlaster
             breastPhysicsMesh.softVerticesColliderAdditionalNormalOffset = 0.002f;
         }
 
-        // TODO update targetRotationX based on up/down
-        // TODO update targetRotationY and Z based on forward/back
-        // Completely experimental equations... 
+        
         void UpdateBreastPhysicsSettings(float sizeVal, float softnessVal)
         {
             float sizeFactor = sizeVal - sizeMin;
             float softnessFactor = ((softnessVal - softnessMin) / (softnessMax - softnessMin)); // TODO use this more, or use sliders with values 0...1
-            float sizeFactor2 = ((sizeVal - sizeMin) / (sizeMax - sizeMin)); // TODO use this more, or use sliders with values 0...1
-            //                                                 base      size adjustment         softness adjustment
+            float sizeFactor2 = ((sizeVal - sizeMin) / (sizeMax - sizeMin));
 
+            //                                                 base      size adjustment         softness adjustment
             breastControl.mass                              =  0.10f  + (0.71f  * sizeFactor);
             breastControl.centerOfGravityPercent            =  0.30f  + (0.05f  * sizeFactor);
             breastControl.spring                            =  50f    + (35f    * sizeFactor2) + (15f + (1f - sizeFactor2) * 35f) * (1f - softnessFactor); // kinda hacky
@@ -429,9 +421,9 @@ namespace everlaster
             //-> if person is sideways, pitch related morphs have less effect
             AdjustMorphsForPitch(pitch, (90 - Mathf.Abs(roll)) / 90);
 
-            SetAngleDebugInfo(pitch, roll);
-            SetPhysicsDebugInfo();
-            SetMorphDebugInfo();
+            //SetAngleDebugInfo(pitch, roll);
+            //SetPhysicsDebugInfo();
+            //SetMorphDebugInfo();
         }
 
         void AdjustMorphsForSize()
@@ -503,6 +495,11 @@ namespace everlaster
             }
         }
 
+        float Remap(float angle, float effect)
+        {
+            return angle * effect / 90;
+        }
+
         void SetGravityMorphsToZero(string type)
         {
             foreach(var it in gravityMorphs)
@@ -542,11 +539,6 @@ namespace everlaster
                     );
                 }
             }
-        }
-
-        float Remap(float angle, float effect)
-        {
-            return angle * effect / 90;
         }
 
         void OnDestroy()
