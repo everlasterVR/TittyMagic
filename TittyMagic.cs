@@ -8,6 +8,8 @@ namespace everlaster
     {
         const string pluginName = "TittyMagic";
         const string pluginVersion = "1.0.0";
+
+        private bool enableUpdate;
         private Transform chest;
         private AdjustJoints breastControl;
         private DAZPhysicsMesh breastPhysicsMesh;
@@ -58,6 +60,8 @@ namespace everlaster
                     return;
                 }
 
+                GlobalVar.UPDATE_ENABLED = true;
+
                 breastControl = containingAtom.GetStorableByID("BreastControl") as AdjustJoints;
                 breastPhysicsMesh = containingAtom.GetStorableByID("BreastPhysicsMesh") as DAZPhysicsMesh;
                 geometry = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
@@ -83,6 +87,8 @@ namespace everlaster
                 InitGravityMorphs();
                 SetAllGravityMorphsToZero();
                 UpdateBreastPhysicsSettings(scale.val, softness.val);
+
+                enableUpdate = GlobalVar.UPDATE_ENABLED;
             }
             catch(Exception e)
             {
@@ -114,7 +120,8 @@ namespace everlaster
             string usage = "\n";
             usage += "Breast scale applies size morphs and anchors them to " +
                 "size related physics settings. For best results, breast morphs " +
-                "should be tweaked manually only after setting the scale amount.\n\n";
+                "should be tweaked manually only after setting the scale amount." +
+                "(See the examples below.)\n\n";
             usage += "Breast softness controls soft physics and affects the amount " +
                 "of morph-based sag in different orientations or poses.\n\n";
             usage += "Sag multiplier adjusts the sag produced by Breast softness " +
@@ -629,21 +636,33 @@ namespace everlaster
 
         public void Update()
         {
-            AdjustMorphsForSize();
+            try
+            {
+                if (enableUpdate)
+                {
+                    AdjustMorphsForSize();
 
-            Quaternion q = chest.rotation;
-            float roll = Mathf.Rad2Deg * Mathf.Asin(2 * q.x * q.y + 2 * q.z * q.w);
-            float pitch = Mathf.Rad2Deg * Mathf.Atan2(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * q.x * q.x - 2 * q.z * q.z);
+                    Quaternion q = chest.rotation;
+                    float roll = Mathf.Rad2Deg * Mathf.Asin(2 * q.x * q.y + 2 * q.z * q.w);
+                    float pitch = Mathf.Rad2Deg * Mathf.Atan2(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * q.x * q.x - 2 * q.z * q.z);
 
-            AdjustMorphsForRoll(roll);
+                    AdjustMorphsForRoll(roll);
 
-            // Scale pitch effect by roll angle's distance from 90/-90 = person is sideways
-            //-> if person is sideways, pitch related morphs have less effect
-            AdjustMorphsForPitch(pitch, (90 - Mathf.Abs(roll)) / 90);
+                    // Scale pitch effect by roll angle's distance from 90/-90 = person is sideways
+                    //-> if person is sideways, pitch related morphs have less effect
+                    AdjustMorphsForPitch(pitch, (90 - Mathf.Abs(roll)) / 90);
 
-            //SetAngleDebugInfo(pitch, roll);
-            //SetPhysicsDebugInfo();
-            //SetMorphDebugInfo();
+                    //SetAngleDebugInfo(pitch, roll);
+                    //SetPhysicsDebugInfo();
+                    //SetMorphDebugInfo();
+                }
+            }
+            catch(Exception e)
+            {
+                SuperController.LogError("Exception caught: " + e);
+                GlobalVar.UPDATE_ENABLED = false;
+                enableUpdate = GlobalVar.UPDATE_ENABLED;
+            }
         }
 
         void AdjustMorphsForSize()
@@ -858,6 +877,7 @@ namespace everlaster
 
     public static class GlobalVar
     {
+        public static bool UPDATE_ENABLED { get; set; }
         public static GenerateDAZMorphsControlUI MORPH_UI { get; set; }
     }
 
@@ -884,6 +904,10 @@ namespace everlaster
             Morph = GlobalVar.MORPH_UI.GetMorphByDisplayName(name);
             BaseMulti = baseMulti;
             StartValue = startValue;
+            if(Morph == null)
+            {
+                SuperController.LogError($"Morph with name {name} not found!");
+            }
         }
 
         override
@@ -905,6 +929,10 @@ namespace everlaster
             Name = name;
             Morph = GlobalVar.MORPH_UI.GetMorphByDisplayName(name);
             Multipliers = multipliers;
+            if (Morph == null)
+            {
+                SuperController.LogError($"Morph with name {name} not found!");
+            }
         }
 
         override
