@@ -7,9 +7,10 @@ namespace everlaster
     class TittyMagic : MVRScript
     {
         const string pluginName = "TittyMagic";
-        const string pluginVersion = "1.0.0";
+        const string pluginVersion = "1.1.0";
 
         private bool enableUpdate;
+        private bool enableDebug = false;
         private Transform chest;
         private AdjustJoints breastControl;
         private DAZPhysicsMesh breastPhysicsMesh;
@@ -31,7 +32,7 @@ namespace everlaster
         private float softnessDefault = 1.5f;
         private float softnessMax = 3.0f;
         protected JSONStorableFloat scale;
-        private float sagDefault = 1.0f;
+        private float sagDefault = 1.2f;
         protected JSONStorableFloat sagMultiplier;
         protected JSONStorableString logInfo;
         
@@ -79,7 +80,8 @@ namespace everlaster
                 chest = containingAtom.GetStorableByID("chest").transform;
                 SetBreastPhysicsDefaults();
 
-                InitPluginUI();
+                InitPluginUILeft();
+                InitPluginUIRight();
                 InitListeners();
 
                 InitSizeMorphs();
@@ -96,55 +98,68 @@ namespace everlaster
             }
         }
 
-        void InitPluginUI()
+        void InitPluginUILeft()
         {
-            // UI left
             JSONStorableString versionH1 = NewTextField("Version Info", 40);
             versionH1.SetVal($"{pluginName} {pluginVersion}");
+
             scale = NewFloatSlider("Breast scale", scaleDefault, scaleMin, scaleMax);
-            softness = NewFloatSlider("Breast softness", softnessDefault, softnessMin, softnessMax);;
+            softness = NewFloatSlider("Breast softness", softnessDefault, softnessMin, softnessMax);
 
             CreateNewSpacer(10f);
 
             sagMultiplier = NewFloatSlider("Sag multiplier", sagDefault, 0f, 2.0f);
 
-            CreateNewSpacer(10f);
+            if(enableDebug)
+            {
+                UIDynamicTextField angleInfo = CreateTextField(angleDebugInfo, false);
+                angleInfo.height = 100;
+                angleInfo.UItext.fontSize = 26;
+                UIDynamicTextField physicsInfo = CreateTextField(physicsDebugInfo, false);
+                physicsInfo.height = 540;
+                physicsInfo.UItext.fontSize = 26;
+            }
+            else
+            {
+                CreateNewSpacer(10f);
 
-            JSONStorableString presetsH2 = NewTextField("Example Settings", 34);
-            presetsH2.SetVal("\nExample settings");
+                JSONStorableString presetsH2 = NewTextField("Example Settings", 34);
+                presetsH2.SetVal("\nExample settings");
 
-            CreateExampleButtons();
+                CreateExampleButtons();
+            }
+        }
 
-            // UI right
-            JSONStorableString usageInfo = NewTextField("Usage Info Area", 28, 530, true);
-            string usage = "\n";
-            usage += "Breast scale applies size morphs and anchors them to " +
-                "size related physics settings. For best results, breast morphs " +
-                "should be tweaked manually only after setting the scale amount." +
-                "(See the examples below.)\n\n";
-            usage += "Breast softness controls soft physics and affects the amount " +
-                "of morph-based sag in different orientations or poses.\n\n";
-            usage += "Sag multiplier adjusts the sag produced by Breast softness " +
-                "independently of soft physics.";
-            usageInfo.SetVal(usage);
+        void InitPluginUIRight()
+        {
+            if(enableDebug)
+            {
+                UIDynamicTextField morphInfo = CreateTextField(morphDebugInfo, true);
+                morphInfo.height = 1200;
+                morphInfo.UItext.fontSize = 26;
+            }
+            else
+            {
+                JSONStorableString usageInfo = NewTextField("Usage Info Area", 28, 530, true);
+                string usage = "\n";
+                usage += "Breast scale applies size morphs and anchors them to " +
+                    "size related physics settings. For best results, breast morphs " +
+                    "should be tweaked manually only after setting the scale amount." +
+                    "(See the examples below.)\n\n";
+                usage += "Breast softness controls soft physics and affects the amount " +
+                    "of morph-based sag in different orientations or poses.\n\n";
+                usage += "Sag multiplier adjusts the sag produced by Breast softness " +
+                    "independently of soft physics.";
+                usageInfo.SetVal(usage);
 
-            CreateNewSpacer(10f, true);
+                CreateNewSpacer(10f, true);
 
-            JSONStorableString presetsInfo = NewTextField("Example Settings", 28, 100, true);
-            presetsInfo.SetVal("\nSet breast morphs to defaults before applying example settings.");
+                JSONStorableString presetsInfo = NewTextField("Example Settings", 28, 100, true);
+                presetsInfo.SetVal("\nSet breast morphs to defaults before applying example settings.");
 
-            logInfo = NewTextField("Log Info Area", 28, 515, true);
-            logInfo.SetVal("\n");
-
-            //DebugInfo fields
-            //UIDynamicTextField angleInfo = CreateTextField(angleDebugInfo, false);
-            //angleInfo.height = 100;
-            //UIDynamicTextField physicsInfo = CreateTextField(physicsDebugInfo, false);
-            //physicsInfo.height = 565;
-            //physicsInfo.UItext.fontSize = 26;
-            //UIDynamicTextField morphInfo = CreateTextField(morphDebugInfo, true);
-            //morphInfo.height = 1200;
-            //morphInfo.UItext.fontSize = 26;
+                logInfo = NewTextField("Log Info Area", 28, 515, true);
+                logInfo.SetVal("\n");
+            }
         }
 
         JSONStorableFloat NewFloatSlider(string paramName, float startingValue, float minValue, float maxValue)
@@ -330,7 +345,6 @@ namespace everlaster
             });
             example3Morphs.AddRange(new List<MorphConfig>
             {
-                
                 new MorphConfig("Breast diameter",           0.500f),
                 new MorphConfig("Breast Round",             -0.250f),
                 new MorphConfig("Breast Under Smoother3",   -0.350f),
@@ -373,98 +387,97 @@ namespace everlaster
             {
                 //    USAGE: AdjustMorphs function
                 //    angle type                            base       softness   scale
-                new GravityMorphConfig("Areola UpDown", new Dictionary<string, float?[]> {
-                    { Types.UPSIDE_DOWN, new float?[]    { -0.33f,     1.80f,     0.20f } },
-                }),
-                new GravityMorphConfig("TM_Center Gap Depth", new Dictionary<string, float?[]> {
-                    { Types.UPSIDE_DOWN, new float?[]    {  0.05f,     1.00f,     1.00f } },
-                }),
-                new GravityMorphConfig("TM_Center Gap Height", new Dictionary<string, float?[]> {
-                    { Types.UPSIDE_DOWN, new float?[]    {  0.10f,     1.00f,     1.00f } },
-                }),
-                new GravityMorphConfig("TM_Center Gap UpDown", new Dictionary<string, float?[]> {
-                    { Types.UPSIDE_DOWN, new float?[]    {  0.10f,     1.00f,     1.00f } },
-                }),
-                new GravityMorphConfig("TM_Chest Smoother", new Dictionary<string, float?[]> {
-                    { Types.UPSIDE_DOWN, new float?[]    {  0.15f,     1.00f,     1.00f } },
-                }),
-                new GravityMorphConfig("TM_ChestUnderBreast", new Dictionary<string, float?[]> {
-                    { Types.UPSIDE_DOWN, new float?[]    {  0.05f,     1.50f,     0.50f } },
-                }),
-                new GravityMorphConfig("TM_ChestUp", new Dictionary<string, float?[]> {
-                    { Types.UPSIDE_DOWN, new float?[]    {  0.04f,     1.75f,     0.25f } },
-                }),
-                new GravityMorphConfig("TM_Breast Diameter", new Dictionary<string, float?[]> {
-                    { Types.UPSIDE_DOWN, new float?[]    {  0.10f,     1.00f,     1.00f } },
-                }),
-                new GravityMorphConfig("TM_Breast flat", new Dictionary<string, float?[]> {
-                    { Types.UPSIDE_DOWN, new float?[]    {  0.10f,     1.25f,     0.75f } },
-                }),
-                new GravityMorphConfig("TM_Breast Height", new Dictionary<string, float?[]> {
-                    { Types.UPSIDE_DOWN, new float?[]    {  0.10f,     2.00f,     null } },
-                }),
-                new GravityMorphConfig("Breast Move Up Left", new Dictionary<string, float?[]> {
-                    { Types.UPRIGHT, new float?[]        { -0.10f,     0.67f,     1.33f } },
-                    { Types.UPSIDE_DOWN, new float?[]    {  0.15f,     1.40f,     0.60f } },
-                }),
-                new GravityMorphConfig("Breast Move Up Right", new Dictionary<string, float?[]> {
-                    { Types.UPRIGHT, new float?[]        { -0.10f,     0.67f,     1.33f } },
-                    { Types.UPSIDE_DOWN, new float?[]    {  0.15f,     1.40f,     0.60f } },
-                }),
-                new GravityMorphConfig("TM_Breast Pointed", new Dictionary<string, float?[]> {
-                    { Types.UPSIDE_DOWN, new float?[]    {  0.25f,    -0.25f,     1.00f } },
-                }),
-                new GravityMorphConfig("Breast Rotate Up Left", new Dictionary<string, float?[]> {
-                    { Types.UPRIGHT, new float?[]        {  0.10f,     0.00f,     2.00f } },
-                    { Types.UPSIDE_DOWN, new float?[]    {  0.10f,     1.90f,     0.10f } },
-                }),
-                new GravityMorphConfig("Breast Rotate Up Right", new Dictionary<string, float?[]> {
-                    { Types.UPRIGHT, new float?[]        {  0.10f,     0.00f,     2.00f } },
-                    { Types.UPSIDE_DOWN, new float?[]    {  0.10f,     1.90f,     0.10f } },
+                //    Main sag morphs
+                new GravityMorphConfig("TM_Breast Move Up", new Dictionary<string, float?[]> {
+                    { Types.UPRIGHT, new float?[]        { -0.07f,     1.67f,     0.33f } },
+                    { Types.UPSIDE_DOWN, new float?[]    {  0.07f,     1.67f,     0.33f } },
                 }),
                 new GravityMorphConfig("TM_Breast Sag1", new Dictionary<string, float?[]> {
-                    { Types.UPSIDE_DOWN, new float?[]    { -0.06f,     1.25f,     0.75f } },
+                    { Types.UPSIDE_DOWN, new float?[]    { -0.03f,     1.25f,     0.75f } },
                 }),
                 new GravityMorphConfig("TM_Breast Sag2", new Dictionary<string, float?[]> {
-                    { Types.UPSIDE_DOWN, new float?[]    { -0.15f,     1.25f,     0.75f } },
+                    { Types.UPSIDE_DOWN, new float?[]    { -0.05f,     1.25f,     0.75f } },
+                }),
+                new GravityMorphConfig("TM_Breasts Hang Forward", new Dictionary<string, float?[]> {
+                    { Types.UPSIDE_DOWN, new float?[]    {  0.05f,     1.50f,     0.80f } },
+                }),
+                new GravityMorphConfig("TM_Breasts Natural", new Dictionary<string, float?[]> {
+                    { Types.UPRIGHT, new float?[]        {  0.08f,     2.00f,     0.00f } },
+                    { Types.UPSIDE_DOWN, new float?[]    { -0.04f,     2.00f,     0.00f } },
+                }),
+                new GravityMorphConfig("TM_Breasts TogetherApart", new Dictionary<string, float?[]> {
+                    { Types.UPSIDE_DOWN, new float?[]    {  0.10f,     1.50f,     0.80f } },
+                }),
+
+                //    Tweak morphs
+                new GravityMorphConfig("TM_Areola UpDown", new Dictionary<string, float?[]> {
+                    { Types.UPSIDE_DOWN, new float?[]    { -0.15f,     1.33f,     0.67f } },
+                }),
+                new GravityMorphConfig("TM_Center Gap Depth", new Dictionary<string, float?[]> {
+                    { Types.UPSIDE_DOWN, new float?[]    {  0.05f,     0.50f,     1.50f } },
+                }),
+                new GravityMorphConfig("TM_Center Gap Height", new Dictionary<string, float?[]> {
+                    { Types.UPSIDE_DOWN, new float?[]    {  0.10f,     0.50f,     1.50f } },
+                }),
+                new GravityMorphConfig("TM_Center Gap UpDown", new Dictionary<string, float?[]> {
+                    { Types.UPSIDE_DOWN, new float?[]    {  0.10f,     0.50f,     1.50f } },
+                }),
+                new GravityMorphConfig("TM_Chest Smoother", new Dictionary<string, float?[]> {
+                    { Types.UPSIDE_DOWN, new float?[]    {  0.10f,     0.75f,     1.25f } },
+                }),
+                new GravityMorphConfig("TM_ChestUnderBreast", new Dictionary<string, float?[]> {
+                    { Types.UPSIDE_DOWN, new float?[]    {  0.15f,     1.75f,     0.25f } },
+                }),
+                new GravityMorphConfig("TM_ChestUp", new Dictionary<string, float?[]> {
+                    { Types.UPSIDE_DOWN, new float?[]    {  0.05f,     1.75f,     0.25f } },
+                }),
+                new GravityMorphConfig("TM_ChestUpperNarrow", new Dictionary<string, float?[]> {
+                    { Types.UPSIDE_DOWN, new float?[]    {  0.10f,     1.75f,     0.25f } },
+                }),
+                new GravityMorphConfig("TM_Breast Diameter", new Dictionary<string, float?[]> {
+                    { Types.UPSIDE_DOWN, new float?[]    {  0.05f,     1.50f,     0.50f } },
+                }),
+                new GravityMorphConfig("TM_Breast flat", new Dictionary<string, float?[]> {
+                    { Types.UPSIDE_DOWN, new float?[]    {  0.08f,     1.50f,     0.50f } },
+                }),
+                new GravityMorphConfig("TM_Breast Height", new Dictionary<string, float?[]> {
+                    { Types.UPSIDE_DOWN, new float?[]    {  0.10f,     2.00f,     0.00f } },
+                }),
+                new GravityMorphConfig("TM_Breast Pointed", new Dictionary<string, float?[]> {
+                    { Types.UPSIDE_DOWN, new float?[]    {  0.33f,     0.00f,     1.00f } },
+                }),
+                new GravityMorphConfig("TM_Breast Rotate Up", new Dictionary<string, float?[]> {
+                    { Types.UPRIGHT, new float?[]        {  0.15f,     0.80f,     1.20f } },
+                    { Types.UPSIDE_DOWN, new float?[]    {  0.25f,     1.50f,     0.50f } },
                 }),
                 new GravityMorphConfig("TM_Breast Top Curve1", new Dictionary<string, float?[]> {
-                    { Types.UPSIDE_DOWN, new float?[]    { -0.04f,     1.50f,     0.50f } },
+                    { Types.UPSIDE_DOWN, new float?[]    { -0.04f,     2.00f,    -0.50f } },
                 }),
                 new GravityMorphConfig("TM_Breast Top Curve2", new Dictionary<string, float?[]> {
-                    { Types.UPSIDE_DOWN, new float?[]    { -0.06f,     1.50f,     0.50f } },
+                    { Types.UPSIDE_DOWN, new float?[]    { -0.06f,     2.00f,     0.50f } },
                 }),
                 new GravityMorphConfig("TM_Breast Under Smoother1", new Dictionary<string, float?[]> {
                     { Types.UPRIGHT, new float?[]        { -0.04f,     0.50f,     1.50f } },
-                    { Types.UPSIDE_DOWN, new float?[]    {  0.15f,     1.00f,     null } },
+                    { Types.UPSIDE_DOWN, new float?[]    {  0.45f,     0.60f,     1.40f } },
                 }),
                 new GravityMorphConfig("TM_Breast Under Smoother3", new Dictionary<string, float?[]> {
-                    { Types.UPRIGHT, new float?[]        { -0.15f,     0.50f,     1.50f } },
-                    { Types.UPSIDE_DOWN, new float?[]    {  0.40f,     1.00f,     null } },
+                    { Types.UPRIGHT, new float?[]        { -0.08f,     1.00f,     1.00f } },
+                    { Types.UPSIDE_DOWN, new float?[]    {  0.20f,     1.00f,    -1.00f } },
                 }),
                 new GravityMorphConfig("TM_Breasts Flatten", new Dictionary<string, float?[]> {
-                    { Types.UPSIDE_DOWN, new float?[]    {  0.10f,     1.25f,     0.75f } },
-                }),
-                new GravityMorphConfig("TM_Breasts Hang Forward", new Dictionary<string, float?[]> {
-                    { Types.UPSIDE_DOWN, new float?[]    {  0.25f,     1.00f,     1.00f } },
+                    { Types.UPSIDE_DOWN, new float?[]    {  0.10f,     1.40f,     0.60f } },
                 }),
                 new GravityMorphConfig("TM_Breasts Height", new Dictionary<string, float?[]> {
                     { Types.UPSIDE_DOWN, new float?[]    {  0.10f,     1.50f,     0.50f } },
                 }),
                 new GravityMorphConfig("TM_Breasts Implants", new Dictionary<string, float?[]> {
-                    { Types.UPSIDE_DOWN, new float?[]    { -0.10f,     1.33f,     0.66f } },
-                }),
-                new GravityMorphConfig("TM_Breasts Natural", new Dictionary<string, float?[]> {
-                    { Types.UPRIGHT, new float?[]        {  0.12f,     2.00f,     0.00f } },
-                }),
-                new GravityMorphConfig("TM_Breasts TogetherApart", new Dictionary<string, float?[]> {
-                    { Types.UPSIDE_DOWN, new float?[]    {  0.15f,     1.00f,     1.00f } },
+                    { Types.UPSIDE_DOWN, new float?[]    { -0.05f,     1.50f,     0.50f } },
                 }),
                 new GravityMorphConfig("TM_Breasts Upward Slope", new Dictionary<string, float?[]> {
-                    { Types.UPSIDE_DOWN, new float?[]    {  0.45f,     1.20f,     0.80f } },
+                    { Types.UPSIDE_DOWN, new float?[]    {  0.15f,     1.20f,     0.80f } },
                 }),
                 new GravityMorphConfig("TM_BreastsShape2", new Dictionary<string, float?[]> {
-                    { Types.UPSIDE_DOWN, new float?[]    {  0.50f,     0.33f,     1.67f } },
+                    { Types.UPSIDE_DOWN, new float?[]    {  0.50f,     0.67f,     1.33f } },
                 }),
                 new GravityMorphConfig("TM_Sternum Height", new Dictionary<string, float?[]> {
                     { Types.UPSIDE_DOWN, new float?[]    { -0.30f,     null,     null } },
@@ -475,6 +488,24 @@ namespace everlaster
             {
                 //    USAGE: AdjustMorphs function
                 //    angle type                            base       softness   scale
+                new GravityMorphConfig("TM_Breast Depth Left", new Dictionary<string, float?[]> {
+                    { Types.LEAN_FORWARD, new float?[]   {  0.22f,     1.50f,     0.50f } },
+                }),
+                new GravityMorphConfig("TM_Breast Depth Right", new Dictionary<string, float?[]> {
+                    { Types.LEAN_FORWARD, new float?[]   {  0.22f,     1.50f,     0.50f } },
+                }),
+                new GravityMorphConfig("TM_Breast Depth Squash Left", new Dictionary<string, float?[]> {
+                    { Types.LEAN_BACK, new float?[]      { -0.20f,     2.00f,     0.00f } },
+                }),
+                new GravityMorphConfig("TM_Breast Depth Squash Right", new Dictionary<string, float?[]> {
+                    { Types.LEAN_BACK, new float?[]      { -0.20f,     2.00f,     0.00f } },
+                }),
+                new GravityMorphConfig("TM_Breast Diameter Left", new Dictionary<string, float?[]> {
+                    { Types.LEAN_FORWARD, new float?[]   {  0.22f,     1.50f,     0.50f } },
+                }),
+                new GravityMorphConfig("TM_Breast Diameter Right", new Dictionary<string, float?[]> {
+                    { Types.LEAN_FORWARD, new float?[]   {  0.22f,     1.50f,     0.50f } },
+                }),
                 new GravityMorphConfig("TM_Breast Diameter (Copy)", new Dictionary<string, float?[]> {
                     { Types.LEAN_BACK, new float?[]      {  0.08f,     1.50f,     0.50f } },
                     { Types.LEAN_FORWARD, new float?[]   { -0.04f,     1.50f,     0.50f } },
@@ -493,23 +524,22 @@ namespace everlaster
                 new GravityMorphConfig("TM_Breast Under Smoother3 (Copy)", new Dictionary<string, float?[]> {
                     { Types.LEAN_BACK, new float?[]      { -0.10f,     1.00f,     1.00f } },
                 }),
-                new GravityMorphConfig("Breasts Depth", new Dictionary<string, float?[]> {
-                    { Types.LEAN_FORWARD, new float?[]   {  0.22f,     1.50f,     0.50f } },
-                    { Types.LEAN_BACK, new float?[]      { -0.20f,     2.00f,     0.00f } },
+                new GravityMorphConfig("TM_Breast Move S2S Out Left", new Dictionary<string, float?[]> {
+                    { Types.LEAN_BACK, new float?[]      {  0.08f,     1.50f,     0.50f } },
                 }),
-                new GravityMorphConfig("TM_Breasts Flatten", new Dictionary<string, float?[]> {
+                new GravityMorphConfig("TM_Breast Move S2S Out Right", new Dictionary<string, float?[]> {
+                    { Types.LEAN_BACK, new float?[]      {  0.08f,     1.50f,     0.50f } },
+                }),
+                new GravityMorphConfig("TM_Breasts Flatten (Copy)", new Dictionary<string, float?[]> {
                     { Types.LEAN_BACK, new float?[]      {  0.25f,     1.67f,     0.33f } },
                 }),
-                new GravityMorphConfig("TM_Breasts Height", new Dictionary<string, float?[]> {
+                new GravityMorphConfig("TM_Breasts Height (Copy)", new Dictionary<string, float?[]> {
                     { Types.LEAN_FORWARD, new float?[]   { -0.18f,     1.50f,     0.50f } },
                 }),
-                new GravityMorphConfig("TM_Breasts Hang Forward", new Dictionary<string, float?[]> {
+                new GravityMorphConfig("TM_Breasts Hang Forward (Copy)", new Dictionary<string, float?[]> {
                     { Types.LEAN_FORWARD, new float?[]   {  0.05f,     1.50f,     0.50f } },
                 }),
-                new GravityMorphConfig("Breasts Move S2S Op", new Dictionary<string, float?[]> {
-                    { Types.LEAN_BACK, new float?[]      { -0.08f,     1.50f,     0.50f } },
-                }),
-                new GravityMorphConfig("TM_Breasts TogetherApart", new Dictionary<string, float?[]> {
+                new GravityMorphConfig("TM_Breasts TogetherApart (Copy)", new Dictionary<string, float?[]> {
                     { Types.LEAN_FORWARD, new float?[]   {  0.20f,     1.75f,     0.25f  } },
                 }),
                 new GravityMorphConfig("TM_Chest Smoother (Copy)", new Dictionary<string, float?[]> {
@@ -521,7 +551,7 @@ namespace everlaster
                 new GravityMorphConfig("TM_ChestSmoothCenter", new Dictionary<string, float?[]> {
                     { Types.LEAN_BACK, new float?[]      {  0.15f,     1.67f,     0.33f } },
                 }),
-                new GravityMorphConfig("TM_ChestUp", new Dictionary<string, float?[]> {
+                new GravityMorphConfig("TM_ChestUp (Copy)", new Dictionary<string, float?[]> {
                     { Types.LEAN_BACK, new float?[]      {  0.20f,     1.00f,     1.00f } },
                 }),
                 new GravityMorphConfig("TM_Sternum Width", new Dictionary<string, float?[]> {
@@ -535,56 +565,50 @@ namespace everlaster
                 //    USAGE: AdjustMorphs function
                 //    angle type                            base       softness   scale
                 new GravityMorphConfig("TM_Areola S2S Left", new Dictionary<string, float?[]> {
-                    { Types.ROLL_LEFT, new float?[]      { -0.60f,     1.83f,     0.17f } },
-                    { Types.ROLL_RIGHT, new float?[]     {  0.60f,     1.83f,     0.17f } },
+                    { Types.ROLL_LEFT, new float?[]      { -0.40f,     1.50f,     0.50f } },
+                    { Types.ROLL_RIGHT, new float?[]     {  0.40f,     1.50f,     0.50f } },
                 }),
                 new GravityMorphConfig("TM_Areola S2S Right", new Dictionary<string, float?[]> {
-                    { Types.ROLL_LEFT, new float?[]      {  0.60f,     1.83f,     0.17f } },
-                    { Types.ROLL_RIGHT, new float?[]     { -0.60f,     1.83f,     0.17f } },
-                }),
-                new GravityMorphConfig("TM_Breasts Shift S2S Left", new Dictionary<string, float?[]> {
-                    { Types.ROLL_LEFT, new float?[]      {  0.25f,     1.00f,     1.00f } },
-                }),
-                new GravityMorphConfig("TM_Breasts Shift S2S Right", new Dictionary<string, float?[]> {
-                    { Types.ROLL_RIGHT, new float?[]     {  0.25f,     1.00f,     1.00f } },
+                    { Types.ROLL_LEFT, new float?[]      {  0.40f,     1.50f,     0.50f } },
+                    { Types.ROLL_RIGHT, new float?[]     { -0.40f,     1.50f,     0.50f } },
                 }),
                 new GravityMorphConfig("TM_Breast Move S2S In Left", new Dictionary<string, float?[]> {
-                    { Types.ROLL_RIGHT, new float?[]     {  0.08f,     1.50f,     0.50f } },
+                    { Types.ROLL_RIGHT, new float?[]     {  0.28f,     1.50f,     0.50f } },
                 }),
                 new GravityMorphConfig("TM_Breast Move S2S In Right", new Dictionary<string, float?[]> {
-                    { Types.ROLL_LEFT, new float?[]      {  0.08f,     1.50f,     0.50f } },
+                    { Types.ROLL_LEFT, new float?[]      {  0.28f,     1.50f,     0.50f } },
                 }),
-                new GravityMorphConfig("TM_Breast Move S2S Out Left", new Dictionary<string, float?[]> {
-                    { Types.ROLL_LEFT, new float?[]      {  0.16f,     1.50f,     0.50f } },
+                new GravityMorphConfig("TM_Breast Move S2S Out Left (Copy)", new Dictionary<string, float?[]> {
+                    { Types.ROLL_LEFT, new float?[]      {  0.40f,     1.50f,     0.50f } },
                 }),
-                new GravityMorphConfig("TM_Breast Move S2S Out Right", new Dictionary<string, float?[]> {
-                    { Types.ROLL_RIGHT, new float?[]     {  0.16f,     1.50f,     0.50f } },
+                new GravityMorphConfig("TM_Breast Move S2S Out Right (Copy)", new Dictionary<string, float?[]> {
+                    { Types.ROLL_RIGHT, new float?[]     {  0.40f,     1.50f,     0.50f } },
                 }),
-                new GravityMorphConfig("Breast Rotate X In Left", new Dictionary<string, float?[]> {
+                new GravityMorphConfig("TM_Breast Rotate X In Left", new Dictionary<string, float?[]> {
                     { Types.ROLL_RIGHT, new float?[]     {  0.10f,     2.00f,     0.00f } },
                 }),
-                new GravityMorphConfig("Breast Rotate X In Right", new Dictionary<string, float?[]> {
+                new GravityMorphConfig("TM_Breast Rotate X In Right", new Dictionary<string, float?[]> {
                     { Types.ROLL_LEFT, new float?[]      {  0.10f,     2.00f,     0.00f } },
                 }),
-                new GravityMorphConfig("TM_Breasts Diameter", new Dictionary<string, float?[]> {
-                    { Types.ROLL_LEFT, new float?[]      { -0.06f,     2.00f,     0.00f } },
-                    { Types.ROLL_RIGHT, new float?[]     { -0.06f,     2.00f,     0.00f } },
-                }),
                 new GravityMorphConfig("TM_Breast Width Left", new Dictionary<string, float?[]> {
-                    { Types.ROLL_LEFT, new float?[]      { -0.20f,     1.75f,     0.25f } },
-                    { Types.ROLL_RIGHT, new float?[]     {  0.12f,     1.75f,     0.25f } },
+                    { Types.ROLL_LEFT, new float?[]      { -0.03f,     1.60f,     0.40f } },
+                    { Types.ROLL_RIGHT, new float?[]     {  0.07f,     1.60f,     0.40f } },
                 }),
                 new GravityMorphConfig("TM_Breast Width Right", new Dictionary<string, float?[]> {
-                    { Types.ROLL_LEFT, new float?[]      {  0.12f,     1.75f,     0.25f } },
-                    { Types.ROLL_RIGHT, new float?[]     { -0.20f,     1.75f,     0.25f } },
+                    { Types.ROLL_LEFT, new float?[]      {  0.07f,     1.60f,     0.40f } },
+                    { Types.ROLL_RIGHT, new float?[]     { -0.03f,     1.60f,     0.40f } },
+                }),
+                new GravityMorphConfig("TM_Breasts Diameter", new Dictionary<string, float?[]> {
+                    { Types.ROLL_LEFT, new float?[]      { -0.05f,     1.60f,     0.40f } },
+                    { Types.ROLL_RIGHT, new float?[]     { -0.05f,     1.60f,     0.40f } },
                 }),
                 new GravityMorphConfig("TM_Centre Gap Narrow", new Dictionary<string, float?[]> {
-                    { Types.ROLL_LEFT, new float?[]      {  0.25f,     1.75f,     0.25f } },
-                    { Types.ROLL_RIGHT, new float?[]     {  0.25f,     1.75f,     0.25f } },
+                    { Types.ROLL_LEFT, new float?[]      {  0.10f,     1.75f,     0.25f } },
+                    { Types.ROLL_RIGHT, new float?[]     {  0.10f,     1.75f,     0.25f } },
                 }),
                 new GravityMorphConfig("TM_Center Gap Smooth", new Dictionary<string, float?[]> {
-                    { Types.ROLL_LEFT, new float?[]      {  0.30f,     1.75f,     0.25f } },
-                    { Types.ROLL_RIGHT, new float?[]     {  0.30f,     1.75f,     0.25f } },
+                    { Types.ROLL_LEFT, new float?[]      {  0.20f,     1.75f,     0.25f } },
+                    { Types.ROLL_RIGHT, new float?[]     {  0.20f,     1.75f,     0.25f } },
                 }),
             });
         }
@@ -652,9 +676,12 @@ namespace everlaster
                     //-> if person is sideways, pitch related morphs have less effect
                     AdjustMorphsForPitch(pitch, (90 - Mathf.Abs(roll)) / 90);
 
-                    //SetAngleDebugInfo(pitch, roll);
-                    //SetPhysicsDebugInfo();
-                    //SetMorphDebugInfo();
+                    if (enableDebug)
+                    {
+                        SetAngleDebugInfo(pitch, roll);
+                        SetPhysicsDebugInfo();
+                        SetMorphDebugInfo();
+                    }
                 }
             }
             catch(Exception e)
@@ -798,11 +825,19 @@ namespace everlaster
                     //      - if null, slider setting is ignored
                     float softnessFactor = m[1].HasValue ? (float) m[1] * softness.val : 1;
                     float scaleFactor = m[2].HasValue ? (float) m[2] * scale.val : 1;
-
-                    it.Morph.morphValue = sagMultiplier.val * (float) m[0] * (
+                    
+                    float morphValue = sagMultiplier.val * (float) m[0] * (
                         (softnessFactor * effect / 2) +
                         (scaleFactor * effect / 2)
                     );
+                    if (morphValue > 0)
+                    {
+                        it.Morph.morphValue = morphValue >= 1.33f ? 1.33f : morphValue;
+                    }
+                    else
+                    {
+                        it.Morph.morphValue = morphValue < -1.33f ? -1.33f : morphValue;
+                    }
                 }
             }
         }
@@ -817,11 +852,21 @@ namespace everlaster
 
                     float softnessFactor = m[1].HasValue ? (float) m[1] * softness.val : 1;
                     float scaleFactor = m[2].HasValue ? (float) m[2] * scale.val : 1;
-                    float sagMultiplierVal = sagMultiplier.val >= 1 ? 1 : sagMultiplier.val;
-                    it.Morph.morphValue = sagMultiplier.val * (float) m[0] * (
+                    float sagMultiplierVal = sagMultiplier.val >= 1 ?
+                        1 + (sagMultiplier.val - 1) / 2 :
+                        sagMultiplier.val;
+                    float morphValue = sagMultiplierVal * (float) m[0] * (
                         (softnessFactor * effect / 2) +
                         (scaleFactor * effect / 2)
                     );
+                    if(morphValue > 0)
+                    {
+                        it.Morph.morphValue = morphValue >= 1.33f ? 1.33f : morphValue;
+                    }
+                    else
+                    {
+                        it.Morph.morphValue = morphValue < -1.33f ? -1.33f : morphValue;
+                    }
                 }
             }
         }
@@ -865,11 +910,10 @@ namespace everlaster
 
         void SetMorphDebugInfo()
         {
-            string separator = "======================\n";
             string text = "";
-            text += $"{separator}  SIZE MORPHS\n{separator}";
+            text += "SIZE MORPHS\n";
             foreach(var it in sizeMorphs) text = text + it.ToString() + "\n";
-            text += $"{separator}  GRAVITY MORPHS\n{separator}";
+            text += "\nGRAVITY MORPHS\n";
             foreach(var it in gravityMorphs) text = text + it.ToString() + "\n";
             morphDebugInfo.SetVal(text);
         }
