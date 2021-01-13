@@ -1,4 +1,5 @@
-﻿using System;
+﻿//#define DEBUGINFO
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -46,10 +47,11 @@ namespace everlaster
         private JSONStorableFloat nippleSpring;
         private JSONStorableFloat nippleDamper;
 
-        //Debug storables
+#if DEBUGINFO
         protected JSONStorableString angleDebugInfo = new JSONStorableString("Angle Debug Info", "");
         protected JSONStorableString physicsDebugInfo = new JSONStorableString("Physics Debug Info", "");
         protected JSONStorableString morphDebugInfo = new JSONStorableString("Morph Debug Info", "");
+#endif
 
         public override void Init()
         {
@@ -110,56 +112,51 @@ namespace everlaster
 
             sagMultiplier = NewFloatSlider("Sag multiplier", sagDefault, 0f, 2.0f);
 
-            if(enableDebug)
-            {
-                UIDynamicTextField angleInfo = CreateTextField(angleDebugInfo, false);
-                angleInfo.height = 100;
-                angleInfo.UItext.fontSize = 26;
-                UIDynamicTextField physicsInfo = CreateTextField(physicsDebugInfo, false);
-                physicsInfo.height = 540;
-                physicsInfo.UItext.fontSize = 26;
-            }
-            else
-            {
-                CreateNewSpacer(10f);
+#if DEBUGINFO
+            UIDynamicTextField angleInfo = CreateTextField(angleDebugInfo, false);
+            angleInfo.height = 100;
+            angleInfo.UItext.fontSize = 26;
+            UIDynamicTextField physicsInfo = CreateTextField(physicsDebugInfo, false);
+            physicsInfo.height = 540;
+            physicsInfo.UItext.fontSize = 26;
+#else
+            CreateNewSpacer(10f);
 
-                JSONStorableString presetsH2 = NewTextField("Example Settings", 34);
-                presetsH2.SetVal("\nExample settings");
+            JSONStorableString presetsH2 = NewTextField("Example Settings", 34);
+            presetsH2.SetVal("\nExample settings");
 
-                CreateExampleButtons();
-            }
+            CreateExampleButtons();
+#endif
+
         }
 
         void InitPluginUIRight()
         {
-            if(enableDebug)
-            {
-                UIDynamicTextField morphInfo = CreateTextField(morphDebugInfo, true);
-                morphInfo.height = 1200;
-                morphInfo.UItext.fontSize = 26;
-            }
-            else
-            {
-                JSONStorableString usageInfo = NewTextField("Usage Info Area", 28, 530, true);
-                string usage = "\n";
-                usage += "Breast scale applies size morphs and anchors them to " +
-                    "size related physics settings. For best results, breast morphs " +
-                    "should be tweaked manually only after setting the scale amount." +
-                    "(See the examples below.)\n\n";
-                usage += "Breast softness controls soft physics and affects the amount " +
-                    "of morph-based sag in different orientations or poses.\n\n";
-                usage += "Sag multiplier adjusts the sag produced by Breast softness " +
-                    "independently of soft physics.";
-                usageInfo.SetVal(usage);
+#if DEBUGINFO
+            UIDynamicTextField morphInfo = CreateTextField(morphDebugInfo, true);
+            morphInfo.height = 1200;
+            morphInfo.UItext.fontSize = 26;
+#else
+            JSONStorableString usageInfo = NewTextField("Usage Info Area", 28, 530, true);
+            string usage = "\n";
+            usage += "Breast scale applies size morphs and anchors them to " +
+                "size related physics settings. For best results, breast morphs " +
+                "should be tweaked manually only after setting the scale amount." +
+                "(See the examples below.)\n\n";
+            usage += "Breast softness controls soft physics and affects the amount " +
+                "of morph-based sag in different orientations or poses.\n\n";
+            usage += "Sag multiplier adjusts the sag produced by Breast softness " +
+                "independently of soft physics.";
+            usageInfo.SetVal(usage);
 
-                CreateNewSpacer(10f, true);
+            CreateNewSpacer(10f, true);
 
-                JSONStorableString presetsInfo = NewTextField("Example Settings", 28, 100, true);
-                presetsInfo.SetVal("\nSet breast morphs to defaults before applying example settings.");
+            JSONStorableString presetsInfo = NewTextField("Example Settings", 28, 100, true);
+            presetsInfo.SetVal("\nSet breast morphs to defaults before applying example settings.");
 
-                logInfo = NewTextField("Log Info Area", 28, 515, true);
-                logInfo.SetVal("\n");
-            }
+            logInfo = NewTextField("Log Info Area", 28, 515, true);
+            logInfo.SetVal("\n");
+#endif
         }
 
         JSONStorableFloat NewFloatSlider(string paramName, float startingValue, float minValue, float maxValue)
@@ -676,12 +673,11 @@ namespace everlaster
                     //-> if person is sideways, pitch related morphs have less effect
                     AdjustMorphsForPitch(pitch, (90 - Mathf.Abs(roll)) / 90);
 
-                    if (enableDebug)
-                    {
-                        SetAngleDebugInfo(pitch, roll);
-                        SetPhysicsDebugInfo();
-                        SetMorphDebugInfo();
-                    }
+#if DEBUGINFO
+                    SetAngleDebugInfo(pitch, roll);
+                    SetPhysicsDebugInfo();
+                    SetMorphDebugInfo();
+#endif
                 }
             }
             catch(Exception e)
@@ -876,6 +872,7 @@ namespace everlaster
             SetAllGravityMorphsToZero();
         }
 
+#if DEBUGINFO
         void SetAngleDebugInfo(float pitch, float roll)
         {
             angleDebugInfo.SetVal($"Pitch: {pitch}\nRoll: {roll}");
@@ -917,6 +914,7 @@ namespace everlaster
             foreach(var it in gravityMorphs) text = text + it.ToString() + "\n";
             morphDebugInfo.SetVal(text);
         }
+#endif
     }
 
     public static class GlobalVar
