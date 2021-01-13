@@ -185,9 +185,9 @@ namespace everlaster
             UIDynamicButton example1 = CreateButton("Pornstar big naturals");
             example1.button.onClick.AddListener(() =>
             {
-                scale.val = 1.70f;
-                softness.val = 1.70f;
-                sagMultiplier.val = 1.30f;
+                scale.val = 1.65f;
+                softness.val = 2.10f;
+                sagMultiplier.val = 1.60f;
 
                 ApplyMorphTweaks(example1Morphs);
                 string text = "> Pornstar big naturals morph tweaks:\n";
@@ -199,8 +199,8 @@ namespace everlaster
             example2.button.onClick.AddListener(() =>
             {
                 scale.val = 0.30f;
-                softness.val = 1.20f;
-                sagMultiplier.val = 1.20f;
+                softness.val = 1.10f;
+                sagMultiplier.val = 1.80f;
 
                 ApplyMorphTweaks(example2Morphs);
                 string text = "> Small and perky morph tweaks:\n";
@@ -226,7 +226,7 @@ namespace everlaster
             {
                 scale.val = 3.00f;
                 softness.val = 2.80f;
-                sagMultiplier.val = 1.20f;
+                sagMultiplier.val = 2.00f;
 
                 ApplyMorphTweaks(example4Morphs);
                 string text = "> Huge and soft morph tweaks:\n";
