@@ -113,7 +113,7 @@ namespace everlaster
 
 #if DEBUGINFO
             UIDynamicTextField angleInfoField = CreateTextField(angleDebugInfo, false);
-            angleInfoField.height = 150;
+            angleInfoField.height = 100;
             angleInfoField.UItext.fontSize = 26;
             UIDynamicTextField physicsInfoField = CreateTextField(physicsDebugInfo, false);
             physicsInfoField.height = 540;
@@ -619,6 +619,7 @@ namespace everlaster
 
         void SetBreastPhysicsDefaults()
         {
+            containingAtom.GetStorableByID("BreastInOut").SetBoolParamValue("enabled", false);
             geometry.useAuxBreastColliders = true;
 
             // Right/left angle target
