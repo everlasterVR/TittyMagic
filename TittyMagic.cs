@@ -7,9 +7,6 @@ namespace everlaster
 {
     class TittyMagic : MVRScript
     {
-        const string pluginName = "TittyMagic";
-        const string pluginVersion = "1.1.0";
-
         private bool enableUpdate;
         private Transform chest;
         private AdjustJoints breastControl;
@@ -25,6 +22,7 @@ namespace everlaster
         private List<GravityMorphConfig> gravityMorphs = new List<GravityMorphConfig>();
 
         //storables
+        private JSONStorableString pluginVersion;
         private float scaleMin = 0.3f;
         private float scaleDefault = 0.8f;
         private float scaleMax = 3.0f;
@@ -57,6 +55,9 @@ namespace everlaster
         {
             try
             {
+                pluginVersion = new JSONStorableString("Version", "1.2.0");
+                RegisterString(pluginVersion);
+
                 if(containingAtom.type != "Person")
                 {
                     SuperController.LogError($"Plugin is for use with 'Person' atom, not '{containingAtom.type}'");
@@ -104,7 +105,7 @@ namespace everlaster
         void InitPluginUILeft()
         {
             JSONStorableString versionH1 = NewTextField("Version Info", 40);
-            versionH1.SetVal($"{pluginName} {pluginVersion}");
+            versionH1.SetVal($"{nameof(TittyMagic)} v{pluginVersion.val}");
 
             scale = NewFloatSlider("Breast scale", scaleDefault, scaleMin, scaleMax);
             softness = NewFloatSlider("Breast softness", softnessDefault, softnessMin, softnessMax);
