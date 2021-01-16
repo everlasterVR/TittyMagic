@@ -887,6 +887,11 @@ namespace everlaster
             SetAllGravityMorphsToZero();
         }
 
+        void OnDisable()
+        {
+            SetAllGravityMorphsToZero();
+        }
+
 #if DEBUGINFO
         void SetAngleDebugInfo(float roll, float pitch)
         {
