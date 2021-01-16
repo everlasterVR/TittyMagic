@@ -22,6 +22,8 @@ namespace everlaster
         private List<GravityMorphConfig> gravityMorphs = new List<GravityMorphConfig>();
 
         //storables
+        private JSONStorableFloat atomScale;
+        private float atomScaleFactor;
         private JSONStorableString pluginVersion;
         private float scaleMin = 0.3f;
         private float scaleDefault = 0.8f;
@@ -34,7 +36,7 @@ namespace everlaster
         private float sagDefault = 1.2f;
         protected JSONStorableFloat sagMultiplier;
         protected JSONStorableString logInfo;
-        
+
         // physics storables not directly accessible as attributes of DAZPhysicsMesh
         private JSONStorableFloat mainSpring;
         private JSONStorableFloat mainDamper;
@@ -66,6 +68,7 @@ namespace everlaster
 
                 GlobalVar.UPDATE_ENABLED = true;
 
+                atomScale = containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale");
                 breastControl = containingAtom.GetStorableByID("BreastControl") as AdjustJoints;
                 breastPhysicsMesh = containingAtom.GetStorableByID("BreastPhysicsMesh") as DAZPhysicsMesh;
                 geometry = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
@@ -81,6 +84,7 @@ namespace everlaster
 
                 GlobalVar.MORPH_UI = geometry.morphsControlUI;
                 chest = containingAtom.GetStorableByID("chest").transform;
+
                 SetBreastPhysicsDefaults();
 
                 InitPluginUILeft();
@@ -92,6 +96,7 @@ namespace everlaster
                 InitExampleMorphs();
                 InitGravityMorphs();
                 SetAllGravityMorphsToZero();
+                UpdateAtomScaleFactor(atomScale.val);
                 UpdateBreastPhysicsSettings(scale.val, softness.val);
 
                 enableUpdate = GlobalVar.UPDATE_ENABLED;
@@ -283,6 +288,14 @@ namespace everlaster
             {
                 UpdateBreastPhysicsSettings(scale.val, softness.val);
             });
+            // update physics settings in case Person atom's Scale is changed elsewhere
+            atomScale.slider.onValueChanged.AddListener(AtomScaleListener);
+        }
+
+        void AtomScaleListener(float val)
+        {
+            UpdateAtomScaleFactor(atomScale.val);
+            UpdateBreastPhysicsSettings(scale.val, softness.val);
         }
 
         void InitBuiltInMorphs()
@@ -646,12 +659,52 @@ namespace everlaster
             breastPhysicsMesh.softVerticesBackForceThresholdDistance = 0.002f;
             breastPhysicsMesh.softVerticesColliderAdditionalNormalOffset = 0.002f;
         }
-        
-        void UpdateBreastPhysicsSettings(float sizeVal, float softnessVal)
+
+        void UpdateAtomScaleFactor(float value)
         {
-            float scaleFactor = sizeVal - scaleMin;
+            if (value == 1)
+            {
+                atomScaleFactor = value;
+                return;
+            }
+            
+            if (value > 1)
+            {
+                atomScaleFactor = value / AtomScaleAdjustment(value);
+                return;
+            }
+
+            if (value < 1)
+            {
+                if(value <= 0.5)
+                {
+                    atomScaleFactor = 0.5f * AtomScaleAdjustment(0.5f);
+                    atomScale.slider.onValueChanged.RemoveListener(AtomScaleListener);
+                    LogMessage(
+                        "Person Atom Scale values lower than 0.5 are not fully compatible - " +
+                        "this plugin will now behave as if it is 0.5. " +
+                        "Reload the plugin after returning it to above 0.5."
+                    );
+                    return;
+                }
+
+                atomScaleFactor = value * AtomScaleAdjustment(value);
+            }
+        }
+
+        // Experimentally determined that this somewhat accurately scales the Breast scale 
+        // slider's effective value to the apparent breast size when body is scaled down/up.
+        // Multiply by this when scaling down, divide when scaling up.
+        float AtomScaleAdjustment(float value)
+        {
+            return 1 - (float) Math.Abs(Math.Log10(Math.Pow(value, 3)));
+        }
+
+        void UpdateBreastPhysicsSettings(float scaleVal, float softnessVal)
+        {
+            float scaleFactor = atomScaleFactor * (scaleVal - scaleMin);
             float softnessFactor = ((softnessVal - softnessMin) / (softnessMax - softnessMin)); // TODO use this more, or use sliders with values 0...1
-            float scaleFactor2 = ((sizeVal - scaleMin) / (scaleMax - scaleMin));
+            float scaleFactor2 = atomScaleFactor * ((scaleVal - scaleMin) / (scaleMax - scaleMin));
 
             //                                                 base      size adjustment         softness adjustment
             breastControl.mass                              =  0.10f  + (0.71f  * scaleFactor);
@@ -857,7 +910,7 @@ namespace everlaster
                     // m[2] scales the size calibration slider for this base multiplier
                     //      - if null, slider setting is ignored
                     float softnessFactor = m[1].HasValue ? (float) m[1] * softness.val : 1;
-                    float scaleFactor = m[2].HasValue ? (float) m[2] * scale.val : 1;
+                    float scaleFactor = m[2].HasValue ? atomScaleFactor * (float) m[2] * scale.val : 1;
                     
                     float morphValue = sagMultiplier.val * (float) m[0] * (
                         (softnessFactor * effect / 2) +
@@ -884,7 +937,7 @@ namespace everlaster
                     float?[] m = it.Multipliers[type];
 
                     float softnessFactor = m[1].HasValue ? (float) m[1] * softness.val : 1;
-                    float scaleFactor = m[2].HasValue ? (float) m[2] * scale.val : 1;
+                    float scaleFactor = m[2].HasValue ? atomScaleFactor * (float) m[2] * scale.val : 1;
                     float sagMultiplierVal = sagMultiplier.val >= 1 ?
                         1 + (sagMultiplier.val - 1) / 2 :
                         sagMultiplier.val;
