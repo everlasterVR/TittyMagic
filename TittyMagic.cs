@@ -16,6 +16,7 @@ namespace everlaster
         private DAZPhysicsMesh breastPhysicsMesh;
         private DAZCharacterSelector geometry;
 
+        private MorphConfig bodyScaleMorph;
         private List<MorphConfig> sizeMorphs = new List<MorphConfig>();
         private List<MorphConfig> example1Morphs = new List<MorphConfig>();
         private List<MorphConfig> example2Morphs = new List<MorphConfig>();
@@ -85,6 +86,7 @@ namespace everlaster
                 InitPluginUIRight();
                 InitSliderListeners();
 
+                InitBuiltInMorphs();
                 InitSizeMorphs();
                 InitExampleMorphs();
                 InitGravityMorphs();
@@ -280,6 +282,19 @@ namespace everlaster
             {
                 UpdateBreastPhysicsSettings(scale.val, softness.val);
             });
+        }
+
+        void InitBuiltInMorphs()
+        {
+            bodyScaleMorph = new MorphConfig("Body Scale", 0.00f);
+            if (bodyScaleMorph.Morph.morphValue != 0)
+            {
+                SuperController.LogMessage(
+                    $"{nameof(everlaster)}.{nameof(TittyMagic)}: " +
+                    $"Morph '{bodyScaleMorph.Name}' is locked to 0.000! (It was {bodyScaleMorph.Morph.morphValue}.) " +
+                    $"It is recommended to use the Scale slider in Control & Physics 1 to adjust atom scale if needed."
+                );
+            }
         }
 
         #region Morph settings
@@ -669,6 +684,7 @@ namespace everlaster
             {
                 if (enableUpdate)
                 {
+                    LockBodyScale();
                     AdjustMorphsForSize();
 
                     float roll = Roll(chest.rotation);
@@ -702,6 +718,11 @@ namespace everlaster
         float Pitch(Quaternion q)
         {
             return Mathf.Rad2Deg* Mathf.Atan2(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * q.x * q.x - 2 * q.z * q.z);
+        }
+
+        void LockBodyScale()
+        {
+            bodyScaleMorph.Morph.morphValue = 0;
         }
 
         void AdjustMorphsForSize()
