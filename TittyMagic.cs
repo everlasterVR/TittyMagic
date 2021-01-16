@@ -11,7 +11,6 @@ namespace everlaster
         const string pluginVersion = "1.1.0";
 
         private bool enableUpdate;
-        private bool enableDebug = false;
         private Transform chest;
         private AdjustJoints breastControl;
         private DAZPhysicsMesh breastPhysicsMesh;
@@ -84,7 +83,7 @@ namespace everlaster
 
                 InitPluginUILeft();
                 InitPluginUIRight();
-                InitListeners();
+                InitSliderListeners();
 
                 InitSizeMorphs();
                 InitExampleMorphs();
@@ -113,12 +112,12 @@ namespace everlaster
             sagMultiplier = NewFloatSlider("Sag multiplier", sagDefault, 0f, 2.0f);
 
 #if DEBUGINFO
-            UIDynamicTextField angleInfo = CreateTextField(angleDebugInfo, false);
-            angleInfo.height = 100;
-            angleInfo.UItext.fontSize = 26;
-            UIDynamicTextField physicsInfo = CreateTextField(physicsDebugInfo, false);
-            physicsInfo.height = 540;
-            physicsInfo.UItext.fontSize = 26;
+            UIDynamicTextField angleInfoField = CreateTextField(angleDebugInfo, false);
+            angleInfoField.height = 150;
+            angleInfoField.UItext.fontSize = 26;
+            UIDynamicTextField physicsInfoField = CreateTextField(physicsDebugInfo, false);
+            physicsInfoField.height = 540;
+            physicsInfoField.UItext.fontSize = 26;
 #else
             CreateNewSpacer(10f);
 
@@ -187,9 +186,7 @@ namespace everlaster
                 sagMultiplier.val = 1.60f;
 
                 ApplyMorphTweaks(example1Morphs);
-                string text = "> Pornstar big naturals morph tweaks:\n";
-                foreach(var it in example1Morphs) text = text + it.ToString() + "\n";
-                logInfo.SetVal("\n" + text + "\n" + logInfo.val);
+                AppendToUILog(FormatExampleMorphsMessage("Pornstar big naturals", example1Morphs));
             });
 
             UIDynamicButton example2 = CreateButton("Small and perky");
@@ -200,9 +197,7 @@ namespace everlaster
                 sagMultiplier.val = 1.80f;
 
                 ApplyMorphTweaks(example2Morphs);
-                string text = "> Small and perky morph tweaks:\n";
-                foreach(var it in example2Morphs) text = text + it.ToString() + "\n";
-                logInfo.SetVal("\n" + text + "\n" + logInfo.val);
+                AppendToUILog(FormatExampleMorphsMessage("Small and perky", example2Morphs));
             });
 
             UIDynamicButton example3 = CreateButton("Medium implants");
@@ -213,9 +208,7 @@ namespace everlaster
                 sagMultiplier.val = 0.80f;
 
                 ApplyMorphTweaks(example3Morphs);
-                string text = "> Medium implants morph tweaks:\n";
-                foreach(var it in example3Morphs) text = text + it.ToString() + "\n";
-                logInfo.SetVal("\n" + text + "\n" + logInfo.val);
+                AppendToUILog(FormatExampleMorphsMessage("Medium implants", example3Morphs));
             });
 
             UIDynamicButton example4 = CreateButton("Huge and soft");
@@ -226,9 +219,7 @@ namespace everlaster
                 sagMultiplier.val = 2.00f;
 
                 ApplyMorphTweaks(example4Morphs);
-                string text = "> Huge and soft morph tweaks:\n";
-                foreach(var it in example4Morphs) text = text + it.ToString() + "\n";
-                logInfo.SetVal("\n" + text + "\n" + logInfo.val);
+                AppendToUILog(FormatExampleMorphsMessage("Huge and soft", example4Morphs));
             });
 
             CreateNewSpacer(10f);
@@ -241,9 +232,23 @@ namespace everlaster
                 sagMultiplier.val = sagDefault;
                 
                 UndoMorphTweaks();
-                string text = "> Example tweaks zeroed and sliders reset.";
-                logInfo.SetVal("\n" + text + "\n" + logInfo.val);
+                AppendToUILog("> Example tweaks zeroed and sliders reset.");
             });
+        }
+
+        string FormatExampleMorphsMessage(string example, List<MorphConfig> morphs)
+        {
+            string text = $"> {example} morph tweaks:\n";
+            foreach(var it in morphs)
+            {
+                text = text + FormatNameValueString(it.Name, it.Morph.morphValue) + "\n";
+            }
+            return text;
+        }
+
+        void AppendToUILog(string text)
+        {
+            logInfo.SetVal("\n" + text + "\n" + logInfo.val);
         }
 
         void CreateNewSpacer(float height, bool rightSide = false)
@@ -260,7 +265,7 @@ namespace everlaster
         //    return storable;
         //}
 
-        void InitListeners()
+        void InitSliderListeners()
         {
             scale.slider.onValueChanged.AddListener((float val) =>
             {
@@ -277,6 +282,7 @@ namespace everlaster
             });
         }
 
+        #region Morph settings
         void InitSizeMorphs()
         {
             sizeMorphs.AddRange(new List<MorphConfig>
@@ -609,6 +615,7 @@ namespace everlaster
                 }),
             });
         }
+        #endregion
 
         void SetBreastPhysicsDefaults()
         {
@@ -663,18 +670,16 @@ namespace everlaster
                 {
                     AdjustMorphsForSize();
 
-                    Quaternion q = chest.rotation;
-                    float roll = Mathf.Rad2Deg * Mathf.Asin(2 * q.x * q.y + 2 * q.z * q.w);
-                    float pitch = Mathf.Rad2Deg * Mathf.Atan2(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * q.x * q.x - 2 * q.z * q.z);
+                    float roll = Roll(chest.rotation);
+                    float pitch = Pitch(chest.rotation);
 
                     AdjustMorphsForRoll(roll);
-
                     // Scale pitch effect by roll angle's distance from 90/-90 = person is sideways
                     //-> if person is sideways, pitch related morphs have less effect
                     AdjustMorphsForPitch(pitch, (90 - Mathf.Abs(roll)) / 90);
 
 #if DEBUGINFO
-                    SetAngleDebugInfo(pitch, roll);
+                    SetAngleDebugInfo(roll, pitch);
                     SetPhysicsDebugInfo();
                     SetMorphDebugInfo();
 #endif
@@ -686,6 +691,16 @@ namespace everlaster
                 GlobalVar.UPDATE_ENABLED = false;
                 enableUpdate = GlobalVar.UPDATE_ENABLED;
             }
+        }
+
+        float Roll(Quaternion q)
+        {
+            return Mathf.Rad2Deg * Mathf.Asin(2 * q.x * q.y + 2 * q.z * q.w);
+        }
+
+        float Pitch(Quaternion q)
+        {
+            return Mathf.Rad2Deg* Mathf.Atan2(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * q.x * q.x - 2 * q.z * q.z);
         }
 
         void AdjustMorphsForSize()
@@ -873,48 +888,84 @@ namespace everlaster
         }
 
 #if DEBUGINFO
-        void SetAngleDebugInfo(float pitch, float roll)
+        void SetAngleDebugInfo(float roll, float pitch)
         {
-            angleDebugInfo.SetVal($"Pitch: {pitch}\nRoll: {roll}");
+            angleDebugInfo.SetVal(
+                $"{FormatNameValueString("Roll", roll, 100f, 15, true)}\n" +
+                $"{FormatNameValueString("Pitch", pitch, 100f, 15, true)}"
+            );
         }
 
         void SetPhysicsDebugInfo()
         {
-            string text = "";
-            text += $"mass: {breastControl.mass}\n";
-            text += $"center of g: {breastControl.centerOfGravityPercent}\n";
-            text += $"spring: {breastControl.spring}\n";
-            text += $"damper: {breastControl.damper}\n";
-            text += $"in/out spr: {breastControl.positionSpringZ}\n";
-            text += $"in/out dmp: {breastControl.positionDamperZ}\n";
-            text += $"up/down target: {breastControl.targetRotationX}\n";
+            physicsDebugInfo.SetVal(
+                $"{FormatNameValueString("mass", breastControl.mass)}\n" +
+                $"{FormatNameValueString("center of g", breastControl.centerOfGravityPercent)}\n" +
+                $"{FormatNameValueString("spring", breastControl.spring)}\n" +
+                $"{FormatNameValueString("damper", breastControl.damper)}\n" +
+                $"{FormatNameValueString("in/out spr", breastControl.positionSpringZ)}\n" +
+                $"{FormatNameValueString("in/out dmp", breastControl.positionDamperZ)}\n" +
+                $"{FormatNameValueString("up/down target", breastControl.targetRotationX)}\n" +
 
-            text += $"back force: {breastPhysicsMesh.softVerticesBackForce}\n";
-            text += $"fat spring: {breastPhysicsMesh.softVerticesCombinedSpring}\n";
-            text += $"fat damper: {breastPhysicsMesh.softVerticesCombinedDamper}\n";
-            text += $"fat mass: {breastPhysicsMesh.softVerticesMass}\n";
-            text += $"distance limit: {breastPhysicsMesh.softVerticesNormalLimit}\n";
-            text += $"main spring: {mainSpring.val}\n";
-            text += $"main damper: {mainDamper.val}\n";
-            text += $"outer spring: {outerSpring.val}\n";
-            text += $"outer damper: {outerDamper.val}\n";
-            text += $"areola spring: {areolaSpring.val}\n";
-            text += $"areola damper: {areolaDamper.val}\n";
-            text += $"nipple spring: {nippleSpring.val}\n";
-            text += $"nipple damper: {nippleDamper.val}\n";
-            physicsDebugInfo.SetVal(text);
+                $"{FormatNameValueString("back force", breastPhysicsMesh.softVerticesBackForce)}\n" +
+                $"{FormatNameValueString("fat spring", breastPhysicsMesh.softVerticesCombinedSpring)}\n" +
+                $"{FormatNameValueString("fat damper", breastPhysicsMesh.softVerticesCombinedDamper)}\n" +
+                $"{FormatNameValueString("fat mass", breastPhysicsMesh.softVerticesMass)}\n" +
+                $"{FormatNameValueString("distance limit", breastPhysicsMesh.softVerticesNormalLimit)}\n" +
+                $"{FormatNameValueString("main spring", mainSpring.val)}\n" +
+                $"{FormatNameValueString("main damper", mainDamper.val)}\n" +
+                $"{FormatNameValueString("outer spring", outerSpring.val)}\n" +
+                $"{FormatNameValueString("outer damper", outerDamper.val)}\n" +
+                $"{FormatNameValueString("areola spring", areolaSpring.val)}\n" +
+                $"{FormatNameValueString("areola damper", areolaDamper.val)}\n" +
+                $"{FormatNameValueString("nipple spring", nippleSpring.val)}\n" +
+                $"{FormatNameValueString("nipple damper", nippleDamper.val)}\n"
+            );
         }
 
         void SetMorphDebugInfo()
         {
             string text = "";
             text += "SIZE MORPHS\n";
-            foreach(var it in sizeMorphs) text = text + it.ToString() + "\n";
+            foreach(var it in sizeMorphs)
+            {
+                text = text + FormatNameValueString(it.Name, it.Morph.morphValue, 1000f, 30) + "\n";
+            }
+
             text += "\nGRAVITY MORPHS\n";
-            foreach(var it in gravityMorphs) text = text + it.ToString() + "\n";
+            foreach(var it in gravityMorphs)
+            {
+                text = text + FormatNameValueString(it.Name, it.Morph.morphValue, 1000f, 30) + "\n";
+            }
             morphDebugInfo.SetVal(text);
         }
 #endif
+
+        #region Formatting utils
+        string FormatNameValueString(string name, float value, float roundFactor = 1000f, int padRight = 0, bool normalize = false)
+        {
+            double rounded = RoundToDecimals(value, 1000f);
+            string printName = StripPrefix(name, "TM_").PadRight(padRight, ' ');
+            string printValue = normalize ? NormalizeNumberFormat(rounded) : $"{rounded}";
+            return string.Format("{0} {1}", printName, printValue);
+        }
+
+        public static string StripPrefix(string text, string prefix)
+        {
+            return text.StartsWith(prefix) ? text.Substring(prefix.Length) : text;
+        }
+
+        double RoundToDecimals(float value, float roundFactor)
+        {
+            return Math.Round(value * roundFactor) / roundFactor;
+        }
+
+        string NormalizeNumberFormat(double value)
+        {
+            string formatted = string.Format("{0:000.00}", value);
+            return value >= 0 ? $" {formatted}" : formatted;
+        }
+        #endregion
     }
 
     public static class GlobalVar
@@ -975,13 +1026,6 @@ namespace everlaster
             {
                 SuperController.LogError($"Morph with name {name} not found!");
             }
-        }
-
-        override
-        public string ToString()
-        {
-            float value = (float) Math.Round(this.Morph.morphValue * 1000f) / 1000f;
-            return this.Name + ":  " + value;
         }
     }
 }
