@@ -60,7 +60,7 @@ namespace everlaster
 
                 if(containingAtom.type != "Person")
                 {
-                    SuperController.LogError($"Plugin is for use with 'Person' atom, not '{containingAtom.type}'");
+                    LogError($"Plugin is for use with 'Person' atom, not '{containingAtom.type}'");
                     return;
                 }
 
@@ -290,8 +290,7 @@ namespace everlaster
             bodyScaleMorph = new MorphConfig("Body Scale", 0.00f);
             if (bodyScaleMorph.Morph.morphValue != 0)
             {
-                SuperController.LogMessage(
-                    $"{nameof(everlaster)}.{nameof(TittyMagic)}: " +
+                LogMessage(
                     $"Morph '{bodyScaleMorph.Name}' is locked to 0.000! (It was {bodyScaleMorph.Morph.morphValue}.) " +
                     $"It is recommended to use the Scale slider in Control & Physics 1 to adjust atom scale if needed."
                 );
@@ -705,7 +704,7 @@ namespace everlaster
             }
             catch(Exception e)
             {
-                SuperController.LogError("Exception caught: " + e);
+                LogError("Exception caught: " + e);
                 GlobalVar.UPDATE_ENABLED = false;
                 enableUpdate = GlobalVar.UPDATE_ENABLED;
             }
@@ -994,6 +993,16 @@ namespace everlaster
             return value >= 0 ? $" {formatted}" : formatted;
         }
         #endregion
+
+        void LogError(string message)
+        {
+            SuperController.LogError($"{nameof(everlaster)}.{nameof(TittyMagic)}: {message}");
+        }
+
+        void LogMessage(string message)
+        {
+            SuperController.LogMessage($"{nameof(everlaster)}.{nameof(TittyMagic)}: {message}");
+        }
     }
 
     public static class GlobalVar
@@ -1027,7 +1036,7 @@ namespace everlaster
             StartValue = startValue;
             if(Morph == null)
             {
-                SuperController.LogError($"Morph with name {name} not found!");
+                SuperController.LogError($"everlaster.TittyMagic: Morph with name {name} not found!");
             }
         }
 
@@ -1052,7 +1061,7 @@ namespace everlaster
             Multipliers = multipliers;
             if (Morph == null)
             {
-                SuperController.LogError($"Morph with name {name} not found!");
+                SuperController.LogError($"everlaster.TittyMagic: Morph with name {name} not found!");
             }
         }
     }
