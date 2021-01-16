@@ -904,27 +904,27 @@ namespace everlaster
         void SetPhysicsDebugInfo()
         {
             physicsDebugInfo.SetVal(
-                $"{FormatNameValueString("mass", breastControl.mass)}\n" +
-                $"{FormatNameValueString("center of g", breastControl.centerOfGravityPercent)}\n" +
-                $"{FormatNameValueString("spring", breastControl.spring)}\n" +
-                $"{FormatNameValueString("damper", breastControl.damper)}\n" +
-                $"{FormatNameValueString("in/out spr", breastControl.positionSpringZ)}\n" +
-                $"{FormatNameValueString("in/out dmp", breastControl.positionDamperZ)}\n" +
-                $"{FormatNameValueString("up/down target", breastControl.targetRotationX)}\n" +
+                $"{FormatNameValueString("mass", breastControl.mass, padRight: 25)}\n" +
+                $"{FormatNameValueString("center of g", breastControl.centerOfGravityPercent, padRight: 25)}\n" +
+                $"{FormatNameValueString("spring", breastControl.spring, padRight: 25)}\n" +
+                $"{FormatNameValueString("damper", breastControl.damper, padRight: 25)}\n" +
+                $"{FormatNameValueString("in/out spr", breastControl.positionSpringZ, padRight: 25)}\n" +
+                $"{FormatNameValueString("in/out dmp", breastControl.positionDamperZ, padRight: 25)}\n" +
+                $"{FormatNameValueString("up/down target", breastControl.targetRotationX, padRight: 25)}\n" +
 
-                $"{FormatNameValueString("back force", breastPhysicsMesh.softVerticesBackForce)}\n" +
-                $"{FormatNameValueString("fat spring", breastPhysicsMesh.softVerticesCombinedSpring)}\n" +
-                $"{FormatNameValueString("fat damper", breastPhysicsMesh.softVerticesCombinedDamper)}\n" +
-                $"{FormatNameValueString("fat mass", breastPhysicsMesh.softVerticesMass)}\n" +
-                $"{FormatNameValueString("distance limit", breastPhysicsMesh.softVerticesNormalLimit)}\n" +
-                $"{FormatNameValueString("main spring", mainSpring.val)}\n" +
-                $"{FormatNameValueString("main damper", mainDamper.val)}\n" +
-                $"{FormatNameValueString("outer spring", outerSpring.val)}\n" +
-                $"{FormatNameValueString("outer damper", outerDamper.val)}\n" +
-                $"{FormatNameValueString("areola spring", areolaSpring.val)}\n" +
-                $"{FormatNameValueString("areola damper", areolaDamper.val)}\n" +
-                $"{FormatNameValueString("nipple spring", nippleSpring.val)}\n" +
-                $"{FormatNameValueString("nipple damper", nippleDamper.val)}\n"
+                $"{FormatNameValueString("back force", breastPhysicsMesh.softVerticesBackForce, padRight: 25)}\n" +
+                $"{FormatNameValueString("fat spring", breastPhysicsMesh.softVerticesCombinedSpring, padRight: 25)}\n" +
+                $"{FormatNameValueString("fat damper", breastPhysicsMesh.softVerticesCombinedDamper, padRight: 25)}\n" +
+                $"{FormatNameValueString("fat mass", breastPhysicsMesh.softVerticesMass, padRight: 25)}\n" +
+                $"{FormatNameValueString("distance limit", breastPhysicsMesh.softVerticesNormalLimit, padRight: 25)}\n" +
+                $"{FormatNameValueString("main spring", mainSpring.val, padRight: 25)}\n" +
+                $"{FormatNameValueString("main damper", mainDamper.val, padRight: 25)}\n" +
+                $"{FormatNameValueString("outer spring", outerSpring.val, padRight: 25)}\n" +
+                $"{FormatNameValueString("outer damper", outerDamper.val, padRight: 25)}\n" +
+                $"{FormatNameValueString("areola spring", areolaSpring.val, padRight: 25)}\n" +
+                $"{FormatNameValueString("areola damper", areolaDamper.val, padRight: 25)}\n" +
+                $"{FormatNameValueString("nipple spring", nippleSpring.val, padRight: 25)}\n" +
+                $"{FormatNameValueString("nipple damper", nippleDamper.val, padRight: 25)}\n"
             );
         }
 
