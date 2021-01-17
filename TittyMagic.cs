@@ -724,28 +724,31 @@ namespace everlaster
             return 1 - (float) Math.Abs(Math.Log10(Math.Pow(value, 3)));
         }
 
-        float NormalizedScaleFactor(float scaleVal)
-        {
-            return (scaleVal - scaleMin) / (scaleMax - scaleMin);
-        }
+        //float NormalizedScaleFactor(float scaleVal)
+        //{
+        //    return (scaleVal - scaleMin) / (scaleMax - scaleMin);
+        //}
+
+        //float NormalizedSoftnessFactor(float softnessVal)
+        //{
+        //    return (softnessVal - softnessMin) / (softnessMax - softnessMin);
+        //}
 
         void UpdateBreastPhysicsSettings(float scaleVal, float softnessVal)
         {
             float scaleFactor = atomScaleFactor * (scaleVal - scaleMin);
-            float softnessFactor = ((softnessVal - softnessMin) / (softnessMax - softnessMin)); // TODO use this more, or use sliders with values 0...1
-            float scaleFactor2 = atomScaleFactor * NormalizedScaleFactor(scaleVal);
             //                                                 base      size adjustment         softness adjustment
             breastControl.mass                              =  0.20f  + (0.621f * scaleFactor);
             breastControl.centerOfGravityPercent            =  0.40f  + (0.06f  * scaleFactor);
-            breastControl.spring                            =  55f    + (25f    * scaleFactor2) + (20f + (1f - scaleFactor2) * 25f) * (1f - softnessFactor); // kinda hacky
-            breastControl.damper                            =  1.20f  - (0.10f  * scaleFactor) + (0.25f  * softnessVal);
+            breastControl.spring                            =  45f    + (20f    * scaleFactor);
+            breastControl.damper                            =  1.20f  - (0.10f  * scaleFactor) + (0.10f  * softnessVal);
             breastControl.targetRotationX                   =  8.00f  - (1.67f  * scaleFactor) - (1.67f  * softnessVal);
             breastControl.positionSpringZ                   =  250f   + (200f   * scaleFactor);
             breastControl.positionDamperZ                   =  5f     + (3.0f   * scaleFactor) + (3.0f   * softnessVal);
             breastPhysicsMesh.softVerticesColliderRadius    =  0.020f + (0.004f * scaleFactor);
             breastPhysicsMesh.softVerticesCombinedSpring    =  120f   + (80f    * scaleFactor);
-            breastPhysicsMesh.softVerticesCombinedDamper    =  0.015f * breastPhysicsMesh.softVerticesCombinedSpring;
-            breastPhysicsMesh.softVerticesMass              =  0.09f  + (0.10f  * scaleFactor);
+            breastPhysicsMesh.softVerticesCombinedDamper    =  2.0f   + (1.2f   * scaleFactor) + (1.2f   * softnessVal);
+            breastPhysicsMesh.softVerticesMass              =  0.10f  + (0.14f  * scaleFactor);
             breastPhysicsMesh.softVerticesBackForce         =  12.0f  + (8.0f  * scaleFactor) - (6.0f   * softnessVal);
             breastPhysicsMesh.softVerticesBackForceMaxForce =  4.0f   + (1.0f   * scaleFactor);
             breastPhysicsMesh.softVerticesNormalLimit       =  0.010f + (0.010f * scaleFactor) + (0.003f * softnessVal);
