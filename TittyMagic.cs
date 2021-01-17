@@ -15,6 +15,7 @@ namespace everlaster
 
         private MorphConfig bodyScaleMorph;
         private List<MorphConfig> sizeMorphs = new List<MorphConfig>();
+        private List<MorphConfig> nippleErectionMorphs = new List<MorphConfig>();
         private List<MorphConfig> example1Morphs = new List<MorphConfig>();
         private List<MorphConfig> example2Morphs = new List<MorphConfig>();
         private List<MorphConfig> example3Morphs = new List<MorphConfig>();
@@ -37,6 +38,8 @@ namespace everlaster
         protected JSONStorableFloat scale;
         private float sagDefault = 1.2f;
         protected JSONStorableFloat sagMultiplier;
+        private float nippleErectionDefault = 0.25f;
+        protected JSONStorableFloat nippleErection;
         protected JSONStorableString logInfo;
 
         // physics storables not directly accessible as attributes of DAZPhysicsMesh
@@ -95,6 +98,7 @@ namespace everlaster
 
                 InitBuiltInMorphs();
                 InitSizeMorphs();
+                InitNippleErectionMorphs();
                 InitExampleMorphs();
                 InitGravityMorphs();
                 SetAllGravityMorphsToZero();
@@ -116,17 +120,15 @@ namespace everlaster
 
             scale = NewFloatSlider("Breast scale", scaleDefault, scaleMin, scaleMax);
             softness = NewFloatSlider("Breast softness", softnessDefault, softnessMin, softnessMax);
-
-            CreateNewSpacer(10f);
-
             sagMultiplier = NewFloatSlider("Sag multiplier", sagDefault, 0f, 2.0f);
+            nippleErection = NewFloatSlider("Erect nipples", nippleErectionDefault, 0f, 1.0f);
 
 #if DEBUGINFO
             UIDynamicTextField angleInfoField = CreateTextField(angleDebugInfo, false);
             angleInfoField.height = 100;
             angleInfoField.UItext.fontSize = 26;
             UIDynamicTextField physicsInfoField = CreateTextField(physicsDebugInfo, false);
-            physicsInfoField.height = 540;
+            physicsInfoField.height = 430;
             physicsInfoField.UItext.fontSize = 26;
 #else
             CreateNewSpacer(10f);
@@ -146,22 +148,23 @@ namespace everlaster
             morphInfo.height = 1200;
             morphInfo.UItext.fontSize = 26;
 #else
-            JSONStorableString usageInfo = NewTextField("Usage Info Area", 28, 530, true);
+            JSONStorableString usageInfo = NewTextField("Usage Info Area", 28, 640, true);
             string usage = "\n";
             usage += "Breast scale applies size morphs and anchors them to " +
                 "size related physics settings. For best results, breast morphs " +
-                "should be tweaked manually only after setting the scale amount." +
+                "should be tweaked manually only after setting the scale amount. " +
                 "(See the examples below.)\n\n";
             usage += "Breast softness controls soft physics and affects the amount " +
                 "of morph-based sag in different orientations or poses.\n\n";
             usage += "Sag multiplier adjusts the sag produced by Breast softness " +
-                "independently of soft physics.";
+                "independently of soft physics.\n\n";
+            usage += "Set breast morphs to defaults before applying example settings.";
             usageInfo.SetVal(usage);
 
             CreateNewSpacer(10f, true);
 
-            JSONStorableString presetsInfo = NewTextField("Example Settings", 28, 100, true);
-            presetsInfo.SetVal("\nSet breast morphs to defaults before applying example settings.");
+            //JSONStorableString presetsInfo = NewTextField("Example Settings", 28, 100, true);
+            //presetsInfo.SetVal("\nSet breast morphs to defaults before applying example settings.");
 
             logInfo = NewTextField("Log Info Area", 28, 515, true);
             logInfo.SetVal("\n");
@@ -185,6 +188,14 @@ namespace everlaster
             textField.height = height;
             return storable;
         }
+
+        //JSONStorableBool NewToggle(string paramName)
+        //{
+        //    JSONStorableBool storable = new JSONStorableBool(paramName, true);
+        //    CreateToggle(storable, false);
+        //    RegisterBool(storable);
+        //    return storable;
+        //}
 
         void CreateExampleButtons()
         {
@@ -267,14 +278,6 @@ namespace everlaster
             spacer.height = height;
         }
 
-        //JSONStorableBool NewToggle(string paramName)
-        //{
-        //    JSONStorableBool storable = new JSONStorableBool(paramName, true);
-        //    CreateToggle(storable, false);
-        //    RegisterBool(storable);
-        //    return storable;
-        //}
-
         void InitSliderListeners()
         {
             scale.slider.onValueChanged.AddListener((float val) =>
@@ -285,8 +288,11 @@ namespace everlaster
             {
                 UpdateBreastPhysicsSettings(scale.val, val);
             });
-            // reset physics settings in case changed with button
             sagMultiplier.slider.onValueChanged.AddListener((float val) =>
+            {
+                UpdateBreastPhysicsSettings(scale.val, softness.val);
+            });
+            nippleErection.slider.onValueChanged.AddListener((float val) =>
             {
                 UpdateBreastPhysicsSettings(scale.val, softness.val);
             });
@@ -339,6 +345,21 @@ namespace everlaster
             });
         }
 
+        void InitNippleErectionMorphs()
+        {
+            nippleErectionMorphs.AddRange(new List<MorphConfig>
+            {
+                new MorphConfig("TM_Natural Nipples",       -0.100f,    0.025f), // Spacedog.Import_Reloaded_Lite.2
+                new MorphConfig("TM_Nipple",                 0.500f,   -0.125f), // Spacedog.Import_Reloaded_Lite.2
+                new MorphConfig("TM_Nipple Length",         -0.200f,    0.050f),
+                new MorphConfig("TM_Nipples Apply",          0.500f,   -0.125f),
+                new MorphConfig("TM_Nipples Bulbous",        0.600f,   -0.150f), // kemenate.Morphs.10
+                new MorphConfig("TM_Nipples Large",          0.300f,   -0.075f),
+                new MorphConfig("TM_Nipples Sag",           -0.200f,    0.050f), // kemenate.Morphs.10
+                new MorphConfig("TM_Nipples Tilt",           0.200f,   -0.050f), // kemenate.Morphs.10
+            });
+        }
+
         void InitExampleMorphs()
         {
             example1Morphs.AddRange(new List<MorphConfig>
@@ -353,13 +374,14 @@ namespace everlaster
                 new MorphConfig("Breasts Natural Right",     0.075f),
                 new MorphConfig("Breasts Size",              0.050f),
                 new MorphConfig("BreastsShape2",            -0.175f),
-                new MorphConfig("Nipple Diameter",          -0.500f),
-                new MorphConfig("Nipple Size",              -0.500f),
+                new MorphConfig("Nipple Diameter",          -0.400f),
+                new MorphConfig("Nipple Size",              -0.400f),
+                new MorphConfig("Nipple Length",            -0.200f),
             });
             example2Morphs.AddRange(new List<MorphConfig>
             {
-                new MorphConfig("Areolae Perk",              0.600f),
-                new MorphConfig("Areola Size",              -0.400f),
+                new MorphConfig("Areolae Perk",              0.400f),
+                new MorphConfig("Areola Size",              -0.300f),
                 new MorphConfig("Breast diameter",          -0.050f),
                 new MorphConfig("Breast Sag1",               0.100f),
                 new MorphConfig("Breast Sag2",               0.150f),
@@ -408,8 +430,8 @@ namespace everlaster
                 new MorphConfig("Breasts Perk Side",         0.450f),
                 new MorphConfig("Breasts Size",             -0.100f),
                 new MorphConfig("BreastsShape3",            -0.300f),
-                new MorphConfig("Nipple Diameter",          -0.500f),
-                new MorphConfig("Nipples Large",            -0.650f),
+                new MorphConfig("Nipple Diameter",          -0.333f),
+                new MorphConfig("Nipples Large",            -0.100f),
                 new MorphConfig("ChestUnderBreast",          0.250f),
                 new MorphConfig("Sternum Width",             0.250f),
             });
@@ -658,9 +680,8 @@ namespace everlaster
             breastControl.targetRotationZ = 0f;
             // Soft physics on
             breastPhysicsMesh.on = true;
-            breastPhysicsMesh.softVerticesUseAutoColliderRadius = true;
-            breastPhysicsMesh.softVerticesBackForceThresholdDistance = 0.002f;
-            breastPhysicsMesh.softVerticesColliderAdditionalNormalOffset = 0.002f;
+            breastPhysicsMesh.softVerticesUseAutoColliderRadius = false;
+            breastPhysicsMesh.softVerticesColliderAdditionalNormalOffset = 0.001f;
         }
 
         void UpdateAtomScaleFactor(float value)
@@ -703,35 +724,45 @@ namespace everlaster
             return 1 - (float) Math.Abs(Math.Log10(Math.Pow(value, 3)));
         }
 
+        float NormalizedScaleFactor(float scaleVal)
+        {
+            return (scaleVal - scaleMin) / (scaleMax - scaleMin);
+        }
+
         void UpdateBreastPhysicsSettings(float scaleVal, float softnessVal)
         {
             float scaleFactor = atomScaleFactor * (scaleVal - scaleMin);
             float softnessFactor = ((softnessVal - softnessMin) / (softnessMax - softnessMin)); // TODO use this more, or use sliders with values 0...1
-            float scaleFactor2 = atomScaleFactor * ((scaleVal - scaleMin) / (scaleMax - scaleMin));
-
+            float scaleFactor2 = atomScaleFactor * NormalizedScaleFactor(scaleVal);
             //                                                 base      size adjustment         softness adjustment
-            breastControl.mass                              =  0.10f  + (0.71f  * scaleFactor);
-            breastControl.centerOfGravityPercent            =  0.45f  + (0.04f  * scaleFactor) + (0.04f  * softnessVal);
-            breastControl.spring                            =  60f    + (28f    * scaleFactor2) + (12f + (1f - scaleFactor2) * 28f) * (1f - softnessFactor); // kinda hacky
-            breastControl.damper                            =  2.10f  - (0.25f  * scaleFactor);
+            breastControl.mass                              =  0.20f  + (0.621f * scaleFactor);
+            breastControl.centerOfGravityPercent            =  0.40f  + (0.06f  * scaleFactor);
+            breastControl.spring                            =  55f    + (25f    * scaleFactor2) + (20f + (1f - scaleFactor2) * 25f) * (1f - softnessFactor); // kinda hacky
+            breastControl.damper                            =  1.20f  - (0.10f  * scaleFactor) + (0.25f  * softnessVal);
             breastControl.targetRotationX                   =  8.00f  - (1.67f  * scaleFactor) - (1.67f  * softnessVal);
             breastControl.positionSpringZ                   =  250f   + (200f   * scaleFactor);
             breastControl.positionDamperZ                   =  5f     + (3.0f   * scaleFactor) + (3.0f   * softnessVal);
+            breastPhysicsMesh.softVerticesColliderRadius    =  0.020f + (0.004f * scaleFactor);
             breastPhysicsMesh.softVerticesCombinedSpring    =  120f   + (80f    * scaleFactor);
-            breastPhysicsMesh.softVerticesCombinedDamper    =  0.010f * breastPhysicsMesh.softVerticesCombinedSpring;
+            breastPhysicsMesh.softVerticesCombinedDamper    =  0.015f * breastPhysicsMesh.softVerticesCombinedSpring;
             breastPhysicsMesh.softVerticesMass              =  0.09f  + (0.10f  * scaleFactor);
-            breastPhysicsMesh.softVerticesBackForce         =  10.0f  + (6.0f   * scaleFactor) - (2f     * softnessVal);
-            breastPhysicsMesh.softVerticesBackForceMaxForce =  7.5f   + (4.5f   * scaleFactor) - (1.5f   * softnessVal);
-            breastPhysicsMesh.softVerticesNormalLimit       =  0.008f + (0.006f * scaleFactor) + (0.006f * softnessVal);
+            breastPhysicsMesh.softVerticesBackForce         =  12.0f  + (8.0f  * scaleFactor) - (6.0f   * softnessVal);
+            breastPhysicsMesh.softVerticesBackForceMaxForce =  4.0f   + (1.0f   * scaleFactor);
+            breastPhysicsMesh.softVerticesNormalLimit       =  0.010f + (0.010f * scaleFactor) + (0.003f * softnessVal);
 
-            mainSpring.val      = (0.67f + (0.10f * softnessVal)) / (1.00f * softnessVal);
-            mainDamper.val      = (0.67f + (0.10f * softnessVal)) / (1.00f * softnessVal);
-            outerSpring.val     = (0.67f + (0.10f * softnessVal)) / (1.00f * softnessVal);
-            outerDamper.val     = (0.67f + (0.10f * softnessVal)) / (1.00f * softnessVal);
-            areolaSpring.val    = (0.75f + (0.10f * softnessVal)) / (1.00f * softnessVal);
-            areolaDamper.val    = (0.75f + (0.10f * softnessVal)) / (1.00f * softnessVal);
-            nippleSpring.val    = (0.85f + (0.10f * softnessVal)) / (1.00f * softnessVal);
-            nippleDamper.val    = (0.85f + (0.10f * softnessVal)) / (1.00f * softnessVal);
+            mainSpring.val      = (0.90f + (0.20f * softnessVal) - (0.10f * scaleFactor)) / softnessVal;
+            mainDamper.val      = mainSpring.val;
+            outerSpring.val     = mainSpring.val;
+            outerDamper.val     = mainSpring.val;
+            areolaSpring.val    = (1.40f + (0.33f * softnessVal)) / softnessVal;
+            areolaDamper.val    = areolaSpring.val;
+            nippleSpring.val    = nippleErection.val + areolaSpring.val;
+            nippleDamper.val    = nippleErection.val + areolaSpring.val;
+
+            breastPhysicsMesh.softVerticesBackForceThresholdDistance = (float) RoundToDecimals(
+                0.000f + (0.002f * scaleFactor) + (0.001f * softnessVal),
+                1000f
+            );
         }
 
         public void Update()
@@ -744,6 +775,7 @@ namespace everlaster
                 {
                     LockBodyScale();
                     AdjustMorphsForSize();
+                    AdjustNipples();
 
                     float roll = Roll(chest.rotation);
                     float pitch = Pitch(chest.rotation);
@@ -801,6 +833,14 @@ namespace everlaster
                 // this sets morphs to 0 with the sizeMin of 0.3, and to 3 with the sizeMax of 3
                 // this makes sense because the breasts still actually have some size when the morphs are at 0
                 it.Morph.morphValue = it.StartValue + it.BaseMulti * (scale.val - scaleMin) / 0.9f;
+            }
+        }
+
+        void AdjustNipples()
+        {
+            foreach(var it in nippleErectionMorphs)
+            {
+                it.Morph.morphValue = it.StartValue + it.BaseMulti * nippleErection.val;
             }
         }
 
@@ -883,6 +923,14 @@ namespace everlaster
             foreach(var it in gravityMorphs)
             {
                 it.Morph.morphValue = 0;
+            }
+        }
+
+        void SetNippleErectionToDefault()
+        {
+            foreach(var it in nippleErectionMorphs)
+            {
+                it.Morph.morphValue = nippleErectionDefault;
             }
         }
 
@@ -975,11 +1023,13 @@ namespace everlaster
         void OnDestroy()
         {
             SetAllGravityMorphsToZero();
+            SetNippleErectionToDefault();
         }
 
         void OnDisable()
         {
             SetAllGravityMorphsToZero();
+            SetNippleErectionToDefault();
         }
 
 #if DEBUGINFO
@@ -1002,7 +1052,10 @@ namespace everlaster
                 $"{FormatNameValueString("in/out dmp", breastControl.positionDamperZ, padRight: 25)}\n" +
                 $"{FormatNameValueString("up/down target", breastControl.targetRotationX, padRight: 25)}\n" +
 
+                $"{FormatNameValueString("collider radius", breastPhysicsMesh.softVerticesColliderRadius, padRight: 25)}\n" +
                 $"{FormatNameValueString("back force", breastPhysicsMesh.softVerticesBackForce, padRight: 25)}\n" +
+                $"{FormatNameValueString("back force max", breastPhysicsMesh.softVerticesBackForceMaxForce, padRight: 25)}\n" +
+                $"{FormatNameValueString("back force thres", breastPhysicsMesh.softVerticesBackForceThresholdDistance, padRight: 25)}\n" +
                 $"{FormatNameValueString("fat spring", breastPhysicsMesh.softVerticesCombinedSpring, padRight: 25)}\n" +
                 $"{FormatNameValueString("fat damper", breastPhysicsMesh.softVerticesCombinedDamper, padRight: 25)}\n" +
                 $"{FormatNameValueString("fat mass", breastPhysicsMesh.softVerticesMass, padRight: 25)}\n" +
