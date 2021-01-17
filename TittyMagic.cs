@@ -749,21 +749,21 @@ namespace everlaster
             breastPhysicsMesh.softVerticesCombinedSpring    =  120f   + (80f    * scaleFactor);
             breastPhysicsMesh.softVerticesCombinedDamper    =  2.0f   + (1.2f   * scaleFactor) + (1.2f   * softnessVal);
             breastPhysicsMesh.softVerticesMass              =  0.10f  + (0.14f  * scaleFactor);
-            breastPhysicsMesh.softVerticesBackForce         =  12.0f  + (8.0f  * scaleFactor) - (6.0f   * softnessVal);
-            breastPhysicsMesh.softVerticesBackForceMaxForce =  4.0f   + (1.0f   * scaleFactor);
+            breastPhysicsMesh.softVerticesBackForce         =  8.0f   + (13.0f  * scaleFactor) - (2.0f   * softnessVal);
+            breastPhysicsMesh.softVerticesBackForceMaxForce =  3.0f   + (1.5f   * scaleFactor);
             breastPhysicsMesh.softVerticesNormalLimit       =  0.010f + (0.010f * scaleFactor) + (0.003f * softnessVal);
 
             mainSpring.val      = (0.90f + (0.20f * softnessVal) - (0.10f * scaleFactor)) / softnessVal;
             mainDamper.val      = mainSpring.val;
             outerSpring.val     = mainSpring.val;
             outerDamper.val     = mainSpring.val;
-            areolaSpring.val    = (1.40f + (0.33f * softnessVal)) / softnessVal;
+            areolaSpring.val    = (1.10f + (0.25f * softnessVal)) / softnessVal;
             areolaDamper.val    = areolaSpring.val;
             nippleSpring.val    = nippleErection.val + areolaSpring.val;
             nippleDamper.val    = nippleErection.val + areolaSpring.val;
 
             breastPhysicsMesh.softVerticesBackForceThresholdDistance = (float) RoundToDecimals(
-                0.000f + (0.002f * scaleFactor) + (0.001f * softnessVal),
+                0.0015f + (0.002f * scaleFactor) - (0.001f * softnessVal),
                 1000f
             );
         }
