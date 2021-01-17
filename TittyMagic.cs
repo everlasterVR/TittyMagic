@@ -21,6 +21,8 @@ namespace everlaster
         private List<MorphConfig> example4Morphs = new List<MorphConfig>();
         private List<GravityMorphConfig> gravityMorphs = new List<GravityMorphConfig>();
 
+        bool atomScaleListenerIsSet = false;
+
         //storables
         private JSONStorableFloat atomScale;
         private float atomScaleFactor;
@@ -288,8 +290,6 @@ namespace everlaster
             {
                 UpdateBreastPhysicsSettings(scale.val, softness.val);
             });
-            // update physics settings in case Person atom's Scale is changed elsewhere
-            atomScale.slider.onValueChanged.AddListener(AtomScaleListener);
         }
 
         void AtomScaleListener(float val)
@@ -733,6 +733,8 @@ namespace everlaster
 
         public void Update()
         {
+            TryInitGameUIListeners();
+
             try
             {
                 if (enableUpdate)
@@ -760,6 +762,16 @@ namespace everlaster
                 LogError("Exception caught: " + e);
                 GlobalVar.UPDATE_ENABLED = false;
                 enableUpdate = GlobalVar.UPDATE_ENABLED;
+            }
+        }
+
+        void TryInitGameUIListeners()
+        {
+            if (atomScale.slider != null && !atomScaleListenerIsSet)
+            {
+                // update physics settings in case Person atom's Scale is changed
+                atomScale.slider.onValueChanged.AddListener(AtomScaleListener);
+                atomScaleListenerIsSet = true;
             }
         }
 
