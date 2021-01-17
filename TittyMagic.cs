@@ -929,14 +929,6 @@ namespace everlaster
             }
         }
 
-        void SetNippleErectionToDefault()
-        {
-            foreach(var it in nippleErectionMorphs)
-            {
-                it.Morph.morphValue = nippleErectionDefault;
-            }
-        }
-
         void SetMorphGroupToZero(List<MorphConfig> morphs)
         {
             foreach(var it in morphs)
@@ -1026,13 +1018,13 @@ namespace everlaster
         void OnDestroy()
         {
             SetAllGravityMorphsToZero();
-            SetNippleErectionToDefault();
+            SetMorphGroupToZero(nippleErectionMorphs);
         }
 
         void OnDisable()
         {
             SetAllGravityMorphsToZero();
-            SetNippleErectionToDefault();
+            SetMorphGroupToZero(nippleErectionMorphs);
         }
 
 #if DEBUGINFO
