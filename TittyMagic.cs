@@ -27,7 +27,7 @@ namespace everlaster
         private JSONStorableFloat atomScale;
         private float atomScaleFactor;
         private JSONStorableString pluginVersion;
-        private float scaleMin = 0.3f;
+        private float scaleMin = 0.1f;
         private float scaleDefault = 0.8f;
         private float scaleMax = 3.0f;
         protected JSONStorableFloat softness;
@@ -327,6 +327,9 @@ namespace everlaster
                 //new MorphConfig("BreastsShape1",             0.150f),
                 //new MorphConfig("BreastsShape2",            -0.050f),
                 //new MorphConfig("ChestSeparateBreasts",     -0.025f),
+
+                new MorphConfig("TM_Baseline_Smaller",      -0.333f,     1.000f),
+                //new MorphConfig("Breast Small",             -0.140f,     0.420f),
 
                 new MorphConfig("TM_Baseline_Fixer",         0.000f,     1.000f),
                 //new MorphConfig("Breast Top Curve1",         0.033f,    -0.033f),
