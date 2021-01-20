@@ -109,7 +109,7 @@ namespace everlaster
             }
             catch(Exception e)
             {
-                SuperController.LogError("Exception caught: " + e);
+                LogError("Exception caught: " + e);
             }
         }
 
@@ -736,27 +736,28 @@ namespace everlaster
 
         void UpdateBreastPhysicsSettings(float scaleVal, float softnessVal)
         {
+            float hardnessVal = softnessMax - softnessVal; // 0.00 .. 2.50 for softness 3.00 .. 0.50
             float scaleFactor = atomScaleFactor * (scaleVal - scaleMin);
             //                                                 base      size adjustment         softness adjustment
             breastControl.mass                              =  0.20f  + (0.621f * scaleFactor);
             breastControl.centerOfGravityPercent            =  0.40f  + (0.06f  * scaleFactor);
-            breastControl.spring                            =  45f    + (20f    * scaleFactor);
-            breastControl.damper                            =  1.20f  - (0.10f  * scaleFactor) + (0.10f  * softnessVal);
+            breastControl.spring                            =  34f    + (10f    * scaleFactor) + (10f    * hardnessVal);
+            breastControl.damper                            =  0.75f  + (0.66f  * scaleFactor);
             breastControl.targetRotationX                   =  8.00f  - (1.67f  * scaleFactor) - (1.67f  * softnessVal);
             breastControl.positionSpringZ                   =  250f   + (200f   * scaleFactor);
             breastControl.positionDamperZ                   =  5f     + (3.0f   * scaleFactor) + (3.0f   * softnessVal);
-            breastPhysicsMesh.softVerticesColliderRadius    =  0.020f + (0.004f * scaleFactor);
-            breastPhysicsMesh.softVerticesCombinedSpring    =  120f   + (80f    * scaleFactor);
-            breastPhysicsMesh.softVerticesCombinedDamper    =  2.0f   + (1.2f   * scaleFactor) + (1.2f   * softnessVal);
-            breastPhysicsMesh.softVerticesMass              =  0.10f  + (0.14f  * scaleFactor);
-            breastPhysicsMesh.softVerticesBackForce         =  8.0f   + (13.0f  * scaleFactor) - (2.0f   * softnessVal);
-            breastPhysicsMesh.softVerticesBackForceMaxForce =  3.0f   + (1.5f   * scaleFactor);
+            breastPhysicsMesh.softVerticesColliderRadius    =  0.022f + (0.005f * scaleFactor);
+            breastPhysicsMesh.softVerticesCombinedSpring    =  80f    + (60f    * scaleFactor) + (45f    * softnessVal);
+            breastPhysicsMesh.softVerticesCombinedDamper    =  1.00f  + (1.20f  * scaleFactor) + (0.30f  * softnessVal);
+            breastPhysicsMesh.softVerticesMass              =  0.08f  + (0.10f  * scaleFactor);
+            breastPhysicsMesh.softVerticesBackForce         =  2.0f   + (5.0f   * scaleFactor) + (4.0f   * hardnessVal);
+            breastPhysicsMesh.softVerticesBackForceMaxForce =  2.0f   + (1.5f   * scaleFactor) + (1.0f   * hardnessVal);
             breastPhysicsMesh.softVerticesNormalLimit       =  0.010f + (0.010f * scaleFactor) + (0.003f * softnessVal);
 
-            mainSpring.val      = (0.90f + (0.20f * softnessVal) - (0.10f * scaleFactor)) / softnessVal;
+            mainSpring.val      = (1.00f + (0.15f * softnessVal) - (0.10f * scaleFactor)) / softnessVal;
             mainDamper.val      = mainSpring.val;
-            outerSpring.val     = mainSpring.val;
-            outerDamper.val     = mainSpring.val;
+            outerSpring.val     = (1.80f + (0.20f * softnessVal) - (0.10f * scaleFactor)) / softnessVal;
+            outerDamper.val     = outerSpring.val;
             areolaSpring.val    = (1.10f + (0.25f * softnessVal)) / softnessVal;
             areolaDamper.val    = areolaSpring.val;
             nippleSpring.val    = nippleErection.val + areolaSpring.val;
@@ -787,7 +788,6 @@ namespace everlaster
                     // Scale pitch effect by roll angle's distance from 90/-90 = person is sideways
                     //-> if person is sideways, pitch related morphs have less effect
                     AdjustMorphsForPitch(pitch, (90 - Mathf.Abs(roll)) / 90);
-
 #if DEBUGINFO
                     SetAngleDebugInfo(roll, pitch);
                     SetPhysicsDebugInfo();
