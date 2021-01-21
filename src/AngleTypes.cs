@@ -2,6 +2,7 @@
 {
     public static class AngleTypes
     {
+        public const string NONE = "none";
         public const string LEAN_FORWARD = "leanForward";
         public const string LEAN_BACK = "leanBack";
         public const string UPSIDE_DOWN = "upsideDown";

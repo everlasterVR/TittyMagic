@@ -9,9 +9,9 @@ namespace everlaster
     class TittyMagic : MVRScript
     {
         private bool enableUpdate;
+        private bool atomScaleListenerIsSet = false;
+
         private Transform chest;
-        private AdjustJoints breastControl;
-        private DAZPhysicsMesh breastPhysicsMesh;
         private DAZCharacterSelector geometry;
 
         private SizeMorphConfig bodyScaleMorph;
@@ -25,35 +25,30 @@ namespace everlaster
 
         private List<GravityPhysicsConfig> gravityPhysics = new List<GravityPhysicsConfig>();
 
-        bool atomScaleListenerIsSet = false;
+        private StaticPhysicsHandler sph;
 
         //storables
         private JSONStorableFloat atomScale;
         private float atomScaleFactor;
+
         private JSONStorableString pluginVersion;
         private float scaleMin = 0.1f;
         private float scaleDefault = 0.8f;
         private float scaleMax = 3.0f;
+
         protected JSONStorableFloat softness;
         private float softnessMin = 0.5f;
         private float softnessDefault = 1.5f;
         private float softnessMax = 3.0f;
+
         protected JSONStorableFloat scale;
         private float sagDefault = 1.2f;
+
         protected JSONStorableFloat sagMultiplier;
         private float nippleErectionDefault = 0.25f;
+
         protected JSONStorableFloat nippleErection;
         protected JSONStorableString logInfo;
-
-        // physics storables not directly accessible as attributes of DAZPhysicsMesh
-        private JSONStorableFloat mainSpring;
-        private JSONStorableFloat mainDamper;
-        private JSONStorableFloat outerSpring;
-        private JSONStorableFloat outerDamper;
-        private JSONStorableFloat areolaSpring;
-        private JSONStorableFloat areolaDamper;
-        private JSONStorableFloat nippleSpring;
-        private JSONStorableFloat nippleDamper;
 
 #if DEBUGINFO
         protected JSONStorableString angleDebugInfo = new JSONStorableString("Angle Debug Info", "");
@@ -61,7 +56,6 @@ namespace everlaster
         protected JSONStorableString morphDebugInfo = new JSONStorableString("Morph Debug Info", "");
 #endif
 
-        // TODO cleanup initialization somehow
         public override void Init()
         {
             try
@@ -75,22 +69,28 @@ namespace everlaster
                     return;
                 }
 
+                AdjustJoints breastControl = containingAtom.GetStorableByID("BreastControl") as AdjustJoints;
+                DAZPhysicsMesh breastPhysicsMesh = containingAtom.GetStorableByID("BreastPhysicsMesh") as DAZPhysicsMesh;
+                atomScale = containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale");
+                geometry = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
+                chest = containingAtom.GetStorableByID("chest").transform;
+                Globals.BREAST_CONTROL = breastControl;
+                Globals.MORPH_UI = geometry.morphsControlUI;
                 Globals.UPDATE_ENABLED = true;
 
-                InitVariables();
+                sph = new StaticPhysicsHandler(breastControl, breastPhysicsMesh);
+
                 InitPluginUILeft();
                 InitPluginUIRight();
                 InitSliderListeners();
 
                 InitMorphConfigs();
-                
                 gravityMorphs.ForEach(it => it.Reset());
-                
                 ResolveAtomScaleFactor(atomScale.val);
 
                 InitPhysicsConfigs();
                 SetPhysicsDefaults();
-                UpdatePhysicsSettings(scale.val, softness.val);
+                sph.Update(scale.val, scaleMin, softness.val, softnessMax, atomScaleFactor, nippleErection.val);
 
                 enableUpdate = Globals.UPDATE_ENABLED;
             }
@@ -98,27 +98,6 @@ namespace everlaster
             {
                 Log.Error("Exception caught: " + e);
             }
-        }
-
-        void InitVariables()
-        {
-            atomScale = containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale");
-            breastControl = containingAtom.GetStorableByID("BreastControl") as AdjustJoints;
-            breastPhysicsMesh = containingAtom.GetStorableByID("BreastPhysicsMesh") as DAZPhysicsMesh;
-            geometry = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
-            chest = containingAtom.GetStorableByID("chest").transform;
-
-            mainSpring = breastPhysicsMesh.GetFloatJSONParam("groupASpringMultiplier");
-            mainDamper = breastPhysicsMesh.GetFloatJSONParam("groupADamperMultiplier");
-            outerSpring = breastPhysicsMesh.GetFloatJSONParam("groupBSpringMultiplier");
-            outerDamper = breastPhysicsMesh.GetFloatJSONParam("groupBDamperMultiplier");
-            areolaSpring = breastPhysicsMesh.GetFloatJSONParam("groupCSpringMultiplier");
-            areolaDamper = breastPhysicsMesh.GetFloatJSONParam("groupCDamperMultiplier");
-            nippleSpring = breastPhysicsMesh.GetFloatJSONParam("groupDSpringMultiplier");
-            nippleDamper = breastPhysicsMesh.GetFloatJSONParam("groupDDamperMultiplier");
-
-            Globals.MORPH_UI = geometry.morphsControlUI;
-            Globals.BREAST_CONTROL = containingAtom.GetStorableByID("BreastControl") as AdjustJoints;
         }
 
         // TODO UI class?
@@ -275,7 +254,7 @@ namespace everlaster
             string text = $"> {example} morph tweaks:\n";
             foreach(var it in morphs)
             {
-                text = text + FormatNameValueString(it.Name, it.Morph.morphValue) + "\n";
+                text = text + Formatting.NameValueString(it.Name, it.Morph.morphValue) + "\n";
             }
             return text;
         }
@@ -295,26 +274,26 @@ namespace everlaster
         {
             scale.slider.onValueChanged.AddListener((float val) =>
             {
-                UpdatePhysicsSettings(val, softness.val);
+                sph.Update(val, scaleMin, softness.val, softnessMax, atomScaleFactor, nippleErection.val);
             });
             softness.slider.onValueChanged.AddListener((float val) =>
             {
-                UpdatePhysicsSettings(scale.val, val);
+                sph.Update(scale.val, scaleMin, val, softnessMax, atomScaleFactor, nippleErection.val);
             });
             sagMultiplier.slider.onValueChanged.AddListener((float val) =>
             {
-                UpdatePhysicsSettings(scale.val, softness.val);
+                sph.Update(scale.val, scaleMin, softness.val, softnessMax, atomScaleFactor, nippleErection.val);
             });
             nippleErection.slider.onValueChanged.AddListener((float val) =>
             {
-                UpdatePhysicsSettings(scale.val, softness.val);
+                sph.Update(scale.val, scaleMin, softness.val, softnessMax, atomScaleFactor, nippleErection.val);
             });
         }
 
         void AtomScaleListener(float val)
         {
             ResolveAtomScaleFactor(atomScale.val);
-            UpdatePhysicsSettings(scale.val, softness.val);
+            sph.Update(scale.val, scaleMin, softness.val, softnessMax, atomScaleFactor, nippleErection.val);
         }
 
         #region Morph configs
@@ -343,7 +322,7 @@ namespace everlaster
         {
             sizeMorphs.AddRange(new List<SizeMorphConfig>
             {
-                //               morph                       base        start
+                //               morph                           base        start
                 new SizeMorphConfig("TM_Baseline",               1.000f),
                 //new MorphConfig("Armpit Curve",             -0.100f),
                 //new MorphConfig("Breast Diameter",           0.250f),
@@ -695,71 +674,26 @@ namespace everlaster
         #endregion
 
         #region Physics configs
+        // TODO merge
         void SetPhysicsDefaults()
         {
             // In/Out auto morphs off
             containingAtom.GetStorableByID("BreastInOut").SetBoolParamValue("enabled", false);
             // Hard colliders on
             geometry.useAuxBreastColliders = true;
-            // Right/left angle target moves both breasts in the same direction
-            breastControl.invertJoint2RotationY = false;
-            // Soft physics on
-            breastPhysicsMesh.on = true;
-            // Auto collider radius off
-            breastPhysicsMesh.softVerticesUseAutoColliderRadius = false;
-            // Collider depth
-            breastPhysicsMesh.softVerticesColliderAdditionalNormalOffset = 0.001f;
+            sph.SetPhysicsDefaults();
         }
-
-        //breastControl storables:
-        //=======================
-        //mass
-        //centerOfGravityPercent
-        //spring
-        //damper
-        //positionSpringX
-        //positionSpringY
-        //positionSpringZ
-        //positionDamperX
-        //positionDamperY
-        //positionDamperZ
-        //targetRotationX
-        //targetRotationY
-        //targetRotationZ
-
-        //breastPhysicsMesh storables:
-        //===========================
-        //softVerticesCombinedSpring
-        //softVerticesCombinedDamper
-        //softVerticesMass
-        //softVerticesBackForce
-        //softVerticesBackForceThresholdDistance
-        //softVerticesBackForceMaxForce
-        //softVerticesColliderRadius
-        //softVerticesColliderAdditionalNormalOffset
-        //softVerticesDistanceLimit
-        //groupASpringMultiplier
-        //groupADamperMultiplier
-        //groupBSpringMultiplier
-        //groupBDamperMultiplier
-        //groupCSpringMultiplier
-        //groupCDamperMultiplier
-        //groupDSpringMultiplier
-        //groupDDamperMultiplier
 
         void InitPhysicsConfigs()
         {
             gravityPhysics.AddRange(new List<GravityPhysicsConfig>()
             {
-                //                       name                       angle type      min     max     scale   softness
+                //                       name                       angle type           min     max     scale   softness
                 new GravityPhysicsConfig("centerOfGravityPercent",  AngleTypes.PITCH,    0.40f,  0.574f, 1f,     null),
                 new GravityPhysicsConfig("targetRotationX",         AngleTypes.PITCH,    0f,     8f,     2f,     2f),
                 new GravityPhysicsConfig("targetRotationY",         AngleTypes.ROLL,     0f,     8f,     2f,     2f),
             });
             gravityPhysics.ForEach(it => it.InitStorable());
-        
-            // TODO init basePhysics configs
-            // basePhysics.ForEach(it => it.InitStorable());
         }
         #endregion
 
@@ -773,7 +707,7 @@ namespace everlaster
             
             if (value > 1)
             {
-                atomScaleFactor = value / CalcUtils.AtomScaleAdjustment(value);
+                atomScaleFactor = value / Calc.AtomScaleAdjustment(value);
                 return;
             }
 
@@ -781,7 +715,7 @@ namespace everlaster
             {
                 if(value <= 0.5)
                 {
-                    atomScaleFactor = 0.5f * CalcUtils.AtomScaleAdjustment(0.5f);
+                    atomScaleFactor = 0.5f * Calc.AtomScaleAdjustment(0.5f);
                     atomScale.slider.onValueChanged.RemoveListener(AtomScaleListener);
                     Log.Message(
                         "Person Atom Scale values lower than 0.5 are not fully compatible - " +
@@ -791,43 +725,8 @@ namespace everlaster
                     return;
                 }
 
-                atomScaleFactor = value * CalcUtils.AtomScaleAdjustment(value);
+                atomScaleFactor = value * Calc.AtomScaleAdjustment(value);
             }
-        }
-
-        // TODO refactor to use its own Config class and JSON storables (basePhysics)
-        // Update function given individually to each parameter
-        void UpdatePhysicsSettings(float scaleVal, float softnessVal)
-        {
-            float hardnessVal = softnessMax - softnessVal; // 0.00 .. 2.50 for softness 3.00 .. 0.50
-            float scaleFactor = atomScaleFactor * (scaleVal - scaleMin);
-            //                                                 base      size adjustment         softness adjustment
-            breastControl.mass                              =  0.20f  + (0.621f * scaleFactor);
-            breastControl.spring                            =  34f    + (10f    * scaleFactor) + (10f    * hardnessVal);
-            breastControl.damper                            =  0.75f  + (0.66f  * scaleFactor);
-            breastControl.positionSpringZ                   =  250f   + (200f   * scaleFactor);
-            breastControl.positionDamperZ                   =  5f     + (3.0f   * scaleFactor) + (3.0f   * softnessVal);
-            breastPhysicsMesh.softVerticesColliderRadius    =  0.022f + (0.005f * scaleFactor);
-            breastPhysicsMesh.softVerticesCombinedSpring    =  80f    + (60f    * scaleFactor) + (45f    * softnessVal);
-            breastPhysicsMesh.softVerticesCombinedDamper    =  1.00f  + (1.20f  * scaleFactor) + (0.30f  * softnessVal);
-            breastPhysicsMesh.softVerticesMass              =  0.08f  + (0.10f  * scaleFactor);
-            breastPhysicsMesh.softVerticesBackForce         =  2.0f   + (5.0f   * scaleFactor) + (4.0f   * hardnessVal);
-            breastPhysicsMesh.softVerticesBackForceMaxForce =  2.0f   + (1.5f   * scaleFactor) + (1.0f   * hardnessVal);
-            breastPhysicsMesh.softVerticesNormalLimit       =  0.010f + (0.010f * scaleFactor) + (0.003f * softnessVal);
-
-            mainSpring.val      = (1.00f + (0.15f * softnessVal) - (0.10f * scaleFactor)) / softnessVal;
-            mainDamper.val      = mainSpring.val;
-            outerSpring.val     = (1.80f + (0.20f * softnessVal) - (0.10f * scaleFactor)) / softnessVal;
-            outerDamper.val     = outerSpring.val;
-            areolaSpring.val    = (1.10f + (0.25f * softnessVal)) / softnessVal;
-            areolaDamper.val    = areolaSpring.val;
-            nippleSpring.val    = nippleErection.val + areolaSpring.val;
-            nippleDamper.val    = nippleErection.val + areolaSpring.val;
-
-            breastPhysicsMesh.softVerticesBackForceThresholdDistance = (float) CalcUtils.RoundToDecimals(
-                0.0015f + (0.002f * scaleFactor) - (0.001f * softnessVal),
-                1000f
-            );
         }
 
         public void Update()
@@ -842,8 +741,8 @@ namespace everlaster
                     sizeMorphs.ForEach(it => it.UpdateVal((scale.val - scaleMin) / 0.9f));
                     nippleErectionMorphs.ForEach(it => it.UpdateVal(nippleErection.val));
 
-                    float roll = CalcUtils.Roll(chest.rotation);
-                    float pitch = CalcUtils.Pitch(chest.rotation);
+                    float roll = Calc.Roll(chest.rotation);
+                    float pitch = Calc.Pitch(chest.rotation);
 
                     AdjustMorphsForRoll(roll);
                     // Scale pitch effect by roll angle's distance from 90/-90 = person is sideways
@@ -889,13 +788,13 @@ namespace everlaster
             if(roll >= 0)
             {
                 SetGravityMorphsToZero(AngleTypes.ROLL_RIGHT);
-                DoAdjustMorphsForRoll(AngleTypes.ROLL_LEFT, CalcUtils.Remap(roll, rollFactor));
+                DoAdjustMorphsForRoll(AngleTypes.ROLL_LEFT, Calc.Remap(roll, rollFactor));
             }
             // right
             else
             {
                 SetGravityMorphsToZero(AngleTypes.ROLL_LEFT);
-                DoAdjustMorphsForRoll(AngleTypes.ROLL_RIGHT, CalcUtils.Remap(Mathf.Abs(roll), rollFactor));
+                DoAdjustMorphsForRoll(AngleTypes.ROLL_RIGHT, Calc.Remap(Mathf.Abs(roll), rollFactor));
             }
         }
 
@@ -909,15 +808,15 @@ namespace everlaster
                 if(pitch <= 90)
                 {
                     SetGravityMorphsToZero(AngleTypes.UPSIDE_DOWN);
-                    DoAdjustMorphs(AngleTypes.LEAN_FORWARD, CalcUtils.Remap(pitch, rollFactor));
-                    DoAdjustMorphs(AngleTypes.UPRIGHT, CalcUtils.Remap(90 - pitch, rollFactor));
+                    DoAdjustMorphs(AngleTypes.LEAN_FORWARD, Calc.Remap(pitch, rollFactor));
+                    DoAdjustMorphs(AngleTypes.UPRIGHT, Calc.Remap(90 - pitch, rollFactor));
                 }
                 // upside down
                 else
                 {
                     SetGravityMorphsToZero(AngleTypes.UPRIGHT);
-                    DoAdjustMorphs(AngleTypes.LEAN_FORWARD, CalcUtils.Remap(180 - pitch, rollFactor));
-                    DoAdjustMorphs(AngleTypes.UPSIDE_DOWN, CalcUtils.Remap(pitch - 90, rollFactor));
+                    DoAdjustMorphs(AngleTypes.LEAN_FORWARD, Calc.Remap(180 - pitch, rollFactor));
+                    DoAdjustMorphs(AngleTypes.UPSIDE_DOWN, Calc.Remap(pitch - 90, rollFactor));
                 }
             }
             // leaning back
@@ -928,22 +827,22 @@ namespace everlaster
                 if(pitch > -90)
                 {
                     SetGravityMorphsToZero(AngleTypes.UPSIDE_DOWN);
-                    DoAdjustMorphs(AngleTypes.LEAN_BACK, CalcUtils.Remap(Mathf.Abs(pitch), rollFactor));
-                    DoAdjustMorphs(AngleTypes.UPRIGHT, CalcUtils.Remap(90 - Mathf.Abs(pitch), rollFactor));
+                    DoAdjustMorphs(AngleTypes.LEAN_BACK, Calc.Remap(Mathf.Abs(pitch), rollFactor));
+                    DoAdjustMorphs(AngleTypes.UPRIGHT, Calc.Remap(90 - Mathf.Abs(pitch), rollFactor));
                 }
                 // upside down
                 else
                 {
                     SetGravityMorphsToZero(AngleTypes.UPRIGHT);
-                    DoAdjustMorphs(AngleTypes.LEAN_BACK, CalcUtils.Remap(180 - Mathf.Abs(pitch), rollFactor));
-                    DoAdjustMorphs(AngleTypes.UPSIDE_DOWN, CalcUtils.Remap(Mathf.Abs(pitch) - 90, rollFactor));
+                    DoAdjustMorphs(AngleTypes.LEAN_BACK, Calc.Remap(180 - Mathf.Abs(pitch), rollFactor));
+                    DoAdjustMorphs(AngleTypes.UPSIDE_DOWN, Calc.Remap(Mathf.Abs(pitch) - 90, rollFactor));
                 }
             }
         }
 
         void AdjustPhysicsForRoll(float roll, float rollFactor = 1)
         {
-            float effect = CalcUtils.Remap(roll, rollFactor);
+            float effect = Calc.Remap(roll, rollFactor);
             gravityPhysics
                 .Where(it => it.AngleType == AngleTypes.ROLL)
                 .ToList().ForEach(it => it.UpdateVal(effect, ScaleFactor(), softness.val));
@@ -951,7 +850,7 @@ namespace everlaster
 
         void AdjustPhysicsForPitch(float pitch, float rollFactor)
         {
-            float effect = CalcUtils.Remap(pitch, rollFactor);
+            float effect = Calc.Remap(pitch, rollFactor);
             gravityPhysics
                 .Where(it => it.AngleType == AngleTypes.PITCH)
                 .ToList().ForEach(it => it.UpdateVal(effect, ScaleFactor(), softness.val));
@@ -1005,48 +904,18 @@ namespace everlaster
         void SetAngleDebugInfo(float roll, float pitch)
         {
             angleDebugInfo.SetVal(
-                $"{FormatNameValueString("Roll", roll, 100f, 15, true)}\n" +
-                $"{FormatNameValueString("Pitch", pitch, 100f, 15, true)}"
+                $"{Formatting.NameValueString("Roll", roll, 100f, 15, true)}\n" +
+                $"{Formatting.NameValueString("Pitch", pitch, 100f, 15, true)}"
             );
         }
 
         void SetPhysicsDebugInfo()
         {
-            //physicsDebugInfo.SetVal(
-            //    $"{FormatNameValueString("mass", breastControl.mass, padRight: 25)}\n" +
-            //    $"{FormatNameValueString("center of g", breastControl.centerOfGravityPercent, padRight: 25)}\n" +
-            //    $"{FormatNameValueString("spring", breastControl.spring, padRight: 25)}\n" +
-            //    $"{FormatNameValueString("damper", breastControl.damper, padRight: 25)}\n" +
-            //    $"{FormatNameValueString("in/out spr", breastControl.positionSpringZ, padRight: 25)}\n" +
-            //    $"{FormatNameValueString("in/out dmp", breastControl.positionDamperZ, padRight: 25)}\n" +
-            //    $"{FormatNameValueString("collider radius", breastPhysicsMesh.softVerticesColliderRadius, padRight: 25)}\n" +
-            //    $"{FormatNameValueString("back force", breastPhysicsMesh.softVerticesBackForce, padRight: 25)}\n" +
-            //    $"{FormatNameValueString("back force max", breastPhysicsMesh.softVerticesBackForceMaxForce, padRight: 25)}\n" +
-            //    $"{FormatNameValueString("back force thres", breastPhysicsMesh.softVerticesBackForceThresholdDistance, padRight: 25)}\n" +
-            //    $"{FormatNameValueString("fat spring", breastPhysicsMesh.softVerticesCombinedSpring, padRight: 25)}\n" +
-            //    $"{FormatNameValueString("fat damper", breastPhysicsMesh.softVerticesCombinedDamper, padRight: 25)}\n" +
-            //    $"{FormatNameValueString("fat mass", breastPhysicsMesh.softVerticesMass, padRight: 25)}\n" +
-            //    $"{FormatNameValueString("distance limit", breastPhysicsMesh.softVerticesNormalLimit, padRight: 25)}\n" +
-            //    $"{FormatNameValueString("main spring", mainSpring.val, padRight: 25)}\n" +
-            //    $"{FormatNameValueString("main damper", mainDamper.val, padRight: 25)}\n" +
-            //    $"{FormatNameValueString("outer spring", outerSpring.val, padRight: 25)}\n" +
-            //    $"{FormatNameValueString("outer damper", outerDamper.val, padRight: 25)}\n" +
-            //    $"{FormatNameValueString("areola spring", areolaSpring.val, padRight: 25)}\n" +
-            //    $"{FormatNameValueString("areola damper", areolaDamper.val, padRight: 25)}\n" +
-            //    $"{FormatNameValueString("nipple spring", nippleSpring.val, padRight: 25)}\n" +
-            //    $"{FormatNameValueString("nipple damper", nippleDamper.val, padRight: 25)}\n"
-            //);
-            string text = "";
-            text += "BASE PHYSICS\n";
+            string text = sph.GetStatus();
+            text += "\nGRAVITY PHYSICS\n";
             gravityPhysics.ForEach((it) =>
             {
-                text = text + FormatNameValueString(it.Name, it.Setting.val, padRight: 25) + "\n";
-            });
-
-            text += "GRAVITY PHYSICS\n";
-            gravityPhysics.ForEach((it) =>
-            {
-                text = text + FormatNameValueString(it.Name, it.Setting.val, padRight: 25) + "\n";
+                text = text + Formatting.NameValueString(it.Name, it.Setting.val, padRight: 25) + "\n";
             });
 
             physicsDebugInfo.SetVal(text);
@@ -1055,167 +924,18 @@ namespace everlaster
         void SetMorphDebugInfo()
         {
             string text = "";
-            text += "SIZE MORPHS\n";
             foreach(var it in sizeMorphs)
             {
-                text = text + FormatNameValueString(it.Name, it.Morph.morphValue, 1000f, 30) + "\n";
+                text = text + Formatting.NameValueString(it.Name, it.Morph.morphValue, 1000f, 30) + "\n";
             }
 
             text += "\nGRAVITY MORPHS\n";
             foreach(var it in gravityMorphs)
             {
-                text = text + FormatNameValueString(it.Name, it.Morph.morphValue, 1000f, 30) + "\n";
+                text = text + Formatting.NameValueString(it.Name, it.Morph.morphValue, 1000f, 30) + "\n";
             }
             morphDebugInfo.SetVal(text);
         }
 #endif
-
-        #region Formatting utils
-        string FormatNameValueString(string name, float value, float roundFactor = 1000f, int padRight = 0, bool normalize = false)
-        {
-            double rounded = CalcUtils.RoundToDecimals(value, roundFactor);
-            string printName = StripPrefix(name, "TM_").PadRight(padRight, ' ');
-            string printValue = normalize ? NormalizeNumberFormat(rounded) : $"{rounded}";
-            return string.Format("{0} {1}", printName, printValue);
-        }
-
-        public static string StripPrefix(string text, string prefix)
-        {
-            return text.StartsWith(prefix) ? text.Substring(prefix.Length) : text;
-        }
-
-        string NormalizeNumberFormat(double value)
-        {
-            string formatted = string.Format("{0:000.00}", value);
-            return value >= 0 ? $" {formatted}" : formatted;
-        }
-        #endregion
-    }
-
-    class SizeMorphConfig : MorphConfig
-    {
-        public SizeMorphConfig(string name, float baseMulti, float startValue = 0.00f) : base(name, baseMulti, startValue) { }
-
-        public void UpdateVal(float scale)
-        {
-            Morph.morphValue = StartValue + BaseMulti * scale;
-        }
-    }
-
-    class ExampleMorphConfig : MorphConfig
-    {
-        public ExampleMorphConfig(string name, float baseMulti, float startValue = 0.00f) : base(name, baseMulti, startValue) { }
-
-        public void UpdateVal()
-        {
-            Morph.morphValue = BaseMulti;
-        }
-    }
-
-    class NippleErectionMorphConfig : MorphConfig
-    {
-        public NippleErectionMorphConfig(string name, float baseMulti, float startValue = 0.00f) : base(name, baseMulti, startValue) { }
-
-        public void UpdateVal(float nippleErection)
-        {
-            Morph.morphValue = StartValue + BaseMulti * nippleErection;
-        }
-    }
-
-    // TODO refactor to not use Dictionary
-    class GravityMorphConfig
-    {
-        public string Name { get; set; }
-        public DAZMorph Morph { get; set; }
-        public Dictionary<string, float?[]> Multipliers { get; set; }
-
-        public GravityMorphConfig(string name, Dictionary<string, float?[]> multipliers)
-        {
-            Name = name;
-            Morph = Globals.MORPH_UI.GetMorphByDisplayName(name);
-            Multipliers = multipliers;
-            if (Morph == null)
-            {
-                SuperController.LogError($"everlaster.TittyMagic.{nameof(GravityMorphConfig)}: Morph with name {name} not found!");
-            }
-        }
-
-        public void UpdatePitchVal(string type, float effect, float scale, float softness, float sag)
-        {
-            float?[] m = Multipliers[type];
-
-            // m[0] is the base multiplier for the morph in this type (UPRIGHT etc.)
-            // m[1] scales the breast softness slider for this base multiplier
-            //      - if null, slider setting is ignored
-            // m[2] scales the size calibration slider for this base multiplier
-            //      - if null, slider setting is ignored
-            float softnessFactor = m[1].HasValue ? (float) m[1] * softness : 1;
-            float scaleFactor = m[2].HasValue ? scale * (float) m[2] : 1;
-            float morphValue = sag * (float) m[0] * (
-                (softnessFactor * effect / 2) +
-                (scaleFactor * effect / 2)
-            );
-
-            if(morphValue > 0)
-            {
-                Morph.morphValue = morphValue >= 1.33f ? 1.33f : morphValue;
-            }
-            else
-            {
-                Morph.morphValue = morphValue < -1.33f ? -1.33f : morphValue;
-            }
-        }
-
-        public void UpdateRollVal(string type, float effect, float scale, float softness, float sag)
-        {
-            float?[] m = Multipliers[type];
-
-            float softnessFactor = m[1].HasValue ? (float) m[1] * softness : 1;
-            float scaleFactor = m[2].HasValue ? scale * (float) m[2] : 1;
-            float sagMultiplierVal = sag >= 1 ?
-                1 + (sag - 1) / 2 :
-                sag;
-            float morphValue = sagMultiplierVal * (float) m[0] * (
-                (softnessFactor * effect / 2) +
-                (scaleFactor * effect / 2)
-            );
-
-            if(morphValue > 0)
-            {
-                Morph.morphValue = morphValue >= 1.33f ? 1.33f : morphValue;
-            }
-            else
-            {
-                Morph.morphValue = morphValue < -1.33f ? -1.33f : morphValue;
-            }
-        }
-
-        public void Reset()
-        {
-            Morph.morphValue = 0;
-        }
-    }
-
-    class GravityPhysicsConfig : PhysicsConfig
-    {
-        public GravityPhysicsConfig(string name, string angleType, float min, float max, float? scaleMultiplier, float? softnessMultiplier) : base(name, angleType, min, max, scaleMultiplier, softnessMultiplier) { }
-
-        public void InitStorable()
-        {
-            Setting = Globals.BREAST_CONTROL.GetFloatJSONParam(Name);
-            if(Setting == null)
-            {
-                SuperController.LogError($"everlaster.TittyMagic.{nameof(GravityPhysicsConfig)}: BreastControl float param with name {Name} not found!");
-            }
-        }
-
-        public void UpdateVal(float effect, float scale, float softness)
-        {
-            float scaleFactor = ScaleMultiplier.HasValue ? (float) ScaleMultiplier * scale : 1;
-            float softnessFactor = SoftnessMultiplier.HasValue ? (float) SoftnessMultiplier * softness : 1;
-            float value = (scaleFactor * effect / 2) + (softnessFactor * effect / 2);
-
-            Setting.SetVal(Mathf.SmoothStep(Min, Max, value));
-        }
     }
 }

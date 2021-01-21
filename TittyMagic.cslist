@@ -1,7 +1,9 @@
 src\AngleTypes.cs
-src\CalcUtils.cs
 src\Globals.cs
-src\Logging.cs
+src\GravityPhysicsConfig.cs
 src\MorphConfig.cs
-src\PhysicsConfig.cs
+src\StaticPhysicsHandler.cs
 src\TittyMagic.cs
+src\Utils\Calc.cs
+src\Utils\Formatting.cs
+src\Utils\Log.cs

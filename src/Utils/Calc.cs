@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace everlaster
 {
-    public static class CalcUtils
+    public static class Calc
     {
         // Experimentally determined that this somewhat accurately scales the Breast scale 
         // slider's effective value to the apparent breast size when body is scaled down/up.
