@@ -1,0 +1,53 @@
+UpdateBreastPhysicsSettings()
+// TODO update targetRotationX based on up/down
+// TODO update targetRotationY and Z based on forward/back
+// Completely experimental equations... 
+
+Ideas
+
+- breast shape morph integration
+	-> shape sliders that only adjust shape, not size
+	-> or read those values from jsonstorable (and add listeners)? then compensate the base morph as needed
+- clothing physics fixer slider - read breasts adjust value from clothing and tweak morphs settings (and possibly soft physics) when plugin is active
+- Probably need to be able to weight the softness effects by size -> reword to use values 1...100 for softness and size, and improve gravity settings with a GravityConfig class
+
+- set better targetRotationXYZ based on breast size and softness to make them drop like they have weight
+	- so e.g. when standing, center of gravity is lower with larger and softer breasts (1:1?)
+
+- test if fat back force causes more trouble than it helps
+
+- investigate if fat collider count increases with size automatically and could somehow be used to estimate volume
+	- or if VAM estimates volume to determine the count
+	-> read volume and adjust scale factor automatically
+
+- sliders from 1-100?
+
+- warning about breast size exceeding the size for mass 2.000kg?
+
+
+V1.3.0
+
+- soft physics outer spring and damper are now about double that of the main spring and damper
+	- this makes the breasts' edges much less prone to ugly deformations especially with soft breasts, and should improve realism given that fat around the edges has less other fat around it to bounce on
+- other small physics settings tweaks/optimizations
+	- 1.2.0 was in the right direction but there was too much fat damper, this is now reduced to a more reasonable level
+	- given the target angle implementation, the main breast joint spring doesn't need to be so high any more and the breasts should be a bit less jumpy
+	- breast joint damper now depends much more on scale and starts out at a lower value for small breasts; previously, softness played a role in main joint damper and low softness breasts were too swingy
+	- in general, consistency between different sizes for a given softness and vice versa should be a little bit improved
+
+- use angle data to update physics settings:
+	- update targetRotationX based on up/down
+	- update targetRotationY and Z based on forward/back
+	- flip invertJoint2RotationXZ based on sideways roll to make breasts drop to the side due to gravity
+	- center of gravity based on forward/back
+
+- low softness breasts are too swingy - breast joint damper now starts out a high value for low softness, and drops when softness is increased.
+		.. -> should be lower all around though? speed
+
+- massive reorganization of code base
+	- scenes and presets will need to be updated to reference the plugin correctly - this is by far the easiest to do in a text editor, just open the .json/.vap or whatever file references the TittyMagic.cs, and change it to .cslist before loading the save with v1.3 installed
+- angle based adjustments to follow a smooth curve instead of adjusting linearly
+	- OK for new physics angle based stuff
+	
+
+

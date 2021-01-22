@@ -32,10 +32,10 @@ namespace everlaster
         private JSONStorableFloat groupDSpringMultiplier;
         private JSONStorableFloat groupDDamperMultiplier;
 
-        public StaticPhysicsHandler(AdjustJoints breastControl, DAZPhysicsMesh breastPhysicsMesh)
+        public StaticPhysicsHandler()
         {
-            Control = breastControl;
-            Mesh = breastPhysicsMesh;
+            Control = Globals.BREAST_CONTROL;
+            Mesh = Globals.BREAST_PHYSICS_MESH;
 
             mass = Control.GetFloatJSONParam("mass");
             centerOfGravityPercent = Control.GetFloatJSONParam("centerOfGravityPercent");
