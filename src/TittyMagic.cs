@@ -1,5 +1,6 @@
 ﻿//#define DEBUGINFO
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -9,6 +10,7 @@ namespace everlaster
     class TittyMagic : MVRScript
     {
         private bool enableUpdate;
+        private bool updateScheduled;
 
         private Transform chest;
         private DAZCharacterSelector geometry;
@@ -16,9 +18,9 @@ namespace everlaster
         private List<DAZPhysicsMeshSoftVerticesSet> rightBreastMainGroupSets;
         private Mesh inMemoryMesh;
         private float fatDensity = 0.89f; // g/cm^3
+        private float breastMass;
         private float massMax = 2.000f;
         private float softVolume; // cm^3; sphere volume estimation of right breast
-        private float prevUpdateMass;
 
         private GravityMorphHandler gravityMorphH;
         private SizeMorphHandler sizeMorphH;
@@ -26,6 +28,8 @@ namespace everlaster
         private NippleErectionMorphHandler nippleMorphH;
         private StaticPhysicsHandler staticPhysicsH;
         private GravityPhysicsHandler gravityPhysicsH;
+
+        private BreastMorphListener breastMorphListener;
 
         //storables
         private JSONStorableString pluginVersion;
@@ -74,6 +78,11 @@ namespace everlaster
                 Globals.MORPH_UI = geometry.morphsControlUI;
                 Globals.UPDATE_ENABLED = true;
 
+                breastMorphListener = new BreastMorphListener(geometry.morphBank1.morphs);
+#if DEBUGINFO
+                bml.DumpStatus();
+#endif
+
                 gravityMorphH = new GravityMorphHandler();
                 sizeMorphH = new SizeMorphHandler();
                 exampleMorphH = new ExampleMorphHandler();
@@ -86,7 +95,8 @@ namespace everlaster
                 InitSliderListeners();
 
                 SetPhysicsDefaults();
-                staticPhysicsH.Update(EstimateMass(), softness.val, softnessMax, nippleErection.val);
+                UpdateMassEstimate();
+                staticPhysicsH.Update(breastMass, softness.val, softnessMax, nippleErection.val);
 
                 enableUpdate = Globals.UPDATE_ENABLED;
             }
@@ -217,7 +227,7 @@ namespace everlaster
             UIDynamicButton hugeAndSoft = CreateButton(exampleMorphH.ExampleNames["hugeAndSoft"]);
             hugeAndSoft.button.onClick.AddListener(() =>
             {
-                sizeMorphH.Update(3.20f);
+                sizeMorphH.Update(3.00f);
                 softness.val = 2.80f;
                 sagMultiplier.val = 2.00f;
 
@@ -247,21 +257,24 @@ namespace everlaster
             UIDynamic spacer = CreateSpacer(rightSide);
             spacer.height = height;
         }
-#endregion
+        #endregion
 
         void InitSliderListeners()
         {
             softness.slider.onValueChanged.AddListener((float val) =>
             {
-                staticPhysicsH.Update(EstimateMass(), val, softnessMax, nippleErection.val);
+                UpdateMassEstimate();
+                staticPhysicsH.Update(breastMass, val, softnessMax, nippleErection.val);
             });
             sagMultiplier.slider.onValueChanged.AddListener((float val) =>
             {
-                staticPhysicsH.Update(EstimateMass(), softness.val, softnessMax, nippleErection.val);
+                UpdateMassEstimate();
+                staticPhysicsH.Update(breastMass, softness.val, softnessMax, nippleErection.val);
             });
             nippleErection.slider.onValueChanged.AddListener((float val) =>
             {
-                staticPhysicsH.Update(EstimateMass(), softness.val, softnessMax, nippleErection.val);
+                UpdateMassEstimate();
+                staticPhysicsH.Update(breastMass, softness.val, softnessMax, nippleErection.val);
                 nippleMorphH.Update(val);
             });
         }
@@ -284,19 +297,17 @@ namespace everlaster
                 {
                     float roll = Calc.Roll(chest.rotation);
                     float pitch = Calc.Pitch(chest.rotation);
+                    float scaleVal;
+                    UpdateMassEstimate();
 
-                    float mass = EstimateMass();
-
-                    // causes unnecessary updates during animation due to change in volume
-                    // TODO detect if breast morphs changed, or lock physics settings from plugin UI
-                    if(Math.Abs(mass - prevUpdateMass) >= 0.100f)
+                    if(breastMorphListener.Changed())
                     {
-                        prevUpdateMass = mass;
-                        staticPhysicsH.Update(mass, softness.val, softnessMax, nippleErection.val);
+                        updateScheduled = true;
+                        StartCoroutine(UpdateOnceDelayed(0.1f));
                     }
 
                     // roughly estimate the legacy scale value from automatically calculated mass
-                    float scaleVal = (mass - 0.20f) * 1.60f;
+                    scaleVal = (breastMass - 0.20f) * 1.60f;
 
                     gravityMorphH.Update(roll, pitch, scaleVal, softness.val, sagMultiplier.val);
                     //gravityPhysicsH.Update(roll, pitch, scaleVal, softness.val);
@@ -315,7 +326,17 @@ namespace everlaster
             }
         }
 
-        float EstimateMass()
+        IEnumerator UpdateOnceDelayed(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            if (updateScheduled)
+            {
+                updateScheduled = false;
+                staticPhysicsH.Update(breastMass, softness.val, softnessMax, nippleErection.val);
+            }
+        }
+
+        void UpdateMassEstimate()
         {
             Vector3[] vertices = rightBreastMainGroupSets
                 .Select(it => it.currentPosition).ToArray();
@@ -324,7 +345,7 @@ namespace everlaster
             inMemoryMesh.RecalculateBounds();
             softVolume = (float) Calc.OblateShperoidVolumeCM3(inMemoryMesh.bounds.size);
             float mass = (softVolume * fatDensity) / 1000;
-            return mass > massMax ? massMax : mass;
+            breastMass = mass > massMax ? massMax : mass;
         }
 
         void OnDestroy()
