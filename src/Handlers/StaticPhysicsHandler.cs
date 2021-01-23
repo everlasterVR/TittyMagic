@@ -41,7 +41,21 @@
             BPH.softVerticesColliderAdditionalNormalOffset = 0.001f;
         }
 
-        public void Update(
+        public void UpdateMainPhysics(float breastMass, float softnessVal, float softnessMax)
+        {
+            // roughly estimate the legacy scale value from automatically calculated mass
+            float scaleVal = (breastMass - 0.20f) * 1.60f;
+            float hardnessVal = softnessMax - softnessVal; // 0.00 .. 2.50 for softness 3.00 .. 0.50
+
+            //                                    base      size adjustment         softness adjustment
+            BC.mass                             = breastMass;
+            BC.spring                           = 34f    + (10f    * scaleVal) + (10f    * hardnessVal);
+            BC.damper                           = 0.75f  + (0.66f  * scaleVal);
+            BC.positionSpringZ                  = 250f   + (200f   * scaleVal);
+            BC.positionDamperZ                  = 5f     + (3.0f   * scaleVal) + (3.0f   * softnessVal);
+        }
+
+        public void FullUpdate(
             float breastMass,
             float softnessVal,
             float softnessMax,

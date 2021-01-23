@@ -10,7 +10,6 @@ namespace everlaster
     class TittyMagic : MVRScript
     {
         private bool enableUpdate;
-        private bool updateScheduled;
 
         private Transform chest;
         private DAZCharacterSelector geometry;
@@ -76,11 +75,10 @@ namespace everlaster
                 Globals.BREAST_CONTROL = breastControl;
                 Globals.BREAST_PHYSICS_MESH = breastPhysicsMesh;
                 Globals.MORPH_UI = geometry.morphsControlUI;
-                Globals.UPDATE_ENABLED = true;
 
-                breastMorphListener = new BreastMorphListener(geometry.morphBank1.morphs);
+                breastMorphListener = new BreastMorphListener(geometry.femaleMorphBank1.morphs);
 #if DEBUGINFO
-                bml.DumpStatus();
+                breastMorphListener.DumpStatus();
 #endif
 
                 gravityMorphH = new GravityMorphHandler();
@@ -96,9 +94,9 @@ namespace everlaster
 
                 SetPhysicsDefaults();
                 UpdateMassEstimate();
-                staticPhysicsH.Update(breastMass, softness.val, softnessMax, nippleErection.val);
+                staticPhysicsH.FullUpdate(breastMass, softness.val, softnessMax, nippleErection.val);
 
-                enableUpdate = Globals.UPDATE_ENABLED;
+                enableUpdate = true;
             }
             catch(Exception e)
             {
@@ -263,18 +261,15 @@ namespace everlaster
         {
             softness.slider.onValueChanged.AddListener((float val) =>
             {
-                UpdateMassEstimate();
-                staticPhysicsH.Update(breastMass, val, softnessMax, nippleErection.val);
+                staticPhysicsH.FullUpdate(breastMass, val, softnessMax, nippleErection.val);
             });
             sagMultiplier.slider.onValueChanged.AddListener((float val) =>
             {
-                UpdateMassEstimate();
-                staticPhysicsH.Update(breastMass, softness.val, softnessMax, nippleErection.val);
+                staticPhysicsH.FullUpdate(breastMass, softness.val, softnessMax, nippleErection.val);
             });
             nippleErection.slider.onValueChanged.AddListener((float val) =>
             {
-                UpdateMassEstimate();
-                staticPhysicsH.Update(breastMass, softness.val, softnessMax, nippleErection.val);
+                staticPhysicsH.FullUpdate(breastMass, softness.val, softnessMax, nippleErection.val);
                 nippleMorphH.Update(val);
             });
         }
@@ -295,19 +290,16 @@ namespace everlaster
             {
                 if (enableUpdate)
                 {
-                    float roll = Calc.Roll(chest.rotation);
-                    float pitch = Calc.Pitch(chest.rotation);
-                    float scaleVal;
-                    UpdateMassEstimate();
-
                     if(breastMorphListener.Changed())
                     {
-                        updateScheduled = true;
-                        StartCoroutine(UpdateOnceDelayed(0.1f));
+                        StartCoroutine(RefreshStaticPhysics());
                     }
 
+                    float roll = Calc.Roll(chest.rotation);
+                    float pitch = Calc.Pitch(chest.rotation);
+
                     // roughly estimate the legacy scale value from automatically calculated mass
-                    scaleVal = (breastMass - 0.20f) * 1.60f;
+                    float scaleVal = (breastMass - 0.20f) * 1.60f;
 
                     gravityMorphH.Update(roll, pitch, scaleVal, softness.val, sagMultiplier.val);
                     //gravityPhysicsH.Update(roll, pitch, scaleVal, softness.val);
@@ -321,19 +313,30 @@ namespace everlaster
             catch(Exception e)
             {
                 Log.Error("Exception caught: " + e);
-                Globals.UPDATE_ENABLED = false;
-                enableUpdate = Globals.UPDATE_ENABLED;
+                enableUpdate = false;
             }
         }
 
-        IEnumerator UpdateOnceDelayed(float delay)
+        IEnumerator RefreshStaticPhysics()
         {
-            yield return new WaitForSeconds(delay);
-            if (updateScheduled)
+            while(breastMorphListener.Changed())
             {
-                updateScheduled = false;
-                staticPhysicsH.Update(breastMass, softness.val, softnessMax, nippleErection.val);
+                yield return null;
             }
+
+            // Iterate the update a few times because each update changes breast shape and thereby the mass estimate.
+            for(int i = 0; i < 10; i++)
+            {
+                // update only non-soft physics settings to improve of performance
+                staticPhysicsH.UpdateMainPhysics(breastMass, softness.val, softnessMax);
+                UpdateMassEstimate();
+                if(i > 0)
+                {
+                    yield return new WaitForSeconds(0.10f);
+                }
+            }
+
+            staticPhysicsH.FullUpdate(breastMass, softness.val, softnessMax, nippleErection.val);
         }
 
         void UpdateMassEstimate()
