@@ -19,7 +19,7 @@ namespace everlaster
         private float fatDensity = 0.89f; // g/cm^3
         private float breastMass;
         private float massMax = 2.000f;
-        private float softVolume; // cm^3; sphere volume estimation of right breast
+        private float softVolume; // cm^3; spheroid volume estimation of right breast
 
         private GravityMorphHandler gravityMorphH;
         private SizeMorphHandler sizeMorphH;
@@ -105,7 +105,6 @@ namespace everlaster
         }
 
         #region User interface
-        // TODO UI class?
         void InitPluginUILeft()
         {
             JSONStorableString versionH1 = NewTextField("Version Info", 40);
@@ -302,7 +301,7 @@ namespace everlaster
                     float scaleVal = (breastMass - 0.20f) * 1.60f;
 
                     gravityMorphH.Update(roll, pitch, scaleVal, softness.val, sagMultiplier.val);
-                    //gravityPhysicsH.Update(roll, pitch, scaleVal, softness.val);
+                    // gravityPhysicsH.Update(roll, pitch, scaleVal, softness.val);
 #if DEBUGINFO
                     SetBaseDebugInfo(roll, pitch);
                     SetMorphDebugInfo();
@@ -327,7 +326,7 @@ namespace everlaster
             // Iterate the update a few times because each update changes breast shape and thereby the mass estimate.
             for(int i = 0; i < 10; i++)
             {
-                // update only non-soft physics settings to improve of performance
+                // update only non-soft physics settings to improve performance
                 staticPhysicsH.UpdateMainPhysics(breastMass, softness.val, softnessMax);
                 UpdateMassEstimate();
                 if(i > 0)

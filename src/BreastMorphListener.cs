@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace everlaster
 {
@@ -31,7 +30,6 @@ namespace everlaster
                 float value = morph.morphValue;
                 if (value != status[morph.uid])
                 {
-                    //SuperController.LogMessage($"Morph {MorphName(morph)} value has changed from {status[morph.uid]} to {value}");
                     status[morph.uid] = value;
                     return true;
                 }
@@ -70,7 +68,7 @@ namespace everlaster
         private float HitDeltaMax(DAZMorphVertex[] deltas)
         {
             float totalDelta = deltas.Sum(x => x.delta.magnitude);
-            return totalDelta * 0.1f; //filtering strength
+            return totalDelta * 0.1f; // Filtering strength
         }
 
         private string MorphName(DAZMorph morph)
