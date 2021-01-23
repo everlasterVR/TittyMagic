@@ -1,5 +1,7 @@
 ﻿//#define DEBUGINFO
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace everlaster
@@ -7,12 +9,16 @@ namespace everlaster
     class TittyMagic : MVRScript
     {
         private bool enableUpdate;
-        private bool atomScaleListenerIsSet = false;
 
         private Transform chest;
         private DAZCharacterSelector geometry;
 
-        private SizeMorphConfig bodyScaleMorph;
+        private List<DAZPhysicsMeshSoftVerticesSet> rightBreastMainGroupSets;
+        private Mesh inMemoryMesh;
+        private float fatDensity = 0.89f; // g/cm^3
+        private float massMax = 2.000f;
+        private float softVolume; // cm^3; sphere volume estimation of right breast
+        private float prevUpdateMass;
 
         private GravityMorphHandler gravityMorphH;
         private SizeMorphHandler sizeMorphH;
@@ -22,30 +28,21 @@ namespace everlaster
         private GravityPhysicsHandler gravityPhysicsH;
 
         //storables
-        private JSONStorableFloat atomScale;
-        private float atomScaleFactor;
-
         private JSONStorableString pluginVersion;
-        private float scaleMin = 0.1f;
-        private float scaleDefault = 0.8f;
-        private float scaleMax = 3.0f;
-
         protected JSONStorableFloat softness;
-        private float softnessMin = 0.5f;
         private float softnessDefault = 1.5f;
         private float softnessMax = 3.0f;
 
-        protected JSONStorableFloat scale;
+        protected JSONStorableFloat sagMultiplier;
         private float sagDefault = 1.2f;
 
-        protected JSONStorableFloat sagMultiplier;
+        protected JSONStorableFloat nippleErection;
         private float nippleErectionDefault = 0.25f;
 
-        protected JSONStorableFloat nippleErection;
         protected JSONStorableString UILog;
 
 #if DEBUGINFO
-        protected JSONStorableString angleDebugInfo = new JSONStorableString("Angle Debug Info", "");
+        protected JSONStorableString baseDebugInfo = new JSONStorableString("Base Debug Info", "");
         protected JSONStorableString physicsDebugInfo = new JSONStorableString("Physics Debug Info", "");
         protected JSONStorableString morphDebugInfo = new JSONStorableString("Morph Debug Info", "");
 #endif
@@ -65,9 +62,12 @@ namespace everlaster
 
                 AdjustJoints breastControl = containingAtom.GetStorableByID("BreastControl") as AdjustJoints;
                 DAZPhysicsMesh breastPhysicsMesh = containingAtom.GetStorableByID("BreastPhysicsMesh") as DAZPhysicsMesh;
-                atomScale = containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale");
-                geometry = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
                 chest = containingAtom.GetStorableByID("chest").transform;
+                geometry = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
+                rightBreastMainGroupSets = breastPhysicsMesh.softVerticesGroups
+                    .Find(it => it.name == "right")
+                    .softVerticesSets;
+                inMemoryMesh = new Mesh();
 
                 Globals.BREAST_CONTROL = breastControl;
                 Globals.BREAST_PHYSICS_MESH = breastPhysicsMesh;
@@ -85,11 +85,8 @@ namespace everlaster
                 InitPluginUIRight();
                 InitSliderListeners();
 
-                InitBuiltInMorphs();
-                ResolveAtomScaleFactor(atomScale.val);
-
                 SetPhysicsDefaults();
-                staticPhysicsH.Update(scale.val, scaleMin, softness.val, softnessMax, atomScaleFactor, nippleErection.val);
+                staticPhysicsH.Update(EstimateMass(), softness.val, softnessMax, nippleErection.val);
 
                 enableUpdate = Globals.UPDATE_ENABLED;
             }
@@ -107,54 +104,45 @@ namespace everlaster
             versionH1.SetVal($"{nameof(TittyMagic)} v{pluginVersion.val}");
 
             // doesn't just init UI, also variables...
-            scale = NewFloatSlider("Breast scale", scaleDefault, scaleMin, scaleMax);
-            softness = NewFloatSlider("Breast softness", softnessDefault, softnessMin, softnessMax);
+            softness = NewFloatSlider("Breast softness", softnessDefault, 0.5f, softnessMax);
             sagMultiplier = NewFloatSlider("Sag multiplier", sagDefault, 0f, 2.0f);
             nippleErection = NewFloatSlider("Erect nipples", nippleErectionDefault, 0f, 1.0f);
 
-#if DEBUGINFO
-            UIDynamicTextField angleInfoField = CreateTextField(angleDebugInfo, false);
-            angleInfoField.height = 100;
-            angleInfoField.UItext.fontSize = 26;
-            UIDynamicTextField physicsInfoField = CreateTextField(physicsDebugInfo, false);
-            physicsInfoField.height = 430;
-            physicsInfoField.UItext.fontSize = 26;
-#else
             CreateNewSpacer(10f);
 
             JSONStorableString presetsH2 = NewTextField("Example Settings", 34);
             presetsH2.SetVal("\nExample settings");
 
             CreateExampleButtons();
-#endif
         }
 
         void InitPluginUIRight()
         {
 #if DEBUGINFO
-            UIDynamicTextField morphInfo = CreateTextField(morphDebugInfo, true);
-            morphInfo.height = 1200;
-            morphInfo.UItext.fontSize = 26;
+            UIDynamicTextField angleInfoField = CreateTextField(baseDebugInfo, true);
+            angleInfoField.height = 125;
+            angleInfoField.UItext.fontSize = 26;
+            UIDynamicTextField physicsInfoField = CreateTextField(physicsDebugInfo, true);
+            physicsInfoField.height = 480;
+            physicsInfoField.UItext.fontSize = 26;
 #else
-            JSONStorableString usageInfo = NewTextField("Usage Info Area", 28, 640, true);
+            JSONStorableString usageInfo = NewTextField("Usage Info Area", 28, 505, true);
             string usage = "\n";
-            usage += "Breast scale applies size morphs and anchors them to " +
-                "size related physics settings. For best results, breast morphs " +
-                "should be tweaked manually only after setting the scale amount. " +
-                "(See the examples below.)\n\n";
             usage += "Breast softness controls soft physics and affects the amount " +
                 "of morph-based sag in different orientations or poses.\n\n";
             usage += "Sag multiplier adjusts the sag produced by Breast softness " +
                 "independently of soft physics.\n\n";
             usage += "Set breast morphs to defaults before applying example settings.";
             usageInfo.SetVal(usage);
-
+#endif
+#if DEBUGINFO
+            UIDynamicTextField morphInfo = CreateTextField(morphDebugInfo, true);
+            morphInfo.height = 565;
+            morphInfo.UItext.fontSize = 26;
+#else
             CreateNewSpacer(10f, true);
 
-            //JSONStorableString presetsInfo = NewTextField("Example Settings", 28, 100, true);
-            //presetsInfo.SetVal("\nSet breast morphs to defaults before applying example settings.");
-
-            UILog = NewTextField("Log Info Area", 28, 515, true);
+            UILog = NewTextField("Log Info Area", 28, 655, true);
             UILog.SetVal("\n");
 #endif
         }
@@ -190,48 +178,52 @@ namespace everlaster
             UIDynamicButton bigNaturals = CreateButton(exampleMorphH.ExampleNames["bigNaturals"]);
             bigNaturals.button.onClick.AddListener(() =>
             {
-                scale.val = 1.65f;
+                sizeMorphH.Update(1.65f);
                 softness.val = 2.10f;
                 sagMultiplier.val = 1.60f;
 
                 exampleMorphH.ResetMorphs();
                 exampleMorphH.Update("bigNaturals");
+
                 Log.AppendTo(UILog, exampleMorphH.GetStatus("bigNaturals"));
             });
 
             UIDynamicButton smallAndPerky = CreateButton(exampleMorphH.ExampleNames["smallAndPerky"]);
             smallAndPerky.button.onClick.AddListener(() =>
             {
-                scale.val = 0.30f;
+                sizeMorphH.Update(0.30f);
                 softness.val = 1.10f;
                 sagMultiplier.val = 1.80f;
 
                 exampleMorphH.ResetMorphs();
                 exampleMorphH.Update("smallAndPerky");
+
                 Log.AppendTo(UILog, exampleMorphH.GetStatus("smallAndPerky"));
             });
 
             UIDynamicButton mediumImplants = CreateButton(exampleMorphH.ExampleNames["mediumImplants"]);
             mediumImplants.button.onClick.AddListener(() =>
             {
-                scale.val = 0.75f;
+                sizeMorphH.Update(0.75f);
                 softness.val = 0.60f;
                 sagMultiplier.val = 0.80f;
 
                 exampleMorphH.ResetMorphs();
                 exampleMorphH.Update("mediumImplants");
+                
                 Log.AppendTo(UILog, exampleMorphH.GetStatus("mediumImplants"));
             });
 
             UIDynamicButton hugeAndSoft = CreateButton(exampleMorphH.ExampleNames["hugeAndSoft"]);
             hugeAndSoft.button.onClick.AddListener(() =>
             {
-                scale.val = 3.00f;
+                sizeMorphH.Update(3.20f);
                 softness.val = 2.80f;
                 sagMultiplier.val = 2.00f;
 
                 exampleMorphH.ResetMorphs();
                 exampleMorphH.Update("hugeAndSoft");
+                
                 Log.AppendTo(UILog, exampleMorphH.GetStatus("hugeAndSoft"));
             });
 
@@ -240,11 +232,12 @@ namespace everlaster
             UIDynamicButton defaults = CreateButton("Undo example settings");
             defaults.button.onClick.AddListener(() =>
             {
-                scale.val = scaleDefault;
+                sizeMorphH.Update(0.80f);
                 softness.val = softnessDefault;
                 sagMultiplier.val = sagDefault;
 
                 exampleMorphH.ResetMorphs();
+
                 Log.AppendTo(UILog, "> Example tweaks zeroed and sliders reset.");
             });
         }
@@ -254,44 +247,23 @@ namespace everlaster
             UIDynamic spacer = CreateSpacer(rightSide);
             spacer.height = height;
         }
-        #endregion
+#endregion
 
         void InitSliderListeners()
         {
-            scale.slider.onValueChanged.AddListener((float val) =>
-            {
-                staticPhysicsH.Update(val, scaleMin, softness.val, softnessMax, atomScaleFactor, nippleErection.val);
-            });
             softness.slider.onValueChanged.AddListener((float val) =>
             {
-                staticPhysicsH.Update(scale.val, scaleMin, val, softnessMax, atomScaleFactor, nippleErection.val);
+                staticPhysicsH.Update(EstimateMass(), val, softnessMax, nippleErection.val);
             });
             sagMultiplier.slider.onValueChanged.AddListener((float val) =>
             {
-                staticPhysicsH.Update(scale.val, scaleMin, softness.val, softnessMax, atomScaleFactor, nippleErection.val);
+                staticPhysicsH.Update(EstimateMass(), softness.val, softnessMax, nippleErection.val);
             });
             nippleErection.slider.onValueChanged.AddListener((float val) =>
             {
-                staticPhysicsH.Update(scale.val, scaleMin, softness.val, softnessMax, atomScaleFactor, nippleErection.val);
+                staticPhysicsH.Update(EstimateMass(), softness.val, softnessMax, nippleErection.val);
+                nippleMorphH.Update(val);
             });
-        }
-
-        void AtomScaleListener(float val)
-        {
-            ResolveAtomScaleFactor(atomScale.val);
-            staticPhysicsH.Update(scale.val, scaleMin, softness.val, softnessMax, atomScaleFactor, nippleErection.val);
-        }
-
-        void InitBuiltInMorphs()
-        {
-            bodyScaleMorph = new SizeMorphConfig("Body Scale", 0.00f);
-            if (bodyScaleMorph.Morph.morphValue != 0)
-            {
-                Log.Message(
-                    $"Morph '{bodyScaleMorph.Name}' is locked to 0.000! (It was {bodyScaleMorph.Morph.morphValue}.) " +
-                    $"It is recommended to use the Scale slider in Control & Physics 1 to adjust atom scale if needed."
-                );
-            }
         }
 
         // TODO merge
@@ -304,58 +276,32 @@ namespace everlaster
             staticPhysicsH.SetPhysicsDefaults();
         }
 
-        void ResolveAtomScaleFactor(float value)
-        {
-            if (value == 1)
-            {
-                atomScaleFactor = value;
-                return;
-            }
-            
-            if (value > 1)
-            {
-                atomScaleFactor = value / Calc.AtomScaleAdjustment(value);
-                return;
-            }
-
-            if (value < 1)
-            {
-                if(value <= 0.5)
-                {
-                    atomScaleFactor = 0.5f * Calc.AtomScaleAdjustment(0.5f);
-                    atomScale.slider.onValueChanged.RemoveListener(AtomScaleListener);
-                    Log.Message(
-                        "Person Atom Scale values lower than 0.5 are not fully compatible - " +
-                        "this plugin will now behave as if it is 0.5. " +
-                        "Reload the plugin after returning it to above 0.5."
-                    );
-                    return;
-                }
-
-                atomScaleFactor = value * Calc.AtomScaleAdjustment(value);
-            }
-        }
-
         public void Update()
         {
-            TryInitGameUIListeners();
-
             try
             {
                 if (enableUpdate)
                 {
-                    bodyScaleMorph.Morph.morphValue = 0;
-                    sizeMorphH.Update((scale.val - scaleMin) / 0.9f);
-                    nippleMorphH.Update(nippleErection.val);
-
                     float roll = Calc.Roll(chest.rotation);
                     float pitch = Calc.Pitch(chest.rotation);
-                    float scaleFactor = atomScaleFactor * scale.val;
 
-                    gravityMorphH.Update(roll, pitch, scaleFactor, softness.val, sagMultiplier.val);
-                    //gravityPhysicsH.Update(roll, pitch, scaleFactor, softness.val);
+                    float mass = EstimateMass();
+
+                    // causes unnecessary updates during animation due to change in volume
+                    // TODO detect if breast morphs changed, or lock physics settings from plugin UI
+                    if(Math.Abs(mass - prevUpdateMass) >= 0.100f)
+                    {
+                        prevUpdateMass = mass;
+                        staticPhysicsH.Update(mass, softness.val, softnessMax, nippleErection.val);
+                    }
+
+                    // roughly estimate the legacy scale value from automatically calculated mass
+                    float scaleVal = (mass - 0.20f) * 1.60f;
+
+                    gravityMorphH.Update(roll, pitch, scaleVal, softness.val, sagMultiplier.val);
+                    //gravityPhysicsH.Update(roll, pitch, scaleVal, softness.val);
 #if DEBUGINFO
-                    SetAngleDebugInfo(roll, pitch);
+                    SetBaseDebugInfo(roll, pitch);
                     SetMorphDebugInfo();
                     SetPhysicsDebugInfo();
 #endif
@@ -369,14 +315,16 @@ namespace everlaster
             }
         }
 
-        void TryInitGameUIListeners()
+        float EstimateMass()
         {
-            if (atomScale.slider != null && !atomScaleListenerIsSet)
-            {
-                // update physics settings in case Person atom's Scale is changed
-                atomScale.slider.onValueChanged.AddListener(AtomScaleListener);
-                atomScaleListenerIsSet = true;
-            }
+            Vector3[] vertices = rightBreastMainGroupSets
+                .Select(it => it.currentPosition).ToArray();
+
+            inMemoryMesh.vertices = vertices;
+            inMemoryMesh.RecalculateBounds();
+            softVolume = (float) Calc.OblateShperoidVolumeCM3(inMemoryMesh.bounds.size);
+            float mass = (softVolume * fatDensity) / 1000;
+            return mass > massMax ? massMax : mass;
         }
 
         void OnDestroy()
@@ -392,11 +340,16 @@ namespace everlaster
         }
 
 #if DEBUGINFO
-        void SetAngleDebugInfo(float roll, float pitch)
+        void SetBaseDebugInfo(float roll, float pitch)
         {
-            angleDebugInfo.SetVal(
-                $"{Formatting.NameValueString("Roll", roll, 100f, 15, true)}\n" +
-                $"{Formatting.NameValueString("Pitch", pitch, 100f, 15, true)}"
+            float x = (float) Calc.RoundToDecimals(inMemoryMesh.bounds.extents.x, 1000f);
+            float y = (float) Calc.RoundToDecimals(inMemoryMesh.bounds.extents.y, 1000f);
+            float z = (float) Calc.RoundToDecimals(inMemoryMesh.bounds.extents.z, 1000f);
+            baseDebugInfo.SetVal(
+                $"{Formatting.NameValueString("Roll", roll, 100f, 15)}\n" +
+                $"{Formatting.NameValueString("Pitch", pitch, 100f, 15)}\n" +
+                $"volume: {softVolume}\n" +
+                $"extents: {x}, {y}, {z}"
             );
         }
 

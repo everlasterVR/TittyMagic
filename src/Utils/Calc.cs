@@ -5,12 +5,20 @@ namespace everlaster
 {
     public static class Calc
     {
-        // Experimentally determined that this somewhat accurately scales the Breast scale 
-        // slider's effective value to the apparent breast size when body is scaled down/up.
-        // Multiply by this when scaling down, divide when scaling up.
-        public static float AtomScaleAdjustment(float value)
+        public static double OblateShperoidVolumeCM3(Vector3 size)
         {
-            return 1 - (float) Math.Abs(Math.Log10(Math.Pow(value, 3)));
+            double equatorialDiameterCM = 100f * (size.x + size.y) / 2;
+            double polarDiameterCM = 100f * size.z;
+            return (Math.PI/6) * Math.Pow(equatorialDiameterCM, 2) * fixDepth(polarDiameterCM);
+        }
+
+        // z depth is too high for small breasts, leading to too much mass.
+        // fixed here with an exponential curve
+        // minimum size is about 240cm^3 e.g. 30B bra
+        // maximum size at 2KG is about 2300cm^3 e.g. 36L bra
+        private static double fixDepth(double polarDiameter)
+        {
+            return Math.Pow((polarDiameter * 0.50), 1.50);
         }
 
         public static float Roll(Quaternion q)
