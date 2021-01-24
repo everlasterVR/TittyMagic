@@ -10,6 +10,8 @@ src\Handlers\StaticPhysicsHandler.cs
 src\Utils\Calc.cs
 src\Utils\Formatting.cs
 src\Utils\Log.cs
+src\AtomScaleListener.cs
 src\BreastMorphListener.cs
+src\CupVolumeCalc.cs
 src\TittyMagic.cs
 src\Variables.cs

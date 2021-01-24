@@ -18,8 +18,12 @@ namespace everlaster
         private Mesh inMemoryMesh;
         private float fatDensity = 0.89f; // g/cm^3
         private float breastMass;
+        private float massMin = 0.100f;
         private float massMax = 2.000f;
         private float softVolume; // cm^3; spheroid volume estimation of right breast
+
+        private AtomScaleListener atomScaleListener;
+        private BreastMorphListener breastMorphListener;
 
         private GravityMorphHandler gravityMorphH;
         private SizeMorphHandler sizeMorphH;
@@ -27,8 +31,6 @@ namespace everlaster
         private NippleErectionMorphHandler nippleMorphH;
         private StaticPhysicsHandler staticPhysicsH;
         private GravityPhysicsHandler gravityPhysicsH;
-
-        private BreastMorphListener breastMorphListener;
 
         private JSONStorableString titleUIText;
         private JSONStorableString statusUIText;
@@ -78,6 +80,7 @@ namespace everlaster
                 Globals.BREAST_PHYSICS_MESH = breastPhysicsMesh;
                 Globals.MORPH_UI = geometry.morphsControlUI;
 
+                atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
                 breastMorphListener = new BreastMorphListener(geometry.femaleMorphBank1.morphs);
 #if DEBUGINFO
                 breastMorphListener.DumpStatus();
@@ -95,7 +98,7 @@ namespace everlaster
                 InitSliderListeners();
 
                 SetPhysicsDefaults();
-                UpdateMassEstimate(updateUIStatus: true);
+                UpdateMassEstimate(atomScaleListener.Value, updateUIStatus: true);
                 staticPhysicsH.FullUpdate(breastMass, softness.val, softnessMax, nippleErection.val);
             }
             catch(Exception e)
@@ -113,6 +116,9 @@ namespace everlaster
             // doesn't just init UI, also variables...
             softness = NewFloatSlider("Breast softness", softnessDefault, 0.5f, softnessMax);
             sagMultiplier = NewFloatSlider("Sag multiplier", sagDefault, 0f, 2.0f);
+
+            CreateNewSpacer(10f);
+
             nippleErection = NewFloatSlider("Erect nipples", nippleErectionDefault, 0f, 1.0f);
 
             CreateNewSpacer(10f);
@@ -134,7 +140,7 @@ namespace everlaster
             physicsInfoField.height = 465;
             physicsInfoField.UItext.fontSize = 26;
 #else
-            JSONStorableString usageInfo = NewTextField("Usage Info Area", 28, 505, true);
+            JSONStorableString usageInfo = NewTextField("Usage Info Area", 28, 415, true);
             string usage = "\n";
             usage += "Breast softness controls soft physics and affects the amount " +
                 "of morph-based sag in different orientations or poses.\n\n";
@@ -150,7 +156,7 @@ namespace everlaster
 #else
             CreateNewSpacer(10f, true);
 
-            logUIArea = NewTextField("Log Info Area", 28, 655, true);
+            logUIArea = NewTextField("Log Info Area", 28, 630, true);
             logUIArea.SetVal("\n");
 #endif
         }
@@ -290,9 +296,9 @@ namespace everlaster
             {
                 if (enableUpdate)
                 {
-                    if(breastMorphListener.Changed())
+                    if(breastMorphListener.Changed() || atomScaleListener.Changed())
                     {
-                        StartCoroutine(RefreshStaticPhysics());
+                        StartCoroutine(RefreshStaticPhysics(atomScaleListener.Value));
                     }
 
                     float roll = Calc.Roll(chest.rotation);
@@ -318,7 +324,7 @@ namespace everlaster
             }
         }
 
-        IEnumerator RefreshStaticPhysics()
+        IEnumerator RefreshStaticPhysics(float atomScale)
         {
             while(breastMorphListener.Changed())
             {
@@ -329,7 +335,7 @@ namespace everlaster
             for(int i = 0; i < 7; i++)
             {
                 // update only non-soft physics settings to improve performance
-                UpdateMassEstimate();
+                UpdateMassEstimate(atomScale);
                 staticPhysicsH.UpdateMainPhysics(breastMass, softness.val, softnessMax);
                 if(i > 0)
                 {
@@ -337,42 +343,70 @@ namespace everlaster
                 }
             }
 
-            UpdateMassEstimate(updateUIStatus: true);
+            UpdateMassEstimate(atomScale, updateUIStatus: true);
             staticPhysicsH.FullUpdate(breastMass, softness.val, softnessMax, nippleErection.val);
         }
 
-        void UpdateMassEstimate(bool updateUIStatus = false)
+        void UpdateMassEstimate(float atomScale, bool updateUIStatus = false)
         {
             Vector3[] vertices = rightBreastMainGroupSets
                 .Select(it => it.currentPosition).ToArray();
 
             inMemoryMesh.vertices = vertices;
             inMemoryMesh.RecalculateBounds();
-            softVolume = (float) Calc.OblateShperoidVolumeCM3(inMemoryMesh.bounds.size);
+            softVolume = (float) CupVolumeCalc.EstimateVolume(inMemoryMesh.bounds.size, atomScale);
             float mass = (softVolume * fatDensity) / 1000;
 
-            float massSurplus = (float) Calc.RoundToDecimals(mass - massMax, 1000f);
-            breastMass = massSurplus > 0 ? massMax : mass;
-
-            if(updateUIStatus)
+            if(mass > massMax)
             {
-                UpdateMassSurplusUIStatus(massSurplus);
+                breastMass = massMax;
+                if(updateUIStatus)
+                {
+                    float excess = (float) Calc.RoundToDecimals(mass - massMax, 1000f);
+                    statusUIText.SetVal(massExcessStatus(excess));
+                }
             }
+            else if(mass < massMin)
+            {
+                breastMass = massMin;
+                if(updateUIStatus)
+                {
+                    float shortage = (float) Calc.RoundToDecimals(massMin - mass, 1000f);
+                    statusUIText.SetVal(massShortageStatus(shortage));
+                }
+            }
+            else
+            {
+                breastMass = mass;
+                if(updateUIStatus)
+                {
+                    statusUIText.SetVal("");
+                }
+            } 
         }
 
-        void UpdateMassSurplusUIStatus(float massSurplus)
+        string massExcessStatus(float value)
         {
             Color color = Color.Lerp(
                 new Color(0.5f, 0.5f, 0.0f, 1f),
                 Color.red,
-                massSurplus
+                value
             );
-            string status = massSurplus > 0 ?
-                $"<color=#{ColorUtility.ToHtmlStringRGB(color)}><size=28>" +
-                $"Estimated Breast mass is <b>{massSurplus}</b> over the 2.000 maximum.\n" +
-                $"</size></color>" : "";
-            statusUIText.SetVal(status);
+            return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}><size=28>" +
+                $"Estimated mass is <b>{value}</b> over the 2.000 maximum.\n" +
+                $"</size></color>";
+        }
 
+        string massShortageStatus(float value)
+        {
+            Color color = Color.Lerp(
+                new Color(0.5f, 0.5f, 0.0f, 1f),
+                Color.red,
+                value*10
+            );
+            return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}><size=28>" +
+                $"Estimated mass is <b>{value}</b> below the 0.100 minimum.\n" +
+                $"</size></color>";
         }
 
         void OnDestroy()
@@ -390,14 +424,14 @@ namespace everlaster
 #if DEBUGINFO
         void SetBaseDebugInfo(float roll, float pitch)
         {
-            float x = (float) Calc.RoundToDecimals(inMemoryMesh.bounds.extents.x, 1000f);
-            float y = (float) Calc.RoundToDecimals(inMemoryMesh.bounds.extents.y, 1000f);
-            float z = (float) Calc.RoundToDecimals(inMemoryMesh.bounds.extents.z, 1000f);
+            float x = (float) Calc.RoundToDecimals(inMemoryMesh.bounds.size.x, 1000f);
+            float y = (float) Calc.RoundToDecimals(inMemoryMesh.bounds.size.y, 1000f);
+            float z = (float) Calc.RoundToDecimals(inMemoryMesh.bounds.size.z, 1000f);
             baseDebugInfo.SetVal(
                 $"{Formatting.NameValueString("Roll", roll, 100f, 15)}\n" +
                 $"{Formatting.NameValueString("Pitch", pitch, 100f, 15)}\n" +
                 $"volume: {softVolume}\n" +
-                $"extents: {x}, {y}, {z}"
+                $"diameters: x{x}, y{y}, z{z}\n"
             );
         }
 
