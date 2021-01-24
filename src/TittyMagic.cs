@@ -324,14 +324,14 @@ namespace everlaster
             }
 
             // Iterate the update a few times because each update changes breast shape and thereby the mass estimate.
-            for(int i = 0; i < 10; i++)
+            for(int i = 0; i < 7; i++)
             {
                 // update only non-soft physics settings to improve performance
                 staticPhysicsH.UpdateMainPhysics(breastMass, softness.val, softnessMax);
                 UpdateMassEstimate();
                 if(i > 0)
                 {
-                    yield return new WaitForSeconds(0.10f);
+                    yield return new WaitForSeconds(0.16f);
                 }
             }
 
