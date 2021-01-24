@@ -9,7 +9,7 @@ namespace everlaster
 {
     class TittyMagic : MVRScript
     {
-        private bool enableUpdate;
+        private bool enableUpdate = true;
 
         private Transform chest;
         private DAZCharacterSelector geometry;
@@ -30,19 +30,21 @@ namespace everlaster
 
         private BreastMorphListener breastMorphListener;
 
-        //storables
+        private JSONStorableString titleUIText;
+        private JSONStorableString statusUIText;
+        private JSONStorableString logUIArea;
+
+        //registered storables
         private JSONStorableString pluginVersion;
-        protected JSONStorableFloat softness;
+        private JSONStorableFloat softness;
         private float softnessDefault = 1.5f;
         private float softnessMax = 3.0f;
 
-        protected JSONStorableFloat sagMultiplier;
+        private JSONStorableFloat sagMultiplier;
         private float sagDefault = 1.2f;
 
-        protected JSONStorableFloat nippleErection;
+        private JSONStorableFloat nippleErection;
         private float nippleErectionDefault = 0.25f;
-
-        protected JSONStorableString UILog;
 
 #if DEBUGINFO
         protected JSONStorableString baseDebugInfo = new JSONStorableString("Base Debug Info", "");
@@ -93,10 +95,8 @@ namespace everlaster
                 InitSliderListeners();
 
                 SetPhysicsDefaults();
-                UpdateMassEstimate();
+                UpdateMassEstimate(updateUIStatus: true);
                 staticPhysicsH.FullUpdate(breastMass, softness.val, softnessMax, nippleErection.val);
-
-                enableUpdate = true;
             }
             catch(Exception e)
             {
@@ -107,8 +107,8 @@ namespace everlaster
         #region User interface
         void InitPluginUILeft()
         {
-            JSONStorableString versionH1 = NewTextField("Version Info", 40);
-            versionH1.SetVal($"{nameof(TittyMagic)} v{pluginVersion.val}");
+            titleUIText = NewTextField("titleText", 36);
+            titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{pluginVersion.val}</size>");
 
             // doesn't just init UI, also variables...
             softness = NewFloatSlider("Breast softness", softnessDefault, 0.5f, softnessMax);
@@ -125,12 +125,13 @@ namespace everlaster
 
         void InitPluginUIRight()
         {
+            statusUIText = NewTextField("statusText", 28, 100, true);
 #if DEBUGINFO
             UIDynamicTextField angleInfoField = CreateTextField(baseDebugInfo, true);
             angleInfoField.height = 125;
             angleInfoField.UItext.fontSize = 26;
             UIDynamicTextField physicsInfoField = CreateTextField(physicsDebugInfo, true);
-            physicsInfoField.height = 480;
+            physicsInfoField.height = 465;
             physicsInfoField.UItext.fontSize = 26;
 #else
             JSONStorableString usageInfo = NewTextField("Usage Info Area", 28, 505, true);
@@ -144,13 +145,13 @@ namespace everlaster
 #endif
 #if DEBUGINFO
             UIDynamicTextField morphInfo = CreateTextField(morphDebugInfo, true);
-            morphInfo.height = 565;
+            morphInfo.height = 465;
             morphInfo.UItext.fontSize = 26;
 #else
             CreateNewSpacer(10f, true);
 
-            UILog = NewTextField("Log Info Area", 28, 655, true);
-            UILog.SetVal("\n");
+            logUIArea = NewTextField("Log Info Area", 28, 655, true);
+            logUIArea.SetVal("\n");
 #endif
         }
 
@@ -192,7 +193,7 @@ namespace everlaster
                 exampleMorphH.ResetMorphs();
                 exampleMorphH.Update("bigNaturals");
 
-                Log.AppendTo(UILog, exampleMorphH.GetStatus("bigNaturals"));
+                Log.AppendTo(logUIArea, exampleMorphH.GetStatus("bigNaturals"));
             });
 
             UIDynamicButton smallAndPerky = CreateButton(exampleMorphH.ExampleNames["smallAndPerky"]);
@@ -205,7 +206,7 @@ namespace everlaster
                 exampleMorphH.ResetMorphs();
                 exampleMorphH.Update("smallAndPerky");
 
-                Log.AppendTo(UILog, exampleMorphH.GetStatus("smallAndPerky"));
+                Log.AppendTo(logUIArea, exampleMorphH.GetStatus("smallAndPerky"));
             });
 
             UIDynamicButton mediumImplants = CreateButton(exampleMorphH.ExampleNames["mediumImplants"]);
@@ -218,7 +219,7 @@ namespace everlaster
                 exampleMorphH.ResetMorphs();
                 exampleMorphH.Update("mediumImplants");
                 
-                Log.AppendTo(UILog, exampleMorphH.GetStatus("mediumImplants"));
+                Log.AppendTo(logUIArea, exampleMorphH.GetStatus("mediumImplants"));
             });
 
             UIDynamicButton hugeAndSoft = CreateButton(exampleMorphH.ExampleNames["hugeAndSoft"]);
@@ -231,7 +232,7 @@ namespace everlaster
                 exampleMorphH.ResetMorphs();
                 exampleMorphH.Update("hugeAndSoft");
                 
-                Log.AppendTo(UILog, exampleMorphH.GetStatus("hugeAndSoft"));
+                Log.AppendTo(logUIArea, exampleMorphH.GetStatus("hugeAndSoft"));
             });
 
             CreateNewSpacer(10f);
@@ -245,7 +246,7 @@ namespace everlaster
 
                 exampleMorphH.ResetMorphs();
 
-                Log.AppendTo(UILog, "> Example tweaks zeroed and sliders reset.");
+                Log.AppendTo(logUIArea, "> Example tweaks zeroed and sliders reset.");
             });
         }
 
@@ -302,6 +303,7 @@ namespace everlaster
 
                     gravityMorphH.Update(roll, pitch, scaleVal, softness.val, sagMultiplier.val);
                     // gravityPhysicsH.Update(roll, pitch, scaleVal, softness.val);
+
 #if DEBUGINFO
                     SetBaseDebugInfo(roll, pitch);
                     SetMorphDebugInfo();
@@ -327,18 +329,19 @@ namespace everlaster
             for(int i = 0; i < 7; i++)
             {
                 // update only non-soft physics settings to improve performance
-                staticPhysicsH.UpdateMainPhysics(breastMass, softness.val, softnessMax);
                 UpdateMassEstimate();
+                staticPhysicsH.UpdateMainPhysics(breastMass, softness.val, softnessMax);
                 if(i > 0)
                 {
                     yield return new WaitForSeconds(0.16f);
                 }
             }
 
+            UpdateMassEstimate(updateUIStatus: true);
             staticPhysicsH.FullUpdate(breastMass, softness.val, softnessMax, nippleErection.val);
         }
 
-        void UpdateMassEstimate()
+        void UpdateMassEstimate(bool updateUIStatus = false)
         {
             Vector3[] vertices = rightBreastMainGroupSets
                 .Select(it => it.currentPosition).ToArray();
@@ -347,7 +350,29 @@ namespace everlaster
             inMemoryMesh.RecalculateBounds();
             softVolume = (float) Calc.OblateShperoidVolumeCM3(inMemoryMesh.bounds.size);
             float mass = (softVolume * fatDensity) / 1000;
-            breastMass = mass > massMax ? massMax : mass;
+
+            float massSurplus = (float) Calc.RoundToDecimals(mass - massMax, 1000f);
+            breastMass = massSurplus > 0 ? massMax : mass;
+
+            if(updateUIStatus)
+            {
+                UpdateMassSurplusUIStatus(massSurplus);
+            }
+        }
+
+        void UpdateMassSurplusUIStatus(float massSurplus)
+        {
+            Color color = Color.Lerp(
+                new Color(0.5f, 0.5f, 0.0f, 1f),
+                Color.red,
+                massSurplus
+            );
+            string status = massSurplus > 0 ?
+                $"<color=#{ColorUtility.ToHtmlStringRGB(color)}><size=28>" +
+                $"Estimated Breast mass is <b>{massSurplus}</b> over the 2.000 maximum.\n" +
+                $"</size></color>" : "";
+            statusUIText.SetVal(status);
+
         }
 
         void OnDestroy()
