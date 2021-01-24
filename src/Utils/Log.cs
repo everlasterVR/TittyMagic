@@ -11,10 +11,5 @@
         {
             SuperController.LogMessage($"{nameof(everlaster)}.{className}: {message}");
         }
-
-        public static void AppendTo(JSONStorableString jss, string text)
-        {
-            jss.SetVal("\n" + text + "\n" + jss.val);
-        }
     }
 }

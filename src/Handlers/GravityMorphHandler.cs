@@ -48,7 +48,7 @@ namespace everlaster
 
         public string GetStatus()
         {
-            string text = "\nGRAVITY MORPHS\n";
+            string text = "";
             morphs.ForEach((it) =>
             {
                 text = text + Formatting.NameValueString(it.Name, it.Morph.morphValue, 1000f, 30) + "\n";

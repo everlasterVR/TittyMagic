@@ -26,15 +26,13 @@ namespace everlaster
         private BreastMorphListener breastMorphListener;
 
         private GravityMorphHandler gravityMorphH;
-        private SizeMorphHandler sizeMorphH;
-        private ExampleMorphHandler exampleMorphH;
         private NippleErectionMorphHandler nippleMorphH;
         private StaticPhysicsHandler staticPhysicsH;
         private GravityPhysicsHandler gravityPhysicsH;
 
         private JSONStorableString titleUIText;
         private JSONStorableString statusUIText;
-        private JSONStorableString logUIArea;
+        //private JSONStorableString logUIArea;
 
         //registered storables
         private JSONStorableString pluginVersion;
@@ -86,8 +84,6 @@ namespace everlaster
 #endif
 
                 gravityMorphH = new GravityMorphHandler();
-                sizeMorphH = new SizeMorphHandler();
-                exampleMorphH = new ExampleMorphHandler();
                 nippleMorphH = new NippleErectionMorphHandler();
                 gravityPhysicsH = new GravityPhysicsHandler();
                 staticPhysicsH = new StaticPhysicsHandler();
@@ -119,13 +115,6 @@ namespace everlaster
             CreateNewSpacer(10f);
 
             nippleErection = NewFloatSlider("Erect nipples", 0f, 0f, 1.0f);
-
-            CreateNewSpacer(10f);
-
-            JSONStorableString presetsH2 = NewTextField("Example Settings", 34);
-            presetsH2.SetVal("\nExample settings");
-
-            CreateExampleButtons();
         }
 
         void InitPluginUIRight()
@@ -153,10 +142,10 @@ namespace everlaster
             morphInfo.height = 465;
             morphInfo.UItext.fontSize = 26;
 #else
-            CreateNewSpacer(10f, true);
+            //CreateNewSpacer(10f, true);
 
-            logUIArea = NewTextField("Log Info Area", 28, 630, true);
-            logUIArea.SetVal("\n");
+            //logUIArea = NewTextField("Log Info Area", 28, 630, true);
+            //logUIArea.SetVal("\n");
 #endif
         }
 
@@ -185,75 +174,6 @@ namespace everlaster
         //    RegisterBool(storable);
         //    return storable;
         //}
-
-        void CreateExampleButtons()
-        {
-            UIDynamicButton bigNaturals = CreateButton(exampleMorphH.ExampleNames["bigNaturals"]);
-            bigNaturals.button.onClick.AddListener(() =>
-            {
-                sizeMorphH.Update(1.65f);
-                softness.val = 2.10f;
-                sagMultiplier.val = 1.60f;
-
-                exampleMorphH.ResetMorphs();
-                exampleMorphH.Update("bigNaturals");
-
-                Log.AppendTo(logUIArea, exampleMorphH.GetStatus("bigNaturals"));
-            });
-
-            UIDynamicButton smallAndPerky = CreateButton(exampleMorphH.ExampleNames["smallAndPerky"]);
-            smallAndPerky.button.onClick.AddListener(() =>
-            {
-                sizeMorphH.Update(0.30f);
-                softness.val = 1.10f;
-                sagMultiplier.val = 1.80f;
-
-                exampleMorphH.ResetMorphs();
-                exampleMorphH.Update("smallAndPerky");
-
-                Log.AppendTo(logUIArea, exampleMorphH.GetStatus("smallAndPerky"));
-            });
-
-            UIDynamicButton mediumImplants = CreateButton(exampleMorphH.ExampleNames["mediumImplants"]);
-            mediumImplants.button.onClick.AddListener(() =>
-            {
-                sizeMorphH.Update(0.75f);
-                softness.val = 0.60f;
-                sagMultiplier.val = 0.80f;
-
-                exampleMorphH.ResetMorphs();
-                exampleMorphH.Update("mediumImplants");
-                
-                Log.AppendTo(logUIArea, exampleMorphH.GetStatus("mediumImplants"));
-            });
-
-            UIDynamicButton hugeAndSoft = CreateButton(exampleMorphH.ExampleNames["hugeAndSoft"]);
-            hugeAndSoft.button.onClick.AddListener(() =>
-            {
-                sizeMorphH.Update(3.00f);
-                softness.val = 2.80f;
-                sagMultiplier.val = 2.00f;
-
-                exampleMorphH.ResetMorphs();
-                exampleMorphH.Update("hugeAndSoft");
-                
-                Log.AppendTo(logUIArea, exampleMorphH.GetStatus("hugeAndSoft"));
-            });
-
-            CreateNewSpacer(10f);
-
-            UIDynamicButton defaults = CreateButton("Undo example settings");
-            defaults.button.onClick.AddListener(() =>
-            {
-                sizeMorphH.Update(0.80f);
-                softness.val = softnessDefault;
-                sagMultiplier.val = sagDefault;
-
-                exampleMorphH.ResetMorphs();
-
-                Log.AppendTo(logUIArea, "> Example tweaks zeroed and sliders reset.");
-            });
-        }
 
         void CreateNewSpacer(float height, bool rightSide = false)
         {
@@ -310,8 +230,8 @@ namespace everlaster
 
 #if DEBUGINFO
                     SetBaseDebugInfo(roll, pitch);
-                    SetMorphDebugInfo();
-                    SetPhysicsDebugInfo();
+                    morphDebugInfo.SetVal(gravityMorphH.GetStatus());
+                    physicsDebugInfo.SetVal(staticPhysicsH.GetStatus() + gravityPhysicsH.GetStatus());
 #endif
                 }
             }
@@ -431,16 +351,6 @@ namespace everlaster
                 $"volume: {softVolume}\n" +
                 $"diameters: x{x}, y{y}, z{z}\n"
             );
-        }
-
-        void SetPhysicsDebugInfo()
-        {
-            physicsDebugInfo.SetVal(staticPhysicsH.GetStatus() + gravityPhysicsH.GetStatus());
-        }
-
-        void SetMorphDebugInfo()
-        {
-            morphDebugInfo.SetVal(sizeMorphH.GetStatus() + gravityMorphH.GetStatus());
         }
 #endif
     }

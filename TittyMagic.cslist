@@ -1,11 +1,9 @@
 src\Configs\GravityMorphConfig.cs
 src\Configs\GravityPhysicsConfig.cs
 src\Configs\MorphConfig.cs
-src\Handlers\ExampleMorphHandler.cs
 src\Handlers\GravityMorphHandler.cs
 src\Handlers\GravityPhysicsHandler.cs
 src\Handlers\NippleErectionMorphHandler.cs
-src\Handlers\SizeMorphHandler.cs
 src\Handlers\StaticPhysicsHandler.cs
 src\Utils\Calc.cs
 src\Utils\Formatting.cs
