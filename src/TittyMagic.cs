@@ -46,7 +46,6 @@ namespace everlaster
         private float sagDefault = 1.2f;
 
         private JSONStorableFloat nippleErection;
-        private float nippleErectionDefault = 0.25f;
 
 #if DEBUGINFO
         protected JSONStorableString baseDebugInfo = new JSONStorableString("Base Debug Info", "");
@@ -119,7 +118,7 @@ namespace everlaster
 
             CreateNewSpacer(10f);
 
-            nippleErection = NewFloatSlider("Erect nipples", nippleErectionDefault, 0f, 1.0f);
+            nippleErection = NewFloatSlider("Erect nipples", 0f, 0f, 1.0f);
 
             CreateNewSpacer(10f);
 
@@ -275,7 +274,6 @@ namespace everlaster
             });
             nippleErection.slider.onValueChanged.AddListener((float val) =>
             {
-                staticPhysicsH.FullUpdate(breastMass, softness.val, softnessMax, nippleErection.val);
                 nippleMorphH.Update(val);
             });
         }

@@ -4,7 +4,7 @@ namespace everlaster
 {
     class ExampleMorphHandler
     {
-        private Dictionary<string, List<ExampleMorphConfig>> examples;
+        private Dictionary<string, List<BasicMorphConfig>> examples;
         public Dictionary<string, string> ExampleNames { get; set; }
 
         public ExampleMorphHandler()
@@ -17,82 +17,82 @@ namespace everlaster
                 { "hugeAndSoft", "Huge and soft" },
             };
 
-            examples = new Dictionary<string, List<ExampleMorphConfig>>();
-            examples.Add("bigNaturals", new List<ExampleMorphConfig>
+            examples = new Dictionary<string, List<BasicMorphConfig>>();
+            examples.Add("bigNaturals", new List<BasicMorphConfig>
             {
                 //                      morph                       value
-                new ExampleMorphConfig("Breast Height Upper",       0.175f),
-                new ExampleMorphConfig("Breast Pointed",            0.100f),
-                new ExampleMorphConfig("Breast Round",             -0.500f),
-                new ExampleMorphConfig("Breast Top Curve2",        -0.175f),
-                new ExampleMorphConfig("Breast Zero",               0.100f),
-                new ExampleMorphConfig("Breasts Natural Left",     -0.150f),
-                new ExampleMorphConfig("Breasts Natural Right",     0.075f),
-                new ExampleMorphConfig("Breasts Size",              0.050f),
-                new ExampleMorphConfig("BreastsShape2",            -0.175f),
-                new ExampleMorphConfig("Nipple Diameter",          -0.400f),
-                new ExampleMorphConfig("Nipple Size",              -0.400f),
-                new ExampleMorphConfig("Nipple Length",            -0.200f),
+                new BasicMorphConfig("Breast Height Upper",       0.175f),
+                new BasicMorphConfig("Breast Pointed",            0.100f),
+                new BasicMorphConfig("Breast Round",             -0.500f),
+                new BasicMorphConfig("Breast Top Curve2",        -0.175f),
+                new BasicMorphConfig("Breast Zero",               0.100f),
+                new BasicMorphConfig("Breasts Natural Left",     -0.150f),
+                new BasicMorphConfig("Breasts Natural Right",     0.075f),
+                new BasicMorphConfig("Breasts Size",              0.050f),
+                new BasicMorphConfig("BreastsShape2",            -0.175f),
+                new BasicMorphConfig("Nipple Diameter",          -0.400f),
+                new BasicMorphConfig("Nipple Size",              -0.400f),
+                new BasicMorphConfig("Nipple Length",            -0.200f),
             });
-            examples.Add("smallAndPerky", new List<ExampleMorphConfig>
+            examples.Add("smallAndPerky", new List<BasicMorphConfig>
             {
                 //                      morph                       value
-                new ExampleMorphConfig("Areolae Perk",              0.400f),
-                new ExampleMorphConfig("Areola Size",              -0.300f),
-                new ExampleMorphConfig("Breast diameter",          -0.050f),
-                new ExampleMorphConfig("Breast Sag1",               0.100f),
-                new ExampleMorphConfig("Breast Sag2",               0.150f),
-                new ExampleMorphConfig("Breast Pointed",            0.300f),
-                new ExampleMorphConfig("Breast Round",             -0.300f),
-                new ExampleMorphConfig("Breasts Cleavage",          0.150f),
-                new ExampleMorphConfig("Breasts Natural Left",      0.150f),
-                new ExampleMorphConfig("Breasts Natural Right",     0.190f),
-                new ExampleMorphConfig("Breasts Implants Left",    -0.025f),
-                new ExampleMorphConfig("Breasts Implants Right",   -0.025f),
-                new ExampleMorphConfig("Breasts Small",             0.150f),
-                new ExampleMorphConfig("Breasts Under Curve",       0.150f),
-                new ExampleMorphConfig("Nipple Diameter",          -0.600f),
-                new ExampleMorphConfig("Nipple Length",            -0.300f),
-                new ExampleMorphConfig("Nipple Size",              -0.100f),
-                new ExampleMorphConfig("Sternum Width",             0.100f),
+                new BasicMorphConfig("Areolae Perk",              0.400f),
+                new BasicMorphConfig("Areola Size",              -0.300f),
+                new BasicMorphConfig("Breast diameter",          -0.050f),
+                new BasicMorphConfig("Breast Sag1",               0.100f),
+                new BasicMorphConfig("Breast Sag2",               0.150f),
+                new BasicMorphConfig("Breast Pointed",            0.300f),
+                new BasicMorphConfig("Breast Round",             -0.300f),
+                new BasicMorphConfig("Breasts Cleavage",          0.150f),
+                new BasicMorphConfig("Breasts Natural Left",      0.150f),
+                new BasicMorphConfig("Breasts Natural Right",     0.190f),
+                new BasicMorphConfig("Breasts Implants Left",    -0.025f),
+                new BasicMorphConfig("Breasts Implants Right",   -0.025f),
+                new BasicMorphConfig("Breasts Small",             0.150f),
+                new BasicMorphConfig("Breasts Under Curve",       0.150f),
+                new BasicMorphConfig("Nipple Diameter",          -0.600f),
+                new BasicMorphConfig("Nipple Length",            -0.300f),
+                new BasicMorphConfig("Nipple Size",              -0.100f),
+                new BasicMorphConfig("Sternum Width",             0.100f),
             });
-            examples.Add("mediumImplants", new List<ExampleMorphConfig>
+            examples.Add("mediumImplants", new List<BasicMorphConfig>
             {
                 //                      morph                       value
-                new ExampleMorphConfig("Breast diameter",           0.500f),
-                new ExampleMorphConfig("Breast Round",             -0.250f),
-                new ExampleMorphConfig("Breast Under Smoother3",   -0.350f),
-                new ExampleMorphConfig("Breasts Cleavage",          0.500f),
-                new ExampleMorphConfig("Breasts Implants Left",     0.200f),
-                new ExampleMorphConfig("Breasts Implants Right",    0.180f),
-                new ExampleMorphConfig("Breasts Natural Left",     -0.150f),
-                new ExampleMorphConfig("Breasts Natural Right",    -0.125f),
-                new ExampleMorphConfig("Breasts Perk Side",         0.300f),
-                new ExampleMorphConfig("Breasts Size",             -0.350f),
-                new ExampleMorphConfig("Chest Smoother",           -0.500f),
-                new ExampleMorphConfig("Nipple Size",              -0.500f),
-                new ExampleMorphConfig("Nipple Length",            -0.350f),
-                new ExampleMorphConfig("Nipples Size",              0.150f),
-                new ExampleMorphConfig("Sternum Width",             0.750f),
+                new BasicMorphConfig("Breast diameter",           0.500f),
+                new BasicMorphConfig("Breast Round",             -0.250f),
+                new BasicMorphConfig("Breast Under Smoother3",   -0.350f),
+                new BasicMorphConfig("Breasts Cleavage",          0.500f),
+                new BasicMorphConfig("Breasts Implants Left",     0.200f),
+                new BasicMorphConfig("Breasts Implants Right",    0.180f),
+                new BasicMorphConfig("Breasts Natural Left",     -0.150f),
+                new BasicMorphConfig("Breasts Natural Right",    -0.125f),
+                new BasicMorphConfig("Breasts Perk Side",         0.300f),
+                new BasicMorphConfig("Breasts Size",             -0.350f),
+                new BasicMorphConfig("Chest Smoother",           -0.500f),
+                new BasicMorphConfig("Nipple Size",              -0.500f),
+                new BasicMorphConfig("Nipple Length",            -0.350f),
+                new BasicMorphConfig("Nipples Size",              0.150f),
+                new BasicMorphConfig("Sternum Width",             0.750f),
             });
-            examples.Add("hugeAndSoft", new List<ExampleMorphConfig>
+            examples.Add("hugeAndSoft", new List<BasicMorphConfig>
             {
                 //                      morph                       value
-                new ExampleMorphConfig("Areola Size",               0.500f),
-                new ExampleMorphConfig("Areola Size X",            -0.250f),
-                new ExampleMorphConfig("Areola Size Y",             0.650f),
-                new ExampleMorphConfig("Areola Puffy Edge",         0.500f),
-                new ExampleMorphConfig("Areolae Diameter",          0.250f),
-                new ExampleMorphConfig("Areolae Perk",              0.500f),
-                new ExampleMorphConfig("Breasts Cleavage",         -0.100f),
-                new ExampleMorphConfig("Breasts Gone",             -0.100f),
-                new ExampleMorphConfig("Breasts Perk Side",         0.450f),
-                new ExampleMorphConfig("Breasts Size",             -0.100f),
-                new ExampleMorphConfig("BreastsShape3",            -0.300f),
-                new ExampleMorphConfig("Nipple Diameter",          -0.333f),
-                new ExampleMorphConfig("Nipples Large",            -0.100f),
-                new ExampleMorphConfig("ChestUnderBreast",          0.250f),
-                new ExampleMorphConfig("Sternum Width",             0.250f),
+                new BasicMorphConfig("Areola Size",               0.500f),
+                new BasicMorphConfig("Areola Size X",            -0.250f),
+                new BasicMorphConfig("Areola Size Y",             0.650f),
+                new BasicMorphConfig("Areola Puffy Edge",         0.500f),
+                new BasicMorphConfig("Areolae Diameter",          0.250f),
+                new BasicMorphConfig("Areolae Perk",              0.500f),
+                new BasicMorphConfig("Breasts Cleavage",         -0.100f),
+                new BasicMorphConfig("Breasts Gone",             -0.100f),
+                new BasicMorphConfig("Breasts Perk Side",         0.450f),
+                new BasicMorphConfig("Breasts Size",             -0.100f),
+                new BasicMorphConfig("BreastsShape3",            -0.300f),
+                new BasicMorphConfig("Nipple Diameter",          -0.333f),
+                new BasicMorphConfig("Nipples Large",            -0.100f),
+                new BasicMorphConfig("ChestUnderBreast",          0.250f),
+                new BasicMorphConfig("Sternum Width",             0.250f),
             });
         }
 

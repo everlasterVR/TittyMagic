@@ -4,21 +4,22 @@ namespace everlaster
 {
     class NippleErectionMorphHandler
     {
-        private List<NippleErectionMorphConfig> morphs;
+        private List<BasicMorphConfig> morphs;
 
         public NippleErectionMorphHandler()
         {
-            morphs = new List<NippleErectionMorphConfig>
+            morphs = new List<BasicMorphConfig>
             {
-                //                             morph                       base       start
-                new NippleErectionMorphConfig("TM_Natural Nipples",       -0.100f,    0.025f), // Spacedog.Import_Reloaded_Lite.2
-                new NippleErectionMorphConfig("TM_Nipple",                 0.500f,   -0.125f), // Spacedog.Import_Reloaded_Lite.2
-                new NippleErectionMorphConfig("TM_Nipple Length",         -0.200f,    0.050f),
-                new NippleErectionMorphConfig("TM_Nipples Apply",          0.500f,   -0.125f),
-                new NippleErectionMorphConfig("TM_Nipples Bulbous",        0.600f,   -0.150f), // kemenate.Morphs.10
-                new NippleErectionMorphConfig("TM_Nipples Large",          0.300f,   -0.075f),
-                new NippleErectionMorphConfig("TM_Nipples Sag",           -0.200f,    0.050f), // kemenate.Morphs.10
-                new NippleErectionMorphConfig("TM_Nipples Tilt",           0.200f,   -0.050f), // kemenate.Morphs.10
+                //                             morph           base
+                new BasicMorphConfig("TM_NippleErection",      1.000f),
+                //new BasicMorphConfig("Nipples Depth",          0.750f), // Spacedog.Import_Reloaded_Lite.2
+                //new BasicMorphConfig("Natural Nipples",       -0.100f), // Spacedog.Import_Reloaded_Lite.2
+                //new BasicMorphConfig("Nipple",                 0.500f), // Spacedog.Import_Reloaded_Lite.2
+                //new BasicMorphConfig("Nipple Length",         -0.100f),
+                //new BasicMorphConfig("Nipples Apply",          0.250f),
+                //new BasicMorphConfig("Nipples Bulbous",        0.150f), // kemenate.Morphs.10
+                //new BasicMorphConfig("Nipples Sag",           -0.200f), // kemenate.Morphs.10
+                //new BasicMorphConfig("Nipples Tilt",           0.200f), // kemenate.Morphs.10
             };
         }
 
@@ -27,7 +28,7 @@ namespace everlaster
             morphs.ForEach(it => it.UpdateVal(nippleErection));
         }
 
-        public void ResetMorphs(string type = "")
+        public void ResetMorphs()
         {
             morphs.ForEach(it => it.Reset());
         }

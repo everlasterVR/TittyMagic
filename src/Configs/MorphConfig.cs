@@ -24,6 +24,19 @@
             Morph.morphValue = 0;
         }
     }
+    class BasicMorphConfig : MorphConfig
+    {
+        public BasicMorphConfig(
+            string name,
+            float baseMulti,
+            float startValue = 0.00f
+        ) : base(name, baseMulti, startValue) { }
+
+        public void UpdateVal(float multiplier = 1f)
+        {
+            Morph.morphValue = multiplier * BaseMulti;
+        }
+    }
 
     class SizeMorphConfig : MorphConfig
     {
@@ -36,34 +49,6 @@
         public void UpdateVal(float scale)
         {
             Morph.morphValue = StartValue + BaseMulti * scale;
-        }
-    }
-
-    class ExampleMorphConfig : MorphConfig
-    {
-        public ExampleMorphConfig(
-            string name,
-            float baseMulti,
-            float startValue = 0.00f
-        ) : base(name, baseMulti, startValue) { }
-
-        public void UpdateVal()
-        {
-            Morph.morphValue = BaseMulti;
-        }
-    }
-
-    class NippleErectionMorphConfig : MorphConfig
-    {
-        public NippleErectionMorphConfig(
-            string name,
-            float baseMulti,
-            float startValue = 0.00f
-        ) : base(name, baseMulti, startValue) { }
-
-        public void UpdateVal(float nippleErection)
-        {
-            Morph.morphValue = StartValue + BaseMulti * nippleErection;
         }
     }
 }
