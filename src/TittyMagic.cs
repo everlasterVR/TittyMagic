@@ -37,11 +37,9 @@ namespace everlaster
         //registered storables
         private JSONStorableString pluginVersion;
         private JSONStorableFloat softness;
-        private float softnessDefault = 1.5f;
         private float softnessMax = 3.0f;
 
         private JSONStorableFloat sagMultiplier;
-        private float sagDefault = 1.2f;
 
         private JSONStorableFloat nippleErection;
 
@@ -109,8 +107,8 @@ namespace everlaster
             titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{pluginVersion.val}</size>");
 
             // doesn't just init UI, also variables...
-            softness = NewFloatSlider("Breast softness", softnessDefault, 0.5f, softnessMax);
-            sagMultiplier = NewFloatSlider("Sag multiplier", sagDefault, 0f, 2.0f);
+            softness = NewFloatSlider("Breast softness", 1.5f, 0.3f, softnessMax);
+            sagMultiplier = NewFloatSlider("Sag multiplier", 1.0f, 0f, 2.0f);
 
             CreateNewSpacer(10f);
 
@@ -223,11 +221,10 @@ namespace everlaster
                     float pitch = Calc.Pitch(chest.rotation);
 
                     // roughly estimate the legacy scale value from automatically calculated mass
-                    float scaleVal = (breastMass - 0.20f) * 1.60f;
+                    float scaleVal = Mathf.Max((breastMass - 0.20f) * 1.60f, 0);
 
+                    gravityPhysicsH.Update(roll, pitch, scaleVal, softness.val);
                     gravityMorphH.Update(roll, pitch, scaleVal, softness.val, sagMultiplier.val);
-                    // gravityPhysicsH.Update(roll, pitch, scaleVal, softness.val);
-
 #if DEBUGINFO
                     SetBaseDebugInfo(roll, pitch);
                     morphDebugInfo.SetVal(gravityMorphH.GetStatus());
@@ -272,7 +269,7 @@ namespace everlaster
 
             inMemoryMesh.vertices = vertices;
             inMemoryMesh.RecalculateBounds();
-            softVolume = (float) CupVolumeCalc.EstimateVolume(inMemoryMesh.bounds.size, atomScale);
+            softVolume = CupVolumeCalc.EstimateVolume(inMemoryMesh.bounds.size, atomScale);
             float mass = (softVolume * fatDensity) / 1000;
 
             if(mass > massMax)
@@ -280,7 +277,7 @@ namespace everlaster
                 breastMass = massMax;
                 if(updateUIStatus)
                 {
-                    float excess = (float) Calc.RoundToDecimals(mass - massMax, 1000f);
+                    float excess = Calc.RoundToDecimals(mass - massMax, 1000f);
                     statusUIText.SetVal(massExcessStatus(excess));
                 }
             }
@@ -289,7 +286,7 @@ namespace everlaster
                 breastMass = massMin;
                 if(updateUIStatus)
                 {
-                    float shortage = (float) Calc.RoundToDecimals(massMin - mass, 1000f);
+                    float shortage = Calc.RoundToDecimals(massMin - mass, 1000f);
                     statusUIText.SetVal(massShortageStatus(shortage));
                 }
             }
@@ -329,14 +326,16 @@ namespace everlaster
 
         void OnDestroy()
         {
-            gravityMorphH.ResetMorphs();
-            nippleMorphH.ResetMorphs();
+            gravityPhysicsH.Reset();
+            gravityMorphH.Reset();
+            nippleMorphH.Reset();
         }
 
         void OnDisable()
         {
-            gravityMorphH.ResetMorphs();
-            nippleMorphH.ResetMorphs();
+            gravityPhysicsH.Reset();
+            gravityMorphH.Reset();
+            nippleMorphH.Reset();
         }
 
 #if DEBUGINFO

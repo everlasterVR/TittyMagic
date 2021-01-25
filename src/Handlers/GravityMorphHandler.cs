@@ -39,7 +39,7 @@ namespace everlaster
             AdjustMorphsForPitch(Calc.RollFactor(roll));
         }
 
-        public void ResetMorphs(string type = "")
+        public void Reset(string type = "")
         {
             morphs
                 .Where(it => type == "" || (it.Multipliers.ContainsKey(type) && it.Multipliers.Count == 1))
@@ -295,15 +295,22 @@ namespace everlaster
             // left
             if(roll >= 0)
             {
-                ResetMorphs(AngleTypes.ROLL_RIGHT);
-                DoAdjustMorphsForRoll(AngleTypes.ROLL_LEFT, Calc.Remap(roll, 1));
+                Reset(AngleTypes.ROLL_RIGHT);
+                DoAdjustForRoll(AngleTypes.ROLL_LEFT, Calc.Remap(roll, 1));
             }
             // right
             else
             {
-                ResetMorphs(AngleTypes.ROLL_LEFT);
-                DoAdjustMorphsForRoll(AngleTypes.ROLL_RIGHT, Calc.Remap(Mathf.Abs(roll), 1));
+                Reset(AngleTypes.ROLL_LEFT);
+                DoAdjustForRoll(AngleTypes.ROLL_RIGHT, Calc.Remap(Mathf.Abs(roll), 1));
             }
+        }
+
+        private void DoAdjustForRoll(string type, float effect)
+        {
+            morphs
+                .Where(it => it.Multipliers.ContainsKey(type))
+                .ToList().ForEach(it => it.UpdateRollVal(type, effect, scale, softness, sag));
         }
 
         private void AdjustMorphsForPitch(float rollFactor)
@@ -311,55 +318,48 @@ namespace everlaster
             // leaning forward
             if(pitch > 0)
             {
-                ResetMorphs(AngleTypes.LEAN_BACK);
+                Reset(AngleTypes.LEAN_BACK);
                 // upright
                 if(pitch <= 90)
                 {
-                    ResetMorphs(AngleTypes.UPSIDE_DOWN);
-                    DoAdjustMorphs(AngleTypes.LEAN_FORWARD, Calc.Remap(pitch, rollFactor));
-                    DoAdjustMorphs(AngleTypes.UPRIGHT, Calc.Remap(90 - pitch, rollFactor));
+                    Reset(AngleTypes.UPSIDE_DOWN);
+                    DoAdjustForPitch(AngleTypes.LEAN_FORWARD, Calc.Remap(pitch, rollFactor));
+                    DoAdjustForPitch(AngleTypes.UPRIGHT, Calc.Remap(90 - pitch, rollFactor));
                 }
                 // upside down
                 else
                 {
-                    ResetMorphs(AngleTypes.UPRIGHT);
-                    DoAdjustMorphs(AngleTypes.LEAN_FORWARD, Calc.Remap(180 - pitch, rollFactor));
-                    DoAdjustMorphs(AngleTypes.UPSIDE_DOWN, Calc.Remap(pitch - 90, rollFactor));
+                    Reset(AngleTypes.UPRIGHT);
+                    DoAdjustForPitch(AngleTypes.LEAN_FORWARD, Calc.Remap(180 - pitch, rollFactor));
+                    DoAdjustForPitch(AngleTypes.UPSIDE_DOWN, Calc.Remap(pitch - 90, rollFactor));
                 }
             }
             // leaning back
             else
             {
-                ResetMorphs(AngleTypes.LEAN_FORWARD);
+                Reset(AngleTypes.LEAN_FORWARD);
                 // upright
                 if(pitch > -90)
                 {
-                    ResetMorphs(AngleTypes.UPSIDE_DOWN);
-                    DoAdjustMorphs(AngleTypes.LEAN_BACK, Calc.Remap(Mathf.Abs(pitch), rollFactor));
-                    DoAdjustMorphs(AngleTypes.UPRIGHT, Calc.Remap(90 - Mathf.Abs(pitch), rollFactor));
+                    Reset(AngleTypes.UPSIDE_DOWN);
+                    DoAdjustForPitch(AngleTypes.LEAN_BACK, Calc.Remap(Mathf.Abs(pitch), rollFactor));
+                    DoAdjustForPitch(AngleTypes.UPRIGHT, Calc.Remap(90 - Mathf.Abs(pitch), rollFactor));
                 }
                 // upside down
                 else
                 {
-                    ResetMorphs(AngleTypes.UPRIGHT);
-                    DoAdjustMorphs(AngleTypes.LEAN_BACK, Calc.Remap(180 - Mathf.Abs(pitch), rollFactor));
-                    DoAdjustMorphs(AngleTypes.UPSIDE_DOWN, Calc.Remap(Mathf.Abs(pitch) - 90, rollFactor));
+                    Reset(AngleTypes.UPRIGHT);
+                    DoAdjustForPitch(AngleTypes.LEAN_BACK, Calc.Remap(180 - Mathf.Abs(pitch), rollFactor));
+                    DoAdjustForPitch(AngleTypes.UPSIDE_DOWN, Calc.Remap(Mathf.Abs(pitch) - 90, rollFactor));
                 }
             }
         }
 
-        private void DoAdjustMorphs(string type, float effect)
+        private void DoAdjustForPitch(string type, float effect)
         {
             morphs
                 .Where(it => it.Multipliers.ContainsKey(type))
                 .ToList().ForEach(it => it.UpdatePitchVal(type, effect, scale, softness, sag));
-        }
-
-        private void DoAdjustMorphsForRoll(string type, float effect)
-        {
-            morphs
-                .Where(it => it.Multipliers.ContainsKey(type))
-                .ToList().ForEach(it => it.UpdateRollVal(type, effect, scale, softness, sag));
         }
     }
 }

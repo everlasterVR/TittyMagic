@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace everlaster
 {
@@ -27,16 +26,16 @@ namespace everlaster
             return angle * effect / 90;
         }
 
-        public static double RoundToDecimals(float value, float roundFactor)
+        public static float RoundToDecimals(float value, float roundFactor)
         {
-            return Math.Round(value * roundFactor) / roundFactor;
+            return Mathf.Round(value * roundFactor) / roundFactor;
         }
 
         // UNUSED
-        public static float SinCurveMultiplier(float x, double midPoint = 0.5)
+        public static float SinCurveMultiplier(float x, float midPoint = 0.5f)
         {
             return (float) (
-                midPoint * (Math.Sin(Math.PI * x - Math.PI/2) + 1)
+                midPoint * (Mathf.Sin(Mathf.PI * x - Mathf.PI/2) + 1)
             );
         }
     }

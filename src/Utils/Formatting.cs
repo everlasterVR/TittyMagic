@@ -9,7 +9,7 @@
             int padRight = 0
         )
         {
-            double rounded = Calc.RoundToDecimals(value, roundFactor);
+            float rounded = Calc.RoundToDecimals(value, roundFactor);
             string printName = StripPrefix(name, "TM_").PadRight(padRight, ' ');
             return string.Format("{0} {1}", printName, $"{rounded}");
         }

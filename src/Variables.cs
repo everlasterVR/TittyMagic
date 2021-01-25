@@ -15,7 +15,5 @@
         public const string ROLL_RIGHT = "rollRight";
         public const string ROLL_LEFT = "rollLeft";
         public const string UPRIGHT = "upright";
-        public const string PITCH = "pitch";
-        public const string ROLL = "roll";
     }
 }

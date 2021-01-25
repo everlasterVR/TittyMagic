@@ -103,7 +103,6 @@
         {
             return (
                 $"{Formatting.NameValueString("mass", BC.mass, padRight: 25)}\n" +
-                $"{Formatting.NameValueString("center of g", BC.centerOfGravityPercent, padRight: 25)}\n" +
                 $"{Formatting.NameValueString("spring", BC.spring, padRight: 25)}\n" +
                 $"{Formatting.NameValueString("damper", BC.damper, padRight: 25)}\n" +
                 $"{Formatting.NameValueString("in/out spr", BC.positionSpringZ, padRight: 25)}\n" +
