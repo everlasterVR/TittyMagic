@@ -9,25 +9,33 @@ namespace everlaster
 
         public static double EstimateVolume(Vector3 size, float atomScale)
         {
-            double cupDiameter = (size.x + size.y) / 2;
-            double depth = size.z * DepthFix(size.z/size.x);
-            return toCM3 * ExpectedCupVolume(cupDiameter, depth) * ResolveAtomScaleFactor(atomScale);
+            double x = DiameterFix(size.x);
+            double y = DiameterFix(size.y);
+            double z = DepthFix(size.z) * ResolveAtomScaleFactor(atomScale);
+            return toCM3 * ExpectedCupVolume(x/2, y/2, z/2);
         }
 
-        // This oblate spheroid function fits known data for bra cup diameter and volume for different cup sizes
-        // e.g. https://www.wikipedia.com/en/Bra_size
-        private static double ExpectedCupVolume(double diameter, double depth)
+        // The bounding box seems to be too small for the physical size
+        // when compared to objects of known width (e.g. a cube shape atom).
+        private static double DiameterFix(float dimension)
         {
-            return (Math.PI/6) * Math.Pow(diameter, 2) * depth;
+            return 1.15 * dimension;
         }
 
-        // This reduces depth to closer to the realistic half of cup diameter
-        // and exaggerates the effect of depth's difference from diameter
-        // e.g. very deep breasts -> volume is estimated to be accordingly higher
-        // and very flat breasts -> volume is estimated to be accordingly lower
-        private static double DepthFix(double depthToHorizontalDiameterRatio)
+        // Adjusts small breast depth to be smaller, and large breast depth to be larger
+        // than reported by the bounding box z dimension. This seems to improve
+        // the mass adjustment of breast maorphs that drastically change breast depth
+        // (e.g. Breast large).
+        private static double DepthFix(double z)
         {
-            return 0.80 * Math.Pow(depthToHorizontalDiameterRatio, 2.00);
+            return Math.Pow(3.5 * z, 2);
+        }
+
+        // This oblate spheroid function fits known data for bra cup diameter
+        // and volume for different cup sizes.
+        private static double ExpectedCupVolume(double x, double y, double z)
+        {
+            return (2 * Math.PI * x * y * z)/3;
         }
 
         // This somewhat accurately scales breast volume to the apparent breast size when atom scale is adjusted.
