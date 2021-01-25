@@ -5,74 +5,55 @@ namespace everlaster
     // TODO refactor to not use Dictionary
     class GravityMorphConfig
     {
-        public string Name { get; set; }
-        public DAZMorph Morph { get; set; }
-        public Dictionary<string, float?[]> Multipliers { get; set; }
+        public DAZMorph morph;
+        public string name;
+        public string angleType;
+        private float baseMultiplier;
+        private float? scaleMultiplier;
+        private float? softnessMultiplier;
 
-        public GravityMorphConfig(string name, Dictionary<string, float?[]> multipliers)
+        public GravityMorphConfig(string name, string angleType, float baseMultiplier,  float? scaleMultiplier, float? softnessMultiplier)
         {
-            Name = name;
-            Morph = Globals.MORPH_UI.GetMorphByDisplayName(name);
-            Multipliers = multipliers;
-            if(Morph == null)
+            this.name = name;
+            this.angleType = angleType;
+            this.baseMultiplier = baseMultiplier;
+            this.scaleMultiplier = scaleMultiplier;
+            this.softnessMultiplier = softnessMultiplier;
+            morph = Globals.MORPH_UI.GetMorphByDisplayName(name);
+            if(morph == null)
             {
                 Log.Error($"Morph with name {name} not found!", nameof(GravityMorphConfig));
             }
         }
 
-        public void UpdatePitchVal(string type, float effect, float scale, float softness, float sag)
+        public void UpdateVal(float effect, float scale, float softness, float sag)
         {
-            float?[] m = Multipliers[type];
-
-            // m[0] is the base multiplier for the morph in this type (UPRIGHT etc.)
-            // m[1] scales the breast softness slider for this base multiplier
+            // baseMultiplier is the base multiplier for the morph in this type (UPRIGHT etc.)
+            // scaleMultiplier scales the breast softness slider for this base multiplier
             //      - if null, slider setting is ignored
-            // m[2] scales the size calibration slider for this base multiplier
+            // softnessMultiplier scales the size calibration slider for this base multiplier
             //      - if null, slider setting is ignored
-            float softnessFactor = m[1].HasValue ? (float) m[1] * softness : 1;
-            float scaleFactor = m[2].HasValue ? scale * (float) m[2] : 1;
-            float morphValue = sag * (float) m[0] * (
+            float scaleFactor = scaleMultiplier.HasValue ? scale * (float) scaleMultiplier : 1;
+            float softnessFactor = softnessMultiplier.HasValue ? (float) softnessMultiplier * softness : 1;
+            float sagMultiplierVal = sag >= 1 ? 1 + (sag - 1) / 2 : sag;
+            float morphValue = sagMultiplierVal * baseMultiplier * (
                 (softnessFactor * effect / 2) +
                 (scaleFactor * effect / 2)
             );
 
             if(morphValue > 0)
             {
-                Morph.morphValue = morphValue >= 1.33f ? 1.33f : morphValue;
+                morph.morphValue = morphValue >= 1.33f ? 1.33f : morphValue;
             }
             else
             {
-                Morph.morphValue = morphValue < -1.33f ? -1.33f : morphValue;
-            }
-        }
-
-        public void UpdateRollVal(string type, float effect, float scale, float softness, float sag)
-        {
-            float?[] m = Multipliers[type];
-
-            float softnessFactor = m[1].HasValue ? (float) m[1] * softness : 1;
-            float scaleFactor = m[2].HasValue ? scale * (float) m[2] : 1;
-            float sagMultiplierVal = sag >= 1 ?
-                1 + (sag - 1) / 2 :
-                sag;
-            float morphValue = sagMultiplierVal * (float) m[0] * (
-                (softnessFactor * effect / 2) +
-                (scaleFactor * effect / 2)
-            );
-
-            if(morphValue > 0)
-            {
-                Morph.morphValue = morphValue >= 1.33f ? 1.33f : morphValue;
-            }
-            else
-            {
-                Morph.morphValue = morphValue < -1.33f ? -1.33f : morphValue;
+                morph.morphValue = morphValue < -1.33f ? -1.33f : morphValue;
             }
         }
 
         public void Reset()
         {
-            Morph.morphValue = 0;
+            morph.morphValue = 0;
         }
     }
 }

@@ -2,18 +2,18 @@
 {
     class MorphConfig
     {
-        public string Name { get; set; }
-        public DAZMorph Morph { get; set; }
+        public string name;
+        public DAZMorph morph;
         public float baseMulti;
         public float startValue;
 
         public MorphConfig(string name, float baseMulti, float startValue)
         {
-            Name = name;
-            Morph = Globals.MORPH_UI.GetMorphByDisplayName(name);
+            this.name = name;
+            morph = Globals.MORPH_UI.GetMorphByDisplayName(name);
             this.baseMulti = baseMulti;
             this.startValue = startValue;
-            if(Morph == null)
+            if(morph == null)
             {
                 Log.Error($"Morph with name {name} not found!", nameof(MorphConfig));
             }
@@ -21,7 +21,7 @@
 
         public void Reset()
         {
-            Morph.morphValue = 0;
+            morph.morphValue = 0;
         }
     }
 
@@ -35,7 +35,7 @@
 
         public void UpdateVal(float multiplier = 1f)
         {
-            Morph.morphValue = multiplier * baseMulti;
+            morph.morphValue = multiplier * baseMulti;
         }
     }
 }

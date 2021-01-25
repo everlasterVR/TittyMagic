@@ -103,30 +103,38 @@ namespace everlaster
         #region User interface
         void InitPluginUILeft()
         {
-            titleUIText = NewTextField("titleText", 36);
+            bool rightSide = false;
+            titleUIText = NewTextField("titleText", 36, 100, rightSide);
             titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{pluginVersion.val}</size>");
 
             // doesn't just init UI, also variables...
-            softness = NewFloatSlider("Breast softness", 1.5f, 0.3f, softnessMax);
-            sagMultiplier = NewFloatSlider("Sag multiplier", 1.0f, 0f, 2.0f);
+            softness = NewFloatSlider("Breast softness", 1.5f, 0.3f, softnessMax, rightSide);
+            sagMultiplier = NewFloatSlider("Sag multiplier", 1.0f, 0f, 2.0f, rightSide);
 
             CreateNewSpacer(10f);
 
-            nippleErection = NewFloatSlider("Erect nipples", 0f, 0f, 1.0f);
+            nippleErection = NewFloatSlider("Erect nipples", 0f, 0f, 1.0f, rightSide);
+
+#if DEBUGINFO
+            UIDynamicTextField angleInfoField = CreateTextField(baseDebugInfo, rightSide);
+            angleInfoField.height = 125;
+            angleInfoField.UItext.fontSize = 26;
+            UIDynamicTextField physicsInfoField = CreateTextField(physicsDebugInfo, rightSide);
+            physicsInfoField.height = 505;
+            physicsInfoField.UItext.fontSize = 26;
+#endif
         }
 
         void InitPluginUIRight()
         {
-            statusUIText = NewTextField("statusText", 28, 100, true);
+            bool rightSide = true;
+            statusUIText = NewTextField("statusText", 28, 100, rightSide);
 #if DEBUGINFO
-            UIDynamicTextField angleInfoField = CreateTextField(baseDebugInfo, true);
-            angleInfoField.height = 125;
-            angleInfoField.UItext.fontSize = 26;
-            UIDynamicTextField physicsInfoField = CreateTextField(physicsDebugInfo, true);
-            physicsInfoField.height = 465;
-            physicsInfoField.UItext.fontSize = 26;
+            UIDynamicTextField morphInfo = CreateTextField(morphDebugInfo, rightSide);
+            morphInfo.height = 1075;
+            morphInfo.UItext.fontSize = 26;
 #else
-            JSONStorableString usageInfo = NewTextField("Usage Info Area", 28, 415, true);
+            JSONStorableString usageInfo = NewTextField("Usage Info Area", 28, 415, rightSide);
             string usage = "\n";
             usage += "Breast softness controls soft physics and affects the amount " +
                 "of morph-based sag in different orientations or poses.\n\n";
@@ -134,25 +142,19 @@ namespace everlaster
                 "independently of soft physics.\n\n";
             usage += "Set breast morphs to defaults before applying example settings.";
             usageInfo.SetVal(usage);
-#endif
-#if DEBUGINFO
-            UIDynamicTextField morphInfo = CreateTextField(morphDebugInfo, true);
-            morphInfo.height = 465;
-            morphInfo.UItext.fontSize = 26;
-#else
-            //CreateNewSpacer(10f, true);
+            //CreateNewSpacer(10f, rightSide);
 
-            //logUIArea = NewTextField("Log Info Area", 28, 630, true);
+            //logUIArea = NewTextField("Log Info Area", 28, 630, rightSide);
             //logUIArea.SetVal("\n");
 #endif
         }
 
-        JSONStorableFloat NewFloatSlider(string paramName, float startingValue, float minValue, float maxValue)
+        JSONStorableFloat NewFloatSlider(string paramName, float startingValue, float minValue, float maxValue, bool rightSide)
         {
             JSONStorableFloat storable = new JSONStorableFloat(paramName, startingValue, minValue, maxValue);
             storable.storeType = JSONStorableParam.StoreType.Physical;
             RegisterFloat(storable);
-            CreateSlider(storable, false);
+            CreateSlider(storable, rightSide);
             return storable;
         }
 
