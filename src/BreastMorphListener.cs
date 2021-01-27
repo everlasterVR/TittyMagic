@@ -16,9 +16,7 @@ namespace everlaster
         public BreastMorphListener(List<DAZMorph> morphs)
         {
             morphs
-                .Where(morph => morph.visible
-                    && !(morph.isPoseControl || morph.group.Contains("Pose/"))
-                    && morph.deltas != null)
+                .Where(morph => morph.visible && !morph.isPoseControl && !morph.group.Contains("Pose/"))
                 .ToList().ForEach(morph => CheckMorphAndListen(morph));
         }
 
@@ -49,6 +47,10 @@ namespace everlaster
 
         private void CheckMorphAndListen(DAZMorph morph)
         {
+            if (morph.deltas == null)
+            {
+                morph.LoadDeltas();
+            }
             float hitDelta = 0.0f;
             float hitDeltaMax = HitDeltaMax(morph.deltas);
             foreach(DAZMorphVertex delta in morph.deltas)

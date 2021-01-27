@@ -18,8 +18,8 @@ namespace everlaster
             physics = new List<GravityPhysicsConfig>()
             {
                 //                       name                       angle type                smoothMin smoothMax   scale   softness
-                new GravityPhysicsConfig("centerOfGravityPercent",  AngleTypes.LEAN_BACK,     0f,      -0.12f,       0.05f,  0.95f),
-                new GravityPhysicsConfig("centerOfGravityPercent",  AngleTypes.LEAN_FORWARD,  0f,       0.05f,       0.05f,  0.95f),
+                new GravityPhysicsConfig("centerOfGravityPercent",  AngleTypes.LEAN_BACK,     0f,      -0.12f,      0.05f,  0.95f),
+                new GravityPhysicsConfig("centerOfGravityPercent",  AngleTypes.LEAN_FORWARD,  0f,       0.05f,      0.05f,  0.95f),
                 new GravityPhysicsConfig("targetRotationX",         AngleTypes.UPRIGHT,       0,       -10f,        1.00f,  1.00f),
                 new GravityPhysicsConfig("targetRotationX",         AngleTypes.UPSIDE_DOWN,   0,        20f,        1.00f,  1.00f),
                 new GravityPhysicsConfig("targetRotationY",         AngleTypes.ROLL_LEFT,     0,        15f,        1.00f,  1.00f),

@@ -76,7 +76,7 @@ namespace everlaster
                 Globals.MORPH_UI = geometry.morphsControlUI;
 
                 atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
-                breastMorphListener = new BreastMorphListener(geometry.femaleMorphBank1.morphs);
+                breastMorphListener = new BreastMorphListener(geometry.morphBank1.morphs);
 #if DEBUGINFO
                 breastMorphListener.DumpStatus();
 #endif
