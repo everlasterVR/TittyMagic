@@ -28,7 +28,7 @@ namespace everlaster
             morphs.ForEach(it => it.UpdateVal(nippleErection));
         }
 
-        public void Reset()
+        public void ResetAll()
         {
             morphs.ForEach(it => it.Reset());
         }

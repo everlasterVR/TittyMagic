@@ -4,15 +4,13 @@
     {
         public DAZMorph morph;
         public string name;
-        public string angleType;
         private float baseMul;
         private float? scaleMul;
         private float? softnessMul;
 
-        public GravityMorphConfig(string name, string angleType, float baseMul,  float? scaleMul, float? softnessMul)
+        public GravityMorphConfig(string name, float baseMul,  float? scaleMul, float? softnessMul)
         {
             this.name = name;
-            this.angleType = angleType;
             this.baseMul = baseMul;
             this.scaleMul = scaleMul;
             this.softnessMul = softnessMul;
@@ -52,6 +50,11 @@
         public void Reset()
         {
             morph.morphValue = 0;
+        }
+
+        public string GetStatus()
+        {
+            return Formatting.NameValueString(name, morph.morphValue, 1000f, 30) + "\n";
         }
     }
 }

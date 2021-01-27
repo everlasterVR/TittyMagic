@@ -6,17 +6,15 @@ namespace everlaster
     {
         public JSONStorableFloat setting;
         public string name;
-        public string angleType;
         private float offset;
         private float offsetScaleMul;
         private float logMaxX;
         private float? scaleMul;
         private float? softMul;
 
-        public GravityPhysicsConfig(string name, string angleType, float offset, float offsetScaleMul, float logMaxX, float? scaleMul, float? softMul)
+        public GravityPhysicsConfig(string name, float offset, float offsetScaleMul, float logMaxX, float? scaleMul, float? softMul)
         {
             this.name = name;
-            this.angleType = angleType;
             this.offset = offset;
             this.offsetScaleMul = offsetScaleMul;
             this.logMaxX = logMaxX;
@@ -45,6 +43,11 @@ namespace everlaster
         public void Reset()
         {
             setting.val = 0;
+        }
+
+        public string GetStatus()
+        {
+            return Formatting.NameValueString(name, setting.val, padRight: 25) + "\n";
         }
 
         private float ScaledSmoothMax(float scale)

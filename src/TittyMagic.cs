@@ -326,16 +326,16 @@ namespace everlaster
 
         void OnDestroy()
         {
-            gravityPhysicsH.Reset();
-            gravityMorphH.Reset();
-            nippleMorphH.Reset();
+            gravityPhysicsH.ResetAll();
+            gravityMorphH.ResetAll();
+            nippleMorphH.ResetAll();
         }
 
         void OnDisable()
         {
-            gravityPhysicsH.Reset();
-            gravityMorphH.Reset();
-            nippleMorphH.Reset();
+            gravityPhysicsH.ResetAll();
+            gravityMorphH.ResetAll();
+            nippleMorphH.ResetAll();
         }
 
 #if DEBUGINFO
