@@ -81,6 +81,7 @@ namespace everlaster
 #if DEBUG
                 breastMorphListener.DumpStatus();
                 useGravityPhysics = NewToggle("Use gravity physics", false);
+                useGravityPhysics.val = true;
 #endif
 
                 gravityMorphH = new GravityMorphHandler();
@@ -110,7 +111,7 @@ namespace everlaster
             titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{pluginVersion.val}</size>");
 
             // doesn't just init UI, also variables...
-            softness = NewFloatSlider("Breast softness", 1.5f, 0.3f, softnessMax, rightSide);
+            softness = NewFloatSlider("Breast softness", 1.5f, 0.5f, softnessMax, rightSide);
             sagMultiplier = NewFloatSlider("Sag multiplier", 1.0f, 0f, 2.0f, rightSide);
 
             CreateNewSpacer(10f);

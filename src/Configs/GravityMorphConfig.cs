@@ -29,7 +29,7 @@
             // softnessMultiplier scales the size calibration slider for this base multiplier
             //      - if null, slider setting is ignored
             float scaleFactor = scaleMul.HasValue ? scale * (float) scaleMul : 1;
-            float softnessFactor = softnessMul.HasValue ? (float) softnessMul * softness : 1;
+            float softnessFactor = softnessMul.HasValue ? softness * (float) softnessMul : 1;
             float sagMul = sag >= 1 ? 1 + (sag - 1) / 2 : sag;
             float morphValue = sagMul * baseMul * (
                 (softnessFactor * effect / 2) +

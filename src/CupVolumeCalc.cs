@@ -11,6 +11,7 @@ namespace everlaster
             float x = DiameterFix(size.x);
             float y = DiameterFix(size.y);
             float z = size.z * ResolveAtomScaleFactor(atomScale);
+            //SuperController.LogMessage($"{x}, {y}, {z}");
             return toCM3 * ExpectedCupVolume(x/2, y/2, z/2);
         }
 
@@ -31,14 +32,15 @@ namespace everlaster
         // This somewhat accurately scales breast volume to the apparent breast size when atom scale is adjusted.
         private static float ResolveAtomScaleFactor(float value)
         {
-            float atomScaleAdjustment = 1 - Mathf.Abs(Mathf.Log10(Mathf.Pow(value, 3)));
             if(value > 1)
             {
+                float atomScaleAdjustment = 1 - Mathf.Abs(Mathf.Log10(Mathf.Pow(value, 3)));
                 return value * atomScaleAdjustment;
             }
 
             if(value < 1)
             {
+                float atomScaleAdjustment = 1 - Mathf.Abs(Mathf.Log10(Mathf.Pow(value, 3)));
                 return value / atomScaleAdjustment;
             }
 

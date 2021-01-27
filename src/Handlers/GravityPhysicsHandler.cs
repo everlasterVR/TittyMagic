@@ -30,19 +30,19 @@ namespace everlaster
             //                           name                       offset    offsetScaleMul  logMaxX     scaleMul    softMul     
             uprightPhysics = new List<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("targetRotationX",         -2.00f,    0.50f,         -2f,         0.20f,      1.80f),
+                new GravityPhysicsConfig("targetRotationX",          0.10f,    0.40f,         -1.8f,       1.00f,      1.00f),
             };
             upsideDownPhysics = new List<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("targetRotationX",         -2.00f,    0.50f,          20f,        0.20f,      1.80f),
+                new GravityPhysicsConfig("targetRotationX",          0.10f,    0.40f,          6.0f,       0.20f,      1.80f),
             };
             leanBackPhysics = new List<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("centerOfGravityPercent",   0.34f,    0.040f,        -0.02f,      0.00f,      2.00f),
+                new GravityPhysicsConfig("centerOfGravityPercent",   0.30f,    0.09f,         -0.02f,      0.00f,      2.00f),
             };
             leanForwardPhysics = new List<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("centerOfGravityPercent",   0.34f,    0.040f,         0.04f,      0.00f,      2.00f),
+                new GravityPhysicsConfig("centerOfGravityPercent",   0.36f,    0.08f,          0.03f,      0.00f,      2.00f),
             };
             rollLeftPhysics = new List<GravityPhysicsConfig>()
             {
