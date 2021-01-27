@@ -1,4 +1,4 @@
-﻿//#define DEBUGINFO
+﻿//#define DEBUG
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -43,7 +43,8 @@ namespace everlaster
 
         private JSONStorableFloat nippleErection;
 
-#if DEBUGINFO
+#if DEBUG
+        private JSONStorableBool useGravityPhysics;
         protected JSONStorableString baseDebugInfo = new JSONStorableString("Base Debug Info", "");
         protected JSONStorableString physicsDebugInfo = new JSONStorableString("Physics Debug Info", "");
         protected JSONStorableString morphDebugInfo = new JSONStorableString("Morph Debug Info", "");
@@ -77,8 +78,9 @@ namespace everlaster
 
                 atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
                 breastMorphListener = new BreastMorphListener(geometry.morphBank1.morphs);
-#if DEBUGINFO
+#if DEBUG
                 breastMorphListener.DumpStatus();
+                useGravityPhysics = NewToggle("Use gravity physics", false);
 #endif
 
                 gravityMorphH = new GravityMorphHandler();
@@ -115,7 +117,7 @@ namespace everlaster
 
             nippleErection = NewFloatSlider("Erect nipples", 0f, 0f, 1.0f, rightSide);
 
-#if DEBUGINFO
+#if DEBUG
             UIDynamicTextField angleInfoField = CreateTextField(baseDebugInfo, rightSide);
             angleInfoField.height = 125;
             angleInfoField.UItext.fontSize = 26;
@@ -129,7 +131,7 @@ namespace everlaster
         {
             bool rightSide = true;
             statusUIText = NewTextField("statusText", 28, 100, rightSide);
-#if DEBUGINFO
+#if DEBUG
             UIDynamicTextField morphInfo = CreateTextField(morphDebugInfo, rightSide);
             morphInfo.height = 1075;
             morphInfo.UItext.fontSize = 26;
@@ -158,7 +160,7 @@ namespace everlaster
             return storable;
         }
 
-        JSONStorableString NewTextField(string paramName, int fontSize, int height = 100,  bool rightSide = false)
+        JSONStorableString NewTextField(string paramName, int fontSize, int height = 100, bool rightSide = false)
         {
             JSONStorableString storable = new JSONStorableString(paramName, "");
             UIDynamicTextField textField = CreateTextField(storable, rightSide);
@@ -167,13 +169,13 @@ namespace everlaster
             return storable;
         }
 
-        //JSONStorableBool NewToggle(string paramName)
-        //{
-        //    JSONStorableBool storable = new JSONStorableBool(paramName, true);
-        //    CreateToggle(storable, false);
-        //    RegisterBool(storable);
-        //    return storable;
-        //}
+        JSONStorableBool NewToggle(string paramName, bool rightSide = false)
+        {
+            JSONStorableBool storable = new JSONStorableBool(paramName, rightSide);
+            CreateToggle(storable, false);
+            //RegisterBool(storable);
+            return storable;
+        }
 
         void CreateNewSpacer(float height, bool rightSide = false)
         {
@@ -223,12 +225,22 @@ namespace everlaster
                     float pitch = Calc.Pitch(chest.rotation);
                     float scaleVal = Calc.LegacyScale(breastMass);
 
-                    gravityPhysicsH.Update(roll, pitch, scaleVal, softness.val);
                     gravityMorphH.Update(roll, pitch, scaleVal, softness.val, sagMultiplier.val);
-#if DEBUGINFO
+#if DEBUG
+                    if(useGravityPhysics.val)
+                    {
+                        gravityPhysicsH.Update(roll, pitch, scaleVal, softness.val);
+                    }
+                    else
+                    {
+                        gravityPhysicsH.ResetAll();
+                    }
+
                     SetBaseDebugInfo(roll, pitch);
                     morphDebugInfo.SetVal(gravityMorphH.GetStatus());
                     physicsDebugInfo.SetVal(staticPhysicsH.GetStatus() + gravityPhysicsH.GetStatus());
+#else
+                    gravityPhysicsH.Update(roll, pitch, scaleVal, softness.val);
 #endif
                 }
             }
@@ -338,7 +350,7 @@ namespace everlaster
             nippleMorphH.ResetAll();
         }
 
-#if DEBUGINFO
+#if DEBUG
         void SetBaseDebugInfo(float roll, float pitch)
         {
             float x = (float) Calc.RoundToDecimals(inMemoryMesh.bounds.size.x, 1000f);

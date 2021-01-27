@@ -19,6 +19,9 @@ namespace everlaster
 
         public GravityPhysicsHandler()
         {
+            // Right/left angle target moves both breasts in the same direction
+            Globals.BREAST_CONTROL.invertJoint2RotationY = false;
+
             // offset = how much the calculated value is offset from zero (defines a midpoint for each of x, y and z center of gravity)
             // offsetScaleMul = multiplier for how much offset increases (on top of the base offset) based on scale
             // logMaxX = maximum x value for the logarithmic function that affects (along with breast mass) the Max value for Mathf.SmoothStep
@@ -78,11 +81,11 @@ namespace everlaster
         public void ResetAll()
         {
             uprightPhysics.ForEach(it => it.Reset());
-            upsideDownPhysics.ForEach(it => it.Reset());
+            //upsideDownPhysics.ForEach(it => it.Reset());
             leanBackPhysics.ForEach(it => it.Reset());
-            leanBackPhysics.ForEach(it => it.Reset());
+            //leanBackPhysics.ForEach(it => it.Reset());
             rollLeftPhysics.ForEach(it => it.Reset());
-            rollRightPhysics.ForEach(it => it.Reset());
+            //rollRightPhysics.ForEach(it => it.Reset());
         }
 
         public string GetStatus()

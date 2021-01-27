@@ -11,6 +11,7 @@ namespace everlaster
         private float logMaxX;
         private float? scaleMul;
         private float? softMul;
+        private float originalValue;
 
         public GravityPhysicsConfig(string name, float offset, float offsetScaleMul, float logMaxX, float? scaleMul, float? softMul)
         {
@@ -29,6 +30,8 @@ namespace everlaster
             {
                 Log.Error($"BreastControl float param with name {name} not found!", nameof(GravityPhysicsConfig));
             }
+
+            originalValue = setting.val;
         }
 
         public void UpdateVal(float effect, float scale, float softness)
@@ -42,7 +45,7 @@ namespace everlaster
 
         public void Reset()
         {
-            setting.val = 0;
+            setting.val = originalValue;
         }
 
         public string GetStatus()

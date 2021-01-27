@@ -31,8 +31,6 @@
 
         public void SetPhysicsDefaults()
         {
-            // Right/left angle target moves both breasts in the same direction
-            BC.invertJoint2RotationY = false;
             // Soft physics on
             BPH.on = true;
             // Auto collider radius off
