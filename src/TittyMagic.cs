@@ -353,14 +353,10 @@ namespace everlaster
 #if DEBUG
         void SetBaseDebugInfo(float roll, float pitch)
         {
-            float x = (float) Calc.RoundToDecimals(inMemoryMesh.bounds.size.x, 1000f);
-            float y = (float) Calc.RoundToDecimals(inMemoryMesh.bounds.size.y, 1000f);
-            float z = (float) Calc.RoundToDecimals(inMemoryMesh.bounds.size.z, 1000f);
             baseDebugInfo.SetVal(
                 $"{Formatting.NameValueString("Roll", roll, 100f, 15)}\n" +
                 $"{Formatting.NameValueString("Pitch", pitch, 100f, 15)}\n" +
-                $"volume: {softVolume}\n" +
-                $"diameters: x{x}, y{y}, z{z}\n"
+                $"volume: {softVolume}\n"
             );
         }
 #endif
