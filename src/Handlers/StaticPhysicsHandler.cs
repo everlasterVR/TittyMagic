@@ -47,8 +47,7 @@
             float softnessMax
         )
         {
-            // roughly estimate the legacy scale value from automatically calculated mass
-            float scaleVal = (breastMass - 0.20f) * 1.60f;
+            float scaleVal = Calc.LegacyScale(breastMass);
             float hardnessVal = softnessMax - softnessVal; // 0.00 .. 2.50 for softness 3.00 .. 0.50
 
             //                                    base      size adjustment         softness adjustment
@@ -66,8 +65,7 @@
             float nippleErectionVal
         )
         {
-            // roughly estimate the legacy scale value from automatically calculated mass
-            float scaleVal = (breastMass - 0.20f) * 1.60f;
+            float scaleVal = Calc.LegacyScale(breastMass);
             float hardnessVal = softnessMax - softnessVal; // 0.00 .. 2.50 for softness 3.00 .. 0.50
 
             //                                    base      size adjustment         softness adjustment

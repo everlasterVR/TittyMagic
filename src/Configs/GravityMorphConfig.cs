@@ -1,24 +1,21 @@
-﻿using System.Collections.Generic;
-
-namespace everlaster
+﻿namespace everlaster
 {
-    // TODO refactor to not use Dictionary
     class GravityMorphConfig
     {
         public DAZMorph morph;
         public string name;
         public string angleType;
-        private float baseMultiplier;
-        private float? scaleMultiplier;
-        private float? softnessMultiplier;
+        private float baseMul;
+        private float? scaleMul;
+        private float? softnessMul;
 
-        public GravityMorphConfig(string name, string angleType, float baseMultiplier,  float? scaleMultiplier, float? softnessMultiplier)
+        public GravityMorphConfig(string name, string angleType, float baseMul,  float? scaleMul, float? softnessMul)
         {
             this.name = name;
             this.angleType = angleType;
-            this.baseMultiplier = baseMultiplier;
-            this.scaleMultiplier = scaleMultiplier;
-            this.softnessMultiplier = softnessMultiplier;
+            this.baseMul = baseMul;
+            this.scaleMul = scaleMul;
+            this.softnessMul = softnessMul;
             morph = Globals.MORPH_UI.GetMorphByDisplayName(name);
             if(morph == null)
             {
@@ -33,14 +30,15 @@ namespace everlaster
             //      - if null, slider setting is ignored
             // softnessMultiplier scales the size calibration slider for this base multiplier
             //      - if null, slider setting is ignored
-            float scaleFactor = scaleMultiplier.HasValue ? scale * (float) scaleMultiplier : 1;
-            float softnessFactor = softnessMultiplier.HasValue ? (float) softnessMultiplier * softness : 1;
-            float sagMultiplierVal = sag >= 1 ? 1 + (sag - 1) / 2 : sag;
-            float morphValue = sagMultiplierVal * baseMultiplier * (
+            float scaleFactor = scaleMul.HasValue ? scale * (float) scaleMul : 1;
+            float softnessFactor = softnessMul.HasValue ? (float) softnessMul * softness : 1;
+            float sagMul = sag >= 1 ? 1 + (sag - 1) / 2 : sag;
+            float morphValue = sagMul * baseMul * (
                 (softnessFactor * effect / 2) +
                 (scaleFactor * effect / 2)
             );
 
+            // TODO replace with SmoothStep and log based max
             if(morphValue > 0)
             {
                 morph.morphValue = morphValue >= 1.33f ? 1.33f : morphValue;

@@ -7,20 +7,21 @@ namespace everlaster
         public JSONStorableFloat setting;
         public string name;
         public string angleType;
-        private float smoothMin;
-        private float smoothMax;
-        private float? scaleMultiplier;
-        private float? softnessMultiplier;
-        private float centerOfGravityMidpoint = 0.5f;
+        private float offset;
+        private float offsetScaleMul;
+        private float logMaxX;
+        private float? scaleMul;
+        private float? softMul;
 
-        public GravityPhysicsConfig(string name, string angleType, float smoothMin, float smoothMax, float? scaleMultiplier, float? softnessMultiplier)
+        public GravityPhysicsConfig(string name, string angleType, float offset, float offsetScaleMul, float logMaxX, float? scaleMul, float? softMul)
         {
             this.name = name;
             this.angleType = angleType;
-            this.smoothMin = smoothMin;
-            this.smoothMax = smoothMax;
-            this.scaleMultiplier = scaleMultiplier;
-            this.softnessMultiplier = softnessMultiplier;
+            this.offset = offset;
+            this.offsetScaleMul = offsetScaleMul;
+            this.logMaxX = logMaxX;
+            this.scaleMul = scaleMul;
+            this.softMul = softMul;
         }
 
         public void InitStorable()
@@ -32,17 +33,13 @@ namespace everlaster
             }
         }
 
-        public void UpdateVal(float effect, float scale, float softness, bool adjustForMidpoint = false)
+        public void UpdateVal(float effect, float scale, float softness)
         {
-            float scaleFactor = scaleMultiplier.HasValue ? (float) scaleMultiplier * scale : 1;
-            float softnessFactor = softnessMultiplier.HasValue ? (float) softnessMultiplier * softness : 1;
-            float interpolatedEffect = Mathf.SmoothStep(smoothMin, ScaledSmoothMax(scale), effect);
-            float value = (scaleFactor * interpolatedEffect / 2) + (softnessFactor * interpolatedEffect / 2);
-            if (adjustForMidpoint)
-            {
-                value = centerOfGravityMidpoint + value;
-            }
-            setting.val = value;
+            float scaleFactor = scaleMul.HasValue ? (float) scaleMul * scale : 1;
+            float softFactor = softMul.HasValue ? (float) softMul * softness : 1;
+            float interpolatedEffect = Mathf.SmoothStep(0, ScaledSmoothMax(scale), effect);
+            float value = (scaleFactor * interpolatedEffect / 2) + (softFactor * interpolatedEffect / 2);
+            setting.val = offset + offsetScaleMul * scale + value;
         }
 
         public void Reset()
@@ -52,12 +49,12 @@ namespace everlaster
 
         private float ScaledSmoothMax(float scale)
         {
-            if (smoothMax < 0)
+            if (logMaxX < 0)
             {
-                return -Mathf.Log(scale * Mathf.Abs(smoothMax) + 1);
+                return -Mathf.Log(scale * Mathf.Abs(logMaxX) + 1);
             }
 
-            return Mathf.Log(scale * smoothMax + 1);
+            return Mathf.Log(scale * logMaxX + 1);
         }
     }
 }

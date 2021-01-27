@@ -62,8 +62,8 @@ namespace everlaster
         {
             string type = AngleTypes.UPRIGHT;
             morphs.AddRange(new List<GravityMorphConfig>
-            {
-                //                      name                                     base       scale      softness
+            { 
+                //                      name                                     baseMul    scaleMul   softMul
                 new GravityMorphConfig("TM_Breast Move Up",             type,   -0.07f,     0.33f,     1.67f),
                 new GravityMorphConfig("TM_Breasts Natural",            type,    0.08f,     0.00f,     2.00f),
                 new GravityMorphConfig("TM_Breast Rotate Up",           type,    0.15f,     1.20f,     0.80f),

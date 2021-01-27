@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace everlaster
+﻿namespace everlaster
 {
     class AtomScaleListener
     {

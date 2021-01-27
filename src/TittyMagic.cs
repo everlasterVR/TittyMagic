@@ -221,9 +221,7 @@ namespace everlaster
 
                     float roll = Calc.Roll(chest.rotation);
                     float pitch = Calc.Pitch(chest.rotation);
-
-                    // roughly estimate the legacy scale value from automatically calculated mass
-                    float scaleVal = Mathf.Max((breastMass - 0.20f) * 1.60f, 0);
+                    float scaleVal = Calc.LegacyScale(breastMass);
 
                     gravityPhysicsH.Update(roll, pitch, scaleVal, softness.val);
                     gravityMorphH.Update(roll, pitch, scaleVal, softness.val, sagMultiplier.val);
@@ -249,14 +247,14 @@ namespace everlaster
             }
 
             // Iterate the update a few times because each update changes breast shape and thereby the mass estimate.
-            for(int i = 0; i < 7; i++)
+            for(int i = 0; i < 6; i++)
             {
                 // update only non-soft physics settings to improve performance
                 UpdateMassEstimate(atomScale);
                 staticPhysicsH.UpdateMainPhysics(breastMass, softness.val, softnessMax);
                 if(i > 0)
                 {
-                    yield return new WaitForSeconds(0.16f);
+                    yield return new WaitForSeconds(0.12f);
                 }
             }
 

@@ -26,6 +26,12 @@ namespace everlaster
             return angle * effect / 90;
         }
 
+        // roughly estimate the legacy scale value from automatically calculated mass
+        public static float LegacyScale(float mass)
+        {
+            return Mathf.Pow(mass, 1.536f); // mass = 2 -> scale = about 2.9
+        }
+
         public static float RoundToDecimals(float value, float roundFactor)
         {
             return Mathf.Round(value * roundFactor) / roundFactor;
