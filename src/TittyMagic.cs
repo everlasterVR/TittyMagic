@@ -1,4 +1,4 @@
-﻿//#define DEBUG
+﻿//#define SHOW_DEBUG
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -43,7 +43,7 @@ namespace everlaster
 
         private JSONStorableFloat nippleErection;
 
-#if DEBUG
+#if SHOW_DEBUG
         private JSONStorableBool useGravityPhysics;
         protected JSONStorableString baseDebugInfo = new JSONStorableString("Base Debug Info", "");
         protected JSONStorableString physicsDebugInfo = new JSONStorableString("Physics Debug Info", "");
@@ -78,12 +78,11 @@ namespace everlaster
 
                 atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
                 breastMorphListener = new BreastMorphListener(geometry.morphBank1.morphs);
-#if DEBUG
+#if SHOW_DEBUG
                 breastMorphListener.DumpStatus();
                 useGravityPhysics = NewToggle("Use gravity physics", false);
                 useGravityPhysics.val = true;
 #endif
-
                 gravityMorphH = new GravityMorphHandler();
                 nippleMorphH = new NippleErectionMorphHandler();
                 gravityPhysicsH = new GravityPhysicsHandler();
@@ -118,12 +117,12 @@ namespace everlaster
 
             nippleErection = NewFloatSlider("Erect nipples", 0f, 0f, 1.0f, rightSide);
 
-#if DEBUG
+#if SHOW_DEBUG
             UIDynamicTextField angleInfoField = CreateTextField(baseDebugInfo, rightSide);
             angleInfoField.height = 125;
             angleInfoField.UItext.fontSize = 26;
             UIDynamicTextField physicsInfoField = CreateTextField(physicsDebugInfo, rightSide);
-            physicsInfoField.height = 505;
+            physicsInfoField.height = 450;
             physicsInfoField.UItext.fontSize = 26;
 #endif
         }
@@ -132,9 +131,9 @@ namespace everlaster
         {
             bool rightSide = true;
             statusUIText = NewTextField("statusText", 28, 100, rightSide);
-#if DEBUG
+#if SHOW_DEBUG
             UIDynamicTextField morphInfo = CreateTextField(morphDebugInfo, rightSide);
-            morphInfo.height = 1075;
+            morphInfo.height = 1085;
             morphInfo.UItext.fontSize = 26;
 #else
             JSONStorableString usageInfo = NewTextField("Usage Info Area", 28, 415, rightSide);
@@ -227,7 +226,7 @@ namespace everlaster
                     float scaleVal = Calc.LegacyScale(breastMass);
 
                     gravityMorphH.Update(roll, pitch, scaleVal, softness.val, sagMultiplier.val);
-#if DEBUG
+#if SHOW_DEBUG
                     if(useGravityPhysics.val)
                     {
                         gravityPhysicsH.Update(roll, pitch, scaleVal, softness.val);
@@ -277,12 +276,7 @@ namespace everlaster
 
         void UpdateMassEstimate(float atomScale, bool updateUIStatus = false)
         {
-            Vector3[] vertices = rightBreastMainGroupSets
-                .Select(it => it.currentPosition).ToArray();
-
-            inMemoryMesh.vertices = vertices;
-            inMemoryMesh.RecalculateBounds();
-            softVolume = CupVolumeCalc.EstimateVolume(inMemoryMesh.bounds.size, atomScale);
+            softVolume = CupVolumeCalc.EstimateVolume(BoundsSize(), atomScale);
             float mass = (softVolume * fatDensity) / 1000;
 
             if(mass > massMax)
@@ -311,6 +305,16 @@ namespace everlaster
                     statusUIText.SetVal("");
                 }
             } 
+        }
+
+        Vector3 BoundsSize()
+        {
+            Vector3[] vertices = rightBreastMainGroupSets
+                .Select(it => it.currentPosition).ToArray();
+
+            inMemoryMesh.vertices = vertices;
+            inMemoryMesh.RecalculateBounds();
+            return inMemoryMesh.bounds.size;
         }
 
         string massExcessStatus(float value)
@@ -351,13 +355,15 @@ namespace everlaster
             nippleMorphH.ResetAll();
         }
 
-#if DEBUG
+#if SHOW_DEBUG
         void SetBaseDebugInfo(float roll, float pitch)
         {
+            float currentSoftVolume = CupVolumeCalc.EstimateVolume(BoundsSize(), atomScaleListener.Value);
             baseDebugInfo.SetVal(
                 $"{Formatting.NameValueString("Roll", roll, 100f, 15)}\n" +
                 $"{Formatting.NameValueString("Pitch", pitch, 100f, 15)}\n" +
-                $"volume: {softVolume}\n"
+                $"volume: {softVolume}\n" +
+                $"current volume: {currentSoftVolume}"
             );
         }
 #endif
