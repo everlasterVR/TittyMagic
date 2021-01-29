@@ -93,8 +93,7 @@ namespace everlaster
                 InitSliderListeners();
 
                 SetPhysicsDefaults();
-                UpdateMassEstimate(atomScaleListener.Value, updateUIStatus: true);
-                staticPhysicsH.FullUpdate(breastMass, softness.val, softnessMax, nippleErection.val);
+                StartCoroutine(RefreshStaticPhysics(atomScaleListener.Value));
             }
             catch(Exception e)
             {
