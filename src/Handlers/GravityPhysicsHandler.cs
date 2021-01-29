@@ -30,7 +30,7 @@ namespace everlaster
             //                           name                       offset    offsetScaleMul  logMaxX     scaleMul    softMul     
             uprightPhysics = new List<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("targetRotationX",          0.10f,    0.40f,         -1.8f,       1.00f,      1.00f),
+                new GravityPhysicsConfig("targetRotationX",          0.10f,    0.40f,         -1.8f,       1.50f,      0.50f),
             };
             upsideDownPhysics = new List<GravityPhysicsConfig>()
             {
@@ -46,11 +46,11 @@ namespace everlaster
             };
             rollLeftPhysics = new List<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("targetRotationY",          0f,       0f,             15f,        0.40f,      1.60f),
+                new GravityPhysicsConfig("targetRotationY",          0f,       0f,             12f,        0.20f,      1.80f),
             };
             rollRightPhysics = new List<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("targetRotationY",          0f,       0f,            -15f,        0.40f,      1.60f),
+                new GravityPhysicsConfig("targetRotationY",          0f,       0f,            -12f,        0.20f,      1.80f),
             };
 
             uprightPhysics.ForEach(it => it.InitStorable());

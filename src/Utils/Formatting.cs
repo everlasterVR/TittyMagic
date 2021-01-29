@@ -10,11 +10,23 @@
         )
         {
             float rounded = Calc.RoundToDecimals(value, roundFactor);
-            string printName = StripPrefix(name, "TM_").PadRight(padRight, ' ');
+            string printName = StripPrefixes(name).PadRight(padRight, ' ');
             return string.Format("{0} {1}", printName, $"{rounded}");
         }
 
-        public static string StripPrefix(string text, string prefix)
+        private static string StripPrefixes(string text)
+        {
+            string result = StripPrefix(text, "TM_");
+            result = StripPrefix(result, "UPR_");
+            result = StripPrefix(result, "UPSD_");
+            result = StripPrefix(result, "LBACK_");
+            result = StripPrefix(result, "LFWD_");
+            result = StripPrefix(result, "RLEFT_");
+            result = StripPrefix(result, "RRIGHT_");
+            return result;
+        }
+
+        private static string StripPrefix(string text, string prefix)
         {
             return text.StartsWith(prefix) ? text.Substring(prefix.Length) : text;
         }

@@ -54,121 +54,146 @@ namespace everlaster
 
         public string GetStatus()
         {
-            string text = "";
+            string text = "UPRIGHT\n";
             uprightMorphs.ForEach((it) => text = text + it.GetStatus());
+            text = text + "\nUPSIDE DOWN\n";
             upsideDownMorphs.ForEach((it) => text = text + it.GetStatus());
+            text = text + "\nLEAN BACK\n";
             leanBackMorphs.ForEach((it) => text = text + it.GetStatus());
+            text = text + "\nLEAN FORWARD\n";
             leanForwardMorphs.ForEach((it) => text = text + it.GetStatus());
+            text = text + "\nROLL LEFT\n";
             rollLeftMorphs.ForEach((it) => text = text + it.GetStatus());
+            text = text + "\nROLL RIGHT\n";
             rollRightMorphs.ForEach((it) => text = text + it.GetStatus());
             return text;
         }
 
-        // TODO refactor to not use Dictionary -> same morph can be listed multiple times for different angle types
-        // Possible to merge to one morph per angle type?
         private void InitGravityMorphs()
         {
+
             uprightMorphs = new List<GravityMorphConfig>
-            { 
-                //                      name                             baseMul    scaleMul   softMul
-                new GravityMorphConfig("TM_Breast Move Up",             -0.07f,     0.33f,     1.67f),
-                new GravityMorphConfig("TM_Breasts Natural",             0.08f,     0.00f,     2.00f),
-                new GravityMorphConfig("TM_Breast Rotate Up",            0.15f,     1.20f,     0.80f),
-                new GravityMorphConfig("TM_Breast Under Smoother1",     -0.04f,     1.50f,     0.50f),
-                new GravityMorphConfig("TM_Breast Under Smoother3",     -0.08f,     1.00f,     1.00f),
+            {
+                //                      name                            offset      baseMul    scaleMul   softMul
+                new GravityMorphConfig("UPR_Chest Height",              0f,         0.20f,     1.50f,     0.50f),
+                new GravityMorphConfig("UPR_Breast Move Down L",        0f,         0.25f,     1.50f,     0.50f),
+                new GravityMorphConfig("UPR_Breast Move Down R",        0f,         0.25f,     1.50f,     0.50f),
+                new GravityMorphConfig("UPR_Breast Rotate Up",          0f,         0.15f,     1.20f,     0.80f),
+                new GravityMorphConfig("UPR_Breast Under Smoother1",    0.15f,     -0.20f,     1.50f,     0.50f),
+                new GravityMorphConfig("UPR_Breast Under Smoother3",    0.30f,     -0.40f,     1.50f,     0.50f),
+                new GravityMorphConfig("UPR_Breast Under Smoother4",    0.15f,     -0.20f,     1.50f,     0.50f),
+                new GravityMorphConfig("UPR_Breasts Natural",           0f,         0.05f,     0.00f,     2.00f),
             };
 
             upsideDownMorphs = new List<GravityMorphConfig> {
-                new GravityMorphConfig("TM_Breast Move Up",              0.07f,     0.33f,     1.67f),
-                new GravityMorphConfig("TM_Breast Sag1",                -0.03f,     0.75f,     1.25f),
-                new GravityMorphConfig("TM_Breast Sag2",                -0.05f,     0.75f,     1.25f),
-                new GravityMorphConfig("TM_Breasts Hang Forward",        0.05f,     0.80f,     1.50f),
-                new GravityMorphConfig("TM_Breasts Natural",            -0.04f,     0.00f,     2.00f),
-                new GravityMorphConfig("TM_Breasts TogetherApart",       0.10f,     0.80f,     1.50f),
-                new GravityMorphConfig("TM_Areola UpDown",              -0.15f,     0.67f,     1.33f),
-                new GravityMorphConfig("TM_Center Gap Depth",            0.05f,     1.50f,     0.50f),
-                new GravityMorphConfig("TM_Center Gap Height",           0.10f,     1.50f,     0.50f),
-                new GravityMorphConfig("TM_Center Gap UpDown",           0.10f,     1.50f,     0.50f),
-                new GravityMorphConfig("TM_Chest Smoother",              0.10f,     1.25f,     0.75f),
-                new GravityMorphConfig("TM_ChestUnderBreast",            0.15f,     0.25f,     1.75f),
-                new GravityMorphConfig("TM_ChestUp",                     0.05f,     0.25f,     1.75f),
-                new GravityMorphConfig("TM_ChestUpperNarrow",            0.10f,     0.80f,     1.50f),
-                new GravityMorphConfig("TM_Breast Diameter",             0.05f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breast flat",                 0.08f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breast Height",               0.10f,     0.00f,     2.00f),
-                new GravityMorphConfig("TM_Breast Pointed",              0.33f,     1.00f,     0.00f),
-                new GravityMorphConfig("TM_Breast Rotate Up",            0.25f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breast Top Curve1",          -0.04f,    -0.50f,     2.00f),
-                new GravityMorphConfig("TM_Breast Top Curve2",          -0.06f,     0.50f,     2.00f),
-                new GravityMorphConfig("TM_Breast Under Smoother1",      0.45f,     1.40f,     0.60f),
-                new GravityMorphConfig("TM_Breast Under Smoother3",      0.20f,    -1.00f,     1.00f),
-                new GravityMorphConfig("TM_Breasts Flatten",             0.10f,     0.60f,     1.40f),
-                new GravityMorphConfig("TM_Breasts Height",              0.10f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breasts Implants",           -0.05f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breasts Upward Slope",        0.15f,     0.80f,     1.20f),
-                new GravityMorphConfig("TM_BreastsShape2",               0.50f,     1.33f,     0.67f),
-                new GravityMorphConfig("TM_Sternum Height",             -0.30f,     null,      null),
+                new GravityMorphConfig("UPSD_Areola UpDown",            0f,        -0.25f,     0.00f,     2.00f),
+                new GravityMorphConfig("UPSD_Breast Diameter L",        0f,         0.10f,     0.00f,     2.00f),
+                new GravityMorphConfig("UPSD_Breast Diameter R",        0f,         0.10f,     0.00f,     2.00f),
+                new GravityMorphConfig("UPSD_Breast Diameter",          0f,         0.05f,     1.00f,     1.00f),
+                new GravityMorphConfig("UPSD_Breast flat",              0f,         0.08f,     0.50f,     1.50f),
+                new GravityMorphConfig("UPSD_Breast Move Up",           0f,         0.10f,     0.00f,     2.00f),
+                new GravityMorphConfig("UPSD_Breast Pointed",           0f,         0.25f,     1.00f,     0.00f),
+                new GravityMorphConfig("UPSD_Breast Rotate Up",         0f,         0.25f,     0.50f,     1.50f),
+                new GravityMorphConfig("UPSD_Breast Sag1",              0f,        -0.03f,     0.00f,     2.00f),
+                new GravityMorphConfig("UPSD_Breast Sag2",              0f,        -0.05f,     0.00f,     2.00f),
+                new GravityMorphConfig("UPSD_Breast Top Curve1",        0f,        -0.30f,     1.50f,     0.50f),
+                new GravityMorphConfig("UPSD_Breast Top Curve2",        0f,        -0.75f,     1.50f,     0.50f),
+                new GravityMorphConfig("UPSD_Breast Under Smoother1",   0.15f,      0.33f,     1.00f,     1.00f),
+                new GravityMorphConfig("UPSD_Breast Under Smoother2",   0f,         0.20f,     1.00f,     1.00f),
+                new GravityMorphConfig("UPSD_Breast Under Smoother3",   0.15f,     -0.25f,     1.00f,     1.00f),
+                new GravityMorphConfig("UPSD_Breast Under Smoother4",   0.15f,      0.05f,     1.00f,     1.00f),
+                new GravityMorphConfig("UPSD_Breasts Flatten",          0f,         0.05f,     1.00f,     1.00f),
+                new GravityMorphConfig("UPSD_Breasts Hang Forward",     0f,         0.05f,     0.00f,     2.00f),
+                new GravityMorphConfig("UPSD_Breasts Height",           0f,         0.05f,     1.00f,     1.00f),
+                new GravityMorphConfig("UPSD_Breasts Implants",         0f,        -0.05f,     1.00f,     1.00f),
+                new GravityMorphConfig("UPSD_Breasts Natural",          0f,        -0.05f,     0.00f,     2.00f),
+                new GravityMorphConfig("UPSD_Breasts TogetherApart",    0f,         0.12f,    -1.00f,     1.00f),
+                new GravityMorphConfig("UPSD_Breasts Upward Slope",     0f,         0.15f,     1.00f,     1.00f),
+                new GravityMorphConfig("UPSD_BreastsShape2",            0f,         0.50f,     1.00f,     1.00f),
+                new GravityMorphConfig("UPSD_Center Gap Depth",         0f,         0.05f,     1.00f,     1.00f),
+                new GravityMorphConfig("UPSD_Center Gap Height",        0f,         0.10f,     1.00f,     1.00f),
+                new GravityMorphConfig("UPSD_Center Gap UpDown",        0f,         0.10f,     1.00f,     1.00f),
+                new GravityMorphConfig("UPSD_Chest Height",             0f,        -0.07f,     1.00f,     1.00f),
+                new GravityMorphConfig("UPSD_Chest Smoother",           0f,         0.10f,     1.00f,     1.00f),
+                new GravityMorphConfig("UPSD_ChestUnderBreast",         0f,        -0.15f,     1.00f,     1.00f),
+                new GravityMorphConfig("UPSD_ChestUp",                  0f,         0.10f,     1.00f,     1.00f),
             };
 
             leanBackMorphs = new List<GravityMorphConfig>
             {
-                new GravityMorphConfig("TM_Breast Depth Squash Left",       -0.20f,     0.00f,     2.00f),
-                new GravityMorphConfig("TM_Breast Depth Squash Right",      -0.20f,     0.00f,     2.00f),
-                new GravityMorphConfig("TM_Breast Diameter (Copy)",          0.08f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breast Large",                   -0.08f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breast Side Smoother",           -0.33f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breast Under Smoother1 (Copy)",  -0.04f,     1.00f,     1.00f),
-                new GravityMorphConfig("TM_Breast Under Smoother3 (Copy)",  -0.10f,     1.00f,     1.00f),
-                new GravityMorphConfig("TM_Breast Move S2S Out Left",        0.08f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breast Move S2S Out Right",       0.08f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breasts Flatten (Copy)",          0.25f,     0.33f,     1.67f),
-                new GravityMorphConfig("TM_Chest Smoother (Copy)",           0.33f,     0.00f,     2.00f),
-                new GravityMorphConfig("TM_ChestShape",                     -0.20f,     1.00f,     1.00f),
-                new GravityMorphConfig("TM_ChestSmoothCenter",               0.15f,     0.33f,     1.67f),
-                new GravityMorphConfig("TM_ChestUp (Copy)",                  0.20f,     1.00f,     1.00f),
-                new GravityMorphConfig("TM_Sternum Width",                   0.33f,     1.33f,    -0.67f),
+                new GravityMorphConfig("LBACK_Breast Depth Squash L",   0f,         0.25f,     0.00f,     2.00f),
+                new GravityMorphConfig("LBACK_Breast Depth Squash R",   0f,         0.25f,     0.00f,     2.00f),
+                new GravityMorphConfig("LBACK_Breast Diameter",         0f,         0.15f,     0.00f,     2.00f),
+                new GravityMorphConfig("LBACK_Breast Height",           0f,         0.33f,     0.00f,     2.00f),
+                new GravityMorphConfig("LBACK_Breast Height Upper",     0f,         0.10f,     0.00f,     2.00f),
+                new GravityMorphConfig("LBACK_Breast Move S2S Out L",   0f,         0.08f,     0.50f,     1.50f),
+                new GravityMorphConfig("LBACK_Breast Move S2S Out R",   0f,         0.08f,     0.50f,     1.50f),
+                new GravityMorphConfig("LBACK_Breast Top Curve1",       0f,        -0.14f,     1.00f,     1.00f),
+                new GravityMorphConfig("LBACK_Breast Top Curve2",       0f,        -0.28f,     1.00f,     1.00f),
+                new GravityMorphConfig("LBACK_Breast Under Smoother1",  0f,         0.22f,     0.50f,     1.50f),
+                new GravityMorphConfig("LBACK_Breast Under Smoother2",  0f,         0.20f,     1.00f,     1.00f),
+                new GravityMorphConfig("LBACK_Breast Under Smoother3",  0f,         0.16f,     0.50f,     1.50f),
+                new GravityMorphConfig("LBACK_Breast Zero",             0f,         0.10f,     0.00f,     2.00f),
+                new GravityMorphConfig("LBACK_Breasts Flatten",         0f,         0.25f,     0.00f,     2.00f),
+                new GravityMorphConfig("LBACK_Chest Smoother",          0f,         0.33f,     0.00f,     2.00f),
+                new GravityMorphConfig("LBACK_ChestSmoothCenter",       0f,         0.15f,     1.00f,     1.00f),
+                new GravityMorphConfig("LBACK_ChestUp",                 0f,         0.10f,     1.00f,     1.00f),
+                new GravityMorphConfig("LBACK_Chest Height",            0f,        -0.07f,     1.00f,     1.00f),
+                new GravityMorphConfig("LBACK_Center Gap Smooth",       0f,         0.33f,     1.00f,     1.00f),
             };
 
             leanForwardMorphs = new List<GravityMorphConfig> {
-                new GravityMorphConfig("TM_Breast Depth Left",               0.22f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breast Depth Right",              0.22f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breast Diameter Left",            0.22f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breast Diameter Right",           0.22f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breast Diameter (Copy)",         -0.04f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breast Large",                   -0.08f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breast Side Smoother",            0.20f,     0.20f,     1.80f),
-                new GravityMorphConfig("TM_Breasts Height (Copy)",          -0.18f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breasts Hang Forward (Copy)",     0.05f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breasts TogetherApart (Copy)",    0.20f,     0.25f,     1.75f),
-                new GravityMorphConfig("TM_Sternum Width",                   0.25f,     0.75f,     1.25f),
+                new GravityMorphConfig("LFWD_Areola S2S L",             0f,         0.40f,     1.50f,     0.50f),
+                new GravityMorphConfig("LFWD_Areola S2S R",             0f,         0.40f,     1.50f,     0.50f),
+                new GravityMorphConfig("LFWD_Breast Depth L",           0f,         0.30f,     1.00f,     1.00f),
+                new GravityMorphConfig("LFWD_Breast Depth R",           0f,         0.30f,     1.00f,     1.00f),
+                new GravityMorphConfig("LFWD_Breast Diameter",          0f,        -0.04f,     0.50f,     1.50f),
+                new GravityMorphConfig("LFWD_Breast Diameter L",        0f,         0.40f,     0.50f,     1.50f),
+                new GravityMorphConfig("LFWD_Breast Diameter R",        0f,         0.40f,     0.50f,     1.50f),
+                new GravityMorphConfig("LFWD_Breast Height2 L",         0f,        -0.20f,     0.50f,     1.50f),
+                new GravityMorphConfig("LFWD_Breast Height2 R",         0f,        -0.20f,     0.50f,     1.50f),
+                new GravityMorphConfig("LFWD_Breast Move Up R",         0f,         0.15f,     0.50f,     1.50f),
+                new GravityMorphConfig("LFWD_Breast Move Up L",         0f,         0.15f,     0.50f,     1.50f),
+                new GravityMorphConfig("LFWD_Breast Rotate Down L",     0f,         0.20f,     0.50f,     1.50f),
+                new GravityMorphConfig("LFWD_Breast Rotate Down R",     0f,         0.20f,     0.50f,     1.50f),
+                new GravityMorphConfig("LFWD_Breast Side Smoother",     0f,         0.20f,     0.50f,     1.50f),
+                new GravityMorphConfig("LFWD_Breast Width L",           0f,        -0.14f,     0.50f,     1.50f),
+                new GravityMorphConfig("LFWD_Breast Width R",           0f,        -0.14f,     0.50f,     1.50f),
+                new GravityMorphConfig("LFWD_Breasts Hang Forward",     0f,         0.15f,    -0.50f,     2.00f),
+                new GravityMorphConfig("LFWD_Breasts TogetherApart",    0f,         0.10f,    -0.50f,     2.00f),
+                new GravityMorphConfig("LFWD_Sternum Width",            0f,         0.20f,     0.50f,     1.50f),
             };
 
             rollLeftMorphs = new List<GravityMorphConfig>
             {
-                new GravityMorphConfig("TM_Areola S2S Left",                    -0.40f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Areola S2S Right",                    0.40f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breast Move S2S In Right",            0.28f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breast Move S2S Out Left (Copy)",     0.40f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breast Rotate X In Right",            0.10f,     0.00f,     2.00f),
-                new GravityMorphConfig("TM_Breast Width Left",                  -0.03f,     0.40f,     1.60f),
-                new GravityMorphConfig("TM_Breast Width Right",                  0.07f,     0.40f,     1.60f),
-                new GravityMorphConfig("TM_Breasts Diameter",                   -0.05f,     0.40f,     1.60f),
-                new GravityMorphConfig("TM_Centre Gap Narrow",                   0.10f,     0.25f,     1.75f),
-                new GravityMorphConfig("TM_Center Gap Smooth",                   0.20f,     0.25f,     1.75f),
+                new GravityMorphConfig("RLEFT_Areola S2S R",            0f,         0.30f,    -0.50f,     2.00f),
+                new GravityMorphConfig("RLEFT_Breast Depth Squash R",   0f,         0.22f,    -0.50f,     2.00f),
+                new GravityMorphConfig("RLEFT_Breast Diameter",         0f,        -0.08f,     0.50f,     2.00f),
+                new GravityMorphConfig("RLEFT_Breast Diameter R",       0f,         0.35f,    -0.50f,     2.00f),
+                new GravityMorphConfig("RLEFT_Breast Move S2S In R",    0f,         0.12f,    -1.00f,     2.00f),
+                new GravityMorphConfig("RLEFT_Breast Move S2S Out L",   0f,         0.12f,    -1.00f,     2.00f),
+                new GravityMorphConfig("RLEFT_Breast Rotate X In R",    0f,         0.12f,    -0.50f,     2.00f),
+                new GravityMorphConfig("RLEFT_Breast Width L",          0f,        -0.02f,    -0.50f,     2.00f),
+                new GravityMorphConfig("RLEFT_Breast Width R",          0f,         0.05f,    -0.50f,     2.00f),
+                new GravityMorphConfig("RLEFT_Breasts Hang Forward R",  0f,         0.12f,    -0.50f,     2.00f),
+                new GravityMorphConfig("RLEFT_Centre Gap Narrow",       0f,         0.12f,    -0.80f,     2.00f),
+                new GravityMorphConfig("RLEFT_Center Gap Smooth",       0f,         0.24f,    -0.80f,     2.00f),
             };
 
             rollRightMorphs = new List<GravityMorphConfig>
             {
-                new GravityMorphConfig("TM_Areola S2S Left",                     0.40f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Areola S2S Right",                   -0.40f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breast Move S2S In Left",             0.28f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breast Move S2S Out Right (Copy)",    0.40f,     0.50f,     1.50f),
-                new GravityMorphConfig("TM_Breast Rotate X In Left",             0.10f,     0.00f,     2.00f),
-                new GravityMorphConfig("TM_Breast Width Left",                   0.07f,     0.40f,     1.60f),
-                new GravityMorphConfig("TM_Breast Width Right",                 -0.03f,     0.40f,     1.60f),
-                new GravityMorphConfig("TM_Breasts Diameter",                   -0.05f,     0.40f,     1.60f),
-                new GravityMorphConfig("TM_Centre Gap Narrow",                   0.10f,     0.25f,     1.75f),
-                new GravityMorphConfig("TM_Center Gap Smooth",                   0.20f,     0.25f,     1.75f),
+                new GravityMorphConfig("RRIGHT_Areola S2S L",           0f,         0.30f,    -0.50f,     2.00f),
+                new GravityMorphConfig("RRIGHT_Breast Depth Squash L",  0f,         0.22f,    -0.50f,     2.00f),
+                new GravityMorphConfig("RRIGHT_Breast Diameter",        0f,        -0.08f,     0.50f,     2.00f),
+                new GravityMorphConfig("RRIGHT_Breast Diameter L",      0f,         0.35f,    -0.50f,     2.00f),
+                new GravityMorphConfig("RRIGHT_Breast Move S2S In L",   0f,         0.12f,    -1.00f,     2.00f),
+                new GravityMorphConfig("RRIGHT_Breast Move S2S Out R",  0f,         0.12f,    -1.00f,     2.00f),
+                new GravityMorphConfig("RRIGHT_Breast Rotate X In L",   0f,         0.12f,    -0.50f,     2.00f),
+                new GravityMorphConfig("RRIGHT_Breast Width L",         0f,         0.05f,    -0.50f,     2.00f),
+                new GravityMorphConfig("RRIGHT_Breast Width R",         0f,        -0.02f,    -0.50f,     2.00f),
+                new GravityMorphConfig("RRIGHT_Breasts Hang Forward L", 0f,         0.12f,    -0.50f,     2.00f),
+                new GravityMorphConfig("RRIGHT_Centre Gap Narrow",      0f,         0.12f,    -0.80f,     2.00f),
+                new GravityMorphConfig("RRIGHT_Center Gap Smooth",      0f,         0.24f,    -0.80f,     2.00f),
             };
         }
 

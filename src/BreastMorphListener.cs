@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿//#define SHOW_DEBUG
+using System.Collections.Generic;
 using System.Linq;
 
 namespace everlaster
@@ -18,6 +19,9 @@ namespace everlaster
             morphs
                 .Where(morph => morph.visible && !morph.isPoseControl && !morph.group.Contains("Pose/"))
                 .ToList().ForEach(morph => CheckMorphAndListen(morph));
+#if SHOW_DEBUG
+            DumpStatus();
+#endif
         }
 
         public bool Changed()
@@ -28,12 +32,16 @@ namespace everlaster
                 if (value != status[morph.uid])
                 {
                     status[morph.uid] = value;
-                    //SuperController.LogMessage($"change detected! morph {MorphName(morph)}");
+#if SHOW_DEBUG
+                    SuperController.LogMessage($"change detected! morph {MorphName(morph)}");
+#endif
                     return true;
                 }
             };
             return false;
         }
+
+#if SHOW_DEBUG
 
         public void DumpStatus()
         {
@@ -44,6 +52,7 @@ namespace everlaster
             }
             Log.Message(message + "- - - - - - - - - -\n");
         }
+#endif
 
         private void CheckMorphAndListen(DAZMorph morph)
         {

@@ -10,6 +10,7 @@ namespace everlaster
     class TittyMagic : MVRScript
     {
         private bool enableUpdate = true;
+        private bool physicsUpdateInProgress = false;
 
         private Transform chest;
         private DAZCharacterSelector geometry;
@@ -32,7 +33,6 @@ namespace everlaster
 
         private JSONStorableString titleUIText;
         private JSONStorableString statusUIText;
-        //private JSONStorableString logUIArea;
 
         //registered storables
         private JSONStorableString pluginVersion;
@@ -40,7 +40,6 @@ namespace everlaster
         private float softnessMax = 3.0f;
 
         private JSONStorableFloat sagMultiplier;
-
         private JSONStorableFloat nippleErection;
 
 #if SHOW_DEBUG
@@ -79,7 +78,6 @@ namespace everlaster
                 atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
                 breastMorphListener = new BreastMorphListener(geometry.morphBank1.morphs);
 #if SHOW_DEBUG
-                breastMorphListener.DumpStatus();
                 useGravityPhysics = NewToggle("Use gravity physics", false);
                 useGravityPhysics.val = true;
 #endif
@@ -143,10 +141,6 @@ namespace everlaster
                 "independently of soft physics.\n\n";
             usage += "Set breast morphs to defaults before applying example settings.";
             usageInfo.SetVal(usage);
-            //CreateNewSpacer(10f, rightSide);
-
-            //logUIArea = NewTextField("Log Info Area", 28, 630, rightSide);
-            //logUIArea.SetVal("\n");
 #endif
         }
 
@@ -215,7 +209,7 @@ namespace everlaster
             {
                 if (enableUpdate)
                 {
-                    if(breastMorphListener.Changed() || atomScaleListener.Changed())
+                    if(!physicsUpdateInProgress && (breastMorphListener.Changed() || atomScaleListener.Changed()))
                     {
                         StartCoroutine(RefreshStaticPhysics(atomScaleListener.Value));
                     }
@@ -252,6 +246,7 @@ namespace everlaster
 
         IEnumerator RefreshStaticPhysics(float atomScale)
         {
+            physicsUpdateInProgress = true;
             while(breastMorphListener.Changed())
             {
                 yield return null;
@@ -271,6 +266,7 @@ namespace everlaster
 
             UpdateMassEstimate(atomScale, updateUIStatus: true);
             staticPhysicsH.FullUpdate(breastMass, softness.val, softnessMax, nippleErection.val);
+            physicsUpdateInProgress = false;
         }
 
         void UpdateMassEstimate(float atomScale, bool updateUIStatus = false)
