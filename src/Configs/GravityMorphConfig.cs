@@ -6,14 +6,14 @@
         public string name;
         private float baseMul;
         private float? scaleMul;
-        private float? softnessMul;
+        private float? gravityMul;
 
-        public GravityMorphConfig(string name, float baseMul,  float? scaleMul, float? softnessMul)
+        public GravityMorphConfig(string name, float baseMul,  float? scaleMul, float? gravityMul)
         {
             this.name = name;
             this.baseMul = baseMul;
             this.scaleMul = scaleMul;
-            this.softnessMul = softnessMul;
+            this.gravityMul = gravityMul;
             morph = Globals.MORPH_UI.GetMorphByDisplayName(name);
             if(morph == null)
             {
@@ -21,17 +21,12 @@
             }
         }
 
-        public void UpdateVal(float effect, float scale, float softness, float sag)
+        public void UpdateVal(float effect, float scale, float gravity)
         {
-            // baseMultiplier is the base multiplier for the morph in this type (UPRIGHT etc.)
-            // scaleMultiplier scales the breast softness slider for this base multiplier
-            //      - if null, slider setting is ignored
-            // softnessMultiplier scales the size calibration slider for this base multiplier
-            //      - if null, slider setting is ignored
             float scaleFactor = scaleMul.HasValue ? scale * (float) scaleMul : 1;
-            float softnessFactor = softnessMul.HasValue ? sag * softness * (float) softnessMul : 1;
+            float gravityFactor = gravityMul.HasValue ? gravity * (float) gravityMul : 1;
             float value = baseMul * (
-                (softnessFactor * effect / 2) +
+                (gravityFactor * effect / 2) +
                 (scaleFactor * effect / 2)
             );
 

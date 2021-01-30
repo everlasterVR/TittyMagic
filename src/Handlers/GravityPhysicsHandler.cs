@@ -15,7 +15,7 @@ namespace everlaster
         private float roll;
         private float pitch;
         private float scale;
-        private float softness;
+        private float gravity;
 
         public GravityPhysicsHandler()
         {
@@ -26,8 +26,8 @@ namespace everlaster
             // offsetScaleMul = multiplier for how much offset increases (on top of the base offset) based on scale
             // logMaxX = maximum x value for the logarithmic function that affects (along with breast mass) the Max value for Mathf.SmoothStep
             // scaleMul = the relative impact of breast mass on the final value
-            // softMul = the relative impact of breast softness on the final value
-            //                           name                       offset    offsetScaleMul  logMaxX     scaleMul    softMul     
+            // gravityMul = the relative impact of breast gravity on the final value
+            //                           name                        offset    offsetScaleMul  logMaxX     scaleMul    gravityMul     
             uprightPhysics = new List<GravityPhysicsConfig>()
             {
                 new GravityPhysicsConfig("targetRotationX",          0.10f,    0.40f,         -1.8f,       1.50f,      0.50f),
@@ -66,13 +66,13 @@ namespace everlaster
             float roll,
             float pitch,
             float scale,
-            float softness
+            float gravity
         )
         {
             this.roll = roll;
             this.pitch = pitch;
             this.scale = scale;
-            this.softness = softness;
+            this.gravity = gravity;
 
             AdjustPhysicsForRoll();
             AdjustPhysicsForPitch(Calc.RollFactor(roll));
@@ -152,7 +152,7 @@ namespace everlaster
 
         private void Update(List<GravityPhysicsConfig> physics, float effect)
         {
-            physics.ForEach(it => it.UpdateVal(effect, scale, softness));
+            physics.ForEach(it => it.UpdateVal(effect, scale, gravity));
         }
     }
 }

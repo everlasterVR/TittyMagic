@@ -16,8 +16,7 @@ namespace everlaster
         private float roll;
         private float pitch;
         private float scale;
-        private float softness;
-        private float sag;
+        private float gravity;
 
         public GravityMorphHandler()
         {
@@ -30,15 +29,13 @@ namespace everlaster
             float roll,
             float pitch,
             float scale,
-            float softness,
-            float sag
+            float gravity
         )
         {
             this.roll = roll;
             this.pitch = pitch;
             this.scale = scale;
-            this.softness = softness;
-            this.sag = sag;
+            this.gravity = gravity;
 
             gravityOffsetMorphs.ForEach(it => it.UpdateVal());
             AdjustMorphsForRoll();
@@ -91,7 +88,7 @@ namespace everlaster
 
             uprightMorphs = new List<GravityMorphConfig>
             {
-                //                      name                            baseMul    scaleMul   softMul
+                //                      name                            baseMul    scaleMul   gravityMul
                 new GravityMorphConfig("TM_Upright1",                   1.00f,     1.50f,     0.50f),
                 //new GravityMorphConfig("UPR_Breast Move Down L",        0.25f,     1.50f,     0.50f),
                 //new GravityMorphConfig("UPR_Breast Move Down R",        0.25f,     1.50f,     0.50f),
@@ -325,7 +322,7 @@ namespace everlaster
 
         private void Update(List<GravityMorphConfig> morphs, float effect)
         {
-            morphs.ForEach(it => it.UpdateVal(effect, scale, softness, sag));
+            morphs.ForEach(it => it.UpdateVal(effect, scale, gravity));
         }
 
         private void Reset(List<GravityMorphConfig> morphs)

@@ -10,17 +10,17 @@ namespace everlaster
         private float offsetScaleMul;
         private float logMaxX;
         private float? scaleMul;
-        private float? softMul;
+        private float? gravityMul;
         private float originalValue;
 
-        public GravityPhysicsConfig(string name, float offset, float offsetScaleMul, float logMaxX, float? scaleMul, float? softMul)
+        public GravityPhysicsConfig(string name, float offset, float offsetScaleMul, float logMaxX, float? scaleMul, float? gravityMul)
         {
             this.name = name;
             this.offset = offset;
             this.offsetScaleMul = offsetScaleMul;
             this.logMaxX = logMaxX;
             this.scaleMul = scaleMul;
-            this.softMul = softMul;
+            this.gravityMul = gravityMul;
         }
 
         public void InitStorable()
@@ -34,12 +34,12 @@ namespace everlaster
             originalValue = setting.val;
         }
 
-        public void UpdateVal(float effect, float scale, float softness)
+        public void UpdateVal(float effect, float scale, float gravity)
         {
             float scaleFactor = scaleMul.HasValue ? (float) scaleMul * scale : 1;
-            float softFactor = softMul.HasValue ? (float) softMul * softness : 1;
+            float gravityFactor = gravityMul.HasValue ? (float) gravityMul * gravity : 1;
             float interpolatedEffect = Mathf.SmoothStep(0, ScaledSmoothMax(scale), effect);
-            float value = (scaleFactor * interpolatedEffect / 2) + (softFactor * interpolatedEffect / 2);
+            float value = (scaleFactor * interpolatedEffect / 2) + (gravityFactor * interpolatedEffect / 2);
             setting.val = offset + offsetScaleMul * scale + value;
         }
 

@@ -22,6 +22,7 @@ namespace everlaster
         private float massMin = 0.100f;
         private float massMax = 2.000f;
         private float softVolume; // cm^3; spheroid volume estimation of right breast
+        private float gravityLogAmount;
 
         private AtomScaleListener atomScaleListener;
         private BreastMorphListener breastMorphListener;
@@ -37,13 +38,11 @@ namespace everlaster
         //registered storables
         private JSONStorableString pluginVersion;
         private JSONStorableFloat softness;
-        private float softnessMax = 3.0f;
-
-        private JSONStorableFloat sagMultiplier;
+        private JSONStorableFloat gravity;
+        private JSONStorableBool linkSoftnessAndGravity;
         private JSONStorableFloat nippleErection;
 
 #if SHOW_DEBUG
-        private JSONStorableBool useGravityPhysics;
         protected JSONStorableString baseDebugInfo = new JSONStorableString("Base Debug Info", "");
         protected JSONStorableString physicsDebugInfo = new JSONStorableString("Physics Debug Info", "");
         protected JSONStorableString morphDebugInfo = new JSONStorableString("Morph Debug Info", "");
@@ -77,10 +76,7 @@ namespace everlaster
 
                 atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
                 breastMorphListener = new BreastMorphListener(geometry.morphBank1.morphs);
-#if SHOW_DEBUG
-                useGravityPhysics = NewToggle("Use gravity physics", false);
-                useGravityPhysics.val = true;
-#endif
+
                 gravityMorphH = new GravityMorphHandler();
                 nippleMorphH = new NippleErectionMorphHandler();
                 gravityPhysicsH = new GravityPhysicsHandler();
@@ -89,6 +85,7 @@ namespace everlaster
                 InitPluginUILeft();
                 InitPluginUIRight();
                 InitSliderListeners();
+                UpdateLogarithmicGravityAmount(gravity.val);
 
                 SetPhysicsDefaults();
                 StartCoroutine(RefreshStaticPhysics(atomScaleListener.Value));
@@ -107,8 +104,10 @@ namespace everlaster
             titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{pluginVersion.val}</size>");
 
             // doesn't just init UI, also variables...
-            softness = NewFloatSlider("Breast softness", 1.5f, 0.5f, softnessMax, rightSide);
-            sagMultiplier = NewFloatSlider("Sag multiplier", 1.0f, 0f, 2.0f, rightSide);
+            softness = NewFloatSlider("Breast softness", 1.5f, Const.SOFTNESS_MIN, Const.SOFTNESS_MAX, rightSide);
+            gravity = NewFloatSlider("Breast gravity", 1.5f, Const.GRAVITY_MIN, Const.GRAVITY_MAX, rightSide);
+            linkSoftnessAndGravity = NewToggle("Link softness and gravity", false);
+            linkSoftnessAndGravity.val = true;
 
             CreateNewSpacer(10f);
 
@@ -133,14 +132,11 @@ namespace everlaster
             morphInfo.height = 1085;
             morphInfo.UItext.fontSize = 26;
 #else
-            JSONStorableString usageInfo = NewTextField("Usage Info Area", 28, 415, rightSide);
-            string usage = "\n";
-            usage += "Breast softness controls soft physics and affects the amount " +
-                "of morph-based sag in different orientations or poses.\n\n";
-            usage += "Sag multiplier adjusts the sag produced by Breast softness " +
-                "independently of soft physics.\n\n";
-            usage += "Set breast morphs to defaults before applying example settings.";
-            usageInfo.SetVal(usage);
+            JSONStorableString usage1Area = NewTextField("Usage Info Area 1", 28, 255, rightSide);
+            string usage1 = "\n";
+            usage1 += "Breast softness adjusts soft physics settings from very firm to very soft.\n\n";
+            usage1 += "Breast gravity adjusts how much pose morphs shape the breasts in all orientations.";
+            usage1Area.SetVal(usage1);
 #endif
         }
 
@@ -166,7 +162,7 @@ namespace everlaster
         {
             JSONStorableBool storable = new JSONStorableBool(paramName, rightSide);
             CreateToggle(storable, false);
-            //RegisterBool(storable);
+            RegisterBool(storable);
             return storable;
         }
 
@@ -181,17 +177,32 @@ namespace everlaster
         {
             softness.slider.onValueChanged.AddListener((float val) =>
             {
-                staticPhysicsH.FullUpdate(breastMass, val, softnessMax, nippleErection.val);
+                if (linkSoftnessAndGravity.val)
+                {
+                    gravity.val = val;
+                    UpdateLogarithmicGravityAmount(val);
+                }
+                staticPhysicsH.FullUpdate(breastMass, val, nippleErection.val);
             });
-            sagMultiplier.slider.onValueChanged.AddListener((float val) =>
+            gravity.slider.onValueChanged.AddListener((float val) =>
             {
-                staticPhysicsH.FullUpdate(breastMass, softness.val, softnessMax, nippleErection.val);
+                if(linkSoftnessAndGravity.val)
+                {
+                    softness.val = val;
+                }
+                UpdateLogarithmicGravityAmount(val);
+                staticPhysicsH.FullUpdate(breastMass, softness.val, nippleErection.val);
             });
             nippleErection.slider.onValueChanged.AddListener((float val) =>
             {
                 nippleMorphH.Update(val);
                 staticPhysicsH.UpdateNipplePhysics(softness.val, val);
             });
+        }
+
+        void UpdateLogarithmicGravityAmount(float val)
+        {
+            gravityLogAmount = Mathf.Log(10 * val - 3.35f);
         }
 
         // TODO merge
@@ -203,6 +214,7 @@ namespace everlaster
             geometry.useAuxBreastColliders = true;
             staticPhysicsH.SetPhysicsDefaults();
         }
+        
 
         public void Update()
         {
@@ -219,22 +231,12 @@ namespace everlaster
                     float pitch = Calc.Pitch(chest.rotation);
                     float scaleVal = Calc.LegacyScale(breastMass);
 
-                    gravityMorphH.Update(roll, pitch, scaleVal, softness.val, sagMultiplier.val);
+                    gravityMorphH.Update(roll, pitch, scaleVal, gravityLogAmount);
+                    gravityPhysicsH.Update(roll, pitch, scaleVal, gravity.val);
 #if SHOW_DEBUG
-                    if(useGravityPhysics.val)
-                    {
-                        gravityPhysicsH.Update(roll, pitch, scaleVal, softness.val);
-                    }
-                    else
-                    {
-                        gravityPhysicsH.ResetAll();
-                    }
-
                     SetBaseDebugInfo(roll, pitch);
                     morphDebugInfo.SetVal(gravityMorphH.GetStatus());
-                    physicsDebugInfo.SetVal(staticPhysicsH.GetStatus() + gravityPhysicsH.GetStatus());
-#else
-                    gravityPhysicsH.Update(roll, pitch, scaleVal, softness.val);
+                    physicsDebugInfo.SetVal(staticPhysicsH.GetStatus() + gravityPhysicsH.GetStatus());            
 #endif
                 }
             }
@@ -258,7 +260,7 @@ namespace everlaster
             {
                 // update only non-soft physics settings to improve performance
                 UpdateMassEstimate(atomScale);
-                staticPhysicsH.UpdateMainPhysics(breastMass, softness.val, softnessMax);
+                staticPhysicsH.UpdateMainPhysics(breastMass, softness.val);
                 if(i > 0)
                 {
                     yield return new WaitForSeconds(0.12f);
@@ -266,7 +268,7 @@ namespace everlaster
             }
 
             UpdateMassEstimate(atomScale, updateUIStatus: true);
-            staticPhysicsH.FullUpdate(breastMass, softness.val, softnessMax, nippleErection.val);
+            staticPhysicsH.FullUpdate(breastMass, softness.val, nippleErection.val);
             physicsUpdateInProgress = false;
         }
 

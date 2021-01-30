@@ -41,12 +41,11 @@
 
         public void UpdateMainPhysics(
             float breastMass,
-            float softnessVal,
-            float softnessMax
+            float softnessVal
         )
         {
             float scaleVal = Calc.LegacyScale(breastMass);
-            float hardnessVal = softnessMax - softnessVal; // 0.00 .. 2.50 for softness 3.00 .. 0.50
+            float hardnessVal = Const.SOFTNESS_MAX - softnessVal; // 0.00 .. 2.50 for softness 3.00 .. 0.50
 
             //                                    base      size adjustment         softness adjustment
             BC.mass                             = breastMass;
@@ -66,12 +65,11 @@
         public void FullUpdate(
             float breastMass,
             float softnessVal,
-            float softnessMax,
             float nippleErectionVal
         )
         {
             float scaleVal = Calc.LegacyScale(breastMass);
-            float hardnessVal = softnessMax - softnessVal; // 0.00 .. 2.50 for softness 3.00 .. 0.50
+            float hardnessVal = Const.SOFTNESS_MAX - softnessVal; // 0.00 .. 2.50 for softness 3.00 .. 0.50
 
             //                                    base      size adjustment         softness adjustment
             BC.mass                             = breastMass;
