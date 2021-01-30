@@ -69,31 +69,25 @@
         )
         {
             float scaleVal = Calc.LegacyScale(massEstimate);
-            float hardnessVal = Const.SOFTNESS_MAX - softnessVal; // 0.00 .. 2.50 for softness 3.00 .. 0.50
+            float hardnessVal = Const.SOFTNESS_MAX - softnessVal + Const.SOFTNESS_MIN;
 
             //                                    base      size adjustment         softness adjustment
             BC.mass                             = massEstimate;
-            //BC.centerOfGravityPercent           = 0.40f  + (0.06f   * scaleVal);
-            BC.spring                           = 36f    + (4f      * scaleVal) + (8f      * hardnessVal);
-            BC.damper                           = 1.3f   - (0.2f    * scaleVal) + (0.2f     * hardnessVal);
+            BC.spring                           = 24f    + (6f      * scaleVal)  + (18f      * hardnessVal);
+            BC.damper                           = 1.0f   - (0.2f    * scaleVal)  + (0.8f     * hardnessVal);
             BC.positionSpringZ                  = 250f   + (200f    * scaleVal);
-            BC.positionDamperZ                  = 5f     + (3.0f    * scaleVal) + (3.0f     * softnessVal);
+            BC.positionDamperZ                  = 5f     + (3.0f    * scaleVal)  + (3.0f     * softnessVal);
             BPH.softVerticesColliderRadius      = 0.022f + (0.005f  * scaleVal);
-            //BPH.softVerticesCombinedSpring      = 80f    + (80f     * scaleVal) + (40f      * softnessVal);
-            BPH.softVerticesCombinedSpring      = 100f   +  (50f     * scaleVal) + (38f      * softnessVal);
-            //BPH.softVerticesCombinedDamper      = 0.75f  + (0.75f   * scaleVal) + (0.25f    * softnessVal);
-            BPH.softVerticesCombinedDamper      = 1.00f  + (0.90f   * scaleVal) - (0.30f    * softnessVal);
-            //BPH.softVerticesMass                = 0.04f  + (0.100f  * scaleVal) + (0.030f   * softnessVal);
-            BPH.softVerticesMass                = 0.05f  + (0.07f  * scaleVal);
-            //BPH.softVerticesBackForce           = 1.0f   + (2.8f    * scaleVal) + (2.0f     * hardnessVal);
-            //BPH.softVerticesBackForceMaxForce   = 1.0f   + (1.4f    * scaleVal) + (1.0f     * hardnessVal);
-            BPH.softVerticesBackForce           = 2.0f   + (3.0f     * hardnessVal);
-            BPH.softVerticesBackForceMaxForce   = 2.0f   + (2.0f     * hardnessVal);
-            BPH.softVerticesNormalLimit         = 0.010f + (0.015f  * scaleVal) + (0.003f   * softnessVal);
+            BPH.softVerticesCombinedSpring      = 100f   + (50f     * scaleVal)  + (38f      * softnessVal);
+            BPH.softVerticesCombinedDamper      = 1.20f  + (0.90f   * scaleVal)  - (0.35f    * softnessVal);
+            BPH.softVerticesMass                = 0.05f  + (0.07f   * scaleVal);
+            BPH.softVerticesBackForce           = 2.0f   + (3.0f    * hardnessVal);
+            BPH.softVerticesBackForceMaxForce   = 2.0f   + (2.0f    * hardnessVal);
+            BPH.softVerticesNormalLimit         = 0.010f + (0.015f  * scaleVal)  + (0.003f   * softnessVal);
 
-            groupASpringMultiplier.val  = (0.75f + (0.10f * softnessVal) - (0.10f * scaleVal)) / softnessVal;
+            groupASpringMultiplier.val  = (0.75f + (0.10f * softnessVal) - (0.07f * scaleVal)) / softnessVal;
             groupADamperMultiplier.val  = groupASpringMultiplier.val;
-            groupBSpringMultiplier.val  = (1.50f + (0.20f * softnessVal) - (0.10f * scaleVal)) / softnessVal;
+            groupBSpringMultiplier.val  = (1.50f + (0.20f * softnessVal) - (0.07f * scaleVal)) / softnessVal;
             groupBDamperMultiplier.val  = groupBSpringMultiplier.val;
             groupCSpringMultiplier.val  = (1.40f + (0.30f * softnessVal)) / softnessVal;
             groupCDamperMultiplier.val  = 2.00f * groupCSpringMultiplier.val;
