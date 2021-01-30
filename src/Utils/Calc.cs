@@ -27,22 +27,21 @@ namespace everlaster
         }
 
         // roughly estimate the legacy scale value from automatically calculated mass
-        public static float LegacyScale(float mass)
+        public static float LegacyScale(float massEstimate)
         {
-            return Mathf.Pow(mass, 1.536f); // mass = 2 -> scale = about 2.9
+            return 1.14f * massEstimate;
+        }
+
+        // compensate for the hard colliders of larger breasts
+        public static float VolumeToMass(float volume)
+        {
+            // fat density = 0.9 g/cm^3
+            return Mathf.Pow((volume * 0.9f) / 1000, 1.3f) + 0.08f;
         }
 
         public static float RoundToDecimals(float value, float roundFactor)
         {
             return Mathf.Round(value * roundFactor) / roundFactor;
-        }
-
-        // UNUSED
-        public static float SinCurveMultiplier(float x, float midPoint = 0.5f)
-        {
-            return (float) (
-                midPoint * (Mathf.Sin(Mathf.PI * x - Mathf.PI/2) + 1)
-            );
         }
     }
 }

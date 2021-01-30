@@ -30,27 +30,27 @@ namespace everlaster
             //                           name                        offset    offsetScaleMul  logMaxX     scaleMul    gravityMul     
             uprightPhysics = new List<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("targetRotationX",          0.10f,    0.40f,         -1.8f,       1.50f,      0.50f),
+                new GravityPhysicsConfig("targetRotationX",          1.00f,    0.40f,         -0.8f,       1.50f,      0.50f),
             };
             upsideDownPhysics = new List<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("targetRotationX",          0.10f,    0.40f,          6.0f,       0.20f,      1.80f),
+                new GravityPhysicsConfig("targetRotationX",          1.00f,    0.40f,          1.6f,       1.50f,      0.50f),
             };
             leanBackPhysics = new List<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("centerOfGravityPercent",   0.30f,    0.09f,         -0.02f,      0.00f,      2.00f),
+                new GravityPhysicsConfig("centerOfGravityPercent",   0.40f,    0.05f,         -0.01f,      0.50f,      1.50f),
             };
             leanForwardPhysics = new List<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("centerOfGravityPercent",   0.36f,    0.08f,          0.03f,      0.00f,      2.00f),
+                new GravityPhysicsConfig("centerOfGravityPercent",   0.40f,    0.05f,          0.05f,      0.50f,      1.50f),
             };
             rollLeftPhysics = new List<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("targetRotationY",          0f,       0f,             12f,        0.20f,      1.80f),
+                new GravityPhysicsConfig("targetRotationY",          0f,       0f,             12f,        0.50f,      1.50f),
             };
             rollRightPhysics = new List<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("targetRotationY",          0f,       0f,            -12f,        0.20f,      1.80f),
+                new GravityPhysicsConfig("targetRotationY",          0f,       0f,            -12f,        0.50f,      1.50f),
             };
 
             uprightPhysics.ForEach(it => it.InitStorable());
@@ -82,7 +82,7 @@ namespace everlaster
         {
             uprightPhysics.ForEach(it => it.Reset());
             //upsideDownPhysics.ForEach(it => it.Reset());
-            leanBackPhysics.ForEach(it => it.Reset());
+            leanForwardPhysics.ForEach(it => it.Reset());
             //leanBackPhysics.ForEach(it => it.Reset());
             rollLeftPhysics.ForEach(it => it.Reset());
             //rollRightPhysics.ForEach(it => it.Reset());

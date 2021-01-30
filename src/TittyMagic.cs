@@ -17,8 +17,7 @@ namespace everlaster
 
         private List<DAZPhysicsMeshSoftVerticesSet> rightBreastMainGroupSets;
         private Mesh inMemoryMesh;
-        private float fatDensity = 0.89f; // g/cm^3
-        private float breastMass;
+        private float massEstimate;
         private float massMin = 0.100f;
         private float massMax = 2.000f;
         private float softVolume; // cm^3; spheroid volume estimation of right breast
@@ -182,7 +181,7 @@ namespace everlaster
                     gravity.val = val;
                     UpdateLogarithmicGravityAmount(val);
                 }
-                staticPhysicsH.FullUpdate(breastMass, val, nippleErection.val);
+                staticPhysicsH.FullUpdate(massEstimate, val, nippleErection.val);
             });
             gravity.slider.onValueChanged.AddListener((float val) =>
             {
@@ -191,7 +190,7 @@ namespace everlaster
                     softness.val = val;
                 }
                 UpdateLogarithmicGravityAmount(val);
-                staticPhysicsH.FullUpdate(breastMass, softness.val, nippleErection.val);
+                staticPhysicsH.FullUpdate(massEstimate, softness.val, nippleErection.val);
             });
             nippleErection.slider.onValueChanged.AddListener((float val) =>
             {
@@ -229,7 +228,7 @@ namespace everlaster
 
                     float roll = Calc.Roll(chest.rotation);
                     float pitch = Calc.Pitch(chest.rotation);
-                    float scaleVal = Calc.LegacyScale(breastMass);
+                    float scaleVal = Calc.LegacyScale(massEstimate);
 
                     gravityMorphH.Update(roll, pitch, scaleVal, gravityLogAmount);
                     gravityPhysicsH.Update(roll, pitch, scaleVal, gravity.val);
@@ -260,7 +259,7 @@ namespace everlaster
             {
                 // update only non-soft physics settings to improve performance
                 UpdateMassEstimate(atomScale);
-                staticPhysicsH.UpdateMainPhysics(breastMass, softness.val);
+                staticPhysicsH.UpdateMainPhysics(massEstimate, softness.val);
                 if(i > 0)
                 {
                     yield return new WaitForSeconds(0.12f);
@@ -268,18 +267,18 @@ namespace everlaster
             }
 
             UpdateMassEstimate(atomScale, updateUIStatus: true);
-            staticPhysicsH.FullUpdate(breastMass, softness.val, nippleErection.val);
+            staticPhysicsH.FullUpdate(massEstimate, softness.val, nippleErection.val);
             physicsUpdateInProgress = false;
         }
 
         void UpdateMassEstimate(float atomScale, bool updateUIStatus = false)
         {
             softVolume = CupVolumeCalc.EstimateVolume(BoundsSize(), atomScale);
-            float mass = (softVolume * fatDensity) / 1000;
+            float mass = Calc.VolumeToMass(softVolume);
 
             if(mass > massMax)
             {
-                breastMass = massMax;
+                massEstimate = massMax;
                 if(updateUIStatus)
                 {
                     float excess = Calc.RoundToDecimals(mass - massMax, 1000f);
@@ -288,7 +287,7 @@ namespace everlaster
             }
             else if(mass < massMin)
             {
-                breastMass = massMin;
+                massEstimate = massMin;
                 if(updateUIStatus)
                 {
                     float shortage = Calc.RoundToDecimals(massMin - mass, 1000f);
@@ -297,7 +296,7 @@ namespace everlaster
             }
             else
             {
-                breastMass = mass;
+                massEstimate = mass;
                 if(updateUIStatus)
                 {
                     statusUIText.SetVal("");
