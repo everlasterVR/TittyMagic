@@ -56,6 +56,13 @@
             BC.positionDamperZ                  = 5f     + (3.0f   * scaleVal) + (3.0f   * softnessVal);
         }
 
+        public void UpdateNipplePhysics(float softnessVal, float nippleErectionVal)
+        {
+            float baseVal = (1.10f + (0.25f * softnessVal)) / softnessVal;
+            groupDSpringMultiplier.val  = nippleErectionVal + baseVal;
+            groupDDamperMultiplier.val  = 1.50f * nippleErectionVal + baseVal;
+        }
+
         public void FullUpdate(
             float breastMass,
             float softnessVal,

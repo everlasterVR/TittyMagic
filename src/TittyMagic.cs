@@ -190,6 +190,7 @@ namespace everlaster
             nippleErection.slider.onValueChanged.AddListener((float val) =>
             {
                 nippleMorphH.Update(val);
+                staticPhysicsH.UpdateNipplePhysics(softness.val, val);
             });
         }
 

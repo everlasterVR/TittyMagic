@@ -83,11 +83,15 @@ namespace everlaster
             return totalDelta * 0.009f;
         }
 
+
+#if SHOW_DEBUG
+
         private string MorphName(DAZMorph morph)
         {
             string text = morph.isInPackage ? morph.packageUid + "." : "";
             text += string.IsNullOrEmpty(morph.overrideName) ? morph.displayName : morph.overrideName;
             return text;
         }
+#endif
     }
 }
