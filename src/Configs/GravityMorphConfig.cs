@@ -4,15 +4,13 @@
     {
         public DAZMorph morph;
         public string name;
-        private float offset;
         private float baseMul;
         private float? scaleMul;
         private float? softnessMul;
 
-        public GravityMorphConfig(string name, float offset, float baseMul,  float? scaleMul, float? softnessMul)
+        public GravityMorphConfig(string name, float baseMul,  float? scaleMul, float? softnessMul)
         {
             this.name = name;
-            this.offset = offset;
             this.baseMul = baseMul;
             this.scaleMul = scaleMul;
             this.softnessMul = softnessMul;
@@ -31,13 +29,13 @@
             // softnessMultiplier scales the size calibration slider for this base multiplier
             //      - if null, slider setting is ignored
             float scaleFactor = scaleMul.HasValue ? scale * (float) scaleMul : 1;
-            float softnessFactor = softnessMul.HasValue ? softness * (float) softnessMul : 1;
+            float softnessFactor = softnessMul.HasValue ? sag * softness * (float) softnessMul : 1;
             float value = baseMul * (
-                (sag * softnessFactor * effect / 2) +
+                (softnessFactor * effect / 2) +
                 (scaleFactor * effect / 2)
             );
 
-            morph.morphValue = offset + value;
+            morph.morphValue = value;
         }
 
         public void Reset()
