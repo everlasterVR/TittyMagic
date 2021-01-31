@@ -33,6 +33,8 @@
         {
             // Soft physics on
             BPH.on = true;
+            // Self colliders on
+            BPH.allowSelfCollision = true;
             // Auto collider radius off
             BPH.softVerticesUseAutoColliderRadius = false;
             // Collider depth

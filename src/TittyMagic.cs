@@ -60,6 +60,12 @@ namespace everlaster
                     return;
                 }
 
+                if(UserPreferences.singleton.physicsRate != UserPreferences.PhysicsRate._60)
+                {
+                    UserPreferences.singleton.physicsRate = UserPreferences.PhysicsRate._60;
+                    Log.Message($"Physics rate has been set 60 Hz in VaM preferences.\nThe plugin will be updated as soon as a fix is known for supporting physics rates above 60 Hz.");
+                }
+
                 AdjustJoints breastControl = containingAtom.GetStorableByID("BreastControl") as AdjustJoints;
                 DAZPhysicsMesh breastPhysicsMesh = containingAtom.GetStorableByID("BreastPhysicsMesh") as DAZPhysicsMesh;
                 chest = containingAtom.GetStorableByID("chest").transform;
@@ -209,6 +215,7 @@ namespace everlaster
         {
             // In/Out auto morphs off
             containingAtom.GetStorableByID("BreastInOut").SetBoolParamValue("enabled", false);
+            containingAtom.GetStorableByID("SoftBodyPhysicsEnabler").SetBoolParamValue("enabled", true);
             // Hard colliders on
             geometry.useAuxBreastColliders = true;
             staticPhysicsH.SetPhysicsDefaults();
