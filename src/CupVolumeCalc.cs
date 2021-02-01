@@ -6,13 +6,19 @@ namespace everlaster
     {
         private static float toCM3 = Mathf.Pow(10, 6);
 
-        public static float EstimateVolume(Vector3 size, float atomScale)
+        public static Vector3 AdjustSize(Vector3 size, float atomScale)
         {
             float x = DiameterFix(size.x);
             float y = DiameterFix(size.y);
             float z = size.z * ResolveAtomScaleFactor(atomScale);
-            //SuperController.LogMessage($"{x}, {y}, {z}");
-            return toCM3 * ExpectedCupVolume(x/2, y/2, z/2);
+            return new Vector3(x, y, z);
+        }
+
+        // This oblate spheroid function fits known data for bra cup diameter
+        // and volume for different cup sizes.
+        public static float EstimateVolume(Vector3 size)
+        {
+            return toCM3 * (2 * Mathf.PI * size.x/2 * size.y/2 * size.z/2)/3;
         }
 
         // The bounding box seems to be too small for the physical size
@@ -20,13 +26,6 @@ namespace everlaster
         private static float DiameterFix(float dimension)
         {
             return 1.15f * dimension;
-        }
-
-        // This oblate spheroid function fits known data for bra cup diameter
-        // and volume for different cup sizes.
-        private static float ExpectedCupVolume(float x, float y, float z)
-        {
-            return (2 * Mathf.PI * x * y * z)/3;
         }
 
         // This somewhat accurately scales breast volume to the apparent breast size when atom scale is adjusted.
