@@ -67,6 +67,12 @@ namespace everlaster
                     Log.Message($"Physics rate has been set 60 Hz in VaM preferences.\nThe plugin will be updated as soon as a fix is known for supporting physics rates above 60 Hz.");
                 }
 
+                if(!UserPreferences.singleton.softPhysics)
+                {
+                    UserPreferences.singleton.softPhysics = true;
+                    Log.Message($"Soft physics has been enabled in VaM preferences.");
+                }
+
                 AdjustJoints breastControl = containingAtom.GetStorableByID("BreastControl") as AdjustJoints;
                 DAZPhysicsMesh breastPhysicsMesh = containingAtom.GetStorableByID("BreastPhysicsMesh") as DAZPhysicsMesh;
                 chest = containingAtom.GetStorableByID("chest").transform;
