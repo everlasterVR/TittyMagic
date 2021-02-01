@@ -42,7 +42,7 @@ namespace everlaster
             JSONStorable tittyMagic = parent.GetStorableByID(storableId);
             breastSize = tittyMagic.GetVector3JSONParam("Breast size");
             breastAltSize = tittyMagic.GetVector3JSONParam("Breast alt size");
-            if (breastSize == null || breastAltSize == null)
+            if (breastSize == null)
             {
                 enableUpdate = false;
             }

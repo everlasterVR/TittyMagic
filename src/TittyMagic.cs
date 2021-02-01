@@ -43,8 +43,6 @@ namespace everlaster
 
 #if SHOW_DEBUG
         private JSONStorableVector3 breastSize;
-        private JSONStorableVector3 breastAltSize;
-
         protected JSONStorableString baseDebugInfo = new JSONStorableString("Base Debug Info", "");
         protected JSONStorableString physicsDebugInfo = new JSONStorableString("Physics Debug Info", "");
         protected JSONStorableString morphDebugInfo = new JSONStorableString("Morph Debug Info", "");
@@ -99,9 +97,7 @@ namespace everlaster
                 Vector3 min = new Vector3(0f, 0f, 0f);
                 Vector3 max = new Vector3(1f, 1f, 1f);
                 breastSize = new JSONStorableVector3("Breast size", min, min, max);
-                breastAltSize = new JSONStorableVector3("Breast alt size", min, min, max);
                 RegisterVector3(breastSize);
-                RegisterVector3(breastAltSize);
 #endif
 
                 SetPhysicsDefaults();
@@ -247,7 +243,7 @@ namespace everlaster
 
                     float roll = Calc.Roll(chest.rotation);
                     float pitch = Calc.Pitch(chest.rotation);
-                    float scaleVal = Calc.LegacyScale(massEstimate);
+                    float scaleVal = BreastMassCalc.LegacyScale(massEstimate);
 
                     gravityMorphH.Update(roll, pitch, scaleVal, gravityLogAmount);
                     gravityPhysicsH.Update(roll, pitch, scaleVal, gravity.val);
@@ -293,13 +289,11 @@ namespace everlaster
         void UpdateMassEstimate(float atomScale, bool updateUIStatus = false)
         {
             Vector3 dimensions = BoundsSize();
-            Vector3 adjustedDimensions = CupVolumeCalc.AdjustSize(dimensions, atomScale);
 #if SHOW_DEBUG
             breastSize.val = dimensions;
-            breastAltSize.val = adjustedDimensions;
 #endif
-            softVolume = CupVolumeCalc.EstimateVolume(adjustedDimensions);
-            float mass = Calc.VolumeToMass(softVolume);
+            softVolume = BreastMassCalc.EstimateVolume(dimensions, atomScale);
+            float mass = BreastMassCalc.VolumeToMass(softVolume);
 
             if(mass > massMax)
             {
@@ -380,9 +374,7 @@ namespace everlaster
 #if SHOW_DEBUG
         void SetBaseDebugInfo(float roll, float pitch)
         {
-            float currentSoftVolume = CupVolumeCalc.EstimateVolume(
-                CupVolumeCalc.AdjustSize(BoundsSize(), atomScaleListener.Value)
-            );
+            float currentSoftVolume = BreastMassCalc.EstimateVolume(BoundsSize(), atomScaleListener.Value);
             baseDebugInfo.SetVal(
                 $"{Formatting.NameValueString("Roll", roll, 100f, 15)}\n" +
                 $"{Formatting.NameValueString("Pitch", pitch, 100f, 15)}\n" +

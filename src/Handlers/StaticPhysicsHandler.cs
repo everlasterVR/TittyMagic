@@ -46,7 +46,7 @@
             float softnessVal
         )
         {
-            float scaleVal = Calc.LegacyScale(massEstimate);
+            float scaleVal = BreastMassCalc.LegacyScale(massEstimate);
             float hardnessVal = Const.SOFTNESS_MAX - softnessVal; // 0.00 .. 2.50 for softness 3.00 .. 0.50
 
             //                                    base      size adjustment         softness adjustment
@@ -70,7 +70,7 @@
             float nippleErectionVal
         )
         {
-            float scaleVal = Calc.LegacyScale(massEstimate);
+            float scaleVal = BreastMassCalc.LegacyScale(massEstimate);
             float hardnessVal = Const.SOFTNESS_MAX - softnessVal + Const.SOFTNESS_MIN;
 
             //                                    base      size adjustment         softness adjustment
@@ -80,11 +80,11 @@
             BC.positionSpringZ                  = 250f   + (200f    * scaleVal);
             BC.positionDamperZ                  = 5f     + (3.0f    * scaleVal)  + (3.0f     * softnessVal);
             BPH.softVerticesColliderRadius      = 0.022f + (0.005f  * scaleVal);
-            BPH.softVerticesCombinedSpring      = 100f   + (50f     * scaleVal)  + (38f      * softnessVal);
-            BPH.softVerticesCombinedDamper      = 1.20f  + (0.90f   * scaleVal)  - (0.35f    * softnessVal);
+            BPH.softVerticesCombinedSpring      = 100f   + (25f     * scaleVal)  + (38f      * softnessVal);
+            BPH.softVerticesCombinedDamper      = 1.20f  + (1.40f   * scaleVal)  - (0.60f    * softnessVal);
             BPH.softVerticesMass                = 0.05f  + (0.07f   * scaleVal);
-            BPH.softVerticesBackForce           = 2.0f   + (3.0f    * hardnessVal);
-            BPH.softVerticesBackForceMaxForce   = 2.0f   + (2.0f    * hardnessVal);
+            BPH.softVerticesBackForce           = 2.0f   + (5.0f    * scaleVal)  + (2.0f    * hardnessVal);
+            BPH.softVerticesBackForceMaxForce   = 2.0f   + (2.5f    * scaleVal)  + (1.0f    * hardnessVal);
             BPH.softVerticesNormalLimit         = 0.010f + (0.015f  * scaleVal)  + (0.003f   * softnessVal);
 
             groupASpringMultiplier.val  = (0.75f + (0.10f * softnessVal) - (0.07f * scaleVal)) / softnessVal;

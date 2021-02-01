@@ -89,7 +89,7 @@ namespace everlaster
             uprightMorphs = new List<GravityMorphConfig>
             {
                 //                      name                            baseMul    scaleMul   gravityMul
-                new GravityMorphConfig("TM_Upright1",                   2.00f,     1.50f,     0.50f),
+                new GravityMorphConfig("TM_Upright1",                   1.00f,     1.00f,     1.00f),
                 //new GravityMorphConfig("UPR_Breast Move Down L",        0.25f,     1.50f,     0.50f),
                 //new GravityMorphConfig("UPR_Breast Move Down R",        0.25f,     1.50f,     0.50f),
                 //new GravityMorphConfig("UPR_Chest Height",              0.20f,     1.50f,     0.50f),

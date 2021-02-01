@@ -2,30 +2,27 @@
 
 namespace everlaster
 {
-    public static class CupVolumeCalc
+    public static class BreastMassCalc
     {
         private static float toCM3 = Mathf.Pow(10, 6);
 
-        public static Vector3 AdjustSize(Vector3 size, float atomScale)
+        // Ellipsoid volume
+        public static float EstimateVolume(Vector3 size, float atomScale)
         {
-            float x = DiameterFix(size.x);
-            float y = DiameterFix(size.y);
             float z = size.z * ResolveAtomScaleFactor(atomScale);
-            return new Vector3(x, y, z);
+            return toCM3 * (4 * Mathf.PI * size.x/2 * size.y/2 * z/2)/3;
         }
 
-        // This oblate spheroid function fits known data for bra cup diameter
-        // and volume for different cup sizes.
-        public static float EstimateVolume(Vector3 size)
+        // compensates for the increasing outer size and hard colliders of larger breasts
+        public static float VolumeToMass(float volume)
         {
-            return toCM3 * (2 * Mathf.PI * size.x/2 * size.y/2 * size.z/2)/3;
+            return Mathf.Pow((volume * 0.9f) / 1000, 1.25f) + 0.04f;
         }
 
-        // The bounding box seems to be too small for the physical size
-        // when compared to a spheroid of the Vector3 size xyz dimensions
-        private static float DiameterFix(float dimension)
+        // roughly estimate the legacy scale value from automatically calculated mass
+        public static float LegacyScale(float massEstimate)
         {
-            return 1.15f * dimension;
+            return 1.21f * massEstimate - 0.03f;
         }
 
         // This somewhat accurately scales breast volume to the apparent breast size when atom scale is adjusted.
