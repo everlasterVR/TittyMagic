@@ -52,7 +52,7 @@ namespace everlaster
         {
             try
             {
-                pluginVersion = new JSONStorableString("Version", "2.0.0");
+                pluginVersion = new JSONStorableString("Version", "2.0.1");
                 RegisterString(pluginVersion);
 
                 if(containingAtom.type != "Person")
