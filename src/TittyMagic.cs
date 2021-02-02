@@ -1,5 +1,4 @@
-﻿//#define SHOW_DEBUG
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,13 +39,6 @@ namespace everlaster
         private JSONStorableFloat gravity;
         private JSONStorableBool linkSoftnessAndGravity;
         private JSONStorableFloat nippleErection;
-
-#if SHOW_DEBUG
-        private JSONStorableVector3 breastSize;
-        protected JSONStorableString baseDebugInfo = new JSONStorableString("Base Debug Info", "");
-        protected JSONStorableString physicsDebugInfo = new JSONStorableString("Physics Debug Info", "");
-        protected JSONStorableString morphDebugInfo = new JSONStorableString("Morph Debug Info", "");
-#endif
 
         public override void Init()
         {
@@ -99,13 +91,6 @@ namespace everlaster
                 InitSliderListeners();
                 UpdateLogarithmicGravityAmount(gravity.val);
 
-#if SHOW_DEBUG
-                Vector3 min = new Vector3(0f, 0f, 0f);
-                Vector3 max = new Vector3(1f, 1f, 1f);
-                breastSize = new JSONStorableVector3("Breast size", min, min, max);
-                RegisterVector3(breastSize);
-#endif
-
                 SetPhysicsDefaults();
                 StartCoroutine(RefreshStaticPhysics(atomScaleListener.Value));
             }
@@ -131,32 +116,18 @@ namespace everlaster
             CreateNewSpacer(10f);
 
             nippleErection = NewFloatSlider("Erect nipples", 0f, 0f, 1.0f, rightSide);
-
-#if SHOW_DEBUG
-            UIDynamicTextField angleInfoField = CreateTextField(baseDebugInfo, rightSide);
-            angleInfoField.height = 125;
-            angleInfoField.UItext.fontSize = 26;
-            UIDynamicTextField physicsInfoField = CreateTextField(physicsDebugInfo, rightSide);
-            physicsInfoField.height = 450;
-            physicsInfoField.UItext.fontSize = 26;
-#endif
         }
 
         void InitPluginUIRight()
         {
             bool rightSide = true;
             statusUIText = NewTextField("statusText", 28, 100, rightSide);
-#if SHOW_DEBUG
-            UIDynamicTextField morphInfo = CreateTextField(morphDebugInfo, rightSide);
-            morphInfo.height = 1085;
-            morphInfo.UItext.fontSize = 26;
-#else
+
             JSONStorableString usage1Area = NewTextField("Usage Info Area 1", 28, 255, rightSide);
             string usage1 = "\n";
             usage1 += "Breast softness adjusts soft physics settings from very firm to very soft.\n\n";
             usage1 += "Breast gravity adjusts how much pose morphs shape the breasts in all orientations.";
             usage1Area.SetVal(usage1);
-#endif
         }
 
         JSONStorableFloat NewFloatSlider(string paramName, float startingValue, float minValue, float maxValue, bool rightSide)
@@ -253,11 +224,6 @@ namespace everlaster
 
                     gravityMorphH.Update(roll, pitch, scaleVal, gravityLogAmount);
                     gravityPhysicsH.Update(roll, pitch, scaleVal, gravity.val);
-#if SHOW_DEBUG
-                    SetBaseDebugInfo(roll, pitch);
-                    morphDebugInfo.SetVal(gravityMorphH.GetStatus());
-                    physicsDebugInfo.SetVal(staticPhysicsH.GetStatus() + gravityPhysicsH.GetStatus());            
-#endif
                 }
             }
             catch(Exception e)
@@ -295,9 +261,6 @@ namespace everlaster
         void UpdateMassEstimate(float atomScale, bool updateUIStatus = false)
         {
             Vector3 dimensions = BoundsSize();
-#if SHOW_DEBUG
-            breastSize.val = dimensions;
-#endif
             softVolume = BreastMassCalc.EstimateVolume(dimensions, atomScale);
             float mass = BreastMassCalc.VolumeToMass(softVolume);
 
@@ -376,18 +339,5 @@ namespace everlaster
             gravityMorphH.ResetAll();
             nippleMorphH.ResetAll();
         }
-
-#if SHOW_DEBUG
-        void SetBaseDebugInfo(float roll, float pitch)
-        {
-            float currentSoftVolume = BreastMassCalc.EstimateVolume(BoundsSize(), atomScaleListener.Value);
-            baseDebugInfo.SetVal(
-                $"{Formatting.NameValueString("Roll", roll, 100f, 15)}\n" +
-                $"{Formatting.NameValueString("Pitch", pitch, 100f, 15)}\n" +
-                $"volume: {softVolume}\n" +
-                $"current volume: {currentSoftVolume}"
-            );
-        }
-#endif
     }
 }

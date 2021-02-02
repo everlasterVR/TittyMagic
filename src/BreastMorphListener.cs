@@ -1,5 +1,4 @@
-﻿//#define SHOW_DEBUG
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -28,12 +27,8 @@ namespace everlaster
                 }
                 catch(Exception)
                 {
-                    Log.Message($"Unable to initialize listener for morph {morph.morphName}.");
                 }
             }
-#if SHOW_DEBUG
-            DumpStatus();
-#endif
         }
 
         public bool Changed()
@@ -44,27 +39,11 @@ namespace everlaster
                 if (value != status[morph.uid])
                 {
                     status[morph.uid] = value;
-#if SHOW_DEBUG
-                    Log.Message($"change detected! morph {MorphName(morph)}");
-#endif
                     return true;
                 }
             };
             return false;
         }
-
-#if SHOW_DEBUG
-
-        public void DumpStatus()
-        {
-            string message = $"These morphs are being monitored for changes:\n";
-            foreach(DAZMorph morph in listenedMorphs)
-            {
-                message = message + MorphName(morph) + "\n";
-            }
-            Log.Message(message + "- - - - - - - - - -\n");
-        }
-#endif
 
         private void CheckMorphAndListen(DAZMorph morph)
         {
@@ -94,14 +73,5 @@ namespace everlaster
             // Filtering strength >= 0.010 doesn't recognize many morphs that affect breast size
             return totalDelta * 0.009f;
         }
-
-#if SHOW_DEBUG
-        private string MorphName(DAZMorph morph)
-        {
-            string text = morph.isInPackage ? morph.packageUid + "." : "";
-            text += string.IsNullOrEmpty(morph.overrideName) ? morph.displayName : morph.overrideName;
-            return text;
-        }
-#endif
     }
 }
