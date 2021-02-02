@@ -1,4 +1,5 @@
 ﻿//#define SHOW_DEBUG
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,9 +17,20 @@ namespace everlaster
 
         public BreastMorphListener(List<DAZMorph> morphs)
         {
-            morphs
-                .Where(morph => morph.visible && !morph.isPoseControl && !morph.group.Contains("Pose/"))
-                .ToList().ForEach(morph => CheckMorphAndListen(morph));
+            foreach(DAZMorph morph in morphs)
+            {
+                try
+                {
+                    if (morph.visible && !morph.isPoseControl && !morph.group.Contains("Pose/"))
+                    {
+                        CheckMorphAndListen(morph);
+                    }
+                }
+                catch(Exception)
+                {
+                    Log.Message($"Unable to initialize listener for morph {morph.morphName}.");
+                }
+            }
 #if SHOW_DEBUG
             DumpStatus();
 #endif
@@ -33,7 +45,7 @@ namespace everlaster
                 {
                     status[morph.uid] = value;
 #if SHOW_DEBUG
-                    SuperController.LogMessage($"change detected! morph {MorphName(morph)}");
+                    Log.Message($"change detected! morph {MorphName(morph)}");
 #endif
                     return true;
                 }
@@ -83,9 +95,7 @@ namespace everlaster
             return totalDelta * 0.009f;
         }
 
-
 #if SHOW_DEBUG
-
         private string MorphName(DAZMorph morph)
         {
             string text = morph.isInPackage ? morph.packageUid + "." : "";
