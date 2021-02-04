@@ -1,1 +1,8 @@
+.vs/
+.vscode/
+bin/
+obj/
 local/
+publish/
+todo.md
+*.var
