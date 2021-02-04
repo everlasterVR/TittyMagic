@@ -1,4 +1,4 @@
-﻿namespace everlaster
+﻿namespace TittyMagic
 {
     public static class Const
     {

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace everlaster
+namespace TittyMagic
 {
     // partially adapted from MorphMassManager v9 by nyaacho 
     // https://hub.virtamate.com/resources/morph-mass-manager.4013/
@@ -28,7 +28,7 @@ namespace everlaster
                 }
                 catch(Exception)
                 {
-                    Log.Message($"Unable to initialize listener for morph {morph.morphName}.");
+                    Log.Message($"Unable to initialize listener for morph {morph.morphName}.", nameof(BreastMorphListener));
                 }
             }
 #if SHOW_DEBUG
@@ -45,7 +45,7 @@ namespace everlaster
                 {
                     status[morph.uid] = value;
 #if SHOW_DEBUG
-                    Log.Message($"change detected! morph {MorphName(morph)}");
+                    Log.Message($"change detected! morph {MorphName(morph)}", nameof(BreastMorphListener));
 #endif
                     return true;
                 }
@@ -62,7 +62,7 @@ namespace everlaster
             {
                 message = message + MorphName(morph) + "\n";
             }
-            Log.Message(message + "- - - - - - - - - -\n");
+            Log.Message(message + "- - - - - - - - - -\n", nameof(BreastMorphListener));
         }
 #endif
 

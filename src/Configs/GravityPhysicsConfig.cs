@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace everlaster
+namespace TittyMagic
 {
     class GravityPhysicsConfig
     {

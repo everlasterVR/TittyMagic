@@ -7,7 +7,7 @@
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <LangVersion>6</LangVersion>
-    <ProjectGuid>{99A6E453-DE7C-4861-8993-72245E0801F0}</ProjectGuid>
+    <ProjectGuid>{304F0F83-9512-48E6-90FE-CC05053B03B8}</ProjectGuid>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'Unity' ">
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
@@ -96,7 +96,7 @@
     <Compile Include="src\AtomScaleListener.cs" />
     <Compile Include="src\BreastMorphListener.cs" />
     <Compile Include="src\BreastMassCalc.cs" />
-    <Compile Include="src\TittyMagic.cs" />
+    <Compile Include="src\Main.cs" />
     <Compile Include="src\Variables.cs" />
     <Compile Include="TM_ReferenceSize.cs" />
   </ItemGroup>

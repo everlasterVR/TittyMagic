@@ -1,4 +1,4 @@
-﻿namespace everlaster
+﻿namespace TittyMagic
 {
     class GravityMorphConfig
     {

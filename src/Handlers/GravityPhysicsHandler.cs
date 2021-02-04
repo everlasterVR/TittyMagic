@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace everlaster
+namespace TittyMagic
 {
     class GravityPhysicsHandler
     {

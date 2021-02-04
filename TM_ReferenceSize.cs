@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace everlaster
+namespace MocapSwitcher
 {
     class TM_ReferenceSize : MVRScript
     {

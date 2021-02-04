@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace everlaster
+namespace TittyMagic
 {
     class NippleErectionMorphHandler
     {

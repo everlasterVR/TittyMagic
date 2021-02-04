@@ -11,5 +11,5 @@ src\Utils\Log.cs
 src\AtomScaleListener.cs
 src\BreastMorphListener.cs
 src\BreastMassCalc.cs
-src\TittyMagic.cs
+src\Main.cs
 src\Variables.cs
