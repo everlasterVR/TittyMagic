@@ -82,7 +82,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="TittyMagic.cslist" />
     <Compile Include="src\Configs\GravityMorphConfig.cs" />
     <Compile Include="src\Configs\GravityPhysicsConfig.cs" />
     <Compile Include="src\Configs\MorphConfig.cs" />
@@ -96,14 +95,14 @@
     <Compile Include="src\AtomScaleListener.cs" />
     <Compile Include="src\BreastMorphListener.cs" />
     <Compile Include="src\BreastMassCalc.cs" />
-    <Compile Include="src\Main.cs" />
+    <Compile Include="src\Script.cs" />
     <Compile Include="src\Variables.cs" />
     <Compile Include="TM_ReferenceSize.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="TittyMagic.cslist" />
     <None Include=".gitignore" />
     <None Include="meta.json" />
-    <None Include="package.sh" />
     <None Include="README.md" />
     <None Include="todo.md" />
   </ItemGroup>

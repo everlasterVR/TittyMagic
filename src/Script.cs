@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace TittyMagic
 {
-    class Main : MVRScript
+    class Script : MVRScript
     {
         private bool enableUpdate = true;
         private bool physicsUpdateInProgress = false;
@@ -120,7 +120,7 @@ namespace TittyMagic
         {
             bool rightSide = false;
             titleUIText = NewTextField("titleText", 36, 100, rightSide);
-            titleUIText.SetVal($"{nameof(Main)}\n<size=28>v{pluginVersion.val}</size>");
+            titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{pluginVersion.val}</size>");
 
             // doesn't just init UI, also variables...
             softness = NewFloatSlider("Breast softness", 1.5f, Const.SOFTNESS_MIN, Const.SOFTNESS_MAX, rightSide);
