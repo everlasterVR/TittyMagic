@@ -1,0 +1,12 @@
+{ 
+   "id" : "RLEFT_Breasts Hang Forward R", 
+   "displayName" : "RLEFT_Breasts Hang Forward R", 
+   "group" : "Pose/TittyMagic_Dev", 
+   "region" : "everlaster/TittyMagic_Dev", 
+   "min" : "0", 
+   "max" : "1", 
+   "numDeltas" : "488", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

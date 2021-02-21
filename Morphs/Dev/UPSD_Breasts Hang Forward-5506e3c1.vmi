@@ -1,0 +1,12 @@
+{ 
+   "id" : "UPSD_Breasts Hang Forward", 
+   "displayName" : "UPSD_Breasts Hang Forward", 
+   "group" : "Pose/TittyMagic_Dev", 
+   "region" : "everlaster/TittyMagic_Dev", 
+   "min" : "0", 
+   "max" : "1", 
+   "numDeltas" : "971", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

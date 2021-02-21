@@ -1,0 +1,12 @@
+{ 
+   "id" : "RRIGHT_Center Gap Smooth", 
+   "displayName" : "RRIGHT_Center Gap Smooth", 
+   "group" : "Pose/TittyMagic_Dev", 
+   "region" : "everlaster/TittyMagic_Dev", 
+   "min" : "0", 
+   "max" : "1", 
+   "numDeltas" : "1597", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

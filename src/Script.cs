@@ -52,7 +52,7 @@ namespace TittyMagic
         {
             try
             {
-                pluginVersion = new JSONStorableString("Version", "2.0.2");
+                pluginVersion = new JSONStorableString("Version", "<Version>");
                 RegisterString(pluginVersion);
 
                 if(containingAtom.type != "Person")
@@ -233,8 +233,8 @@ namespace TittyMagic
                         StartCoroutine(RefreshStaticPhysics(atomScaleListener.Value));
                     }
 
-                    float roll = Calc.Roll(chest.rotation);
-                    float pitch = Calc.Pitch(chest.rotation);
+                    float roll = AngleCalc.Roll(chest.rotation);
+                    float pitch = AngleCalc.Pitch(chest.rotation);
                     float scaleVal = BreastMassCalc.LegacyScale(massEstimate);
 
                     gravityMorphH.Update(roll, pitch, scaleVal, gravityLogAmount);

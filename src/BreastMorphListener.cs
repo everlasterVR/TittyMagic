@@ -5,8 +5,12 @@ using System.Linq;
 
 namespace TittyMagic
 {
-    // partially adapted from MorphMassManager v9 by nyaacho 
-    // https://hub.virtamate.com/resources/morph-mass-manager.4013/
+    /*
+     * LICENSE: Creative Commons Attribution-ShareAlike 2.0 Generic (CC BY-SA 2.0) https://creativecommons.org/licenses/by-sa/2.0/
+     * Partially adapted from MorphMassManager v9 by nyaacho (CC BY-SA)
+     * https://hub.virtamate.com/resources/morph-mass-manager.4013/
+     */
+
     class BreastMorphListener
     {
         private HashSet<int> breastVertices = new HashSet<int>() {

@@ -1,0 +1,12 @@
+{ 
+   "id" : "TM_Upright3", 
+   "displayName" : "TM_Upright3", 
+   "group" : "Pose/Breasts", 
+   "region" : "everlaster/TittyMagic", 
+   "min" : "0", 
+   "max" : "4", 
+   "numDeltas" : "1184", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

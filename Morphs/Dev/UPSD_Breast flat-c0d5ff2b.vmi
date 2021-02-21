@@ -1,0 +1,12 @@
+{ 
+   "id" : "UPSD_Breast flat", 
+   "displayName" : "UPSD_Breast flat", 
+   "group" : "Pose/TittyMagic_Dev", 
+   "region" : "everlaster/TittyMagic_Dev", 
+   "min" : "0", 
+   "max" : "1", 
+   "numDeltas" : "1258", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

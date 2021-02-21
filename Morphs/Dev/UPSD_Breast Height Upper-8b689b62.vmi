@@ -1,0 +1,12 @@
+{ 
+   "id" : "UPSD_Breast Height Upper", 
+   "displayName" : "UPSD_Breast Height Upper", 
+   "group" : "Pose/TittyMagic_Dev", 
+   "region" : "everlaster/TittyMagic_Dev", 
+   "min" : "0", 
+   "max" : "1", 
+   "numDeltas" : "754", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

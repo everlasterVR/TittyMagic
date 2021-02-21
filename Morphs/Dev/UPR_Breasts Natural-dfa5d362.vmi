@@ -1,0 +1,12 @@
+{ 
+   "id" : "UPR_Breasts Natural", 
+   "displayName" : "UPR_Breasts Natural", 
+   "group" : "Pose/TittyMagic_Dev", 
+   "region" : "everlaster/TittyMagic_Dev", 
+   "min" : "0", 
+   "max" : "1", 
+   "numDeltas" : "1184", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

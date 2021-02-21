@@ -1,0 +1,12 @@
+{ 
+   "id" : "RRIGHT_Breast Move S2S In L", 
+   "displayName" : "RRIGHT_Breast Move S2S In L", 
+   "group" : "Pose/TittyMagic_Dev", 
+   "region" : "everlaster/TittyMagic_Dev", 
+   "min" : "0", 
+   "max" : "1", 
+   "numDeltas" : "881", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

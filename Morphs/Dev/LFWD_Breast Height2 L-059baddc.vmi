@@ -1,0 +1,12 @@
+{ 
+   "id" : "LFWD_Breast Height2 L", 
+   "displayName" : "LFWD_Breast Height2 L", 
+   "group" : "Pose/TittyMagic_Dev", 
+   "region" : "everlaster/TittyMagic_Dev", 
+   "min" : "0", 
+   "max" : "1", 
+   "numDeltas" : "456", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

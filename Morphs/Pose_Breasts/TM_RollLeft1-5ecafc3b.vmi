@@ -1,0 +1,12 @@
+{ 
+   "id" : "TM_RollLeft1", 
+   "displayName" : "TM_RollLeft1", 
+   "group" : "Pose/Breasts", 
+   "region" : "everlaster/TittyMagic", 
+   "min" : "0", 
+   "max" : "4", 
+   "numDeltas" : "2565", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

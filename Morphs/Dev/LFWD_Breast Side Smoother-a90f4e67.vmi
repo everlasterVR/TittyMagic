@@ -1,0 +1,12 @@
+{ 
+   "id" : "LFWD_Breast Side Smoother", 
+   "displayName" : "LFWD_Breast Side Smoother", 
+   "group" : "Pose/TittyMagic_Dev", 
+   "region" : "everlaster/TittyMagic_Dev", 
+   "min" : "0", 
+   "max" : "1", 
+   "numDeltas" : "194", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

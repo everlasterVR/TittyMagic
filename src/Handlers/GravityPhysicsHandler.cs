@@ -75,7 +75,7 @@ namespace TittyMagic
             this.gravity = gravity;
 
             AdjustPhysicsForRoll();
-            AdjustPhysicsForPitch(Calc.RollFactor(roll));
+            AdjustPhysicsForPitch(AngleCalc.RollFactor(roll));
         }
 
         public void ResetAll()
@@ -105,12 +105,12 @@ namespace TittyMagic
             // left
             if(roll >= 0)
             {
-                Update(rollLeftPhysics, Calc.Remap(roll, 1));
+                Update(rollLeftPhysics, AngleCalc.Remap(roll, 1));
             }
             // right
             else
             {
-                Update(rollRightPhysics, Calc.Remap(Mathf.Abs(roll), 1));
+                Update(rollRightPhysics, AngleCalc.Remap(Mathf.Abs(roll), 1));
             }
         }
 
@@ -122,14 +122,14 @@ namespace TittyMagic
                 // upright
                 if(pitch <= 90)
                 {
-                    Update(leanForwardPhysics, Calc.Remap(pitch, rollFactor));
-                    Update(uprightPhysics, Calc.Remap(90 - pitch, rollFactor));
+                    Update(leanForwardPhysics, AngleCalc.Remap(pitch, rollFactor));
+                    Update(uprightPhysics, AngleCalc.Remap(90 - pitch, rollFactor));
                 }
                 // upside down
                 else
                 {
-                    Update(leanForwardPhysics, Calc.Remap(180 - pitch, rollFactor));
-                    Update(upsideDownPhysics, Calc.Remap(pitch - 90, rollFactor));
+                    Update(leanForwardPhysics, AngleCalc.Remap(180 - pitch, rollFactor));
+                    Update(upsideDownPhysics, AngleCalc.Remap(pitch - 90, rollFactor));
                 }
             }
             // leaning back
@@ -138,14 +138,14 @@ namespace TittyMagic
                 // upright
                 if(pitch > -90)
                 {
-                    Update(leanBackPhysics, Calc.Remap(Mathf.Abs(pitch), rollFactor));
-                    Update(uprightPhysics, Calc.Remap(90 - Mathf.Abs(pitch), rollFactor));
+                    Update(leanBackPhysics, AngleCalc.Remap(Mathf.Abs(pitch), rollFactor));
+                    Update(uprightPhysics, AngleCalc.Remap(90 - Mathf.Abs(pitch), rollFactor));
                 }
                 // upside down
                 else
                 {
-                    Update(leanBackPhysics, Calc.Remap(180 - Mathf.Abs(pitch), rollFactor));
-                    Update(upsideDownPhysics, Calc.Remap(Mathf.Abs(pitch) - 90, rollFactor));
+                    Update(leanBackPhysics, AngleCalc.Remap(180 - Mathf.Abs(pitch), rollFactor));
+                    Update(upsideDownPhysics, AngleCalc.Remap(Mathf.Abs(pitch) - 90, rollFactor));
                 }
             }
         }

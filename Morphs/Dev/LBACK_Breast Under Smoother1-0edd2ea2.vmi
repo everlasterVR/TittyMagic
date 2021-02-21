@@ -1,0 +1,12 @@
+{ 
+   "id" : "LBACK_Breast Under Smoother1", 
+   "displayName" : "LBACK_Breast Under Smoother1", 
+   "group" : "Pose/TittyMagic_Dev", 
+   "region" : "everlaster/TittyMagic_Dev", 
+   "min" : "0", 
+   "max" : "1", 
+   "numDeltas" : "1758", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

@@ -1,0 +1,12 @@
+{ 
+   "id" : "LBACK_Breast Top Curve2", 
+   "displayName" : "LBACK_Breast Top Curve2", 
+   "group" : "Pose/TittyMagic_Dev", 
+   "region" : "everlaster/TittyMagic_Dev", 
+   "min" : "0", 
+   "max" : "1", 
+   "numDeltas" : "847", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

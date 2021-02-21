@@ -1,0 +1,12 @@
+{ 
+   "id" : "LFWD_Breast Width L", 
+   "displayName" : "LFWD_Breast Width L", 
+   "group" : "Pose/TittyMagic_Dev", 
+   "region" : "everlaster/TittyMagic_Dev", 
+   "min" : "0", 
+   "max" : "1", 
+   "numDeltas" : "684", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

@@ -1,0 +1,12 @@
+{ 
+   "id" : "TM_LeanForward1", 
+   "displayName" : "TM_LeanForward1", 
+   "group" : "Pose/Breasts", 
+   "region" : "everlaster/TittyMagic", 
+   "min" : "0", 
+   "max" : "4", 
+   "numDeltas" : "1756", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

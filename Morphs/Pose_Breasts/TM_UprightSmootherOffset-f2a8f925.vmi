@@ -1,0 +1,12 @@
+{ 
+   "id" : "TM_UprightSmootherOffset", 
+   "displayName" : "TM_UprightSmootherOffset", 
+   "group" : "Pose/Breasts", 
+   "region" : "everlaster/TittyMagic", 
+   "min" : "0", 
+   "max" : "1", 
+   "numDeltas" : "1808", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

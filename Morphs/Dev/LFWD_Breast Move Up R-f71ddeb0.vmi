@@ -1,0 +1,12 @@
+{ 
+   "id" : "LFWD_Breast Move Up R", 
+   "displayName" : "LFWD_Breast Move Up R", 
+   "group" : "Pose/TittyMagic_Dev", 
+   "region" : "everlaster/TittyMagic_Dev", 
+   "min" : "0", 
+   "max" : "1", 
+   "numDeltas" : "734", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

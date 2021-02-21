@@ -1,0 +1,12 @@
+{ 
+   "id" : "UPSD_Breast Diameter R", 
+   "displayName" : "UPSD_Breast Diameter R", 
+   "group" : "Pose/TittyMagic_Dev", 
+   "region" : "everlaster/TittyMagic_Dev", 
+   "min" : "0", 
+   "max" : "1", 
+   "numDeltas" : "331", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

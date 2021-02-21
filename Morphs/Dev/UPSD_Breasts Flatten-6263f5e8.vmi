@@ -1,0 +1,12 @@
+{ 
+   "id" : "UPSD_Breasts Flatten", 
+   "displayName" : "UPSD_Breasts Flatten", 
+   "group" : "Pose/TittyMagic_Dev", 
+   "region" : "everlaster/TittyMagic_Dev", 
+   "min" : "0", 
+   "max" : "1", 
+   "numDeltas" : "1140", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

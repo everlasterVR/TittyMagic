@@ -7,11 +7,11 @@
    "description" : "v<Version>. Adjustment of breast physics and breast shape based on size, softness and pose.",
    "credits" : "BreastAutoGravity (c) VeeRifter for the original idea behind chest rotation based morph adjustment, and a few lines of borrowed code.\r\nMorphMassManager v9 (c) nyaacho for how to automatically detect any breast morph.",
    "instructions" : "Load onto a Person atom.",
-   "promotionalLink" : "",
-   "programVersion" : "1.20.77.3",
+   "promotionalLink" : "https://github.com/everlasterVR/TittyMagic",
+   "programVersion" : "1.20.77.8",
    "contentList" : [ 
-      "Custom/Scripts/everlaster/TittyMagic/TittyMagic.cslist",
-      "Custom/Scripts/everlaster/TittyMagic/src"
+      "Custom/Atom/Person/Morphs/female/everlaster/TittyMagic",
+      "Custom/Scripts/everlaster/TittyMagic"
    ], 
    "dependencies" : { 
    },

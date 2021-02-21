@@ -1,0 +1,12 @@
+{ 
+   "id" : "LBACK_Chest Smoother", 
+   "displayName" : "LBACK_Chest Smoother", 
+   "group" : "Pose/TittyMagic_Dev", 
+   "region" : "everlaster/TittyMagic_Dev", 
+   "min" : "0", 
+   "max" : "1", 
+   "numDeltas" : "206", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

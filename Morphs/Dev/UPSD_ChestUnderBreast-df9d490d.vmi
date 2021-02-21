@@ -1,0 +1,12 @@
+{ 
+   "id" : "UPSD_ChestUnderBreast", 
+   "displayName" : "UPSD_ChestUnderBreast", 
+   "group" : "Pose/TittyMagic_Dev", 
+   "region" : "everlaster/TittyMagic_Dev", 
+   "min" : "0", 
+   "max" : "1", 
+   "numDeltas" : "728", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

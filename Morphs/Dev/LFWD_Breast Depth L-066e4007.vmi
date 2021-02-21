@@ -1,0 +1,12 @@
+{ 
+   "id" : "LFWD_Breast Depth L", 
+   "displayName" : "LFWD_Breast Depth L", 
+   "group" : "Pose/TittyMagic_Dev", 
+   "region" : "everlaster/TittyMagic_Dev", 
+   "min" : "0", 
+   "max" : "1", 
+   "numDeltas" : "959", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}

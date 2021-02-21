@@ -1,0 +1,12 @@
+{ 
+   "id" : "UPR_Breast Move Down L", 
+   "displayName" : "UPR_Breast Move Down L", 
+   "group" : "Pose/TittyMagic_Dev", 
+   "region" : "everlaster/TittyMagic_Dev", 
+   "min" : "0", 
+   "max" : "1", 
+   "numDeltas" : "621", 
+   "isPoseControl" : "true", 
+   "formulas" : [ 
+   ]
+}
