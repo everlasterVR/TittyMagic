@@ -61,12 +61,6 @@ namespace TittyMagic
                     return;
                 }
 
-                if(UserPreferences.singleton.physicsRate != UserPreferences.PhysicsRate._60)
-                {
-                    UserPreferences.singleton.physicsRate = UserPreferences.PhysicsRate._60;
-                    Log.Message($"Physics rate has been set 60 Hz in VaM preferences.\nThe plugin will be updated as soon as a fix is known for supporting physics rates above 60 Hz.");
-                }
-
                 if(!UserPreferences.singleton.softPhysics)
                 {
                     UserPreferences.singleton.softPhysics = true;
@@ -98,13 +92,6 @@ namespace TittyMagic
                 InitPluginUIRight();
                 InitSliderListeners();
                 UpdateLogarithmicGravityAmount(gravity.val);
-
-#if SHOW_DEBUG
-                Vector3 min = new Vector3(0f, 0f, 0f);
-                Vector3 max = new Vector3(1f, 1f, 1f);
-                breastSize = new JSONStorableVector3("Breast size", min, min, max);
-                RegisterVector3(breastSize);
-#endif
 
                 SetPhysicsDefaults();
                 StartCoroutine(RefreshStaticPhysics(atomScaleListener.Value));
@@ -234,7 +221,6 @@ namespace TittyMagic
             geometry.useAuxBreastColliders = true;
             staticPhysicsH.SetPhysicsDefaults();
         }
-        
 
         public void Update()
         {
@@ -295,9 +281,7 @@ namespace TittyMagic
         void UpdateMassEstimate(float atomScale, bool updateUIStatus = false)
         {
             Vector3 dimensions = BoundsSize();
-#if SHOW_DEBUG
-            breastSize.val = dimensions;
-#endif
+
             softVolume = BreastMassCalc.EstimateVolume(dimensions, atomScale);
             float mass = BreastMassCalc.VolumeToMass(softVolume);
 
@@ -332,7 +316,7 @@ namespace TittyMagic
         Vector3 BoundsSize()
         {
             Vector3[] vertices = rightBreastMainGroupSets
-                .Select(it => it.currentPosition).ToArray();
+                .Select(it => it.jointRB.position).ToArray();
 
             inMemoryMesh.vertices = vertices;
             inMemoryMesh.RecalculateBounds();
