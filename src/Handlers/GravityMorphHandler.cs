@@ -93,8 +93,8 @@ namespace TittyMagic
                 //new GravityMorphConfig("UPR_Breast Move Down",          0.25f,     1.50f,     0.50f),
                 //new GravityMorphConfig("UPR_Chest Height",              0.20f,     1.50f,     0.50f),
 
-                new GravityMorphConfig("TM_Upright2",                   2.00f,     1.20f,     0.80f),
-                //new GravityMorphConfig("UPR_Breast Rotate Up",          0.15f,     1.20f,     0.80f),
+                new GravityMorphConfig("TM_Upright2",                   1.00f,     1.50f,     0.50f),
+                //new GravityMorphConfig("UPR_Breast Rotate Up",          0.15f,     1.50f,     0.50f),
 
                 new GravityMorphConfig("TM_UprightSmoother",           -2.00f,     1.50f,     0.50f),
                 //new GravityMorphConfig("UPR_Breast Under Smoother1",   -0.12f,     1.50f,     0.50f),
@@ -157,7 +157,7 @@ namespace TittyMagic
                 new GravityMorphConfig("TM_LeanBack1",                  1.00f,     0.00f,     2.00f),
                 //new GravityMorphConfig("LBACK_Breast Diameter",         0.12f,     0.50f,     1.50f),
                 //new GravityMorphConfig("LBACK_Breast Height",           0.08f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LBACK_Breast Height Upper",     0.02f,     0.50f,     1.50f),
+                //new GravityMorphConfig("LBACK_Breast Height Upper",     0.04f,     0.50f,     1.50f),
                 //new GravityMorphConfig("LBACK_Breast Zero",             0.10f,     0.50f,     1.50f),
                 //new GravityMorphConfig("LBACK_Breasts Flatten",         0.25f,     0.50f,     1.50f),
                 //new GravityMorphConfig("LBACK_Chest Smoother",          0.10f,     0.50f,     1.50f),
@@ -167,11 +167,12 @@ namespace TittyMagic
                 //new GravityMorphConfig("LBACK_Breast Move S2S Out",     0.08f,     0.50f,     1.50f),
                 //new GravityMorphConfig("LBACK_Breast Top Curve1",      -0.06f,     0.50f,     1.50f),
                 //new GravityMorphConfig("LBACK_Breast Top Curve2",      -0.12f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LBACK_Breast Under Smoother1",  0.22f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LBACK_Breast Under Smoother3",  0.16f,     0.50f,     1.50f),
-                
+                //new GravityMorphConfig("LBACK_Breast Under Smoother1",  0.04f,     0.50f,     1.50f),
+                //new GravityMorphConfig("LBACK_Breast Under Smoother3",  0.03f,     0.50f,     1.50f),
+
                 new GravityMorphConfig("TM_LeanBack3",                  1.00f,     1.00f,     1.00f),
                 //new GravityMorphConfig("LBACK_Breast Under Smoother2",  0.20f,     1.00f,     1.00f),
+                //new GravityMorphConfig("LBACK_Breast Rotate Up",        0.20f,     1.00f,     1.00f),
                 //new GravityMorphConfig("LBACK_Center Gap Smooth",       0.30f,     1.00f,     1.00f),
                 //new GravityMorphConfig("LBACK_Chest Height",           -0.07f,     1.00f,     1.00f),
                 //new GravityMorphConfig("LBACK_ChestSmoothCenter",       0.15f,     1.00f,     1.00f),
@@ -180,13 +181,13 @@ namespace TittyMagic
 
             leanForwardMorphs = new List<GravityMorphConfig> {
                 new GravityMorphConfig("TM_LeanForward1",               1.20f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LFWD_Breast Diameter",         -0.21f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LFWD_Breast Diameter(Pose)",    0.65f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LFWD_Breast Height2",          -0.20f,     0.50f,     1.50f),
+                //new GravityMorphConfig("LFWD_Breast Diameter",         -0.04f,     0.50f,     1.50f),
+                //new GravityMorphConfig("LFWD_Breast Diameter(Pose)",    0.25f,     0.50f,     1.50f),
+                //new GravityMorphConfig("LFWD_Breast Height2",          -0.05f,     0.50f,     1.50f),
                 //new GravityMorphConfig("LFWD_Breast Move Up",           0.15f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LFWD_Breast Rotate Down",       0.18f,     0.50f,     1.50f),
+                //new GravityMorphConfig("LFWD_Breast Rotate Down",       0.05f,     0.50f,     1.50f),
                 //new GravityMorphConfig("LFWD_Breast Side Smoother",     0.20f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LFWD_Breast Width",            -0.14f,     0.50f,     1.50f),
+                //new GravityMorphConfig("LFWD_Breast Width",            -0.05f,     0.50f,     1.50f),
                 //new GravityMorphConfig("LFWD_Sternum Width",            0.20f,     0.50f,     1.50f),
 
                 new GravityMorphConfig("TM_LeanForward2",               1.20f,     1.50f,     0.50f),
