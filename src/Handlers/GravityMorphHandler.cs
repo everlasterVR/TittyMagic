@@ -39,7 +39,7 @@ namespace TittyMagic
 
             gravityOffsetMorphs.ForEach(it => it.UpdateVal());
             AdjustMorphsForRoll();
-            AdjustMorphsForPitch(AngleCalc.RollFactor(roll));
+            AdjustMorphsForPitch(Calc.RollFactor(roll));
         }
 
         public void ResetAll()
@@ -268,13 +268,13 @@ namespace TittyMagic
             if(roll >= 0)
             {
                 Reset(rollRightMorphs);
-                Update(rollLeftMorphs, AngleCalc.Remap(roll, 1));
+                Update(rollLeftMorphs, roll);
             }
             // right
             else
             {
                 Reset(rollLeftMorphs);
-                Update(rollRightMorphs, AngleCalc.Remap(Mathf.Abs(roll), 1));
+                Update(rollRightMorphs, Mathf.Abs(roll));
             }
         }
 
@@ -288,15 +288,15 @@ namespace TittyMagic
                 if(pitch <= 90)
                 {
                     Reset(upsideDownMorphs);
-                    Update(leanForwardMorphs, AngleCalc.Remap(pitch, rollFactor));
-                    Update(uprightMorphs, AngleCalc.Remap(90 - pitch, rollFactor));
+                    Update(leanForwardMorphs, pitch, rollFactor);
+                    Update(uprightMorphs, 90 - pitch, rollFactor);
                 }
                 // upside down
                 else
                 {
                     Reset(uprightMorphs);
-                    Update(leanForwardMorphs, AngleCalc.Remap(180 - pitch, rollFactor));
-                    Update(upsideDownMorphs, AngleCalc.Remap(pitch - 90, rollFactor));
+                    Update(leanForwardMorphs, 180 - pitch, rollFactor);
+                    Update(upsideDownMorphs, pitch - 90, rollFactor);
                 }
             }
             // leaning back
@@ -307,21 +307,22 @@ namespace TittyMagic
                 if(pitch > -90)
                 {
                     Reset(upsideDownMorphs);
-                    Update(leanBackMorphs, AngleCalc.Remap(Mathf.Abs(pitch), rollFactor));
-                    Update(uprightMorphs, AngleCalc.Remap(90 - Mathf.Abs(pitch), rollFactor));
+                    Update(leanBackMorphs, Mathf.Abs(pitch), rollFactor);
+                    Update(uprightMorphs, 90 - Mathf.Abs(pitch), rollFactor);
                 }
                 // upside down
                 else
                 {
                     Reset(uprightMorphs);
-                    Update(leanBackMorphs, AngleCalc.Remap(180 - Mathf.Abs(pitch), rollFactor));
-                    Update(upsideDownMorphs, AngleCalc.Remap(Mathf.Abs(pitch) - 90, rollFactor));
+                    Update(leanBackMorphs, 180 - Mathf.Abs(pitch), rollFactor);
+                    Update(upsideDownMorphs, Mathf.Abs(pitch) - 90, rollFactor);
                 }
             }
         }
 
-        private void Update(List<GravityMorphConfig> morphs, float effect)
+        private void Update(List<GravityMorphConfig> morphs, float angle, float rollFactor = 1f)
         {
+            float effect = rollFactor * angle / 90;
             morphs.ForEach(it => it.UpdateVal(effect, scale, gravity));
         }
 
