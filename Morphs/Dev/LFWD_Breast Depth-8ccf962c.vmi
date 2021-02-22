@@ -1,11 +1,11 @@
 { 
-   "id" : "LBACK_Breast Depth Squash L", 
-   "displayName" : "LBACK_Breast Depth Squash L", 
+   "id" : "LFWD_Breast Depth", 
+   "displayName" : "LFWD_Breast Depth", 
    "group" : "Pose/TittyMagic_Dev", 
    "region" : "everlaster/TittyMagic_Dev", 
    "min" : "0", 
    "max" : "1", 
-   "numDeltas" : "476", 
+   "numDeltas" : "1133", 
    "isPoseControl" : "true", 
    "formulas" : [ 
    ]

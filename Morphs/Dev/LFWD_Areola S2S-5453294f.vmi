@@ -1,11 +1,11 @@
 { 
-   "id" : "LBACK_Breast Move S2S Out R", 
-   "displayName" : "LBACK_Breast Move S2S Out R", 
+   "id" : "LFWD_Areola S2S", 
+   "displayName" : "LFWD_Areola S2S", 
    "group" : "Pose/TittyMagic_Dev", 
    "region" : "everlaster/TittyMagic_Dev", 
    "min" : "0", 
    "max" : "1", 
-   "numDeltas" : "411", 
+   "numDeltas" : "246", 
    "isPoseControl" : "true", 
    "formulas" : [ 
    ]

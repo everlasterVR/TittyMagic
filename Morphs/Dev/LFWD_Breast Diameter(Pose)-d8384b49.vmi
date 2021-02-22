@@ -1,11 +1,11 @@
 { 
-   "id" : "LBACK_Breast Move S2S Out L", 
-   "displayName" : "LBACK_Breast Move S2S Out L", 
+   "id" : "LFWD_Breast Diameter(Pose)", 
+   "displayName" : "LFWD_Breast Diameter(Pose)", 
    "group" : "Pose/TittyMagic_Dev", 
    "region" : "everlaster/TittyMagic_Dev", 
    "min" : "0", 
    "max" : "1", 
-   "numDeltas" : "411", 
+   "numDeltas" : "674", 
    "isPoseControl" : "true", 
    "formulas" : [ 
    ]

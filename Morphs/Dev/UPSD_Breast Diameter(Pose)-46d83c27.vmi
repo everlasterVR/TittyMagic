@@ -1,11 +1,11 @@
 { 
-   "id" : "LFWD_Breast Height2 L", 
-   "displayName" : "LFWD_Breast Height2 L", 
+   "id" : "UPSD_Breast Diameter(Pose)", 
+   "displayName" : "UPSD_Breast Diameter(Pose)", 
    "group" : "Pose/TittyMagic_Dev", 
    "region" : "everlaster/TittyMagic_Dev", 
    "min" : "0", 
    "max" : "1", 
-   "numDeltas" : "456", 
+   "numDeltas" : "674", 
    "isPoseControl" : "true", 
    "formulas" : [ 
    ]
