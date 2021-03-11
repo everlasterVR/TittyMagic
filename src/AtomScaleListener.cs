@@ -1,6 +1,6 @@
 ﻿namespace TittyMagic
 {
-    class AtomScaleListener
+    internal class AtomScaleListener
     {
         private JSONStorableFloat atomScaleStorable;
         public float Value { get; set; }
@@ -14,7 +14,7 @@
         public bool Changed()
         {
             float value = (float) Calc.RoundToDecimals(atomScaleStorable.val, 1000f);
-            if (value != Value)
+            if(value != Value)
             {
                 Value = value;
                 return true;

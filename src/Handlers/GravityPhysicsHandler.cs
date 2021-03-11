@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace TittyMagic
 {
-    class GravityPhysicsHandler
+    internal class GravityPhysicsHandler
     {
         private List<GravityPhysicsConfig> uprightPhysics;
         private List<GravityPhysicsConfig> upsideDownPhysics;
@@ -27,7 +27,7 @@ namespace TittyMagic
             // logMaxX = maximum x value for the logarithmic function that affects (along with breast mass) the Max value for Mathf.SmoothStep
             // scaleMul = the relative impact of breast mass on the final value
             // gravityMul = the relative impact of breast gravity on the final value
-            //                           name                        offset    offsetScaleMul  logMaxX     scaleMul    gravityMul     
+            //                           name                        offset    offsetScaleMul  logMaxX     scaleMul    gravityMul
             uprightPhysics = new List<GravityPhysicsConfig>()
             {
                 new GravityPhysicsConfig("targetRotationX",          1.00f,    0.40f,         -0.8f,       1.50f,      0.50f),

@@ -1,7 +1,8 @@
 ﻿namespace TittyMagic
 {
-    class MorphConfig
+    internal class MorphConfig
     {
+        private Log log = new Log(nameof(MorphConfig));
         public string name;
         public DAZMorph morph;
         public float baseMulti;
@@ -15,7 +16,7 @@
             this.startValue = startValue;
             if(morph == null)
             {
-                Log.Error($"Morph with name {name} not found!", nameof(MorphConfig));
+                log.Error($"Morph with name {name} not found!");
             }
         }
 
@@ -25,7 +26,7 @@
         }
     }
 
-    class BasicMorphConfig : MorphConfig
+    internal class BasicMorphConfig : MorphConfig
     {
         public BasicMorphConfig(
             string name,

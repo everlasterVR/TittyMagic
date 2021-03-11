@@ -2,7 +2,7 @@
 
 Adjustment of breast physics and breast shape based on size, softness and pose.
 
-Download latest .var release: https://hub.virtamate.com/resources/tittymagic.4067/ (NSFW)
+Releases: https://hub.virtamate.com/resources/tittymagic.4067/
 
 ## Contributing
 

@@ -1,6 +1,6 @@
 ﻿namespace TittyMagic
 {
-    class StaticPhysicsHandler
+    internal class StaticPhysicsHandler
     {
         private AdjustJoints BC;
         private DAZPhysicsMesh BPH;

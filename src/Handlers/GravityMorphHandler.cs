@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace TittyMagic
 {
-    class GravityMorphHandler
+    internal class GravityMorphHandler
     {
         private List<BasicMorphConfig> gravityOffsetMorphs;
         private List<GravityMorphConfig> uprightMorphs;
@@ -85,7 +85,6 @@ namespace TittyMagic
 
         private void InitGravityMorphs()
         {
-
             uprightMorphs = new List<GravityMorphConfig>
             {
                 //                      name                            baseMul    scaleMul   gravityMul
@@ -146,10 +145,9 @@ namespace TittyMagic
                 //new GravityMorphConfig("UPSD_Breast Top Curve1",       -0.30f,     1.50f,     0.50f),
                 //new GravityMorphConfig("UPSD_Breast Top Curve2",       -0.75f,     1.50f,     0.50f),
                 //new GravityMorphConfig("UPSD_BreastsShape2",            0.30f,     1.50f,     0.50f),
-                
+
                 new GravityMorphConfig("TM_UpsideDown6",                1.40f,    -0.50f,     2.00f),
                 //new GravityMorphConfig("UPSD_Breasts TogetherApart",    0.12f,    -1.00f,     1.00f),
-
             };
 
             leanBackMorphs = new List<GravityMorphConfig>

@@ -7,8 +7,9 @@ using UnityEngine;
 
 namespace TittyMagic
 {
-    class Script : MVRScript
+    internal class Script : MVRScript
     {
+        private readonly Log log = new Log(nameof(Script));
         private bool enableUpdate = true;
         private bool physicsUpdateInProgress = false;
 
@@ -18,8 +19,8 @@ namespace TittyMagic
         private List<DAZPhysicsMeshSoftVerticesSet> rightBreastMainGroupSets;
         private Mesh inMemoryMesh;
         private float massEstimate;
-        private float massMin = 0.100f;
-        private float massMax = 2.000f;
+        private const float massMin = 0.100f;
+        private const float massMax = 2.000f;
         private float softVolume; // cm^3; spheroid volume estimation of right breast
         private float gravityLogAmount;
 
@@ -36,6 +37,7 @@ namespace TittyMagic
 
         //registered storables
         private JSONStorableString pluginVersion;
+
         private JSONStorableFloat softness;
         private JSONStorableFloat gravity;
         private JSONStorableBool linkSoftnessAndGravity;
@@ -57,14 +59,14 @@ namespace TittyMagic
 
                 if(containingAtom.type != "Person")
                 {
-                    Log.Error($"Plugin is for use with 'Person' atom, not '{containingAtom.type}'");
+                    log.Error($"Plugin is for use with 'Person' atom, not '{containingAtom.type}'");
                     return;
                 }
 
                 if(!UserPreferences.singleton.softPhysics)
                 {
                     UserPreferences.singleton.softPhysics = true;
-                    Log.Message($"Soft physics has been enabled in VaM preferences.");
+                    log.Message($"Soft physics has been enabled in VaM preferences.");
                 }
 
                 AdjustJoints breastControl = containingAtom.GetStorableByID("BreastControl") as AdjustJoints;
@@ -98,12 +100,13 @@ namespace TittyMagic
             }
             catch(Exception e)
             {
-                Log.Error("Exception caught: " + e);
+                log.Error("Exception caught: " + e);
             }
         }
 
         #region User interface
-        void InitPluginUILeft()
+
+        private void InitPluginUILeft()
         {
             bool rightSide = false;
             titleUIText = NewTextField("titleText", 36, 100, rightSide);
@@ -129,7 +132,7 @@ namespace TittyMagic
 #endif
         }
 
-        void InitPluginUIRight()
+        private void InitPluginUIRight()
         {
             bool rightSide = true;
             statusUIText = NewTextField("statusText", 28, 100, rightSide);
@@ -146,7 +149,7 @@ namespace TittyMagic
 #endif
         }
 
-        JSONStorableFloat NewFloatSlider(string paramName, float startingValue, float minValue, float maxValue, bool rightSide)
+        private JSONStorableFloat NewFloatSlider(string paramName, float startingValue, float minValue, float maxValue, bool rightSide)
         {
             JSONStorableFloat storable = new JSONStorableFloat(paramName, startingValue, minValue, maxValue);
             storable.storeType = JSONStorableParam.StoreType.Physical;
@@ -155,7 +158,7 @@ namespace TittyMagic
             return storable;
         }
 
-        JSONStorableString NewTextField(string paramName, int fontSize, int height = 100, bool rightSide = false)
+        private JSONStorableString NewTextField(string paramName, int fontSize, int height = 100, bool rightSide = false)
         {
             JSONStorableString storable = new JSONStorableString(paramName, "");
             UIDynamicTextField textField = CreateTextField(storable, rightSide);
@@ -164,7 +167,7 @@ namespace TittyMagic
             return storable;
         }
 
-        JSONStorableBool NewToggle(string paramName, bool rightSide = false)
+        private JSONStorableBool NewToggle(string paramName, bool rightSide = false)
         {
             JSONStorableBool storable = new JSONStorableBool(paramName, false);
             CreateToggle(storable, rightSide);
@@ -172,18 +175,19 @@ namespace TittyMagic
             return storable;
         }
 
-        void CreateNewSpacer(float height, bool rightSide = false)
+        private void CreateNewSpacer(float height, bool rightSide = false)
         {
             UIDynamic spacer = CreateSpacer(rightSide);
             spacer.height = height;
         }
-        #endregion
 
-        void InitSliderListeners()
+        #endregion User interface
+
+        private void InitSliderListeners()
         {
             softness.slider.onValueChanged.AddListener((float val) =>
             {
-                if (linkSoftnessAndGravity.val)
+                if(linkSoftnessAndGravity.val)
                 {
                     gravity.val = val;
                     UpdateLogarithmicGravityAmount(val);
@@ -206,13 +210,13 @@ namespace TittyMagic
             });
         }
 
-        void UpdateLogarithmicGravityAmount(float val)
+        private void UpdateLogarithmicGravityAmount(float val)
         {
             gravityLogAmount = Mathf.Log(10 * val - 3.35f);
         }
 
         // TODO merge
-        void SetPhysicsDefaults()
+        private void SetPhysicsDefaults()
         {
             // In/Out auto morphs off
             containingAtom.GetStorableByID("BreastInOut").SetBoolParamValue("enabled", false);
@@ -226,7 +230,7 @@ namespace TittyMagic
         {
             try
             {
-                if (enableUpdate)
+                if(enableUpdate)
                 {
                     if(!physicsUpdateInProgress && (breastMorphListener.Changed() || atomScaleListener.Changed()))
                     {
@@ -242,18 +246,18 @@ namespace TittyMagic
 #if SHOW_DEBUG
                     SetBaseDebugInfo(roll, pitch);
                     morphDebugInfo.SetVal(gravityMorphH.GetStatus());
-                    physicsDebugInfo.SetVal(staticPhysicsH.GetStatus() + gravityPhysicsH.GetStatus());            
+                    physicsDebugInfo.SetVal(staticPhysicsH.GetStatus() + gravityPhysicsH.GetStatus());
 #endif
                 }
             }
             catch(Exception e)
             {
-                Log.Error("Exception caught: " + e);
+                log.Error("Exception caught: " + e);
                 enableUpdate = false;
             }
         }
 
-        IEnumerator RefreshStaticPhysics(float atomScale)
+        private IEnumerator RefreshStaticPhysics(float atomScale)
         {
             physicsUpdateInProgress = true;
             while(breastMorphListener.Changed())
@@ -278,7 +282,7 @@ namespace TittyMagic
             physicsUpdateInProgress = false;
         }
 
-        void UpdateMassEstimate(float atomScale, bool updateUIStatus = false)
+        private void UpdateMassEstimate(float atomScale, bool updateUIStatus = false)
         {
             Vector3 dimensions = BoundsSize();
 
@@ -310,10 +314,10 @@ namespace TittyMagic
                 {
                     statusUIText.SetVal("");
                 }
-            } 
+            }
         }
 
-        Vector3 BoundsSize()
+        private Vector3 BoundsSize()
         {
             Vector3[] vertices = rightBreastMainGroupSets
                 .Select(it => it.jointRB.position).ToArray();
@@ -323,7 +327,7 @@ namespace TittyMagic
             return inMemoryMesh.bounds.size;
         }
 
-        string massExcessStatus(float value)
+        private string massExcessStatus(float value)
         {
             Color color = Color.Lerp(
                 new Color(0.5f, 0.5f, 0.0f, 1f),
@@ -335,7 +339,7 @@ namespace TittyMagic
                 $"</size></color>";
         }
 
-        string massShortageStatus(float value)
+        private string massShortageStatus(float value)
         {
             Color color = Color.Lerp(
                 new Color(0.5f, 0.5f, 0.0f, 1f),
@@ -347,14 +351,14 @@ namespace TittyMagic
                 $"</size></color>";
         }
 
-        void OnDestroy()
+        private void OnDestroy()
         {
             gravityPhysicsH.ResetAll();
             gravityMorphH.ResetAll();
             nippleMorphH.ResetAll();
         }
 
-        void OnDisable()
+        private void OnDisable()
         {
             gravityPhysicsH.ResetAll();
             gravityMorphH.ResetAll();
@@ -362,7 +366,8 @@ namespace TittyMagic
         }
 
 #if SHOW_DEBUG
-        void SetBaseDebugInfo(float roll, float pitch)
+
+        private void SetBaseDebugInfo(float roll, float pitch)
         {
             float currentSoftVolume = BreastMassCalc.EstimateVolume(BoundsSize(), atomScaleListener.Value);
             baseDebugInfo.SetVal(
@@ -372,6 +377,7 @@ namespace TittyMagic
                 $"current volume: {currentSoftVolume}"
             );
         }
+
 #endif
     }
 }

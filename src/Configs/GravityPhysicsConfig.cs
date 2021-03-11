@@ -2,8 +2,9 @@
 
 namespace TittyMagic
 {
-    class GravityPhysicsConfig
+    internal class GravityPhysicsConfig
     {
+        private Log log = new Log(nameof(GravityPhysicsConfig));
         public JSONStorableFloat setting;
         public string name;
         private float offset;
@@ -28,7 +29,7 @@ namespace TittyMagic
             setting = Globals.BREAST_CONTROL.GetFloatJSONParam(name);
             if(setting == null)
             {
-                Log.Error($"BreastControl float param with name {name} not found!", nameof(GravityPhysicsConfig));
+                log.Error($"BreastControl float param with name {name} not found!");
             }
 
             originalValue = setting.val;
@@ -55,7 +56,7 @@ namespace TittyMagic
 
         private float ScaledSmoothMax(float scale)
         {
-            if (logMaxX < 0)
+            if(logMaxX < 0)
             {
                 return -Mathf.Log(scale * Mathf.Abs(logMaxX) + 1);
             }

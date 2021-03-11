@@ -1,14 +1,15 @@
 ﻿namespace TittyMagic
 {
-    class GravityMorphConfig
+    internal class GravityMorphConfig
     {
+        private readonly Log log = new Log(nameof(GravityMorphConfig));
         public DAZMorph morph;
         public string name;
         private float baseMul;
         private float? scaleMul;
         private float? gravityMul;
 
-        public GravityMorphConfig(string name, float baseMul,  float? scaleMul, float? gravityMul)
+        public GravityMorphConfig(string name, float baseMul, float? scaleMul, float? gravityMul)
         {
             this.name = name;
             this.baseMul = baseMul;
@@ -17,7 +18,7 @@
             morph = Globals.MORPH_UI.GetMorphByDisplayName(name);
             if(morph == null)
             {
-                Log.Error($"Morph with name {name} not found!", nameof(GravityMorphConfig));
+                log.Error($"Morph with name {name} not found!");
             }
         }
 

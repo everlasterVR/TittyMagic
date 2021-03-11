@@ -2,7 +2,7 @@
 
 namespace TittyMagic
 {
-    class NippleErectionMorphHandler
+    internal class NippleErectionMorphHandler
     {
         private List<BasicMorphConfig> morphs;
 

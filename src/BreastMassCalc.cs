@@ -4,7 +4,7 @@ namespace TittyMagic
 {
     public static class BreastMassCalc
     {
-        private static float toCM3 = Mathf.Pow(10, 6);
+        private static readonly float toCM3 = Mathf.Pow(10, 6);
 
         // Ellipsoid volume
         public static float EstimateVolume(Vector3 size, float atomScale)
