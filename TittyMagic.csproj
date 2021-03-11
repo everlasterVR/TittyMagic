@@ -83,6 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\BreastMassCalc.cs" />
+    <Compile Include="src\Configs\PhysicsConfig.cs" />
     <Compile Include="src\Configs\GravityMorphConfig.cs" />
     <Compile Include="src\Configs\GravityPhysicsConfig.cs" />
     <Compile Include="src\Configs\MorphConfig.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="src\Handlers\GravityPhysicsHandler.cs" />
     <Compile Include="src\Handlers\NippleErectionMorphHandler.cs" />
     <Compile Include="src\Handlers\StaticPhysicsHandler.cs" />
+    <Compile Include="src\Handlers\SPH_old.cs" />
     <Compile Include="src\Utils\AngleCalc.cs" />
     <Compile Include="src\Utils\Calc.cs" />
     <Compile Include="src\Utils\Formatting.cs" />
@@ -101,11 +103,16 @@
     <Compile Include="TM_ReferenceSize.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\Settings\referenceMassMaxSoftnessMax.json" />
+    <None Include="src\Settings\massMaxSoftnessMin.json" />
+    <None Include="src\Settings\massMinSoftnessMax.json" />
+    <None Include="src\Settings\massMinSoftnessMin.json" />
     <None Include="TittyMagic.cslist" />
     <None Include=".gitignore" />
     <None Include="meta.json" />
     <None Include="README.md" />
     <None Include="todo.md" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

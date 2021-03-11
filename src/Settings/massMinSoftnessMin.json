@@ -1,0 +1,26 @@
+[ 
+   { 
+      "spring" : "78.546", 
+      "damper" : "3.3818", 
+      "positionSpringZ" : "268.2", 
+      "positionDamperZ" : "6.773", 
+   }, 
+   { 
+      "softVerticesCombinedSpring" : "121.275", 
+      "softVerticesCombinedDamper" : "1.0274", 
+      "softVerticesMass" : "0.05637", 
+      "softVerticesBackForce" : "8.455", 
+      "softVerticesBackForceThresholdDistance" : "0.001", 
+      "softVerticesBackForceMaxForce" : "5.2275", 
+      "softVerticesColliderRadius" : "0.022455", 
+      "softVerticesDistanceLimit" : "0.012865", 
+      "groupASpringMultiplier" : "1.58726", 
+      "groupADamperMultiplier" : "1.58726", 
+      "groupBSpringMultiplier" : "3.18726", 
+      "groupBDamperMultiplier" : "3.18726", 
+      "groupCSpringMultiplier" : "3.1", 
+      "groupCDamperMultiplier" : "6.2", 
+      "groupDSpringMultiplier" : "3.1", 
+      "groupDDamperMultiplier" : "3.1"
+   }
+]
