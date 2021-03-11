@@ -35,7 +35,9 @@ namespace TittyMagic
                 }
                 catch(Exception)
                 {
+#if SHOW_DEBUG
                     log.Message($"Unable to initialize listener for morph {morph.morphName}.");
+#endif
                 }
             }
 #if SHOW_DEBUG
