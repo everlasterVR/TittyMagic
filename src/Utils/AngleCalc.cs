@@ -3,7 +3,7 @@
 namespace TittyMagic
 {
     /*
-     * LICENSE: Creative Commons Attribution-ShareAlike 2.0 Generic (CC BY-SA 2.0) https://creativecommons.org/licenses/by-sa/2.0/
+     * LICENSE: Creative Commons Attribution-ShareAlike 4.0 Generic (CC BY-SA 4.0) https://creativecommons.org/licenses/by-sa/4.0/
      * Adapted from BreastAutoGravity.2 by VeeRifter (CC BY-SA)
      * https://hub.virtamate.com/resources/breastautogravity.662/
      */

@@ -6,7 +6,7 @@ using System.Linq;
 namespace TittyMagic
 {
     /*
-     * LICENSE: Creative Commons Attribution-ShareAlike 2.0 Generic (CC BY-SA 2.0) https://creativecommons.org/licenses/by-sa/2.0/
+     * LICENSE: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 2.0) https://creativecommons.org/licenses/by-sa/4.0/
      * Partially adapted from MorphMassManager v9 by nyaacho (CC BY-SA)
      * https://hub.virtamate.com/resources/morph-mass-manager.4013/
      */
