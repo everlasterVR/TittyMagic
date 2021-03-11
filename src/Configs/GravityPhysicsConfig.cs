@@ -4,7 +4,7 @@ namespace TittyMagic
 {
     internal class GravityPhysicsConfig
     {
-        private Log log = new Log(nameof(GravityPhysicsConfig));
+        private readonly Log log = new Log(nameof(GravityPhysicsConfig));
         public JSONStorableFloat setting;
         public string name;
         private float offset;

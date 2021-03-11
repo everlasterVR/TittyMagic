@@ -2,7 +2,7 @@
 {
     internal class MorphConfig
     {
-        private Log log = new Log(nameof(MorphConfig));
+        private readonly Log log = new Log(nameof(MorphConfig));
         public string name;
         public DAZMorph morph;
         public float baseMulti;
