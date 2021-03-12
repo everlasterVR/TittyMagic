@@ -121,14 +121,14 @@ namespace TittyMagic
             titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{version}</size>");
 
             // doesn't just init UI, also variables...
-            softness = NewFloatSlider("Breast softness", 50f, Const.SOFTNESS_MIN, Const.SOFTNESS_MAX, rightSide);
-            gravity = NewFloatSlider("Breast gravity", 50f, Const.GRAVITY_MIN, Const.GRAVITY_MAX, rightSide);
+            softness = NewFloatSlider("Breast softness", 50f, Const.SOFTNESS_MIN, Const.SOFTNESS_MAX, "F0", rightSide);
+            gravity = NewFloatSlider("Breast gravity", 50f, Const.GRAVITY_MIN, Const.GRAVITY_MAX, "F0", rightSide);
             linkSoftnessAndGravity = NewToggle("Link softness and gravity", false);
             linkSoftnessAndGravity.val = true;
 
             CreateNewSpacer(10f);
 
-            nippleErection = NewFloatSlider("Erect nipples", 0f, 0f, 1.0f, rightSide);
+            nippleErection = NewFloatSlider("Erect nipples", 0f, 0f, 1.0f, "F2", rightSide);
 
 #if SHOW_DEBUG
             UIDynamicTextField angleInfoField = CreateTextField(baseDebugInfo, rightSide);
@@ -157,12 +157,20 @@ namespace TittyMagic
 #endif
         }
 
-        private JSONStorableFloat NewFloatSlider(string paramName, float startingValue, float minValue, float maxValue, bool rightSide)
+        private JSONStorableFloat NewFloatSlider(
+            string paramName,
+            float startingValue,
+            float minValue,
+            float maxValue,
+            string valueFormat,
+            bool rightSide
+        )
         {
             JSONStorableFloat storable = new JSONStorableFloat(paramName, startingValue, minValue, maxValue);
             storable.storeType = JSONStorableParam.StoreType.Physical;
             RegisterFloat(storable);
-            CreateSlider(storable, rightSide);
+            UIDynamicSlider slider = CreateSlider(storable, rightSide);
+            slider.valueFormat = valueFormat;
             return storable;
         }
 
