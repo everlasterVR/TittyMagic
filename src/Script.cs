@@ -3,8 +3,6 @@
 using SimpleJSON;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace TittyMagic
@@ -20,14 +18,12 @@ namespace TittyMagic
         private Transform chest;
         private DAZCharacterSelector geometry;
 
-        private List<DAZPhysicsMeshSoftVerticesSet> rightBreastMainGroupSets;
-        private Mesh inMemoryMesh;
         private float massEstimate;
-        private float softVolume; // cm^3; spheroid volume estimation of right breast
         private float gravityLogAmount;
 
         private AtomScaleListener atomScaleListener;
         private BreastMorphListener breastMorphListener;
+        private BreastMassCalculator breastMassCalculator;
 
         private GravityMorphHandler gravityMorphH;
         private NippleErectionMorphHandler nippleMorphH;
@@ -79,10 +75,6 @@ namespace TittyMagic
                 DAZPhysicsMesh breastPhysicsMesh = containingAtom.GetStorableByID("BreastPhysicsMesh") as DAZPhysicsMesh;
                 chest = containingAtom.GetStorableByID("chest").transform;
                 geometry = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
-                rightBreastMainGroupSets = breastPhysicsMesh.softVerticesGroups
-                    .Find(it => it.name == "right")
-                    .softVerticesSets;
-                inMemoryMesh = new Mesh();
 
                 Globals.BREAST_CONTROL = breastControl;
                 Globals.BREAST_PHYSICS_MESH = breastPhysicsMesh;
@@ -90,6 +82,7 @@ namespace TittyMagic
 
                 atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
                 breastMorphListener = new BreastMorphListener(geometry.morphBank1.morphs);
+                breastMassCalculator = new BreastMassCalculator();
 
                 gravityMorphH = new GravityMorphHandler();
                 nippleMorphH = new NippleErectionMorphHandler();
@@ -278,7 +271,7 @@ namespace TittyMagic
 
                     float roll = AngleCalc.Roll(chest.rotation);
                     float pitch = AngleCalc.Pitch(chest.rotation);
-                    float scaleVal = BreastMassCalc.LegacyScale(massEstimate);
+                    float scaleVal = breastMassCalculator.LegacyScale(massEstimate);
 
                     gravityMorphH.Update(roll, pitch, scaleVal, gravityLogAmount);
                     gravityPhysicsH.Update(roll, pitch, scaleVal, Const.ConvertToLegacyVal(gravity.val));
@@ -323,10 +316,7 @@ namespace TittyMagic
 
         private void UpdateMassEstimate(float atomScale, bool updateUIStatus = false)
         {
-            Vector3 dimensions = BoundsSize();
-
-            softVolume = BreastMassCalc.EstimateVolume(dimensions, atomScale);
-            float mass = BreastMassCalc.VolumeToMass(softVolume);
+            float mass = breastMassCalculator.Calculate(atomScale);
 
             if(mass > Const.MASS_MAX)
             {
@@ -354,16 +344,6 @@ namespace TittyMagic
                     statusUIText.SetVal("");
                 }
             }
-        }
-
-        private Vector3 BoundsSize()
-        {
-            Vector3[] vertices = rightBreastMainGroupSets
-                .Select(it => it.jointRB.position).ToArray();
-
-            inMemoryMesh.vertices = vertices;
-            inMemoryMesh.RecalculateBounds();
-            return inMemoryMesh.bounds.size;
         }
 
         private string MassExcessStatus(float value)
@@ -464,12 +444,10 @@ namespace TittyMagic
 
         private void SetBaseDebugInfo(float roll, float pitch)
         {
-            float currentSoftVolume = BreastMassCalc.EstimateVolume(BoundsSize(), atomScaleListener.Value);
             baseDebugInfo.SetVal(
                 $"{Formatting.NameValueString("Roll", roll, 100f, 15)}\n" +
                 $"{Formatting.NameValueString("Pitch", pitch, 100f, 15)}\n" +
-                $"volume: {softVolume}\n" +
-                $"current volume: {currentSoftVolume}"
+                $"{breastMassCalculator.GetStatus(atomScaleListener.Value)}"
             );
         }
 
