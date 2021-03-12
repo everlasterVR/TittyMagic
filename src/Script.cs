@@ -12,9 +12,6 @@ namespace TittyMagic
         private static readonly Version v2_1 = new Version("2.1.0");
         public static readonly Version version = new Version("0.0.0");
 
-        private bool enableUpdate = true;
-        private bool physicsUpdateInProgress = false;
-
         private Transform chest;
         private DAZCharacterSelector geometry;
 
@@ -41,6 +38,7 @@ namespace TittyMagic
         private JSONStorableBool linkSoftnessAndGravity;
         private JSONStorableFloat nippleErection;
 
+        private bool physicsUpdateInProgress = false;
         private bool restoringFromJson = false;
         private float? legacySoftnessFromJson;
         private float? legacyGravityFromJson;
@@ -101,7 +99,7 @@ namespace TittyMagic
             }
             catch(Exception e)
             {
-                Log.Error("Exception caught: " + e);
+                Log.Error($"{e}");
             }
         }
 
@@ -260,32 +258,34 @@ namespace TittyMagic
 
         public void Update()
         {
+        }
+
+        public void FixedUpdate()
+        {
             try
             {
-                if(enableUpdate)
+                if(!physicsUpdateInProgress && (breastMorphListener.Changed() || atomScaleListener.Changed()))
                 {
-                    if(!physicsUpdateInProgress && (breastMorphListener.Changed() || atomScaleListener.Changed()))
-                    {
-                        StartCoroutine(RefreshStaticPhysics(atomScaleListener.Value));
-                    }
-
-                    float roll = AngleCalc.Roll(chest.rotation);
-                    float pitch = AngleCalc.Pitch(chest.rotation);
-                    float scaleVal = breastMassCalculator.LegacyScale(massEstimate);
-
-                    gravityMorphH.Update(roll, pitch, scaleVal, gravityLogAmount);
-                    gravityPhysicsH.Update(roll, pitch, scaleVal, Const.ConvertToLegacyVal(gravity.val));
-#if SHOW_DEBUG
-                    SetBaseDebugInfo(roll, pitch);
-                    morphDebugInfo.SetVal(gravityMorphH.GetStatus());
-                    physicsDebugInfo.SetVal(staticPhysicsH.GetStatus() + gravityPhysicsH.GetStatus());
-#endif
+                    StartCoroutine(RefreshStaticPhysics(atomScaleListener.Value));
                 }
+
+                float roll = AngleCalc.Roll(chest.rotation);
+                float pitch = AngleCalc.Pitch(chest.rotation);
+                float scaleVal = breastMassCalculator.LegacyScale(massEstimate);
+
+                gravityMorphH.Update(roll, pitch, scaleVal, gravityLogAmount);
+                gravityPhysicsH.Update(roll, pitch, scaleVal, Const.ConvertToLegacyVal(gravity.val));
+#if SHOW_DEBUG
+                SetBaseDebugInfo(roll, pitch);
+                morphDebugInfo.SetVal(gravityMorphH.GetStatus());
+                physicsDebugInfo.SetVal(staticPhysicsH.GetStatus() + gravityPhysicsH.GetStatus());
+#endif
             }
             catch(Exception e)
             {
-                Log.Error("Exception caught: " + e);
-                enableUpdate = false;
+                Log.Error($"{e}");
+                Log.Error($"Try reloading plugin!");
+                enabled = false;
             }
         }
 
