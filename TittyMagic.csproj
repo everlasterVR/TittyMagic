@@ -82,7 +82,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\Bindings.cs" />
     <Compile Include="src\BreastMassCalculator.cs" />
+    <Compile Include="src\SettingsMonitor.cs" />
     <Compile Include="src\Configs\PhysicsConfig.cs" />
     <Compile Include="src\Configs\GravityMorphConfig.cs" />
     <Compile Include="src\Configs\GravityPhysicsConfig.cs" />
