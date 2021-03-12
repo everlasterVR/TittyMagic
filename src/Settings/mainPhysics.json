@@ -1,0 +1,26 @@
+{ 
+   "spring" : { 
+      "minMminS" : "78.546", 
+      "maxMminS" : "92.34", 
+      "minMmaxS" : "33.546", 
+      "maxMmaxS" : "47.34"
+   }, 
+   "damper" : { 
+      "minMminS" : "3.3818", 
+      "maxMminS" : "2.922", 
+      "minMmaxS" : "1.3818", 
+      "maxMmaxS" : "0.922"
+   }, 
+   "positionSpringZ" : { 
+      "minMminS" : "268.2", 
+      "maxMminS" : "728", 
+      "minMmaxS" : "268.2", 
+      "maxMmaxS" : "728"
+   }, 
+   "positionDamperZ" : { 
+      "minMminS" : "6.773", 
+      "maxMminS" : "13.67", 
+      "minMmaxS" : "14.273", 
+      "maxMmaxS" : "21.17"
+   }
+}

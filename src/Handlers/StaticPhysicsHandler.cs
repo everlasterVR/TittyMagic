@@ -1,5 +1,4 @@
-﻿//#define SHOW_DEBUG
-using SimpleJSON;
+﻿using SimpleJSON;
 using System.Collections.Generic;
 
 namespace TittyMagic
@@ -13,45 +12,33 @@ namespace TittyMagic
 
         public StaticPhysicsHandler()
         {
-            JSONArray massMinSoftnessMin = SuperController.singleton.LoadJSON(settingsDir + "massMinSoftnessMin.json").AsArray;
-            JSONArray massMaxSoftnessMin = SuperController.singleton.LoadJSON(settingsDir + "massMaxSoftnessMin.json").AsArray;
-            JSONArray massMinSoftnessMax = SuperController.singleton.LoadJSON(settingsDir + "massMinSoftnessMax.json").AsArray;
-#if SHOW_DEBUG
-            JSONArray massMaxSoftnessMax = SuperController.singleton.LoadJSON(settingsDir + "referenceMassMaxSoftnessMax.json").AsArray;
-#endif
-            //assume same param names in all json files
-            HashSet<string> breastControlParams = new HashSet<string>(massMinSoftnessMin[0].AsObject.Keys);
-            HashSet<string> breastPhysicsMeshParams = new HashSet<string>(massMinSoftnessMin[1].AsObject.Keys);
+            JSONClass mainPhysicsSettings = SuperController.singleton.LoadJSON(settingsDir + "mainPhysics.json").AsObject;
+            JSONClass softPhysicsSettings = SuperController.singleton.LoadJSON(settingsDir + "softPhysics.json").AsObject;
 
             mainPhysicsConfigs = new HashSet<PhysicsConfig>();
-            foreach(string paramName in breastControlParams)
+            softPhysicsConfigs = new HashSet<PhysicsConfig>();
+
+            foreach(string param in mainPhysicsSettings.Keys)
             {
+                JSONClass paramSettings = mainPhysicsSettings[param].AsObject;
                 mainPhysicsConfigs.Add(new PhysicsConfig(
-                    Globals.BREAST_CONTROL.GetFloatJSONParam(paramName),
-                    massMinSoftnessMin[0][paramName].AsFloat,
-                    massMaxSoftnessMin[0][paramName].AsFloat,
-#if SHOW_DEBUG
-                    massMinSoftnessMax[0][paramName].AsFloat,
-                    massMaxSoftnessMax[0][paramName].AsFloat
-#else
-                    massMinSoftnessMax[0][paramName].AsFloat
-#endif
+                    Globals.BREAST_CONTROL.GetFloatJSONParam(param),
+                    paramSettings["minMminS"].AsFloat,
+                    paramSettings["maxMminS"].AsFloat,
+                    paramSettings["minMmaxS"].AsFloat,
+                    paramSettings["maxMmaxS"].AsFloat
                 ));
             }
 
-            softPhysicsConfigs = new HashSet<PhysicsConfig>();
-            foreach(string paramName in breastPhysicsMeshParams)
+            foreach(string param in softPhysicsSettings.Keys)
             {
+                JSONClass paramSettings = softPhysicsSettings[param].AsObject;
                 softPhysicsConfigs.Add(new PhysicsConfig(
-                    Globals.BREAST_PHYSICS_MESH.GetFloatJSONParam(paramName),
-                    massMinSoftnessMin[1][paramName].AsFloat,
-                    massMaxSoftnessMin[1][paramName].AsFloat,
-#if SHOW_DEBUG
-                    massMinSoftnessMax[1][paramName].AsFloat,
-                    massMaxSoftnessMax[1][paramName].AsFloat
-#else
-                    massMinSoftnessMax[1][paramName].AsFloat
-#endif
+                    Globals.BREAST_PHYSICS_MESH.GetFloatJSONParam(param),
+                    paramSettings["minMminS"].AsFloat,
+                    paramSettings["maxMminS"].AsFloat,
+                    paramSettings["minMmaxS"].AsFloat,
+                    paramSettings["maxMmaxS"].AsFloat
                 ));
             }
         }

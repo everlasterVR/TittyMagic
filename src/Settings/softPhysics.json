@@ -1,0 +1,98 @@
+{ 
+   "softVerticesCombinedSpring" : { 
+      "minMminS" : "121.275", 
+      "maxMminS" : "178.75", 
+      "minMmaxS" : "216.275", 
+      "maxMmaxS" : "273.75"
+   }, 
+   "softVerticesCombinedDamper" : { 
+      "minMminS" : "1.600", 
+      "maxMminS" : "4.246", 
+      "minMmaxS" : "0.100", 
+      "maxMmaxS" : "2.746"
+   }, 
+   "softVerticesMass" : { 
+      "minMminS" : "0.05637", 
+      "maxMminS" : "0.2173", 
+      "minMmaxS" : "0.05637", 
+      "maxMmaxS" : "0.2173"
+   }, 
+   "softVerticesBackForce" : { 
+      "minMminS" : "8.455", 
+      "maxMminS" : "19.95", 
+      "minMmaxS" : "3.455", 
+      "maxMmaxS" : "14.95"
+   }, 
+   "softVerticesBackForceThresholdDistance" : { 
+      "minMminS" : "0.001", 
+      "maxMminS" : "0.005", 
+      "minMmaxS" : "0", 
+      "maxMmaxS" : "0.004"
+   }, 
+   "softVerticesBackForceMaxForce" : { 
+      "minMminS" : "5.2275", 
+      "maxMminS" : "10.975", 
+      "minMmaxS" : "2.7275", 
+      "maxMmaxS" : "8.475"
+   }, 
+   "softVerticesColliderRadius" : { 
+      "minMminS" : "0.022455", 
+      "maxMminS" : "0.03395", 
+      "minMmaxS" : "0.022455", 
+      "maxMmaxS" : "0.03395"
+   }, 
+   "softVerticesDistanceLimit" : { 
+      "minMminS" : "0.012865", 
+      "maxMminS" : "0.04735", 
+      "minMmaxS" : "0.020365", 
+      "maxMmaxS" : "0.05485"
+   }, 
+   "groupASpringMultiplier" : { 
+      "minMminS" : "1.6", 
+      "maxMminS" : "1.475", 
+      "minMmaxS" : "0.425", 
+      "maxMmaxS" : "0.3"
+   }, 
+   "groupADamperMultiplier" : { 
+      "minMminS" : "1.6", 
+      "maxMminS" : "1.475", 
+      "minMmaxS" : "0.425", 
+      "maxMmaxS" : "0.3"
+   }, 
+   "groupBSpringMultiplier" : { 
+      "minMminS" : "3.2", 
+      "maxMminS" : "3.00", 
+      "minMmaxS" : "0.8", 
+      "maxMmaxS" : "0.6"
+   }, 
+   "groupBDamperMultiplier" : { 
+      "minMminS" : "3.2", 
+      "maxMminS" : "3.00", 
+      "minMmaxS" : "0.8", 
+      "maxMmaxS" : "0.6"
+   }, 
+   "groupCSpringMultiplier" : { 
+      "minMminS" : "3.1", 
+      "maxMminS" : "3.1", 
+      "minMmaxS" : "0.7666667", 
+      "maxMmaxS" : "0.7666667"
+   }, 
+   "groupCDamperMultiplier" : { 
+      "minMminS" : "6.2", 
+      "maxMminS" : "6.2", 
+      "minMmaxS" : "1.533333", 
+      "maxMmaxS" : "1.533333"
+   }, 
+   "groupDSpringMultiplier" : { 
+      "minMminS" : "3.1", 
+      "maxMminS" : "3.1", 
+      "minMmaxS" : "0.7666667", 
+      "maxMmaxS" : "0.7666667"
+   }, 
+   "groupDDamperMultiplier" : { 
+      "minMminS" : "3.1", 
+      "maxMminS" : "3.1", 
+      "minMmaxS" : "0.7666667", 
+      "maxMmaxS" : "0.7666667"
+   }
+}
