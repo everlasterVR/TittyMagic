@@ -1,4 +1,5 @@
-﻿using SimpleJSON;
+﻿//#define SHOW_DEBUG
+using SimpleJSON;
 using System.Collections.Generic;
 
 namespace TittyMagic
@@ -15,7 +16,9 @@ namespace TittyMagic
             JSONArray massMinSoftnessMin = SuperController.singleton.LoadJSON(settingsDir + "massMinSoftnessMin.json").AsArray;
             JSONArray massMaxSoftnessMin = SuperController.singleton.LoadJSON(settingsDir + "massMaxSoftnessMin.json").AsArray;
             JSONArray massMinSoftnessMax = SuperController.singleton.LoadJSON(settingsDir + "massMinSoftnessMax.json").AsArray;
-
+#if SHOW_DEBUG
+            JSONArray massMaxSoftnessMax = SuperController.singleton.LoadJSON(settingsDir + "referenceMassMaxSoftnessMax.json").AsArray;
+#endif
             //assume same param names in all json files
             HashSet<string> breastControlParams = new HashSet<string>(massMinSoftnessMin[0].AsObject.Keys);
             HashSet<string> breastPhysicsMeshParams = new HashSet<string>(massMinSoftnessMin[1].AsObject.Keys);
@@ -27,7 +30,12 @@ namespace TittyMagic
                     Globals.BREAST_CONTROL.GetFloatJSONParam(paramName),
                     massMinSoftnessMin[0][paramName].AsFloat,
                     massMaxSoftnessMin[0][paramName].AsFloat,
+#if SHOW_DEBUG
+                    massMinSoftnessMax[0][paramName].AsFloat,
+                    massMaxSoftnessMax[0][paramName].AsFloat
+#else
                     massMinSoftnessMax[0][paramName].AsFloat
+#endif
                 ));
             }
 
@@ -38,7 +46,12 @@ namespace TittyMagic
                     Globals.BREAST_PHYSICS_MESH.GetFloatJSONParam(paramName),
                     massMinSoftnessMin[1][paramName].AsFloat,
                     massMaxSoftnessMin[1][paramName].AsFloat,
+#if SHOW_DEBUG
+                    massMinSoftnessMax[1][paramName].AsFloat,
+                    massMaxSoftnessMax[1][paramName].AsFloat
+#else
                     massMinSoftnessMax[1][paramName].AsFloat
+#endif
                 ));
             }
         }
