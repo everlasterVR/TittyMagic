@@ -5,12 +5,12 @@ namespace TittyMagic
 {
     internal class GravityPhysicsHandler
     {
-        private List<GravityPhysicsConfig> uprightPhysics;
-        private List<GravityPhysicsConfig> upsideDownPhysics;
-        private List<GravityPhysicsConfig> leanBackPhysics;
-        private List<GravityPhysicsConfig> leanForwardPhysics;
-        private List<GravityPhysicsConfig> rollLeftPhysics;
-        private List<GravityPhysicsConfig> rollRightPhysics;
+        private HashSet<GravityPhysicsConfig> uprightPhysics;
+        private HashSet<GravityPhysicsConfig> upsideDownPhysics;
+        private HashSet<GravityPhysicsConfig> leanBackPhysics;
+        private HashSet<GravityPhysicsConfig> leanForwardPhysics;
+        private HashSet<GravityPhysicsConfig> rollLeftPhysics;
+        private HashSet<GravityPhysicsConfig> rollRightPhysics;
 
         private float roll;
         private float pitch;
@@ -28,37 +28,43 @@ namespace TittyMagic
             // scaleMul = the relative impact of breast mass on the final value
             // gravityMul = the relative impact of breast gravity on the final value
             //                           name                        offset    offsetScaleMul  logMaxX     scaleMul    gravityMul
-            uprightPhysics = new List<GravityPhysicsConfig>()
+            uprightPhysics = new HashSet<GravityPhysicsConfig>()
             {
                 new GravityPhysicsConfig("targetRotationX",          1.00f,    0.40f,         -0.8f,       1.50f,      0.50f),
             };
-            upsideDownPhysics = new List<GravityPhysicsConfig>()
+            upsideDownPhysics = new HashSet<GravityPhysicsConfig>()
             {
                 new GravityPhysicsConfig("targetRotationX",          1.00f,    0.40f,          1.6f,       1.50f,      0.50f),
             };
-            leanBackPhysics = new List<GravityPhysicsConfig>()
+            leanBackPhysics = new HashSet<GravityPhysicsConfig>()
             {
                 new GravityPhysicsConfig("centerOfGravityPercent",   0.40f,    0.05f,         -0.01f,      0.50f,      1.50f),
             };
-            leanForwardPhysics = new List<GravityPhysicsConfig>()
+            leanForwardPhysics = new HashSet<GravityPhysicsConfig>()
             {
                 new GravityPhysicsConfig("centerOfGravityPercent",   0.40f,    0.05f,          0.05f,      0.50f,      1.50f),
             };
-            rollLeftPhysics = new List<GravityPhysicsConfig>()
+            rollLeftPhysics = new HashSet<GravityPhysicsConfig>()
             {
                 new GravityPhysicsConfig("targetRotationY",          0f,       0f,             12f,        0.50f,      1.50f),
             };
-            rollRightPhysics = new List<GravityPhysicsConfig>()
+            rollRightPhysics = new HashSet<GravityPhysicsConfig>()
             {
                 new GravityPhysicsConfig("targetRotationY",          0f,       0f,            -12f,        0.50f,      1.50f),
             };
 
-            uprightPhysics.ForEach(it => it.InitStorable());
-            upsideDownPhysics.ForEach(it => it.InitStorable());
-            leanBackPhysics.ForEach(it => it.InitStorable());
-            leanForwardPhysics.ForEach(it => it.InitStorable());
-            rollLeftPhysics.ForEach(it => it.InitStorable());
-            rollRightPhysics.ForEach(it => it.InitStorable());
+            foreach(var it in uprightPhysics)
+                it.InitStorable();
+            foreach(var it in upsideDownPhysics)
+                it.InitStorable();
+            foreach(var it in leanBackPhysics)
+                it.InitStorable();
+            foreach(var it in leanForwardPhysics)
+                it.InitStorable();
+            foreach(var it in rollLeftPhysics)
+                it.InitStorable();
+            foreach(var it in rollRightPhysics)
+                it.InitStorable();
             ResetAll();
         }
 
@@ -80,23 +86,33 @@ namespace TittyMagic
 
         public void ResetAll()
         {
-            uprightPhysics.ForEach(it => it.Reset());
-            //upsideDownPhysics.ForEach(it => it.Reset());
-            leanForwardPhysics.ForEach(it => it.Reset());
-            //leanBackPhysics.ForEach(it => it.Reset());
-            rollLeftPhysics.ForEach(it => it.Reset());
-            //rollRightPhysics.ForEach(it => it.Reset());
+            //foreach(var it in upsideDownPhysics)
+            foreach(var it in uprightPhysics)
+                it.Reset();
+            //foreach(var it in leanBackPhysics)
+            foreach(var it in leanForwardPhysics)
+                it.Reset();
+            //foreach(var it in rollRightPhysics)
+            foreach(var it in rollLeftPhysics)
+                it.Reset();
         }
 
         public string GetStatus()
         {
             string text = "\nGRAVITY PHYSICS\n";
-            uprightPhysics.ForEach((it) => text = text + it.GetStatus());
-            upsideDownPhysics.ForEach((it) => text = text + it.GetStatus());
-            leanBackPhysics.ForEach((it) => text = text + it.GetStatus());
-            leanForwardPhysics.ForEach((it) => text = text + it.GetStatus());
-            rollLeftPhysics.ForEach((it) => text = text + it.GetStatus());
-            rollRightPhysics.ForEach((it) => text = text + it.GetStatus());
+            foreach(var it in uprightPhysics)
+                text += it.GetStatus();
+            foreach(var it in upsideDownPhysics)
+                text += it.GetStatus();
+            foreach(var it in leanBackPhysics)
+                text += it.GetStatus();
+            foreach(var it in leanForwardPhysics)
+                text += it.GetStatus();
+            foreach(var it in rollLeftPhysics)
+                text += it.GetStatus();
+            foreach(var it in rollRightPhysics)
+                text += it.GetStatus();
+
             return text;
         }
 
@@ -150,10 +166,13 @@ namespace TittyMagic
             }
         }
 
-        private void Update(List<GravityPhysicsConfig> physics, float angle, float rollFactor = 1f)
+        private void Update(HashSet<GravityPhysicsConfig> physics, float angle, float rollFactor = 1f)
         {
             float effect = rollFactor * angle / 90;
-            physics.ForEach(it => it.UpdateVal(effect, scale, gravity));
+            foreach(var it in physics)
+            {
+                it.UpdateVal(effect, scale, gravity);
+            }
         }
     }
 }

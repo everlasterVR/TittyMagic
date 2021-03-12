@@ -79,7 +79,8 @@ namespace TittyMagic
             float softnessN = (softnessVal - 0.5f)/(3.0f - 0.5f);
 
             Globals.BREAST_CONTROL.mass = massEstimate;
-            mainPhysicsConfigs.ToList().ForEach(config => config.UpdateVal(massN, softnessN));
+            foreach(var it in mainPhysicsConfigs)
+                it.UpdateVal(massN, softnessN);
         }
 
         public void UpdateNipplePhysics(
@@ -91,7 +92,8 @@ namespace TittyMagic
             float massN = (massEstimate - 0.1f)/(2.0f - 0.1f);
             float softnessN = (softnessVal - 0.5f)/(3.0f - 0.5f);
 
-            nipplePhysicsConfigs.ToList().ForEach(config => config.UpdateVal(massN, softnessN, nippleErectionVal));
+            foreach(var it in nipplePhysicsConfigs)
+                it.UpdateVal(massN, softnessN, nippleErectionVal);
         }
 
         public void FullUpdate(
@@ -104,17 +106,26 @@ namespace TittyMagic
             float softnessN = (softnessVal - 0.5f)/(3.0f - 0.5f);
 
             Globals.BREAST_CONTROL.mass = massEstimate;
-            mainPhysicsConfigs.ToList().ForEach(config => config.UpdateVal(massN, softnessN));
-            softPhysicsConfigs.ToList().ForEach(config => config.UpdateVal(massN, softnessN));
-            nipplePhysicsConfigs.ToList().ForEach(config => config.UpdateVal(massN, softnessN, nippleErectionVal));
+            foreach(var it in mainPhysicsConfigs)
+                it.UpdateVal(massN, softnessN);
+            foreach(var it in softPhysicsConfigs)
+                it.UpdateVal(massN, softnessN);
+            foreach(var it in nipplePhysicsConfigs)
+                it.UpdateVal(massN, softnessN, nippleErectionVal);
         }
 
         public string GetStatus()
         {
             string text = "MAIN PHYSICS\n";
-            mainPhysicsConfigs.ToList().ForEach((it) => text = text + it.GetStatus());
-            text = text + "\nSOFT PHYSICS\n";
-            softPhysicsConfigs.ToList().ForEach((it) => text = text + it.GetStatus());
+            foreach(var it in mainPhysicsConfigs)
+                text += it.GetStatus();
+
+            text += "\nSOFT PHYSICS\n";
+            foreach(var it in softPhysicsConfigs)
+                text += it.GetStatus();
+            foreach(var it in nipplePhysicsConfigs)
+                text += it.GetStatus();
+
             return text;
         }
     }

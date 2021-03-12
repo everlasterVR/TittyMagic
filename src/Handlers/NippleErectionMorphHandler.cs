@@ -4,11 +4,11 @@ namespace TittyMagic
 {
     internal class NippleErectionMorphHandler
     {
-        private List<BasicMorphConfig> morphs;
+        private HashSet<BasicMorphConfig> morphs;
 
         public NippleErectionMorphHandler()
         {
-            morphs = new List<BasicMorphConfig>
+            morphs = new HashSet<BasicMorphConfig>
             {
                 //                             morph           base
                 new BasicMorphConfig("TM_NippleErection",      1.000f),
@@ -25,12 +25,18 @@ namespace TittyMagic
 
         public void Update(float nippleErection)
         {
-            morphs.ForEach(it => it.UpdateVal(nippleErection));
+            foreach(var it in morphs)
+            {
+                it.UpdateVal(nippleErection);
+            }
         }
 
         public void ResetAll()
         {
-            morphs.ForEach(it => it.Reset());
+            foreach(var it in morphs)
+            {
+                it.Reset();
+            }
         }
     }
 }

@@ -5,13 +5,13 @@ namespace TittyMagic
 {
     internal class GravityMorphHandler
     {
-        private List<BasicMorphConfig> gravityOffsetMorphs;
-        private List<GravityMorphConfig> uprightMorphs;
-        private List<GravityMorphConfig> upsideDownMorphs;
-        private List<GravityMorphConfig> leanBackMorphs;
-        private List<GravityMorphConfig> leanForwardMorphs;
-        private List<GravityMorphConfig> rollLeftMorphs;
-        private List<GravityMorphConfig> rollRightMorphs;
+        private HashSet<BasicMorphConfig> gravityOffsetMorphs;
+        private HashSet<GravityMorphConfig> uprightMorphs;
+        private HashSet<GravityMorphConfig> upsideDownMorphs;
+        private HashSet<GravityMorphConfig> leanBackMorphs;
+        private HashSet<GravityMorphConfig> leanForwardMorphs;
+        private HashSet<GravityMorphConfig> rollLeftMorphs;
+        private HashSet<GravityMorphConfig> rollRightMorphs;
 
         private float roll;
         private float pitch;
@@ -37,44 +37,69 @@ namespace TittyMagic
             this.scale = scale;
             this.gravity = gravity;
 
-            gravityOffsetMorphs.ForEach(it => it.UpdateVal());
+            foreach(var it in gravityOffsetMorphs)
+            {
+                it.UpdateVal();
+            }
+
             AdjustMorphsForRoll();
             AdjustMorphsForPitch(Calc.RollFactor(roll));
         }
 
         public void ResetAll()
         {
-            gravityOffsetMorphs.ForEach(it => it.Reset());
-            uprightMorphs.ForEach(it => it.Reset());
-            upsideDownMorphs.ForEach(it => it.Reset());
-            leanBackMorphs.ForEach(it => it.Reset());
-            leanForwardMorphs.ForEach(it => it.Reset());
-            rollLeftMorphs.ForEach(it => it.Reset());
-            rollRightMorphs.ForEach(it => it.Reset());
+            foreach(var it in gravityOffsetMorphs)
+                it.Reset();
+            foreach(var it in uprightMorphs)
+                it.Reset();
+            foreach(var it in upsideDownMorphs)
+                it.Reset();
+            foreach(var it in leanBackMorphs)
+                it.Reset();
+            foreach(var it in leanForwardMorphs)
+                it.Reset();
+            foreach(var it in rollLeftMorphs)
+                it.Reset();
+            foreach(var it in rollRightMorphs)
+                it.Reset();
         }
 
         public string GetStatus()
         {
             string text = "OFFSET\n";
-            gravityOffsetMorphs.ForEach((it) => text = text + it.GetStatus());
-            text = text + "\nUPRIGHT\n";
-            uprightMorphs.ForEach((it) => text = text + it.GetStatus());
-            text = text + "\nUPSIDE DOWN\n";
-            upsideDownMorphs.ForEach((it) => text = text + it.GetStatus());
-            text = text + "\nLEAN BACK\n";
-            leanBackMorphs.ForEach((it) => text = text + it.GetStatus());
-            text = text + "\nLEAN FORWARD\n";
-            leanForwardMorphs.ForEach((it) => text = text + it.GetStatus());
-            text = text + "\nROLL LEFT\n";
-            rollLeftMorphs.ForEach((it) => text = text + it.GetStatus());
-            text = text + "\nROLL RIGHT\n";
-            rollRightMorphs.ForEach((it) => text = text + it.GetStatus());
+            foreach(var it in gravityOffsetMorphs)
+                text += it.GetStatus();
+
+            text += "\nUPRIGHT\n";
+            foreach(var it in uprightMorphs)
+                text += it.GetStatus();
+
+            text += "\nUPSIDE DOWN\n";
+            foreach(var it in upsideDownMorphs)
+                text += it.GetStatus();
+
+            text += "\nLEAN BACK\n";
+            foreach(var it in leanBackMorphs)
+                text += it.GetStatus();
+
+            text += "\nROLL LEFT\n";
+            foreach(var it in leanForwardMorphs)
+                text += it.GetStatus();
+
+            text += "\nLEAN FORWARD\n";
+            foreach(var it in rollLeftMorphs)
+                text += it.GetStatus();
+
+            text += "\nROLL RIGHT\n";
+            foreach(var it in rollRightMorphs)
+                text += it.GetStatus();
+
             return text;
         }
 
         private void InitGravityOffsetMorphs()
         {
-            gravityOffsetMorphs = new List<BasicMorphConfig>
+            gravityOffsetMorphs = new HashSet<BasicMorphConfig>
             {
                 new BasicMorphConfig("TM_UprightSmootherOffset",      1f),
                 //new BasicMorphConfig("UPR_Breast Under Smoother1",    0.06f), // TODO copy
@@ -85,7 +110,7 @@ namespace TittyMagic
 
         private void InitGravityMorphs()
         {
-            uprightMorphs = new List<GravityMorphConfig>
+            uprightMorphs = new HashSet<GravityMorphConfig>
             {
                 //                      name                            baseMul    scaleMul   gravityMul
                 new GravityMorphConfig("TM_Upright1",                   1.00f,     1.00f,     1.00f),
@@ -104,7 +129,7 @@ namespace TittyMagic
                 //new GravityMorphConfig("UPR_Breasts Natural",           0.05f,     0.00f,     2.00f),
             };
 
-            upsideDownMorphs = new List<GravityMorphConfig> {
+            upsideDownMorphs = new HashSet<GravityMorphConfig> {
                 new GravityMorphConfig("TM_UpsideDown1",                1.40f,     0.00f,     2.00f),
                 //new GravityMorphConfig("UPSD_Areola UpDown",           -0.25f,     0.00f,     2.00f),
                 //new GravityMorphConfig("UPSD_Breast Diameter(Pose)",    0.10f,     0.00f,     2.00f),
@@ -150,7 +175,7 @@ namespace TittyMagic
                 //new GravityMorphConfig("UPSD_Breasts TogetherApart",    0.12f,    -1.00f,     1.00f),
             };
 
-            leanBackMorphs = new List<GravityMorphConfig>
+            leanBackMorphs = new HashSet<GravityMorphConfig>
             {
                 new GravityMorphConfig("TM_LeanBack1",                  1.00f,     0.00f,     2.00f),
                 //new GravityMorphConfig("LBACK_Breast Diameter",         0.12f,     0.50f,     1.50f),
@@ -177,7 +202,7 @@ namespace TittyMagic
                 //new GravityMorphConfig("LBACK_ChestUp",                 0.10f,     1.00f,     1.00f),
             };
 
-            leanForwardMorphs = new List<GravityMorphConfig> {
+            leanForwardMorphs = new HashSet<GravityMorphConfig> {
                 new GravityMorphConfig("TM_LeanForward1",               1.20f,     0.50f,     1.50f),
                 //new GravityMorphConfig("LFWD_Breast Diameter",         -0.04f,     0.50f,     1.50f),
                 //new GravityMorphConfig("LFWD_Breast Diameter(Pose)",    0.25f,     0.50f,     1.50f),
@@ -201,7 +226,7 @@ namespace TittyMagic
                 //new GravityMorphConfig("LFWD_Breasts TogetherApart",    0.10f,    -1.00f,     2.00f),
             };
 
-            rollLeftMorphs = new List<GravityMorphConfig>
+            rollLeftMorphs = new HashSet<GravityMorphConfig>
             {
                 new GravityMorphConfig("TM_RollLeft1",                  1.40f,     0.00f,     2.00f),
                 //new GravityMorphConfig("RLEFT_Areola S2S L",            0.08f,     0.00f,     2.00f),
@@ -225,7 +250,7 @@ namespace TittyMagic
                 //new GravityMorphConfig("RLEFT_Breasts Implants R",      0.05f,     2.00f,     0.00f),
             };
 
-            rollRightMorphs = new List<GravityMorphConfig>
+            rollRightMorphs = new HashSet<GravityMorphConfig>
             {
                 new GravityMorphConfig("TM_RollRight1",                  1.40f,     0.00f,     2.00f),
                 //new GravityMorphConfig("RRIGHT_Areola S2S L",           0.30f,     0.00f,     2.00f),
@@ -308,15 +333,21 @@ namespace TittyMagic
             }
         }
 
-        private void Update(List<GravityMorphConfig> morphs, float angle, float rollFactor = 1f)
+        private void Update(HashSet<GravityMorphConfig> morphs, float angle, float rollFactor = 1f)
         {
             float effect = rollFactor * angle / 90;
-            morphs.ForEach(it => it.UpdateVal(effect, scale, gravity));
+            foreach(var it in morphs)
+            {
+                it.UpdateVal(effect, scale, gravity);
+            }
         }
 
-        private void Reset(List<GravityMorphConfig> morphs)
+        private void Reset(HashSet<GravityMorphConfig> morphs)
         {
-            morphs.ForEach(it => it.Reset());
+            foreach(var it in morphs)
+            {
+                it.Reset();
+            }
         }
     }
 }
