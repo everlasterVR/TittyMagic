@@ -13,6 +13,8 @@ namespace TittyMagic
         private static readonly Version v2_1 = new Version("2.1.0");
         public static readonly Version version = new Version("0.0.0");
 
+        private Bindings customBindings;
+
         private Transform chest;
         private DAZCharacterSelector geometry;
 
@@ -62,7 +64,7 @@ namespace TittyMagic
 
                 if(containingAtom.type != "Person")
                 {
-                    Log.Error($"Plugin is for use with 'Person' atom, not '{containingAtom.type}'");
+                    Log.Error($"Add to a Person atom, not {containingAtom.type}");
                     return;
                 }
 
@@ -93,6 +95,8 @@ namespace TittyMagic
                 UpdateLogarithmicGravityAmount(gravity.val);
 
                 staticPhysicsH.SetPhysicsDefaults();
+                StartCoroutine(SubscribeToKeybindings());
+
                 StartCoroutine(RefreshStaticPhysics(() => settingsMonitor.enabled = true));
 
                 StartCoroutine(MigrateFromPre2_1());
@@ -101,6 +105,21 @@ namespace TittyMagic
             {
                 Log.Error($"{e}");
             }
+        }
+
+        //https://github.com/vam-community/vam-plugins-interop-specs/blob/main/keybindings.md
+        private IEnumerator SubscribeToKeybindings()
+        {
+            yield return new WaitForEndOfFrame();
+            SuperController.singleton.BroadcastMessage("OnActionsProviderAvailable", this, SendMessageOptions.DontRequireReceiver);
+        }
+
+        public void OnBindingsListRequested(List<object> bindings)
+        {
+            customBindings = gameObject.AddComponent<Bindings>();
+            customBindings.Init(this);
+            bindings.Add(customBindings.Settings);
+            bindings.AddRange(customBindings.OnKeyDownActions);
         }
 
         #region User interface
@@ -417,6 +436,8 @@ namespace TittyMagic
         private void OnDestroy()
         {
             Destroy(settingsMonitor);
+            SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
+
             gravityPhysicsH.ResetAll();
             gravityMorphH.ResetAll();
             nippleMorphH.ResetAll();
