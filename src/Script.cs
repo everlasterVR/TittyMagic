@@ -202,11 +202,11 @@ namespace TittyMagic
                 UpdateLogarithmicGravityAmount(val);
                 staticPhysicsH.FullUpdate(massEstimate, softness.val, nippleErection.val);
             });
-            //nippleErection.slider.onValueChanged.AddListener((float val) =>
-            //{
-            //    nippleMorphH.Update(val);
-            //    staticPhysicsH.UpdateNipplePhysics(softness.val, val);
-            //});
+            nippleErection.slider.onValueChanged.AddListener((float val) =>
+            {
+                nippleMorphH.Update(val);
+                staticPhysicsH.UpdateNipplePhysics(massEstimate, softness.val, val);
+            });
         }
 
         private void UpdateLogarithmicGravityAmount(float val)
