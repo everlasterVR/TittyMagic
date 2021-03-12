@@ -2,7 +2,6 @@
 {
     internal class MorphConfig
     {
-        private readonly Log log = new Log(nameof(MorphConfig));
         public string name;
         public DAZMorph morph;
         public float baseMulti;
@@ -16,7 +15,7 @@
             this.startValue = startValue;
             if(morph == null)
             {
-                log.Error($"Morph with name {name} not found!");
+                Log.Error($"Morph with name {name} not found!", nameof(MorphConfig));
             }
         }
 

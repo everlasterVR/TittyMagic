@@ -10,7 +10,6 @@ namespace TittyMagic
 {
     internal class Script : MVRScript
     {
-        private readonly Log log = new Log(nameof(Script));
         private bool enableUpdate = true;
         private bool physicsUpdateInProgress = false;
 
@@ -45,7 +44,6 @@ namespace TittyMagic
         private JSONStorableFloat nippleErection;
 
 #if SHOW_DEBUG
-        private JSONStorableVector3 breastSize;
         protected JSONStorableString baseDebugInfo = new JSONStorableString("Base Debug Info", "");
         protected JSONStorableString physicsDebugInfo = new JSONStorableString("Physics Debug Info", "");
         protected JSONStorableString morphDebugInfo = new JSONStorableString("Morph Debug Info", "");
@@ -60,14 +58,14 @@ namespace TittyMagic
 
                 if(containingAtom.type != "Person")
                 {
-                    log.Error($"Plugin is for use with 'Person' atom, not '{containingAtom.type}'");
+                    Log.Error($"Plugin is for use with 'Person' atom, not '{containingAtom.type}'");
                     return;
                 }
 
                 if(!UserPreferences.singleton.softPhysics)
                 {
                     UserPreferences.singleton.softPhysics = true;
-                    log.Message($"Soft physics has been enabled in VaM preferences.");
+                    Log.Message($"Soft physics has been enabled in VaM preferences.");
                 }
 
                 AdjustJoints breastControl = containingAtom.GetStorableByID("BreastControl") as AdjustJoints;
@@ -101,7 +99,7 @@ namespace TittyMagic
             }
             catch(Exception e)
             {
-                log.Error("Exception caught: " + e);
+                Log.Error("Exception caught: " + e);
             }
         }
 
@@ -253,7 +251,7 @@ namespace TittyMagic
             }
             catch(Exception e)
             {
-                log.Error("Exception caught: " + e);
+                Log.Error("Exception caught: " + e);
                 enableUpdate = false;
             }
         }

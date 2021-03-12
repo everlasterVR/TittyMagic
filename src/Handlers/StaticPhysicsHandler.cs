@@ -5,7 +5,6 @@ namespace TittyMagic
 {
     internal class StaticPhysicsHandler
     {
-        private readonly Log log = new Log(nameof(StaticPhysicsHandler));
         private readonly string settingsDir = @"Custom\Scripts\everlaster\TittyMagic\src\Settings\";
 
         private HashSet<PhysicsConfig> mainPhysicsConfigs;

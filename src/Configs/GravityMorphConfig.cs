@@ -2,7 +2,6 @@
 {
     internal class GravityMorphConfig
     {
-        private readonly Log log = new Log(nameof(GravityMorphConfig));
         public DAZMorph morph;
         public string name;
         private float baseMul;
@@ -18,7 +17,7 @@
             morph = Globals.MORPH_UI.GetMorphByDisplayName(name);
             if(morph == null)
             {
-                log.Error($"Morph with name {name} not found!");
+                Log.Error($"Morph with name {name} not found!", nameof(GravityMorphConfig));
             }
         }
 

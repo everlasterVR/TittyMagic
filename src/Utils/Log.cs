@@ -1,20 +1,13 @@
 ﻿namespace TittyMagic
 {
-    public class Log
+    public static class Log
     {
-        private string name;
-
-        public Log(string name)
-        {
-            this.name = name;
-        }
-
-        public void Error(string message)
+        public static void Error(string message, string name = nameof(Script))
         {
             SuperController.LogError($"{nameof(TittyMagic)}.{name}: {message}");
         }
 
-        public void Message(string message)
+        public static void Message(string message, string name = nameof(Script))
         {
             SuperController.LogMessage($"{nameof(TittyMagic)}.{name}: {message}");
         }

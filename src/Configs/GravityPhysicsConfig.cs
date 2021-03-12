@@ -4,7 +4,6 @@ namespace TittyMagic
 {
     internal class GravityPhysicsConfig
     {
-        private readonly Log log = new Log(nameof(GravityPhysicsConfig));
         public JSONStorableFloat setting;
         public string name;
         private float offset;
@@ -29,7 +28,7 @@ namespace TittyMagic
             setting = Globals.BREAST_CONTROL.GetFloatJSONParam(name);
             if(setting == null)
             {
-                log.Error($"BreastControl float param with name {name} not found!");
+                Log.Error($"BreastControl float param with name {name} not found!", nameof(GravityPhysicsConfig));
             }
 
             originalValue = setting.val;
