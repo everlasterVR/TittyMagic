@@ -18,7 +18,7 @@ namespace TittyMagic
             this.valMaxM = valMaxM;
             this.valMaxS = valMaxS;
 #if SHOW_DEBUG
-            SuperController.LogMessage($"init {setting.name} min {valMinMS} maxM {valMaxM} maxS {valMaxS} maxMS {valMaxMS}");
+            Log.Message($"init {setting.name} min {valMinMS} maxM {valMaxM} maxS {valMaxS} maxMS {valMaxMS}");
 #endif
         }
 

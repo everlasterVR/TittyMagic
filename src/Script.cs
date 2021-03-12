@@ -1,5 +1,6 @@
 ﻿//#define SHOW_DEBUG
 
+using SimpleJSON;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,6 +11,9 @@ namespace TittyMagic
 {
     internal class Script : MVRScript
     {
+        private static readonly Version v2_1 = new Version("2.1.0");
+        public static readonly Version version = new Version("0.0.0");
+
         private bool enableUpdate = true;
         private bool physicsUpdateInProgress = false;
 
@@ -34,12 +38,16 @@ namespace TittyMagic
         private JSONStorableString statusUIText;
 
         //registered storables
-        private JSONStorableString pluginVersion;
 
+        private JSONStorableString pluginVersionStorable;
         private JSONStorableFloat softness;
         private JSONStorableFloat gravity;
         private JSONStorableBool linkSoftnessAndGravity;
         private JSONStorableFloat nippleErection;
+
+        private bool restoringFromJson = false;
+        private float? legacySoftnessFromJson;
+        private float? legacyGravityFromJson;
 
 #if SHOW_DEBUG
         protected JSONStorableString baseDebugInfo = new JSONStorableString("Base Debug Info", "");
@@ -51,8 +59,9 @@ namespace TittyMagic
         {
             try
             {
-                pluginVersion = new JSONStorableString("Version", "<Version>");
-                RegisterString(pluginVersion);
+                pluginVersionStorable = new JSONStorableString("Version", "");
+                pluginVersionStorable.val = $"{version}";
+                RegisterString(pluginVersionStorable);
 
                 if(containingAtom.type != "Person")
                 {
@@ -94,6 +103,8 @@ namespace TittyMagic
 
                 SetPhysicsDefaults();
                 StartCoroutine(RefreshStaticPhysics(atomScaleListener.Value));
+
+                StartCoroutine(MigrateFromPre2_1());
             }
             catch(Exception e)
             {
@@ -107,7 +118,7 @@ namespace TittyMagic
         {
             bool rightSide = false;
             titleUIText = NewTextField("titleText", 36, 100, rightSide);
-            titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{pluginVersion.val}</size>");
+            titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{version}</size>");
 
             // doesn't just init UI, also variables...
             softness = NewFloatSlider("Breast softness", 50f, Const.SOFTNESS_MIN, Const.SOFTNESS_MAX, rightSide);
@@ -223,6 +234,29 @@ namespace TittyMagic
             staticPhysicsH.SetPhysicsDefaults();
         }
 
+        private IEnumerator MigrateFromPre2_1()
+        {
+            yield return new WaitForEndOfFrame();
+            if(!restoringFromJson)
+            {
+                yield break;
+            }
+
+            if(legacySoftnessFromJson.HasValue)
+            {
+                softness.val = Const.ConvertFromLegacyVal(legacySoftnessFromJson.Value);
+                Log.Message($"Converted legacy Breast softness {legacySoftnessFromJson.Value} in savefile to new slider value {softness.val}.");
+            }
+
+            if(legacyGravityFromJson.HasValue)
+            {
+                gravity.val = Const.ConvertFromLegacyVal(legacyGravityFromJson.Value);
+                Log.Message($"Converted legacy Breast gravity {legacyGravityFromJson.Value} in savefile to new slider value {gravity.val}.");
+            }
+
+            restoringFromJson = false;
+        }
+
         public void Update()
         {
             try
@@ -292,7 +326,7 @@ namespace TittyMagic
                 if(updateUIStatus)
                 {
                     float excess = Calc.RoundToDecimals(mass - Const.MASS_MAX, 1000f);
-                    statusUIText.SetVal(massExcessStatus(excess));
+                    statusUIText.SetVal(MassExcessStatus(excess));
                 }
             }
             else if(mass < Const.MASS_MIN)
@@ -301,7 +335,7 @@ namespace TittyMagic
                 if(updateUIStatus)
                 {
                     float shortage = Calc.RoundToDecimals(Const.MASS_MIN - mass, 1000f);
-                    statusUIText.SetVal(massShortageStatus(shortage));
+                    statusUIText.SetVal(MassShortageStatus(shortage));
                 }
             }
             else
@@ -324,7 +358,7 @@ namespace TittyMagic
             return inMemoryMesh.bounds.size;
         }
 
-        private string massExcessStatus(float value)
+        private string MassExcessStatus(float value)
         {
             Color color = Color.Lerp(
                 new Color(0.5f, 0.5f, 0.0f, 1f),
@@ -336,7 +370,7 @@ namespace TittyMagic
                 $"</size></color>";
         }
 
-        private string massShortageStatus(float value)
+        private string MassShortageStatus(float value)
         {
             Color color = Color.Lerp(
                 new Color(0.5f, 0.5f, 0.0f, 1f),
@@ -346,6 +380,62 @@ namespace TittyMagic
             return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}><size=28>" +
                 $"Estimated mass is <b>{value}</b> below the 0.100 minimum.\n" +
                 $"</size></color>";
+        }
+
+        public override void RestoreFromJSON(JSONClass json, bool restorePhysical = true, bool restoreAppearance = true, JSONArray presetAtoms = null, bool setMissingToDefault = true)
+        {
+            restoringFromJson = true;
+
+            try
+            {
+                CheckSavedVersion(json, () =>
+                {
+                    //should never occur
+                    if(version.CompareTo(v2_1) < 0)
+                    {
+                        return;
+                    }
+
+                    //needs conversion from legacy values
+                    if(json.HasKey("Breast softness"))
+                    {
+                        float val = json["Breast softness"].AsFloat;
+                        if(val <= Const.LEGACY_MAX)
+                        {
+                            legacySoftnessFromJson = val;
+                        }
+                    }
+
+                    if(json.HasKey("Breast gravity"))
+                    {
+                        float val = json["Breast gravity"].AsFloat;
+                        if(val <= Const.LEGACY_MAX)
+                        {
+                            legacyGravityFromJson = val;
+                        }
+                    }
+                });
+            }
+            catch(Exception)
+            {
+            }
+
+            base.RestoreFromJSON(json, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
+        }
+
+        private void CheckSavedVersion(JSONClass json, Action callback)
+        {
+            if(json["Version"] != null)
+            {
+                Version vSave = new Version(json["Version"].Value);
+                //no conversion from legacy values needed
+                if(vSave.CompareTo(v2_1) >= 0)
+                {
+                    return;
+                }
+            }
+
+            callback();
         }
 
         private void OnDestroy()

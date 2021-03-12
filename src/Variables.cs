@@ -19,7 +19,7 @@ namespace TittyMagic
         public static float ConvertFromLegacyVal(float legacyVal)
         {
             float normalized = (legacyVal - LEGACY_MIN)/(LEGACY_MAX - LEGACY_MIN);
-            return Mathf.Lerp(SOFTNESS_MIN, SOFTNESS_MAX, normalized);
+            return Calc.RoundToDecimals(Mathf.Lerp(SOFTNESS_MIN, SOFTNESS_MAX, normalized), 1f);
         }
 
         public static float ConvertToLegacyVal(float val)
