@@ -91,7 +91,6 @@
     <Compile Include="src\Handlers\GravityPhysicsHandler.cs" />
     <Compile Include="src\Handlers\NippleErectionMorphHandler.cs" />
     <Compile Include="src\Handlers\StaticPhysicsHandler.cs" />
-    <Compile Include="src\Handlers\SPH_old.cs" />
     <Compile Include="src\Utils\AngleCalc.cs" />
     <Compile Include="src\Utils\Calc.cs" />
     <Compile Include="src\Utils\Formatting.cs" />
@@ -103,10 +102,9 @@
     <Compile Include="TM_ReferenceSize.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\Settings\referenceMassMaxSoftnessMax.json" />
-    <None Include="src\Settings\massMaxSoftnessMin.json" />
-    <None Include="src\Settings\massMinSoftnessMax.json" />
-    <None Include="src\Settings\massMinSoftnessMin.json" />
+    <None Include="src\Settings\mainPhysics.json" />
+    <None Include="src\Settings\nipplePhysics.json" />
+    <None Include="src\Settings\softPhysics.json" />
     <None Include="TittyMagic.cslist" />
     <None Include=".gitignore" />
     <None Include="meta.json" />
