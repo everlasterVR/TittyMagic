@@ -19,8 +19,6 @@ namespace TittyMagic
         private List<DAZPhysicsMeshSoftVerticesSet> rightBreastMainGroupSets;
         private Mesh inMemoryMesh;
         private float massEstimate;
-        private const float massMin = 0.100f;
-        private const float massMax = 2.000f;
         private float softVolume; // cm^3; spheroid volume estimation of right breast
         private float gravityLogAmount;
 
@@ -288,21 +286,21 @@ namespace TittyMagic
             softVolume = BreastMassCalc.EstimateVolume(dimensions, atomScale);
             float mass = BreastMassCalc.VolumeToMass(softVolume);
 
-            if(mass > massMax)
+            if(mass > Const.MASS_MAX)
             {
-                massEstimate = massMax;
+                massEstimate = Const.MASS_MAX;
                 if(updateUIStatus)
                 {
-                    float excess = Calc.RoundToDecimals(mass - massMax, 1000f);
+                    float excess = Calc.RoundToDecimals(mass - Const.MASS_MAX, 1000f);
                     statusUIText.SetVal(massExcessStatus(excess));
                 }
             }
-            else if(mass < massMin)
+            else if(mass < Const.MASS_MIN)
             {
-                massEstimate = massMin;
+                massEstimate = Const.MASS_MIN;
                 if(updateUIStatus)
                 {
-                    float shortage = Calc.RoundToDecimals(massMin - mass, 1000f);
+                    float shortage = Calc.RoundToDecimals(Const.MASS_MIN - mass, 1000f);
                     statusUIText.SetVal(massShortageStatus(shortage));
                 }
             }

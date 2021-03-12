@@ -75,12 +75,12 @@ namespace TittyMagic
             float softnessVal
         )
         {
-            float massN = (massEstimate - 0.1f)/(2.0f - 0.1f);
-            float softnessN = (softnessVal - 0.5f)/(3.0f - 0.5f);
+            float mass = NormalizedMass(massEstimate);
+            float softness = NormalizedSoftness(softnessVal);
 
             Globals.BREAST_CONTROL.mass = massEstimate;
             foreach(var it in mainPhysicsConfigs)
-                it.UpdateVal(massN, softnessN);
+                it.UpdateVal(mass, softness);
         }
 
         public void UpdateNipplePhysics(
@@ -89,11 +89,11 @@ namespace TittyMagic
             float nippleErectionVal
         )
         {
-            float massN = (massEstimate - 0.1f)/(2.0f - 0.1f);
-            float softnessN = (softnessVal - 0.5f)/(3.0f - 0.5f);
+            float mass = NormalizedMass(massEstimate);
+            float softness = NormalizedSoftness(softnessVal);
 
             foreach(var it in nipplePhysicsConfigs)
-                it.UpdateVal(massN, softnessN, nippleErectionVal);
+                it.UpdateVal(mass, softness, nippleErectionVal);
         }
 
         public void FullUpdate(
@@ -102,16 +102,16 @@ namespace TittyMagic
             float nippleErectionVal
         )
         {
-            float massN = (massEstimate - 0.1f)/(2.0f - 0.1f);
-            float softnessN = (softnessVal - 0.5f)/(3.0f - 0.5f);
+            float mass = NormalizedMass(massEstimate);
+            float softness = NormalizedSoftness(softnessVal);
 
             Globals.BREAST_CONTROL.mass = massEstimate;
             foreach(var it in mainPhysicsConfigs)
-                it.UpdateVal(massN, softnessN);
+                it.UpdateVal(mass, softness);
             foreach(var it in softPhysicsConfigs)
-                it.UpdateVal(massN, softnessN);
+                it.UpdateVal(mass, softness);
             foreach(var it in nipplePhysicsConfigs)
-                it.UpdateVal(massN, softnessN, nippleErectionVal);
+                it.UpdateVal(mass, softness, nippleErectionVal);
         }
 
         public string GetStatus()
@@ -127,6 +127,16 @@ namespace TittyMagic
                 text += it.GetStatus();
 
             return text;
+        }
+
+        private float NormalizedMass(float massEstimate)
+        {
+            return (massEstimate - Const.MASS_MIN)/(Const.MASS_MAX - Const.MASS_MIN);
+        }
+
+        private float NormalizedSoftness(float softnessVal)
+        {
+            return (softnessVal - Const.SOFTNESS_MIN)/(Const.SOFTNESS_MAX - Const.SOFTNESS_MIN);
         }
     }
 }

@@ -2,6 +2,9 @@
 {
     public static class Const
     {
+        public static float MASS_MIN = 0.1f;
+        public static float MASS_MAX = 2.0f;
+
         public static float SOFTNESS_MIN = 0.5f;
         public static float SOFTNESS_MAX = 3.0f;
 
