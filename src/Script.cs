@@ -110,8 +110,8 @@ namespace TittyMagic
             titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{pluginVersion.val}</size>");
 
             // doesn't just init UI, also variables...
-            softness = NewFloatSlider("Breast softness", 1.5f, Const.SOFTNESS_MIN, Const.SOFTNESS_MAX, rightSide);
-            gravity = NewFloatSlider("Breast gravity", 1.5f, Const.GRAVITY_MIN, Const.GRAVITY_MAX, rightSide);
+            softness = NewFloatSlider("Breast softness", 50f, Const.SOFTNESS_MIN, Const.SOFTNESS_MAX, rightSide);
+            gravity = NewFloatSlider("Breast gravity", 50f, Const.GRAVITY_MIN, Const.GRAVITY_MAX, rightSide);
             linkSoftnessAndGravity = NewToggle("Link softness and gravity", false);
             linkSoftnessAndGravity.val = true;
 
@@ -209,7 +209,7 @@ namespace TittyMagic
 
         private void UpdateLogarithmicGravityAmount(float val)
         {
-            gravityLogAmount = Mathf.Log(10 * val - 3.35f);
+            gravityLogAmount = Mathf.Log(10 * Const.ConvertToLegacyVal(val) - 3.35f);
         }
 
         // TODO merge
@@ -239,7 +239,7 @@ namespace TittyMagic
                     float scaleVal = BreastMassCalc.LegacyScale(massEstimate);
 
                     gravityMorphH.Update(roll, pitch, scaleVal, gravityLogAmount);
-                    gravityPhysicsH.Update(roll, pitch, scaleVal, gravity.val);
+                    gravityPhysicsH.Update(roll, pitch, scaleVal, Const.ConvertToLegacyVal(gravity.val));
 #if SHOW_DEBUG
                     SetBaseDebugInfo(roll, pitch);
                     morphDebugInfo.SetVal(gravityMorphH.GetStatus());
