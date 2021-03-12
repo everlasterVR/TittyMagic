@@ -68,6 +68,8 @@ namespace TittyMagic
             Globals.BREAST_PHYSICS_MESH.softVerticesUseAutoColliderRadius = false;
             //Collider depth
             Globals.BREAST_PHYSICS_MESH.softVerticesColliderAdditionalNormalOffset = 0.001f;
+            // Hard colliders on
+            Globals.GEOMETRY.useAuxBreastColliders = true;
         }
 
         public void UpdateMainPhysics(

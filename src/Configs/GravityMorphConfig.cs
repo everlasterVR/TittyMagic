@@ -14,7 +14,7 @@
             this.baseMul = baseMul;
             this.scaleMul = scaleMul;
             this.gravityMul = gravityMul;
-            morph = Globals.MORPH_UI.GetMorphByDisplayName(name);
+            morph = Globals.GEOMETRY.morphsControlUI.GetMorphByDisplayName(name);
             if(morph == null)
             {
                 Log.Error($"Morph with name {name} not found!", nameof(GravityMorphConfig));

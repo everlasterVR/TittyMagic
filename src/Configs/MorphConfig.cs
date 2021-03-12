@@ -10,7 +10,7 @@
         public MorphConfig(string name, float baseMulti, float startValue)
         {
             this.name = name;
-            morph = Globals.MORPH_UI.GetMorphByDisplayName(name);
+            morph = Globals.GEOMETRY.morphsControlUI.GetMorphByDisplayName(name);
             this.baseMulti = baseMulti;
             this.startValue = startValue;
             if(morph == null)

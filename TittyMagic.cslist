@@ -14,4 +14,5 @@ src\AtomScaleListener.cs
 src\BreastMassCalculator.cs
 src\BreastMorphListener.cs
 src\Script.cs
+src\SettingsMonitor.cs
 src\Variables.cs

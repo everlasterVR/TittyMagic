@@ -3,6 +3,7 @@
 using SimpleJSON;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace TittyMagic
@@ -17,6 +18,8 @@ namespace TittyMagic
 
         private float massEstimate;
         private float gravityLogAmount;
+
+        private SettingsMonitor settingsMonitor;
 
         private AtomScaleListener atomScaleListener;
         private BreastMorphListener breastMorphListener;
@@ -63,12 +66,6 @@ namespace TittyMagic
                     return;
                 }
 
-                if(!UserPreferences.singleton.softPhysics)
-                {
-                    UserPreferences.singleton.softPhysics = true;
-                    Log.Message($"Soft physics has been enabled in VaM preferences.");
-                }
-
                 AdjustJoints breastControl = containingAtom.GetStorableByID("BreastControl") as AdjustJoints;
                 DAZPhysicsMesh breastPhysicsMesh = containingAtom.GetStorableByID("BreastPhysicsMesh") as DAZPhysicsMesh;
                 chest = containingAtom.GetStorableByID("chest").transform;
@@ -76,7 +73,10 @@ namespace TittyMagic
 
                 Globals.BREAST_CONTROL = breastControl;
                 Globals.BREAST_PHYSICS_MESH = breastPhysicsMesh;
-                Globals.MORPH_UI = geometry.morphsControlUI;
+                Globals.GEOMETRY = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
+
+                settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
+                settingsMonitor.Init(containingAtom);
 
                 atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
                 breastMorphListener = new BreastMorphListener(geometry.morphBank1.morphs);
@@ -92,8 +92,8 @@ namespace TittyMagic
                 InitSliderListeners();
                 UpdateLogarithmicGravityAmount(gravity.val);
 
-                SetPhysicsDefaults();
-                StartCoroutine(RefreshStaticPhysics(atomScaleListener.Value));
+                staticPhysicsH.SetPhysicsDefaults();
+                StartCoroutine(RefreshStaticPhysics(() => settingsMonitor.enabled = true));
 
                 StartCoroutine(MigrateFromPre2_1());
             }
@@ -222,17 +222,6 @@ namespace TittyMagic
             gravityLogAmount = Mathf.Log(10 * Const.ConvertToLegacyVal(val) - 3.35f);
         }
 
-        // TODO merge
-        private void SetPhysicsDefaults()
-        {
-            // In/Out auto morphs off
-            containingAtom.GetStorableByID("BreastInOut").SetBoolParamValue("enabled", false);
-            containingAtom.GetStorableByID("SoftBodyPhysicsEnabler").SetBoolParamValue("enabled", true);
-            // Hard colliders on
-            geometry.useAuxBreastColliders = true;
-            staticPhysicsH.SetPhysicsDefaults();
-        }
-
         private IEnumerator MigrateFromPre2_1()
         {
             yield return new WaitForEndOfFrame();
@@ -256,17 +245,13 @@ namespace TittyMagic
             restoringFromJson = false;
         }
 
-        public void Update()
-        {
-        }
-
-        public void FixedUpdate()
+        private void FixedUpdate()
         {
             try
             {
                 if(!physicsUpdateInProgress && (breastMorphListener.Changed() || atomScaleListener.Changed()))
                 {
-                    StartCoroutine(RefreshStaticPhysics(atomScaleListener.Value));
+                    StartCoroutine(RefreshStaticPhysics());
                 }
 
                 float roll = AngleCalc.Roll(chest.rotation);
@@ -289,9 +274,10 @@ namespace TittyMagic
             }
         }
 
-        private IEnumerator RefreshStaticPhysics(float atomScale)
+        public IEnumerator RefreshStaticPhysics(Action callback = null)
         {
             physicsUpdateInProgress = true;
+            float atomScale = atomScaleListener.Value;
             while(breastMorphListener.Changed())
             {
                 yield return null;
@@ -312,6 +298,8 @@ namespace TittyMagic
             UpdateMassEstimate(atomScale, updateUIStatus: true);
             staticPhysicsH.FullUpdate(massEstimate, softness.val, nippleErection.val);
             physicsUpdateInProgress = false;
+
+            callback?.Invoke();
         }
 
         private void UpdateMassEstimate(float atomScale, bool updateUIStatus = false)
@@ -428,6 +416,7 @@ namespace TittyMagic
 
         private void OnDestroy()
         {
+            Destroy(settingsMonitor);
             gravityPhysicsH.ResetAll();
             gravityMorphH.ResetAll();
             nippleMorphH.ResetAll();
@@ -435,6 +424,7 @@ namespace TittyMagic
 
         private void OnDisable()
         {
+            settingsMonitor.enabled = false;
             gravityPhysicsH.ResetAll();
             gravityMorphH.ResetAll();
             nippleMorphH.ResetAll();
