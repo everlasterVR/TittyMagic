@@ -1,11 +1,12 @@
 ﻿using SimpleJSON;
+using System;
 using System.Collections.Generic;
 
 namespace TittyMagic
 {
     internal class StaticPhysicsHandler
     {
-        private readonly string settingsDir = @"Custom\Scripts\everlaster\TittyMagic\src\Settings\";
+        private readonly string srcDir = @"Custom\Scripts\everlaster\TittyMagic\src\";
 
         private HashSet<PhysicsConfig> mainPhysicsConfigs;
         private HashSet<PhysicsConfig> softPhysicsConfigs;
@@ -13,9 +14,10 @@ namespace TittyMagic
 
         public StaticPhysicsHandler()
         {
-            JSONClass mainPhysicsSettings = SuperController.singleton.LoadJSON(settingsDir + "mainPhysics.json").AsObject;
-            JSONClass softPhysicsSettings = SuperController.singleton.LoadJSON(settingsDir + "softPhysics.json").AsObject;
-            JSONClass nipplePhysicsSettings = SuperController.singleton.LoadJSON(settingsDir + "nipplePhysics.json").AsObject;
+            string settingsDir = @"Settings\";
+            JSONClass mainPhysicsSettings = SuperController.singleton.LoadJSON(srcDir + settingsDir + "mainPhysics.json").AsObject;
+            JSONClass softPhysicsSettings = SuperController.singleton.LoadJSON(srcDir + settingsDir + "softPhysics.json").AsObject;
+            JSONClass nipplePhysicsSettings = SuperController.singleton.LoadJSON(srcDir + settingsDir + "nipplePhysics.json").AsObject;
 
             mainPhysicsConfigs = new HashSet<PhysicsConfig>();
             softPhysicsConfigs = new HashSet<PhysicsConfig>();
@@ -28,8 +30,7 @@ namespace TittyMagic
                     Globals.BREAST_CONTROL.GetFloatJSONParam(param),
                     paramSettings["minMminS"].AsFloat,
                     paramSettings["maxMminS"].AsFloat,
-                    paramSettings["minMmaxS"].AsFloat,
-                    paramSettings["maxMmaxS"].AsFloat
+                    paramSettings["minMmaxS"].AsFloat
                 ));
             }
 
@@ -40,8 +41,7 @@ namespace TittyMagic
                     Globals.BREAST_PHYSICS_MESH.GetFloatJSONParam(param),
                     paramSettings["minMminS"].AsFloat,
                     paramSettings["maxMminS"].AsFloat,
-                    paramSettings["minMmaxS"].AsFloat,
-                    paramSettings["maxMmaxS"].AsFloat
+                    paramSettings["minMmaxS"].AsFloat
                 ));
             }
 
@@ -52,8 +52,7 @@ namespace TittyMagic
                     Globals.BREAST_PHYSICS_MESH.GetFloatJSONParam(param),
                     paramSettings["minMminS"].AsFloat,
                     paramSettings["maxMminS"].AsFloat,
-                    paramSettings["minMmaxS"].AsFloat,
-                    paramSettings["maxMmaxS"].AsFloat
+                    paramSettings["minMmaxS"].AsFloat
                 ));
             }
         }

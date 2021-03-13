@@ -107,6 +107,9 @@
     <None Include="src\Settings\mainPhysics.json" />
     <None Include="src\Settings\nipplePhysics.json" />
     <None Include="src\Settings\softPhysics.json" />
+    <None Include="src\TouchSettings\mainPhysics.json" />
+    <None Include="src\TouchSettings\nipplePhysics.json" />
+    <None Include="src\TouchSettings\softPhysics.json" />
     <None Include="TittyMagic.cslist" />
     <None Include=".gitignore" />
     <None Include="meta.json" />
