@@ -1,4 +1,5 @@
-﻿//#define SHOW_DEBUG
+﻿//#define DEBUG_PHYSICS
+//#define DEBUG_MORPHS
 
 using SimpleJSON;
 using System;
@@ -48,9 +49,12 @@ namespace TittyMagic
         private float? legacySoftnessFromJson;
         private float? legacyGravityFromJson;
 
-#if SHOW_DEBUG
+#if DEBUG_PHYSICS || DEBUG_MORPHS
         protected JSONStorableString baseDebugInfo = new JSONStorableString("Base Debug Info", "");
+#endif
+#if DEBUG_PHYSICS
         protected JSONStorableString physicsDebugInfo = new JSONStorableString("Physics Debug Info", "");
+#elif DEBUG_MORPHS
         protected JSONStorableString morphDebugInfo = new JSONStorableString("Morph Debug Info", "");
 #endif
 
@@ -139,31 +143,32 @@ namespace TittyMagic
             CreateNewSpacer(10f);
 
             nippleErection = NewFloatSlider("Erect nipples", 0f, 0f, 1.0f, "F2", rightSide);
-
-#if SHOW_DEBUG
-            UIDynamicTextField angleInfoField = CreateTextField(baseDebugInfo, rightSide);
-            angleInfoField.height = 125;
-            angleInfoField.UItext.fontSize = 26;
-            UIDynamicTextField physicsInfoField = CreateTextField(physicsDebugInfo, rightSide);
-            physicsInfoField.height = 450;
-            physicsInfoField.UItext.fontSize = 26;
-#endif
         }
 
         private void InitPluginUIRight()
         {
             bool rightSide = true;
             statusUIText = NewTextField("statusText", 28, 100, rightSide);
-#if SHOW_DEBUG
-            UIDynamicTextField morphInfo = CreateTextField(morphDebugInfo, rightSide);
-            morphInfo.height = 1085;
-            morphInfo.UItext.fontSize = 26;
+
+#if DEBUG_PHYSICS || DEBUG_MORPHS
+            UIDynamicTextField angleInfoField = CreateTextField(baseDebugInfo, rightSide);
+            angleInfoField.height = 125;
+            angleInfoField.UItext.fontSize = 26;
 #else
             JSONStorableString usage1Area = NewTextField("Usage Info Area 1", 28, 255, rightSide);
             string usage1 = "\n";
             usage1 += "Breast softness adjusts soft physics settings from very firm to very soft.\n\n";
             usage1 += "Breast gravity adjusts how much pose morphs shape the breasts in all orientations.";
             usage1Area.SetVal(usage1);
+#endif
+#if DEBUG_PHYSICS
+            UIDynamicTextField physicsInfoField = CreateTextField(physicsDebugInfo, rightSide);
+            physicsInfoField.height = 945;
+            physicsInfoField.UItext.fontSize = 26;
+#elif DEBUG_MORPHS
+            UIDynamicTextField morphInfo = CreateTextField(morphDebugInfo, rightSide);
+            morphInfo.height = 945;
+            morphInfo.UItext.fontSize = 26;
 #endif
         }
 
@@ -279,10 +284,13 @@ namespace TittyMagic
 
                 gravityMorphH.Update(roll, pitch, scaleVal, gravityLogAmount);
                 gravityPhysicsH.Update(roll, pitch, scaleVal, Const.ConvertToLegacyVal(gravity.val));
-#if SHOW_DEBUG
+#if DEBUG_PHYSICS || DEBUG_MORPHS
                 SetBaseDebugInfo(roll, pitch);
-                morphDebugInfo.SetVal(gravityMorphH.GetStatus());
+#endif
+#if DEBUG_PHYSICS
                 physicsDebugInfo.SetVal(staticPhysicsH.GetStatus() + gravityPhysicsH.GetStatus());
+#elif DEBUG_MORPHS
+                morphDebugInfo.SetVal(gravityMorphH.GetStatus());
 #endif
             }
             catch(Exception e)
@@ -451,7 +459,7 @@ namespace TittyMagic
             nippleMorphH.ResetAll();
         }
 
-#if SHOW_DEBUG
+#if DEBUG_PHYSICS || DEBUG_MORPHS
 
         private void SetBaseDebugInfo(float roll, float pitch)
         {
