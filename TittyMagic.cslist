@@ -10,6 +10,7 @@ src\Utils\AngleCalc.cs
 src\Utils\Calc.cs
 src\Utils\Formatting.cs
 src\Utils\Log.cs
+src\Utils\UI.cs
 src\AtomScaleListener.cs
 src\Bindings.cs
 src\BreastMassCalculator.cs

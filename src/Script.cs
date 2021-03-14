@@ -5,6 +5,7 @@ using SimpleJSON;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace TittyMagic
@@ -36,8 +37,11 @@ namespace TittyMagic
         private JSONStorableString titleUIText;
         private JSONStorableString statusUIText;
 
+        private Dictionary<string, UIDynamicButton> modeButtonGroup;
+
         //registered storables
 
+        private JSONStorableStringChooser modeChooser;
         private JSONStorableString pluginVersionStorable;
         private JSONStorableFloat softness;
         private JSONStorableFloat gravity;
@@ -98,11 +102,19 @@ namespace TittyMagic
                 InitSliderListeners();
                 UpdateLogarithmicGravityAmount(gravity.val);
 
-                staticPhysicsH.SetPhysicsDefaults();
+                modeChooser.setCallbackFunction = (val) =>
+                {
+                    UpdateButtonLabels(modeButtonGroup, val);
+                    staticPhysicsH.LoadSettings(val);
+                    staticPhysicsH.FullUpdate(massEstimate, softness.val, nippleErection.val);
+                };
+                if(string.IsNullOrEmpty(modeChooser.val))
+                {
+                    modeChooser.val = Const.MODES.Values.First();
+                }
+
                 StartCoroutine(SubscribeToKeybindings());
-
                 StartCoroutine(RefreshStaticPhysics(() => settingsMonitor.enabled = true));
-
                 StartCoroutine(MigrateFromPre2_1());
             }
             catch(Exception e)
@@ -130,19 +142,23 @@ namespace TittyMagic
 
         private void InitPluginUILeft()
         {
-            bool rightSide = false;
-            titleUIText = NewTextField("titleText", 36, 100, rightSide);
+            titleUIText = NewTextField("titleText", 36, 100);
             titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{version}</size>");
 
-            // doesn't just init UI, also variables...
-            softness = NewFloatSlider("Breast softness", 50f, Const.SOFTNESS_MIN, Const.SOFTNESS_MAX, "F0", rightSide);
-            gravity = NewFloatSlider("Breast gravity", 50f, Const.GRAVITY_MIN, Const.GRAVITY_MAX, "F0", rightSide);
+            modeChooser = new JSONStorableStringChooser("Mode", Const.MODES.Keys.ToList(), Const.MODES.Values.ToList(), "", "Mode");
+            RegisterStringChooser(modeChooser);
+            modeButtonGroup = CreateRadioButtonGroup(modeChooser);
+            staticPhysicsH.modeChooser = modeChooser;
+
+            CreateNewSpacer(10f);
+
+            softness = NewFloatSlider("Breast softness", 50f, Const.SOFTNESS_MIN, Const.SOFTNESS_MAX, "F0");
+            gravity = NewFloatSlider("Breast gravity", 50f, Const.GRAVITY_MIN, Const.GRAVITY_MAX, "F0");
             linkSoftnessAndGravity = NewToggle("Link softness and gravity", false);
             linkSoftnessAndGravity.val = true;
 
             CreateNewSpacer(10f);
-
-            nippleErection = NewFloatSlider("Erect nipples", 0f, 0f, 1.0f, "F2", rightSide);
+            nippleErection = NewFloatSlider("Erect nipples", 0f, 0f, 1.0f, "F2");
         }
 
         private void InitPluginUIRight()
@@ -172,13 +188,43 @@ namespace TittyMagic
 #endif
         }
 
+        private Dictionary<string, UIDynamicButton> CreateRadioButtonGroup(JSONStorableStringChooser jsc, bool rightSide = false)
+        {
+            Dictionary<string, UIDynamicButton> buttons = new Dictionary<string, UIDynamicButton>();
+            jsc.choices.ForEach((choice) =>
+            {
+                UIDynamicButton btn = CreateButton(UI.RadioButtonLabel(Const.MODES[choice], choice == jsc.defaultVal), rightSide);
+                btn.buttonText.alignment = TextAnchor.MiddleLeft;
+                btn.buttonColor = UI.darkOffGrayViolet;
+                btn.height = 60f;
+                buttons.Add(choice, btn);
+            });
+
+            buttons.Keys.ToList().ForEach(name =>
+            {
+                buttons[name].button.onClick.AddListener(() =>
+                {
+                    jsc.val = name;
+                });
+            });
+
+            return buttons;
+        }
+
+        private void UpdateButtonLabels(Dictionary<string, UIDynamicButton> buttons, string selected)
+        {
+            buttons[selected].label = UI.RadioButtonLabel(Const.MODES[selected], true);
+            buttons.Where(kvp => kvp.Key != selected).ToList()
+                .ForEach(kvp => kvp.Value.label = UI.RadioButtonLabel(Const.MODES[kvp.Key], false));
+        }
+
         private JSONStorableFloat NewFloatSlider(
             string paramName,
             float startingValue,
             float minValue,
             float maxValue,
             string valueFormat,
-            bool rightSide
+            bool rightSide = false
         )
         {
             JSONStorableFloat storable = new JSONStorableFloat(paramName, startingValue, minValue, maxValue);

@@ -1,23 +1,32 @@
 ﻿using SimpleJSON;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TittyMagic
 {
     internal class StaticPhysicsHandler
     {
-        private readonly string srcDir = @"Custom\Scripts\everlaster\TittyMagic\src\";
+        private readonly string settingsDir = @"Custom\Scripts\everlaster\TittyMagic\src\Settings";
 
         private HashSet<PhysicsConfig> mainPhysicsConfigs;
         private HashSet<PhysicsConfig> softPhysicsConfigs;
         private HashSet<NipplePhysicsConfig> nipplePhysicsConfigs;
 
+        public JSONStorableStringChooser modeChooser;
+
         public StaticPhysicsHandler()
         {
-            string settingsDir = @"Settings\";
-            JSONClass mainPhysicsSettings = SuperController.singleton.LoadJSON(srcDir + settingsDir + "mainPhysics.json").AsObject;
-            JSONClass softPhysicsSettings = SuperController.singleton.LoadJSON(srcDir + settingsDir + "softPhysics.json").AsObject;
-            JSONClass nipplePhysicsSettings = SuperController.singleton.LoadJSON(srcDir + settingsDir + "nipplePhysics.json").AsObject;
+            SetPhysicsDefaults();
+        }
+
+        public void LoadSettingsFromFile()
+        {
+            string modeDir = $@"{settingsDir}\{modeChooser.val}\";
+
+            JSONClass mainPhysicsSettings = SuperController.singleton.LoadJSON(modeDir + "mainPhysics.json").AsObject;
+            JSONClass softPhysicsSettings = SuperController.singleton.LoadJSON(modeDir + "softPhysics.json").AsObject;
+            JSONClass nipplePhysicsSettings = SuperController.singleton.LoadJSON(modeDir + "nipplePhysics.json").AsObject;
 
             mainPhysicsConfigs = new HashSet<PhysicsConfig>();
             softPhysicsConfigs = new HashSet<PhysicsConfig>();
@@ -57,18 +66,44 @@ namespace TittyMagic
             }
         }
 
-        public void SetPhysicsDefaults()
+        public void LoadSettings(string val)
+        {
+            if(val == "Balanced")
+            {
+                SetBalancedPhysicsDefaults();
+            }
+            else if(val == "TouchOptimized")
+            {
+                SetTouchOptimizedPhysicsDefaults();
+            }
+
+            LoadSettingsFromFile();
+        }
+
+        private void SetPhysicsDefaults()
         {
             //Soft physics on
             Globals.BREAST_PHYSICS_MESH.on = true;
-            //Self colliders on
-            Globals.BREAST_PHYSICS_MESH.allowSelfCollision = true;
             //Auto collider radius off
             Globals.BREAST_PHYSICS_MESH.softVerticesUseAutoColliderRadius = false;
             //Collider depth
             Globals.BREAST_PHYSICS_MESH.softVerticesColliderAdditionalNormalOffset = 0.001f;
-            // Hard colliders on
+        }
+
+        public void SetBalancedPhysicsDefaults()
+        {
+            //Self colliders on
+            Globals.BREAST_PHYSICS_MESH.allowSelfCollision = true;
+            //Hard colliders on
             Globals.GEOMETRY.useAuxBreastColliders = true;
+        }
+
+        public void SetTouchOptimizedPhysicsDefaults()
+        {
+            //Self colliders off
+            Globals.BREAST_PHYSICS_MESH.allowSelfCollision = false;
+            //Hard colliders off
+            Globals.GEOMETRY.useAuxBreastColliders = false;
         }
 
         public void UpdateMainPhysics(
@@ -79,7 +114,11 @@ namespace TittyMagic
             float mass = NormalizedMass(massEstimate);
             float softness = NormalizedSoftness(softnessVal);
 
-            Globals.BREAST_CONTROL.mass = massEstimate;
+            if(modeChooser.val != "Touch optimized")
+            {
+                Globals.BREAST_CONTROL.mass = massEstimate;
+            }
+
             foreach(var it in mainPhysicsConfigs)
                 it.UpdateVal(mass, softness);
         }
@@ -106,7 +145,11 @@ namespace TittyMagic
             float mass = NormalizedMass(massEstimate);
             float softness = NormalizedSoftness(softnessVal);
 
-            Globals.BREAST_CONTROL.mass = massEstimate;
+            if(modeChooser.val != "Touch optimized")
+            {
+                Globals.BREAST_CONTROL.mass = massEstimate;
+            }
+
             foreach(var it in mainPhysicsConfigs)
                 it.UpdateVal(mass, softness);
             foreach(var it in softPhysicsConfigs)

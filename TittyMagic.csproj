@@ -100,6 +100,7 @@
     <Compile Include="src\AtomScaleListener.cs" />
     <Compile Include="src\BreastMorphListener.cs" />
     <Compile Include="src\Script.cs" />
+    <Compile Include="src\Utils\UI.cs" />
     <Compile Include="src\Variables.cs" />
     <Compile Include="TM_ReferenceSize.cs" />
   </ItemGroup>

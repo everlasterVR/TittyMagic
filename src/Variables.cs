@@ -1,20 +1,27 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace TittyMagic
 {
     public static class Const
     {
-        public static float MASS_MIN = 0.1f;
-        public static float MASS_MAX = 2.0f;
+        public const float MASS_MIN = 0.1f;
+        public const float MASS_MAX = 2.0f;
 
-        public static float LEGACY_MIN = 0.5f; //since v2.1
-        public static float LEGACY_MAX = 3.0f; //since v2.1
+        public const float LEGACY_MIN = 0.5f; //since v2.1
+        public const float LEGACY_MAX = 3.0f; //since v2.1
 
-        public static float SOFTNESS_MIN = 0f;
-        public static float SOFTNESS_MAX = 100f;
+        public const float SOFTNESS_MIN = 0f;
+        public const float SOFTNESS_MAX = 100f;
 
-        public static float GRAVITY_MIN = 0f;
-        public static float GRAVITY_MAX = 100f;
+        public const float GRAVITY_MIN = 0f;
+        public const float GRAVITY_MAX = 100f;
+
+        public static readonly Dictionary<string, string> MODES = new Dictionary<string, string>
+        {
+            { "Balanced", "Balanced" },
+            { "TouchOptimized", "Touch optimized" }
+        };
 
         public static float ConvertFromLegacyVal(float legacyVal)
         {
