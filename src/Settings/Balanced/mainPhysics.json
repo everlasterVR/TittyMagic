@@ -1,26 +1,32 @@
 { 
+   "centerOfGravityPercent" : { 
+      "minMminS" : "0.5", 
+      "maxMminS" : "0.65", 
+      "minMmaxS" : "0.5"
+   }, 
    "spring" : { 
-      "minMminS" : "78.546", 
-      "maxMminS" : "92.34", 
-      "minMmaxS" : "33.546", 
-      "maxMmaxS" : "47.34"
+      "minMminS" : "60", 
+      "maxMminS" : "80", 
+      "minMmaxS" : "36"
    }, 
    "damper" : { 
-      "minMminS" : "3.3818", 
-      "maxMminS" : "2.922", 
-      "minMmaxS" : "1.3818", 
-      "maxMmaxS" : "0.922"
+      "minMminS" : "0.75", 
+      "maxMminS" : "1.00", 
+      "minMmaxS" : "1.40"
    }, 
    "positionSpringZ" : { 
-      "minMminS" : "268.2", 
-      "maxMminS" : "728", 
-      "minMmaxS" : "268.2", 
-      "maxMmaxS" : "728"
+      "minMminS" : "300", 
+      "maxMminS" : "250", 
+      "minMmaxS" : "150"
    }, 
    "positionDamperZ" : { 
-      "minMminS" : "6.773", 
-      "maxMminS" : "13.67", 
-      "minMmaxS" : "14.273", 
-      "maxMmaxS" : "21.17"
+      "minMminS" : "20", 
+      "maxMminS" : "40", 
+      "minMmaxS" : "20"
+   }, 
+   "targetRotationX" : { 
+      "minMminS" : "0", 
+      "maxMminS" : "0", 
+      "minMmaxS" : "0"
    }
 }

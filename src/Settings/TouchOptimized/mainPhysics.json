@@ -10,9 +10,9 @@
       "minMmaxS" : "0.5"
    }, 
    "spring" : { 
-      "minMminS" : "46", 
+      "minMminS" : "42", 
       "maxMminS" : "58", 
-      "minMmaxS" : "24"
+      "minMmaxS" : "20"
    }, 
    "damper" : { 
       "minMminS" : "0.35", 

@@ -1,14 +1,12 @@
 { 
    "groupDSpringMultiplier" : { 
-      "minMminS" : "3.1", 
-      "maxMminS" : "3.1", 
-      "minMmaxS" : "0.7666667", 
-      "maxMmaxS" : "0.7666667"
+      "minMminS" : "2.8", 
+      "maxMminS" : "2.8", 
+      "minMmaxS" : "1.4"
    }, 
    "groupDDamperMultiplier" : { 
-      "minMminS" : "3.1", 
-      "maxMminS" : "3.1", 
-      "minMmaxS" : "0.7666667", 
-      "maxMmaxS" : "0.7666667"
+      "minMminS" : "2", 
+      "maxMminS" : "2", 
+      "minMmaxS" : "1.2"
    }
 }
