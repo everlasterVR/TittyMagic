@@ -70,11 +70,11 @@ namespace TittyMagic
         {
             if(val == "Balanced")
             {
-                SetBalancedPhysicsDefaults();
+                Globals.GEOMETRY.useAuxBreastColliders = true;
             }
             else if(val == "TouchOptimized")
             {
-                SetTouchOptimizedPhysicsDefaults();
+                Globals.GEOMETRY.useAuxBreastColliders = false;
             }
 
             LoadSettingsFromFile();
@@ -84,26 +84,12 @@ namespace TittyMagic
         {
             //Soft physics on
             Globals.BREAST_PHYSICS_MESH.on = true;
+            //Self colliders off
+            Globals.BREAST_PHYSICS_MESH.allowSelfCollision = true;
             //Auto collider radius off
             Globals.BREAST_PHYSICS_MESH.softVerticesUseAutoColliderRadius = false;
             //Collider depth
             Globals.BREAST_PHYSICS_MESH.softVerticesColliderAdditionalNormalOffset = 0.001f;
-        }
-
-        public void SetBalancedPhysicsDefaults()
-        {
-            //Self colliders on
-            Globals.BREAST_PHYSICS_MESH.allowSelfCollision = true;
-            //Hard colliders on
-            Globals.GEOMETRY.useAuxBreastColliders = true;
-        }
-
-        public void SetTouchOptimizedPhysicsDefaults()
-        {
-            //Self colliders off
-            Globals.BREAST_PHYSICS_MESH.allowSelfCollision = false;
-            //Hard colliders off
-            Globals.GEOMETRY.useAuxBreastColliders = false;
         }
 
         public void UpdateMainPhysics(
