@@ -204,11 +204,10 @@ namespace TittyMagic
 
             leanForwardMorphs = new HashSet<GravityMorphConfig> {
                 new GravityMorphConfig("TM_LeanForward1",               1.20f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LFWD_Breast Diameter",         -0.04f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LFWD_Breast Diameter(Pose)",    0.25f,     0.50f,     1.50f),
+                //new GravityMorphConfig("LFWD_Breast Diameter",         -0.06f,     0.50f,     1.50f),
+                //new GravityMorphConfig("LFWD_Breast Diameter(Pose)",    0.22f,     0.50f,     1.50f),
                 //new GravityMorphConfig("LFWD_Breast Height2",          -0.05f,     0.50f,     1.50f),
                 //new GravityMorphConfig("LFWD_Breast Move Up",           0.15f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LFWD_Breast Rotate Down",       0.05f,     0.50f,     1.50f),
                 //new GravityMorphConfig("LFWD_Breast Side Smoother",     0.20f,     0.50f,     1.50f),
                 //new GravityMorphConfig("LFWD_Breast Width",            -0.05f,     0.50f,     1.50f),
                 //new GravityMorphConfig("LFWD_Sternum Width",            0.20f,     0.50f,     1.50f),

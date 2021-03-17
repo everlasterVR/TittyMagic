@@ -5,7 +5,7 @@
    "region" : "everlaster/TittyMagic", 
    "min" : "0", 
    "max" : "4", 
-   "numDeltas" : "1756", 
+   "numDeltas" : "1560", 
    "isPoseControl" : "true", 
    "formulas" : [ 
    ]
