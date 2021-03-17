@@ -95,7 +95,7 @@ namespace TittyMagic
                 gravityMorphH = new GravityMorphHandler();
                 nippleMorphH = new NippleErectionMorphHandler();
                 gravityPhysicsH = new GravityPhysicsHandler();
-                staticPhysicsH = new StaticPhysicsHandler();
+                staticPhysicsH = new StaticPhysicsHandler(GetPackagePath());
 
                 InitPluginUILeft();
                 InitPluginUIRight();
@@ -490,6 +490,16 @@ namespace TittyMagic
             }
 
             callback();
+        }
+
+        //MacGruber / Discord 20.10.2020
+        //Get path prefix of the package that contains this plugin
+        public string GetPackagePath()
+        {
+            string id = name.Substring(0, name.IndexOf('_'));
+            string filename = manager.GetJSON()["plugins"][id].Value;
+            int idx = filename.IndexOf(":/");
+            return idx >= 0 ? filename.Substring(0, idx+2) : "";
         }
 
         private void OnDestroy()

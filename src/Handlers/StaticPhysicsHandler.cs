@@ -1,14 +1,12 @@
 ﻿using SimpleJSON;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace TittyMagic
 {
     internal class StaticPhysicsHandler
     {
-        private readonly string settingsDir = @"Custom\Scripts\everlaster\TittyMagic\src\Settings";
+        private string settingsDir;
 
         private HashSet<PhysicsConfig> mainPhysicsConfigs;
         private HashSet<RateDependentPhysicsConfig> rateDependentPhysicsConfigs;
@@ -17,8 +15,9 @@ namespace TittyMagic
 
         public JSONStorableStringChooser modeChooser;
 
-        public StaticPhysicsHandler()
+        public StaticPhysicsHandler(string packagePath)
         {
+            settingsDir = packagePath + @"Custom\Scripts\everlaster\TittyMagic\src\Settings";
             SetPhysicsDefaults();
         }
 
