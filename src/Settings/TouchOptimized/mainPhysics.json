@@ -1,13 +1,13 @@
 { 
    "mass" : { 
       "minMminS" : "0.125", 
-      "maxMminS" : "0.34", 
+      "maxMminS" : "0.28", 
       "minMmaxS" : "0.1"
    },
    "spring" : { 
       "minMminS" : "44", 
-      "maxMminS" : "52", 
-      "minMmaxS" : "30"
+      "maxMminS" : "56", 
+      "minMmaxS" : "34"
    }, 
    "damper" : { 
       "minMminS" : "0.60", 
