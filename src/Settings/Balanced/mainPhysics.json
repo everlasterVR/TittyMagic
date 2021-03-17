@@ -6,8 +6,8 @@
    }, 
    "damper" : { 
       "minMminS" : "0.75", 
-      "maxMminS" : "1.00", 
-      "minMmaxS" : "1.40"
+      "maxMminS" : "0.95", 
+      "minMmaxS" : "1.20"
    }, 
    "positionSpringZ" : { 
       "minMminS" : "300", 

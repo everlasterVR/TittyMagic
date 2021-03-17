@@ -375,6 +375,11 @@ namespace TittyMagic
             callback?.Invoke();
         }
 
+        public void RefreshRateDependentPhysics()
+        {
+            staticPhysicsH.UpdateRateDependentPhysics(massEstimate, softness.val);
+        }
+
         private void UpdateMassEstimate(float atomScale, bool updateUIStatus = false)
         {
             float mass = breastMassCalculator.Calculate(atomScale);

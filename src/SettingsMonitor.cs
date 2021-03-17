@@ -12,9 +12,11 @@ namespace TittyMagic
         private JSONStorable breastInOut;
         private JSONStorable softBodyPhysicsEnabler;
 
-        private Dictionary<string, bool> values;
-        private Dictionary<string, bool> prevValues;
+        private Dictionary<string, bool> boolValues;
+        private Dictionary<string, bool> prevBoolValues;
         private Dictionary<string, string> messages;
+
+        private float prevFixedDeltaTime;
 
         public void Init(Atom containingAtom)
         {
@@ -24,25 +26,28 @@ namespace TittyMagic
             softBodyPhysicsEnabler = containingAtom.GetStorableByID("SoftBodyPhysicsEnabler");
             softBodyPhysicsEnabler.SetBoolParamValue("enabled", true); // Atom soft physics on
 
-            values = new Dictionary<string, bool>
+            boolValues = new Dictionary<string, bool>
             {
                 { "prefsSoftPhysics", true },
                 { "bodySoftPhysics", true },
                 { "breastSoftPhysics", true }
             };
-            prevValues = new Dictionary<string, bool>
+            prevBoolValues = new Dictionary<string, bool>
             {
                 { "prefsSoftPhysics", true },
                 { "bodySoftPhysics", true },
                 { "breastSoftPhysics", true }
             };
 
-            string requires = "Adjusting breast morphs won't cause physics settings to be recalculated until it is enabled. (No need to reload the plugin if you do enable it.)";
+            //monitor change to physics rate
+            prevFixedDeltaTime = Time.fixedDeltaTime;
+
+            string requires = "Enable it to allow physics settings to be recalculated if breast morphs are changed. (No need to reload the plugin if you do enable it.)";
             messages = new Dictionary<string, string>
             {
-                { "prefsSoftPhysics", $"Detected that Soft Body Physics is not enabled in User Preferences. {requires}" },
-                { "bodySoftPhysics", $"Detected that Soft Body Physics is not enabled in Control & Physics 1 tab. {requires}" },
-                { "breastSoftPhysics", $"Detected that Soft Physics is not enabled in F Breast Physics 2 tab. {requires}" }
+                { "prefsSoftPhysics", $"Soft Body Physics is not enabled in User Preferences. {requires}" },
+                { "bodySoftPhysics", $"Soft Body Physics is not enabled in Control & Physics 1 tab. {requires}" },
+                { "breastSoftPhysics", $"Soft Physics is not enabled in F Breast Physics 2 tab. {requires}" }
             };
 
             if(!UserPreferences.singleton.softPhysics)
@@ -62,9 +67,9 @@ namespace TittyMagic
                 {
                     timeSinceLastCheck -= checkFrequency;
 
-                    values["prefsSoftPhysics"] = UserPreferences.singleton.softPhysics;
-                    values["bodySoftPhysics"] = softBodyPhysicsEnabler.GetBoolParamValue("enabled");
-                    values["breastSoftPhysics"] = Globals.BREAST_PHYSICS_MESH.on;
+                    boolValues["prefsSoftPhysics"] = UserPreferences.singleton.softPhysics;
+                    boolValues["bodySoftPhysics"] = softBodyPhysicsEnabler.GetBoolParamValue("enabled");
+                    boolValues["breastSoftPhysics"] = Globals.BREAST_PHYSICS_MESH.on;
 
                     //In/Out morphs can become enabled by e.g. loading an appearance preset. Force off.
                     if(breastInOut.GetBoolParamValue("enabled"))
@@ -73,10 +78,23 @@ namespace TittyMagic
                         Log.Message("Auto Breast In/Out Morphs disabled - this plugin adjusts breast morphs better without it.");
                     }
 
-                    foreach(KeyValuePair<string, bool> kvp in values)
+                    bool fullUpdateNeeded = false;
+                    foreach(KeyValuePair<string, bool> kvp in boolValues)
                     {
-                        CheckValue(kvp.Key, kvp.Value);
+                        fullUpdateNeeded = CheckBoolValue(kvp.Key, kvp.Value);
                     }
+
+                    if(fullUpdateNeeded)
+                    {
+                        StartCoroutine(gameObject.GetComponent<Script>().RefreshStaticPhysics());
+                    }
+
+                    float fixedDeltaTime = Time.fixedDeltaTime;
+                    if(fixedDeltaTime != prevFixedDeltaTime)
+                    {
+                        gameObject.GetComponent<Script>().RefreshRateDependentPhysics();
+                    }
+                    prevFixedDeltaTime = fixedDeltaTime;
                 }
             }
             catch(Exception e)
@@ -86,17 +104,19 @@ namespace TittyMagic
             }
         }
 
-        private void CheckValue(string key, bool value)
+        private bool CheckBoolValue(string key, bool value)
         {
-            if(!value && prevValues[key])
+            bool updateNeeded = false;
+            if(!value && prevBoolValues[key])
             {
                 Log.Error(messages[key]);
             }
-            else if(value && !prevValues[key])
+            else if(value && !prevBoolValues[key])
             {
-                StartCoroutine(gameObject.GetComponent<Script>().RefreshStaticPhysics());
+                updateNeeded = true;
             }
-            prevValues[key] = value;
+            prevBoolValues[key] = value;
+            return updateNeeded;
         }
     }
 }

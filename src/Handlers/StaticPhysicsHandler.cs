@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace TittyMagic
 {
@@ -10,6 +11,7 @@ namespace TittyMagic
         private readonly string settingsDir = @"Custom\Scripts\everlaster\TittyMagic\src\Settings";
 
         private HashSet<PhysicsConfig> mainPhysicsConfigs;
+        private HashSet<RateDependentPhysicsConfig> rateDependentPhysicsConfigs;
         private HashSet<PhysicsConfig> softPhysicsConfigs;
         private HashSet<NipplePhysicsConfig> nipplePhysicsConfigs;
 
@@ -29,12 +31,24 @@ namespace TittyMagic
             JSONClass nipplePhysicsSettings = SuperController.singleton.LoadJSON(modeDir + "nipplePhysics.json").AsObject;
 
             mainPhysicsConfigs = new HashSet<PhysicsConfig>();
+            rateDependentPhysicsConfigs = new HashSet<RateDependentPhysicsConfig>();
             softPhysicsConfigs = new HashSet<PhysicsConfig>();
             nipplePhysicsConfigs = new HashSet<NipplePhysicsConfig>();
 
             foreach(string param in mainPhysicsSettings.Keys)
             {
                 JSONClass paramSettings = mainPhysicsSettings[param].AsObject;
+                if(param == "damper")
+                {
+                    rateDependentPhysicsConfigs.Add(new RateDependentPhysicsConfig(
+                        Globals.BREAST_CONTROL.GetFloatJSONParam(param),
+                        paramSettings["minMminS"].AsFloat,
+                        paramSettings["maxMminS"].AsFloat,
+                        paramSettings["minMmaxS"].AsFloat
+                    ));
+                    continue;
+                }
+
                 mainPhysicsConfigs.Add(new PhysicsConfig(
                     Globals.BREAST_CONTROL.GetFloatJSONParam(param),
                     paramSettings["minMminS"].AsFloat,
@@ -107,6 +121,20 @@ namespace TittyMagic
 
             foreach(var it in mainPhysicsConfigs)
                 it.UpdateVal(mass, softness);
+            foreach(var it in rateDependentPhysicsConfigs)
+                it.UpdateVal(mass, softness, PhysicsRateMultiplier());
+        }
+
+        public void UpdateRateDependentPhysics(
+            float massEstimate,
+            float softnessVal
+        )
+        {
+            float mass = NormalizedMass(massEstimate);
+            float softness = NormalizedSoftness(softnessVal);
+
+            foreach(var it in rateDependentPhysicsConfigs)
+                it.UpdateVal(mass, softness, PhysicsRateMultiplier());
         }
 
         public void UpdateNipplePhysics(
@@ -138,6 +166,8 @@ namespace TittyMagic
 
             foreach(var it in mainPhysicsConfigs)
                 it.UpdateVal(mass, softness);
+            foreach(var it in rateDependentPhysicsConfigs)
+                it.UpdateVal(mass, softness, PhysicsRateMultiplier());
             foreach(var it in softPhysicsConfigs)
                 it.UpdateVal(mass, softness);
             foreach(var it in nipplePhysicsConfigs)
@@ -148,6 +178,8 @@ namespace TittyMagic
         {
             string text = "MAIN PHYSICS\n";
             foreach(var it in mainPhysicsConfigs)
+                text += it.GetStatus();
+            foreach(var it in rateDependentPhysicsConfigs)
                 text += it.GetStatus();
 
             text += "\nSOFT PHYSICS\n";
@@ -167,6 +199,12 @@ namespace TittyMagic
         private float NormalizedSoftness(float softnessVal)
         {
             return (softnessVal - Const.SOFTNESS_MIN)/(Const.SOFTNESS_MAX - Const.SOFTNESS_MIN);
+        }
+
+        //see UserPreferences.cs methods SetPhysics45, 60, 72 etc.
+        private float PhysicsRateMultiplier()
+        {
+            return 0.01666667f/Time.fixedDeltaTime;
         }
     }
 }

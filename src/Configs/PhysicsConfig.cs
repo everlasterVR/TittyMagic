@@ -1,6 +1,4 @@
-﻿//#define SHOW_DEBUG
-
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace TittyMagic
 {
@@ -11,15 +9,12 @@ namespace TittyMagic
         protected readonly float valMaxM; //value at max mass and min softness
         protected readonly float valMaxS; //value at min mass and max softness
 
-        public PhysicsConfig(JSONStorableFloat setting, float valMinMS, float valMaxM, float valMaxS, float valMaxMS = 0f)
+        public PhysicsConfig(JSONStorableFloat setting, float valMinMS, float valMaxM, float valMaxS)
         {
             this.setting = setting;
             this.valMinMS = valMinMS;
             this.valMaxM = valMaxM;
             this.valMaxS = valMaxS;
-#if SHOW_DEBUG
-            Log.Message($"init {setting.name} min {valMinMS} maxM {valMaxM} maxS {valMaxS} maxMS {valMaxMS}");
-#endif
         }
 
         //input mass and softness normalized to (0,1) range
@@ -45,15 +40,31 @@ namespace TittyMagic
             JSONStorableFloat setting,
             float valMinMS,
             float valMaxM,
-            float valMaxS,
-            float valMaxMS = 0
-        ) : base(setting, valMinMS, valMaxM, valMaxS, valMaxMS)
+            float valMaxS
+        ) : base(setting, valMinMS, valMaxM, valMaxS)
         {
         }
 
         public void UpdateVal(float mass, float softness, float nippleErection)
         {
             setting.val = 1.25f * nippleErection + Calculate(mass, softness);
+        }
+    }
+
+    internal class RateDependentPhysicsConfig : PhysicsConfig
+    {
+        public RateDependentPhysicsConfig(
+            JSONStorableFloat setting,
+            float valMinMS,
+            float valMaxM,
+            float valMaxS
+        ) : base(setting, valMinMS, valMaxM, valMaxS)
+        {
+        }
+
+        public void UpdateVal(float mass, float softness, float physicsRateMultiplier)
+        {
+            setting.val = physicsRateMultiplier * Calculate(mass, softness);
         }
     }
 }
