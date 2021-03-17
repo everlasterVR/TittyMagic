@@ -145,13 +145,13 @@ namespace TittyMagic
             titleUIText = NewTextField("titleText", 36, 100);
             titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{version}</size>");
 
+            CreateNewSpacer(10f);
             modeChooser = new JSONStorableStringChooser("Mode", Const.MODES.Keys.ToList(), Const.MODES.Values.ToList(), "", "Mode");
             RegisterStringChooser(modeChooser);
             modeButtonGroup = CreateRadioButtonGroup(modeChooser);
             staticPhysicsH.modeChooser = modeChooser;
 
             CreateNewSpacer(10f);
-
             softness = NewFloatSlider("Breast softness", 50f, Const.SOFTNESS_MIN, Const.SOFTNESS_MAX, "F0");
             gravity = NewFloatSlider("Breast gravity", 50f, Const.GRAVITY_MIN, Const.GRAVITY_MAX, "F0");
             linkSoftnessAndGravity = NewToggle("Link softness and gravity", false);
@@ -171,8 +171,15 @@ namespace TittyMagic
             angleInfoField.height = 125;
             angleInfoField.UItext.fontSize = 26;
 #else
+            CreateNewSpacer(10f, true);
+            JSONStorableString usage2Area = NewTextField("Usage Info Area 2", 28, 135, rightSide);
+            string usage2 = UI.Size("\n", 12);
+            usage2 += "Physics settings mode selection.";
+            usage2Area.SetVal(usage2);
+
+            CreateNewSpacer(10f, true);
             JSONStorableString usage1Area = NewTextField("Usage Info Area 1", 28, 255, rightSide);
-            string usage1 = "\n";
+            string usage1 = UI.Size("\n", 12);
             usage1 += "Breast softness adjusts soft physics settings from very firm to very soft.\n\n";
             usage1 += "Breast gravity adjusts how much pose morphs shape the breasts in all orientations.";
             usage1Area.SetVal(usage1);
