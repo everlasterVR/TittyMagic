@@ -105,12 +105,12 @@
     <Compile Include="TM_ReferenceSize.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\Settings\mainPhysics.json" />
-    <None Include="src\Settings\nipplePhysics.json" />
-    <None Include="src\Settings\softPhysics.json" />
-    <None Include="src\TouchSettings\mainPhysics.json" />
-    <None Include="src\TouchSettings\nipplePhysics.json" />
-    <None Include="src\TouchSettings\softPhysics.json" />
+    <None Include="src\Settings\Balanced\mainPhysics.json" />
+    <None Include="src\Settings\Balanced\nipplePhysics.json" />
+    <None Include="src\Settings\Balanced\softPhysics.json" />
+    <None Include="src\Settings\TouchOptimized\mainPhysics.json" />
+    <None Include="src\Settings\TouchOptimized\nipplePhysics.json" />
+    <None Include="src\Settings\TouchOptimized\softPhysics.json" />
     <None Include="TittyMagic.cslist" />
     <None Include=".gitignore" />
     <None Include="meta.json" />
