@@ -147,7 +147,6 @@ namespace TittyMagic
 
             CreateNewSpacer(10f);
             modeChooser = new JSONStorableStringChooser("Mode", Const.MODES.Keys.ToList(), Const.MODES.Values.ToList(), "", "Mode");
-            RegisterStringChooser(modeChooser);
             modeButtonGroup = CreateRadioButtonGroup(modeChooser);
             staticPhysicsH.modeChooser = modeChooser;
 
@@ -443,6 +442,17 @@ namespace TittyMagic
                 $"</size></color>";
         }
 
+        public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
+        {
+            JSONClass json = base.GetJSON(includePhysical, includeAppearance, forceStore);
+            if(modeChooser.val != Const.MODES.Values.First())
+            {
+                json["Mode"] = modeChooser.val;
+            }
+            needsStore = true;
+            return json;
+        }
+
         public override void RestoreFromJSON(JSONClass json, bool restorePhysical = true, bool restoreAppearance = true, JSONArray presetAtoms = null, bool setMissingToDefault = true)
         {
             restoringFromJson = true;
@@ -479,6 +489,11 @@ namespace TittyMagic
             }
             catch(Exception)
             {
+            }
+
+            if(json.HasKey("Mode"))
+            {
+                modeChooser.val = json["Mode"];
             }
 
             base.RestoreFromJSON(json, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
