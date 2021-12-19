@@ -1,27 +1,27 @@
 { 
-   "mass" : { 
-      "minMminS" : "0.125", 
-      "maxMminS" : "0.28", 
+   "mass" : {
+      "minMminS" : "0.125",
+      "maxMminS" : "0.28",
       "minMmaxS" : "0.1"
    },
    "spring" : { 
-      "minMminS" : "44", 
-      "maxMminS" : "56", 
+      "minMminS" : "44",
+      "maxMminS" : "56",
       "minMmaxS" : "34"
    }, 
    "damper" : { 
-      "minMminS" : "0.60", 
-      "maxMminS" : "1.00", 
+      "minMminS" : "0.60",
+      "maxMminS" : "1.00",
       "minMmaxS" : "0.40"
    }, 
-   "positionSpringZ" : { 
-      "minMminS" : "300", 
-      "maxMminS" : "250", 
+   "positionSpringZ" : {
+      "minMminS" : "300",
+      "maxMminS" : "250",
       "minMmaxS" : "150"
    }, 
-   "positionDamperZ" : { 
-      "minMminS" : "20", 
-      "maxMminS" : "40", 
+   "positionDamperZ" : {
+      "minMminS" : "20",
+      "maxMminS" : "40",
       "minMmaxS" : "20"
    }
 }

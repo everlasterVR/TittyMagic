@@ -34,13 +34,13 @@ namespace TittyMagic
             originalValue = setting.val;
         }
 
-        public void UpdateVal(float effect, float scale, float gravity)
+        public void UpdateVal(float effect, float combinedScaleSoftness, float gravity)
         {
-            float scaleFactor = scaleMul.HasValue ? (float) scaleMul * scale : 1;
+            float scaleFactor = scaleMul.HasValue ? (float) scaleMul * combinedScaleSoftness : 1;
             float gravityFactor = gravityMul.HasValue ? (float) gravityMul * gravity : 1;
-            float interpolatedEffect = Mathf.SmoothStep(0, ScaledSmoothMax(scale), effect);
+            float interpolatedEffect = Mathf.SmoothStep(0, ScaledSmoothMax(combinedScaleSoftness), effect);
             float value = (scaleFactor * interpolatedEffect / 2) + (gravityFactor * interpolatedEffect / 2);
-            setting.val = offset + offsetScaleMul * scale + value;
+            setting.val = offset + offsetScaleMul * combinedScaleSoftness + value;
         }
 
         public void Reset()

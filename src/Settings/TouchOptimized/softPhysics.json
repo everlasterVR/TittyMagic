@@ -1,72 +1,67 @@
-{ 
-   "softVerticesCombinedSpring" : { 
-      "minMminS" : "240", 
-      "maxMminS" : "240", 
-      "minMmaxS" : "60", 
-   }, 
-   "softVerticesCombinedDamper" : { 
-      "minMminS" : "3.4", 
-      "maxMminS" : "3.4", 
+{
+   "softVerticesCombinedSpring" : {
+      "minMminS" : "240",
+      "maxMminS" : "240",
+      "minMmaxS" : "60",
+   },
+   "softVerticesCombinedDamper" : {
+      "minMminS" : "3.4",
+      "maxMminS" : "3.4",
       "minMmaxS" : "2.0"
-   }, 
-   "softVerticesMass" : { 
-      "minMminS" : "0.05", 
-      "maxMminS" : "0.075", 
+   },
+   "softVerticesMass" : {
+      "minMminS" : "0.05",
+      "maxMminS" : "0.075",
       "minMmaxS" : "0.05"
-   }, 
-   "softVerticesBackForce" : { 
-      "minMminS" : "22", 
-      "maxMminS" : "42", 
+   },
+   "softVerticesBackForce" : {
+      "minMminS" : "22",
+      "maxMminS" : "42",
       "minMmaxS" : "10"
-   }, 
-   "softVerticesBackForceThresholdDistance" : { 
-      "minMminS" : "0.001", 
-      "maxMminS" : "0.001", 
+   },
+   "softVerticesBackForceThresholdDistance" : {
+      "minMminS" : "0.001",
+      "maxMminS" : "0.001",
       "minMmaxS" : "0.001"
-   }, 
-   "softVerticesBackForceMaxForce" : { 
-      "minMminS" : "22", 
-      "maxMminS" : "42", 
+   },
+   "softVerticesBackForceMaxForce" : {
+      "minMminS" : "22",
+      "maxMminS" : "42",
       "minMmaxS" : "10"
-   }, 
-   "softVerticesColliderRadius" : { 
-      "minMminS" : "0.023", 
-      "maxMminS" : "0.035", 
-      "minMmaxS" : "0.026", 
-   }, 
-   "softVerticesDistanceLimit" : { 
-      "minMminS" : "0.026", 
-      "maxMminS" : "0.064", 
+   },
+   "softVerticesDistanceLimit" : {
+      "minMminS" : "0.026",
+      "maxMminS" : "0.064",
       "minMmaxS" : "0.048"
-   }, 
-   "groupASpringMultiplier" : { 
-      "minMminS" : "0.73", 
-      "maxMminS" : "0.73", 
+   },
+   "groupASpringMultiplier" : {
+      "minMminS" : "0.73",
+      "maxMminS" : "0.73",
       "minMmaxS" : "0.50"
-   }, 
-   "groupADamperMultiplier" : { 
-      "minMminS" : "0.65", 
-      "maxMminS" : "0.65", 
+   },
+   "groupADamperMultiplier" : {
+      "minMminS" : "0.65",
+      "maxMminS" : "0.65",
       "minMmaxS" : "0.5"
-   }, 
-   "groupBSpringMultiplier" : { 
-      "minMminS" : "1.46", 
-      "maxMminS" : "1.46", 
+   },
+   "groupBSpringMultiplier" : {
+      "minMminS" : "1.46",
+      "maxMminS" : "1.46",
       "minMmaxS" : "1.0"
-   }, 
-   "groupBDamperMultiplier" : { 
-      "minMminS" : "1.8", 
-      "maxMminS" : "1.8", 
+   },
+   "groupBDamperMultiplier" : {
+      "minMminS" : "1.8",
+      "maxMminS" : "1.8",
       "minMmaxS" : "1.5"
-   }, 
-   "groupCSpringMultiplier" : { 
-      "minMminS" : "1.8", 
-      "maxMminS" : "1.8", 
+   },
+   "groupCSpringMultiplier" : {
+      "minMminS" : "1.8",
+      "maxMminS" : "1.8",
       "minMmaxS" : "1.2"
-   }, 
-   "groupCDamperMultiplier" : { 
-      "minMminS" : "1.5", 
-      "maxMminS" : "1.5", 
+   },
+   "groupCDamperMultiplier" : {
+      "minMminS" : "1.5",
+      "maxMminS" : "1.5",
       "minMmaxS" : "1.0"
    }
 }

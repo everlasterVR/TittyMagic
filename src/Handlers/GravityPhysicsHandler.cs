@@ -15,6 +15,7 @@ namespace TittyMagic
         private float roll;
         private float pitch;
         private float scale;
+        private float softness;
         private float gravity;
 
         public GravityPhysicsHandler()
@@ -30,27 +31,27 @@ namespace TittyMagic
             //                           name                        offset    offsetScaleMul  logMaxX     scaleMul    gravityMul
             uprightPhysics = new HashSet<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("targetRotationX",          1.00f,    0.40f,         -0.8f,       1.50f,      0.50f),
+                new GravityPhysicsConfig("targetRotationX",          0.00f,    0.00f,         -10f,        0.5f,       1.25f),
             };
             upsideDownPhysics = new HashSet<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("targetRotationX",          1.00f,    0.40f,          1.6f,       1.50f,      0.50f),
+                new GravityPhysicsConfig("targetRotationX",          0.00f,    0.00f,          5f,         0.75f,      1.25f),
             };
             leanBackPhysics = new HashSet<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("centerOfGravityPercent",   0.40f,    0.05f,         -0.01f,      0.50f,      1.50f),
+                new GravityPhysicsConfig("centerOfGravityPercent",   0.25f,    0.05f,         -0.01f,      0.50f,      1.50f),
             };
             leanForwardPhysics = new HashSet<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("centerOfGravityPercent",   0.40f,    0.05f,          0.05f,      0.50f,      1.50f),
+                new GravityPhysicsConfig("centerOfGravityPercent",   0.25f,    0.05f,          0.05f,      0.50f,      1.50f),
             };
             rollLeftPhysics = new HashSet<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("targetRotationY",          0f,       0f,             12f,        0.50f,      1.50f),
+                new GravityPhysicsConfig("targetRotationY",          0f,       0f,             12f,        1.00f,      1.00f),
             };
             rollRightPhysics = new HashSet<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("targetRotationY",          0f,       0f,            -12f,        0.50f,      1.50f),
+                new GravityPhysicsConfig("targetRotationY",          0f,       0f,            -12f,        1.00f,      1.00f),
             };
 
             foreach(var it in uprightPhysics)
@@ -72,12 +73,14 @@ namespace TittyMagic
             float roll,
             float pitch,
             float scale,
+            float softness,
             float gravity
         )
         {
             this.roll = roll;
             this.pitch = pitch;
             this.scale = scale;
+            this.softness = softness;
             this.gravity = gravity;
 
             AdjustPhysicsForRoll();
@@ -139,13 +142,13 @@ namespace TittyMagic
                 if(pitch <= 90)
                 {
                     Update(leanForwardPhysics, pitch, rollFactor);
-                    Update(uprightPhysics, 90 - pitch, rollFactor);
+                    UpdateWithSoftness(uprightPhysics, 90 - pitch, rollFactor);
                 }
                 // upside down
                 else
                 {
                     Update(leanForwardPhysics, 180 - pitch, rollFactor);
-                    Update(upsideDownPhysics, pitch - 90, rollFactor);
+                    UpdateWithSoftness(upsideDownPhysics, pitch - 90, rollFactor);
                 }
             }
             // leaning back
@@ -155,13 +158,13 @@ namespace TittyMagic
                 if(pitch > -90)
                 {
                     Update(leanBackPhysics, Mathf.Abs(pitch), rollFactor);
-                    Update(uprightPhysics, 90 - Mathf.Abs(pitch), rollFactor);
+                    UpdateWithSoftness(uprightPhysics, 90 - Mathf.Abs(pitch), rollFactor);
                 }
                 // upside down
                 else
                 {
                     Update(leanBackPhysics, 180 - Mathf.Abs(pitch), rollFactor);
-                    Update(upsideDownPhysics, Mathf.Abs(pitch) - 90, rollFactor);
+                    UpdateWithSoftness(upsideDownPhysics, Mathf.Abs(pitch) - 90, rollFactor);
                 }
             }
         }
@@ -172,6 +175,15 @@ namespace TittyMagic
             foreach(var it in physics)
             {
                 it.UpdateVal(effect, scale, gravity);
+            }
+        }
+
+        private void UpdateWithSoftness(HashSet<GravityPhysicsConfig> physics, float angle, float rollFactor = 1f)
+        {
+            float effect = rollFactor * angle / 90;
+            foreach(var it in physics)
+            {
+                it.UpdateVal(effect, scale * softness, gravity);
             }
         }
     }

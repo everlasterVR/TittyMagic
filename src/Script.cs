@@ -153,8 +153,7 @@ namespace TittyMagic
             CreateNewSpacer(10f);
             softness = NewFloatSlider("Breast softness", 50f, Const.SOFTNESS_MIN, Const.SOFTNESS_MAX, "F0");
             gravity = NewFloatSlider("Breast gravity", 50f, Const.GRAVITY_MIN, Const.GRAVITY_MAX, "F0");
-            linkSoftnessAndGravity = NewToggle("Link softness and gravity", false);
-            linkSoftnessAndGravity.val = true;
+            linkSoftnessAndGravity = NewToggle("Link softness and gravity", true, false);
 
             CreateNewSpacer(10f);
             nippleErection = NewFloatSlider("Erect nipples", 0f, 0f, 1.0f, "F2");
@@ -250,9 +249,9 @@ namespace TittyMagic
             return storable;
         }
 
-        private JSONStorableBool NewToggle(string paramName, bool rightSide = false)
+        private JSONStorableBool NewToggle(string paramName, bool startingValue, bool rightSide = false)
         {
-            JSONStorableBool storable = new JSONStorableBool(paramName, false);
+            JSONStorableBool storable = new JSONStorableBool(paramName, startingValue);
             CreateToggle(storable, rightSide);
             RegisterBool(storable);
             return storable;
@@ -335,7 +334,7 @@ namespace TittyMagic
                 float scaleVal = breastMassCalculator.LegacyScale(massEstimate);
 
                 gravityMorphH.Update(roll, pitch, scaleVal, gravityLogAmount);
-                gravityPhysicsH.Update(roll, pitch, scaleVal, Const.ConvertToLegacyVal(gravity.val));
+                gravityPhysicsH.Update(roll, pitch, scaleVal, Const.ConvertToLegacyVal(softness.val), Const.ConvertToLegacyVal(gravity.val));
 #if DEBUG_PHYSICS || DEBUG_MORPHS
                 SetBaseDebugInfo(roll, pitch);
 #endif

@@ -102,7 +102,7 @@ namespace TittyMagic
             //Auto collider radius off
             Globals.BREAST_PHYSICS_MESH.softVerticesUseAutoColliderRadius = false;
             //Collider depth
-            Globals.BREAST_PHYSICS_MESH.softVerticesColliderAdditionalNormalOffset = 0.001f;
+            Globals.BREAST_PHYSICS_MESH.softVerticesColliderAdditionalNormalOffset = 0.002f;
         }
 
         public void UpdateMainPhysics(
