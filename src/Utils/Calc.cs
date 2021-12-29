@@ -15,5 +15,15 @@ namespace TittyMagic
         {
             return (90 - Mathf.Abs(roll)) / 90;
         }
+
+        public static Vector3 RelativePosition(Transform origin, Vector3 position)
+        {
+            Vector3 distance = position - origin.position;
+            return new Vector3(
+                Vector3.Dot(distance, origin.right.normalized),
+                Vector3.Dot(distance, origin.up.normalized),
+                Vector3.Dot(distance, origin.forward.normalized)
+            );
+        }
     }
 }
