@@ -55,7 +55,8 @@ namespace TittyMagic
         private JSONStorableBool enableForceMorphs;
         private JSONStorableFloat nippleErection;
 
-        private bool physicsUpdateInProgress = false;
+        private bool staticPhysicsRefreshDone = false;
+        private bool neutralBreastPositionRefreshDone = false;
         private bool restoringFromJson = false;
         private float? legacySoftnessFromJson;
         private float? legacyGravityFromJson;
@@ -68,6 +69,9 @@ namespace TittyMagic
 #elif DEBUG_MORPHS
         protected JSONStorableString morphDebugInfo = new JSONStorableString("Morph Debug Info", "");
 #endif
+
+        private float timeSinceLastRefresh = 0f;
+        private const float refreshFrequency = 0.1f;
 
         public override void Init()
         {
@@ -125,8 +129,8 @@ namespace TittyMagic
                 StartCoroutine(SubscribeToKeybindings());
                 StartCoroutine(RefreshStaticPhysics(() =>
                 {
+                    staticPhysicsRefreshDone = true;
                     settingsMonitor.enabled = true;
-                    UpdateNeutralBreastPosition();
                 }));
                 StartCoroutine(MigrateFromPre2_1());
             }
@@ -340,42 +344,48 @@ namespace TittyMagic
         {
             try
             {
-                if(!physicsUpdateInProgress && (breastMorphListener.Changed() || atomScaleListener.Changed()))
+                if(staticPhysicsRefreshDone)
                 {
-                    StartCoroutine(RefreshStaticPhysics(() => UpdateNeutralBreastPosition()));
+                    if(!neutralBreastPositionRefreshDone)
+                    {
+                        bool diffIsZero = neutralPos - Calc.RelativePosition(chest, rNipple.position) == Vector3.zero;
+
+                        timeSinceLastRefresh += Time.deltaTime;
+                        if(!diffIsZero)
+                        {
+                            if(timeSinceLastRefresh >= refreshFrequency)
+                            {
+                                timeSinceLastRefresh -= refreshFrequency;
+                                neutralPos = Calc.RelativePosition(chest, rNipple.position);
+                            }
+                        }
+                        else
+                        {
+                            neutralBreastPositionRefreshDone = true;
+                        }
+                    }
+
+                    UpdateBreastShape();
+                }
+                else if(breastMorphListener.Changed() || atomScaleListener.Changed())
+                {
+                    StartCoroutine(RefreshStaticPhysics(() =>
+                    {
+                        staticPhysicsRefreshDone = true;
+                    }));
                 }
 
-                float roll = AngleCalc.Roll(chest.rotation);
-                float pitch = AngleCalc.Pitch(chest.rotation);
-                float scaleVal = breastMassCalculator.LegacyScale(massEstimate);
-
-                if(enableGravityMorphs.val)
-                {
-                    gravityMorphH.Update(roll, pitch, scaleVal, gravityLogAmount);
-                }
-                else
-                {
-                    gravityMorphH.ResetAll();
-                }
-
+#if DEBUG_PHYSICS || DEBUG_MORPHS
                 if(neutralPos.HasValue)
                 {
-                    positionDiff = neutralPos.Value - Calc.RelativePosition(chest, rNipple.position);
-                    if(!enableForceMorphs.val)
-                    {
-                        positionDiff = Vector3.zero;
-                    }
-                    relativePosMorphH.Update(positionDiff, scaleVal, Const.ConvertToLegacyVal(softness.val));
+                    positionInfoUIText.SetVal(
+                        $"<size=28>Neutral pos:\n" +
+                        $"{Formatting.NameValueString("x", neutralPos.Value.x, 1000)} " +
+                        $"{Formatting.NameValueString("y", neutralPos.Value.y, 1000)} " +
+                        $"{Formatting.NameValueString("z", neutralPos.Value.z, 1000)} " +
+                        $"</size>"
+                    );
                 }
-
-                //gravityPhysicsH.Update(roll, pitch, scaleVal, Const.ConvertToLegacyVal(softness.val), Const.ConvertToLegacyVal(gravity.val));
-#if DEBUG_PHYSICS || DEBUG_MORPHS
-                SetBaseDebugInfo(roll, pitch, positionDiff);
-#endif
-#if DEBUG_PHYSICS
-                physicsDebugInfo.SetVal(staticPhysicsH.GetStatus() + gravityPhysicsH.GetStatus());
-#elif DEBUG_MORPHS
-                morphDebugInfo.SetVal(gravityMorphH.GetStatus());
 #endif
             }
             catch(Exception e)
@@ -386,9 +396,45 @@ namespace TittyMagic
             }
         }
 
+        private void UpdateBreastShape()
+        {
+            float roll = AngleCalc.Roll(chest.rotation);
+            float pitch = AngleCalc.Pitch(chest.rotation);
+            float scaleVal = breastMassCalculator.LegacyScale(massEstimate);
+
+            if(enableGravityMorphs.val)
+            {
+                gravityMorphH.Update(roll, pitch, scaleVal, gravityLogAmount);
+            }
+            else
+            {
+                gravityMorphH.ResetAll();
+            }
+
+            if(neutralPos.HasValue)
+            {
+                positionDiff = neutralPos.Value - Calc.RelativePosition(chest, rNipple.position);
+                if(!enableForceMorphs.val)
+                {
+                    positionDiff = Vector3.zero;
+                }
+                relativePosMorphH.Update(positionDiff, scaleVal, Const.ConvertToLegacyVal(softness.val));
+            }
+
+            gravityPhysicsH.Update(roll, pitch, scaleVal, Const.ConvertToLegacyVal(softness.val), Const.ConvertToLegacyVal(gravity.val));
+#if DEBUG_PHYSICS || DEBUG_MORPHS
+            SetBaseDebugInfo(roll, pitch, positionDiff);
+#endif
+#if DEBUG_PHYSICS
+            physicsDebugInfo.SetVal(staticPhysicsH.GetStatus() + gravityPhysicsH.GetStatus());
+#elif DEBUG_MORPHS
+            morphDebugInfo.SetVal(gravityMorphH.GetStatus());
+#endif
+        }
+
         public IEnumerator RefreshStaticPhysics(Action callback = null)
         {
-            physicsUpdateInProgress = true;
+            staticPhysicsRefreshDone = false;
             float atomScale = atomScaleListener.Value;
             while(breastMorphListener.Changed())
             {
@@ -409,7 +455,6 @@ namespace TittyMagic
 
             UpdateMassEstimate(atomScale, updateUIStatus: true);
             staticPhysicsH.FullUpdate(massEstimate, softness.val, nippleErection.val);
-            physicsUpdateInProgress = false;
 
             callback?.Invoke();
         }
@@ -473,18 +518,6 @@ namespace TittyMagic
             return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}><size=28>" +
                 $"Estimated mass is <b>{value}</b> below the 0.100 minimum.\n" +
                 $"</size></color>";
-        }
-
-        private void UpdateNeutralBreastPosition()
-        {
-            neutralPos = Calc.RelativePosition(chest, rNipple.position);
-            positionInfoUIText.SetVal(
-                $"<size=28>Neutral pos:\n" +
-                $"{Formatting.NameValueString("x", neutralPos.Value.x, 1000)} " +
-                $"{Formatting.NameValueString("y", neutralPos.Value.y, 1000)} " +
-                $"{Formatting.NameValueString("z", neutralPos.Value.z, 1000)} " +
-                $"</size>"
-            );
         }
 
         public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
