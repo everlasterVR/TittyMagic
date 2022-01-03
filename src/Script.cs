@@ -20,7 +20,7 @@ namespace TittyMagic
         private Transform chest;
         private Transform rNipple;
         private DAZCharacterSelector geometry;
-        private Vector3? neutralPos;
+        private Vector3 neutralPos;
         private Vector3 positionDiff;
 
         private float massEstimate;
@@ -355,46 +355,27 @@ namespace TittyMagic
 
         private void DoFixedUpdate()
         {
-            if(staticPhysicsRefreshDone)
+            if(!neutralBreastPositionRefreshDone)
             {
-                if(!neutralBreastPositionRefreshDone)
-                {
-                    bool diffIsZero = neutralPos - Calc.RelativePosition(chest, rNipple.position) == Vector3.zero;
-
-                    timeSinceLastRefresh += Time.deltaTime;
-                    if(!diffIsZero)
-                    {
-                        if(timeSinceLastRefresh >= refreshFrequency)
-                        {
-                            timeSinceLastRefresh -= refreshFrequency;
-                            neutralPos = Calc.RelativePosition(chest, rNipple.position);
-                        }
-                    }
-                    else
-                    {
-                        neutralBreastPositionRefreshDone = true;
-                    }
-                }
-
-                UpdateBreastShape();
+                StartCoroutine(RefreshNeutralBreastPosition());
             }
-            else if(breastMorphListener.Changed() || atomScaleListener.Changed())
+            else if(!staticPhysicsRefreshDone && (breastMorphListener.Changed() || atomScaleListener.Changed()))
             {
                 StartCoroutine(RefreshStaticPhysics());
             }
-
-#if DEBUG_PHYSICS || DEBUG_MORPHS
-            if(neutralPos.HasValue)
+            else
             {
+                UpdateBreastShape();
+#if DEBUG_PHYSICS || DEBUG_MORPHS
                 positionInfoUIText.SetVal(
                     $"<size=28>Neutral pos:\n" +
-                    $"{Formatting.NameValueString("x", neutralPos.Value.x, 1000)} " +
-                    $"{Formatting.NameValueString("y", neutralPos.Value.y, 1000)} " +
-                    $"{Formatting.NameValueString("z", neutralPos.Value.z, 1000)} " +
+                    $"{Formatting.NameValueString("x", neutralPos.x, 1000)} " +
+                    $"{Formatting.NameValueString("y", neutralPos.y, 1000)} " +
+                    $"{Formatting.NameValueString("z", neutralPos.z, 1000)} " +
                     $"</size>"
                 );
-            }
 #endif
+            }
         }
 
         private void UpdateBreastShape()
@@ -407,20 +388,14 @@ namespace TittyMagic
             {
                 gravityMorphH.Update(roll, pitch, scaleVal, gravityLogAmount);
             }
-            else
-            {
-                gravityMorphH.ResetAll();
-            }
 
-            if(neutralPos.HasValue)
+            // TODO properly disable on uncheck
+            positionDiff = Vector3.zero;
+            if(enableForceMorphs.val)
             {
-                positionDiff = neutralPos.Value - Calc.RelativePosition(chest, rNipple.position);
-                if(!enableForceMorphs.val)
-                {
-                    positionDiff = Vector3.zero;
-                }
-                relativePosMorphH.Update(positionDiff, scaleVal, Const.ConvertToLegacyVal(softness.val));
+                positionDiff = neutralPos - Calc.RelativePosition(chest, rNipple.position);
             }
+            relativePosMorphH.Update(positionDiff, scaleVal, Const.ConvertToLegacyVal(softness.val));
 
             gravityPhysicsH.Update(roll, pitch, scaleVal, Const.ConvertToLegacyVal(softness.val), Const.ConvertToLegacyVal(gravity.val));
 #if DEBUG_PHYSICS || DEBUG_MORPHS
@@ -431,6 +406,23 @@ namespace TittyMagic
 #elif DEBUG_MORPHS
             morphDebugInfo.SetVal(gravityMorphH.GetStatus());
 #endif
+        }
+
+        public IEnumerator RefreshNeutralBreastPosition()
+        {
+            neutralBreastPositionRefreshDone = false;
+            containingAtom.SetFreezePhysics(true);
+
+            Vector3 diff = neutralPos - Calc.RelativePosition(chest, rNipple.position);
+
+            while(diff != Vector3.zero)
+            {
+                yield return new WaitForSeconds(0.1f);
+                neutralPos = Calc.RelativePosition(chest, rNipple.position);
+            }
+
+            containingAtom.SetFreezePhysics(false);
+            neutralBreastPositionRefreshDone = true;
         }
 
         public IEnumerator RefreshStaticPhysics(Action callback = null)
