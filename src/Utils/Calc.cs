@@ -25,5 +25,17 @@ namespace TittyMagic
                 Vector3.Dot(distance, origin.forward.normalized)
             );
         }
+
+        public static bool EqualWithin(float roundFactor, float v1, float v2)
+        {
+            return Mathf.Round(v1 * roundFactor) / roundFactor == Mathf.Round(v2 * roundFactor) / roundFactor;
+        }
+
+        public static bool PosEqualWithin(float roundFactor, Vector3 v1, Vector3 v2)
+        {
+            return Mathf.Round(v1.x * roundFactor) == Mathf.Round(v2.x * roundFactor)
+                && Mathf.Round(v1.y * roundFactor) == Mathf.Round(v2.y * roundFactor)
+                && Mathf.Round(v1.z * roundFactor) == Mathf.Round(v2.z * roundFactor);
+        }
     }
 }

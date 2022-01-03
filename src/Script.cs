@@ -55,8 +55,8 @@ namespace TittyMagic
         private JSONStorableBool enableForceMorphs;
         private JSONStorableFloat nippleErection;
 
-        private bool staticPhysicsRefreshInProgress = false;
-        private bool neutralBreastPositionRefreshInProgress = false;
+        private float timeout = 2;
+        private bool refreshInProgress = false;
         private bool restoringFromJson = false;
         private float? legacySoftnessFromJson;
         private float? legacyGravityFromJson;
@@ -69,9 +69,6 @@ namespace TittyMagic
 #elif DEBUG_MORPHS
         protected JSONStorableString morphDebugInfo = new JSONStorableString("Morph Debug Info", "");
 #endif
-
-        private float timeSinceLastRefresh = 0f;
-        private const float refreshFrequency = 0.1f;
 
         public override void Init()
         {
@@ -127,7 +124,7 @@ namespace TittyMagic
                 }
 
                 StartCoroutine(SubscribeToKeybindings());
-                StartCoroutine(RefreshStaticPhysics(() =>
+                StartCoroutine(RefreshPositionAndStaticPhysics(() =>
                 {
                     settingsMonitor.enabled = true;
                 }));
@@ -301,6 +298,7 @@ namespace TittyMagic
                     gravity.val = val;
                     UpdateLogarithmicGravityAmount(val);
                 }
+                // TODO need to do refresh here?
                 staticPhysicsH.FullUpdate(massEstimate, val, nippleErection.val);
             });
             gravity.slider.onValueChanged.AddListener((float val) =>
@@ -363,13 +361,9 @@ namespace TittyMagic
 
         private void DoFixedUpdate()
         {
-            if(!neutralBreastPositionRefreshInProgress)
+            if(breastMorphListener.Changed() || atomScaleListener.Changed())
             {
-                StartCoroutine(RefreshNeutralBreastPosition());
-            }
-            else if(!staticPhysicsRefreshInProgress && (breastMorphListener.Changed() || atomScaleListener.Changed()))
-            {
-                StartCoroutine(RefreshStaticPhysics());
+                StartCoroutine(RefreshPositionAndStaticPhysics());
             }
             else
             {
@@ -416,49 +410,53 @@ namespace TittyMagic
 #endif
         }
 
-        public IEnumerator RefreshNeutralBreastPosition()
+        public IEnumerator RefreshPositionAndStaticPhysics(Action callback = null)
         {
-            neutralBreastPositionRefreshInProgress = true;
+            refreshInProgress = true;
+
+            yield return RefreshNeutralBreastPosition();
+            yield return RefreshStaticPhysics();
+            refreshInProgress = false;
+
+            callback?.Invoke();
+        }
+
+        private IEnumerator RefreshNeutralBreastPosition()
+        {
             containingAtom.SetFreezePhysics(true);
 
-            Vector3 diff = neutralPos - Calc.RelativePosition(chest, rNipple.position);
-
-            while(diff != Vector3.zero)
+            float duration = 0;
+            float interval = 0.1f;
+            while(duration < timeout && !Calc.PosEqualWithin(10000f, neutralPos, Calc.RelativePosition(chest, rNipple.position)))
             {
-                yield return new WaitForSeconds(0.1f);
                 neutralPos = Calc.RelativePosition(chest, rNipple.position);
+                yield return new WaitForSeconds(interval);
+                duration += interval;
             }
 
             containingAtom.SetFreezePhysics(false);
-            neutralBreastPositionRefreshInProgress = false;
         }
 
-        public IEnumerator RefreshStaticPhysics(Action callback = null)
+        private IEnumerator RefreshStaticPhysics()
         {
-            staticPhysicsRefreshInProgress = true;
-            float atomScale = atomScaleListener.Value;
             while(breastMorphListener.Changed())
             {
                 yield return null;
             }
 
-            // Iterate the update a few times because each update changes breast shape and thereby the mass estimate.
-            for(int i = 0; i < 10; i++)
+            float atomScale = atomScaleListener.Value;
+            float duration = 0;
+            float interval = 0.05f;
+            while(duration < timeout && !Calc.EqualWithin(1000f, massEstimate, DetermineMassEstimate(atomScale)))
             {
-                // update only non-soft physics settings to improve performance
-                UpdateMassEstimate(atomScale);
+                massEstimate = DetermineMassEstimate(atomScale);
                 staticPhysicsH.UpdateMainPhysics(massEstimate, softness.val);
-                if(i > 0)
-                {
-                    yield return new WaitForSeconds(0.10f);
-                }
+                yield return new WaitForSeconds(interval);
+                duration += interval;
             }
 
-            UpdateMassEstimate(atomScale, updateUIStatus: true);
+            UpdateMassUIStatus(atomScale);
             staticPhysicsH.FullUpdate(massEstimate, softness.val, nippleErection.val);
-
-            staticPhysicsRefreshInProgress = false;
-            callback?.Invoke();
         }
 
         public void RefreshRateDependentPhysics()
@@ -466,35 +464,35 @@ namespace TittyMagic
             staticPhysicsH.UpdateRateDependentPhysics(massEstimate, softness.val);
         }
 
-        private void UpdateMassEstimate(float atomScale, bool updateUIStatus = false)
+        private float DetermineMassEstimate(float atomScale)
         {
             float mass = breastMassCalculator.Calculate(atomScale);
 
             if(mass > Const.MASS_MAX)
+                return Const.MASS_MAX;
+
+            if(mass < Const.MASS_MIN)
+                return Const.MASS_MIN;
+
+            return mass;
+        }
+
+        private void UpdateMassUIStatus(float atomScale)
+        {
+            float mass = breastMassCalculator.Calculate(atomScale);
+            if(mass > Const.MASS_MAX)
             {
-                massEstimate = Const.MASS_MAX;
-                if(updateUIStatus)
-                {
-                    float excess = Calc.RoundToDecimals(mass - Const.MASS_MAX, 1000f);
-                    statusUIText.SetVal(MassExcessStatus(excess));
-                }
+                float excess = Calc.RoundToDecimals(mass - Const.MASS_MAX, 1000f);
+                statusUIText.SetVal(MassExcessStatus(excess));
             }
             else if(mass < Const.MASS_MIN)
             {
-                massEstimate = Const.MASS_MIN;
-                if(updateUIStatus)
-                {
-                    float shortage = Calc.RoundToDecimals(Const.MASS_MIN - mass, 1000f);
-                    statusUIText.SetVal(MassShortageStatus(shortage));
-                }
+                float shortage = Calc.RoundToDecimals(Const.MASS_MIN - mass, 1000f);
+                statusUIText.SetVal(MassShortageStatus(shortage));
             }
             else
             {
-                massEstimate = mass;
-                if(updateUIStatus)
-                {
-                    statusUIText.SetVal("");
-                }
+                statusUIText.SetVal(Formatting.NameValueString("Mass", massEstimate));
             }
         }
 

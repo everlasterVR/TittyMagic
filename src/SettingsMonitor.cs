@@ -86,7 +86,7 @@ namespace TittyMagic
 
                     if(fullUpdateNeeded)
                     {
-                        StartCoroutine(gameObject.GetComponent<Script>().RefreshStaticPhysics());
+                        StartCoroutine(gameObject.GetComponent<Script>().RefreshPositionAndStaticPhysics());
                     }
 
                     float fixedDeltaTime = Time.fixedDeltaTime;
