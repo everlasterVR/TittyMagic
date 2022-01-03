@@ -171,8 +171,16 @@ namespace TittyMagic
             gravity = NewFloatSlider("Breast gravity", 50f, Const.GRAVITY_MIN, Const.GRAVITY_MAX, "F0");
             linkSoftnessAndGravity = NewToggle("Link softness and gravity", true, false);
             positionInfoUIText = NewTextField("positionInfoText", 36, 100);
-            enableGravityMorphs = NewToggle("Enable gravity morphs", true, false);
-            enableForceMorphs = NewToggle("Enable force morphs", true, false);
+            enableGravityMorphs = NewToggle("Enable gravity morphs", false, false);
+            enableGravityMorphs.toggle.onValueChanged.AddListener((bool val) =>
+            {
+                if(!val)
+                {
+                    gravityMorphH.ResetAll();
+                }
+            });
+
+            enableForceMorphs = NewToggle("Enable force morphs", false, false);
 
             CreateNewSpacer(10f);
             nippleErection = NewFloatSlider("Erect nipples", 0f, 0f, 1.0f, "F2");
