@@ -443,14 +443,14 @@ namespace TittyMagic
             }
 
             // Iterate the update a few times because each update changes breast shape and thereby the mass estimate.
-            for(int i = 0; i < 6; i++)
+            for(int i = 0; i < 10; i++)
             {
                 // update only non-soft physics settings to improve performance
                 UpdateMassEstimate(atomScale);
                 staticPhysicsH.UpdateMainPhysics(massEstimate, softness.val);
                 if(i > 0)
                 {
-                    yield return new WaitForSeconds(0.12f);
+                    yield return new WaitForSeconds(0.10f);
                 }
             }
 
