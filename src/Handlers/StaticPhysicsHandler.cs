@@ -176,6 +176,7 @@ namespace TittyMagic
         public string GetStatus()
         {
             string text = "MAIN PHYSICS\n";
+            text += Formatting.NameValueString("mass", Globals.BREAST_CONTROL.mass, padRight: 25) + "\n";
             foreach(var it in mainPhysicsConfigs)
                 text += it.GetStatus();
             foreach(var it in rateDependentPhysicsConfigs)
