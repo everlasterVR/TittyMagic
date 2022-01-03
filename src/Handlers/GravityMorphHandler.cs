@@ -82,11 +82,11 @@ namespace TittyMagic
             foreach(var it in leanBackMorphs)
                 text += it.GetStatus();
 
-            text += "\nROLL LEFT\n";
+            text += "\nLEAN FORWARD\n";
             foreach(var it in leanForwardMorphs)
                 text += it.GetStatus();
 
-            text += "\nLEAN FORWARD\n";
+            text += "\nROLL LEFT\n";
             foreach(var it in rollLeftMorphs)
                 text += it.GetStatus();
 
