@@ -129,7 +129,6 @@ namespace TittyMagic
                 StartCoroutine(SubscribeToKeybindings());
                 StartCoroutine(RefreshStaticPhysics(() =>
                 {
-                    staticPhysicsRefreshDone = true;
                     settingsMonitor.enabled = true;
                 }));
                 StartCoroutine(MigrateFromPre2_1());
@@ -344,49 +343,7 @@ namespace TittyMagic
         {
             try
             {
-                if(staticPhysicsRefreshDone)
-                {
-                    if(!neutralBreastPositionRefreshDone)
-                    {
-                        bool diffIsZero = neutralPos - Calc.RelativePosition(chest, rNipple.position) == Vector3.zero;
-
-                        timeSinceLastRefresh += Time.deltaTime;
-                        if(!diffIsZero)
-                        {
-                            if(timeSinceLastRefresh >= refreshFrequency)
-                            {
-                                timeSinceLastRefresh -= refreshFrequency;
-                                neutralPos = Calc.RelativePosition(chest, rNipple.position);
-                            }
-                        }
-                        else
-                        {
-                            neutralBreastPositionRefreshDone = true;
-                        }
-                    }
-
-                    UpdateBreastShape();
-                }
-                else if(breastMorphListener.Changed() || atomScaleListener.Changed())
-                {
-                    StartCoroutine(RefreshStaticPhysics(() =>
-                    {
-                        staticPhysicsRefreshDone = true;
-                    }));
-                }
-
-#if DEBUG_PHYSICS || DEBUG_MORPHS
-                if(neutralPos.HasValue)
-                {
-                    positionInfoUIText.SetVal(
-                        $"<size=28>Neutral pos:\n" +
-                        $"{Formatting.NameValueString("x", neutralPos.Value.x, 1000)} " +
-                        $"{Formatting.NameValueString("y", neutralPos.Value.y, 1000)} " +
-                        $"{Formatting.NameValueString("z", neutralPos.Value.z, 1000)} " +
-                        $"</size>"
-                    );
-                }
-#endif
+                DoFixedUpdate();
             }
             catch(Exception e)
             {
@@ -394,6 +351,50 @@ namespace TittyMagic
                 Log.Error($"Try reloading plugin!");
                 enabled = false;
             }
+        }
+
+        private void DoFixedUpdate()
+        {
+            if(staticPhysicsRefreshDone)
+            {
+                if(!neutralBreastPositionRefreshDone)
+                {
+                    bool diffIsZero = neutralPos - Calc.RelativePosition(chest, rNipple.position) == Vector3.zero;
+
+                    timeSinceLastRefresh += Time.deltaTime;
+                    if(!diffIsZero)
+                    {
+                        if(timeSinceLastRefresh >= refreshFrequency)
+                        {
+                            timeSinceLastRefresh -= refreshFrequency;
+                            neutralPos = Calc.RelativePosition(chest, rNipple.position);
+                        }
+                    }
+                    else
+                    {
+                        neutralBreastPositionRefreshDone = true;
+                    }
+                }
+
+                UpdateBreastShape();
+            }
+            else if(breastMorphListener.Changed() || atomScaleListener.Changed())
+            {
+                StartCoroutine(RefreshStaticPhysics());
+            }
+
+#if DEBUG_PHYSICS || DEBUG_MORPHS
+            if(neutralPos.HasValue)
+            {
+                positionInfoUIText.SetVal(
+                    $"<size=28>Neutral pos:\n" +
+                    $"{Formatting.NameValueString("x", neutralPos.Value.x, 1000)} " +
+                    $"{Formatting.NameValueString("y", neutralPos.Value.y, 1000)} " +
+                    $"{Formatting.NameValueString("z", neutralPos.Value.z, 1000)} " +
+                    $"</size>"
+                );
+            }
+#endif
         }
 
         private void UpdateBreastShape()
@@ -456,6 +457,7 @@ namespace TittyMagic
             UpdateMassEstimate(atomScale, updateUIStatus: true);
             staticPhysicsH.FullUpdate(massEstimate, softness.val, nippleErection.val);
 
+            staticPhysicsRefreshDone = true;
             callback?.Invoke();
         }
 
