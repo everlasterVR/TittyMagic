@@ -55,8 +55,8 @@ namespace TittyMagic
         private JSONStorableBool enableForceMorphs;
         private JSONStorableFloat nippleErection;
 
-        private bool staticPhysicsRefreshDone = false;
-        private bool neutralBreastPositionRefreshDone = false;
+        private bool staticPhysicsRefreshInProgress = false;
+        private bool neutralBreastPositionRefreshInProgress = false;
         private bool restoringFromJson = false;
         private float? legacySoftnessFromJson;
         private float? legacyGravityFromJson;
@@ -363,11 +363,11 @@ namespace TittyMagic
 
         private void DoFixedUpdate()
         {
-            if(!neutralBreastPositionRefreshDone)
+            if(!neutralBreastPositionRefreshInProgress)
             {
                 StartCoroutine(RefreshNeutralBreastPosition());
             }
-            else if(!staticPhysicsRefreshDone && (breastMorphListener.Changed() || atomScaleListener.Changed()))
+            else if(!staticPhysicsRefreshInProgress && (breastMorphListener.Changed() || atomScaleListener.Changed()))
             {
                 StartCoroutine(RefreshStaticPhysics());
             }
@@ -418,7 +418,7 @@ namespace TittyMagic
 
         public IEnumerator RefreshNeutralBreastPosition()
         {
-            neutralBreastPositionRefreshDone = false;
+            neutralBreastPositionRefreshInProgress = true;
             containingAtom.SetFreezePhysics(true);
 
             Vector3 diff = neutralPos - Calc.RelativePosition(chest, rNipple.position);
@@ -430,12 +430,12 @@ namespace TittyMagic
             }
 
             containingAtom.SetFreezePhysics(false);
-            neutralBreastPositionRefreshDone = true;
+            neutralBreastPositionRefreshInProgress = false;
         }
 
         public IEnumerator RefreshStaticPhysics(Action callback = null)
         {
-            staticPhysicsRefreshDone = false;
+            staticPhysicsRefreshInProgress = true;
             float atomScale = atomScaleListener.Value;
             while(breastMorphListener.Changed())
             {
@@ -457,7 +457,7 @@ namespace TittyMagic
             UpdateMassEstimate(atomScale, updateUIStatus: true);
             staticPhysicsH.FullUpdate(massEstimate, softness.val, nippleErection.val);
 
-            staticPhysicsRefreshDone = true;
+            staticPhysicsRefreshInProgress = false;
             callback?.Invoke();
         }
 
