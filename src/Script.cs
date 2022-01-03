@@ -17,10 +17,12 @@ namespace TittyMagic
 
         private Bindings customBindings;
 
-        private Transform chest;
-        private Transform rNipple;
+        private List<Rigidbody> rigidbodies;
+        private Transform chestTransform;
+        private Rigidbody rNippleRigidbody;
         private DAZCharacterSelector geometry;
-        private Vector3 neutralPos;
+        private Vector3 neutralRelativePos;
+        private Vector3 offsetNeutralPos;
         private Vector3 positionDiff;
 
         private float massEstimate;
@@ -55,7 +57,6 @@ namespace TittyMagic
         private JSONStorableBool enableForceMorphs;
         private JSONStorableFloat nippleErection;
 
-        private float timeout = 2;
         private bool refreshInProgress = false;
         private bool restoringFromJson = false;
         private float? legacySoftnessFromJson;
@@ -86,8 +87,9 @@ namespace TittyMagic
 
                 AdjustJoints breastControl = containingAtom.GetStorableByID("BreastControl") as AdjustJoints;
                 DAZPhysicsMesh breastPhysicsMesh = containingAtom.GetStorableByID("BreastPhysicsMesh") as DAZPhysicsMesh;
-                chest = containingAtom.GetStorableByID("chest").transform;
-                rNipple = containingAtom.GetStorableByID("rNipple").transform;
+                rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
+                chestTransform = containingAtom.GetStorableByID("chest").transform;
+                rNippleRigidbody = rigidbodies.Find(rb => rb.name == "rNipple");
                 geometry = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
 
                 Globals.BREAST_CONTROL = breastControl;
@@ -124,10 +126,7 @@ namespace TittyMagic
                 }
 
                 StartCoroutine(SubscribeToKeybindings());
-                StartCoroutine(RefreshPositionAndStaticPhysics(() =>
-                {
-                    settingsMonitor.enabled = true;
-                }));
+                StartCoroutine(RefreshPositionAndStaticPhysics());
                 StartCoroutine(MigrateFromPre2_1());
             }
             catch(Exception e)
@@ -350,6 +349,15 @@ namespace TittyMagic
             try
             {
                 DoFixedUpdate();
+#if DEBUG_PHYSICS || DEBUG_MORPHS
+                positionInfoUIText.SetVal(
+                    $"<size=28>Neutral pos:\n" +
+                    $"{Formatting.NameValueString("x", neutralRelativePos.x, 1000)} " +
+                    $"{Formatting.NameValueString("y", neutralRelativePos.y, 1000)} " +
+                    $"{Formatting.NameValueString("z", neutralRelativePos.z, 1000)} " +
+                    $"</size>"
+                );
+#endif
             }
             catch(Exception e)
             {
@@ -361,6 +369,11 @@ namespace TittyMagic
 
         private void DoFixedUpdate()
         {
+            if(refreshInProgress)
+            {
+                return;
+            }
+
             if(breastMorphListener.Changed() || atomScaleListener.Changed())
             {
                 StartCoroutine(RefreshPositionAndStaticPhysics());
@@ -368,22 +381,13 @@ namespace TittyMagic
             else
             {
                 UpdateBreastShape();
-#if DEBUG_PHYSICS || DEBUG_MORPHS
-                positionInfoUIText.SetVal(
-                    $"<size=28>Neutral pos:\n" +
-                    $"{Formatting.NameValueString("x", neutralPos.x, 1000)} " +
-                    $"{Formatting.NameValueString("y", neutralPos.y, 1000)} " +
-                    $"{Formatting.NameValueString("z", neutralPos.z, 1000)} " +
-                    $"</size>"
-                );
-#endif
             }
         }
 
         private void UpdateBreastShape()
         {
-            float roll = AngleCalc.Roll(chest.rotation);
-            float pitch = AngleCalc.Pitch(chest.rotation);
+            float roll = AngleCalc.Roll(chestTransform.rotation);
+            float pitch = AngleCalc.Pitch(chestTransform.rotation);
             float scaleVal = breastMassCalculator.LegacyScale(massEstimate);
 
             if(enableGravityMorphs.val)
@@ -395,7 +399,7 @@ namespace TittyMagic
             positionDiff = Vector3.zero;
             if(enableForceMorphs.val)
             {
-                positionDiff = neutralPos - Calc.RelativePosition(chest, rNipple.position);
+                positionDiff = neutralRelativePos - Calc.RelativePosition(chestTransform, rNippleRigidbody.transform.position);
             }
             relativePosMorphH.Update(positionDiff, scaleVal, Const.ConvertToLegacyVal(softness.val));
 
@@ -410,53 +414,50 @@ namespace TittyMagic
 #endif
         }
 
-        public IEnumerator RefreshPositionAndStaticPhysics(Action callback = null)
+        public IEnumerator RefreshPositionAndStaticPhysics()
         {
+            yield return new WaitForEndOfFrame();
             refreshInProgress = true;
+            settingsMonitor.enabled = false;
 
-            yield return RefreshNeutralBreastPosition();
-            yield return RefreshStaticPhysics();
-            refreshInProgress = false;
+            // simulate breasts zero G
+            rigidbodies.Find(rb => rb.name == "lPectoral").useGravity = false;
+            rigidbodies.Find(rb => rb.name == "rPectoral").useGravity = false;
 
-            callback?.Invoke();
-        }
-
-        private IEnumerator RefreshNeutralBreastPosition()
-        {
-            containingAtom.SetFreezePhysics(true);
+            // zero pose morphs
+            gravityMorphH.ResetAll();
 
             float duration = 0;
             float interval = 0.1f;
-            while(duration < timeout && !Calc.PosEqualWithin(10000f, neutralPos, Calc.RelativePosition(chest, rNipple.position)))
+            while(duration < 2f && (
+                !Calc.VectorEqualWithin(1000f, rNippleRigidbody.velocity, Vector3.zero) ||
+                !Calc.EqualWithin(1000f, massEstimate, DetermineMassEstimate(atomScaleListener.Value)) ||
+                !Calc.VectorEqualWithin(100000f, neutralRelativePos, Calc.RelativePosition(chestTransform, rNippleRigidbody.transform.position))
+            ))
             {
-                neutralPos = Calc.RelativePosition(chest, rNipple.position);
                 yield return new WaitForSeconds(interval);
                 duration += interval;
-            }
 
-            containingAtom.SetFreezePhysics(false);
-        }
+                // update mass estimate
+                massEstimate = DetermineMassEstimate(atomScaleListener.Value);
 
-        private IEnumerator RefreshStaticPhysics()
-        {
-            while(breastMorphListener.Changed())
-            {
-                yield return null;
-            }
-
-            float atomScale = atomScaleListener.Value;
-            float duration = 0;
-            float interval = 0.05f;
-            while(duration < timeout && !Calc.EqualWithin(1000f, massEstimate, DetermineMassEstimate(atomScale)))
-            {
-                massEstimate = DetermineMassEstimate(atomScale);
+                // update main static physics
                 staticPhysicsH.UpdateMainPhysics(massEstimate, softness.val);
-                yield return new WaitForSeconds(interval);
-                duration += interval;
+
+                // update gravity physics angles
+                float roll = 0;
+                float pitch = 0;
+                float scaleVal = breastMassCalculator.LegacyScale(massEstimate);
+                gravityPhysicsH.Update(roll, pitch, scaleVal, Const.ConvertToLegacyVal(softness.val), Const.ConvertToLegacyVal(gravity.val));
+
+                // update neutral breast position
+                neutralRelativePos = Calc.RelativePosition(chestTransform, rNippleRigidbody.transform.position);
             }
 
-            UpdateMassUIStatus(atomScale);
-            staticPhysicsH.FullUpdate(massEstimate, softness.val, nippleErection.val);
+            rigidbodies.Find(rb => rb.name == "lPectoral").useGravity = true;
+            rigidbodies.Find(rb => rb.name == "rPectoral").useGravity = true;
+            settingsMonitor.enabled = true;
+            refreshInProgress = false;
         }
 
         public void RefreshRateDependentPhysics()

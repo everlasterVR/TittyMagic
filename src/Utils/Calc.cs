@@ -31,7 +31,7 @@ namespace TittyMagic
             return Mathf.Round(v1 * roundFactor) / roundFactor == Mathf.Round(v2 * roundFactor) / roundFactor;
         }
 
-        public static bool PosEqualWithin(float roundFactor, Vector3 v1, Vector3 v2)
+        public static bool VectorEqualWithin(float roundFactor, Vector3 v1, Vector3 v2)
         {
             return Mathf.Round(v1.x * roundFactor) / roundFactor == Mathf.Round(v2.x * roundFactor) / roundFactor
                 && Mathf.Round(v1.y * roundFactor) / roundFactor == Mathf.Round(v2.y * roundFactor) / roundFactor
