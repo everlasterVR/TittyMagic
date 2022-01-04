@@ -58,6 +58,8 @@ namespace TittyMagic
         private JSONStorableBool enableForceMorphs;
         private JSONStorableFloat nippleErection;
 
+        private float timeSinceListenersChecked;
+        private float listenersCheckInterval = 0.1f;
         private int refreshStatus = RefreshStatus.WAITING;
         private bool restoringFromJson = false;
         private float? legacySoftnessFromJson;
@@ -363,6 +365,8 @@ namespace TittyMagic
 
         private void DoFixedUpdate()
         {
+            timeSinceListenersChecked += Time.deltaTime;
+
             if(refreshStatus == RefreshStatus.MASS_STARTED)
             {
 #if DEBUG_PHYSICS || DEBUG_MORPHS
@@ -384,19 +388,22 @@ namespace TittyMagic
                     lPectoralRigidbody.useGravity = true;
                     rPectoralRigidbody.useGravity = true;
                     settingsMonitor.enabled = true;
-                    refreshStatus = RefreshStatus.WAITING;
+                    refreshStatus = RefreshStatus.DONE;
                 }
                 return;
             }
 
-            if(breastMorphListener.Changed() || atomScaleListener.Changed())
+            if(timeSinceListenersChecked >= listenersCheckInterval)
             {
-                StartCoroutine(BeginRefresh());
+                timeSinceListenersChecked -= listenersCheckInterval;
+                if(refreshStatus != RefreshStatus.WAITING && (breastMorphListener.Changed() || atomScaleListener.Changed()))
+                {
+                    StartCoroutine(BeginRefresh());
+                    return;
+                }
             }
-            else
-            {
-                UpdateBreastShape();
-            }
+
+            UpdateBreastShape();
 #if DEBUG_PHYSICS || DEBUG_MORPHS
             positionInfoUIText.SetVal(
                 $"<size=28>Neutral pos:\n" +
@@ -439,6 +446,14 @@ namespace TittyMagic
 
         public IEnumerator BeginRefresh()
         {
+            refreshStatus = RefreshStatus.WAITING;
+            // ensure refresh actually begins only once listeners report no change
+            yield return new WaitForSeconds(listenersCheckInterval);
+            while(breastMorphListener.Changed() || atomScaleListener.Changed())
+            {
+                yield return new WaitForSeconds(0.33f);
+            }
+
             refreshStatus = RefreshStatus.MASS_STARTED;
             settingsMonitor.enabled = false;
 
