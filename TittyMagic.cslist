@@ -1,8 +1,8 @@
-src\Configs\AdditiveMorphConfig.cs
 src\Configs\GravityMorphConfig.cs
 src\Configs\GravityPhysicsConfig.cs
 src\Configs\MorphConfig.cs
 src\Configs\PhysicsConfig.cs
+src\Configs\PositionMorphConfig.cs
 src\Handlers\GravityMorphHandler.cs
 src\Handlers\GravityPhysicsHandler.cs
 src\Handlers\NippleErectionMorphHandler.cs

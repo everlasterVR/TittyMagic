@@ -5,12 +5,12 @@ namespace TittyMagic
 {
     internal class RelativePosMorphHandler
     {
-        private HashSet<AdditiveMorphConfig> downForceMorphs;
-        private HashSet<AdditiveMorphConfig> upForceMorphs;
-        private HashSet<AdditiveMorphConfig> backForceMorphs;
-        private HashSet<AdditiveMorphConfig> forwardForceMorphs;
-        private HashSet<AdditiveMorphConfig> rightForceMorphs;
-        private HashSet<AdditiveMorphConfig> leftForceMorphs;
+        private HashSet<PositionMorphConfig> downForceMorphs;
+        private HashSet<PositionMorphConfig> upForceMorphs;
+        private HashSet<PositionMorphConfig> backForceMorphs;
+        private HashSet<PositionMorphConfig> forwardForceMorphs;
+        private HashSet<PositionMorphConfig> rightForceMorphs;
+        private HashSet<PositionMorphConfig> leftForceMorphs;
 
         //private Vector3 positionDiff;
         //private float scale;
@@ -19,54 +19,54 @@ namespace TittyMagic
         public RelativePosMorphHandler()
         {
             //should use same morphs as uprightMorphs in GravityMorphHandler
-            downForceMorphs = new HashSet<AdditiveMorphConfig>
+            downForceMorphs = new HashSet<PositionMorphConfig>
             {
                 //                      name                            baseMul    scaleMul   gravityMul
-                new AdditiveMorphConfig("TM_Upright1",                   1.00f,     1.00f,     1.00f),
-                new AdditiveMorphConfig("TM_Upright2",                   1.00f,     1.50f,     0.50f),
-                new AdditiveMorphConfig("TM_UprightSmoother",           -2.00f,     1.50f,     0.50f),
-                new AdditiveMorphConfig("TM_Upright3",                   2.00f,     0.00f,     2.00f),
+                new PositionMorphConfig("TM_Upright1",                   1.00f,     1.00f,     1.00f),
+                new PositionMorphConfig("TM_Upright2",                   1.00f,     1.50f,     0.50f),
+                new PositionMorphConfig("TM_UprightSmoother",           -2.00f,     1.50f,     0.50f),
+                new PositionMorphConfig("TM_Upright3",                   2.00f,     0.00f,     2.00f),
             };
 
             //should use same morphs as upsideDownMorphs in GravityMorphHandler
-            upForceMorphs = new HashSet<AdditiveMorphConfig> {
-                new AdditiveMorphConfig("TM_UpsideDown1",                1.40f,     0.00f,     2.00f),
-                new AdditiveMorphConfig("TM_UpsideDown2",                1.40f,     0.50f,     1.50f),
-                new AdditiveMorphConfig("TM_UpsideDown3",                1.00f,     1.00f,     1.00f),
-                new AdditiveMorphConfig("TM_UpsideDown4",                1.40f,     1.00f,     0.00f),
-                new AdditiveMorphConfig("TM_UpsideDown5",                1.40f,     1.50f,     0.50f),
-                new AdditiveMorphConfig("TM_UpsideDown6",                1.40f,    -0.50f,     2.00f),
+            upForceMorphs = new HashSet<PositionMorphConfig> {
+                new PositionMorphConfig("TM_UpsideDown1",                1.40f,     0.00f,     2.00f),
+                new PositionMorphConfig("TM_UpsideDown2",                1.40f,     0.50f,     1.50f),
+                new PositionMorphConfig("TM_UpsideDown3",                1.00f,     1.00f,     1.00f),
+                new PositionMorphConfig("TM_UpsideDown4",                1.40f,     1.00f,     0.00f),
+                new PositionMorphConfig("TM_UpsideDown5",                1.40f,     1.50f,     0.50f),
+                new PositionMorphConfig("TM_UpsideDown6",                1.40f,    -0.50f,     2.00f),
             };
 
             //should use same morphs as leanBackMorphs in GravityMorphHandler
-            backForceMorphs = new HashSet<AdditiveMorphConfig>
+            backForceMorphs = new HashSet<PositionMorphConfig>
             {
-                new AdditiveMorphConfig("TM_LeanBack1",                  1.00f,     0.00f,     2.00f),
-                new AdditiveMorphConfig("TM_LeanBack2",                  1.33f,     0.50f,     1.50f),
-                new AdditiveMorphConfig("TM_LeanBack3",                  1.00f,     1.00f,     1.00f),
+                new PositionMorphConfig("TM_LeanBack1",                  1.00f,     0.00f,     2.00f),
+                new PositionMorphConfig("TM_LeanBack2",                  1.33f,     0.50f,     1.50f),
+                new PositionMorphConfig("TM_LeanBack3",                  1.00f,     1.00f,     1.00f),
             };
 
             //should use same morphs as leanForwardMorphs in GravityMorphHandler
-            forwardForceMorphs = new HashSet<AdditiveMorphConfig> {
-                new AdditiveMorphConfig("TM_LeanForward1",               1.20f,     0.50f,     1.50f),
-                new AdditiveMorphConfig("TM_LeanForward2",               1.20f,     1.50f,     0.50f),
-                new AdditiveMorphConfig("TM_LeanForward3",               1.33f,     1.00f,     1.00f),
-                new AdditiveMorphConfig("TM_LeanForward4",               1.33f,    -0.50f,     2.00f),
-                new AdditiveMorphConfig("TM_LeanForward5",               1.20f,    -1.00f,     2.00f),
+            forwardForceMorphs = new HashSet<PositionMorphConfig> {
+                new PositionMorphConfig("TM_LeanForward1",               1.20f,     0.50f,     1.50f),
+                new PositionMorphConfig("TM_LeanForward2",               1.20f,     1.50f,     0.50f),
+                new PositionMorphConfig("TM_LeanForward3",               1.33f,     1.00f,     1.00f),
+                new PositionMorphConfig("TM_LeanForward4",               1.33f,    -0.50f,     2.00f),
+                new PositionMorphConfig("TM_LeanForward5",               1.20f,    -1.00f,     2.00f),
             };
 
             //should use same morphs as rollLeftMorphs in GravityMorphHandler
-            rightForceMorphs = new HashSet<AdditiveMorphConfig>
+            rightForceMorphs = new HashSet<PositionMorphConfig>
             {
-                new AdditiveMorphConfig("TM_RollLeft1",                  1.40f,     0.00f,     2.00f),
-                new AdditiveMorphConfig("TM_RollLeft2",                  1.40f,     2.00f,     0.00f),
+                new PositionMorphConfig("TM_RollLeft1",                  1.40f,     0.00f,     2.00f),
+                new PositionMorphConfig("TM_RollLeft2",                  1.40f,     2.00f,     0.00f),
             };
 
             //should use same morphs as rollRightMorphs in GravityMorphHandler
-            leftForceMorphs = new HashSet<AdditiveMorphConfig>
+            leftForceMorphs = new HashSet<PositionMorphConfig>
             {
-                new AdditiveMorphConfig("TM_RollRight1",                  1.40f,     0.00f,     2.00f),
-                new AdditiveMorphConfig("TM_RollRight2",                  1.40f,     2.00f,     0.00f),
+                new PositionMorphConfig("TM_RollRight1",                  1.40f,     0.00f,     2.00f),
+                new PositionMorphConfig("TM_RollRight2",                  1.40f,     2.00f,     0.00f),
             };
         }
 

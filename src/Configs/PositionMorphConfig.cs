@@ -1,6 +1,6 @@
 ﻿namespace TittyMagic
 {
-    internal class AdditiveMorphConfig
+    internal class PositionMorphConfig
     {
         public DAZMorph morph;
         public string name;
@@ -8,7 +8,7 @@
         private float? scaleMul;
         private float? softnessMul;
 
-        public AdditiveMorphConfig(string name, float baseMul, float? scaleMul, float? softnessMul)
+        public PositionMorphConfig(string name, float baseMul, float? scaleMul, float? softnessMul)
         {
             this.name = name;
             this.baseMul = baseMul;
@@ -30,7 +30,7 @@
                 (scaleFactor * effect / 2)
             );
 
-            morph.morphValue += value;
+            morph.morphValue = value;
         }
     }
 }
