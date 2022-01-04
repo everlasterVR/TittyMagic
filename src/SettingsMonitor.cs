@@ -81,7 +81,7 @@ namespace TittyMagic
         {
             try
             {
-                timeSinceLastCheck += Time.deltaTime;
+                timeSinceLastCheck += Time.unscaledDeltaTime;
                 if(timeSinceLastCheck >= checkFrequency)
                 {
                     timeSinceLastCheck -= checkFrequency;
@@ -134,7 +134,7 @@ namespace TittyMagic
             bool updateNeeded = false;
             if(!value && prevBoolValues[key])
             {
-                Log.Error(messages[key]);
+                Log.Message(messages[key]);
             }
             else if(value && !prevBoolValues[key])
             {
