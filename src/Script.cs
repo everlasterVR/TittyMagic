@@ -61,6 +61,7 @@ namespace TittyMagic
         private float timeSinceListenersChecked;
         private float listenersCheckInterval = 0.1f;
         private int refreshStatus = RefreshStatus.WAITING;
+        private bool animationWasFrozen = false;
         private bool restoringFromJson = false;
         private float? legacySoftnessFromJson;
         private float? legacyGravityFromJson;
@@ -387,6 +388,7 @@ namespace TittyMagic
                 {
                     lPectoralRigidbody.useGravity = true;
                     rPectoralRigidbody.useGravity = true;
+                    SuperController.singleton.SetFreezeAnimation(animationWasFrozen);
                     settingsMonitor.enabled = true;
                     refreshStatus = RefreshStatus.DONE;
                 }
@@ -455,7 +457,10 @@ namespace TittyMagic
             }
 
             refreshStatus = RefreshStatus.MASS_STARTED;
+
             settingsMonitor.enabled = false;
+            animationWasFrozen = SuperController.singleton.freezeAnimation;
+            SuperController.singleton.SetFreezeAnimation(true);
 
             // simulate breasts zero G
             lPectoralRigidbody.useGravity = false;
