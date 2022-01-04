@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+
 using UnityEngine;
 
 namespace TittyMagic
@@ -8,6 +10,9 @@ namespace TittyMagic
     {
         private float timeSinceLastCheck;
         private const float checkFrequency = 1f; // check for changes to settings every 1 second
+
+        private Atom atom;
+        private FreeControllerV3 control;
 
         private JSONStorable breastInOut;
         private JSONStorable softBodyPhysicsEnabler;
@@ -20,34 +25,48 @@ namespace TittyMagic
 
         public void Init(Atom containingAtom)
         {
-            breastInOut = containingAtom.GetStorableByID("BreastInOut");
+            atom = containingAtom;
+            control = atom.freeControllers.First();
+            breastInOut = atom.GetStorableByID("BreastInOut");
             breastInOut.SetBoolParamValue("enabled", false); // In/Out auto morphs off
 
-            softBodyPhysicsEnabler = containingAtom.GetStorableByID("SoftBodyPhysicsEnabler");
+            softBodyPhysicsEnabler = atom.GetStorableByID("SoftBodyPhysicsEnabler");
             softBodyPhysicsEnabler.SetBoolParamValue("enabled", true); // Atom soft physics on
+
+            // TODO only necessary in Animation optimized mode
+            control.SetBoolParamValue("freezeAtomPhysicsWhenGrabbed", false);
 
             boolValues = new Dictionary<string, bool>
             {
                 { "prefsSoftPhysics", true },
                 { "bodySoftPhysics", true },
-                { "breastSoftPhysics", true }
+                { "breastSoftPhysics", true },
             };
             prevBoolValues = new Dictionary<string, bool>
             {
                 { "prefsSoftPhysics", true },
                 { "bodySoftPhysics", true },
-                { "breastSoftPhysics", true }
+                { "breastSoftPhysics", true },
             };
 
             //monitor change to physics rate
             prevFixedDeltaTime = Time.fixedDeltaTime;
 
-            string requires = "Enable it to allow physics settings to be recalculated if breast morphs are changed. (No need to reload the plugin if you do enable it.)";
+            string softPhysicsRequired = "Enable it to allow physics settings to be recalculated if breast morphs are changed. (No need to reload the plugin if you do enable it.)";
             messages = new Dictionary<string, string>
             {
-                { "prefsSoftPhysics", $"Soft Body Physics is not enabled in User Preferences. {requires}" },
-                { "bodySoftPhysics", $"Soft Body Physics is not enabled in Control & Physics 1 tab. {requires}" },
-                { "breastSoftPhysics", $"Soft Physics is not enabled in F Breast Physics 2 tab. {requires}" }
+                {
+                    "prefsSoftPhysics",
+                    $"Soft Body Physics is not enabled in User Preferences. {softPhysicsRequired}"
+                },
+                {
+                    "bodySoftPhysics",
+                    $"Soft Body Physics is not enabled in Control & Physics 1 tab. {softPhysicsRequired}"
+                },
+                {
+                    "breastSoftPhysics",
+                    $"Soft Physics is not enabled in F Breast Physics 2 tab. {softPhysicsRequired}"
+                },
             };
 
             if(!UserPreferences.singleton.softPhysics)
@@ -70,6 +89,12 @@ namespace TittyMagic
                     boolValues["prefsSoftPhysics"] = UserPreferences.singleton.softPhysics;
                     boolValues["bodySoftPhysics"] = softBodyPhysicsEnabler.GetBoolParamValue("enabled");
                     boolValues["breastSoftPhysics"] = Globals.BREAST_PHYSICS_MESH.on;
+
+                    if(control.GetBoolParamValue("freezeAtomPhysicsWhenGrabbed"))
+                    {
+                        control.SetBoolParamValue("freezeAtomPhysicsWhenGrabbed", false);
+                        Log.Message("Prevented enabling Freeze Physics While Grabbing - it does not work in Animation Optimized mode.");
+                    }
 
                     //In/Out morphs can become enabled by e.g. loading an appearance preset. Force off.
                     if(breastInOut.GetBoolParamValue("enabled"))
