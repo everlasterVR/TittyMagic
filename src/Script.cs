@@ -58,7 +58,7 @@ namespace TittyMagic
         private JSONStorableBool enableForceMorphs;
         private JSONStorableFloat nippleErection;
 
-        private int refreshStatus = 0;
+        private int refreshStatus = RefreshStatus.WAITING;
         private bool restoringFromJson = false;
         private float? legacySoftnessFromJson;
         private float? legacyGravityFromJson;
@@ -363,7 +363,7 @@ namespace TittyMagic
 
         private void DoFixedUpdate()
         {
-            if(refreshStatus == 1)
+            if(refreshStatus == RefreshStatus.MASS_STARTED)
             {
 #if DEBUG_PHYSICS || DEBUG_MORPHS
                 positionInfoUIText.SetVal("");
@@ -371,20 +371,20 @@ namespace TittyMagic
                 return;
             }
 
-            if(refreshStatus > 1)
+            if(refreshStatus > RefreshStatus.MASS_STARTED)
             {
                 lPectoralRigidbody.AddForce(chestTransform.up * -Physics.gravity.magnitude, ForceMode.Acceleration);
                 rPectoralRigidbody.AddForce(chestTransform.up * -Physics.gravity.magnitude, ForceMode.Acceleration);
-                if(refreshStatus == 2)
+                if(refreshStatus == RefreshStatus.MASS_OK)
                 {
                     StartCoroutine(RefreshNeutralRelativePosition());
                 }
-                if(refreshStatus == 4)
+                if(refreshStatus == RefreshStatus.NEUTRALPOS_OK)
                 {
                     lPectoralRigidbody.useGravity = true;
                     rPectoralRigidbody.useGravity = true;
                     settingsMonitor.enabled = true;
-                    refreshStatus = 0;
+                    refreshStatus = RefreshStatus.WAITING;
                 }
                 return;
             }
@@ -439,7 +439,7 @@ namespace TittyMagic
 
         public IEnumerator BeginRefresh()
         {
-            refreshStatus = 1;
+            refreshStatus = RefreshStatus.MASS_STARTED;
             settingsMonitor.enabled = false;
 
             // simulate breasts zero G
@@ -474,14 +474,13 @@ namespace TittyMagic
                 // TODO update gravity morphs ?
             }
 
-            refreshStatus = 2;
+            refreshStatus = RefreshStatus.MASS_OK;
         }
 
         private IEnumerator RefreshNeutralRelativePosition()
         {
-            refreshStatus = 3; //needed?
-
-            yield return new WaitForSeconds(0.5f);
+            refreshStatus = RefreshStatus.NEUTRALPOS_STARTED;
+            yield return new WaitForSeconds(1f);
 
             float duration = 0;
             float interval = 0.1f;
@@ -498,7 +497,7 @@ namespace TittyMagic
                 neutralRelativePos = Calc.RelativePosition(chestTransform, rNippleRigidbody.transform.position);
             }
 
-            refreshStatus = 4;
+            refreshStatus = RefreshStatus.NEUTRALPOS_OK;
         }
 
         public void RefreshRateDependentPhysics()

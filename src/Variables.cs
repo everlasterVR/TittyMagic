@@ -42,4 +42,13 @@ namespace TittyMagic
         public static DAZPhysicsMesh BREAST_PHYSICS_MESH { get; set; }
         public static DAZCharacterSelector GEOMETRY { get; set; }
     }
+
+    public static class RefreshStatus
+    {
+        public const int WAITING = 0;
+        public const int MASS_STARTED = 1;
+        public const int MASS_OK = 2;
+        public const int NEUTRALPOS_STARTED = 3;
+        public const int NEUTRALPOS_OK = 4;
+    }
 }
