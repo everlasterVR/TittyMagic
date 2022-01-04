@@ -366,7 +366,7 @@ namespace TittyMagic
 
         private void DoFixedUpdate()
         {
-            timeSinceListenersChecked += Time.deltaTime;
+            timeSinceListenersChecked += Time.unscaledDeltaTime;
 
             if(refreshStatus == RefreshStatus.MASS_STARTED)
             {
