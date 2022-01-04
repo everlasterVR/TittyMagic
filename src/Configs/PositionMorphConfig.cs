@@ -32,5 +32,15 @@
 
             morph.morphValue = value;
         }
+
+        public void Reset()
+        {
+            morph.morphValue = 0;
+        }
+
+        public string GetStatus()
+        {
+            return Formatting.NameValueString(name, morph.morphValue, 1000f, 30) + "\n";
+        }
     }
 }

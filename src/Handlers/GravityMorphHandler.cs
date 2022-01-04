@@ -50,18 +50,12 @@ namespace TittyMagic
         {
             foreach(var it in gravityOffsetMorphs)
                 it.Reset();
-            foreach(var it in uprightMorphs)
-                it.Reset();
-            foreach(var it in upsideDownMorphs)
-                it.Reset();
-            foreach(var it in leanBackMorphs)
-                it.Reset();
-            foreach(var it in leanForwardMorphs)
-                it.Reset();
-            foreach(var it in rollLeftMorphs)
-                it.Reset();
-            foreach(var it in rollRightMorphs)
-                it.Reset();
+            Reset(uprightMorphs);
+            Reset(upsideDownMorphs);
+            Reset(leanBackMorphs);
+            Reset(leanForwardMorphs);
+            Reset(rollLeftMorphs);
+            Reset(rollRightMorphs);
         }
 
         public string GetStatus()
@@ -280,13 +274,13 @@ namespace TittyMagic
             if(roll >= 0)
             {
                 Reset(rollRightMorphs);
-                Update(rollLeftMorphs, roll);
+                UpdateSet(rollLeftMorphs, roll);
             }
             // right
             else
             {
                 Reset(rollLeftMorphs);
-                Update(rollRightMorphs, Mathf.Abs(roll));
+                UpdateSet(rollRightMorphs, Mathf.Abs(roll));
             }
         }
 
@@ -300,15 +294,15 @@ namespace TittyMagic
                 if(pitch <= 90)
                 {
                     Reset(upsideDownMorphs);
-                    Update(leanForwardMorphs, pitch, rollFactor);
-                    Update(uprightMorphs, 90 - pitch, rollFactor);
+                    UpdateSet(leanForwardMorphs, pitch, rollFactor);
+                    UpdateSet(uprightMorphs, 90 - pitch, rollFactor);
                 }
                 // upside down
                 else
                 {
                     Reset(uprightMorphs);
-                    Update(leanForwardMorphs, 180 - pitch, rollFactor);
-                    Update(upsideDownMorphs, pitch - 90, rollFactor);
+                    UpdateSet(leanForwardMorphs, 180 - pitch, rollFactor);
+                    UpdateSet(upsideDownMorphs, pitch - 90, rollFactor);
                 }
             }
             // leaning back
@@ -319,20 +313,20 @@ namespace TittyMagic
                 if(pitch > -90)
                 {
                     Reset(upsideDownMorphs);
-                    Update(leanBackMorphs, Mathf.Abs(pitch), rollFactor);
-                    Update(uprightMorphs, 90 - Mathf.Abs(pitch), rollFactor);
+                    UpdateSet(leanBackMorphs, Mathf.Abs(pitch), rollFactor);
+                    UpdateSet(uprightMorphs, 90 - Mathf.Abs(pitch), rollFactor);
                 }
                 // upside down
                 else
                 {
                     Reset(uprightMorphs);
-                    Update(leanBackMorphs, 180 - Mathf.Abs(pitch), rollFactor);
-                    Update(upsideDownMorphs, Mathf.Abs(pitch) - 90, rollFactor);
+                    UpdateSet(leanBackMorphs, 180 - Mathf.Abs(pitch), rollFactor);
+                    UpdateSet(upsideDownMorphs, Mathf.Abs(pitch) - 90, rollFactor);
                 }
             }
         }
 
-        private void Update(HashSet<GravityMorphConfig> morphs, float angle, float rollFactor = 1f)
+        private void UpdateSet(HashSet<GravityMorphConfig> morphs, float angle, float rollFactor = 1f)
         {
             float effect = rollFactor * angle / 90;
             foreach(var it in morphs)

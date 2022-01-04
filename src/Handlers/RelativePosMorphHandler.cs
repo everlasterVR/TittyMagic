@@ -12,9 +12,9 @@ namespace TittyMagic
         private HashSet<PositionMorphConfig> rightForceMorphs;
         private HashSet<PositionMorphConfig> leftForceMorphs;
 
-        //private Vector3 positionDiff;
-        //private float scale;
-        //private float softness;
+        private Vector3 positionDiff;
+        private float scale;
+        private float softness;
 
         public RelativePosMorphHandler()
         {
@@ -70,47 +70,178 @@ namespace TittyMagic
             };
         }
 
+        private void AdjustLeftRightMorphs()
+        {
+            float effectX = Mathf.InverseLerp(0, 0.100f, Mathf.Abs(positionDiff.x));
+
+            // left
+            if(positionDiff.x <= 0)
+            {
+                Reset(leftForceMorphs);
+                UpdateSet(rightForceMorphs, effectX);
+            }
+            // right
+            else
+            {
+                Reset(rightForceMorphs);
+                UpdateSet(leftForceMorphs, effectX);
+            }
+        }
+
+        private void AdjustUpDownMorphs()
+        {
+            float effectY = Mathf.InverseLerp(0, 0.120f, Mathf.Abs(positionDiff.y));
+
+            // up
+            if(positionDiff.y <= 0)
+            {
+                Reset(downForceMorphs);
+                UpdateSet(upForceMorphs, effectY);
+            }
+            // down
+            else
+            {
+                Reset(upForceMorphs);
+                UpdateSet(downForceMorphs, effectY);
+            }
+        }
+
+        private void AdjustForwardBackMorphs()
+        {
+            float effectZ = Mathf.InverseLerp(0, 0.100f, Mathf.Abs(positionDiff.z));
+
+            // forward
+            if(positionDiff.z <= 0)
+            {
+                Reset(backForceMorphs);
+                UpdateSet(forwardForceMorphs, effectZ);
+            }
+            // back
+            else
+            {
+                Reset(forwardForceMorphs);
+                UpdateSet(backForceMorphs, effectZ);
+            }
+        }
+
         public void Update(
             Vector3 positionDiff,
             float scale,
             float softness
         )
         {
-            float effectX = Mathf.InverseLerp(0, 0.075f, Mathf.Abs(positionDiff.x));
+            this.positionDiff = positionDiff;
+            this.scale = scale;
+            this.softness = softness;
+
+            AdjustLeftRightMorphs();
+            AdjustUpDownMorphs();
+            AdjustForwardBackMorphs();
+        }
+
+        public void UpdateOld(
+            Vector3 positionDiff,
+            float scale,
+            float softness
+        )
+        {
+            float effectX = Mathf.InverseLerp(0, 0.100f, Mathf.Abs(positionDiff.x));
+            float effectY = Mathf.InverseLerp(0, 0.120f, Mathf.Abs(positionDiff.y));
+            float effectZ = Mathf.InverseLerp(0, 0.100f, Mathf.Abs(positionDiff.z));
+
             if(positionDiff.x <= 0)
             {
-                foreach(var it in leftForceMorphs)
+                Reset(rightForceMorphs);
+                foreach(var it in rightForceMorphs)
                     it.UpdateVal(effectX, scale, softness);
             }
             else
             {
+                Reset(leftForceMorphs);
                 foreach(var it in rightForceMorphs)
                     it.UpdateVal(effectX, scale, softness);
             }
 
-            float effectY = Mathf.InverseLerp(0, 0.075f, Mathf.Abs(positionDiff.y));
             if(positionDiff.y <= 0)
             {
+                Reset(downForceMorphs);
                 foreach(var it in upForceMorphs)
                     it.UpdateVal(effectY, scale, softness);
             }
             else
             {
+                Reset(upForceMorphs);
                 foreach(var it in downForceMorphs)
                     it.UpdateVal(effectY, scale, softness);
             }
 
-            float effectZ = Mathf.InverseLerp(0, 0.075f, Mathf.Abs(positionDiff.z));
             if(positionDiff.z <= 0)
             {
+                Reset(backForceMorphs);
                 foreach(var it in forwardForceMorphs)
                     it.UpdateVal(effectZ, scale, softness);
             }
             else
             {
+                Reset(forwardForceMorphs);
                 foreach(var it in backForceMorphs)
                     it.UpdateVal(effectZ, scale, softness);
             }
+        }
+
+        private void UpdateSet(HashSet<PositionMorphConfig> morphs, float effect)
+        {
+            foreach(var it in morphs)
+            {
+                it.UpdateVal(effect, scale, softness);
+            }
+        }
+
+        public void ResetAll()
+        {
+            Reset(leftForceMorphs);
+            Reset(rightForceMorphs);
+            Reset(upForceMorphs);
+            Reset(downForceMorphs);
+            Reset(forwardForceMorphs);
+            Reset(backForceMorphs);
+        }
+
+        private void Reset(HashSet<PositionMorphConfig> morphs)
+        {
+            foreach(var it in morphs)
+            {
+                it.Reset();
+            }
+        }
+
+        public string GetStatus()
+        {
+            string text = "LEFT\n";
+            foreach(var it in leftForceMorphs)
+                text += it.GetStatus();
+
+            text += "\nRIGHT\n";
+            foreach(var it in rightForceMorphs)
+                text += it.GetStatus();
+
+            text += "\nUP\n";
+            foreach(var it in upForceMorphs)
+                text += it.GetStatus();
+
+            text += "\nDOWN\n";
+            foreach(var it in downForceMorphs)
+                text += it.GetStatus();
+
+            text += "\nFORWARD\n";
+            foreach(var it in forwardForceMorphs)
+                text += it.GetStatus();
+
+            text += "\nBACK\n";
+            foreach(var it in backForceMorphs)
+                text += it.GetStatus();
+
+            return text;
         }
     }
 }
