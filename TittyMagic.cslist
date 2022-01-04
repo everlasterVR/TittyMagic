@@ -1,3 +1,5 @@
+src\Components\Bindings.cs
+src\Components\SettingsMonitor.cs
 src\Configs\GravityMorphConfig.cs
 src\Configs\GravityPhysicsConfig.cs
 src\Configs\MorphConfig.cs
@@ -14,9 +16,7 @@ src\Utils\Formatting.cs
 src\Utils\Log.cs
 src\Utils\UI.cs
 src\AtomScaleListener.cs
-src\Bindings.cs
 src\BreastMassCalculator.cs
 src\BreastMorphListener.cs
 src\Script.cs
-src\SettingsMonitor.cs
 src\Variables.cs
