@@ -52,7 +52,9 @@ namespace TittyMagic
         private JSONStorableStringChooser modeChooser;
         private JSONStorableString pluginVersionStorable;
         private JSONStorableFloat softness;
+        private SliderClickMonitor softnessSCM;
         private JSONStorableFloat gravity;
+        private SliderClickMonitor gravitySCM;
         private JSONStorableBool linkSoftnessAndGravity;
         private JSONStorableBool enableGravityMorphs;
         private JSONStorableBool enableForceMorphs;
@@ -118,6 +120,8 @@ namespace TittyMagic
                 InitPluginUILeft();
                 InitPluginUIRight();
                 InitSliderListeners();
+                SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
+
                 UpdateLogarithmicGravityAmount(gravity.val);
 
                 modeChooser.setCallbackFunction = (val) =>
@@ -296,6 +300,9 @@ namespace TittyMagic
 
         private void InitSliderListeners()
         {
+            softnessSCM = softness.slider.gameObject.AddComponent<SliderClickMonitor>();
+            gravitySCM = gravity.slider.gameObject.AddComponent<SliderClickMonitor>();
+
             softness.slider.onValueChanged.AddListener((float val) =>
             {
                 if(linkSoftnessAndGravity.val)
@@ -303,8 +310,10 @@ namespace TittyMagic
                     gravity.val = val;
                     UpdateLogarithmicGravityAmount(val);
                 }
-                // TODO need to do refresh here?
-                staticPhysicsH.FullUpdate(massEstimate, val, nippleErection.val);
+                if(refreshStatus != RefreshStatus.WAITING)
+                {
+                    StartCoroutine(BeginRefresh());
+                }
             });
             gravity.slider.onValueChanged.AddListener((float val) =>
             {
@@ -313,7 +322,10 @@ namespace TittyMagic
                     softness.val = val;
                 }
                 UpdateLogarithmicGravityAmount(val);
-                staticPhysicsH.FullUpdate(massEstimate, softness.val, nippleErection.val);
+                if(refreshStatus != RefreshStatus.WAITING)
+                {
+                    StartCoroutine(BeginRefresh());
+                }
             });
             nippleErection.slider.onValueChanged.AddListener((float val) =>
             {
@@ -451,10 +463,11 @@ namespace TittyMagic
             refreshStatus = RefreshStatus.WAITING;
             // ensure refresh actually begins only once listeners report no change
             yield return new WaitForSeconds(listenersCheckInterval);
-            while(breastMorphListener.Changed() || atomScaleListener.Changed())
+            while(breastMorphListener.Changed() || atomScaleListener.Changed() || softnessSCM.isDown || gravitySCM.isDown)
             {
-                yield return new WaitForSeconds(0.33f);
+                yield return new WaitForSeconds(0.1f);
             }
+            yield return new WaitForSeconds(0.33f);
 
             refreshStatus = RefreshStatus.MASS_STARTED;
 
@@ -663,9 +676,16 @@ namespace TittyMagic
             return idx >= 0 ? filename.Substring(0, idx+2) : "";
         }
 
+        private void OnRemoveAtom(Atom atom)
+        {
+            Destroy(softnessSCM);
+            Destroy(gravitySCM);
+        }
+
         private void OnDestroy()
         {
             Destroy(settingsMonitor);
+            SuperController.singleton.onAtomRemovedHandlers -= OnRemoveAtom;
             SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
 
             gravityPhysicsH.ResetAll();
@@ -685,13 +705,13 @@ namespace TittyMagic
 
         private void SetBaseDebugInfo(float roll, float pitch, Vector3 positionDiff)
         {
-            float effX = Mathf.InverseLerp(0, 0.080f, Mathf.Abs(positionDiff.x));
-            float effY = Mathf.InverseLerp(0, 0.080f, Mathf.Abs(positionDiff.y));
-            float effZ = Mathf.InverseLerp(0, 0.080f, Mathf.Abs(positionDiff.z));
+            float effX = Mathf.InverseLerp(0, 0.100f, Mathf.Abs(positionDiff.x));
+            float effY = Mathf.InverseLerp(0, 0.120f, Mathf.Abs(positionDiff.y));
+            float effZ = Mathf.InverseLerp(0, 0.100f, Mathf.Abs(positionDiff.z));
             baseDebugInfo.SetVal(
                 //$"{Formatting.NameValueString("Roll", roll, 100f, 15)}\n" +
                 //$"{Formatting.NameValueString("Pitch", pitch, 100f, 15)}\n" +
-                //$"{breastMassCalculator.GetStatus(atomScaleListener.Value)}" +
+                //$"{breastMassCalculator.GetStatus(atomScaleListener.Value)}"
                 //Formatting.NameValueString("diff x", positionDiff.x, 100000) + "\n" +
                 //Formatting.NameValueString("diff y", positionDiff.y, 100000) + "\n" +
                 //Formatting.NameValueString("diff z", positionDiff.z, 100000) + "\n" +

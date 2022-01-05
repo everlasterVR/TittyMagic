@@ -85,6 +85,7 @@
     <Compile Include="src\BreastMassCalculator.cs" />
     <Compile Include="src\Components\Bindings.cs" />
     <Compile Include="src\Components\SettingsMonitor.cs" />
+    <Compile Include="src\Components\SliderClickMonitor.cs" />
     <Compile Include="src\Configs\PhysicsConfig.cs" />
     <Compile Include="src\Configs\GravityMorphConfig.cs" />
     <Compile Include="src\Configs\GravityPhysicsConfig.cs" />

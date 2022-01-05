@@ -1,4 +1,5 @@
 src\Components\Bindings.cs
+src\Components\SliderClickMonitor.cs
 src\Components\SettingsMonitor.cs
 src\Configs\GravityMorphConfig.cs
 src\Configs\GravityPhysicsConfig.cs
