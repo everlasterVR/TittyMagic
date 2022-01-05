@@ -67,7 +67,7 @@ namespace TittyMagic
         // compensates for the increasing outer size and hard colliders of larger breasts
         private float VolumeToMass(float volume)
         {
-            return Mathf.Pow((volume * 0.9f) / 1000, 1.25f) + 0.04f;
+            return Mathf.Pow((volume * 0.82f) / 1000, 1.2f);
         }
 
         // This somewhat accurately scales breast volume to the apparent breast size when atom scale is adjusted.
