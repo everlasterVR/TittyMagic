@@ -7,7 +7,6 @@ namespace TittyMagic
     public class BreastMassCalculator
     {
         private List<DAZPhysicsMeshSoftVerticesSet> rightBreastMainGroupSets;
-        private Mesh inMemoryMesh;
         private float softVolume; // cm^3; spheroid volume estimation of right breast
 
         public BreastMassCalculator()
@@ -15,7 +14,6 @@ namespace TittyMagic
             rightBreastMainGroupSets = Globals.BREAST_PHYSICS_MESH.softVerticesGroups
                 .Find(it => it.name == "right")
                 .softVerticesSets;
-            inMemoryMesh = new Mesh();
         }
 
         public float Calculate(float atomScale)
@@ -41,9 +39,18 @@ namespace TittyMagic
             Vector3[] vertices = rightBreastMainGroupSets
                 .Select(it => it.jointRB.position).ToArray();
 
-            inMemoryMesh.vertices = vertices;
-            inMemoryMesh.RecalculateBounds();
-            return inMemoryMesh.bounds.size;
+            Vector3 min = Vector3.one * float.MaxValue;
+            Vector3 max = Vector3.one * float.MinValue;
+            for(int i = 0; i<vertices.Length; ++i)
+            {
+                min = Vector3.Min(min, vertices[i]);
+                max = Vector3.Max(max, vertices[i]);
+            }
+            Bounds bounds = new Bounds();
+            bounds.min = min;
+            bounds.max = max;
+
+            return bounds.size;
         }
 
         // Ellipsoid volume
