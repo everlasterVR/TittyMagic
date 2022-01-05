@@ -140,9 +140,13 @@ namespace TittyMagic
                 {
                     modeChooser.val = modes.First();
                 }
+                else
+                {
+                    StartCoroutine(BeginRefresh());
+                }
 
                 StartCoroutine(SubscribeToKeybindings());
-                StartCoroutine(BeginRefresh());
+
                 //StartCoroutine(MigrateFromPre2_1());
             }
             catch(Exception e)
