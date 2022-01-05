@@ -122,7 +122,7 @@ namespace TittyMagic
 
                 atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
                 breastMorphListener = new BreastMorphListener(geometry.morphBank1.morphs);
-                breastMassCalculator = new BreastMassCalculator();
+                breastMassCalculator = new BreastMassCalculator(chestTransform);
 
                 gravityMorphH = new GravityMorphHandler();
                 relativePosMorphH = new RelativePosMorphHandler();
@@ -539,6 +539,7 @@ namespace TittyMagic
 
                 // TODO update gravity morphs ?
             }
+            SetMassUIStatus(atomScaleListener.Value);
             staticPhysicsH.FullUpdate(massEstimate, softness.val, nippleErection.val);
 
             timeMultiplier = TimeMultiplier();
@@ -596,7 +597,7 @@ namespace TittyMagic
             return mass;
         }
 
-        private void UpdateMassUIStatus(float atomScale)
+        private void SetMassUIStatus(float atomScale)
         {
             float mass = breastMassCalculator.Calculate(atomScale);
             if(mass > Const.MASS_MAX)
@@ -611,7 +612,7 @@ namespace TittyMagic
             }
             else
             {
-                statusUIText.SetVal(Formatting.NameValueString("Mass", massEstimate));
+                statusUIText.SetVal("");
             }
         }
 

@@ -7,10 +7,12 @@ namespace TittyMagic
     public class BreastMassCalculator
     {
         private List<DAZPhysicsMeshSoftVerticesSet> rightBreastMainGroupSets;
+        private Transform chestTransform;
         private float softVolume; // cm^3; spheroid volume estimation of right breast
 
-        public BreastMassCalculator()
+        public BreastMassCalculator(Transform chestTransform)
         {
+            this.chestTransform = chestTransform;
             rightBreastMainGroupSets = Globals.BREAST_PHYSICS_MESH.softVerticesGroups
                 .Find(it => it.name == "right")
                 .softVerticesSets;
@@ -37,7 +39,8 @@ namespace TittyMagic
         private Vector3 BoundsSize()
         {
             Vector3[] vertices = rightBreastMainGroupSets
-                .Select(it => it.jointRB.position).ToArray();
+                .Select(it => Calc.RelativePosition(chestTransform, it.jointRB.position))
+                .ToArray();
 
             Vector3 min = Vector3.one * float.MaxValue;
             Vector3 max = Vector3.one * float.MinValue;
