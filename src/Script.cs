@@ -18,8 +18,10 @@ namespace TittyMagic
         private Bindings customBindings;
 
         private List<Rigidbody> rigidbodies;
+        private Rigidbody chestRigidbody;
         private Transform chestTransform;
         private Rigidbody rNippleRigidbody;
+        private Transform rNippleTransform;
         private Rigidbody lPectoralRigidbody;
         private Rigidbody rPectoralRigidbody;
         private DAZCharacterSelector geometry;
@@ -96,8 +98,10 @@ namespace TittyMagic
                 AdjustJoints breastControl = containingAtom.GetStorableByID("BreastControl") as AdjustJoints;
                 DAZPhysicsMesh breastPhysicsMesh = containingAtom.GetStorableByID("BreastPhysicsMesh") as DAZPhysicsMesh;
                 rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
-                chestTransform = containingAtom.GetStorableByID("chest").transform;
+                chestRigidbody = rigidbodies.Find(rb => rb.name == "chest");
+                chestTransform = chestRigidbody.transform;
                 rNippleRigidbody = rigidbodies.Find(rb => rb.name == "rNipple");
+                rNippleTransform = rNippleRigidbody.transform;
                 lPectoralRigidbody = rigidbodies.Find(rb => rb.name == "lPectoral");
                 rPectoralRigidbody = rigidbodies.Find(rb => rb.name == "rPectoral");
                 geometry = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
@@ -403,6 +407,7 @@ namespace TittyMagic
             if(refreshStatus > RefreshStatus.MASS_STARTED)
             {
                 float gravityMagnitude = Physics.gravity.magnitude / timeMultiplier;
+                chestRigidbody.AddForce(chestTransform.up * -gravityMagnitude, ForceMode.Acceleration);
                 lPectoralRigidbody.AddForce(chestTransform.up * -gravityMagnitude, ForceMode.Acceleration);
                 rPectoralRigidbody.AddForce(chestTransform.up * -gravityMagnitude, ForceMode.Acceleration);
                 if(refreshStatus == RefreshStatus.MASS_OK)
@@ -411,6 +416,7 @@ namespace TittyMagic
                 }
                 if(refreshStatus == RefreshStatus.NEUTRALPOS_OK)
                 {
+                    chestRigidbody.useGravity = true;
                     lPectoralRigidbody.useGravity = true;
                     rPectoralRigidbody.useGravity = true;
                     SuperController.singleton.SetFreezeAnimation(animationWasFrozen);
@@ -454,7 +460,7 @@ namespace TittyMagic
             }
 
             //TODO properly disable on uncheck enableForceMorphs
-            positionDiff = neutralRelativePos - Calc.RelativePosition(chestTransform, rNippleRigidbody.transform.position);
+            positionDiff = neutralRelativePos - Calc.RelativePosition(chestTransform, rNippleTransform.position);
             if(enableForceMorphs.val)
             {
                 relativePosMorphH.Update(positionDiff, scaleVal, Const.ConvertToLegacyVal(softness.val));
@@ -489,6 +495,7 @@ namespace TittyMagic
             SuperController.singleton.SetFreezeAnimation(true);
 
             // simulate breasts zero G
+            chestRigidbody.useGravity = false;
             lPectoralRigidbody.useGravity = false;
             rPectoralRigidbody.useGravity = false;
 
@@ -536,12 +543,12 @@ namespace TittyMagic
                 !Calc.VectorEqualWithin(
                     1000000f,
                     neutralRelativePos,
-                    Calc.RelativePosition(chestTransform, rNippleRigidbody.transform.position)
+                    Calc.RelativePosition(chestTransform, rNippleTransform.position)
                 ))
             )
             {
                 yield return new WaitForSecondsRealtime(interval);
-                neutralRelativePos = Calc.RelativePosition(chestTransform, rNippleRigidbody.transform.position);
+                neutralRelativePos = Calc.RelativePosition(chestTransform, rNippleTransform.position);
             }
 
             refreshStatus = RefreshStatus.NEUTRALPOS_OK;
