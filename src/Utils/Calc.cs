@@ -4,6 +4,16 @@ namespace TittyMagic
 {
     public static class Calc
     {
+        public static float Roll(Quaternion q)
+        {
+            return Mathf.Rad2Deg * Mathf.Asin(2 * q.x * q.y + 2 * q.z * q.w);
+        }
+
+        public static float Pitch(Quaternion q)
+        {
+            return Mathf.Rad2Deg * Mathf.Atan2(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * q.x * q.x - 2 * q.z * q.z);
+        }
+
         public static float RoundToDecimals(float value, float roundFactor)
         {
             return Mathf.Round(value * roundFactor) / roundFactor;

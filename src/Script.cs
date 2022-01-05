@@ -460,8 +460,8 @@ namespace TittyMagic
 
         private void UpdateBreastShape()
         {
-            float roll = AngleCalc.Roll(chestTransform.rotation);
-            float pitch = AngleCalc.Pitch(chestTransform.rotation);
+            float roll = Calc.Roll(chestTransform.rotation);
+            float pitch = Calc.Pitch(chestTransform.rotation);
             float scaleVal = breastMassCalculator.LegacyScale(massEstimate);
 
             if(enableGravityMorphs.val)
