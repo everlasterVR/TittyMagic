@@ -68,6 +68,8 @@ namespace TittyMagic
         private float? legacySoftnessFromJson;
         private float? legacyGravityFromJson;
 
+        private float timeMultiplier;
+
 #if DEBUG_PHYSICS || DEBUG_MORPHS
         protected JSONStorableString baseDebugInfo = new JSONStorableString("Base Debug Info", "");
 #endif
@@ -362,11 +364,11 @@ namespace TittyMagic
             restoringFromJson = false;
         }
 
-        private void FixedUpdate()
+        private void Update()
         {
             try
             {
-                DoFixedUpdate();
+                DoUpdate();
             }
             catch(Exception e)
             {
@@ -376,7 +378,17 @@ namespace TittyMagic
             }
         }
 
-        private void DoFixedUpdate()
+        private float TimeMultiplier()
+        {
+            if(TimeControl.singleton == null || Mathf.Approximately(Time.timeScale, 0f))
+            {
+                return 1;
+            }
+
+            return 1 / Time.timeScale;
+        }
+
+        private void DoUpdate()
         {
             timeSinceListenersChecked += Time.unscaledDeltaTime;
 
@@ -390,8 +402,9 @@ namespace TittyMagic
 
             if(refreshStatus > RefreshStatus.MASS_STARTED)
             {
-                lPectoralRigidbody.AddForce(chestTransform.up * -Physics.gravity.magnitude, ForceMode.Acceleration);
-                rPectoralRigidbody.AddForce(chestTransform.up * -Physics.gravity.magnitude, ForceMode.Acceleration);
+                float gravityMagnitude = Physics.gravity.magnitude / timeMultiplier;
+                lPectoralRigidbody.AddForce(chestTransform.up * -gravityMagnitude, ForceMode.Acceleration);
+                rPectoralRigidbody.AddForce(chestTransform.up * -gravityMagnitude, ForceMode.Acceleration);
                 if(refreshStatus == RefreshStatus.MASS_OK)
                 {
                     StartCoroutine(RefreshNeutralRelativePosition());
@@ -462,12 +475,12 @@ namespace TittyMagic
         {
             refreshStatus = RefreshStatus.WAITING;
             // ensure refresh actually begins only once listeners report no change
-            yield return new WaitForSeconds(listenersCheckInterval);
+            yield return new WaitForSecondsRealtime(listenersCheckInterval);
             while(breastMorphListener.Changed() || atomScaleListener.Changed() || softnessSCM.isDown || gravitySCM.isDown)
             {
-                yield return new WaitForSeconds(0.1f);
+                yield return new WaitForSecondsRealtime(0.1f);
             }
-            yield return new WaitForSeconds(0.33f);
+            yield return new WaitForSecondsRealtime(0.33f);
 
             refreshStatus = RefreshStatus.MASS_STARTED;
 
@@ -489,7 +502,7 @@ namespace TittyMagic
                 !Calc.EqualWithin(1000f, massEstimate, DetermineMassEstimate(atomScaleListener.Value))
             ))
             {
-                yield return new WaitForSeconds(interval);
+                yield return new WaitForSecondsRealtime(interval);
                 duration += interval;
 
                 // update mass estimate
@@ -507,13 +520,14 @@ namespace TittyMagic
                 // TODO update gravity morphs ?
             }
 
+            timeMultiplier = TimeMultiplier();
             refreshStatus = RefreshStatus.MASS_OK;
         }
 
         private IEnumerator RefreshNeutralRelativePosition()
         {
             refreshStatus = RefreshStatus.NEUTRALPOS_STARTED;
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSecondsRealtime(1f);
 
             float duration = 0;
             float interval = 0.1f;
@@ -526,7 +540,7 @@ namespace TittyMagic
                 ))
             )
             {
-                yield return new WaitForSeconds(interval);
+                yield return new WaitForSecondsRealtime(interval);
                 neutralRelativePos = Calc.RelativePosition(chestTransform, rNippleRigidbody.transform.position);
             }
 
