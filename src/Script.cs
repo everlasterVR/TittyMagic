@@ -15,6 +15,13 @@ namespace TittyMagic
         private static readonly Version v2_1 = new Version("2.1.0");
         public static readonly Version version = new Version("0.0.0");
 
+        public readonly List<string> modes = new List<string>
+        {
+            { Mode.ANIM_OPTIMIZED },
+            { Mode.BALANCED },
+            { Mode.TOUCH_OPTIMIZED }
+        };
+
         private Bindings customBindings;
 
         private List<Rigidbody> rigidbodies;
@@ -129,16 +136,9 @@ namespace TittyMagic
                 SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
 
                 UpdateLogarithmicGravityAmount(gravity.val);
-
-                modeChooser.setCallbackFunction = (val) =>
-                {
-                    UpdateButtonLabels(modeButtonGroup, val);
-                    staticPhysicsH.LoadSettings(val);
-                    staticPhysicsH.FullUpdate(massEstimate, softness.val, nippleErection.val);
-                };
                 if(string.IsNullOrEmpty(modeChooser.val))
                 {
-                    modeChooser.val = Const.MODES.Values.First();
+                    modeChooser.val = modes.First();
                 }
 
                 StartCoroutine(SubscribeToKeybindings());
@@ -174,7 +174,18 @@ namespace TittyMagic
             titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{version}</size>");
 
             CreateNewSpacer(10f);
-            modeChooser = new JSONStorableStringChooser("Mode", Const.MODES.Keys.ToList(), Const.MODES.Values.ToList(), "", "Mode");
+            modeChooser = new JSONStorableStringChooser(
+                "Mode",
+                modes,
+                "",
+                "Mode",
+                (val) =>
+                {
+                    UpdateButtonLabels(modeButtonGroup, val);
+                    staticPhysicsH.LoadSettings(val);
+                    StartCoroutine(BeginRefresh());
+                }
+            );
             modeButtonGroup = CreateRadioButtonGroup(modeChooser);
             staticPhysicsH.modeChooser = modeChooser;
 
@@ -237,7 +248,7 @@ namespace TittyMagic
             Dictionary<string, UIDynamicButton> buttons = new Dictionary<string, UIDynamicButton>();
             jsc.choices.ForEach((choice) =>
             {
-                UIDynamicButton btn = CreateButton(UI.RadioButtonLabel(Const.MODES[choice], choice == jsc.defaultVal), rightSide);
+                UIDynamicButton btn = CreateButton(UI.RadioButtonLabel(choice, choice == jsc.defaultVal), rightSide);
                 btn.buttonText.alignment = TextAnchor.MiddleLeft;
                 btn.buttonColor = UI.darkOffGrayViolet;
                 btn.height = 60f;
@@ -257,9 +268,9 @@ namespace TittyMagic
 
         private void UpdateButtonLabels(Dictionary<string, UIDynamicButton> buttons, string selected)
         {
-            buttons[selected].label = UI.RadioButtonLabel(Const.MODES[selected], true);
+            buttons[selected].label = UI.RadioButtonLabel(selected, true);
             buttons.Where(kvp => kvp.Key != selected).ToList()
-                .ForEach(kvp => kvp.Value.label = UI.RadioButtonLabel(Const.MODES[kvp.Key], false));
+                .ForEach(kvp => kvp.Value.label = UI.RadioButtonLabel(kvp.Key, false));
         }
 
         private JSONStorableFloat NewFloatSlider(
@@ -410,18 +421,13 @@ namespace TittyMagic
                 chestRigidbody.AddForce(chestTransform.up * -gravityMagnitude, ForceMode.Acceleration);
                 lPectoralRigidbody.AddForce(chestTransform.up * -gravityMagnitude, ForceMode.Acceleration);
                 rPectoralRigidbody.AddForce(chestTransform.up * -gravityMagnitude, ForceMode.Acceleration);
-                if(refreshStatus == RefreshStatus.MASS_OK)
+                if(modeChooser.val == Mode.ANIM_OPTIMIZED && refreshStatus == RefreshStatus.MASS_OK)
                 {
                     StartCoroutine(RefreshNeutralRelativePosition());
                 }
-                if(refreshStatus == RefreshStatus.NEUTRALPOS_OK)
+                if(modeChooser.val != Mode.ANIM_OPTIMIZED || refreshStatus == RefreshStatus.NEUTRALPOS_OK)
                 {
-                    chestRigidbody.useGravity = true;
-                    lPectoralRigidbody.useGravity = true;
-                    rPectoralRigidbody.useGravity = true;
-                    SuperController.singleton.SetFreezeAnimation(animationWasFrozen);
-                    settingsMonitor.enabled = true;
-                    refreshStatus = RefreshStatus.DONE;
+                    EndRefresh();
                 }
                 return;
             }
@@ -460,10 +466,13 @@ namespace TittyMagic
             }
 
             //TODO properly disable on uncheck enableForceMorphs
-            positionDiff = neutralRelativePos - Calc.RelativePosition(chestTransform, rNippleTransform.position);
-            if(enableForceMorphs.val)
+            if(modeChooser.val == Mode.ANIM_OPTIMIZED)
             {
-                relativePosMorphH.Update(positionDiff, scaleVal, Const.ConvertToLegacyVal(softness.val));
+                positionDiff = neutralRelativePos - Calc.RelativePosition(chestTransform, rNippleTransform.position);
+                if(enableForceMorphs.val)
+                {
+                    relativePosMorphH.Update(positionDiff, scaleVal, Const.ConvertToLegacyVal(softness.val));
+                }
             }
 
             gravityPhysicsH.Update(roll, pitch, scaleVal, Const.ConvertToLegacyVal(softness.val), Const.ConvertToLegacyVal(gravity.val));
@@ -526,6 +535,7 @@ namespace TittyMagic
 
                 // TODO update gravity morphs ?
             }
+            staticPhysicsH.FullUpdate(massEstimate, softness.val, nippleErection.val);
 
             timeMultiplier = TimeMultiplier();
             refreshStatus = RefreshStatus.MASS_OK;
@@ -552,6 +562,16 @@ namespace TittyMagic
             }
 
             refreshStatus = RefreshStatus.NEUTRALPOS_OK;
+        }
+
+        private void EndRefresh()
+        {
+            chestRigidbody.useGravity = true;
+            lPectoralRigidbody.useGravity = true;
+            rPectoralRigidbody.useGravity = true;
+            SuperController.singleton.SetFreezeAnimation(animationWasFrozen);
+            settingsMonitor.enabled = true;
+            refreshStatus = RefreshStatus.DONE;
         }
 
         public void RefreshRateDependentPhysics()
@@ -618,7 +638,7 @@ namespace TittyMagic
         public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
         {
             JSONClass json = base.GetJSON(includePhysical, includeAppearance, forceStore);
-            if(modeChooser.val != Const.MODES.Values.First())
+            if(modeChooser.val != modes.First())
             {
                 json["Mode"] = modeChooser.val;
             }

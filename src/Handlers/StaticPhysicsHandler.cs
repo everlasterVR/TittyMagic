@@ -8,6 +8,13 @@ namespace TittyMagic
     {
         private string settingsDir;
 
+        private Dictionary<string, string> settingsSubDirNames = new Dictionary<string, string>
+        {
+            { Mode.ANIM_OPTIMIZED, "Balanced" },
+            { Mode.BALANCED, "Balanced" },
+            { Mode.TOUCH_OPTIMIZED, "TouchOptimized" },
+        };
+
         private HashSet<PhysicsConfig> mainPhysicsConfigs;
         private HashSet<RateDependentPhysicsConfig> rateDependentPhysicsConfigs;
         private HashSet<PhysicsConfig> softPhysicsConfigs;
@@ -21,9 +28,9 @@ namespace TittyMagic
             SetPhysicsDefaults();
         }
 
-        public void LoadSettingsFromFile()
+        public void LoadSettingsFromFile(string val)
         {
-            string modeDir = $@"{settingsDir}\{modeChooser.val}\";
+            string modeDir = $@"{settingsDir}\{settingsSubDirNames[val]}\";
 
             JSONClass mainPhysicsSettings = SuperController.singleton.LoadJSON(modeDir + "mainPhysics.json").AsObject;
             JSONClass softPhysicsSettings = SuperController.singleton.LoadJSON(modeDir + "softPhysics.json").AsObject;
@@ -81,16 +88,16 @@ namespace TittyMagic
 
         public void LoadSettings(string val)
         {
-            if(val == "Balanced")
+            if(val == Mode.ANIM_OPTIMIZED || val == Mode.BALANCED)
             {
                 Globals.GEOMETRY.useAuxBreastColliders = true;
             }
-            else if(val == "TouchOptimized")
+            else if(val == Mode.TOUCH_OPTIMIZED)
             {
                 Globals.GEOMETRY.useAuxBreastColliders = false;
             }
 
-            LoadSettingsFromFile();
+            LoadSettingsFromFile(val);
         }
 
         private void SetPhysicsDefaults()
@@ -113,7 +120,7 @@ namespace TittyMagic
             float mass = NormalizedMass(massEstimate);
             float softness = NormalizedSoftness(softnessVal);
 
-            if(modeChooser.val != "Touch optimized")
+            if(modeChooser.val != Mode.TOUCH_OPTIMIZED)
             {
                 Globals.BREAST_CONTROL.mass = massEstimate;
             }
@@ -158,7 +165,7 @@ namespace TittyMagic
             float mass = NormalizedMass(massEstimate);
             float softness = NormalizedSoftness(softnessVal);
 
-            if(modeChooser.val != "Touch optimized")
+            if(modeChooser.val != Mode.TOUCH_OPTIMIZED)
             {
                 Globals.BREAST_CONTROL.mass = massEstimate;
             }
