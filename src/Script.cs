@@ -79,6 +79,10 @@ namespace TittyMagic
 
         private float timeMultiplier;
 
+        private float roll;
+        private float pitch;
+        private float scaleVal;
+
 #if DEBUG_PHYSICS || DEBUG_MORPHS
         protected JSONStorableString baseDebugInfo = new JSONStorableString("Base Debug Info", "");
 #endif
@@ -358,7 +362,7 @@ namespace TittyMagic
             gravityLogAmount = Mathf.Log(10 * Const.ConvertToLegacyVal(val) - 3.35f);
         }
 
-        private void FixedUpdate()
+        private void Update()
         {
             try
             {
@@ -372,17 +376,44 @@ namespace TittyMagic
             }
         }
 
-        private float TimeMultiplier()
+        private void DoUpdate()
         {
-            if(TimeControl.singleton == null || Mathf.Approximately(Time.timeScale, 0f))
+            if(refreshStatus != RefreshStatus.DONE)
             {
-                return 1;
+                return;
             }
 
-            return 1 / Time.timeScale;
+            roll = Calc.Roll(chestTransform.rotation);
+            pitch = Calc.Pitch(chestTransform.rotation);
+
+            if(enableGravityMorphs.val)
+            {
+                gravityMorphH.Update(roll, pitch, scaleVal, gravityLogAmount);
+            }
+
+            //TODO properly disable on uncheck enableForceMorphs
+            if(modeChooser.val == Mode.ANIM_OPTIMIZED && enableForceMorphs.val)
+            {
+                positionDiff = neutralRelativePos - Calc.RelativePosition(chestTransform, rNippleTransform.position);
+                relativePosMorphH.Update(positionDiff, scaleVal, Const.ConvertToLegacyVal(softness.val));
+            }
         }
 
-        private void DoUpdate()
+        private void FixedUpdate()
+        {
+            try
+            {
+                DoFixedUpdate();
+            }
+            catch(Exception e)
+            {
+                Log.Error($"{e}");
+                Log.Error($"Try reloading plugin!");
+                enabled = false;
+            }
+        }
+
+        private void DoFixedUpdate()
         {
             timeSinceListenersChecked += Time.unscaledDeltaTime;
 
@@ -421,40 +452,13 @@ namespace TittyMagic
                 }
             }
 
-            UpdateBreastShape();
-#if DEBUG_PHYSICS || DEBUG_MORPHS
-            positionInfoUIText.SetVal(
-                $"<size=28>Neutral pos:\n" +
-                $"{Formatting.NameValueString("x", neutralRelativePos.x, 1000)} " +
-                $"{Formatting.NameValueString("y", neutralRelativePos.y, 1000)} " +
-                $"{Formatting.NameValueString("z", neutralRelativePos.z, 1000)} " +
-                $"</size>"
-            );
-#endif
-        }
-
-        private void UpdateBreastShape()
-        {
-            float roll = Calc.Roll(chestTransform.rotation);
-            float pitch = Calc.Pitch(chestTransform.rotation);
-            float scaleVal = breastMassCalculator.LegacyScale(massEstimate);
-
-            if(enableGravityMorphs.val)
+            if(refreshStatus != RefreshStatus.DONE)
             {
-                gravityMorphH.Update(roll, pitch, scaleVal, gravityLogAmount);
-            }
-
-            //TODO properly disable on uncheck enableForceMorphs
-            if(modeChooser.val == Mode.ANIM_OPTIMIZED)
-            {
-                positionDiff = neutralRelativePos - Calc.RelativePosition(chestTransform, rNippleTransform.position);
-                if(enableForceMorphs.val)
-                {
-                    relativePosMorphH.Update(positionDiff, scaleVal, Const.ConvertToLegacyVal(softness.val));
-                }
+                return;
             }
 
             gravityPhysicsH.Update(roll, pitch, scaleVal, Const.ConvertToLegacyVal(softness.val), Const.ConvertToLegacyVal(gravity.val));
+
 #if DEBUG_PHYSICS || DEBUG_MORPHS
             SetBaseDebugInfo(roll, pitch, positionDiff);
 #endif
@@ -463,6 +467,16 @@ namespace TittyMagic
 #elif DEBUG_MORPHS
             morphDebugInfo.SetVal(gravityMorphH.GetStatus());
 #endif
+        }
+
+        private float TimeMultiplier()
+        {
+            if(TimeControl.singleton == null || Mathf.Approximately(Time.timeScale, 0f))
+            {
+                return 1;
+            }
+
+            return 1 / Time.timeScale;
         }
 
         public IEnumerator BeginRefresh()
@@ -507,9 +521,9 @@ namespace TittyMagic
                 staticPhysicsH.UpdateMainPhysics(massEstimate, softness.val);
 
                 // update gravity physics angles
-                float roll = 0;
-                float pitch = 0;
-                float scaleVal = breastMassCalculator.LegacyScale(massEstimate);
+                roll = 0;
+                pitch = 0;
+                scaleVal = breastMassCalculator.LegacyScale(massEstimate);
                 gravityPhysicsH.Update(roll, pitch, scaleVal, Const.ConvertToLegacyVal(softness.val), Const.ConvertToLegacyVal(gravity.val));
 
                 // TODO update gravity morphs ?
@@ -540,6 +554,16 @@ namespace TittyMagic
                 yield return new WaitForSecondsRealtime(interval);
                 neutralRelativePos = Calc.RelativePosition(chestTransform, rNippleTransform.position);
             }
+
+#if DEBUG_PHYSICS || DEBUG_MORPHS
+            positionInfoUIText.SetVal(
+                $"<size=28>Neutral pos:\n" +
+                $"{Formatting.NameValueString("x", neutralRelativePos.x, 1000)} " +
+                $"{Formatting.NameValueString("y", neutralRelativePos.y, 1000)} " +
+                $"{Formatting.NameValueString("z", neutralRelativePos.z, 1000)} " +
+                $"</size>"
+            );
+#endif
 
             refreshStatus = RefreshStatus.NEUTRALPOS_OK;
         }
