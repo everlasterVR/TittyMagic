@@ -383,7 +383,7 @@ namespace TittyMagic
             restoringFromJson = false;
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
             try
             {
