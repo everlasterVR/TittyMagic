@@ -84,7 +84,7 @@ namespace TittyMagic
             this.gravity = gravity;
 
             AdjustPhysicsForRoll();
-            AdjustPhysicsForPitch(Calc.RollFactor(roll));
+            AdjustPhysicsForPitch();
         }
 
         public void ResetAll()
@@ -124,67 +124,61 @@ namespace TittyMagic
             // left
             if(roll >= 0)
             {
-                Update(rollLeftPhysics, roll);
+                UpdateRollPhysics(rollLeftPhysics, roll);
             }
             // right
             else
             {
-                Update(rollRightPhysics, Mathf.Abs(roll), 1);
+                UpdateRollPhysics(rollRightPhysics, -roll);
             }
         }
 
-        private void AdjustPhysicsForPitch(float rollFactor)
+        private void AdjustPhysicsForPitch()
         {
             // leaning forward
-            if(pitch > 0)
+            if(pitch >= 0)
             {
                 // upright
-                if(pitch <= 90)
+                if(pitch < 1)
                 {
-                    Update(leanForwardPhysics, pitch, rollFactor);
-                    UpdateWithSoftness(uprightPhysics, 90 - pitch, rollFactor);
+                    UpdatePitchPhysics(leanForwardPhysics, pitch);
+                    UpdatePitchPhysics(uprightPhysics, 1 - pitch, softness);
                 }
                 // upside down
                 else
                 {
-                    Update(leanForwardPhysics, 180 - pitch, rollFactor);
-                    UpdateWithSoftness(upsideDownPhysics, pitch - 90, rollFactor);
+                    UpdatePitchPhysics(leanForwardPhysics, 2 - pitch);
+                    UpdatePitchPhysics(upsideDownPhysics, pitch - 1, softness);
                 }
             }
             // leaning back
             else
             {
                 // upright
-                if(pitch > -90)
+                if(pitch >= -1)
                 {
-                    Update(leanBackPhysics, Mathf.Abs(pitch), rollFactor);
-                    UpdateWithSoftness(uprightPhysics, 90 - Mathf.Abs(pitch), rollFactor);
+                    UpdatePitchPhysics(leanBackPhysics, -pitch);
+                    UpdatePitchPhysics(uprightPhysics, 1 + pitch, softness);
                 }
                 // upside down
                 else
                 {
-                    Update(leanBackPhysics, 180 - Mathf.Abs(pitch), rollFactor);
-                    UpdateWithSoftness(upsideDownPhysics, Mathf.Abs(pitch) - 90, rollFactor);
+                    UpdatePitchPhysics(leanBackPhysics, 2 + pitch);
+                    UpdatePitchPhysics(upsideDownPhysics, -pitch - 1, softness);
                 }
             }
         }
 
-        private void Update(HashSet<GravityPhysicsConfig> physics, float angle, float rollFactor = 1f)
+        private void UpdateRollPhysics(HashSet<GravityPhysicsConfig> morphs, float effect)
         {
-            float effect = rollFactor * angle / 90;
-            foreach(var it in physics)
-            {
+            foreach(var it in morphs)
                 it.UpdateVal(effect, scale, gravity);
-            }
         }
 
-        private void UpdateWithSoftness(HashSet<GravityPhysicsConfig> physics, float angle, float rollFactor = 1f)
+        private void UpdatePitchPhysics(HashSet<GravityPhysicsConfig> morphs, float effect, float softness = 1f)
         {
-            float effect = rollFactor * angle / 90;
-            foreach(var it in physics)
-            {
-                it.UpdateVal(effect, scale * softness, gravity);
-            }
+            foreach(var it in morphs)
+                it.UpdateVal(effect * (1 - Mathf.Abs(roll)), scale * softness, gravity);
         }
     }
 }

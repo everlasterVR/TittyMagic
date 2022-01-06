@@ -329,8 +329,8 @@ namespace TittyMagic
                     StartCoroutine(RefreshStaticPhysics());
                 }
 
-                float roll = AngleCalc.Roll(chest.rotation);
-                float pitch = AngleCalc.Pitch(chest.rotation);
+                float roll = Calc.Roll(chest.rotation);
+                float pitch = Calc.Pitch(chest.rotation);
                 float scaleVal = breastMassCalculator.LegacyScale(massEstimate);
 
                 gravityMorphH.Update(roll, pitch, scaleVal, gravityLogAmount);

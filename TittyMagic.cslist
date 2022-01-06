@@ -6,7 +6,6 @@ src\Handlers\GravityMorphHandler.cs
 src\Handlers\GravityPhysicsHandler.cs
 src\Handlers\NippleErectionMorphHandler.cs
 src\Handlers\StaticPhysicsHandler.cs
-src\Utils\AngleCalc.cs
 src\Utils\Calc.cs
 src\Utils\Formatting.cs
 src\Utils\Log.cs
