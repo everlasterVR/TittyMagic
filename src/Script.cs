@@ -12,7 +12,6 @@ namespace TittyMagic
 {
     internal class Script : MVRScript
     {
-        private static readonly Version v2_1 = new Version("2.1.0");
         public static readonly Version version = new Version("0.0.0");
 
         public readonly List<string> modes = new List<string>
@@ -73,7 +72,6 @@ namespace TittyMagic
         private float listenersCheckInterval = 0.1f;
         private int refreshStatus = RefreshStatus.WAITING;
         private bool animationWasFrozen = false;
-        private bool restoringFromJson = false;
         private float? legacySoftnessFromJson;
         private float? legacyGravityFromJson;
 
@@ -659,63 +657,12 @@ namespace TittyMagic
 
         public override void RestoreFromJSON(JSONClass json, bool restorePhysical = true, bool restoreAppearance = true, JSONArray presetAtoms = null, bool setMissingToDefault = true)
         {
-            restoringFromJson = true;
-
-            try
-            {
-                CheckSavedVersion(json, () =>
-                {
-                    //should never occur
-                    if(version.CompareTo(v2_1) < 0)
-                    {
-                        return;
-                    }
-
-                    //needs conversion from legacy values
-                    if(json.HasKey("Breast softness"))
-                    {
-                        float val = json["Breast softness"].AsFloat;
-                        if(val <= Const.LEGACY_MAX)
-                        {
-                            legacySoftnessFromJson = val;
-                        }
-                    }
-
-                    if(json.HasKey("Breast gravity"))
-                    {
-                        float val = json["Breast gravity"].AsFloat;
-                        if(val <= Const.LEGACY_MAX)
-                        {
-                            legacyGravityFromJson = val;
-                        }
-                    }
-                });
-            }
-            catch(Exception)
-            {
-            }
-
             if(json.HasKey("Mode"))
             {
                 modeChooser.val = json["Mode"];
             }
 
             base.RestoreFromJSON(json, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
-        }
-
-        private void CheckSavedVersion(JSONClass json, Action callback)
-        {
-            if(json["Version"] != null)
-            {
-                Version vSave = new Version(json["Version"].Value);
-                //no conversion from legacy values needed
-                if(vSave.CompareTo(v2_1) >= 0)
-                {
-                    return;
-                }
-            }
-
-            callback();
         }
 
         //MacGruber / Discord 20.10.2020
