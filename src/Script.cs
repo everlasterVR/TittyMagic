@@ -209,7 +209,14 @@ namespace TittyMagic
                 }
             });
 
-            enableForceMorphs = NewToggle("Enable force morphs", false, false);
+            enableForceMorphs = NewToggle("Enable force morphs", true, false);
+            enableForceMorphs.toggle.onValueChanged.AddListener((bool val) =>
+            {
+                if(!val)
+                {
+                    relativePosMorphH.ResetAll();
+                }
+            });
 
             CreateNewSpacer(10f);
             nippleErection = NewFloatSlider("Erect nipples", 0f, 0f, 1.0f, "F2");
@@ -488,7 +495,7 @@ namespace TittyMagic
             {
                 yield return new WaitForSecondsRealtime(0.1f);
             }
-            yield return new WaitForSecondsRealtime(0.33f);
+            yield return new WaitForSecondsRealtime(1.0f);
 
             refreshStatus = RefreshStatus.MASS_STARTED;
 
@@ -503,6 +510,7 @@ namespace TittyMagic
 
             // zero pose morphs
             gravityMorphH.ResetAll();
+            relativePosMorphH.ResetAll();
 
             float duration = 0;
             float interval = 0.1f;
@@ -735,6 +743,7 @@ namespace TittyMagic
 
             gravityPhysicsH.ResetAll();
             gravityMorphH.ResetAll();
+            relativePosMorphH.ResetAll();
             nippleMorphH.ResetAll();
         }
 
@@ -743,6 +752,7 @@ namespace TittyMagic
             settingsMonitor.enabled = false;
             gravityPhysicsH.ResetAll();
             gravityMorphH.ResetAll();
+            relativePosMorphH.ResetAll();
             nippleMorphH.ResetAll();
         }
 
