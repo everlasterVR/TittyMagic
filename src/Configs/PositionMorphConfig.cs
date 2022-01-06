@@ -6,14 +6,12 @@ namespace TittyMagic
     {
         public DAZMorph morph;
         public string name;
-        private float baseMul;
         private float scaleMul;
         private float softnessMul;
 
-        public PositionMorphConfig(string name, float baseMul, float scaleMul, float softnessMul)
+        public PositionMorphConfig(string name, float softnessMul, float scaleMul = 0f)
         {
             this.name = name;
-            this.baseMul = baseMul;
             this.scaleMul = scaleMul;
             this.softnessMul = softnessMul;
             morph = Globals.GEOMETRY.morphsControlUI.GetMorphByDisplayName(name);
@@ -25,11 +23,10 @@ namespace TittyMagic
 
         public void UpdateVal(float effect, float scale, float softness, float logMaxX)
         {
-            float interpolatedEffect = Mathf.SmoothStep(0, Calc.ScaledSmoothMax(scale * softness, logMaxX), effect * 3);
-            float value = baseMul * (
+            float interpolatedEffect = Mathf.SmoothStep(0, Calc.ScaledSmoothMax(softness, logMaxX), effect * 5);
+            float value =
                 scale * scaleMul * interpolatedEffect / 2 +
-                softness * softnessMul * interpolatedEffect / 2
-            );
+                softness * softnessMul * interpolatedEffect / 2;
 
             morph.morphValue = value;
         }

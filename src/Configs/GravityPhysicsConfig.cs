@@ -36,8 +36,8 @@ namespace TittyMagic
         {
             float interpolatedEffect = Mathf.SmoothStep(0, Calc.ScaledSmoothMax(combinedScaleSoftness, logMaxX), effect);
             float value =
-                (scaleMul * combinedScaleSoftness * interpolatedEffect / 2) +
-                (gravityMul * gravity * interpolatedEffect / 2);
+                scaleMul * combinedScaleSoftness * interpolatedEffect / 2 +
+                gravityMul * gravity * interpolatedEffect / 2;
             setting.val = offset + value;
         }
 
