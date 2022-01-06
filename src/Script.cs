@@ -146,8 +146,6 @@ namespace TittyMagic
                 }
 
                 StartCoroutine(SubscribeToKeybindings());
-
-                //StartCoroutine(MigrateFromPre2_1());
             }
             catch(Exception e)
             {
@@ -358,29 +356,6 @@ namespace TittyMagic
         private void UpdateLogarithmicGravityAmount(float val)
         {
             gravityLogAmount = Mathf.Log(10 * Const.ConvertToLegacyVal(val) - 3.35f);
-        }
-
-        private IEnumerator MigrateFromPre2_1()
-        {
-            yield return new WaitForEndOfFrame();
-            if(!restoringFromJson)
-            {
-                yield break;
-            }
-
-            if(legacySoftnessFromJson.HasValue)
-            {
-                softness.val = Const.ConvertFromLegacyVal(legacySoftnessFromJson.Value);
-                Log.Message($"Converted legacy Breast softness {legacySoftnessFromJson.Value} in savefile to new slider value {softness.val}.");
-            }
-
-            if(legacyGravityFromJson.HasValue)
-            {
-                gravity.val = Const.ConvertFromLegacyVal(legacyGravityFromJson.Value);
-                Log.Message($"Converted legacy Breast gravity {legacyGravityFromJson.Value} in savefile to new slider value {gravity.val}.");
-            }
-
-            restoringFromJson = false;
         }
 
         private void FixedUpdate()
