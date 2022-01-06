@@ -10,7 +10,7 @@ namespace TittyMagic
 
         private Dictionary<string, string> settingsSubDirNames = new Dictionary<string, string>
         {
-            { Mode.ANIM_OPTIMIZED, "Balanced" },
+            { Mode.ANIM_OPTIMIZED, "AnimOptimized" },
             { Mode.BALANCED, "Balanced" },
             { Mode.TOUCH_OPTIMIZED, "TouchOptimized" },
         };
