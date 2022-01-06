@@ -47,5 +47,15 @@ namespace TittyMagic
                 && Mathf.Round(v1.y * roundFactor) / roundFactor == Mathf.Round(v2.y * roundFactor) / roundFactor
                 && Mathf.Round(v1.z * roundFactor) / roundFactor == Mathf.Round(v2.z * roundFactor) / roundFactor;
         }
+
+        public static float ScaledSmoothMax(float scale, float logMaxX)
+        {
+            if(logMaxX < 0)
+            {
+                return -Mathf.Log(scale * Mathf.Abs(logMaxX) + 1);
+            }
+
+            return Mathf.Log(scale * logMaxX + 1);
+        }
     }
 }

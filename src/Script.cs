@@ -594,7 +594,6 @@ namespace TittyMagic
         private float DetermineMassEstimate(float atomScale)
         {
             float mass = breastMassCalculator.Calculate(atomScale);
-
             if(mass > Const.MASS_MAX)
                 return Const.MASS_MAX;
 
@@ -760,20 +759,10 @@ namespace TittyMagic
 
         private void SetBaseDebugInfo(float roll, float pitch, Vector3 positionDiff)
         {
-            float effX = Mathf.InverseLerp(0, 0.100f, Mathf.Abs(positionDiff.x));
-            float effY = Mathf.InverseLerp(0, 0.120f, Mathf.Abs(positionDiff.y));
-            float effZ = Mathf.InverseLerp(0, 0.100f, Mathf.Abs(positionDiff.z));
             baseDebugInfo.SetVal(
-                //$"{Formatting.NameValueString("Roll", roll, 100f, 15)}\n" +
-                //$"{Formatting.NameValueString("Pitch", pitch, 100f, 15)}\n" +
-                //$"{breastMassCalculator.GetStatus(atomScaleListener.Value)}"
-                //Formatting.NameValueString("diff x", positionDiff.x, 100000) + "\n" +
-                //Formatting.NameValueString("diff y", positionDiff.y, 100000) + "\n" +
-                //Formatting.NameValueString("diff z", positionDiff.z, 100000) + "\n" +
-
-                Formatting.NameValueString("eff x", effX, 1000) + "\n" +
-                Formatting.NameValueString("eff y", effY, 1000) + "\n" +
-                Formatting.NameValueString("eff z", effZ, 1000)
+                $"{Formatting.NameValueString("Roll", roll, 100f, 15)}\n" +
+                $"{Formatting.NameValueString("Pitch", pitch, 100f, 15)}\n" +
+                $"{breastMassCalculator.GetStatus(atomScaleListener.Value)}"
             );
         }
 

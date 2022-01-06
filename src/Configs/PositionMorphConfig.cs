@@ -1,14 +1,16 @@
-﻿namespace TittyMagic
+﻿using UnityEngine;
+
+namespace TittyMagic
 {
     internal class PositionMorphConfig
     {
         public DAZMorph morph;
         public string name;
         private float baseMul;
-        private float? scaleMul;
-        private float? softnessMul;
+        private float scaleMul;
+        private float softnessMul;
 
-        public PositionMorphConfig(string name, float baseMul, float? scaleMul, float? softnessMul)
+        public PositionMorphConfig(string name, float baseMul, float scaleMul, float softnessMul)
         {
             this.name = name;
             this.baseMul = baseMul;
@@ -21,13 +23,12 @@
             }
         }
 
-        public void UpdateVal(float effect, float scale, float softness)
+        public void UpdateVal(float effect, float scale, float softness, float logMaxX)
         {
-            float scaleFactor = scaleMul.HasValue ? scale * (float) scaleMul : 1;
-            float softnessFactor = softnessMul.HasValue ? softness * (float) softnessMul : 1;
+            float interpolatedEffect = Mathf.SmoothStep(0, Calc.ScaledSmoothMax(scale * softness, logMaxX), effect * 3);
             float value = baseMul * (
-                (softnessFactor * effect / 2) +
-                (scaleFactor * effect / 2)
+                scale * scaleMul * interpolatedEffect / 2 +
+                softness * softnessMul * interpolatedEffect / 2
             );
 
             morph.morphValue = value;
