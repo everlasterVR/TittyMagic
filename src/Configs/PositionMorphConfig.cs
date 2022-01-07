@@ -6,8 +6,8 @@ namespace TittyMagic
     {
         public DAZMorph morph;
         public string name;
-        private float scaleMul;
         private float softnessMul;
+        private float scaleMul;
 
         public PositionMorphConfig(string name, float softnessMul, float scaleMul = 0f)
         {
@@ -21,12 +21,24 @@ namespace TittyMagic
             }
         }
 
-        public void UpdateVal(float effect, float scale, float softness)
+        public void SetSoftnessMul(float softnessMul)
         {
-            float value =
+            this.softnessMul = softnessMul;
+        }
+
+        public void SetScaleMul(float scaleMul)
+        {
+            this.scaleMul = scaleMul;
+        }
+
+        public float UpdateVal(float effect, float scale, float softness)
+        {
+            float value = 5 * (
                 scale * scaleMul * effect / 2 +
-                softness * softnessMul * effect / 2;
-            morph.morphValue = 5 * value;
+                softness * softnessMul * effect / 2
+            );
+            morph.morphValue = value;
+            return value;
         }
 
         public void Reset()

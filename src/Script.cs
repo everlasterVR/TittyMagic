@@ -128,7 +128,8 @@ namespace TittyMagic
                 breastMassCalculator = new BreastMassCalculator(chestTransform);
 
                 gravityMorphH = new GravityMorphHandler();
-                relativePosMorphH = new RelativePosMorphHandler();
+                relativePosMorphH = FindWithinSamePlugin<RelativePosMorphHandler>(this);
+                relativePosMorphH.DoInit();
                 nippleMorphH = new NippleErectionMorphHandler();
                 gravityPhysicsH = new GravityPhysicsHandler();
                 staticPhysicsH = new StaticPhysicsHandler(GetPackagePath());
@@ -699,6 +700,17 @@ namespace TittyMagic
             gravityMorphH.ResetAll();
             relativePosMorphH.ResetAll();
             nippleMorphH.ResetAll();
+        }
+
+        // macgruber
+        private T FindWithinSamePlugin<T>(MVRScript self) where T : MVRScript
+        {
+            int i = self.name.IndexOf('_');
+            if(i < 0)
+                return null;
+            string prefix = self.name.Substring(0, i+1);
+            string scriptName = prefix + typeof(T).FullName;
+            return self.containingAtom.GetStorableByID(scriptName) as T;
         }
 
 #if DEBUG_PHYSICS || DEBUG_MORPHS
