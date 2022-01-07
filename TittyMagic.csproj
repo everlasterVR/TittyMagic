@@ -108,6 +108,9 @@
     <Compile Include="TM_ReferenceSize.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\Settings\AnimOptimized\mainPhysics.json" />
+    <None Include="src\Settings\AnimOptimized\nipplePhysics.json" />
+    <None Include="src\Settings\AnimOptimized\softPhysics.json" />
     <None Include="src\Settings\Balanced\mainPhysics.json" />
     <None Include="src\Settings\Balanced\nipplePhysics.json" />
     <None Include="src\Settings\Balanced\softPhysics.json" />
