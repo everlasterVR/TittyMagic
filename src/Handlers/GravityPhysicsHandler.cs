@@ -28,30 +28,30 @@ namespace TittyMagic
             // logMaxX = maximum x value for the logarithmic function that affects (along with breast mass) the Max value for Mathf.SmoothStep
             // scaleMul = the relative impact of breast mass on the final value
             // gravityMul = the relative impact of breast gravity on the final value
-            //                           name                        offset    offsetScaleMul  logMaxX     scaleMul    gravityMul
+            //                           name                        offset    logMaxX     scaleMul    gravityMul
             uprightPhysics = new HashSet<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("targetRotationX",          0.00f,    0.00f,         -10f,        0.5f,       1.25f),
+                new GravityPhysicsConfig("targetRotationX",          0.00f,   -20f,        1.00f,      1.00f),
             };
             upsideDownPhysics = new HashSet<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("targetRotationX",          0.00f,    0.00f,          5f,         0.75f,      1.25f),
+                new GravityPhysicsConfig("targetRotationX",          0.00f,    5f,         1.00f,      1.00f),
             };
             leanBackPhysics = new HashSet<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("centerOfGravityPercent",   0.25f,    0.05f,         -0.01f,      0.50f,      1.50f),
+                new GravityPhysicsConfig("centerOfGravityPercent",   0.30f,   -0.01f,      1.00f,      0f),
             };
             leanForwardPhysics = new HashSet<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("centerOfGravityPercent",   0.25f,    0.05f,          0.05f,      0.50f,      1.50f),
+                new GravityPhysicsConfig("centerOfGravityPercent",   0.30f,    0.05f,      1.00f,      0f),
             };
             rollLeftPhysics = new HashSet<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("targetRotationY",          0f,       0f,             12f,        1.00f,      1.00f),
+                new GravityPhysicsConfig("targetRotationY",          0f,       12f,        1.00f,      0f),
             };
             rollRightPhysics = new HashSet<GravityPhysicsConfig>()
             {
-                new GravityPhysicsConfig("targetRotationY",          0f,       0f,            -12f,        1.00f,      1.00f),
+                new GravityPhysicsConfig("targetRotationY",          0f,      -12f,        1.00f,      0f),
             };
 
             foreach(var it in uprightPhysics)

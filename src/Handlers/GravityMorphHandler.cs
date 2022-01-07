@@ -50,18 +50,12 @@ namespace TittyMagic
         {
             foreach(var it in gravityOffsetMorphs)
                 it.Reset();
-            foreach(var it in uprightMorphs)
-                it.Reset();
-            foreach(var it in upsideDownMorphs)
-                it.Reset();
-            foreach(var it in leanBackMorphs)
-                it.Reset();
-            foreach(var it in leanForwardMorphs)
-                it.Reset();
-            foreach(var it in rollLeftMorphs)
-                it.Reset();
-            foreach(var it in rollRightMorphs)
-                it.Reset();
+            Reset(uprightMorphs);
+            Reset(upsideDownMorphs);
+            Reset(leanBackMorphs);
+            Reset(leanForwardMorphs);
+            Reset(rollLeftMorphs);
+            Reset(rollRightMorphs);
         }
 
         public string GetStatus()
@@ -82,11 +76,11 @@ namespace TittyMagic
             foreach(var it in leanBackMorphs)
                 text += it.GetStatus();
 
-            text += "\nROLL LEFT\n";
+            text += "\nLEAN FORWARD\n";
             foreach(var it in leanForwardMorphs)
                 text += it.GetStatus();
 
-            text += "\nLEAN FORWARD\n";
+            text += "\nROLL LEFT\n";
             foreach(var it in rollLeftMorphs)
                 text += it.GetStatus();
 

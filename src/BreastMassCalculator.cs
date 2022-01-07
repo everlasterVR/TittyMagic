@@ -7,15 +7,15 @@ namespace TittyMagic
     public class BreastMassCalculator
     {
         private List<DAZPhysicsMeshSoftVerticesSet> rightBreastMainGroupSets;
-        private Mesh inMemoryMesh;
+        private Transform chestTransform;
         private float softVolume; // cm^3; spheroid volume estimation of right breast
 
-        public BreastMassCalculator()
+        public BreastMassCalculator(Transform chestTransform)
         {
+            this.chestTransform = chestTransform;
             rightBreastMainGroupSets = Globals.BREAST_PHYSICS_MESH.softVerticesGroups
                 .Find(it => it.name == "right")
                 .softVerticesSets;
-            inMemoryMesh = new Mesh();
         }
 
         public float Calculate(float atomScale)
@@ -39,11 +39,21 @@ namespace TittyMagic
         private Vector3 BoundsSize()
         {
             Vector3[] vertices = rightBreastMainGroupSets
-                .Select(it => it.jointRB.position).ToArray();
+                .Select(it => Calc.RelativePosition(chestTransform, it.jointRB.position))
+                .ToArray();
 
-            inMemoryMesh.vertices = vertices;
-            inMemoryMesh.RecalculateBounds();
-            return inMemoryMesh.bounds.size;
+            Vector3 min = Vector3.one * float.MaxValue;
+            Vector3 max = Vector3.one * float.MinValue;
+            for(int i = 0; i<vertices.Length; ++i)
+            {
+                min = Vector3.Min(min, vertices[i]);
+                max = Vector3.Max(max, vertices[i]);
+            }
+            Bounds bounds = new Bounds();
+            bounds.min = min;
+            bounds.max = max;
+
+            return bounds.size;
         }
 
         // Ellipsoid volume
@@ -57,7 +67,7 @@ namespace TittyMagic
         // compensates for the increasing outer size and hard colliders of larger breasts
         private float VolumeToMass(float volume)
         {
-            return Mathf.Pow((volume * 0.9f) / 1000, 1.25f) + 0.04f;
+            return Mathf.Pow((volume * 0.82f) / 1000, 1.2f);
         }
 
         // This somewhat accurately scales breast volume to the apparent breast size when atom scale is adjusted.

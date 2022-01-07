@@ -7,17 +7,15 @@ namespace TittyMagic
         public JSONStorableFloat setting;
         public string name;
         private float offset;
-        private float offsetScaleMul;
         private float logMaxX;
-        private float? scaleMul;
-        private float? gravityMul;
+        private float scaleMul;
+        private float gravityMul;
         private float originalValue;
 
-        public GravityPhysicsConfig(string name, float offset, float offsetScaleMul, float logMaxX, float? scaleMul, float? gravityMul)
+        public GravityPhysicsConfig(string name, float offset, float logMaxX, float scaleMul, float gravityMul)
         {
             this.name = name;
             this.offset = offset;
-            this.offsetScaleMul = offsetScaleMul;
             this.logMaxX = logMaxX;
             this.scaleMul = scaleMul;
             this.gravityMul = gravityMul;
@@ -36,11 +34,11 @@ namespace TittyMagic
 
         public void UpdateVal(float effect, float combinedScaleSoftness, float gravity)
         {
-            float scaleFactor = scaleMul.HasValue ? (float) scaleMul * combinedScaleSoftness : 1;
-            float gravityFactor = gravityMul.HasValue ? (float) gravityMul * gravity : 1;
-            float interpolatedEffect = Mathf.SmoothStep(0, ScaledSmoothMax(combinedScaleSoftness), effect);
-            float value = (scaleFactor * interpolatedEffect / 2) + (gravityFactor * interpolatedEffect / 2);
-            setting.val = offset + offsetScaleMul * combinedScaleSoftness + value;
+            float interpolatedEffect = Mathf.SmoothStep(0, Calc.ScaledSmoothMax(combinedScaleSoftness, logMaxX), effect);
+            float value =
+                scaleMul * combinedScaleSoftness * interpolatedEffect / 2 +
+                gravityMul * gravity * interpolatedEffect / 2;
+            setting.val = offset + value;
         }
 
         public void Reset()
@@ -51,16 +49,6 @@ namespace TittyMagic
         public string GetStatus()
         {
             return Formatting.NameValueString(name, setting.val, padRight: 25) + "\n";
-        }
-
-        private float ScaledSmoothMax(float scale)
-        {
-            if(logMaxX < 0)
-            {
-                return -Mathf.Log(scale * Mathf.Abs(logMaxX) + 1);
-            }
-
-            return Mathf.Log(scale * logMaxX + 1);
         }
     }
 }

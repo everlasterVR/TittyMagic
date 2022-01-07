@@ -36,5 +36,37 @@ namespace TittyMagic
         {
             return Mathf.Round(value * roundFactor) / roundFactor;
         }
+
+        public static Vector3 RelativePosition(Transform origin, Vector3 position)
+        {
+            Vector3 distance = position - origin.position;
+            return new Vector3(
+                Vector3.Dot(distance, origin.right.normalized),
+                Vector3.Dot(distance, origin.up.normalized),
+                Vector3.Dot(distance, origin.forward.normalized)
+            );
+        }
+
+        public static bool EqualWithin(float roundFactor, float v1, float v2)
+        {
+            return Mathf.Round(v1 * roundFactor) / roundFactor == Mathf.Round(v2 * roundFactor) / roundFactor;
+        }
+
+        public static bool VectorEqualWithin(float roundFactor, Vector3 v1, Vector3 v2)
+        {
+            return Mathf.Round(v1.x * roundFactor) / roundFactor == Mathf.Round(v2.x * roundFactor) / roundFactor
+                && Mathf.Round(v1.y * roundFactor) / roundFactor == Mathf.Round(v2.y * roundFactor) / roundFactor
+                && Mathf.Round(v1.z * roundFactor) / roundFactor == Mathf.Round(v2.z * roundFactor) / roundFactor;
+        }
+
+        public static float ScaledSmoothMax(float scale, float logMaxX)
+        {
+            if(logMaxX < 0)
+            {
+                return -Mathf.Log(scale * Mathf.Abs(logMaxX) + 1);
+            }
+
+            return Mathf.Log(scale * logMaxX + 1);
+        }
     }
 }

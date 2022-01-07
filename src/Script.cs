@@ -12,13 +12,27 @@ namespace TittyMagic
 {
     internal class Script : MVRScript
     {
-        private static readonly Version v2_1 = new Version("2.1.0");
         public static readonly Version version = new Version("0.0.0");
+
+        public readonly List<string> modes = new List<string>
+        {
+            { Mode.ANIM_OPTIMIZED },
+            { Mode.BALANCED },
+            { Mode.TOUCH_OPTIMIZED }
+        };
 
         private Bindings customBindings;
 
-        private Transform chest;
+        private List<Rigidbody> rigidbodies;
+        private Rigidbody chestRigidbody;
+        private Transform chestTransform;
+        private Rigidbody rNippleRigidbody;
+        private Transform rNippleTransform;
+        private Rigidbody lPectoralRigidbody;
+        private Rigidbody rPectoralRigidbody;
         private DAZCharacterSelector geometry;
+        private Vector3 neutralRelativePos;
+        private Vector3 positionDiff;
 
         private float massEstimate;
         private float gravityLogAmount;
@@ -30,12 +44,14 @@ namespace TittyMagic
         private BreastMassCalculator breastMassCalculator;
 
         private GravityMorphHandler gravityMorphH;
+        private RelativePosMorphHandler relativePosMorphH;
         private NippleErectionMorphHandler nippleMorphH;
         private StaticPhysicsHandler staticPhysicsH;
         private GravityPhysicsHandler gravityPhysicsH;
 
         private JSONStorableString titleUIText;
         private JSONStorableString statusUIText;
+        private JSONStorableString positionInfoUIText;
 
         private Dictionary<string, UIDynamicButton> modeButtonGroup;
 
@@ -44,14 +60,26 @@ namespace TittyMagic
         private JSONStorableStringChooser modeChooser;
         private JSONStorableString pluginVersionStorable;
         private JSONStorableFloat softness;
+        private SliderClickMonitor softnessSCM;
         private JSONStorableFloat gravity;
+        private SliderClickMonitor gravitySCM;
         private JSONStorableBool linkSoftnessAndGravity;
+        private JSONStorableBool enableGravityMorphs;
+        private JSONStorableBool enableForceMorphs;
         private JSONStorableFloat nippleErection;
 
-        private bool physicsUpdateInProgress = false;
-        private bool restoringFromJson = false;
+        private float timeSinceListenersChecked;
+        private float listenersCheckInterval = 0.1f;
+        private int refreshStatus = RefreshStatus.WAITING;
+        private bool animationWasFrozen = false;
         private float? legacySoftnessFromJson;
         private float? legacyGravityFromJson;
+
+        private float timeMultiplier;
+
+        private float roll;
+        private float pitch;
+        private float scaleVal;
 
 #if DEBUG_PHYSICS || DEBUG_MORPHS
         protected JSONStorableString baseDebugInfo = new JSONStorableString("Base Debug Info", "");
@@ -78,7 +106,13 @@ namespace TittyMagic
 
                 AdjustJoints breastControl = containingAtom.GetStorableByID("BreastControl") as AdjustJoints;
                 DAZPhysicsMesh breastPhysicsMesh = containingAtom.GetStorableByID("BreastPhysicsMesh") as DAZPhysicsMesh;
-                chest = containingAtom.GetStorableByID("chest").transform;
+                rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
+                chestRigidbody = rigidbodies.Find(rb => rb.name == "chest");
+                chestTransform = chestRigidbody.transform;
+                rNippleRigidbody = rigidbodies.Find(rb => rb.name == "rNipple");
+                rNippleTransform = rNippleRigidbody.transform;
+                lPectoralRigidbody = rigidbodies.Find(rb => rb.name == "lPectoral");
+                rPectoralRigidbody = rigidbodies.Find(rb => rb.name == "rPectoral");
                 geometry = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
 
                 Globals.BREAST_CONTROL = breastControl;
@@ -90,9 +124,10 @@ namespace TittyMagic
 
                 atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
                 breastMorphListener = new BreastMorphListener(geometry.morphBank1.morphs);
-                breastMassCalculator = new BreastMassCalculator();
+                breastMassCalculator = new BreastMassCalculator(chestTransform);
 
                 gravityMorphH = new GravityMorphHandler();
+                relativePosMorphH = new RelativePosMorphHandler();
                 nippleMorphH = new NippleErectionMorphHandler();
                 gravityPhysicsH = new GravityPhysicsHandler();
                 staticPhysicsH = new StaticPhysicsHandler(GetPackagePath());
@@ -100,22 +135,19 @@ namespace TittyMagic
                 InitPluginUILeft();
                 InitPluginUIRight();
                 InitSliderListeners();
-                UpdateLogarithmicGravityAmount(gravity.val);
+                SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
 
-                modeChooser.setCallbackFunction = (val) =>
-                {
-                    UpdateButtonLabels(modeButtonGroup, val);
-                    staticPhysicsH.LoadSettings(val);
-                    staticPhysicsH.FullUpdate(massEstimate, softness.val, nippleErection.val);
-                };
+                UpdateLogarithmicGravityAmount(gravity.val);
                 if(string.IsNullOrEmpty(modeChooser.val))
                 {
-                    modeChooser.val = Const.MODES.Values.First();
+                    modeChooser.val = modes.First();
+                }
+                else
+                {
+                    StartCoroutine(BeginRefresh());
                 }
 
                 StartCoroutine(SubscribeToKeybindings());
-                StartCoroutine(RefreshStaticPhysics(() => settingsMonitor.enabled = true));
-                StartCoroutine(MigrateFromPre2_1());
             }
             catch(Exception e)
             {
@@ -146,7 +178,18 @@ namespace TittyMagic
             titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{version}</size>");
 
             CreateNewSpacer(10f);
-            modeChooser = new JSONStorableStringChooser("Mode", Const.MODES.Keys.ToList(), Const.MODES.Values.ToList(), "", "Mode");
+            modeChooser = new JSONStorableStringChooser(
+                "Mode",
+                modes,
+                "",
+                "Mode",
+                (val) =>
+                {
+                    UpdateButtonLabels(modeButtonGroup, val);
+                    staticPhysicsH.LoadSettings(val);
+                    StartCoroutine(BeginRefresh());
+                }
+            );
             modeButtonGroup = CreateRadioButtonGroup(modeChooser);
             staticPhysicsH.modeChooser = modeChooser;
 
@@ -154,6 +197,24 @@ namespace TittyMagic
             softness = NewFloatSlider("Breast softness", 50f, Const.SOFTNESS_MIN, Const.SOFTNESS_MAX, "F0");
             gravity = NewFloatSlider("Breast gravity", 50f, Const.GRAVITY_MIN, Const.GRAVITY_MAX, "F0");
             linkSoftnessAndGravity = NewToggle("Link softness and gravity", true, false);
+            positionInfoUIText = NewTextField("positionInfoText", 36, 100);
+            enableGravityMorphs = NewToggle("Enable gravity morphs", false, false);
+            enableGravityMorphs.toggle.onValueChanged.AddListener((bool val) =>
+            {
+                if(!val)
+                {
+                    gravityMorphH.ResetAll();
+                }
+            });
+
+            enableForceMorphs = NewToggle("Enable force morphs", true, false);
+            enableForceMorphs.toggle.onValueChanged.AddListener((bool val) =>
+            {
+                if(!val)
+                {
+                    relativePosMorphH.ResetAll();
+                }
+            });
 
             CreateNewSpacer(10f);
             nippleErection = NewFloatSlider("Erect nipples", 0f, 0f, 1.0f, "F2");
@@ -198,7 +259,7 @@ namespace TittyMagic
             Dictionary<string, UIDynamicButton> buttons = new Dictionary<string, UIDynamicButton>();
             jsc.choices.ForEach((choice) =>
             {
-                UIDynamicButton btn = CreateButton(UI.RadioButtonLabel(Const.MODES[choice], choice == jsc.defaultVal), rightSide);
+                UIDynamicButton btn = CreateButton(UI.RadioButtonLabel(choice, choice == jsc.defaultVal), rightSide);
                 btn.buttonText.alignment = TextAnchor.MiddleLeft;
                 btn.buttonColor = UI.darkOffGrayViolet;
                 btn.height = 60f;
@@ -218,9 +279,9 @@ namespace TittyMagic
 
         private void UpdateButtonLabels(Dictionary<string, UIDynamicButton> buttons, string selected)
         {
-            buttons[selected].label = UI.RadioButtonLabel(Const.MODES[selected], true);
+            buttons[selected].label = UI.RadioButtonLabel(selected, true);
             buttons.Where(kvp => kvp.Key != selected).ToList()
-                .ForEach(kvp => kvp.Value.label = UI.RadioButtonLabel(Const.MODES[kvp.Key], false));
+                .ForEach(kvp => kvp.Value.label = UI.RadioButtonLabel(kvp.Key, false));
         }
 
         private JSONStorableFloat NewFloatSlider(
@@ -267,6 +328,9 @@ namespace TittyMagic
 
         private void InitSliderListeners()
         {
+            softnessSCM = softness.slider.gameObject.AddComponent<SliderClickMonitor>();
+            gravitySCM = gravity.slider.gameObject.AddComponent<SliderClickMonitor>();
+
             softness.slider.onValueChanged.AddListener((float val) =>
             {
                 if(linkSoftnessAndGravity.val)
@@ -274,7 +338,10 @@ namespace TittyMagic
                     gravity.val = val;
                     UpdateLogarithmicGravityAmount(val);
                 }
-                staticPhysicsH.FullUpdate(massEstimate, val, nippleErection.val);
+                if(refreshStatus != RefreshStatus.WAITING)
+                {
+                    StartCoroutine(BeginRefresh());
+                }
             });
             gravity.slider.onValueChanged.AddListener((float val) =>
             {
@@ -283,7 +350,10 @@ namespace TittyMagic
                     softness.val = val;
                 }
                 UpdateLogarithmicGravityAmount(val);
-                staticPhysicsH.FullUpdate(massEstimate, softness.val, nippleErection.val);
+                if(refreshStatus != RefreshStatus.WAITING)
+                {
+                    StartCoroutine(BeginRefresh());
+                }
             });
             nippleErection.slider.onValueChanged.AddListener((float val) =>
             {
@@ -297,52 +367,11 @@ namespace TittyMagic
             gravityLogAmount = Mathf.Log(10 * Const.ConvertToLegacyVal(val) - 3.35f);
         }
 
-        private IEnumerator MigrateFromPre2_1()
-        {
-            yield return new WaitForEndOfFrame();
-            if(!restoringFromJson)
-            {
-                yield break;
-            }
-
-            if(legacySoftnessFromJson.HasValue)
-            {
-                softness.val = Const.ConvertFromLegacyVal(legacySoftnessFromJson.Value);
-                Log.Message($"Converted legacy Breast softness {legacySoftnessFromJson.Value} in savefile to new slider value {softness.val}.");
-            }
-
-            if(legacyGravityFromJson.HasValue)
-            {
-                gravity.val = Const.ConvertFromLegacyVal(legacyGravityFromJson.Value);
-                Log.Message($"Converted legacy Breast gravity {legacyGravityFromJson.Value} in savefile to new slider value {gravity.val}.");
-            }
-
-            restoringFromJson = false;
-        }
-
-        private void FixedUpdate()
+        private void Update()
         {
             try
             {
-                if(!physicsUpdateInProgress && (breastMorphListener.Changed() || atomScaleListener.Changed()))
-                {
-                    StartCoroutine(RefreshStaticPhysics());
-                }
-
-                float roll = Calc.Roll(chest.rotation);
-                float pitch = Calc.Pitch(chest.rotation);
-                float scaleVal = breastMassCalculator.LegacyScale(massEstimate);
-
-                gravityMorphH.Update(roll, pitch, scaleVal, gravityLogAmount);
-                gravityPhysicsH.Update(roll, pitch, scaleVal, Const.ConvertToLegacyVal(softness.val), Const.ConvertToLegacyVal(gravity.val));
-#if DEBUG_PHYSICS || DEBUG_MORPHS
-                SetBaseDebugInfo(roll, pitch);
-#endif
-#if DEBUG_PHYSICS
-                physicsDebugInfo.SetVal(staticPhysicsH.GetStatus() + gravityPhysicsH.GetStatus());
-#elif DEBUG_MORPHS
-                morphDebugInfo.SetVal(gravityMorphH.GetStatus());
-#endif
+                DoUpdate();
             }
             catch(Exception e)
             {
@@ -352,32 +381,207 @@ namespace TittyMagic
             }
         }
 
-        public IEnumerator RefreshStaticPhysics(Action callback = null)
+        private void DoUpdate()
         {
-            physicsUpdateInProgress = true;
-            float atomScale = atomScaleListener.Value;
-            while(breastMorphListener.Changed())
+            if(refreshStatus != RefreshStatus.DONE)
             {
-                yield return null;
+                return;
             }
 
-            // Iterate the update a few times because each update changes breast shape and thereby the mass estimate.
-            for(int i = 0; i < 6; i++)
+            roll = Calc.Roll(chestTransform.rotation);
+            pitch = Calc.Pitch(chestTransform.rotation);
+
+            if(enableGravityMorphs.val)
             {
-                // update only non-soft physics settings to improve performance
-                UpdateMassEstimate(atomScale);
-                staticPhysicsH.UpdateMainPhysics(massEstimate, softness.val);
-                if(i > 0)
+                gravityMorphH.Update(roll, pitch, scaleVal, gravityLogAmount);
+            }
+
+            //TODO properly disable on uncheck enableForceMorphs
+            if(modeChooser.val == Mode.ANIM_OPTIMIZED && enableForceMorphs.val)
+            {
+                positionDiff = neutralRelativePos - Calc.RelativePosition(chestTransform, rNippleTransform.position);
+                relativePosMorphH.Update(positionDiff, scaleVal, Const.ConvertToLegacyVal(softness.val));
+            }
+        }
+
+        private void FixedUpdate()
+        {
+            try
+            {
+                DoFixedUpdate();
+            }
+            catch(Exception e)
+            {
+                Log.Error($"{e}");
+                Log.Error($"Try reloading plugin!");
+                enabled = false;
+            }
+        }
+
+        private void DoFixedUpdate()
+        {
+            timeSinceListenersChecked += Time.unscaledDeltaTime;
+
+            if(refreshStatus == RefreshStatus.MASS_STARTED)
+            {
+#if DEBUG_PHYSICS || DEBUG_MORPHS
+                positionInfoUIText.SetVal("");
+#endif
+                return;
+            }
+
+            if(refreshStatus > RefreshStatus.MASS_STARTED)
+            {
+                float gravityMagnitude = Physics.gravity.magnitude / timeMultiplier;
+                chestRigidbody.AddForce(chestTransform.up * -gravityMagnitude, ForceMode.Acceleration);
+                lPectoralRigidbody.AddForce(chestTransform.up * -gravityMagnitude, ForceMode.Acceleration);
+                rPectoralRigidbody.AddForce(chestTransform.up * -gravityMagnitude, ForceMode.Acceleration);
+                if(modeChooser.val == Mode.ANIM_OPTIMIZED && refreshStatus == RefreshStatus.MASS_OK)
                 {
-                    yield return new WaitForSeconds(0.12f);
+                    StartCoroutine(RefreshNeutralRelativePosition());
+                }
+                if(modeChooser.val != Mode.ANIM_OPTIMIZED || refreshStatus == RefreshStatus.NEUTRALPOS_OK)
+                {
+                    EndRefresh();
+                }
+                return;
+            }
+
+            if(timeSinceListenersChecked >= listenersCheckInterval)
+            {
+                timeSinceListenersChecked -= listenersCheckInterval;
+                if(refreshStatus != RefreshStatus.WAITING && (breastMorphListener.Changed() || atomScaleListener.Changed()))
+                {
+                    StartCoroutine(BeginRefresh());
+                    return;
                 }
             }
 
-            UpdateMassEstimate(atomScale, updateUIStatus: true);
-            staticPhysicsH.FullUpdate(massEstimate, softness.val, nippleErection.val);
-            physicsUpdateInProgress = false;
+            if(refreshStatus != RefreshStatus.DONE)
+            {
+                return;
+            }
 
-            callback?.Invoke();
+            gravityPhysicsH.Update(roll, pitch, scaleVal, Const.ConvertToLegacyVal(softness.val), Const.ConvertToLegacyVal(gravity.val));
+
+#if DEBUG_PHYSICS || DEBUG_MORPHS
+            SetBaseDebugInfo(roll, pitch, positionDiff);
+#endif
+#if DEBUG_PHYSICS
+            physicsDebugInfo.SetVal(staticPhysicsH.GetStatus() + gravityPhysicsH.GetStatus());
+#elif DEBUG_MORPHS
+            morphDebugInfo.SetVal(gravityMorphH.GetStatus());
+#endif
+        }
+
+        private float TimeMultiplier()
+        {
+            if(TimeControl.singleton == null || Mathf.Approximately(Time.timeScale, 0f))
+            {
+                return 1;
+            }
+
+            return 1 / Time.timeScale;
+        }
+
+        public IEnumerator BeginRefresh()
+        {
+            refreshStatus = RefreshStatus.WAITING;
+            // ensure refresh actually begins only once listeners report no change
+            yield return new WaitForSecondsRealtime(listenersCheckInterval);
+            while(breastMorphListener.Changed() || atomScaleListener.Changed() || softnessSCM.isDown || gravitySCM.isDown)
+            {
+                yield return new WaitForSecondsRealtime(0.1f);
+            }
+            yield return new WaitForSecondsRealtime(1.0f);
+
+            refreshStatus = RefreshStatus.MASS_STARTED;
+
+            settingsMonitor.enabled = false;
+            animationWasFrozen = SuperController.singleton.freezeAnimation;
+            SuperController.singleton.SetFreezeAnimation(true);
+
+            // simulate breasts zero G
+            chestRigidbody.useGravity = false;
+            lPectoralRigidbody.useGravity = false;
+            rPectoralRigidbody.useGravity = false;
+
+            // zero pose morphs
+            gravityMorphH.ResetAll();
+            relativePosMorphH.ResetAll();
+
+            float duration = 0;
+            float interval = 0.1f;
+            while(duration < 2f && (
+                !Calc.VectorEqualWithin(1000f, rNippleRigidbody.velocity, Vector3.zero) ||
+                !Calc.EqualWithin(1000f, massEstimate, DetermineMassEstimate(atomScaleListener.Value))
+            ))
+            {
+                yield return new WaitForSecondsRealtime(interval);
+                duration += interval;
+
+                // update mass estimate
+                massEstimate = DetermineMassEstimate(atomScaleListener.Value);
+
+                // update main static physics
+                staticPhysicsH.UpdateMainPhysics(massEstimate, softness.val);
+
+                // update gravity physics angles
+                roll = 0;
+                pitch = 0;
+                scaleVal = breastMassCalculator.LegacyScale(massEstimate);
+                gravityPhysicsH.Update(roll, pitch, scaleVal, Const.ConvertToLegacyVal(softness.val), Const.ConvertToLegacyVal(gravity.val));
+
+                // TODO update gravity morphs ?
+            }
+            SetMassUIStatus(atomScaleListener.Value);
+            staticPhysicsH.FullUpdate(massEstimate, softness.val, nippleErection.val);
+
+            timeMultiplier = TimeMultiplier();
+            refreshStatus = RefreshStatus.MASS_OK;
+        }
+
+        private IEnumerator RefreshNeutralRelativePosition()
+        {
+            refreshStatus = RefreshStatus.NEUTRALPOS_STARTED;
+            yield return new WaitForSecondsRealtime(1f);
+
+            float duration = 0;
+            float interval = 0.1f;
+            while(
+                duration < 2f && (
+                !Calc.VectorEqualWithin(
+                    1000000f,
+                    neutralRelativePos,
+                    Calc.RelativePosition(chestTransform, rNippleTransform.position)
+                ))
+            )
+            {
+                yield return new WaitForSecondsRealtime(interval);
+                neutralRelativePos = Calc.RelativePosition(chestTransform, rNippleTransform.position);
+            }
+
+#if DEBUG_PHYSICS || DEBUG_MORPHS
+            positionInfoUIText.SetVal(
+                $"<size=28>Neutral pos:\n" +
+                $"{Formatting.NameValueString("x", neutralRelativePos.x, 1000)} " +
+                $"{Formatting.NameValueString("y", neutralRelativePos.y, 1000)} " +
+                $"{Formatting.NameValueString("z", neutralRelativePos.z, 1000)} " +
+                $"</size>"
+            );
+#endif
+
+            refreshStatus = RefreshStatus.NEUTRALPOS_OK;
+        }
+
+        private void EndRefresh()
+        {
+            chestRigidbody.useGravity = true;
+            lPectoralRigidbody.useGravity = true;
+            rPectoralRigidbody.useGravity = true;
+            SuperController.singleton.SetFreezeAnimation(animationWasFrozen);
+            settingsMonitor.enabled = true;
+            refreshStatus = RefreshStatus.DONE;
         }
 
         public void RefreshRateDependentPhysics()
@@ -385,35 +589,34 @@ namespace TittyMagic
             staticPhysicsH.UpdateRateDependentPhysics(massEstimate, softness.val);
         }
 
-        private void UpdateMassEstimate(float atomScale, bool updateUIStatus = false)
+        private float DetermineMassEstimate(float atomScale)
         {
             float mass = breastMassCalculator.Calculate(atomScale);
+            if(mass > Const.MASS_MAX)
+                return Const.MASS_MAX;
 
+            if(mass < Const.MASS_MIN)
+                return Const.MASS_MIN;
+
+            return mass;
+        }
+
+        private void SetMassUIStatus(float atomScale)
+        {
+            float mass = breastMassCalculator.Calculate(atomScale);
             if(mass > Const.MASS_MAX)
             {
-                massEstimate = Const.MASS_MAX;
-                if(updateUIStatus)
-                {
-                    float excess = Calc.RoundToDecimals(mass - Const.MASS_MAX, 1000f);
-                    statusUIText.SetVal(MassExcessStatus(excess));
-                }
+                float excess = Calc.RoundToDecimals(mass - Const.MASS_MAX, 1000f);
+                statusUIText.SetVal(MassExcessStatus(excess));
             }
             else if(mass < Const.MASS_MIN)
             {
-                massEstimate = Const.MASS_MIN;
-                if(updateUIStatus)
-                {
-                    float shortage = Calc.RoundToDecimals(Const.MASS_MIN - mass, 1000f);
-                    statusUIText.SetVal(MassShortageStatus(shortage));
-                }
+                float shortage = Calc.RoundToDecimals(Const.MASS_MIN - mass, 1000f);
+                statusUIText.SetVal(MassShortageStatus(shortage));
             }
             else
             {
-                massEstimate = mass;
-                if(updateUIStatus)
-                {
-                    statusUIText.SetVal("");
-                }
+                statusUIText.SetVal("");
             }
         }
 
@@ -444,7 +647,7 @@ namespace TittyMagic
         public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
         {
             JSONClass json = base.GetJSON(includePhysical, includeAppearance, forceStore);
-            if(modeChooser.val != Const.MODES.Values.First())
+            if(modeChooser.val != modes.First())
             {
                 json["Mode"] = modeChooser.val;
             }
@@ -454,63 +657,12 @@ namespace TittyMagic
 
         public override void RestoreFromJSON(JSONClass json, bool restorePhysical = true, bool restoreAppearance = true, JSONArray presetAtoms = null, bool setMissingToDefault = true)
         {
-            restoringFromJson = true;
-
-            try
-            {
-                CheckSavedVersion(json, () =>
-                {
-                    //should never occur
-                    if(version.CompareTo(v2_1) < 0)
-                    {
-                        return;
-                    }
-
-                    //needs conversion from legacy values
-                    if(json.HasKey("Breast softness"))
-                    {
-                        float val = json["Breast softness"].AsFloat;
-                        if(val <= Const.LEGACY_MAX)
-                        {
-                            legacySoftnessFromJson = val;
-                        }
-                    }
-
-                    if(json.HasKey("Breast gravity"))
-                    {
-                        float val = json["Breast gravity"].AsFloat;
-                        if(val <= Const.LEGACY_MAX)
-                        {
-                            legacyGravityFromJson = val;
-                        }
-                    }
-                });
-            }
-            catch(Exception)
-            {
-            }
-
             if(json.HasKey("Mode"))
             {
                 modeChooser.val = json["Mode"];
             }
 
             base.RestoreFromJSON(json, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
-        }
-
-        private void CheckSavedVersion(JSONClass json, Action callback)
-        {
-            if(json["Version"] != null)
-            {
-                Version vSave = new Version(json["Version"].Value);
-                //no conversion from legacy values needed
-                if(vSave.CompareTo(v2_1) >= 0)
-                {
-                    return;
-                }
-            }
-
-            callback();
         }
 
         //MacGruber / Discord 20.10.2020
@@ -523,13 +675,21 @@ namespace TittyMagic
             return idx >= 0 ? filename.Substring(0, idx+2) : "";
         }
 
+        private void OnRemoveAtom(Atom atom)
+        {
+            Destroy(softnessSCM);
+            Destroy(gravitySCM);
+        }
+
         private void OnDestroy()
         {
             Destroy(settingsMonitor);
+            SuperController.singleton.onAtomRemovedHandlers -= OnRemoveAtom;
             SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
 
             gravityPhysicsH.ResetAll();
             gravityMorphH.ResetAll();
+            relativePosMorphH.ResetAll();
             nippleMorphH.ResetAll();
         }
 
@@ -538,12 +698,13 @@ namespace TittyMagic
             settingsMonitor.enabled = false;
             gravityPhysicsH.ResetAll();
             gravityMorphH.ResetAll();
+            relativePosMorphH.ResetAll();
             nippleMorphH.ResetAll();
         }
 
 #if DEBUG_PHYSICS || DEBUG_MORPHS
 
-        private void SetBaseDebugInfo(float roll, float pitch)
+        private void SetBaseDebugInfo(float roll, float pitch, Vector3 positionDiff)
         {
             baseDebugInfo.SetVal(
                 $"{Formatting.NameValueString("Roll", roll, 100f, 15)}\n" +
