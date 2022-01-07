@@ -35,7 +35,9 @@ namespace TittyMagic
         private Vector3 positionDiff;
 
         private float massEstimate;
-        private float gravityLogAmount;
+        private float massAmount;
+        private float softnessAmount;
+        private float gravityAmount;
 
         private SettingsMonitor settingsMonitor;
 
@@ -79,7 +81,6 @@ namespace TittyMagic
 
         private float roll;
         private float pitch;
-        private float scaleVal;
 
 #if DEBUG_PHYSICS || DEBUG_MORPHS
         protected JSONStorableString baseDebugInfo = new JSONStorableString("Base Debug Info", "");
@@ -137,7 +138,8 @@ namespace TittyMagic
                 InitSliderListeners();
                 SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
 
-                UpdateLogarithmicGravityAmount(gravity.val);
+                softnessAmount = Calc.Curved(softness.val/softness.max);
+                gravityAmount = Calc.Curved(gravity.val/gravity.max);
                 if(string.IsNullOrEmpty(modeChooser.val))
                 {
                     modeChooser.val = modes.First();
@@ -333,10 +335,11 @@ namespace TittyMagic
 
             softness.slider.onValueChanged.AddListener((float val) =>
             {
+                softnessAmount = Calc.Curved(val/softness.max);
                 if(linkSoftnessAndGravity.val)
                 {
                     gravity.val = val;
-                    UpdateLogarithmicGravityAmount(val);
+                    gravityAmount = Calc.Curved(val/gravity.max);
                 }
                 if(refreshStatus != RefreshStatus.WAITING)
                 {
@@ -345,11 +348,12 @@ namespace TittyMagic
             });
             gravity.slider.onValueChanged.AddListener((float val) =>
             {
+                gravityAmount = Calc.Curved(val/gravity.max);
                 if(linkSoftnessAndGravity.val)
                 {
                     softness.val = val;
+                    softnessAmount = Calc.Curved(val/softness.max);
                 }
-                UpdateLogarithmicGravityAmount(val);
                 if(refreshStatus != RefreshStatus.WAITING)
                 {
                     StartCoroutine(BeginRefresh());
@@ -358,13 +362,8 @@ namespace TittyMagic
             nippleErection.slider.onValueChanged.AddListener((float val) =>
             {
                 nippleMorphH.Update(val);
-                staticPhysicsH.UpdateNipplePhysics(massEstimate, softness.val, val);
+                staticPhysicsH.UpdateNipplePhysics(softnessAmount, val);
             });
-        }
-
-        private void UpdateLogarithmicGravityAmount(float val)
-        {
-            gravityLogAmount = Mathf.Log(10 * Const.ConvertToLegacyVal(val) - 3.35f);
         }
 
         private void Update()
@@ -393,14 +392,14 @@ namespace TittyMagic
 
             if(enableGravityMorphs.val)
             {
-                gravityMorphH.Update(roll, pitch, scaleVal, gravityLogAmount);
+                gravityMorphH.Update(roll, pitch, massAmount, gravityAmount);
             }
 
             //TODO properly disable on uncheck enableForceMorphs
             if(modeChooser.val == Mode.ANIM_OPTIMIZED && enableForceMorphs.val)
             {
                 positionDiff = neutralRelativePos - Calc.RelativePosition(chestTransform, rNippleTransform.position);
-                relativePosMorphH.Update(positionDiff, scaleVal, Const.ConvertToLegacyVal(softness.val));
+                relativePosMorphH.Update(positionDiff, massAmount, softnessAmount);
             }
         }
 
@@ -462,7 +461,7 @@ namespace TittyMagic
                 return;
             }
 
-            gravityPhysicsH.Update(roll, pitch, scaleVal, Const.ConvertToLegacyVal(softness.val), Const.ConvertToLegacyVal(gravity.val));
+            gravityPhysicsH.Update(roll, pitch, massAmount, softnessAmount, gravityAmount);
 
 #if DEBUG_PHYSICS || DEBUG_MORPHS
             SetBaseDebugInfo(roll, pitch, positionDiff);
@@ -524,18 +523,18 @@ namespace TittyMagic
                 massEstimate = DetermineMassEstimate(atomScaleListener.Value);
 
                 // update main static physics
-                staticPhysicsH.UpdateMainPhysics(massEstimate, softness.val);
+                massAmount = staticPhysicsH.SetAndReturnMassVal(massEstimate);
+                staticPhysicsH.UpdateMainPhysics(softnessAmount);
 
                 // update gravity physics angles
                 roll = 0;
                 pitch = 0;
-                scaleVal = breastMassCalculator.LegacyScale(massEstimate);
-                gravityPhysicsH.Update(roll, pitch, scaleVal, Const.ConvertToLegacyVal(softness.val), Const.ConvertToLegacyVal(gravity.val));
+                gravityPhysicsH.Update(roll, pitch, massEstimate, softnessAmount, gravityAmount);
 
                 // TODO update gravity morphs ?
             }
             SetMassUIStatus(atomScaleListener.Value);
-            staticPhysicsH.FullUpdate(massEstimate, softness.val, nippleErection.val);
+            staticPhysicsH.FullUpdate(softnessAmount, nippleErection.val);
 
             timeMultiplier = TimeMultiplier();
             refreshStatus = RefreshStatus.MASS_OK;
@@ -586,7 +585,7 @@ namespace TittyMagic
 
         public void RefreshRateDependentPhysics()
         {
-            staticPhysicsH.UpdateRateDependentPhysics(massEstimate, softness.val);
+            staticPhysicsH.UpdateRateDependentPhysics(softnessAmount);
         }
 
         private float DetermineMassEstimate(float atomScale)

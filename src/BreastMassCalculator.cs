@@ -24,12 +24,6 @@ namespace TittyMagic
             return VolumeToMass(softVolume);
         }
 
-        // roughly estimate the legacy scale value from automatically calculated mass
-        public float LegacyScale(float massEstimate)
-        {
-            return 1.21f * massEstimate - 0.03f;
-        }
-
         public string GetStatus(float atomScale)
         {
             float currentSoftVolume = EstimateVolume(BoundsSize(), atomScale);

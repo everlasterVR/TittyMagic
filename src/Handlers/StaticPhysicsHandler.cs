@@ -22,6 +22,8 @@ namespace TittyMagic
 
         public JSONStorableStringChooser modeChooser;
 
+        private float massVal;
+
         public StaticPhysicsHandler(string packagePath)
         {
             settingsDir = packagePath + @"Custom\Scripts\everlaster\TittyMagic\src\Settings";
@@ -112,72 +114,46 @@ namespace TittyMagic
             Globals.BREAST_PHYSICS_MESH.softVerticesColliderAdditionalNormalOffset = 0.002f;
         }
 
-        public void UpdateMainPhysics(
-            float massEstimate,
-            float softnessVal
-        )
+        public float SetAndReturnMassVal(float massEstimate)
         {
-            float mass = NormalizedMass(massEstimate);
-            float softness = NormalizedSoftness(softnessVal);
-
             if(modeChooser.val != Mode.TOUCH_OPTIMIZED)
             {
                 Globals.BREAST_CONTROL.mass = massEstimate;
             }
+            massVal = Mathf.InverseLerp(Const.MASS_MIN, Const.MASS_MAX, massEstimate);
+            return massVal;
+        }
 
+        public void UpdateMainPhysics(float softnessVal)
+        {
             foreach(var it in mainPhysicsConfigs)
-                it.UpdateVal(mass, softness);
+                it.UpdateVal(massVal, softnessVal);
             foreach(var it in rateDependentPhysicsConfigs)
-                it.UpdateVal(mass, softness, PhysicsRateMultiplier());
+                it.UpdateVal(massVal, softnessVal, PhysicsRateMultiplier());
         }
 
-        public void UpdateRateDependentPhysics(
-            float massEstimate,
-            float softnessVal
-        )
+        public void UpdateRateDependentPhysics(float softnessVal)
         {
-            float mass = NormalizedMass(massEstimate);
-            float softness = NormalizedSoftness(softnessVal);
-
             foreach(var it in rateDependentPhysicsConfigs)
-                it.UpdateVal(mass, softness, PhysicsRateMultiplier());
+                it.UpdateVal(massVal, softnessVal, PhysicsRateMultiplier());
         }
 
-        public void UpdateNipplePhysics(
-            float massEstimate,
-            float softnessVal,
-            float nippleErectionVal
-        )
+        public void UpdateNipplePhysics(float softnessVal, float nippleErectionVal)
         {
-            float mass = NormalizedMass(massEstimate);
-            float softness = NormalizedSoftness(softnessVal);
-
             foreach(var it in nipplePhysicsConfigs)
-                it.UpdateVal(mass, softness, nippleErectionVal);
+                it.UpdateVal(massVal, softnessVal, nippleErectionVal);
         }
 
-        public void FullUpdate(
-            float massEstimate,
-            float softnessVal,
-            float nippleErectionVal
-        )
+        public void FullUpdate(float softnessVal, float nippleErectionVal)
         {
-            float mass = NormalizedMass(massEstimate);
-            float softness = NormalizedSoftness(softnessVal);
-
-            if(modeChooser.val != Mode.TOUCH_OPTIMIZED)
-            {
-                Globals.BREAST_CONTROL.mass = massEstimate;
-            }
-
             foreach(var it in mainPhysicsConfigs)
-                it.UpdateVal(mass, softness);
+                it.UpdateVal(massVal, softnessVal);
             foreach(var it in rateDependentPhysicsConfigs)
-                it.UpdateVal(mass, softness, PhysicsRateMultiplier());
+                it.UpdateVal(massVal, softnessVal, PhysicsRateMultiplier());
             foreach(var it in softPhysicsConfigs)
-                it.UpdateVal(mass, softness);
+                it.UpdateVal(massVal, softnessVal);
             foreach(var it in nipplePhysicsConfigs)
-                it.UpdateVal(mass, softness, nippleErectionVal);
+                it.UpdateVal(massVal, softnessVal, nippleErectionVal);
         }
 
         public string GetStatus()
@@ -196,16 +172,6 @@ namespace TittyMagic
                 text += it.GetStatus();
 
             return text;
-        }
-
-        private float NormalizedMass(float massEstimate)
-        {
-            return (massEstimate - Const.MASS_MIN)/(Const.MASS_MAX - Const.MASS_MIN);
-        }
-
-        private float NormalizedSoftness(float softnessVal)
-        {
-            return (softnessVal - Const.SOFTNESS_MIN)/(Const.SOFTNESS_MAX - Const.SOFTNESS_MIN);
         }
 
         //see UserPreferences.cs methods SetPhysics45, 60, 72 etc.
