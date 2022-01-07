@@ -25,7 +25,7 @@ namespace TittyMagic
                 {
                     if(!morph.visible || morph.isPoseControl || morph.group.Contains("Pose/"))
                     {
-                        return;
+                        continue;
                     }
 
                     if(!listenedMorphs.Contains(morph) && MorphCheck.IsInSet(morph, breastVertices, filterStrength))
@@ -67,12 +67,12 @@ namespace TittyMagic
 
         public string GetStatus()
         {
-            string message = $"These morphs are being monitored for changes:\n";
+            string message = $"These {listenedMorphs.Count} morphs are being monitored for changes:\n";
             foreach(DAZMorph morph in listenedMorphs)
             {
                 message = message + MorphName(morph) + "\n";
             }
-            return status;
+            return message;
         }
 
 #endif
