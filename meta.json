@@ -10,7 +10,6 @@
    "promotionalLink" : "https://patreon.com/everlaster",
    "programVersion" : "1.20.77.9",
    "contentList" : [ 
-      "Custom/Atom/Person/Morphs/female/everlaster/TittyMagic",
       "Custom/Scripts/everlaster/TittyMagic"
    ], 
    "dependencies" : { 

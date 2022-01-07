@@ -14,6 +14,7 @@ src\Handlers\StaticPhysicsHandler.cs
 src\Utils\Calc.cs
 src\Utils\Formatting.cs
 src\Utils\Log.cs
+src\Utils\MorphCheck.cs
 src\Utils\UI.cs
 src\AtomScaleListener.cs
 src\BreastMassCalculator.cs

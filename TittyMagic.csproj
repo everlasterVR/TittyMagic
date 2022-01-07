@@ -96,13 +96,13 @@
     <Compile Include="src\Handlers\NippleErectionMorphHandler.cs" />
     <Compile Include="src\Handlers\RelativePosMorphHandler.cs" />
     <Compile Include="src\Handlers\StaticPhysicsHandler.cs" />
-    <Compile Include="src\Utils\AngleCalc.cs" />
     <Compile Include="src\Utils\Calc.cs" />
     <Compile Include="src\Utils\Formatting.cs" />
     <Compile Include="src\Utils\Log.cs" />
     <Compile Include="src\AtomScaleListener.cs" />
     <Compile Include="src\BreastMorphListener.cs" />
     <Compile Include="src\Script.cs" />
+    <Compile Include="src\Utils\MorphCheck.cs" />
     <Compile Include="src\Utils\UI.cs" />
     <Compile Include="src\Variables.cs" />
     <Compile Include="TM_ReferenceSize.cs" />
