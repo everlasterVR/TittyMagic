@@ -68,10 +68,5 @@ namespace TittyMagic
 
             return Mathf.Log(value * logMaxX + 1);
         }
-
-        public static float Curved(float val)
-        {
-            return Mathf.Pow(val, 1/2f);
-        }
     }
 }

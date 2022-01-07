@@ -138,8 +138,8 @@ namespace TittyMagic
                 InitSliderListeners();
                 SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
 
-                softnessAmount = Calc.Curved(softness.val/softness.max);
-                gravityAmount = Calc.Curved(gravity.val/gravity.max);
+                softnessAmount = Mathf.Pow(softness.val/softness.max, 1/2f);
+                gravityAmount = Mathf.Pow(gravity.val/gravity.max, 1/2f);
                 if(string.IsNullOrEmpty(modeChooser.val))
                 {
                     modeChooser.val = modes.First();
@@ -335,11 +335,11 @@ namespace TittyMagic
 
             softness.slider.onValueChanged.AddListener((float val) =>
             {
-                softnessAmount = Calc.Curved(val/softness.max);
+                softnessAmount = Mathf.Pow(val/softness.max, 1/2f);
                 if(linkSoftnessAndGravity.val)
                 {
                     gravity.val = val;
-                    gravityAmount = Calc.Curved(val/gravity.max);
+                    gravityAmount = Mathf.Pow(val/gravity.max, 1/2f);
                 }
                 if(refreshStatus != RefreshStatus.WAITING)
                 {
@@ -348,11 +348,11 @@ namespace TittyMagic
             });
             gravity.slider.onValueChanged.AddListener((float val) =>
             {
-                gravityAmount = Calc.Curved(val/gravity.max);
+                gravityAmount = Mathf.Pow(val/gravity.max, 1/2f);
                 if(linkSoftnessAndGravity.val)
                 {
                     softness.val = val;
-                    softnessAmount = Calc.Curved(val/softness.max);
+                    softnessAmount = Mathf.Pow(val/softness.max, 1/2f);
                 }
                 if(refreshStatus != RefreshStatus.WAITING)
                 {
@@ -464,7 +464,7 @@ namespace TittyMagic
             gravityPhysicsH.Update(roll, pitch, massAmount, softnessAmount, gravityAmount);
 
 #if DEBUG_PHYSICS || DEBUG_MORPHS
-            SetBaseDebugInfo(roll, pitch, positionDiff);
+            SetBaseDebugInfo();
 #endif
 #if DEBUG_PHYSICS
             physicsDebugInfo.SetVal(staticPhysicsH.GetStatus() + gravityPhysicsH.GetStatus());
@@ -703,7 +703,7 @@ namespace TittyMagic
 
 #if DEBUG_PHYSICS || DEBUG_MORPHS
 
-        private void SetBaseDebugInfo(float roll, float pitch, Vector3 positionDiff)
+        private void SetBaseDebugInfo()
         {
             baseDebugInfo.SetVal(
                 $"{Formatting.NameValueString("Roll", roll, 100f, 15)}\n" +

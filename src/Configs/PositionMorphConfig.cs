@@ -21,14 +21,12 @@ namespace TittyMagic
             }
         }
 
-        public void UpdateVal(float effect, float scale, float softness, float logMaxX)
+        public void UpdateVal(float effect, float scale, float softness)
         {
-            float interpolatedEffect = Mathf.SmoothStep(0, Calc.ScaledSmoothMax(softness, logMaxX), effect * 5);
             float value =
-                scale * scaleMul * interpolatedEffect / 2 +
-                softness * softnessMul * interpolatedEffect / 2;
-
-            morph.morphValue = value;
+                scale * scaleMul * effect / 2 +
+                softness * softnessMul * effect / 2;
+            morph.morphValue = 5 * value;
         }
 
         public void Reset()

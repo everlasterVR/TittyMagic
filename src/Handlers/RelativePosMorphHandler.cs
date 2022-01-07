@@ -212,55 +212,72 @@ namespace TittyMagic
         {
             this.scale = scale;
             this.softness = softness;
+            float x = WithDeadZone(positionDiff.x, 0.002f);
+            float y = WithDeadZone(positionDiff.y, 0.008f);
+            float z = WithDeadZone(positionDiff.z, 0.002f);
 
             // TODO separate l/r morphs only, separate calculation of diff
-            //// left
-            //if(positionDiff.x <= 0)
-            //{
-            //    Reset(leftForceMorphs);
-            //    UpdateSet(rightForceMorphs, -positionDiff.x, 1.00f);
-            //}
-            //// right
-            //else
-            //{
-            //    Reset(rightForceMorphs);
-            //    UpdateSet(leftForceMorphs, positionDiff.x, 1.00f);
-            //}
+            //left
+            if(x <= 0)
+            {
+                Reset(leftForceMorphs);
+                UpdateSet(rightForceMorphs, -x);
+            }
+            // right
+            else
+            {
+                Reset(rightForceMorphs);
+                UpdateSet(leftForceMorphs, x);
+            }
 
             // up
-            if(positionDiff.y <= 0)
+            if(y <= 0)
             {
                 Reset(downForceMorphs);
-                // TODO morph specific logMaxX..?
-                UpdateSet(upForceMorphs, -positionDiff.y, 5.00f);
+                UpdateSet(upForceMorphs, -y);
             }
             // down
             else
             {
                 Reset(upForceMorphs);
-                UpdateSet(downForceMorphs, positionDiff.y, 1.00f);
+                UpdateSet(downForceMorphs, y);
             }
 
             // forward
-            if(positionDiff.z <= 0)
+            if(z <= 0)
             {
                 Reset(backForceMorphs);
-                UpdateSet(forwardForceMorphs, -positionDiff.z, 5.00f);
+                UpdateSet(forwardForceMorphs, -z);
             }
             // back
             else
             {
                 Reset(forwardForceMorphs);
-                UpdateSet(backForceMorphs, positionDiff.z, 2.00f);
+                UpdateSet(backForceMorphs, z);
             }
         }
 
-        private void UpdateSet(HashSet<PositionMorphConfig> morphs, float effect, float logMaxX)
+        private void UpdateSet(HashSet<PositionMorphConfig> morphs, float diff)
         {
             foreach(var it in morphs)
             {
-                it.UpdateVal(effect, scale, softness, logMaxX);
+                it.UpdateVal(PositionDiffVal(diff), scale, softness);
             }
+        }
+
+        private float WithDeadZone(float diff, float deadZone)
+        {
+            if(diff >= 0)
+            {
+                return (diff - deadZone) > 0 ? diff - deadZone : 0;
+            }
+
+            return (diff + deadZone) < 0 ? diff + deadZone : 0;
+        }
+
+        private float PositionDiffVal(float diff)
+        {
+            return Mathf.SmoothStep(0, 1, Mathf.Pow(diff, 1/2f));
         }
 
         public void ResetAll()
