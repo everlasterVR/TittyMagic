@@ -23,10 +23,9 @@ namespace TittyMagic
 
         public float UpdateVal(float effect, float mass, float softness)
         {
-            float value = 1.25f * (
+            float value =
                 mass * massMul * effect / 2 +
-                softness * softnessMul * effect / 2
-            );
+                softness * softnessMul * effect / 2;
             morph.morphValue = value;
             return value;
         }

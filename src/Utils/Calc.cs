@@ -68,5 +68,28 @@ namespace TittyMagic
 
             return Mathf.Log(value * logMaxX + 1);
         }
+
+        // https://www.desmos.com/calculator/u6c7fgb8cf
+        public static float InverseSmoothStep(float b, float value, float curvature, float midpoint)
+        {
+            if(value < 0)
+                return 0;
+            if(value > b)
+                return 1;
+
+            float s = curvature < 0 ? 0 : (curvature > 0.99f ? 0.99f : curvature);
+            float p = midpoint < 0 ? 0 : (midpoint > b ? b : midpoint);
+            float c = 2/(1 - s) - p/b;
+
+            if(value < p)
+                return f1(value, b, p, c);
+
+            return 1 - f1(b - value, b, b - p, c);
+        }
+
+        private static float f1(float value, float b, float n, float c)
+        {
+            return Mathf.Pow(value, c)/(b * Mathf.Pow(n, c - 1));
+        }
     }
 }

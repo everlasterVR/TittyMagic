@@ -320,38 +320,12 @@ namespace TittyMagic
 
         private void UpdateMorphs(List<UIConfigurationUnit> configs, float diff)
         {
-            // max absolute diff is quite small so multiply before interpolating
-            // diff value at high forces at max softness should be close to 1
-            float diffVal = CustomSmoothStep(4 * diff);
+            float max = _mass/2;
+            float diffVal = Calc.InverseSmoothStep(max, diff, 0.1f, max/2);
             foreach(var item in configs)
             {
                 item.UpdateMorphValue(diffVal, _mass, _softness);
             }
-        }
-
-        // https://www.desmos.com/calculator/3zhzwbfrxd
-        private float CustomSmoothStep(float val)
-        {
-            float p = 0.18f;
-            float s = 0.295f;
-            float c = 2/(1 - s) - 1;
-
-            if(val >= 1)
-            {
-                return 1;
-            }
-
-            if(val <= p)
-            {
-                return f1(val, p, c);
-            }
-
-            return 1 - f1(1 - val, 1 - p, c);
-        }
-
-        private float f1(float val, float p, float c)
-        {
-            return Mathf.Pow(val, c)/Mathf.Pow(p, c - 1);
         }
 
         public void ResetAll()
