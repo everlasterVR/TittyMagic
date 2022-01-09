@@ -120,7 +120,7 @@ namespace TittyMagic
             {
                 Globals.BREAST_CONTROL.mass = massEstimate;
             }
-            massVal = Mathf.InverseLerp(Const.MASS_MIN, Const.MASS_MAX, massEstimate);
+            massVal = Mathf.InverseLerp(0, Const.MASS_MAX, massEstimate);
             return massVal;
         }
 
