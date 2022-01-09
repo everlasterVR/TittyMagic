@@ -366,43 +366,6 @@ namespace TittyMagic
             });
         }
 
-        private void Update()
-        {
-            try
-            {
-                DoUpdate();
-            }
-            catch(Exception e)
-            {
-                Log.Error($"{e}");
-                Log.Error($"Try reloading plugin!");
-                enabled = false;
-            }
-        }
-
-        private void DoUpdate()
-        {
-            if(refreshStatus != RefreshStatus.DONE)
-            {
-                return;
-            }
-
-            roll = Calc.Roll(chestTransform.rotation);
-            pitch = Calc.Pitch(chestTransform.rotation);
-
-            if(enableGravityMorphs.val)
-            {
-                gravityMorphH.Update(roll, pitch, massAmount, gravityAmount);
-            }
-
-            //TODO properly disable on uncheck enableForceMorphs
-            if(modeChooser.val == Mode.ANIM_OPTIMIZED && enableForceMorphs.val)
-            {
-                positionDiff = neutralRelativePos - Calc.RelativePosition(chestTransform, rNippleTransform.position);
-                relativePosMorphH.Update(positionDiff, massAmount, softnessAmount);
-            }
-        }
-
         private void FixedUpdate()
         {
             try
@@ -459,6 +422,21 @@ namespace TittyMagic
             if(refreshStatus != RefreshStatus.DONE)
             {
                 return;
+            }
+
+            roll = Calc.Roll(chestTransform.rotation);
+            pitch = Calc.Pitch(chestTransform.rotation);
+
+            if(enableGravityMorphs.val)
+            {
+                gravityMorphH.Update(roll, pitch, massAmount, gravityAmount);
+            }
+
+            //TODO properly disable on uncheck enableForceMorphs
+            if(modeChooser.val == Mode.ANIM_OPTIMIZED && enableForceMorphs.val)
+            {
+                positionDiff = neutralRelativePos - Calc.RelativePosition(chestTransform, rNippleTransform.position);
+                relativePosMorphH.Update(positionDiff, massAmount, softnessAmount);
             }
 
             gravityPhysicsH.Update(roll, pitch, massAmount, softnessAmount, gravityAmount);
