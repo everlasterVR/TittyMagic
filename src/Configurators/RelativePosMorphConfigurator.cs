@@ -8,7 +8,7 @@ namespace TittyMagic
 {
     internal class RelativePosMorphConfigurator : MVRScript
     {
-        private float _scale;
+        private float _mass;
         private float _softness;
 
         private string _saveDir = SuperController.singleton.savesDir + @"tmconfig\";
@@ -267,18 +267,18 @@ namespace TittyMagic
 
         public void Update(
             Vector3 positionDiff,
-            float scale,
+            float mass,
             float softness
         )
         {
-            _scale = scale;
+            _mass = mass;
             _softness = softness;
             float x = positionDiff.x;
             float y = positionDiff.y;
             float z = positionDiff.z;
 
             // TODO separate l/r morphs only, separate calculation of diff
-            ////left
+            //left
             if(x <= 0)
             {
                 ResetMorphs(leftForceConfigs);
@@ -304,7 +304,7 @@ namespace TittyMagic
                 UpdateMorphs(downForceConfigs, y);
             }
 
-            ////// forward
+            // forward
             if(z <= 0)
             {
                 ResetMorphs(backForceConfigs);
@@ -325,7 +325,7 @@ namespace TittyMagic
             float diffVal = CustomSmoothStep(4 * diff);
             foreach(var item in configs)
             {
-                item.UpdateMorphValue(diffVal, _scale, _softness);
+                item.UpdateMorphValue(diffVal, _mass, _softness);
             }
         }
 

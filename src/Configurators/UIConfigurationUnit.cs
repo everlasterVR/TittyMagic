@@ -24,7 +24,7 @@ namespace TittyMagic
             _valueStorable = UI.NewFloatSlider(script, "value", _config.morph.morphValue, -2, 2, "F3", true);
             _multiplierStorable.slider.onValueChanged.AddListener((float val) =>
             {
-                _config.SetSoftnessMul(val);
+                _config.softnessMul = val;
             });
         }
 
@@ -38,13 +38,13 @@ namespace TittyMagic
             _multiplierStorable.val = val;
         }
 
-        public void UpdateMorphValue(float effect, float scale, float softness)
+        public void UpdateMorphValue(float effect, float mass, float softness)
         {
             if(_config == null)
             {
                 return;
             }
-            var value = _config.UpdateVal(effect, scale, softness);
+            var value = _config.UpdateVal(effect, mass, softness);
             _valueStorable.SetVal(value);
         }
 
