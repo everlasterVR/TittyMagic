@@ -1,4 +1,6 @@
-﻿namespace TittyMagic
+﻿using SimpleJSON;
+
+namespace TittyMagic
 {
     internal class UIConfigurationUnit
     {
@@ -7,6 +9,7 @@
         private JSONStorableFloat _multiplierStorable;
         private JSONStorableFloat _valueStorable;
         private PositionMorphConfig _config;
+        public string Name => _name;
 
         public UIConfigurationUnit(string name, float startingValue = 0f)
         {
@@ -23,6 +26,16 @@
             {
                 _config.SetSoftnessMul(val);
             });
+        }
+
+        public float GetMultiplier()
+        {
+            return _multiplierStorable.val;
+        }
+
+        public void SetMultiplier(float val)
+        {
+            _multiplierStorable.val = val;
         }
 
         public void UpdateMorphValue(float effect, float scale, float softness)

@@ -1,12 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using MVR.FileManagementSecure;
+using SimpleJSON;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace TittyMagic
 {
     internal class RelativePosMorphConfigurator : MVRScript
     {
-        private float scale;
-        private float softness;
+        private float _scale;
+        private float _softness;
+
+        private string _saveDir = SuperController.singleton.savesDir + @"tmconfig\";
+        private string _lastBrowseDir;
+        private const string _saveExt = "json";
+
+        private JSONStorableBool _enableAdjustment;
+
+        public bool Enabled => _enableAdjustment.val;
 
         private List<UIConfigurationUnit> downForceConfigs = new List<UIConfigurationUnit>
         {
@@ -21,38 +32,48 @@ namespace TittyMagic
 
         private List<UIConfigurationUnit> upForceConfigs = new List<UIConfigurationUnit>
         {
-            { new UIConfigurationUnit("UPSD_Areola UpDown") },
-            { new UIConfigurationUnit("UPSD_Breast Diameter(Pose)") },
-            { new UIConfigurationUnit("UPSD_Breast Height") },
-            { new UIConfigurationUnit("UPSD_Breast Height Upper") },
             { new UIConfigurationUnit("UPSD_Breast Move Up") },
+            { new UIConfigurationUnit("UPSD_ChestUp") },
+            { new UIConfigurationUnit("UPSD_Breast Height") },
             { new UIConfigurationUnit("UPSD_Breast Sag1") },
             { new UIConfigurationUnit("UPSD_Breast Sag2") },
-            { new UIConfigurationUnit("UPSD_Breasts Hang Forward") },
             { new UIConfigurationUnit("UPSD_Breasts Natural") },
-            { new UIConfigurationUnit("UPSD_Breast flat") },
+            { new UIConfigurationUnit("UPSD_Areola UpDown") },
             { new UIConfigurationUnit("UPSD_Breast Rotate Up") },
+            { new UIConfigurationUnit("UPSD_Breast Top Curve2") },
+            { new UIConfigurationUnit("Breast look up") },
+            { new UIConfigurationUnit("UPSD_Breast Top Curve1") },
+            { new UIConfigurationUnit("UPSD_Breasts Height") },
+            { new UIConfigurationUnit("Breast Height Lower") },
+            { new UIConfigurationUnit("Breasts Under Curve") },
+            { new UIConfigurationUnit("UPSD_ChestUnderBreast") },
             { new UIConfigurationUnit("UPSD_Breast Under Smoother1") },
             { new UIConfigurationUnit("UPSD_Breast Under Smoother2") },
             { new UIConfigurationUnit("UPSD_Breast Under Smoother3") },
             { new UIConfigurationUnit("UPSD_Breast Under Smoother4") },
-            { new UIConfigurationUnit("UPSD_Breast Diameter") },
-            { new UIConfigurationUnit("UPSD_Breasts Flatten") },
-            { new UIConfigurationUnit("UPSD_Breasts Height") },
-            { new UIConfigurationUnit("UPSD_Breasts Implants") },
+            { new UIConfigurationUnit("UPSD_Breast Height Upper") },
             { new UIConfigurationUnit("UPSD_Breasts Upward Slope") },
+            { new UIConfigurationUnit("UPSD_Chest Height") },
+            { new UIConfigurationUnit("Breast upper down") },
+            { new UIConfigurationUnit("Breasts Small Top Slope") },
+            { new UIConfigurationUnit("Breasts Size") },
+            { new UIConfigurationUnit("UPSD_Breasts Implants") },
+            { new UIConfigurationUnit("UPSD_Breast Diameter") },
+            { new UIConfigurationUnit("LBACK_Breast Zero") },
+            { new UIConfigurationUnit("UPSD_Breast flat") },
+            { new UIConfigurationUnit("UPSD_Breasts Flatten") },
             { new UIConfigurationUnit("UPSD_Center Gap Depth") },
             { new UIConfigurationUnit("UPSD_Center Gap Height") },
             { new UIConfigurationUnit("UPSD_Center Gap UpDown") },
-            { new UIConfigurationUnit("UPSD_Chest Height") },
             { new UIConfigurationUnit("UPSD_Chest Smoother") },
-            { new UIConfigurationUnit("UPSD_ChestUnderBreast") },
-            { new UIConfigurationUnit("UPSD_ChestUp") },
+            { new UIConfigurationUnit("UPSD_Breasts Hang Forward") },
             { new UIConfigurationUnit("UPSD_Breast Pointed") },
-            { new UIConfigurationUnit("UPSD_Breast Top Curve1") },
-            { new UIConfigurationUnit("UPSD_Breast Top Curve2") },
+            { new UIConfigurationUnit("UPSD_Breast Diameter(Pose)") },
             { new UIConfigurationUnit("UPSD_BreastsShape2") },
+            { new UIConfigurationUnit("Breast Round") },
+            { new UIConfigurationUnit("Breast move inside") },
             { new UIConfigurationUnit("UPSD_Breasts TogetherApart") },
+            { new UIConfigurationUnit("ChestSeparateBreasts") },
         };
 
         private List<UIConfigurationUnit> backForceConfigs = new List<UIConfigurationUnit>
@@ -136,39 +157,112 @@ namespace TittyMagic
 
         public override void Init()
         {
+            FileManagerSecure.CreateDirectory(_saveDir);
+            _lastBrowseDir = _saveDir;
         }
 
         public void DoInit()
         {
-            UI.NewTextField(this, "Down force morphs", 32, 100, false);
-            UI.NewSpacer(this, 100, true);
-            foreach(var item in downForceConfigs)
+            _enableAdjustment = UI.NewToggle(this, "Enable", true, false);
+            _enableAdjustment.toggle.onValueChanged.AddListener((bool val) =>
+            {
+                if(!val)
+                {
+                    ResetAll();
+                }
+            });
+            UI.NewSpacer(this, 50, true);
+
+            InitUISection("Down force morphs", downForceConfigs);
+            InitUISection("Up force morphs", upForceConfigs);
+            InitUISection("Back force morphs", backForceConfigs);
+            InitUISection("Forward force morphs", forwardForceConfigs);
+            InitUISection("Left force morphs", leftForceConfigs);
+            InitUISection("Right force morphs", rightForceConfigs);
+
+            try
+            {
+                HandleLoad(_saveDir + "upForceMultipliers.json", upForceConfigs);
+            }
+            catch(Exception)
+            {
+                Log.Error($"Default configuration file 'upForceMultipliers.json' not found in default path {_saveDir}");
+            }
+        }
+
+        private void InitUISection(string title, List<UIConfigurationUnit> configs)
+        {
+            var saveButton = CreateButton("Save JSON", true);
+            var loadButton = CreateButton("Load JSON", true);
+
+            UI.NewTextField(this, title, 32, 115, false);
+            foreach(var item in configs)
                 item.Init(this);
 
-            UI.NewTextField(this, "Up force morphs", 32, 100, false);
-            UI.NewSpacer(this, 100, true);
-            foreach(var item in upForceConfigs)
-                item.Init(this);
+            AddSaveButtonListener(saveButton, configs);
+            AddLoadButtonListener(loadButton, configs);
+        }
 
-            UI.NewTextField(this, "Back force morphs", 32, 100, false);
-            UI.NewSpacer(this, 100, true);
-            foreach(var item in backForceConfigs)
-                item.Init(this);
+        private void AddSaveButtonListener(UIDynamicButton button, List<UIConfigurationUnit> configs)
+        {
+            button.button.onClick.AddListener(() =>
+            {
+                SuperController.singleton.NormalizeMediaPath(_lastBrowseDir); // Sets dir if path exists
+                SuperController.singleton.GetMediaPathDialog((string path) => HandleSave(path, configs), _saveExt);
 
-            UI.NewTextField(this, "Forward force morphs", 32, 100, false);
-            UI.NewSpacer(this, 100, true);
-            foreach(var item in forwardForceConfigs)
-                item.Init(this);
+                // Update the browser to be a Save browser
+                uFileBrowser.FileBrowser browser = SuperController.singleton.mediaFileBrowserUI;
+                browser.SetTextEntry(true);
+                browser.fileEntryField.text = string.Format("{0}.{1}", ((int) (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds).ToString(), _saveExt);
+                browser.ActivateFileNameField();
+            });
+        }
 
-            UI.NewTextField(this, "Left force morphs", 32, 100, false);
-            UI.NewSpacer(this, 100, true);
-            foreach(var item in leftForceConfigs)
-                item.Init(this);
+        private void HandleSave(string path, List<UIConfigurationUnit> configs)
+        {
+            if(string.IsNullOrEmpty(path))
+            {
+                return;
+            }
+            _lastBrowseDir = path.Substring(0, path.LastIndexOfAny(new char[] { '/', '\\' })) + @"\";
 
-            UI.NewTextField(this, "Right force morphs", 32, 100, false);
-            UI.NewSpacer(this, 100, true);
-            foreach(var item in rightForceConfigs)
-                item.Init(this);
+            if(!path.ToLower().EndsWith(_saveExt.ToLower()))
+            {
+                path += "." + _saveExt;
+            }
+
+            var json = new JSONClass();
+            foreach(var item in configs)
+            {
+                json[item.Name].AsFloat = item.GetMultiplier();
+            }
+            SaveJSON(json, path);
+        }
+
+        private void AddLoadButtonListener(UIDynamicButton button, List<UIConfigurationUnit> configs)
+        {
+            button.button.onClick.AddListener(() =>
+            {
+                SuperController.singleton.NormalizeMediaPath(_lastBrowseDir); // Sets dir if path exists
+                SuperController.singleton.GetMediaPathDialog((string path) => HandleLoad(path, configs), _saveExt);
+            });
+        }
+
+        private void HandleLoad(string path, List<UIConfigurationUnit> configs)
+        {
+            if(string.IsNullOrEmpty(path))
+            {
+                return;
+            }
+            _lastBrowseDir = path.Substring(0, path.LastIndexOfAny(new char[] { '/', '\\' })) + @"\";
+            JSONClass json = LoadJSON(path).AsObject;
+            foreach(var item in configs)
+            {
+                if(json.HasKey(item.Name))
+                {
+                    item.SetMultiplier(json[item.Name].AsFloat);
+                }
+            }
         }
 
         public void Update(
@@ -177,11 +271,11 @@ namespace TittyMagic
             float softness
         )
         {
-            this.scale = scale;
-            this.softness = softness;
-            float x = WithDeadZone(positionDiff.x, 0.002f);
-            float y = WithDeadZone(positionDiff.y, 0.008f);
-            float z = WithDeadZone(positionDiff.z, 0.002f);
+            _scale = scale;
+            _softness = softness;
+            float x = positionDiff.x;
+            float y = positionDiff.y;
+            float z = positionDiff.z;
 
             // TODO separate l/r morphs only, separate calculation of diff
             ////left
@@ -226,25 +320,38 @@ namespace TittyMagic
 
         private void UpdateMorphs(List<UIConfigurationUnit> configs, float diff)
         {
+            // max absolute diff is quite small so multiply before interpolating
+            // diff value at high forces at max softness should be close to 1
+            float diffVal = CustomSmoothStep(4 * diff);
             foreach(var item in configs)
             {
-                item.UpdateMorphValue(PositionDiffVal(diff), scale, softness);
+                item.UpdateMorphValue(diffVal, _scale, _softness);
             }
         }
 
-        private float WithDeadZone(float diff, float deadZone)
+        // https://www.desmos.com/calculator/3zhzwbfrxd
+        private float CustomSmoothStep(float val)
         {
-            if(diff >= 0)
+            float p = 0.18f;
+            float s = 0.295f;
+            float c = 2/(1 - s) - 1;
+
+            if(val >= 1)
             {
-                return (diff - deadZone) > 0 ? diff - deadZone : 0;
+                return 1;
             }
 
-            return (diff + deadZone) < 0 ? diff + deadZone : 0;
+            if(val <= p)
+            {
+                return f1(val, p, c);
+            }
+
+            return 1 - f1(1 - val, 1 - p, c);
         }
 
-        private float PositionDiffVal(float diff)
+        private float f1(float val, float p, float c)
         {
-            return Mathf.SmoothStep(0, 1, Mathf.Pow(diff, 1/2f));
+            return Mathf.Pow(val, c)/Mathf.Pow(p, c - 1);
         }
 
         public void ResetAll()

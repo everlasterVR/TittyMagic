@@ -73,6 +73,14 @@ namespace TittyMagic
             return storable;
         }
 
+        public static JSONStorableBool NewToggle(MVRScript script, string paramName, bool startingValue, bool rightSide = false)
+        {
+            JSONStorableBool storable = new JSONStorableBool(paramName, startingValue);
+            script.CreateToggle(storable, rightSide);
+            script.RegisterBool(storable);
+            return storable;
+        }
+
         public static void NewSpacer(MVRScript script, float height, bool rightSide = false)
         {
             UIDynamic spacer = script.CreateSpacer(rightSide);
