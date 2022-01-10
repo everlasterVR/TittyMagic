@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using static TittyMagic.Utils;
 
 namespace TittyMagic
 {
@@ -25,7 +26,7 @@ namespace TittyMagic
 
         public string GetStatus()
         {
-            return Formatting.NameValueString(setting.name, setting.val, padRight: 25) + "\n";
+            return NameValueString(setting.name, setting.val, padRight: 25) + "\n";
         }
 
         protected float Calculate(float mass, float softness)

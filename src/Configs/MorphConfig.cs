@@ -1,4 +1,6 @@
-﻿namespace TittyMagic
+﻿using static TittyMagic.Utils;
+
+namespace TittyMagic
 {
     internal class MorphConfig
     {
@@ -15,7 +17,7 @@
             this.startValue = startValue;
             if(morph == null)
             {
-                Log.Error($"Morph with name {name} not found!", nameof(MorphConfig));
+                LogError($"Morph with name {name} not found!", nameof(MorphConfig));
             }
         }
 
@@ -40,7 +42,7 @@
 
         public string GetStatus()
         {
-            return Formatting.NameValueString(name, morph.morphValue, 1000f, 30) + "\n";
+            return NameValueString(name, morph.morphValue, 1000f, 30) + "\n";
         }
     }
 }

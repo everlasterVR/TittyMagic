@@ -6,6 +6,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static TittyMagic.Utils;
+using static TittyMagic.Calc;
 
 namespace TittyMagic
 {
@@ -92,7 +94,7 @@ namespace TittyMagic
 
                 if(containingAtom.type != "Person")
                 {
-                    Log.Error($"Add to a Person atom, not {containingAtom.type}");
+                    LogError($"Add to a Person atom, not {containingAtom.type}");
                     return;
                 }
 
@@ -145,7 +147,7 @@ namespace TittyMagic
             }
             catch(Exception e)
             {
-                Log.Error($"{e}");
+                LogError($"{e}");
             }
         }
 
@@ -345,8 +347,8 @@ namespace TittyMagic
             }
             catch(Exception e)
             {
-                Log.Error($"{e}");
-                Log.Error($"Try reloading plugin!");
+                LogError($"{e}");
+                LogError($"Try reloading plugin!");
                 enabled = false;
             }
         }
@@ -395,24 +397,24 @@ namespace TittyMagic
                 return;
             }
 
-            roll = Calc.Roll(chestTransform.rotation);
-            pitch = Calc.Pitch(chestTransform.rotation);
+            roll = Roll(chestTransform.rotation);
+            pitch = Pitch(chestTransform.rotation);
 
             if(gravityMorphH.IsEnabled())
             {
                 gravityMorphH.Update(roll, pitch, massAmount, gravityAmount);
             }
 
-            positionDiff = neutralRelativePos - Calc.RelativePosition(chestTransform, rNippleTransform.position);
+            positionDiff = neutralRelativePos - RelativePosition(chestTransform, rNippleTransform.position);
             if(modeChooser.val == Mode.ANIM_OPTIMIZED && relativePosMorphH.IsEnabled())
             {
                 relativePosMorphH.Update(positionDiff, massAmount, softnessAmount);
             }
 
             string positionDiffText =
-                $"{Formatting.NameValueString("x", positionDiff.x, 10000f)} \n" +
-                $"{Formatting.NameValueString("y", positionDiff.y, 10000f)} \n" +
-                $"{Formatting.NameValueString("z", positionDiff.z, 10000f)} ";
+                $"{NameValueString("x", positionDiff.x, 10000f)} \n" +
+                $"{NameValueString("y", positionDiff.y, 10000f)} \n" +
+                $"{NameValueString("z", positionDiff.z, 10000f)} ";
             gravityMorphH.UpdateDebugInfo(positionDiffText);
             relativePosMorphH.UpdateDebugInfo(positionDiffText);
 
@@ -465,8 +467,8 @@ namespace TittyMagic
             float duration = 0;
             float interval = 0.1f;
             while(duration < 2f && (
-                !Calc.VectorEqualWithin(1000f, rNippleRigidbody.velocity, Vector3.zero) ||
-                !Calc.EqualWithin(1000f, massEstimate, DetermineMassEstimate(atomScaleListener.Value))
+                !VectorEqualWithin(1000f, rNippleRigidbody.velocity, Vector3.zero) ||
+                !EqualWithin(1000f, massEstimate, DetermineMassEstimate(atomScaleListener.Value))
             ))
             {
                 yield return new WaitForSecondsRealtime(interval);
@@ -502,23 +504,23 @@ namespace TittyMagic
             float interval = 0.1f;
             while(
                 duration < 2f && (
-                !Calc.VectorEqualWithin(
+                !VectorEqualWithin(
                     1000000f,
                     neutralRelativePos,
-                    Calc.RelativePosition(chestTransform, rNippleTransform.position)
+                    RelativePosition(chestTransform, rNippleTransform.position)
                 ))
             )
             {
                 yield return new WaitForSecondsRealtime(interval);
-                neutralRelativePos = Calc.RelativePosition(chestTransform, rNippleTransform.position);
+                neutralRelativePos = RelativePosition(chestTransform, rNippleTransform.position);
             }
 
 #if DEBUG
             positionInfoUIText.SetVal(
                 $"<size=28>Neutral pos:\n" +
-                $"{Formatting.NameValueString("x", neutralRelativePos.x, 1000)} " +
-                $"{Formatting.NameValueString("y", neutralRelativePos.y, 1000)} " +
-                $"{Formatting.NameValueString("z", neutralRelativePos.z, 1000)} " +
+                $"{NameValueString("x", neutralRelativePos.x, 1000)} " +
+                $"{NameValueString("y", neutralRelativePos.y, 1000)} " +
+                $"{NameValueString("z", neutralRelativePos.z, 1000)} " +
                 $"</size>"
             );
 #endif
@@ -558,12 +560,12 @@ namespace TittyMagic
             float mass = breastMassCalculator.Calculate(atomScale);
             if(mass > Const.MASS_MAX)
             {
-                float excess = Calc.RoundToDecimals(mass - Const.MASS_MAX, 1000f);
+                float excess = RoundToDecimals(mass - Const.MASS_MAX, 1000f);
                 statusUIText.SetVal(MassExcessStatus(excess));
             }
             else if(mass < Const.MASS_MIN)
             {
-                float shortage = Calc.RoundToDecimals(Const.MASS_MIN - mass, 1000f);
+                float shortage = RoundToDecimals(Const.MASS_MIN - mass, 1000f);
                 statusUIText.SetVal(MassShortageStatus(shortage));
             }
             else
@@ -659,8 +661,8 @@ namespace TittyMagic
         private void SetBaseDebugInfo()
         {
             baseDebugInfo.SetVal(
-                $"{Formatting.NameValueString("Roll", roll, 100f, 15)}\n" +
-                $"{Formatting.NameValueString("Pitch", pitch, 100f, 15)}\n" +
+                $"{NameValueString("Roll", roll, 100f, 15)}\n" +
+                $"{NameValueString("Pitch", pitch, 100f, 15)}\n" +
                 $"{breastMassCalculator.GetStatus(atomScaleListener.Value)}"
             );
         }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static TittyMagic.Utils;
 
 namespace TittyMagic
 {
@@ -64,7 +65,7 @@ namespace TittyMagic
                 selector.SetActiveTab("Plugins");
                 if(script.UITransform == null)
                 {
-                    Log.Error($"No UI", nameof(Bindings));
+                    LogError($"No UI", nameof(Bindings));
                 }
 
                 if(script.enabled)

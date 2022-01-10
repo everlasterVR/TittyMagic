@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using UnityEngine;
+using static TittyMagic.Utils;
 
 namespace TittyMagic
 {
@@ -72,7 +72,7 @@ namespace TittyMagic
             if(!UserPreferences.singleton.softPhysics)
             {
                 UserPreferences.singleton.softPhysics = true;
-                Log.Message($"Soft physics has been enabled in VaM preferences.");
+                LogMessage($"Soft physics has been enabled in VaM preferences.");
             }
             enabled = false;
         }
@@ -93,14 +93,14 @@ namespace TittyMagic
                     if(control.GetBoolParamValue("freezeAtomPhysicsWhenGrabbed"))
                     {
                         control.SetBoolParamValue("freezeAtomPhysicsWhenGrabbed", false);
-                        Log.Message("Prevented enabling Freeze Physics While Grabbing - it does not work in Animation Optimized mode.");
+                        LogMessage("Prevented enabling Freeze Physics While Grabbing - it does not work in Animation Optimized mode.");
                     }
 
                     //In/Out morphs can become enabled by e.g. loading an appearance preset. Force off.
                     if(breastInOut.GetBoolParamValue("enabled"))
                     {
                         breastInOut.SetBoolParamValue("enabled", false);
-                        Log.Message("Auto Breast In/Out Morphs disabled - this plugin adjusts breast morphs better without it.");
+                        LogMessage("Auto Breast In/Out Morphs disabled - this plugin adjusts breast morphs better without it.");
                     }
 
                     bool fullUpdateNeeded = false;
@@ -124,7 +124,7 @@ namespace TittyMagic
             }
             catch(Exception e)
             {
-                Log.Error($"{e}", nameof(SettingsMonitor));
+                LogError($"{e}", nameof(SettingsMonitor));
                 enabled = false;
             }
         }
@@ -134,7 +134,7 @@ namespace TittyMagic
             bool updateNeeded = false;
             if(!value && prevBoolValues[key])
             {
-                Log.Message(messages[key]);
+                LogMessage(messages[key]);
             }
             else if(value && !prevBoolValues[key])
             {

@@ -1,4 +1,6 @@
-﻿namespace TittyMagic
+﻿using static TittyMagic.Utils;
+
+namespace TittyMagic
 {
     public class PositionMorphConfig
     {
@@ -15,7 +17,7 @@
             morph = Globals.GEOMETRY.morphsControlUI.GetMorphByDisplayName(name);
             if(morph == null)
             {
-                Log.Error($"Morph with name {name} not found!", nameof(GravityMorphConfig));
+                LogError($"Morph with name {name} not found!", nameof(GravityMorphConfig));
             }
         }
 

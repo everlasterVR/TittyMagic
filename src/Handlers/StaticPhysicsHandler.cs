@@ -1,6 +1,7 @@
 ﻿using SimpleJSON;
 using System.Collections.Generic;
 using UnityEngine;
+using static TittyMagic.Utils;
 
 namespace TittyMagic
 {
@@ -159,7 +160,7 @@ namespace TittyMagic
         public string GetStatus()
         {
             string text = "MAIN PHYSICS\n";
-            text += Formatting.NameValueString("mass", Globals.BREAST_CONTROL.mass, padRight: 25) + "\n";
+            text += NameValueString("mass", Globals.BREAST_CONTROL.mass, padRight: 25) + "\n";
             foreach(var it in mainPhysicsConfigs)
                 text += it.GetStatus();
             foreach(var it in rateDependentPhysicsConfigs)

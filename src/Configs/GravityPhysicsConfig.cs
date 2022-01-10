@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using static TittyMagic.Utils;
 
 namespace TittyMagic
 {
@@ -26,7 +27,7 @@ namespace TittyMagic
             setting = Globals.BREAST_CONTROL.GetFloatJSONParam(name);
             if(setting == null)
             {
-                Log.Error($"BreastControl float param with name {name} not found!", nameof(GravityPhysicsConfig));
+                LogError($"BreastControl float param with name {name} not found!", nameof(GravityPhysicsConfig));
             }
 
             originalValue = setting.val;
@@ -48,7 +49,7 @@ namespace TittyMagic
 
         public string GetStatus()
         {
-            return Formatting.NameValueString(name, setting.val, padRight: 25) + "\n";
+            return NameValueString(name, setting.val, padRight: 25) + "\n";
         }
     }
 }

@@ -2,6 +2,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using static TittyMagic.Utils;
 
 namespace TittyMagic
 {
@@ -29,7 +31,7 @@ namespace TittyMagic
                         continue;
                     }
 
-                    if(!listenedMorphs.Contains(morph) && MorphCheck.IsInSet(morph, breastVertices, filterStrength))
+                    if(!listenedMorphs.Contains(morph) && IsInSet(morph, breastVertices, filterStrength))
                     {
                         listenedMorphs.Add(morph);
                         status.Add(morph.uid, morph.morphValue);
@@ -38,12 +40,12 @@ namespace TittyMagic
                 catch(Exception)
                 {
 #if SHOW_DEBUG
-                    Log.Message($"Unable to initialize listener for morph {morph.morphName}.", nameof(BreastMorphListener));
+                    LogMessage($"Unable to initialize listener for morph {morph.morphName}.", nameof(BreastMorphListener));
 #endif
                 }
             }
 #if SHOW_DEBUG
-            Log.Message(GetStatus() + "- - - - - - - - - -\n", nameof(BreastMorphListener));
+            LogMessage(GetStatus() + "- - - - - - - - - -\n", nameof(BreastMorphListener));
 #endif
         }
 
@@ -56,11 +58,33 @@ namespace TittyMagic
                 {
                     status[morph.uid] = value;
 #if SHOW_DEBUG
-                    Log.Message($"change detected! morph {MorphName(morph)}", nameof(BreastMorphListener));
+                    LogMessage($"change detected! morph {MorphName(morph)}", nameof(BreastMorphListener));
 #endif
                     return true;
                 }
             };
+            return false;
+        }
+
+        private bool IsInSet(DAZMorph morph, HashSet<int> vertices, float filterStrength)
+        {
+            if(morph.deltas == null)
+            {
+                morph.LoadDeltas();
+            }
+            var hitDelta = 0.0f;
+            var hitDeltaMax = morph.deltas.Sum(x => x.delta.magnitude) * filterStrength;
+            foreach(DAZMorphVertex delta in morph.deltas)
+            {
+                if(vertices.Contains(delta.vertex))
+                {
+                    hitDelta += delta.delta.magnitude;
+                    if(hitDelta >= hitDeltaMax)
+                    {
+                        return true;
+                    }
+                }
+            }
             return false;
         }
 
