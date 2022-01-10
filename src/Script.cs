@@ -45,7 +45,7 @@ namespace TittyMagic
         private BreastMassCalculator breastMassCalculator;
 
         private GravityMorphHandler gravityMorphH;
-        private RelativePosMorphConfigurator relativePosMorphH;
+        private RelativePosMorphHandler relativePosMorphH;
         private NippleErectionMorphHandler nippleMorphH;
         private StaticPhysicsHandler staticPhysicsH;
         private GravityPhysicsHandler gravityPhysicsH;
@@ -65,7 +65,6 @@ namespace TittyMagic
         private JSONStorableFloat gravity;
         private SliderClickMonitor gravitySCM;
         private JSONStorableBool linkSoftnessAndGravity;
-        private JSONStorableBool enableGravityMorphs;
         private JSONStorableFloat nippleErection;
 
         private float timeSinceListenersChecked;
@@ -108,6 +107,7 @@ namespace TittyMagic
                 rPectoralRigidbody = rigidbodies.Find(rb => rb.name == "rPectoral");
                 geometry = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
 
+                Globals.SAVES_DIR = SuperController.singleton.savesDir + @"tmconfig\";
                 Globals.BREAST_CONTROL = breastControl;
                 Globals.BREAST_PHYSICS_MESH = breastPhysicsMesh;
                 Globals.GEOMETRY = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
@@ -119,9 +119,8 @@ namespace TittyMagic
                 breastMorphListener = new BreastMorphListener(geometry.morphBank1.morphs);
                 breastMassCalculator = new BreastMassCalculator(chestTransform);
 
-                gravityMorphH = new GravityMorphHandler();
-                relativePosMorphH = FindWithinSamePlugin<RelativePosMorphConfigurator>(this);
-                relativePosMorphH.DoInit();
+                gravityMorphH = new GravityMorphHandler(FindWithinSamePlugin<GravityMorphConfigurator>(this));
+                relativePosMorphH = new RelativePosMorphHandler(FindWithinSamePlugin<RelativePosMorphConfigurator>(this));
                 nippleMorphH = new NippleErectionMorphHandler();
                 gravityPhysicsH = new GravityPhysicsHandler();
                 staticPhysicsH = new StaticPhysicsHandler(GetPackagePath());
@@ -193,14 +192,6 @@ namespace TittyMagic
             gravity = NewFloatSlider("Breast gravity", 50f, Const.GRAVITY_MIN, Const.GRAVITY_MAX, "F0");
             linkSoftnessAndGravity = NewToggle("Link softness and gravity", true, false);
             positionInfoUIText = NewTextField("positionInfoText", 36, 100);
-            enableGravityMorphs = NewToggle("Enable gravity morphs", false, false);
-            enableGravityMorphs.toggle.onValueChanged.AddListener((bool val) =>
-            {
-                if(!val)
-                {
-                    gravityMorphH.ResetAll();
-                }
-            });
 
             CreateNewSpacer(10f);
             nippleErection = NewFloatSlider("Erect nipples", 0f, 0f, 1.0f, "F2");
@@ -346,43 +337,6 @@ namespace TittyMagic
             });
         }
 
-        private void Update()
-        {
-            try
-            {
-                DoUpdate();
-            }
-            catch(Exception e)
-            {
-                Log.Error($"{e}");
-                Log.Error($"Try reloading plugin!");
-                enabled = false;
-            }
-        }
-
-        private void DoUpdate()
-        {
-            if(refreshStatus != RefreshStatus.DONE)
-            {
-                return;
-            }
-
-            roll = Calc.Roll(chestTransform.rotation);
-            pitch = Calc.Pitch(chestTransform.rotation);
-
-            if(enableGravityMorphs.val)
-            {
-                gravityMorphH.Update(roll, pitch, massAmount, gravityAmount);
-            }
-
-            //TODO properly disable on uncheck enableForceMorphs
-            if(modeChooser.val == Mode.ANIM_OPTIMIZED && relativePosMorphH.Enabled)
-            {
-                positionDiff = neutralRelativePos - Calc.RelativePosition(chestTransform, rNippleTransform.position);
-                relativePosMorphH.Update(positionDiff, massAmount, softnessAmount);
-            }
-        }
-
         private void FixedUpdate()
         {
             try
@@ -441,7 +395,28 @@ namespace TittyMagic
                 return;
             }
 
-            gravityPhysicsH.Update(roll, pitch, massAmount, softnessAmount, gravityAmount);
+            roll = Calc.Roll(chestTransform.rotation);
+            pitch = Calc.Pitch(chestTransform.rotation);
+
+            if(gravityMorphH.IsEnabled())
+            {
+                gravityMorphH.Update(roll, pitch, massAmount, gravityAmount);
+            }
+
+            positionDiff = neutralRelativePos - Calc.RelativePosition(chestTransform, rNippleTransform.position);
+            if(modeChooser.val == Mode.ANIM_OPTIMIZED && relativePosMorphH.IsEnabled())
+            {
+                relativePosMorphH.Update(positionDiff, massAmount, softnessAmount);
+            }
+
+            string positionDiffText =
+                $"{Formatting.NameValueString("x", positionDiff.x, 10000f)} \n" +
+                $"{Formatting.NameValueString("y", positionDiff.y, 10000f)} \n" +
+                $"{Formatting.NameValueString("z", positionDiff.z, 10000f)} ";
+            gravityMorphH.UpdateDebugInfo(positionDiffText);
+            relativePosMorphH.UpdateDebugInfo(positionDiffText);
+
+            //gravityPhysicsH.Update(roll, pitch, massAmount, softnessAmount, gravityAmount);
 
 #if DEBUG
             SetBaseDebugInfo();
@@ -679,7 +654,7 @@ namespace TittyMagic
             nippleMorphH.ResetAll();
         }
 
-        // macgruber
+        //MacGruber
         private T FindWithinSamePlugin<T>(MVRScript self) where T : MVRScript
         {
             int i = self.name.IndexOf('_');
@@ -690,7 +665,7 @@ namespace TittyMagic
             return self.containingAtom.GetStorableByID(scriptName) as T;
         }
 
-#if DEBUG_PHYSICS || DEBUG_MORPHS
+#if DEBUG
 
         private void SetBaseDebugInfo()
         {

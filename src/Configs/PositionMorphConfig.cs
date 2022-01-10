@@ -1,24 +1,28 @@
-﻿using UnityEngine;
-
-namespace TittyMagic
+﻿namespace TittyMagic
 {
-    internal class PositionMorphConfig
+    public class PositionMorphConfig
     {
         public DAZMorph morph;
-        public string _name;
+        private string _name;
         public float softnessMul;
         public float massMul;
 
-        public PositionMorphConfig(string name, float softnessMul, float massMul = 0f)
+        public string Name => _name;
+
+        public PositionMorphConfig(string name)
         {
             _name = name;
-            this.massMul = massMul;
-            this.softnessMul = softnessMul;
             morph = Globals.GEOMETRY.morphsControlUI.GetMorphByDisplayName(name);
             if(morph == null)
             {
                 Log.Error($"Morph with name {name} not found!", nameof(GravityMorphConfig));
             }
+        }
+
+        public void SetMultipliers(float softnessMul, float massMul = 0f)
+        {
+            this.massMul = massMul;
+            this.softnessMul = softnessMul;
         }
 
         public float UpdateVal(float effect, float mass, float softness)
@@ -33,11 +37,6 @@ namespace TittyMagic
         public void Reset()
         {
             morph.morphValue = 0;
-        }
-
-        public string GetStatus()
-        {
-            return Formatting.NameValueString(_name, morph.morphValue, 1000f, 30) + "\n";
         }
     }
 }

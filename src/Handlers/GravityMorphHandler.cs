@@ -5,267 +5,241 @@ namespace TittyMagic
 {
     internal class GravityMorphHandler
     {
-        private HashSet<BasicMorphConfig> gravityOffsetMorphs;
-        private HashSet<GravityMorphConfig> uprightMorphs;
-        private HashSet<GravityMorphConfig> upsideDownMorphs;
-        private HashSet<GravityMorphConfig> leanBackMorphs;
-        private HashSet<GravityMorphConfig> leanForwardMorphs;
-        private HashSet<GravityMorphConfig> rollLeftMorphs;
-        private HashSet<GravityMorphConfig> rollRightMorphs;
+        private GravityMorphConfigurator _configurator;
 
         private float roll;
         private float pitch;
-        private float scale;
+        private float mass;
         private float gravity;
 
-        public GravityMorphHandler()
+        private Dictionary<string, List<PositionMorphConfig>> _configSets;
+
+        //private List<PositionMorphConfig> _gravityOffsetMorphs = new List<PositionMorphConfig>
+        //{
+        //    { new PositionMorphConfig("TM_UprightSmootherOffset") },
+        //    { new PositionMorphConfig("UPR_Breast Under Smoother1") },
+        //    { new PositionMorphConfig("UPR_Breast Under Smoother3") },
+        //    { new PositionMorphConfig("UPR_Breast Under Smoother4") },
+        //};
+
+        private List<PositionMorphConfig> _uprightConfigs = new List<PositionMorphConfig>
         {
-            InitGravityOffsetMorphs();
-            InitGravityMorphs();
-            ResetAll();
+            { new PositionMorphConfig("UPR_Breast Move Down") },
+            { new PositionMorphConfig("UPR_Chest Height") },
+            { new PositionMorphConfig("UPR_Breast Rotate Up") },
+            { new PositionMorphConfig("UPR_Breast Under Smoother1") },
+            { new PositionMorphConfig("UPR_Breast Under Smoother3") },
+            { new PositionMorphConfig("UPR_Breast Under Smoother4") },
+            { new PositionMorphConfig("UPR_Breasts Natural") },
+        };
+
+        private List<PositionMorphConfig> _upsideDownConfigs = new List<PositionMorphConfig>
+        {
+            //{ new PositionMorphConfig("UPSD_Breast Move Up") },
+            { new PositionMorphConfig("UPSD_ChestUp") },
+            { new PositionMorphConfig("UPSD_Breast Height") },
+            { new PositionMorphConfig("UPSD_Breast Sag1") },
+            { new PositionMorphConfig("UPSD_Breast Sag2") },
+            { new PositionMorphConfig("UPSD_Breasts Natural") },
+            { new PositionMorphConfig("UPSD_Areola UpDown") },
+            { new PositionMorphConfig("UPSD_Breast Rotate Up") },
+            { new PositionMorphConfig("UPSD_Breast Top Curve2") },
+            //{ new PositionMorphConfig("Breast look up") },//this
+            //{ new PositionMorphConfig("UPSD_Breast Top Curve1") },//this
+            //{ new PositionMorphConfig("UPSD_Breasts Height") },//this
+            //{ new PositionMorphConfig("Breast Height Lower") },//this
+            //{ new PositionMorphConfig("Breasts Under Curve") },//this
+            //{ new PositionMorphConfig("UPSD_ChestUnderBreast") },//this
+            //{ new PositionMorphConfig("UPSD_Breast Under Smoother1") },//this
+            //{ new PositionMorphConfig("UPSD_Breast Under Smoother2") },//this
+            //{ new PositionMorphConfig("UPSD_Breast Under Smoother3") },//this
+            //{ new PositionMorphConfig("UPSD_Breast Under Smoother4") },//this
+            //{ new PositionMorphConfig("UPSD_Breast Height Upper") },//this
+            //{ new PositionMorphConfig("UPSD_Breasts Upward Slope") },//this
+            //{ new PositionMorphConfig("UPSD_Chest Height") },//this
+            //{ new PositionMorphConfig("Breast upper down") },//this
+            //{ new PositionMorphConfig("Breasts Small Top Slope") },//this
+            //{ new PositionMorphConfig("Breasts Size") },
+            { new PositionMorphConfig("UPSD_Breasts Implants") },
+            { new PositionMorphConfig("UPSD_Breast Diameter") },
+            { new PositionMorphConfig("LBACK_Breast Zero") },
+            { new PositionMorphConfig("UPSD_Breast flat") },
+            { new PositionMorphConfig("UPSD_Breasts Flatten") },
+            //{ new PositionMorphConfig("UPSD_Center Gap Depth") },//this
+            //{ new PositionMorphConfig("UPSD_Center Gap Height") },//this
+            //{ new PositionMorphConfig("UPSD_Center Gap UpDown") },//this
+            //{ new PositionMorphConfig("UPSD_Chest Smoother") },//this
+            { new PositionMorphConfig("UPSD_Breasts Hang Forward") },
+            //{ new PositionMorphConfig("UPSD_Breast Pointed") },
+            //{ new PositionMorphConfig("UPSD_Breast Diameter(Pose)") },
+            { new PositionMorphConfig("UPSD_BreastsShape2") },
+            //{ new PositionMorphConfig("Breast Round") },
+            { new PositionMorphConfig("Breast move inside") },
+            { new PositionMorphConfig("UPSD_Breasts TogetherApart") },
+            //{ new PositionMorphConfig("ChestSeparateBreasts") },//this
+        };
+
+        private List<PositionMorphConfig> _leanBackConfigs = new List<PositionMorphConfig>
+        {
+            { new PositionMorphConfig("LBACK_Breast Diameter") },
+            { new PositionMorphConfig("LBACK_Breast Height") },
+            { new PositionMorphConfig("LBACK_Breast Height Upper") },
+            { new PositionMorphConfig("LBACK_Breast Zero") },
+            { new PositionMorphConfig("LBACK_Breasts Flatten") },
+            { new PositionMorphConfig("LBACK_Chest Smoother") },
+            { new PositionMorphConfig("LBACK_Breast Depth Squash") },
+            { new PositionMorphConfig("LBACK_Breast Move S2S Out") },
+            { new PositionMorphConfig("LBACK_Breast Top Curve1") },
+            { new PositionMorphConfig("LBACK_Breast Top Curve2") },
+            { new PositionMorphConfig("LBACK_Breast Under Smoother1") },
+            { new PositionMorphConfig("LBACK_Breast Under Smoother3") },
+            { new PositionMorphConfig("LBACK_Breast Under Smoother2") },
+            { new PositionMorphConfig("LBACK_Breast Rotate Up") },
+            { new PositionMorphConfig("LBACK_Center Gap Smooth") },
+            { new PositionMorphConfig("LBACK_Chest Height") },
+            { new PositionMorphConfig("LBACK_ChestSmoothCenter") },
+            { new PositionMorphConfig("LBACK_ChestUp") },
+        };
+
+        private List<PositionMorphConfig> _leanForwardConfigs = new List<PositionMorphConfig>
+        {
+            { new PositionMorphConfig("LFWD_Breast Diameter") },
+            { new PositionMorphConfig("LFWD_Breast Diameter(Pose)") },
+            { new PositionMorphConfig("LFWD_Breast Height2") },
+            { new PositionMorphConfig("LFWD_Breast Move Up") },
+            { new PositionMorphConfig("LFWD_Breast Side Smoother") },
+            { new PositionMorphConfig("LFWD_Breast Width") },
+            { new PositionMorphConfig("LFWD_Sternum Width") },
+            { new PositionMorphConfig("LFWD_Areola S2S") },
+            { new PositionMorphConfig("LFWD_Breast Depth") },
+            { new PositionMorphConfig("LFWD_Breasts Hang Forward") },
+            { new PositionMorphConfig("LFWD_Breasts TogetherApart") },
+        };
+
+        private List<PositionMorphConfig> _rollLeftConfigs = new List<PositionMorphConfig>
+        {
+            { new PositionMorphConfig("RLEFT_Areola S2S L") },
+            { new PositionMorphConfig("RLEFT_Areola S2S R") },
+            { new PositionMorphConfig("RLEFT_Breast Depth Squash R") },
+            { new PositionMorphConfig("RLEFT_Breast Diameter") },
+            { new PositionMorphConfig("RLEFT_Breast Move S2S In R") },
+            { new PositionMorphConfig("RLEFT_Breast Move S2S Out L") },
+            { new PositionMorphConfig("RLEFT_Breast Pointed") },
+            { new PositionMorphConfig("RLEFT_Breast Rotate X In L") },
+            { new PositionMorphConfig("RLEFT_Breast Rotate X In R") },
+            { new PositionMorphConfig("RLEFT_Breast Width L") },
+            { new PositionMorphConfig("RLEFT_Breast Width R") },
+            { new PositionMorphConfig("RLEFT_Breasts Hang Forward R") },
+            { new PositionMorphConfig("RLEFT_Center Gap Smooth") },
+            { new PositionMorphConfig("RLEFT_Centre Gap Narrow") },
+        };
+
+        private List<PositionMorphConfig> _rollRightConfigs = new List<PositionMorphConfig>
+        {
+            { new PositionMorphConfig("RLEFT_Breast Under Smoother1") },
+            { new PositionMorphConfig("RLEFT_Breast Under Smoother3") },
+            { new PositionMorphConfig("RLEFT_Breasts Implants R") },
+            { new PositionMorphConfig("RRIGHT_Areola S2S L") },
+            { new PositionMorphConfig("RRIGHT_Areola S2S R") },
+            { new PositionMorphConfig("RRIGHT_Breast Depth Squash L") },
+            { new PositionMorphConfig("RRIGHT_Breast Diameter") },
+            { new PositionMorphConfig("RRIGHT_Breast Move S2S In L") },
+            { new PositionMorphConfig("RRIGHT_Breast Move S2S Out R") },
+            { new PositionMorphConfig("RRIGHT_Breast Pointed") },
+            { new PositionMorphConfig("RRIGHT_Breast Rotate X In L") },
+            { new PositionMorphConfig("RRIGHT_Breast Rotate X In R") },
+            { new PositionMorphConfig("RRIGHT_Breast Width L") },
+            { new PositionMorphConfig("RRIGHT_Breast Width R") },
+            { new PositionMorphConfig("RRIGHT_Breasts Hang Forward L") },
+            { new PositionMorphConfig("RRIGHT_Center Gap Smooth") },
+            { new PositionMorphConfig("RRIGHT_Centre Gap Narrow") },
+            { new PositionMorphConfig("RRIGHT_Breast Under Smoother1") },
+            { new PositionMorphConfig("RRIGHT_Breast Under Smoother3") },
+            { new PositionMorphConfig("RRIGHT_Breasts Implants L") },
+        };
+
+        public GravityMorphHandler(GravityMorphConfigurator configurator)
+        {
+            _configurator = configurator;
+            _configurator.DoInit();
+
+            _configSets = new Dictionary<string, List<PositionMorphConfig>>
+            {
+                { Direction.DOWN, _uprightConfigs },
+                { Direction.UP, _upsideDownConfigs },
+                { Direction.BACK, _leanBackConfigs },
+                { Direction.FORWARD, _leanForwardConfigs },
+                { Direction.LEFT, _rollLeftConfigs },
+                { Direction.RIGHT, _rollRightConfigs },
+            };
+
+            //SetInitialValues("upright", uprightConfigs);
+            SetInitialValues("upsideDown", _upsideDownConfigs);
+            //SetInitialValues("leanBack", leanBackConfigs);
+            //SetInitialValues("leanForward", leanForwardConfigs);
+            //SetInitialValues("rollLeft", rollLeftConfigs);
+            //SetInitialValues("rollRight", rollRightConfigs);
+
+            _configurator.InitMainUI();
+            _configurator.EnableAdjustment.toggle.onValueChanged.AddListener((bool val) =>
+            {
+                if(!val)
+                {
+                    ResetAll();
+                }
+            });
+            //_configurator.InitUISection("Upright morphs", uprightConfigs);
+            _configurator.InitUISection(Direction.UP, _upsideDownConfigs);
+            //_configurator.InitUISection("Lean back morphs", leanBackConfigs);
+            //_configurator.InitUISection("Lean forward morphs", leanForwardConfigs);
+            //_configurator.InitUISection("Roll left morphs", rollLeftConfigs);
+            //_configurator.InitUISection("Roll right morphs", rollRightConfigs);
+        }
+
+        private void SetInitialValues(string fileName, List<PositionMorphConfig> configs)
+        {
+            //TODO use packagePath for default config location
+            var json = Persistence.LoadFromPath(_configurator, $"{Globals.SAVES_DIR}{fileName}.json");
+            foreach(var config in configs)
+            {
+                if(json.HasKey(config.Name))
+                {
+                    float value = json[config.Name].AsFloat;
+                    // TODO massmul
+                    config.SetMultipliers(value, 0f);
+                }
+            }
+        }
+
+        public bool IsEnabled()
+        {
+            return _configurator.EnableAdjustment.val;
+        }
+
+        public void UpdateDebugInfo(string text)
+        {
+            _configurator.DebugInfo.val = text;
         }
 
         public void Update(
             float roll,
             float pitch,
-            float scale,
+            float mass,
             float gravity
         )
         {
             this.roll = roll;
             this.pitch = pitch;
-            this.scale = scale;
+            this.mass = mass;
             this.gravity = gravity;
 
-            foreach(var it in gravityOffsetMorphs)
-            {
-                it.UpdateVal();
-            }
+            //foreach(var it in gravityOffsetMorphs)
+            //{
+            //    it.UpdateVal();
+            //}
 
             AdjustMorphsForRoll();
             AdjustMorphsForPitch();
-        }
-
-        public void ResetAll()
-        {
-            foreach(var it in gravityOffsetMorphs)
-                it.Reset();
-            Reset(uprightMorphs);
-            Reset(upsideDownMorphs);
-            Reset(leanBackMorphs);
-            Reset(leanForwardMorphs);
-            Reset(rollLeftMorphs);
-            Reset(rollRightMorphs);
-        }
-
-        public string GetStatus()
-        {
-            string text = "OFFSET\n";
-            foreach(var it in gravityOffsetMorphs)
-                text += it.GetStatus();
-
-            text += "\nUPRIGHT\n";
-            foreach(var it in uprightMorphs)
-                text += it.GetStatus();
-
-            text += "\nUPSIDE DOWN\n";
-            foreach(var it in upsideDownMorphs)
-                text += it.GetStatus();
-
-            text += "\nLEAN BACK\n";
-            foreach(var it in leanBackMorphs)
-                text += it.GetStatus();
-
-            text += "\nLEAN FORWARD\n";
-            foreach(var it in leanForwardMorphs)
-                text += it.GetStatus();
-
-            text += "\nROLL LEFT\n";
-            foreach(var it in rollLeftMorphs)
-                text += it.GetStatus();
-
-            text += "\nROLL RIGHT\n";
-            foreach(var it in rollRightMorphs)
-                text += it.GetStatus();
-
-            return text;
-        }
-
-        private void InitGravityOffsetMorphs()
-        {
-            gravityOffsetMorphs = new HashSet<BasicMorphConfig>
-            {
-                new BasicMorphConfig("TM_UprightSmootherOffset",      1f),
-                //new BasicMorphConfig("UPR_Breast Under Smoother1",    0.06f), // TODO copy
-                //new BasicMorphConfig("UPR_Breast Under Smoother3",    0.12f),
-                //new BasicMorphConfig("UPR_Breast Under Smoother4",    0.06f),
-            };
-        }
-
-        private void InitGravityMorphs()
-        {
-            uprightMorphs = new HashSet<GravityMorphConfig>
-            {
-                //                      name                            baseMul    scaleMul   gravityMul
-                new GravityMorphConfig("TM_Upright1",                   1.00f,     1.00f,     1.00f),
-                //new GravityMorphConfig("UPR_Breast Move Down",          0.25f,     1.50f,     0.50f),
-                //new GravityMorphConfig("UPR_Chest Height",              0.20f,     1.50f,     0.50f),
-
-                new GravityMorphConfig("TM_Upright2",                   1.00f,     1.50f,     0.50f),
-                //new GravityMorphConfig("UPR_Breast Rotate Up",          0.15f,     1.50f,     0.50f),
-
-                new GravityMorphConfig("TM_UprightSmoother",           -2.00f,     1.50f,     0.50f),
-                //new GravityMorphConfig("UPR_Breast Under Smoother1",   -0.12f,     1.50f,     0.50f),
-                //new GravityMorphConfig("UPR_Breast Under Smoother3",   -0.24f,     1.50f,     0.50f),
-                //new GravityMorphConfig("UPR_Breast Under Smoother4",   -0.12f,     1.50f,     0.50f),
-
-                new GravityMorphConfig("TM_Upright3",                   2.00f,     0.00f,     2.00f),
-                //new GravityMorphConfig("UPR_Breasts Natural",           0.05f,     0.00f,     2.00f),
-            };
-
-            upsideDownMorphs = new HashSet<GravityMorphConfig> {
-                new GravityMorphConfig("TM_UpsideDown1",                1.40f,     0.00f,     2.00f),
-                //new GravityMorphConfig("UPSD_Areola UpDown",           -0.25f,     0.00f,     2.00f),
-                //new GravityMorphConfig("UPSD_Breast Diameter(Pose)",    0.10f,     0.00f,     2.00f),
-                //new GravityMorphConfig("UPSD_Breast Height",            0.36f,     0.00f,     2.00f),
-                //new GravityMorphConfig("UPSD_Breast Height Upper",      0.04f,     0.00f,     2.00f),
-                //new GravityMorphConfig("UPSD_Breast Move Up",           0.10f,     0.00f,     2.00f),
-                //new GravityMorphConfig("UPSD_Breast Sag1",             -0.03f,     0.00f,     2.00f),
-                //new GravityMorphConfig("UPSD_Breast Sag2",             -0.15f,     0.00f,     2.00f),
-                //new GravityMorphConfig("UPSD_Breasts Hang Forward",     0.05f,     0.00f,     2.00f),
-                //new GravityMorphConfig("UPSD_Breasts Natural",         -0.05f,     0.00f,     2.00f),
-
-                new GravityMorphConfig("TM_UpsideDown2",                1.40f,     0.50f,     1.50f),
-                //new GravityMorphConfig("UPSD_Breast flat",              0.08f,     0.50f,     1.50f),
-                //new GravityMorphConfig("UPSD_Breast Rotate Up",         0.25f,     0.50f,     1.50f),
-                //new GravityMorphConfig("UPSD_Breast Under Smoother1",   0.33f,     0.50f,     1.50f),
-                //new GravityMorphConfig("UPSD_Breast Under Smoother2",   0.20f,     0.50f,     1.50f),
-                //new GravityMorphConfig("UPSD_Breast Under Smoother3",  -0.25f,     0.50f,     1.50f),
-                //new GravityMorphConfig("UPSD_Breast Under Smoother4",   0.05f,     0.50f,     1.50f),
-
-                new GravityMorphConfig("TM_UpsideDown3",                1.00f,     1.00f,     1.00f),
-                //new GravityMorphConfig("UPSD_Breast Diameter",          0.05f,     1.00f,     1.00f),
-                //new GravityMorphConfig("UPSD_Breasts Flatten",          0.05f,     1.00f,     1.00f),
-                //new GravityMorphConfig("UPSD_Breasts Height",           0.05f,     1.00f,     1.00f),
-                //new GravityMorphConfig("UPSD_Breasts Implants",        -0.05f,     1.00f,     1.00f),
-                //new GravityMorphConfig("UPSD_Breasts Upward Slope",     0.15f,     1.00f,     1.00f),
-                //new GravityMorphConfig("UPSD_Center Gap Depth",         0.05f,     1.00f,     1.00f),
-                //new GravityMorphConfig("UPSD_Center Gap Height",        0.10f,     1.00f,     1.00f),
-                //new GravityMorphConfig("UPSD_Center Gap UpDown",        0.10f,     1.00f,     1.00f),
-                //new GravityMorphConfig("UPSD_Chest Height",            -0.07f,     1.00f,     1.00f),
-                //new GravityMorphConfig("UPSD_Chest Smoother",           0.10f,     1.00f,     1.00f),
-                //new GravityMorphConfig("UPSD_ChestUnderBreast",        -0.15f,     1.00f,     1.00f),
-                //new GravityMorphConfig("UPSD_ChestUp",                  0.10f,     1.00f,     1.00f),
-
-                new GravityMorphConfig("TM_UpsideDown4",                1.40f,     1.00f,     0.00f),
-                //new GravityMorphConfig("UPSD_Breast Pointed",           0.25f,     1.00f,     0.00f),
-
-                new GravityMorphConfig("TM_UpsideDown5",                1.40f,     1.50f,     0.50f),
-                //new GravityMorphConfig("UPSD_Breast Top Curve1",       -0.30f,     1.50f,     0.50f),
-                //new GravityMorphConfig("UPSD_Breast Top Curve2",       -0.75f,     1.50f,     0.50f),
-                //new GravityMorphConfig("UPSD_BreastsShape2",            0.30f,     1.50f,     0.50f),
-
-                new GravityMorphConfig("TM_UpsideDown6",                1.40f,    -0.50f,     2.00f),
-                //new GravityMorphConfig("UPSD_Breasts TogetherApart",    0.12f,    -1.00f,     1.00f),
-            };
-
-            leanBackMorphs = new HashSet<GravityMorphConfig>
-            {
-                new GravityMorphConfig("TM_LeanBack1",                  1.00f,     0.00f,     2.00f),
-                //new GravityMorphConfig("LBACK_Breast Diameter",         0.12f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LBACK_Breast Height",           0.08f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LBACK_Breast Height Upper",     0.04f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LBACK_Breast Zero",             0.10f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LBACK_Breasts Flatten",         0.25f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LBACK_Chest Smoother",          0.10f,     0.50f,     1.50f),
-
-                new GravityMorphConfig("TM_LeanBack2",                  1.33f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LBACK_Breast Depth Squash",     0.16f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LBACK_Breast Move S2S Out",     0.08f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LBACK_Breast Top Curve1",      -0.06f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LBACK_Breast Top Curve2",      -0.12f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LBACK_Breast Under Smoother1",  0.04f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LBACK_Breast Under Smoother3",  0.03f,     0.50f,     1.50f),
-
-                new GravityMorphConfig("TM_LeanBack3",                  1.00f,     1.00f,     1.00f),
-                //new GravityMorphConfig("LBACK_Breast Under Smoother2",  0.20f,     1.00f,     1.00f),
-                //new GravityMorphConfig("LBACK_Breast Rotate Up",        0.20f,     1.00f,     1.00f),
-                //new GravityMorphConfig("LBACK_Center Gap Smooth",       0.30f,     1.00f,     1.00f),
-                //new GravityMorphConfig("LBACK_Chest Height",           -0.07f,     1.00f,     1.00f),
-                //new GravityMorphConfig("LBACK_ChestSmoothCenter",       0.15f,     1.00f,     1.00f),
-                //new GravityMorphConfig("LBACK_ChestUp",                 0.10f,     1.00f,     1.00f),
-            };
-
-            leanForwardMorphs = new HashSet<GravityMorphConfig> {
-                new GravityMorphConfig("TM_LeanForward1",               1.20f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LFWD_Breast Diameter",         -0.06f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LFWD_Breast Diameter(Pose)",    0.22f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LFWD_Breast Height2",          -0.05f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LFWD_Breast Move Up",           0.15f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LFWD_Breast Side Smoother",     0.20f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LFWD_Breast Width",            -0.05f,     0.50f,     1.50f),
-                //new GravityMorphConfig("LFWD_Sternum Width",            0.20f,     0.50f,     1.50f),
-
-                new GravityMorphConfig("TM_LeanForward2",               1.20f,     1.50f,     0.50f),
-                //new GravityMorphConfig("LFWD_Areola S2S",               0.40f,     1.50f,     0.50f),
-
-                new GravityMorphConfig("TM_LeanForward3",               1.33f,     1.00f,     1.00f),
-                //new GravityMorphConfig("LFWD_Breast Depth",             0.30f,     1.00f,     1.00f),
-
-                new GravityMorphConfig("TM_LeanForward4",               1.33f,    -0.50f,     2.00f),
-                //new GravityMorphConfig("LFWD_Breasts Hang Forward",     0.15f,    -0.50f,     2.00f),
-
-                new GravityMorphConfig("TM_LeanForward5",               1.20f,    -1.00f,     2.00f),
-                //new GravityMorphConfig("LFWD_Breasts TogetherApart",    0.10f,    -1.00f,     2.00f),
-            };
-
-            rollLeftMorphs = new HashSet<GravityMorphConfig>
-            {
-                new GravityMorphConfig("TM_RollLeft1",                  1.40f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RLEFT_Areola S2S L",            0.08f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RLEFT_Areola S2S R",            0.30f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RLEFT_Breast Depth Squash R",   0.22f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RLEFT_Breast Diameter",        -0.10f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RLEFT_Breast Move S2S In R",    0.12f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RLEFT_Breast Move S2S Out L",   0.12f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RLEFT_Breast Pointed",          0.10f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RLEFT_Breast Rotate X In L",    0.03f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RLEFT_Breast Rotate X In R",    0.08f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RLEFT_Breast Width L",         -0.02f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RLEFT_Breast Width R",          0.10f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RLEFT_Breasts Hang Forward R",  0.12f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RLEFT_Center Gap Smooth",       0.24f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RLEFT_Centre Gap Narrow",       0.30f,     0.00f,     2.00f),
-
-                new GravityMorphConfig("TM_RollLeft2",                  1.40f,     2.00f,     0.00f),
-                //new GravityMorphConfig("RLEFT_Breast Under Smoother1",  0.22f,     2.00f,     0.00f),
-                //new GravityMorphConfig("RLEFT_Breast Under Smoother3",  0.16f,     2.00f,     0.00f),
-                //new GravityMorphConfig("RLEFT_Breasts Implants R",      0.05f,     2.00f,     0.00f),
-            };
-
-            rollRightMorphs = new HashSet<GravityMorphConfig>
-            {
-                new GravityMorphConfig("TM_RollRight1",                  1.40f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RRIGHT_Areola S2S L",           0.30f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RRIGHT_Areola S2S R",           0.08f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RRIGHT_Breast Depth Squash L",  0.22f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RRIGHT_Breast Diameter",       -0.10f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RRIGHT_Breast Move S2S In L",   0.12f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RRIGHT_Breast Move S2S Out R",  0.12f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RRIGHT_Breast Pointed",         0.10f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RRIGHT_Breast Rotate X In L",   0.08f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RRIGHT_Breast Rotate X In R",   0.03f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RRIGHT_Breast Width L",         0.10f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RRIGHT_Breast Width R",        -0.02f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RRIGHT_Breasts Hang Forward L", 0.12f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RRIGHT_Center Gap Smooth",      0.24f,     0.00f,     2.00f),
-                //new GravityMorphConfig("RRIGHT_Centre Gap Narrow",      0.30f,     0.00f,     2.00f),
-
-                new GravityMorphConfig("TM_RollRight2",                  1.40f,     2.00f,     0.00f),
-                //new GravityMorphConfig("RRIGHT_Breast Under Smoother1", 0.22f,     2.00f,     0.00f),
-                //new GravityMorphConfig("RRIGHT_Breast Under Smoother3", 0.16f,     2.00f,     0.00f),
-                //new GravityMorphConfig("RRIGHT_Breasts Implants L",     0.05f,     2.00f,     0.00f),
-            };
         }
 
         private void AdjustMorphsForRoll()
@@ -273,14 +247,14 @@ namespace TittyMagic
             // left
             if(roll >= 0)
             {
-                Reset(rollRightMorphs);
-                UpdateRollMorphs(rollLeftMorphs, roll);
+                ResetMorphs(Direction.RIGHT);
+                UpdateRollMorphs(Direction.LEFT, roll);
             }
             // right
             else
             {
-                Reset(rollLeftMorphs);
-                UpdateRollMorphs(rollRightMorphs, -roll);
+                ResetMorphs(Direction.LEFT);
+                UpdateRollMorphs(Direction.RIGHT, -roll);
             }
         }
 
@@ -289,59 +263,80 @@ namespace TittyMagic
             // leaning forward
             if(pitch >= 0)
             {
-                Reset(leanBackMorphs);
+                ResetMorphs(Direction.BACK);
                 // upright
                 if(pitch < 1)
                 {
-                    Reset(upsideDownMorphs);
-                    UpdatePitchMorphs(leanForwardMorphs, pitch);
-                    UpdatePitchMorphs(uprightMorphs, 1 - pitch);
+                    ResetMorphs(Direction.UP);
+                    UpdatePitchMorphs(Direction.FORWARD, pitch);
+                    UpdatePitchMorphs(Direction.DOWN, 1 - pitch);
                 }
                 // upside down
                 else
                 {
-                    Reset(uprightMorphs);
-                    UpdatePitchMorphs(leanForwardMorphs, 2 - pitch);
-                    UpdatePitchMorphs(upsideDownMorphs, pitch - 1);
+                    ResetMorphs(Direction.DOWN);
+                    UpdatePitchMorphs(Direction.FORWARD, 2 - pitch);
+                    UpdatePitchMorphs(Direction.UP, pitch - 1);
                 }
             }
             // leaning back
             else
             {
-                Reset(leanForwardMorphs);
+                ResetMorphs(Direction.FORWARD);
                 // upright
                 if(pitch >= -1)
                 {
-                    Reset(upsideDownMorphs);
-                    UpdatePitchMorphs(leanBackMorphs, -pitch);
-                    UpdatePitchMorphs(uprightMorphs, 1 + pitch);
+                    ResetMorphs(Direction.UP);
+                    UpdatePitchMorphs(Direction.BACK, -pitch);
+                    UpdatePitchMorphs(Direction.DOWN, 1 + pitch);
                 }
                 // upside down
                 else
                 {
-                    Reset(uprightMorphs);
-                    UpdatePitchMorphs(leanBackMorphs, 2 + pitch);
-                    UpdatePitchMorphs(upsideDownMorphs, -pitch - 1);
+                    ResetMorphs(Direction.DOWN);
+                    UpdatePitchMorphs(Direction.BACK, 2 + pitch);
+                    UpdatePitchMorphs(Direction.UP, -pitch - 1);
                 }
             }
         }
 
-        private void UpdateRollMorphs(HashSet<GravityMorphConfig> morphs, float effect)
+        private void UpdateRollMorphs(string configSetName, float effect)
         {
-            foreach(var it in morphs)
-                it.UpdateVal(effect, scale, gravity);
+            foreach(var config in _configSets[configSetName])
+            {
+                float value = config.UpdateVal(effect, mass, gravity);
+                _configurator.UpdateValueSlider(configSetName, config.Name, value);
+            }
         }
 
-        private void UpdatePitchMorphs(HashSet<GravityMorphConfig> morphs, float effect)
+        private void UpdatePitchMorphs(string configSetName, float effect)
         {
-            foreach(var it in morphs)
-                it.UpdateVal(effect * (1 - Mathf.Abs(roll)), scale, gravity);
+            foreach(var config in _configSets[configSetName])
+            {
+                float newValue = config.UpdateVal(effect * (1 - Mathf.Abs(roll)), mass, gravity);
+                _configurator.UpdateValueSlider(configSetName, config.Name, newValue);
+            }
         }
 
-        private void Reset(HashSet<GravityMorphConfig> morphs)
+        public void ResetAll()
         {
-            foreach(var it in morphs)
-                it.Reset();
+            //foreach(var it in gravityOffsetMorphs)
+            //    it.Reset();
+            ResetMorphs(Direction.DOWN);
+            ResetMorphs(Direction.UP);
+            ResetMorphs(Direction.BACK);
+            ResetMorphs(Direction.FORWARD);
+            ResetMorphs(Direction.LEFT);
+            ResetMorphs(Direction.RIGHT);
+        }
+
+        private void ResetMorphs(string configSetName)
+        {
+            foreach(var configSet in _configSets[configSetName])
+            {
+                configSet.Reset();
+                _configurator.UpdateValueSlider(configSetName, configSet.Name, 0f);
+            }
         }
     }
 }

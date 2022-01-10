@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-
-namespace TittyMagic
+﻿namespace TittyMagic
 {
     public static class Const
     {
@@ -17,6 +14,7 @@ namespace TittyMagic
 
     public static class Globals
     {
+        public static string SAVES_DIR { get; set; }
         public static AdjustJoints BREAST_CONTROL { get; set; }
         public static DAZPhysicsMesh BREAST_PHYSICS_MESH { get; set; }
         public static DAZCharacterSelector GEOMETRY { get; set; }
@@ -27,6 +25,16 @@ namespace TittyMagic
         public const string ANIM_OPTIMIZED = "Animation optimized";
         public const string BALANCED = "Balanced";
         public const string TOUCH_OPTIMIZED = "Touch optimized";
+    }
+
+    public static class Direction
+    {
+        public const string DOWN = "DOWN";
+        public const string UP = "UP";
+        public const string BACK = "BACK";
+        public const string FORWARD = "FORWARD";
+        public const string LEFT = "LEFT";
+        public const string RIGHT = "RIGHT";
     }
 
     public static class RefreshStatus

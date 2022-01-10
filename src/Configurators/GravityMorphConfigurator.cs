@@ -5,16 +5,16 @@ using System.Collections.Generic;
 
 namespace TittyMagic
 {
-    internal class RelativePosMorphConfigurator : MVRScript
+    internal class GravityMorphConfigurator : MVRScript
     {
         public Dictionary<string, string> titles = new Dictionary<string, string>
         {
-            { Direction.DOWN, "Down force morphs" },
-            { Direction.UP, "Up force morphs" },
-            { Direction.BACK, "Back force morphs" },
-            { Direction.FORWARD, "Forward force morphs" },
-            { Direction.LEFT, "Left force morphs" },
-            { Direction.RIGHT, "Right force morphs" },
+            { Direction.DOWN, "Upright morphs" },
+            { Direction.UP, "Upside down morphs" },
+            { Direction.BACK, "Lean back morphs" },
+            { Direction.FORWARD, "Lean forward morphs" },
+            { Direction.LEFT, "Roll left morphs" },
+            { Direction.RIGHT, "Roll right morphs" },
         };
 
         private string _lastBrowseDir;
@@ -59,15 +59,6 @@ namespace TittyMagic
         public void InitMainUI()
         {
             _enableAdjustment = UI.NewToggle(this, "Enable", false, false);
-            _enableAdjustment.toggle.onValueChanged.AddListener((bool val) =>
-            {
-                if(!val)
-                {
-                    //TODO
-                    //ResetAll();
-                }
-            });
-
             _debugInfo = UI.NewTextField(this, "positionDiffInfo", 24, 115, true);
             UI.NewSpacer(this, 50f, false);
         }
