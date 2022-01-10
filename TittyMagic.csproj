@@ -83,6 +83,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\BreastMassCalculator.cs" />
+    <Compile Include="src\Utils.cs" />
+    <Compile Include="src\Configurators\ConfiguratorUISection.cs" />
     <Compile Include="src\Components\Bindings.cs" />
     <Compile Include="src\Components\SettingsMonitor.cs" />
     <Compile Include="src\Components\SliderClickMonitor.cs" />
@@ -91,12 +93,15 @@
     <Compile Include="src\Configs\GravityPhysicsConfig.cs" />
     <Compile Include="src\Configs\MorphConfig.cs" />
     <Compile Include="src\Configs\PositionMorphConfig.cs" />
+    <Compile Include="src\Configurators\GravityMorphConfigurator.cs" />
     <Compile Include="src\Handlers\GravityMorphHandler.cs" />
     <Compile Include="src\Handlers\GravityPhysicsHandler.cs" />
     <Compile Include="src\Handlers\NippleErectionMorphHandler.cs" />
+    <Compile Include="src\Configurators\RelativePosMorphConfigurator.cs" />
     <Compile Include="src\Handlers\RelativePosMorphHandler.cs" />
     <Compile Include="src\Handlers\StaticPhysicsHandler.cs" />
     <Compile Include="src\Utils\Calc.cs" />
+    <Compile Include="src\Utils\Persistence.cs" />
     <Compile Include="src\Utils\Formatting.cs" />
     <Compile Include="src\Utils\Log.cs" />
     <Compile Include="src\AtomScaleListener.cs" />

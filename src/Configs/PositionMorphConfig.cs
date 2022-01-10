@@ -1,19 +1,17 @@
-﻿using UnityEngine;
-
-namespace TittyMagic
+﻿namespace TittyMagic
 {
-    internal class PositionMorphConfig
+    public class PositionMorphConfig
     {
         public DAZMorph morph;
-        public string name;
-        private float scaleMul;
-        private float softnessMul;
+        private string _name;
+        public float softnessMul;
+        public float massMul;
 
-        public PositionMorphConfig(string name, float softnessMul, float scaleMul = 0f)
+        public string Name => _name;
+
+        public PositionMorphConfig(string name)
         {
-            this.name = name;
-            this.scaleMul = scaleMul;
-            this.softnessMul = softnessMul;
+            _name = name;
             morph = Globals.GEOMETRY.morphsControlUI.GetMorphByDisplayName(name);
             if(morph == null)
             {
@@ -21,22 +19,24 @@ namespace TittyMagic
             }
         }
 
-        public void UpdateVal(float effect, float scale, float softness)
+        public void SetMultipliers(float softnessMul, float massMul = 0f)
+        {
+            this.massMul = massMul;
+            this.softnessMul = softnessMul;
+        }
+
+        public float UpdateVal(float effect, float mass, float softness)
         {
             float value =
-                scale * scaleMul * effect / 2 +
+                mass * massMul * effect / 2 +
                 softness * softnessMul * effect / 2;
-            morph.morphValue = 5 * value;
+            morph.morphValue = value;
+            return value;
         }
 
         public void Reset()
         {
             morph.morphValue = 0;
-        }
-
-        public string GetStatus()
-        {
-            return Formatting.NameValueString(name, morph.morphValue, 1000f, 30) + "\n";
         }
     }
 }

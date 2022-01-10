@@ -1,5 +1,4 @@
-﻿//#define DEBUG_PHYSICS
-//#define DEBUG_MORPHS
+﻿#define DEBUG
 
 using SimpleJSON;
 using System;
@@ -66,29 +65,21 @@ namespace TittyMagic
         private JSONStorableFloat gravity;
         private SliderClickMonitor gravitySCM;
         private JSONStorableBool linkSoftnessAndGravity;
-        private JSONStorableBool enableGravityMorphs;
-        private JSONStorableBool enableForceMorphs;
         private JSONStorableFloat nippleErection;
 
         private float timeSinceListenersChecked;
         private float listenersCheckInterval = 0.1f;
         private int refreshStatus = RefreshStatus.WAITING;
         private bool animationWasFrozen = false;
-        private float? legacySoftnessFromJson;
-        private float? legacyGravityFromJson;
 
         private float timeMultiplier;
 
         private float roll;
         private float pitch;
 
-#if DEBUG_PHYSICS || DEBUG_MORPHS
+#if DEBUG
         protected JSONStorableString baseDebugInfo = new JSONStorableString("Base Debug Info", "");
-#endif
-#if DEBUG_PHYSICS
         protected JSONStorableString physicsDebugInfo = new JSONStorableString("Physics Debug Info", "");
-#elif DEBUG_MORPHS
-        protected JSONStorableString morphDebugInfo = new JSONStorableString("Morph Debug Info", "");
 #endif
 
         public override void Init()
@@ -116,6 +107,7 @@ namespace TittyMagic
                 rPectoralRigidbody = rigidbodies.Find(rb => rb.name == "rPectoral");
                 geometry = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
 
+                Globals.SAVES_DIR = SuperController.singleton.savesDir + @"tmconfig\";
                 Globals.BREAST_CONTROL = breastControl;
                 Globals.BREAST_PHYSICS_MESH = breastPhysicsMesh;
                 Globals.GEOMETRY = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
@@ -127,8 +119,8 @@ namespace TittyMagic
                 breastMorphListener = new BreastMorphListener(geometry.morphBank1.morphs);
                 breastMassCalculator = new BreastMassCalculator(chestTransform);
 
-                gravityMorphH = new GravityMorphHandler();
-                relativePosMorphH = new RelativePosMorphHandler();
+                gravityMorphH = new GravityMorphHandler(Utils.FindPluginOnAtom(containingAtom, "GravityMorphConfigurator"));
+                relativePosMorphH = new RelativePosMorphHandler(Utils.FindPluginOnAtom(containingAtom, "RelativePosMorphConfigurator"));
                 nippleMorphH = new NippleErectionMorphHandler();
                 gravityPhysicsH = new GravityPhysicsHandler();
                 staticPhysicsH = new StaticPhysicsHandler(GetPackagePath());
@@ -200,23 +192,6 @@ namespace TittyMagic
             gravity = NewFloatSlider("Breast gravity", 50f, Const.GRAVITY_MIN, Const.GRAVITY_MAX, "F0");
             linkSoftnessAndGravity = NewToggle("Link softness and gravity", true, false);
             positionInfoUIText = NewTextField("positionInfoText", 36, 100);
-            enableGravityMorphs = NewToggle("Enable gravity morphs", false, false);
-            enableGravityMorphs.toggle.onValueChanged.AddListener((bool val) =>
-            {
-                if(!val)
-                {
-                    gravityMorphH.ResetAll();
-                }
-            });
-
-            enableForceMorphs = NewToggle("Enable force morphs", true, false);
-            enableForceMorphs.toggle.onValueChanged.AddListener((bool val) =>
-            {
-                if(!val)
-                {
-                    relativePosMorphH.ResetAll();
-                }
-            });
 
             CreateNewSpacer(10f);
             nippleErection = NewFloatSlider("Erect nipples", 0f, 0f, 1.0f, "F2");
@@ -227,7 +202,7 @@ namespace TittyMagic
             bool rightSide = true;
             statusUIText = NewTextField("statusText", 28, 100, rightSide);
 
-#if DEBUG_PHYSICS || DEBUG_MORPHS
+#if DEBUG
             UIDynamicTextField angleInfoField = CreateTextField(baseDebugInfo, rightSide);
             angleInfoField.height = 125;
             angleInfoField.UItext.fontSize = 26;
@@ -245,14 +220,10 @@ namespace TittyMagic
             usage1 += "Breast gravity adjusts how much pose morphs shape the breasts in all orientations.";
             usage1Area.SetVal(usage1);
 #endif
-#if DEBUG_PHYSICS
+#if DEBUG
             UIDynamicTextField physicsInfoField = CreateTextField(physicsDebugInfo, rightSide);
             physicsInfoField.height = 945;
             physicsInfoField.UItext.fontSize = 26;
-#elif DEBUG_MORPHS
-            UIDynamicTextField morphInfo = CreateTextField(morphDebugInfo, rightSide);
-            morphInfo.height = 945;
-            morphInfo.UItext.fontSize = 26;
 #endif
         }
 
@@ -386,7 +357,7 @@ namespace TittyMagic
 
             if(refreshStatus == RefreshStatus.MASS_STARTED)
             {
-#if DEBUG_PHYSICS || DEBUG_MORPHS
+#if DEBUG
                 positionInfoUIText.SetVal("");
 #endif
                 return;
@@ -427,27 +398,31 @@ namespace TittyMagic
             roll = Calc.Roll(chestTransform.rotation);
             pitch = Calc.Pitch(chestTransform.rotation);
 
-            if(enableGravityMorphs.val)
+            if(gravityMorphH.IsEnabled())
             {
                 gravityMorphH.Update(roll, pitch, massAmount, gravityAmount);
             }
 
-            //TODO properly disable on uncheck enableForceMorphs
-            if(modeChooser.val == Mode.ANIM_OPTIMIZED && enableForceMorphs.val)
+            positionDiff = neutralRelativePos - Calc.RelativePosition(chestTransform, rNippleTransform.position);
+            if(modeChooser.val == Mode.ANIM_OPTIMIZED && relativePosMorphH.IsEnabled())
             {
-                positionDiff = neutralRelativePos - Calc.RelativePosition(chestTransform, rNippleTransform.position);
                 relativePosMorphH.Update(positionDiff, massAmount, softnessAmount);
             }
 
-            gravityPhysicsH.Update(roll, pitch, massAmount, softnessAmount, gravityAmount);
+            string positionDiffText =
+                $"{Formatting.NameValueString("x", positionDiff.x, 10000f)} \n" +
+                $"{Formatting.NameValueString("y", positionDiff.y, 10000f)} \n" +
+                $"{Formatting.NameValueString("z", positionDiff.z, 10000f)} ";
+            gravityMorphH.UpdateDebugInfo(positionDiffText);
+            relativePosMorphH.UpdateDebugInfo(positionDiffText);
 
-#if DEBUG_PHYSICS || DEBUG_MORPHS
+            //gravityPhysicsH.Update(roll, pitch, massAmount, softnessAmount, gravityAmount);
+
+#if DEBUG
             SetBaseDebugInfo();
 #endif
-#if DEBUG_PHYSICS
+#if DEBUG
             physicsDebugInfo.SetVal(staticPhysicsH.GetStatus() + gravityPhysicsH.GetStatus());
-#elif DEBUG_MORPHS
-            morphDebugInfo.SetVal(gravityMorphH.GetStatus());
 #endif
         }
 
@@ -538,7 +513,7 @@ namespace TittyMagic
                 neutralRelativePos = Calc.RelativePosition(chestTransform, rNippleTransform.position);
             }
 
-#if DEBUG_PHYSICS || DEBUG_MORPHS
+#if DEBUG
             positionInfoUIText.SetVal(
                 $"<size=28>Neutral pos:\n" +
                 $"{Formatting.NameValueString("x", neutralRelativePos.x, 1000)} " +
@@ -679,7 +654,7 @@ namespace TittyMagic
             nippleMorphH.ResetAll();
         }
 
-#if DEBUG_PHYSICS || DEBUG_MORPHS
+#if DEBUG
 
         private void SetBaseDebugInfo()
         {

@@ -39,5 +39,52 @@ namespace TittyMagic
         {
             return $"<size={size}>{text}</size>";
         }
+
+        public static JSONStorableFloat NewFloatSlider(
+            MVRScript script,
+            string paramName,
+            float startingValue,
+            float minValue,
+            float maxValue,
+            string valueFormat,
+            bool rightSide = false
+        )
+        {
+            JSONStorableFloat storable = new JSONStorableFloat(paramName, startingValue, minValue, maxValue);
+            storable.storeType = JSONStorableParam.StoreType.Physical;
+            script.RegisterFloat(storable);
+            UIDynamicSlider slider = script.CreateSlider(storable, rightSide);
+            slider.valueFormat = valueFormat;
+            return storable;
+        }
+
+        public static JSONStorableString NewTextField(
+            MVRScript script,
+            string paramName,
+            int fontSize,
+            int height = 120,
+            bool rightSide = false
+        )
+        {
+            JSONStorableString storable = new JSONStorableString(paramName, paramName);
+            UIDynamicTextField textField = script.CreateTextField(storable, rightSide);
+            textField.UItext.fontSize = fontSize;
+            textField.height = height;
+            return storable;
+        }
+
+        public static JSONStorableBool NewToggle(MVRScript script, string paramName, bool startingValue, bool rightSide = false)
+        {
+            JSONStorableBool storable = new JSONStorableBool(paramName, startingValue);
+            script.CreateToggle(storable, rightSide);
+            script.RegisterBool(storable);
+            return storable;
+        }
+
+        public static void NewSpacer(MVRScript script, float height, bool rightSide = false)
+        {
+            UIDynamic spacer = script.CreateSpacer(rightSide);
+            spacer.height = height;
+        }
     }
 }
