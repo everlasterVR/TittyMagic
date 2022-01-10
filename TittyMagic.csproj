@@ -83,6 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\BreastMassCalculator.cs" />
+    <Compile Include="src\Utils.cs" />
     <Compile Include="src\Configurators\ConfiguratorUISection.cs" />
     <Compile Include="src\Components\Bindings.cs" />
     <Compile Include="src\Components\SettingsMonitor.cs" />

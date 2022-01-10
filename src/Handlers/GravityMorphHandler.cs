@@ -158,10 +158,13 @@ namespace TittyMagic
             { new PositionMorphConfig("RRIGHT_Breasts Implants L") },
         };
 
-        public GravityMorphHandler(GravityMorphConfigurator configurator)
+        public GravityMorphHandler(MVRScript configurator)
         {
-            _configurator = configurator;
-            _configurator.DoInit();
+            if(configurator != null)
+            {
+                _configurator = configurator as GravityMorphConfigurator;
+                _configurator.DoInit();
+            }
 
             _configSets = new Dictionary<string, List<PositionMorphConfig>>
             {
