@@ -9,7 +9,7 @@ namespace TittyMagic
         // -1 = leaning 90 degrees right
         public static float Roll(Quaternion q)
         {
-            return 2 * InverseLerpToPi(Mathf.Asin(2 * q.x * q.y + 2 * q.z * q.w));
+            return 2 * InverseSmoothStepToPi(Mathf.Asin(2 * q.x * q.y + 2 * q.z * q.w));
         }
 
         // value between -2 and 2
@@ -19,17 +19,18 @@ namespace TittyMagic
         // -2 = upside down
         public static float Pitch(Quaternion q)
         {
-            return 2 * InverseLerpToPi(Mathf.Atan2(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * q.x * q.x - 2 * q.z * q.z));
+            return 2 * InverseSmoothStepToPi(Mathf.Atan2(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * q.x * q.x - 2 * q.z * q.z));
         }
 
-        private static float InverseLerpToPi(float val)
+        // value returned is smoothed (for better animation) i.e. no longer maps linearly to the actual rotation angle
+        private static float InverseSmoothStepToPi(float val)
         {
             if(val > 0)
             {
-                return Mathf.InverseLerp(0, Mathf.PI, val);
+                return InverseSmoothStep(Mathf.PI, val, -0.1f, Mathf.PI/2);
             }
 
-            return -Mathf.InverseLerp(0, -Mathf.PI, val);
+            return -InverseSmoothStep(Mathf.PI, -val, -0.1f, Mathf.PI/2);
         }
 
         public static float RoundToDecimals(float value, float roundFactor)
@@ -69,7 +70,7 @@ namespace TittyMagic
             return Mathf.Log(value * logMaxX + 1);
         }
 
-        // https://www.desmos.com/calculator/u6c7fgb8cf
+        // https://www.desmos.com/calculator/crrr1uryep
         public static float InverseSmoothStep(float b, float value, float curvature, float midpoint)
         {
             if(value < 0)
@@ -77,7 +78,7 @@ namespace TittyMagic
             if(value > b)
                 return 1;
 
-            float s = curvature < 0 ? 0 : (curvature > 0.99f ? 0.99f : curvature);
+            float s = curvature < -2.99f ? -2.99f : (curvature > 0.99f ? 0.99f : curvature);
             float p = midpoint < 0 ? 0 : (midpoint > b ? b : midpoint);
             float c = 2/(1 - s) - p/b;
 
