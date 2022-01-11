@@ -82,51 +82,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\BreastMassCalculator.cs" />
-    <Compile Include="src\Utils.cs" />
-    <Compile Include="src\Configurators\ConfiguratorUISection.cs" />
-    <Compile Include="src\Components\Bindings.cs" />
-    <Compile Include="src\Components\SettingsMonitor.cs" />
-    <Compile Include="src\Components\SliderClickMonitor.cs" />
-    <Compile Include="src\Configs\PhysicsConfig.cs" />
-    <Compile Include="src\Configs\GravityMorphConfig.cs" />
-    <Compile Include="src\Configs\GravityPhysicsConfig.cs" />
-    <Compile Include="src\Configs\MorphConfig.cs" />
-    <Compile Include="src\Configs\PositionMorphConfig.cs" />
-    <Compile Include="src\Configurators\GravityMorphConfigurator.cs" />
-    <Compile Include="src\Handlers\GravityMorphHandler.cs" />
-    <Compile Include="src\Handlers\GravityPhysicsHandler.cs" />
-    <Compile Include="src\Handlers\NippleErectionMorphHandler.cs" />
-    <Compile Include="src\Configurators\RelativePosMorphConfigurator.cs" />
-    <Compile Include="src\Handlers\RelativePosMorphHandler.cs" />
-    <Compile Include="src\Handlers\StaticPhysicsHandler.cs" />
-    <Compile Include="src\Utils\Calc.cs" />
-    <Compile Include="src\Utils\Persistence.cs" />
-    <Compile Include="src\Utils\Formatting.cs" />
-    <Compile Include="src\Utils\Log.cs" />
+    <Compile Include="src\Components\*.cs" />
+    <Compile Include="src\Configs\*.cs" />
+    <Compile Include="src\Configurators\*.cs" />
+    <Compile Include="src\Handlers\*.cs" />
     <Compile Include="src\AtomScaleListener.cs" />
+    <Compile Include="src\BreastMassCalculator.cs" />
     <Compile Include="src\BreastMorphListener.cs" />
+    <Compile Include="src\Persistence.cs" />
     <Compile Include="src\Script.cs" />
-    <Compile Include="src\Utils\MorphCheck.cs" />
-    <Compile Include="src\Utils\UI.cs" />
+    <Compile Include="src\Utils.cs" />
     <Compile Include="src\Variables.cs" />
-    <Compile Include="TM_ReferenceSize.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="src\Settings\AnimOptimized\mainPhysics.json" />
-    <None Include="src\Settings\AnimOptimized\nipplePhysics.json" />
-    <None Include="src\Settings\AnimOptimized\softPhysics.json" />
-    <None Include="src\Settings\Balanced\mainPhysics.json" />
-    <None Include="src\Settings\Balanced\nipplePhysics.json" />
-    <None Include="src\Settings\Balanced\softPhysics.json" />
-    <None Include="src\Settings\TouchOptimized\mainPhysics.json" />
-    <None Include="src\Settings\TouchOptimized\nipplePhysics.json" />
-    <None Include="src\Settings\TouchOptimized\softPhysics.json" />
-    <None Include="TittyMagic.cslist" />
-    <None Include=".gitignore" />
-    <None Include="meta.json" />
-    <None Include="README.md" />
-    <None Include="todo.md" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
