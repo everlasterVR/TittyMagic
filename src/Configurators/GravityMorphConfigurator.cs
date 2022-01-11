@@ -116,17 +116,18 @@ namespace TittyMagic
 
         private void HandleLoad(string path, List<ConfiguratorUISection> sections)
         {
-            var json = Persistence.LoadFromPath(this, path, (dir) =>
+            Persistence.LoadFromPath(this, path, (dir, json) =>
             {
                 _lastBrowseDir = dir;
-            });
-            foreach(var item in sections)
-            {
-                if(json.HasKey(item.Name))
+                foreach(var item in sections)
                 {
-                    item.MultiplierStorable.val = json[item.Name].AsFloat;
+                    if(json.HasKey(item.Name))
+                    {
+                        item.MultiplierStorable.val = json[item.Name].AsFloat;
+                        // TODO mass multiplier
+                    }
                 }
-            }
+            });
         }
     }
 }

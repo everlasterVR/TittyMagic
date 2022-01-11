@@ -24,15 +24,17 @@ namespace TittyMagic
 
         private void SetInitialValues(MVRScript script, string fileName, List<MorphConfig> configs)
         {
-            var json = Persistence.LoadFromPath(script, $"{Globals.SAVES_DIR}{fileName}.json");
-            foreach(var config in configs)
+            Persistence.LoadFromPath(script, $@"{Globals.PLUGIN_PATH}\settings\morphmultipliers\{fileName}.json", (dir, json) =>
             {
-                if(json.HasKey(config.Name))
+                foreach(var config in configs)
                 {
-                    float value = json[config.Name].AsFloat;
-                    config.BaseMultiplier = value;
+                    if(json.HasKey(config.Name))
+                    {
+                        float value = json[config.Name].AsFloat;
+                        config.BaseMultiplier = value;
+                    }
                 }
-            }
+            });
         }
 
         public void Update(float nippleErection)

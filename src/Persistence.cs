@@ -22,17 +22,16 @@ namespace TittyMagic
             callback?.Invoke(browseDir);
         }
 
-        public static JSONClass LoadFromPath(MVRScript script, string path, Action<string> callback = null)
+        public static void LoadFromPath(MVRScript script, string path, Action<string, JSONClass> callback = null)
         {
             if(string.IsNullOrEmpty(path))
             {
-                return null;
+                return;
             }
             var browseDir = path.Substring(0, path.LastIndexOfAny(new char[] { '/', '\\' })) + @"\";
             var json = script.LoadJSON(path).AsObject;
 
-            callback?.Invoke(browseDir);
-            return json;
+            callback?.Invoke(browseDir, json);
         }
 
         public static string MakeDefaultDir()

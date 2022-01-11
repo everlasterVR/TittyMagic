@@ -170,17 +170,18 @@ namespace TittyMagic
 
         private void SetInitialValues(string fileName, List<MorphConfig> configs)
         {
-            //TODO use packagePath for default config location
-            var json = Persistence.LoadFromPath(_configurator, $"{Globals.SAVES_DIR}{fileName}.json");
-            foreach(var config in configs)
+            Persistence.LoadFromPath(_configurator, $@"{Globals.PLUGIN_PATH}\settings\morphmultipliers\{fileName}.json", (dir, json) =>
             {
-                if(json.HasKey(config.Name))
+                foreach(var config in configs)
                 {
-                    float value = json[config.Name].AsFloat;
-                    config.SoftnessMultiplier = value;
-                    config.MassMultiplier = 0f; //TODO actual values
+                    if(json.HasKey(config.Name))
+                    {
+                        float value = json[config.Name].AsFloat;
+                        config.SoftnessMultiplier = value;
+                        config.MassMultiplier = 0f; //TODO actual values
+                    }
                 }
-            }
+            });
         }
 
         public bool IsEnabled()
