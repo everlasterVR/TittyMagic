@@ -55,7 +55,7 @@ namespace TittyMagic
 
         public void InitMainUI()
         {
-            _enableAdjustment = UI.NewToggle(this, "Enable", false, false);
+            _enableAdjustment = UI.NewToggle(this, "Enable", true, false);
             _debugInfo = UI.NewTextField(this, "positionDiffInfo", 24, 115, true);
             UI.NewSpacer(this, 50f, false);
         }
