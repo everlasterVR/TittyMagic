@@ -442,6 +442,9 @@ namespace TittyMagic
         public IEnumerator BeginRefresh()
         {
             refreshStatus = RefreshStatus.WAITING;
+            animationWasFrozen = SuperController.singleton.freezeAnimation;
+            SuperController.singleton.SetFreezeAnimation(true);
+
             // ensure refresh actually begins only once listeners report no change
             yield return new WaitForSecondsRealtime(listenersCheckInterval);
             while(breastMorphListener.Changed() || atomScaleListener.Changed() || softnessSCM.isDown || gravitySCM.isDown)
@@ -453,8 +456,6 @@ namespace TittyMagic
             refreshStatus = RefreshStatus.MASS_STARTED;
 
             settingsMonitor.enabled = false;
-            animationWasFrozen = SuperController.singleton.freezeAnimation;
-            SuperController.singleton.SetFreezeAnimation(true);
 
             // simulate breasts zero G
             chestRigidbody.useGravity = false;
