@@ -639,6 +639,14 @@ namespace TittyMagic
             nippleErectionMorphH.ResetAll();
         }
 
+        public void OnEnable()
+        {
+            if(settingsMonitor != null)
+            {
+                settingsMonitor.enabled = true;
+            }
+        }
+
         private void OnDisable()
         {
             settingsMonitor.enabled = false;
