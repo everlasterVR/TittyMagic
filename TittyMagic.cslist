@@ -1,11 +1,9 @@
 src\Components\Bindings.cs
 src\Components\SliderClickMonitor.cs
 src\Components\SettingsMonitor.cs
-src\Configs\GravityMorphConfig.cs
 src\Configs\GravityPhysicsConfig.cs
 src\Configs\MorphConfig.cs
 src\Configs\PhysicsConfig.cs
-src\Configs\PositionMorphConfig.cs
 src\Configurators\ConfiguratorUISection.cs
 src\Configurators\GravityMorphConfigurator.cs
 src\Configurators\RelativePosMorphConfigurator.cs

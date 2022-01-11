@@ -48,7 +48,7 @@ namespace TittyMagic
 
         private GravityMorphHandler gravityMorphH;
         private RelativePosMorphHandler relativePosMorphH;
-        private NippleErectionMorphHandler nippleMorphH;
+        private NippleErectionMorphHandler nippleErectionMorphH;
         private StaticPhysicsHandler staticPhysicsH;
         private GravityPhysicsHandler gravityPhysicsH;
 
@@ -123,7 +123,7 @@ namespace TittyMagic
 
                 gravityMorphH = new GravityMorphHandler(Utils.FindPluginOnAtom(containingAtom, "GravityMorphConfigurator"));
                 relativePosMorphH = new RelativePosMorphHandler(Utils.FindPluginOnAtom(containingAtom, "RelativePosMorphConfigurator"));
-                nippleMorphH = new NippleErectionMorphHandler();
+                nippleErectionMorphH = new NippleErectionMorphHandler(this);
                 gravityPhysicsH = new GravityPhysicsHandler();
                 staticPhysicsH = new StaticPhysicsHandler(GetPackagePath());
 
@@ -190,9 +190,9 @@ namespace TittyMagic
             staticPhysicsH.modeChooser = modeChooser;
 
             CreateNewSpacer(10f);
-            softness = NewFloatSlider("Breast softness", 50f, Const.SOFTNESS_MIN, Const.SOFTNESS_MAX, "F0");
+            softness = NewFloatSlider("Breast softness", 100f, Const.SOFTNESS_MIN, Const.SOFTNESS_MAX, "F0");
             gravity = NewFloatSlider("Breast gravity", 50f, Const.GRAVITY_MIN, Const.GRAVITY_MAX, "F0");
-            linkSoftnessAndGravity = NewToggle("Link softness and gravity", true, false);
+            linkSoftnessAndGravity = NewToggle("Link softness and gravity", false, false);
             positionInfoUIText = NewTextField("positionInfoText", 36, 100);
 
             CreateNewSpacer(10f);
@@ -334,7 +334,7 @@ namespace TittyMagic
             });
             nippleErection.slider.onValueChanged.AddListener((float val) =>
             {
-                nippleMorphH.Update(val);
+                nippleErectionMorphH.Update(val);
                 staticPhysicsH.UpdateNipplePhysics(softnessAmount, val);
             });
         }
@@ -644,7 +644,7 @@ namespace TittyMagic
             gravityPhysicsH.ResetAll();
             gravityMorphH.ResetAll();
             relativePosMorphH.ResetAll();
-            nippleMorphH.ResetAll();
+            nippleErectionMorphH.ResetAll();
         }
 
         private void OnDisable()
@@ -653,7 +653,7 @@ namespace TittyMagic
             gravityPhysicsH.ResetAll();
             gravityMorphH.ResetAll();
             relativePosMorphH.ResetAll();
-            nippleMorphH.ResetAll();
+            nippleErectionMorphH.ResetAll();
         }
 
 #if DEBUG

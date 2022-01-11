@@ -10,121 +10,121 @@ namespace TittyMagic
         private float mass;
         private float softness;
 
-        private Dictionary<string, List<PositionMorphConfig>> _configSets;
+        private Dictionary<string, List<MorphConfig>> _configSets;
 
-        private List<PositionMorphConfig> _downForceConfigs = new List<PositionMorphConfig>
+        private List<MorphConfig> _downForceConfigs = new List<MorphConfig>
         {
-            { new PositionMorphConfig("UPR_Breast Move Down") },
-            { new PositionMorphConfig("UPR_Chest Height") },
-            { new PositionMorphConfig("UPR_Breast Rotate Up") },
-            { new PositionMorphConfig("UPR_Breast Under Smoother1") },
-            { new PositionMorphConfig("UPR_Breast Under Smoother3") },
-            { new PositionMorphConfig("UPR_Breast Under Smoother4") },
-            { new PositionMorphConfig("UPR_Breasts Natural") },
+            { new MorphConfig("UPR_Breast Move Down") },
+            { new MorphConfig("UPR_Chest Height") },
+            { new MorphConfig("UPR_Breast Rotate Up") },
+            { new MorphConfig("UPR_Breast Under Smoother1") },
+            { new MorphConfig("UPR_Breast Under Smoother3") },
+            { new MorphConfig("UPR_Breast Under Smoother4") },
+            { new MorphConfig("UPR_Breasts Natural") },
         };
 
-        private List<PositionMorphConfig> _upForceConfigs = new List<PositionMorphConfig>
+        private List<MorphConfig> _upForceConfigs = new List<MorphConfig>
         {
-            { new PositionMorphConfig("UPSD_Breast Move Up") },
-            { new PositionMorphConfig("Breast look up") },
-            { new PositionMorphConfig("UPSD_Breast Top Curve1") },
-            { new PositionMorphConfig("UPSD_Breasts Height") },
-            { new PositionMorphConfig("Breast Height Lower") },
-            { new PositionMorphConfig("Breasts Under Curve") },
-            { new PositionMorphConfig("UPSD_ChestUnderBreast") },
-            { new PositionMorphConfig("UPSD_Breast Under Smoother1") },
-            { new PositionMorphConfig("UPSD_Breast Under Smoother2") },
-            { new PositionMorphConfig("UPSD_Breast Under Smoother3") },
-            { new PositionMorphConfig("UPSD_Breast Under Smoother4") },
-            { new PositionMorphConfig("UPSD_Breast Height Upper") },
-            { new PositionMorphConfig("UPSD_Breasts Upward Slope") },
-            { new PositionMorphConfig("UPSD_Chest Height") },
-            { new PositionMorphConfig("Breast upper down") },
-            { new PositionMorphConfig("Breasts Small Top Slope") },
-            { new PositionMorphConfig("UPSD_Center Gap Depth") },
-            { new PositionMorphConfig("UPSD_Center Gap Height") },
-            { new PositionMorphConfig("UPSD_Center Gap UpDown") },
-            { new PositionMorphConfig("UPSD_Chest Smoother") },
-            { new PositionMorphConfig("ChestSeparateBreasts") },
+            { new MorphConfig("UPSD_Breast Move Up") },
+            { new MorphConfig("Breast look up") },
+            { new MorphConfig("UPSD_Breast Top Curve1") },
+            { new MorphConfig("UPSD_Breasts Height") },
+            { new MorphConfig("Breast Height Lower") },
+            { new MorphConfig("Breasts Under Curve") },
+            { new MorphConfig("UPSD_ChestUnderBreast") },
+            { new MorphConfig("UPSD_Breast Under Smoother1") },
+            { new MorphConfig("UPSD_Breast Under Smoother2") },
+            { new MorphConfig("UPSD_Breast Under Smoother3") },
+            { new MorphConfig("UPSD_Breast Under Smoother4") },
+            { new MorphConfig("UPSD_Breast Height Upper") },
+            { new MorphConfig("UPSD_Breasts Upward Slope") },
+            { new MorphConfig("UPSD_Chest Height") },
+            { new MorphConfig("Breast upper down") },
+            { new MorphConfig("Breasts Small Top Slope") },
+            { new MorphConfig("UPSD_Center Gap Depth") },
+            { new MorphConfig("UPSD_Center Gap Height") },
+            { new MorphConfig("UPSD_Center Gap UpDown") },
+            { new MorphConfig("UPSD_Chest Smoother") },
+            { new MorphConfig("ChestSeparateBreasts") },
         };
 
-        private List<PositionMorphConfig> _backForceConfigs = new List<PositionMorphConfig>
+        private List<MorphConfig> _backForceConfigs = new List<MorphConfig>
         {
-            { new PositionMorphConfig("LBACK_Breast Diameter") },
-            { new PositionMorphConfig("LBACK_Breast Height") },
-            { new PositionMorphConfig("LBACK_Breast Height Upper") },
-            { new PositionMorphConfig("LBACK_Breast Zero") },
-            { new PositionMorphConfig("LBACK_Breasts Flatten") },
-            { new PositionMorphConfig("LBACK_Chest Smoother") },
-            { new PositionMorphConfig("LBACK_Breast Depth Squash") },
-            { new PositionMorphConfig("LBACK_Breast Move S2S Out") },
-            { new PositionMorphConfig("LBACK_Breast Top Curve1") },
-            { new PositionMorphConfig("LBACK_Breast Top Curve2") },
-            { new PositionMorphConfig("LBACK_Breast Under Smoother1") },
-            { new PositionMorphConfig("LBACK_Breast Under Smoother3") },
-            { new PositionMorphConfig("LBACK_Breast Under Smoother2") },
-            { new PositionMorphConfig("LBACK_Breast Rotate Up") },
-            { new PositionMorphConfig("LBACK_Center Gap Smooth") },
-            { new PositionMorphConfig("LBACK_Chest Height") },
-            { new PositionMorphConfig("LBACK_ChestSmoothCenter") },
-            { new PositionMorphConfig("LBACK_ChestUp") },
+            { new MorphConfig("LBACK_Breast Diameter") },
+            { new MorphConfig("LBACK_Breast Height") },
+            { new MorphConfig("LBACK_Breast Height Upper") },
+            { new MorphConfig("LBACK_Breast Zero") },
+            { new MorphConfig("LBACK_Breasts Flatten") },
+            { new MorphConfig("LBACK_Chest Smoother") },
+            { new MorphConfig("LBACK_Breast Depth Squash") },
+            { new MorphConfig("LBACK_Breast Move S2S Out") },
+            { new MorphConfig("LBACK_Breast Top Curve1") },
+            { new MorphConfig("LBACK_Breast Top Curve2") },
+            { new MorphConfig("LBACK_Breast Under Smoother1") },
+            { new MorphConfig("LBACK_Breast Under Smoother3") },
+            { new MorphConfig("LBACK_Breast Under Smoother2") },
+            { new MorphConfig("LBACK_Breast Rotate Up") },
+            { new MorphConfig("LBACK_Center Gap Smooth") },
+            { new MorphConfig("LBACK_Chest Height") },
+            { new MorphConfig("LBACK_ChestSmoothCenter") },
+            { new MorphConfig("LBACK_ChestUp") },
         };
 
-        private List<PositionMorphConfig> _forwardForceConfigs = new List<PositionMorphConfig>
+        private List<MorphConfig> _forwardForceConfigs = new List<MorphConfig>
         {
-            { new PositionMorphConfig("LFWD_Breast Diameter") },
-            { new PositionMorphConfig("LFWD_Breast Diameter(Pose)") },
-            { new PositionMorphConfig("LFWD_Breast Height2") },
-            { new PositionMorphConfig("LFWD_Breast Move Up") },
-            { new PositionMorphConfig("LFWD_Breast Side Smoother") },
-            { new PositionMorphConfig("LFWD_Breast Width") },
-            { new PositionMorphConfig("LFWD_Sternum Width") },
-            { new PositionMorphConfig("LFWD_Areola S2S") },
-            { new PositionMorphConfig("LFWD_Breast Depth") },
-            { new PositionMorphConfig("LFWD_Breasts Hang Forward") },
-            { new PositionMorphConfig("LFWD_Breasts TogetherApart") },
+            { new MorphConfig("LFWD_Breast Diameter") },
+            { new MorphConfig("LFWD_Breast Diameter(Pose)") },
+            { new MorphConfig("LFWD_Breast Height2") },
+            { new MorphConfig("LFWD_Breast Move Up") },
+            { new MorphConfig("LFWD_Breast Side Smoother") },
+            { new MorphConfig("LFWD_Breast Width") },
+            { new MorphConfig("LFWD_Sternum Width") },
+            { new MorphConfig("LFWD_Areola S2S") },
+            { new MorphConfig("LFWD_Breast Depth") },
+            { new MorphConfig("LFWD_Breasts Hang Forward") },
+            { new MorphConfig("LFWD_Breasts TogetherApart") },
         };
 
-        private List<PositionMorphConfig> _leftForceConfigs = new List<PositionMorphConfig>
+        private List<MorphConfig> _leftForceConfigs = new List<MorphConfig>
         {
-            { new PositionMorphConfig("RLEFT_Areola S2S L") },
-            { new PositionMorphConfig("RLEFT_Areola S2S R") },
-            { new PositionMorphConfig("RLEFT_Breast Depth Squash R") },
-            { new PositionMorphConfig("RLEFT_Breast Diameter") },
-            { new PositionMorphConfig("RLEFT_Breast Move S2S In R") },
-            { new PositionMorphConfig("RLEFT_Breast Move S2S Out L") },
-            { new PositionMorphConfig("RLEFT_Breast Pointed") },
-            { new PositionMorphConfig("RLEFT_Breast Rotate X In L") },
-            { new PositionMorphConfig("RLEFT_Breast Rotate X In R") },
-            { new PositionMorphConfig("RLEFT_Breast Width L") },
-            { new PositionMorphConfig("RLEFT_Breast Width R") },
-            { new PositionMorphConfig("RLEFT_Breasts Hang Forward R") },
-            { new PositionMorphConfig("RLEFT_Center Gap Smooth") },
-            { new PositionMorphConfig("RLEFT_Centre Gap Narrow") },
+            { new MorphConfig("RLEFT_Areola S2S L") },
+            { new MorphConfig("RLEFT_Areola S2S R") },
+            { new MorphConfig("RLEFT_Breast Depth Squash R") },
+            { new MorphConfig("RLEFT_Breast Diameter") },
+            { new MorphConfig("RLEFT_Breast Move S2S In R") },
+            { new MorphConfig("RLEFT_Breast Move S2S Out L") },
+            { new MorphConfig("RLEFT_Breast Pointed") },
+            { new MorphConfig("RLEFT_Breast Rotate X In L") },
+            { new MorphConfig("RLEFT_Breast Rotate X In R") },
+            { new MorphConfig("RLEFT_Breast Width L") },
+            { new MorphConfig("RLEFT_Breast Width R") },
+            { new MorphConfig("RLEFT_Breasts Hang Forward R") },
+            { new MorphConfig("RLEFT_Center Gap Smooth") },
+            { new MorphConfig("RLEFT_Centre Gap Narrow") },
         };
 
-        private List<PositionMorphConfig> _rightForceConfigs = new List<PositionMorphConfig>
+        private List<MorphConfig> _rightForceConfigs = new List<MorphConfig>
         {
-            { new PositionMorphConfig("RLEFT_Breast Under Smoother1") },
-            { new PositionMorphConfig("RLEFT_Breast Under Smoother3") },
-            { new PositionMorphConfig("RLEFT_Breasts Implants R") },
-            { new PositionMorphConfig("RRIGHT_Areola S2S L") },
-            { new PositionMorphConfig("RRIGHT_Areola S2S R") },
-            { new PositionMorphConfig("RRIGHT_Breast Depth Squash L") },
-            { new PositionMorphConfig("RRIGHT_Breast Diameter") },
-            { new PositionMorphConfig("RRIGHT_Breast Move S2S In L") },
-            { new PositionMorphConfig("RRIGHT_Breast Move S2S Out R") },
-            { new PositionMorphConfig("RRIGHT_Breast Pointed") },
-            { new PositionMorphConfig("RRIGHT_Breast Rotate X In L") },
-            { new PositionMorphConfig("RRIGHT_Breast Rotate X In R") },
-            { new PositionMorphConfig("RRIGHT_Breast Width L") },
-            { new PositionMorphConfig("RRIGHT_Breast Width R") },
-            { new PositionMorphConfig("RRIGHT_Breasts Hang Forward L") },
-            { new PositionMorphConfig("RRIGHT_Center Gap Smooth") },
-            { new PositionMorphConfig("RRIGHT_Centre Gap Narrow") },
-            { new PositionMorphConfig("RRIGHT_Breast Under Smoother1") },
-            { new PositionMorphConfig("RRIGHT_Breast Under Smoother3") },
-            { new PositionMorphConfig("RRIGHT_Breasts Implants L") },
+            { new MorphConfig("RLEFT_Breast Under Smoother1") },
+            { new MorphConfig("RLEFT_Breast Under Smoother3") },
+            { new MorphConfig("RLEFT_Breasts Implants R") },
+            { new MorphConfig("RRIGHT_Areola S2S L") },
+            { new MorphConfig("RRIGHT_Areola S2S R") },
+            { new MorphConfig("RRIGHT_Breast Depth Squash L") },
+            { new MorphConfig("RRIGHT_Breast Diameter") },
+            { new MorphConfig("RRIGHT_Breast Move S2S In L") },
+            { new MorphConfig("RRIGHT_Breast Move S2S Out R") },
+            { new MorphConfig("RRIGHT_Breast Pointed") },
+            { new MorphConfig("RRIGHT_Breast Rotate X In L") },
+            { new MorphConfig("RRIGHT_Breast Rotate X In R") },
+            { new MorphConfig("RRIGHT_Breast Width L") },
+            { new MorphConfig("RRIGHT_Breast Width R") },
+            { new MorphConfig("RRIGHT_Breasts Hang Forward L") },
+            { new MorphConfig("RRIGHT_Center Gap Smooth") },
+            { new MorphConfig("RRIGHT_Centre Gap Narrow") },
+            { new MorphConfig("RRIGHT_Breast Under Smoother1") },
+            { new MorphConfig("RRIGHT_Breast Under Smoother3") },
+            { new MorphConfig("RRIGHT_Breasts Implants L") },
         };
 
         public RelativePosMorphHandler(MVRScript configurator)
@@ -135,7 +135,7 @@ namespace TittyMagic
                 _configurator.DoInit();
             }
 
-            _configSets = new Dictionary<string, List<PositionMorphConfig>>
+            _configSets = new Dictionary<string, List<MorphConfig>>
             {
                 { Direction.DOWN, _downForceConfigs },
                 { Direction.UP, _upForceConfigs },
@@ -168,7 +168,7 @@ namespace TittyMagic
             //_configurator.InitUISection("Roll right morphs", rightForceConfigs);
         }
 
-        private void SetInitialValues(string fileName, List<PositionMorphConfig> configs)
+        private void SetInitialValues(string fileName, List<MorphConfig> configs)
         {
             //TODO use packagePath for default config location
             var json = Persistence.LoadFromPath(_configurator, $"{Globals.SAVES_DIR}{fileName}.json");
@@ -177,8 +177,8 @@ namespace TittyMagic
                 if(json.HasKey(config.Name))
                 {
                     float value = json[config.Name].AsFloat;
-                    // TODO massmul
-                    config.SetMultipliers(value, 0f);
+                    config.SoftnessMultiplier = value;
+                    config.MassMultiplier = 0f; //TODO actual values
                 }
             }
         }
@@ -250,11 +250,18 @@ namespace TittyMagic
         {
             float cubeRt = Mathf.Pow(diff, 1/3f);
             float diffVal = Calc.InverseSmoothStep(1, cubeRt, 0.15f, 0.5f);
-            foreach(var configSet in _configSets[configSetName])
+            foreach(var config in _configSets[configSetName])
             {
-                float newValue = configSet.UpdateVal(diffVal, mass, softness);
-                _configurator.UpdateValueSlider(configSetName, configSet.Name, newValue);
+                UpdateValue(config, diffVal, mass, softness);
+                _configurator.UpdateValueSlider(configSetName, config.Name, config.Morph.morphValue);
             }
+        }
+
+        private void UpdateValue(MorphConfig config, float effect, float mass, float gravity)
+        {
+            config.Morph.morphValue =
+                mass * config.MassMultiplier * effect / 2 +
+                gravity * config.SoftnessMultiplier * effect / 2;
         }
 
         public void ResetAll()
@@ -269,10 +276,10 @@ namespace TittyMagic
 
         private void ResetMorphs(string configSetName)
         {
-            foreach(var configSet in _configSets[configSetName])
+            foreach(var config in _configSets[configSetName])
             {
-                configSet.Reset();
-                _configurator.UpdateValueSlider(configSetName, configSet.Name, 0f);
+                config.Morph.morphValue = 0;
+                _configurator.UpdateValueSlider(configSetName, config.Name, 0f);
             }
         }
     }

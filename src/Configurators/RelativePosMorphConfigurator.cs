@@ -72,7 +72,7 @@ namespace TittyMagic
             UI.NewSpacer(this, 50f, false);
         }
 
-        public void InitUISection(string key, List<PositionMorphConfig> configs)
+        public void InitUISection(string key, List<MorphConfig> configs)
         {
             UI.NewTextField(this, titles[key], 32, 115, false);
             var saveButton = CreateButton("Save JSON", true);

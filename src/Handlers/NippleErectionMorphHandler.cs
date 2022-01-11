@@ -4,38 +4,50 @@ namespace TittyMagic
 {
     internal class NippleErectionMorphHandler
     {
-        private HashSet<BasicMorphConfig> morphs;
-
-        public NippleErectionMorphHandler()
+        private List<MorphConfig> configs = new List<MorphConfig>
         {
-            morphs = new HashSet<BasicMorphConfig>
+            { new MorphConfig("TM_NippleErection") },
+            //{ new MorphConfig("Nipples Depth") }, // Spacedog.Import_Reloaded_Lite.2
+            //{ new MorphConfig("Natural Nipples") }, // Spacedog.Import_Reloaded_Lite.2
+            //{ new MorphConfig("Nipple") }, // Spacedog.Import_Reloaded_Lite.2
+            //{ new MorphConfig("Nipple Length") },
+            //{ new MorphConfig("Nipples Apply") },
+            //{ new MorphConfig("Nipples Bulbous") }, // kemenate.Morphs.10
+            //{ new MorphConfig("Nipples Sag") }, // kemenate.Morphs.10
+            //{ new MorphConfig("Nipples Tilt") }, // kemenate.Morphs.10
+        };
+
+        public NippleErectionMorphHandler(MVRScript script)
+        {
+            SetInitialValues(script, "nippleErection", configs);
+        }
+
+        private void SetInitialValues(MVRScript script, string fileName, List<MorphConfig> configs)
+        {
+            var json = Persistence.LoadFromPath(script, $"{Globals.SAVES_DIR}{fileName}.json");
+            foreach(var config in configs)
             {
-                //                             morph           base
-                new BasicMorphConfig("TM_NippleErection",      1.000f),
-                //new BasicMorphConfig("Nipples Depth",          0.750f), // Spacedog.Import_Reloaded_Lite.2
-                //new BasicMorphConfig("Natural Nipples",       -0.100f), // Spacedog.Import_Reloaded_Lite.2
-                //new BasicMorphConfig("Nipple",                 0.500f), // Spacedog.Import_Reloaded_Lite.2
-                //new BasicMorphConfig("Nipple Length",         -0.100f),
-                //new BasicMorphConfig("Nipples Apply",          0.250f),
-                //new BasicMorphConfig("Nipples Bulbous",        0.150f), // kemenate.Morphs.10
-                //new BasicMorphConfig("Nipples Sag",           -0.200f), // kemenate.Morphs.10
-                //new BasicMorphConfig("Nipples Tilt",           0.200f), // kemenate.Morphs.10
-            };
+                if(json.HasKey(config.Name))
+                {
+                    float value = json[config.Name].AsFloat;
+                    config.BaseMultiplier = value;
+                }
+            }
         }
 
         public void Update(float nippleErection)
         {
-            foreach(var it in morphs)
+            foreach(var config in configs)
             {
-                it.UpdateVal(nippleErection);
+                config.Morph.morphValue = nippleErection * config.BaseMultiplier;
             }
         }
 
         public void ResetAll()
         {
-            foreach(var it in morphs)
+            foreach(var config in configs)
             {
-                it.Reset();
+                config.Morph.morphValue = 0;
             }
         }
     }

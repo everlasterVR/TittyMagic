@@ -2,47 +2,22 @@
 
 namespace TittyMagic
 {
-    internal class MorphConfig
+    public class MorphConfig
     {
-        public string name;
-        public DAZMorph morph;
-        public float baseMulti;
-        public float startValue;
+        public string Name { get; }
+        public DAZMorph Morph { get; }
+        public float BaseMultiplier { get; set; }
+        public float SoftnessMultiplier { get; set; }
+        public float MassMultiplier { get; set; }
 
-        public MorphConfig(string name, float baseMulti, float startValue)
+        public MorphConfig(string name)
         {
-            this.name = name;
-            morph = Globals.GEOMETRY.morphsControlUI.GetMorphByDisplayName(name);
-            this.baseMulti = baseMulti;
-            this.startValue = startValue;
-            if(morph == null)
+            Name = name;
+            Morph = Globals.GEOMETRY.morphsControlUI.GetMorphByDisplayName(name);
+            if(Morph == null)
             {
                 LogError($"Morph with name {name} not found!", nameof(MorphConfig));
             }
-        }
-
-        public void Reset()
-        {
-            morph.morphValue = 0;
-        }
-    }
-
-    internal class BasicMorphConfig : MorphConfig
-    {
-        public BasicMorphConfig(
-            string name,
-            float baseMulti,
-            float startValue = 0.00f
-        ) : base(name, baseMulti, startValue) { }
-
-        public void UpdateVal(float multiplier = 1f)
-        {
-            morph.morphValue = multiplier * baseMulti;
-        }
-
-        public string GetStatus()
-        {
-            return NameValueString(name, morph.morphValue, 1000f, 30) + "\n";
         }
     }
 }
