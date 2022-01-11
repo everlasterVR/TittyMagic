@@ -7,8 +7,8 @@ namespace TittyMagic
         public string Name { get; }
         public DAZMorph Morph { get; }
         public float BaseMultiplier { get; set; }
-        public float SoftnessMultiplier { get; set; }
-        public float MassMultiplier { get; set; }
+        public float Multiplier1 { get; set; }
+        public float Multiplier2 { get; set; }
 
         public MorphConfig(string name)
         {

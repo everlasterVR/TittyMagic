@@ -176,9 +176,8 @@ namespace TittyMagic
                 {
                     if(json.HasKey(config.Name))
                     {
-                        float value = json[config.Name].AsFloat;
-                        config.SoftnessMultiplier = value;
-                        config.MassMultiplier = 0f; //TODO actual values
+                        config.Multiplier1 = json[config.Name]["Multiplier1"].AsFloat;
+                        config.Multiplier2 = json[config.Name]["Multiplier2"].AsFloat;
                     }
                 }
             });
@@ -258,11 +257,11 @@ namespace TittyMagic
             }
         }
 
-        private void UpdateValue(MorphConfig config, float effect, float mass, float gravity)
+        private void UpdateValue(MorphConfig config, float effect, float mass, float softness)
         {
             config.Morph.morphValue =
-                mass * config.MassMultiplier * effect / 2 +
-                gravity * config.SoftnessMultiplier * effect / 2;
+                softness * config.Multiplier1 * effect / 2 +
+                mass* config.Multiplier2 * effect / 2;
         }
 
         public void ResetAll()

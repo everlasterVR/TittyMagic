@@ -56,13 +56,13 @@ namespace TittyMagic
         public void InitMainUI()
         {
             _enableAdjustment = UI.NewToggle(this, "Enable", true, false);
-            _debugInfo = UI.NewTextField(this, "positionDiffInfo", 24, 115, true);
+            _debugInfo = UI.NewTextField(this, "positionDiffInfo", "", 24, 115, true);
             UI.NewSpacer(this, 50f, false);
         }
 
         public void InitUISection(string key, List<MorphConfig> configs)
         {
-            UI.NewTextField(this, titles[key], 32, 115, false);
+            UI.NewTextField(this, titles[key], $"{titles[key]}", 40, 115, false);
             var saveButton = CreateButton("Save JSON", true);
             var loadButton = CreateButton("Load JSON", true);
 
@@ -106,7 +106,8 @@ namespace TittyMagic
             var json = new JSONClass();
             foreach(var item in sections)
             {
-                json[item.Name].AsFloat = item.MultiplierStorable.val;
+                json[item.Name]["Multiplier1"].AsFloat = item.Multiplier1Storable.val;
+                json[item.Name]["Multiplier2"].AsFloat = item.Multiplier2Storable.val;
             }
             Persistence.SaveToPath(this, json, path, _saveExt, (dir) =>
             {
@@ -123,8 +124,8 @@ namespace TittyMagic
                 {
                     if(json.HasKey(item.Name))
                     {
-                        item.MultiplierStorable.val = json[item.Name].AsFloat;
-                        //TODO mass multiplier
+                        item.Multiplier1Storable.val = json[item.Name]["Multiplier1"].AsFloat;
+                        item.Multiplier2Storable.val = json[item.Name]["Multiplier2"].AsFloat;
                     }
                 }
             });

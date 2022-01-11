@@ -176,7 +176,7 @@ namespace TittyMagic
 
         private void InitPluginUILeft()
         {
-            titleUIText = UI.NewTextField(this, "titleText", 36, 100);
+            titleUIText = UI.NewTextField(this, "titleText", "", 36, 100);
             titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{version}</size>");
 
             UI.NewSpacer(this, 10f);
@@ -209,19 +209,19 @@ namespace TittyMagic
         private void InitPluginUIRight()
         {
             bool rightSide = true;
-            statusUIText = UI.NewTextField(this, "statusText", 28, 100, rightSide);
+            statusUIText = UI.NewTextField(this, "statusText", "", 28, 100, rightSide);
 
 #if SHOW_DEBUG
             baseDebugInfo = UI.NewTextField(this, "Base Debug Info", 26, 125, rightSide);
             physicsDebugInfo = UI.NewTextField(this, "Physics Debug Info", 26, 945, rightSide);
 #else
             UI.NewSpacer(this, 10f, rightSide);
-            JSONStorableString usage2Area = UI.NewTextField(this, "Usage Info Area 2", 28, 135, rightSide);
+            JSONStorableString usage2Area = UI.NewTextField(this, "Usage Info Area 2", "", 28, 135, rightSide);
             string usage2 = UI.Size("\n", 12) + "Physics settings mode selection.";
             usage2Area.SetVal(usage2);
 
             UI.NewSpacer(this, 10f, rightSide);
-            JSONStorableString usage1Area = UI.NewTextField(this, "Usage Info Area 1", 28, 255, rightSide);
+            JSONStorableString usage1Area = UI.NewTextField(this, "Usage Info Area 1", "", 28, 255, rightSide);
             string usage1 = UI.Size("\n", 12) +
                 "Breast softness adjusts soft physics settings from very firm to very soft.\n\n" +
                 "Breast gravity adjusts how much pose morphs shape the breasts in all orientations.";

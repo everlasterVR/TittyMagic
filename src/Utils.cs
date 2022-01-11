@@ -212,12 +212,13 @@ namespace TittyMagic
         public static JSONStorableString NewTextField(
             MVRScript script,
             string paramName,
+            string initialValue,
             int fontSize,
             int height = 120,
             bool rightSide = false
         )
         {
-            JSONStorableString storable = new JSONStorableString(paramName, paramName);
+            JSONStorableString storable = new JSONStorableString(paramName, initialValue);
             UIDynamicTextField textField = script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = fontSize;
             textField.height = height;
