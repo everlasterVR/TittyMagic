@@ -69,10 +69,11 @@ namespace TittyMagic
         private JSONStorableBool linkSoftnessAndGravity;
         private JSONStorableFloat nippleErection;
 
+        private bool modeSetFromJson;
         private float timeSinceListenersChecked;
         private float listenersCheckInterval = 0.1f;
         private int refreshStatus = RefreshStatus.WAITING;
-        private bool animationWasFrozen = false;
+        private bool animationWasSetFrozen = false;
 
         private float timeMultiplier;
 
@@ -135,21 +136,25 @@ namespace TittyMagic
 
                 softnessAmount = Mathf.Pow(softness.val/softness.max, 1/2f);
                 gravityAmount = Mathf.Pow(gravity.val/gravity.max, 1/2f);
-                if(string.IsNullOrEmpty(modeChooser.val))
-                {
-                    modeChooser.val = modes.First();
-                }
-                else
-                {
-                    StartCoroutine(BeginRefresh());
-                }
 
+                StartCoroutine(SelectDefaultMode());
                 StartCoroutine(SubscribeToKeybindings());
             }
             catch(Exception e)
             {
                 LogError($"{e}");
             }
+        }
+
+        private IEnumerator SelectDefaultMode()
+        {
+            yield return new WaitForEndOfFrame();
+            if(modeSetFromJson)
+            {
+                yield break;
+            }
+
+            modeChooser.val = modes.First(); // selection causes BeginRefresh
         }
 
         //https://github.com/vam-community/vam-plugins-interop-specs/blob/main/keybindings.md
@@ -372,11 +377,18 @@ namespace TittyMagic
                 chestRigidbody.AddForce(chestTransform.up * -gravityMagnitude, ForceMode.Acceleration);
                 lPectoralRigidbody.AddForce(chestTransform.up * -gravityMagnitude, ForceMode.Acceleration);
                 rPectoralRigidbody.AddForce(chestTransform.up * -gravityMagnitude, ForceMode.Acceleration);
-                if(modeChooser.val == Mode.ANIM_OPTIMIZED && refreshStatus == RefreshStatus.MASS_OK)
+                if(modeChooser.val == Mode.ANIM_OPTIMIZED)
                 {
-                    StartCoroutine(RefreshNeutralRelativePosition());
+                    if(refreshStatus == RefreshStatus.MASS_OK)
+                    {
+                        StartCoroutine(RefreshNeutralRelativePosition());
+                    }
+                    else if(refreshStatus == RefreshStatus.NEUTRALPOS_OK)
+                    {
+                        EndRefresh();
+                    }
                 }
-                if(modeChooser.val != Mode.ANIM_OPTIMIZED || refreshStatus == RefreshStatus.NEUTRALPOS_OK)
+                else
                 {
                     EndRefresh();
                 }
@@ -442,7 +454,7 @@ namespace TittyMagic
         public IEnumerator BeginRefresh()
         {
             refreshStatus = RefreshStatus.WAITING;
-            animationWasFrozen = SuperController.singleton.freezeAnimation;
+            animationWasSetFrozen = modeSetFromJson ? false : SuperController.singleton.freezeAnimation;
             SuperController.singleton.SetFreezeAnimation(true);
 
             // ensure refresh actually begins only once listeners report no change
@@ -535,8 +547,9 @@ namespace TittyMagic
             chestRigidbody.useGravity = true;
             lPectoralRigidbody.useGravity = true;
             rPectoralRigidbody.useGravity = true;
-            SuperController.singleton.SetFreezeAnimation(animationWasFrozen);
+            SuperController.singleton.SetFreezeAnimation(animationWasSetFrozen);
             settingsMonitor.enabled = true;
+            modeSetFromJson = false;
             refreshStatus = RefreshStatus.DONE;
         }
 
@@ -603,10 +616,7 @@ namespace TittyMagic
         public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
         {
             JSONClass json = base.GetJSON(includePhysical, includeAppearance, forceStore);
-            if(modeChooser.val != modes.First())
-            {
-                json["Mode"] = modeChooser.val;
-            }
+            json["Mode"] = modeChooser.val;
             needsStore = true;
             return json;
         }
@@ -615,6 +625,7 @@ namespace TittyMagic
         {
             if(json.HasKey("Mode"))
             {
+                modeSetFromJson = true;
                 modeChooser.val = json["Mode"];
             }
 
