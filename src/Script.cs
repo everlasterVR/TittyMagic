@@ -187,12 +187,12 @@ namespace TittyMagic
                 "Mode",
                 (val) =>
                 {
-                    UpdateButtonLabels(modeButtonGroup, val);
+                    UI.UpdateButtonLabels(modeButtonGroup, val);
                     staticPhysicsH.LoadSettings(val);
                     StartCoroutine(BeginRefresh());
                 }
             );
-            modeButtonGroup = CreateRadioButtonGroup(modeChooser);
+            modeButtonGroup = UI.CreateRadioButtonGroup(this, modeChooser);
             staticPhysicsH.modeChooser = modeChooser;
 
             UI.NewSpacer(this, 10f);
@@ -227,36 +227,6 @@ namespace TittyMagic
                 "Breast gravity adjusts how much pose morphs shape the breasts in all orientations.";
             usage1Area.SetVal(usage1);
 #endif
-        }
-
-        private Dictionary<string, UIDynamicButton> CreateRadioButtonGroup(JSONStorableStringChooser jsc, bool rightSide = false)
-        {
-            Dictionary<string, UIDynamicButton> buttons = new Dictionary<string, UIDynamicButton>();
-            jsc.choices.ForEach((choice) =>
-            {
-                UIDynamicButton btn = CreateButton(UI.RadioButtonLabel(choice, choice == jsc.defaultVal), rightSide);
-                btn.buttonText.alignment = TextAnchor.MiddleLeft;
-                btn.buttonColor = UI.darkOffGrayViolet;
-                btn.height = 60f;
-                buttons.Add(choice, btn);
-            });
-
-            buttons.Keys.ToList().ForEach(name =>
-            {
-                buttons[name].button.onClick.AddListener(() =>
-                {
-                    jsc.val = name;
-                });
-            });
-
-            return buttons;
-        }
-
-        private void UpdateButtonLabels(Dictionary<string, UIDynamicButton> buttons, string selected)
-        {
-            buttons[selected].label = UI.RadioButtonLabel(selected, true);
-            buttons.Where(kvp => kvp.Key != selected).ToList()
-                .ForEach(kvp => kvp.Value.label = UI.RadioButtonLabel(kvp.Key, false));
         }
 
         #endregion User interface

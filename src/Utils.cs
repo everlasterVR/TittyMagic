@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace TittyMagic
@@ -165,12 +166,6 @@ namespace TittyMagic
         public static Color offGrayViolet = new Color(0.80f, 0.75f, 0.80f);
         public static Color white = UnityEngine.Color.white;
 
-        public static string RadioButtonLabel(string name, bool selected)
-        {
-            string radio = $"{Size(selected ? "  ●" : "  ○", 36)}";
-            return Color($"{radio}  {name}", selected ? white : offGrayViolet);
-        }
-
         public static string LineBreak()
         {
             return "\n" + Size("\n", 12);
@@ -241,6 +236,42 @@ namespace TittyMagic
         {
             UIDynamic spacer = script.CreateSpacer(rightSide);
             spacer.height = height;
+        }
+
+        public static Dictionary<string, UIDynamicButton> CreateRadioButtonGroup(MVRScript script, JSONStorableStringChooser jsc, bool rightSide = false)
+        {
+            Dictionary<string, UIDynamicButton> buttons = new Dictionary<string, UIDynamicButton>();
+            jsc.choices.ForEach((choice) =>
+            {
+                UIDynamicButton btn = script.CreateButton(RadioButtonLabel(choice, choice == jsc.defaultVal), rightSide);
+                btn.buttonText.alignment = TextAnchor.MiddleLeft;
+                btn.buttonColor = darkOffGrayViolet;
+                btn.height = 60f;
+                buttons.Add(choice, btn);
+            });
+
+            buttons.Keys.ToList().ForEach(name =>
+            {
+                buttons[name].button.onClick.AddListener(() =>
+                {
+                    jsc.val = name;
+                });
+            });
+
+            return buttons;
+        }
+
+        public static void UpdateButtonLabels(Dictionary<string, UIDynamicButton> buttons, string selected)
+        {
+            buttons[selected].label = RadioButtonLabel(selected, true);
+            buttons.Where(kvp => kvp.Key != selected).ToList()
+                .ForEach(kvp => kvp.Value.label = RadioButtonLabel(kvp.Key, false));
+        }
+
+        private static string RadioButtonLabel(string name, bool selected)
+        {
+            string radio = $"{Size(selected ? "  ●" : "  ○", 36)}";
+            return Color($"{radio}  {name}", selected ? white : offGrayViolet);
         }
     }
 }
