@@ -1,4 +1,4 @@
-﻿#define DEBUG
+﻿//#define SHOW_DEBUG
 
 using SimpleJSON;
 using System;
@@ -80,9 +80,9 @@ namespace TittyMagic
         private float roll;
         private float pitch;
 
-#if DEBUG
-        protected JSONStorableString baseDebugInfo = new JSONStorableString("Base Debug Info", "");
-        protected JSONStorableString physicsDebugInfo = new JSONStorableString("Physics Debug Info", "");
+#if SHOW_DEBUG
+        private JSONStorableString baseDebugInfo;
+        private JSONStorableString physicsDebugInfo;
 #endif
 
         public override void Init()
@@ -176,10 +176,10 @@ namespace TittyMagic
 
         private void InitPluginUILeft()
         {
-            titleUIText = NewTextField("titleText", 36, 100);
+            titleUIText = UI.NewTextField(this, "titleText", 36, 100);
             titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{version}</size>");
 
-            CreateNewSpacer(10f);
+            UI.NewSpacer(this, 10f);
             modeChooser = new JSONStorableStringChooser(
                 "Mode",
                 modes,
@@ -195,43 +195,37 @@ namespace TittyMagic
             modeButtonGroup = CreateRadioButtonGroup(modeChooser);
             staticPhysicsH.modeChooser = modeChooser;
 
-            CreateNewSpacer(10f);
-            softness = NewFloatSlider("Breast softness", 100f, Const.SOFTNESS_MIN, Const.SOFTNESS_MAX, "F0");
-            gravity = NewFloatSlider("Breast gravity", 50f, Const.GRAVITY_MIN, Const.GRAVITY_MAX, "F0");
-            linkSoftnessAndGravity = NewToggle("Link softness and gravity", false, false);
-            positionInfoUIText = NewTextField("positionInfoText", 36, 100);
-
-            CreateNewSpacer(10f);
-            nippleErection = NewFloatSlider("Erect nipples", 0f, 0f, 1.0f, "F2");
+            UI.NewSpacer(this, 10f);
+            softness = UI.NewFloatSlider(this, "Breast softness", 100f, Const.SOFTNESS_MIN, Const.SOFTNESS_MAX, "F0");
+            gravity = UI.NewFloatSlider(this, "Breast gravity", 50f, Const.GRAVITY_MIN, Const.GRAVITY_MAX, "F0");
+            linkSoftnessAndGravity = UI.NewToggle(this, "Link softness and gravity", false, false);
+#if SHOW_DEBUG
+            positionInfoUIText = UI.NewTextField(this, "positionInfoText", 36, 100);
+#endif
+            UI.NewSpacer(this, 10f);
+            nippleErection = UI.NewFloatSlider(this, "Erect nipples", 0f, 0f, 1.0f, "F2");
         }
 
         private void InitPluginUIRight()
         {
             bool rightSide = true;
-            statusUIText = NewTextField("statusText", 28, 100, rightSide);
+            statusUIText = UI.NewTextField(this, "statusText", 28, 100, rightSide);
 
-#if DEBUG
-            UIDynamicTextField angleInfoField = CreateTextField(baseDebugInfo, rightSide);
-            angleInfoField.height = 125;
-            angleInfoField.UItext.fontSize = 26;
+#if SHOW_DEBUG
+            baseDebugInfo = UI.NewTextField(this, "Base Debug Info", 26, 125, rightSide);
+            physicsDebugInfo = UI.NewTextField(this, "Physics Debug Info", 26, 945, rightSide);
 #else
-            CreateNewSpacer(10f, true);
-            JSONStorableString usage2Area = NewTextField("Usage Info Area 2", 28, 135, rightSide);
-            string usage2 = UI.Size("\n", 12);
-            usage2 += "Physics settings mode selection.";
+            UI.NewSpacer(this, 10f, rightSide);
+            JSONStorableString usage2Area = UI.NewTextField(this, "Usage Info Area 2", 28, 135, rightSide);
+            string usage2 = UI.Size("\n", 12) + "Physics settings mode selection.";
             usage2Area.SetVal(usage2);
 
-            CreateNewSpacer(10f, true);
-            JSONStorableString usage1Area = NewTextField("Usage Info Area 1", 28, 255, rightSide);
-            string usage1 = UI.Size("\n", 12);
-            usage1 += "Breast softness adjusts soft physics settings from very firm to very soft.\n\n";
-            usage1 += "Breast gravity adjusts how much pose morphs shape the breasts in all orientations.";
+            UI.NewSpacer(this, 10f, rightSide);
+            JSONStorableString usage1Area = UI.NewTextField(this, "Usage Info Area 1", 28, 255, rightSide);
+            string usage1 = UI.Size("\n", 12) +
+                "Breast softness adjusts soft physics settings from very firm to very soft.\n\n" +
+                "Breast gravity adjusts how much pose morphs shape the breasts in all orientations.";
             usage1Area.SetVal(usage1);
-#endif
-#if DEBUG
-            UIDynamicTextField physicsInfoField = CreateTextField(physicsDebugInfo, rightSide);
-            physicsInfoField.height = 945;
-            physicsInfoField.UItext.fontSize = 26;
 #endif
         }
 
@@ -263,46 +257,6 @@ namespace TittyMagic
             buttons[selected].label = UI.RadioButtonLabel(selected, true);
             buttons.Where(kvp => kvp.Key != selected).ToList()
                 .ForEach(kvp => kvp.Value.label = UI.RadioButtonLabel(kvp.Key, false));
-        }
-
-        private JSONStorableFloat NewFloatSlider(
-            string paramName,
-            float startingValue,
-            float minValue,
-            float maxValue,
-            string valueFormat,
-            bool rightSide = false
-        )
-        {
-            JSONStorableFloat storable = new JSONStorableFloat(paramName, startingValue, minValue, maxValue);
-            storable.storeType = JSONStorableParam.StoreType.Physical;
-            RegisterFloat(storable);
-            UIDynamicSlider slider = CreateSlider(storable, rightSide);
-            slider.valueFormat = valueFormat;
-            return storable;
-        }
-
-        private JSONStorableString NewTextField(string paramName, int fontSize, int height = 100, bool rightSide = false)
-        {
-            JSONStorableString storable = new JSONStorableString(paramName, "");
-            UIDynamicTextField textField = CreateTextField(storable, rightSide);
-            textField.UItext.fontSize = fontSize;
-            textField.height = height;
-            return storable;
-        }
-
-        private JSONStorableBool NewToggle(string paramName, bool startingValue, bool rightSide = false)
-        {
-            JSONStorableBool storable = new JSONStorableBool(paramName, startingValue);
-            CreateToggle(storable, rightSide);
-            RegisterBool(storable);
-            return storable;
-        }
-
-        private void CreateNewSpacer(float height, bool rightSide = false)
-        {
-            UIDynamic spacer = CreateSpacer(rightSide);
-            spacer.height = height;
         }
 
         #endregion User interface
@@ -365,7 +319,7 @@ namespace TittyMagic
 
             if(refreshStatus == RefreshStatus.MASS_STARTED)
             {
-#if DEBUG
+#if SHOW_DEBUG
                 positionInfoUIText.SetVal("");
 #endif
                 return;
@@ -433,10 +387,10 @@ namespace TittyMagic
 
             //gravityPhysicsH.Update(roll, pitch, massAmount, softnessAmount, gravityAmount);
 
-#if DEBUG
+#if SHOW_DEBUG
             SetBaseDebugInfo();
 #endif
-#if DEBUG
+#if SHOW_DEBUG
             physicsDebugInfo.SetVal(staticPhysicsH.GetStatus() + gravityPhysicsH.GetStatus());
 #endif
         }
@@ -529,7 +483,7 @@ namespace TittyMagic
                 neutralRelativePos = RelativePosition(chestTransform, rNippleTransform.position);
             }
 
-#if DEBUG
+#if SHOW_DEBUG
             positionInfoUIText.SetVal(
                 $"<size=28>Neutral pos:\n" +
                 $"{NameValueString("x", neutralRelativePos.x, 1000)} " +
@@ -667,7 +621,7 @@ namespace TittyMagic
             nippleErectionMorphH.ResetAll();
         }
 
-#if DEBUG
+#if SHOW_DEBUG
 
         private void SetBaseDebugInfo()
         {
