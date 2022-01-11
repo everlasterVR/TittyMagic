@@ -94,6 +94,13 @@
     <Compile Include="src\Utils.cs" />
     <Compile Include="src\Variables.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="src\Settings\**\*.json" />
+    <None Include="TittyMagic.cslist" />
+    <None Include=".gitignore" />
+    <None Include="meta.json" />
+    <None Include="README.md" />
+    <None Include="todo.md" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
