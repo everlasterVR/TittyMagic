@@ -1,5 +1,6 @@
 ﻿using System;
 using SimpleJSON;
+using MVR.FileManagementSecure;
 
 namespace TittyMagic
 {
@@ -32,6 +33,12 @@ namespace TittyMagic
 
             callback?.Invoke(browseDir);
             return json;
+        }
+
+        public static string MakeDefaultDir()
+        {
+            FileManagerSecure.CreateDirectory(Globals.SAVES_DIR);
+            return Globals.SAVES_DIR;
         }
     }
 }

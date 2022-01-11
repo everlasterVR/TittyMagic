@@ -109,7 +109,8 @@ namespace TittyMagic
                 rPectoralRigidbody = rigidbodies.Find(rb => rb.name == "rPectoral");
                 geometry = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
 
-                Globals.SAVES_DIR = SuperController.singleton.savesDir + @"tmconfig\";
+                Globals.SAVES_DIR = SuperController.singleton.savesDir + @"everlaster\TittyMagicSettings\";
+                Globals.PLUGIN_PATH = GetPackagePath(this) + @"Custom\Scripts\everlaster\TittyMagic\";
                 Globals.BREAST_CONTROL = breastControl;
                 Globals.BREAST_PHYSICS_MESH = breastPhysicsMesh;
                 Globals.GEOMETRY = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
@@ -125,7 +126,7 @@ namespace TittyMagic
                 relativePosMorphH = new RelativePosMorphHandler(Utils.FindPluginOnAtom(containingAtom, "RelativePosMorphConfigurator"));
                 nippleErectionMorphH = new NippleErectionMorphHandler(this);
                 gravityPhysicsH = new GravityPhysicsHandler();
-                staticPhysicsH = new StaticPhysicsHandler(GetPackagePath());
+                staticPhysicsH = new StaticPhysicsHandler();
 
                 InitPluginUILeft();
                 InitPluginUIRight();
@@ -617,16 +618,6 @@ namespace TittyMagic
             }
 
             base.RestoreFromJSON(json, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
-        }
-
-        //MacGruber / Discord 20.10.2020
-        //Get path prefix of the package that contains this plugin
-        public string GetPackagePath()
-        {
-            string id = name.Substring(0, name.IndexOf('_'));
-            string filename = manager.GetJSON()["plugins"][id].Value;
-            int idx = filename.IndexOf(":/");
-            return idx >= 0 ? filename.Substring(0, idx+2) : "";
         }
 
         private void OnRemoveAtom(Atom atom)

@@ -26,6 +26,16 @@ namespace TittyMagic
             return match == null ? null : atom.GetStorableByID(match) as MVRScript;
         }
 
+        //MacGruber / Discord 20.10.2020
+        //Get path prefix of the package that contains this plugin
+        public static string GetPackagePath(MVRScript script)
+        {
+            string id = script.name.Substring(0, script.name.IndexOf('_'));
+            string filename = script.manager.GetJSON()["plugins"][id].Value;
+            int idx = filename.IndexOf(":/");
+            return idx >= 0 ? filename.Substring(0, idx + 2) : "";
+        }
+
         public static string NameValueString(
             string name,
             float value,
@@ -56,7 +66,7 @@ namespace TittyMagic
         }
     }
 
-    public static class Calc
+    internal static class Calc
     {
         // value between -1 and +1
         // +1 = leaning 90 degrees left

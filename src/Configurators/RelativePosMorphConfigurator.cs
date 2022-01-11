@@ -38,9 +38,6 @@ namespace TittyMagic
                 { Direction.LEFT, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.RIGHT, new Dictionary<string, ConfiguratorUISection>() },
             };
-
-            FileManagerSecure.CreateDirectory(Globals.SAVES_DIR);
-            _lastBrowseDir = Globals.SAVES_DIR;
         }
 
         public void UpdateValueSlider(string sectionGroupName, string configName, float value)
@@ -93,7 +90,7 @@ namespace TittyMagic
         {
             button.button.onClick.AddListener(() =>
             {
-                SuperController.singleton.NormalizeMediaPath(_lastBrowseDir); // Sets dir if path exists
+                SuperController.singleton.NormalizeMediaPath(_lastBrowseDir ?? Persistence.MakeDefaultDir()); // Sets dir if path exists
                 SuperController.singleton.GetMediaPathDialog((string path) => HandleSave(path, sections), _saveExt);
 
                 // Update the browser to be a Save browser
@@ -108,7 +105,7 @@ namespace TittyMagic
         {
             button.button.onClick.AddListener(() =>
             {
-                SuperController.singleton.NormalizeMediaPath(_lastBrowseDir); // Sets dir if path exists
+                SuperController.singleton.NormalizeMediaPath(_lastBrowseDir ?? Persistence.MakeDefaultDir()); // Sets dir if path exists
                 SuperController.singleton.GetMediaPathDialog((string path) => HandleLoad(path, sections), _saveExt);
             });
         }

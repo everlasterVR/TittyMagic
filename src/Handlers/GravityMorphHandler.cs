@@ -202,7 +202,7 @@ namespace TittyMagic
         private void SetInitialValues(string fileName, List<MorphConfig> configs)
         {
             //TODO use packagePath for default config location
-            var json = Persistence.LoadFromPath(_configurator, $"{Globals.SAVES_DIR}{fileName}.json");
+            var json = Persistence.LoadFromPath(_configurator, $@"{Globals.PLUGIN_PATH}\settings\morphmultipliers\{fileName}.json");
             foreach(var config in configs)
             {
                 if(json.HasKey(config.Name))

@@ -82,19 +82,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\Components\*.cs" />
-    <Compile Include="src\Configs\*.cs" />
-    <Compile Include="src\Configurators\*.cs" />
-    <Compile Include="src\Handlers\*.cs" />
-    <Compile Include="src\AtomScaleListener.cs" />
-    <Compile Include="src\BreastMassCalculator.cs" />
-    <Compile Include="src\BreastMorphListener.cs" />
-    <Compile Include="src\Persistence.cs" />
-    <Compile Include="src\Script.cs" />
-    <Compile Include="src\Utils.cs" />
-    <Compile Include="src\Variables.cs" />
+    <Compile Include="src\**\*.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="settings\**\*.json" />
     <None Include="src\Settings\**\*.json" />
     <None Include="TittyMagic.cslist" />
     <None Include=".gitignore" />
@@ -102,5 +93,6 @@
     <None Include="README.md" />
     <None Include="todo.md" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

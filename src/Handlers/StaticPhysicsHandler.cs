@@ -25,9 +25,9 @@ namespace TittyMagic
 
         private float massVal;
 
-        public StaticPhysicsHandler(string packagePath)
+        public StaticPhysicsHandler()
         {
-            settingsDir = packagePath + @"Custom\Scripts\everlaster\TittyMagic\src\Settings";
+            settingsDir = Globals.PLUGIN_PATH + @"src\Settings";
             SetPhysicsDefaults();
         }
 
