@@ -29,6 +29,11 @@
       "maxMminS" : "42",
       "minMmaxS" : "10"
    },
+   "softVerticesColliderRadius" : { 
+      "minMminS" : "0.023", 
+      "maxMminS" : "0.035", 
+      "minMmaxS" : "0.026", 
+   }, 
    "softVerticesDistanceLimit" : {
       "minMminS" : "0.026",
       "maxMminS" : "0.064",
