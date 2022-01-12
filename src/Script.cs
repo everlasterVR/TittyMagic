@@ -256,10 +256,7 @@ namespace TittyMagic
                     gravity.val = val;
                     gravityAmount = Mathf.Pow(val/gravity.max, 1/2f);
                 }
-                if(refreshStatus != RefreshStatus.WAITING)
-                {
-                    StartCoroutine(BeginRefresh());
-                }
+                RefreshFromSliderChanged();
             });
             gravity.slider.onValueChanged.AddListener((float val) =>
             {
@@ -269,16 +266,25 @@ namespace TittyMagic
                     softness.val = val;
                     softnessAmount = Mathf.Pow(val/softness.max, 1/2f);
                 }
-                if(refreshStatus != RefreshStatus.WAITING)
-                {
-                    StartCoroutine(BeginRefresh());
-                }
+                RefreshFromSliderChanged();
             });
             nippleErection.slider.onValueChanged.AddListener((float val) =>
             {
                 nippleErectionMorphH.Update(val);
                 staticPhysicsH.UpdateNipplePhysics(softnessAmount, val);
             });
+        }
+
+        private void RefreshFromSliderChanged()
+        {
+            if(modeChooser.val == Mode.ANIM_OPTIMIZED && refreshStatus != RefreshStatus.WAITING)
+            {
+                StartCoroutine(BeginRefresh());
+            }
+            else
+            {
+                staticPhysicsH.FullUpdate(softnessAmount, nippleErection.val);
+            }
         }
 
         private void FixedUpdate()
