@@ -47,9 +47,6 @@ namespace TittyMagic
 
         private JSONStorableString titleUIText;
         private JSONStorableString statusUIText;
-#if SHOW_DEBUG
-        private JSONStorableString positionInfoUIText;
-#endif
 
         private Dictionary<string, UIDynamicButton> modeButtonGroup;
 
@@ -189,9 +186,7 @@ namespace TittyMagic
             softness = UI.NewFloatSlider(this, "Breast softness", 100f, Const.SOFTNESS_MIN, Const.SOFTNESS_MAX, "F0");
             gravity = UI.NewFloatSlider(this, "Breast gravity", 50f, Const.GRAVITY_MIN, Const.GRAVITY_MAX, "F0");
             linkSoftnessAndGravity = UI.NewToggle(this, "Link softness and gravity", false, false);
-#if SHOW_DEBUG
-            positionInfoUIText = UI.NewTextField(this, "positionInfoText", 36, 100);
-#endif
+
             UI.NewSpacer(this, 10f);
             nippleErection = UI.NewFloatSlider(this, "Erect nipples", 0f, 0f, 1.0f, "F2");
         }
@@ -306,9 +301,6 @@ namespace TittyMagic
 
             if(refreshStatus == RefreshStatus.MASS_STARTED)
             {
-#if SHOW_DEBUG
-                positionInfoUIText.SetVal("");
-#endif
                 return;
             }
 
@@ -481,16 +473,6 @@ namespace TittyMagic
                 yield return new WaitForSecondsRealtime(interval);
                 neutralRelativePos = RelativePosition(chestTransform, rNippleTransform.position);
             }
-
-#if SHOW_DEBUG
-            positionInfoUIText.SetVal(
-                $"<size=28>Neutral pos:\n" +
-                $"{NameValueString("x", neutralRelativePos.x, 1000)} " +
-                $"{NameValueString("y", neutralRelativePos.y, 1000)} " +
-                $"{NameValueString("z", neutralRelativePos.z, 1000)} " +
-                $"</size>"
-            );
-#endif
 
             refreshStatus = RefreshStatus.NEUTRALPOS_OK;
         }
