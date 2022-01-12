@@ -90,7 +90,6 @@ namespace TittyMagic
 
         private void LoadSettingsFromFile(string mode, string fileName, List<MorphConfig> configs)
         {
-            //Persistence.LoadFromPath(_script, $@"{Globals.SAVES_DIR}upforce.json", (dir, json) =>
             Persistence.LoadModeMorphSettings(_script, mode, $"{fileName}.json", (dir, json) =>
             {
                 foreach(string name in json.Keys)
