@@ -7,15 +7,6 @@ namespace TittyMagic
 {
     internal class StaticPhysicsHandler
     {
-        private string settingsDir;
-
-        private Dictionary<string, string> settingsSubDirNames = new Dictionary<string, string>
-        {
-            { Mode.ANIM_OPTIMIZED, "AnimOptimized" },
-            { Mode.BALANCED, "Balanced" },
-            { Mode.TOUCH_OPTIMIZED, "TouchOptimized" },
-        };
-
         private HashSet<PhysicsConfig> mainPhysicsConfigs;
         private HashSet<RateDependentPhysicsConfig> rateDependentPhysicsConfigs;
         private HashSet<PhysicsConfig> softPhysicsConfigs;
@@ -27,80 +18,82 @@ namespace TittyMagic
 
         public StaticPhysicsHandler()
         {
-            settingsDir = Globals.PLUGIN_PATH + @"src\Settings";
             SetPhysicsDefaults();
         }
 
-        public void LoadSettingsFromFile(string val)
+        public void LoadSettings(MVRScript script, string mode)
         {
-            string modeDir = $@"{settingsDir}\{settingsSubDirNames[val]}\";
+            if(mode == Mode.ANIM_OPTIMIZED || mode == Mode.BALANCED)
+            {
+                Globals.GEOMETRY.useAuxBreastColliders = true;
+            }
+            else if(mode == Mode.TOUCH_OPTIMIZED)
+            {
+                Globals.GEOMETRY.useAuxBreastColliders = false;
+            }
 
-            JSONClass mainPhysicsSettings = SuperController.singleton.LoadJSON(modeDir + "mainPhysics.json").AsObject;
-            JSONClass softPhysicsSettings = SuperController.singleton.LoadJSON(modeDir + "softPhysics.json").AsObject;
-            JSONClass nipplePhysicsSettings = SuperController.singleton.LoadJSON(modeDir + "nipplePhysics.json").AsObject;
+            LoadSettingsFromFiles(script, mode);
+        }
 
+        private void LoadSettingsFromFiles(MVRScript script, string mode)
+        {
             mainPhysicsConfigs = new HashSet<PhysicsConfig>();
             rateDependentPhysicsConfigs = new HashSet<RateDependentPhysicsConfig>();
             softPhysicsConfigs = new HashSet<PhysicsConfig>();
             nipplePhysicsConfigs = new HashSet<NipplePhysicsConfig>();
 
-            foreach(string param in mainPhysicsSettings.Keys)
+            Persistence.LoadModePhysicsSettings(script, mode, @"mainPhysics.json", (path, json) =>
             {
-                JSONClass paramSettings = mainPhysicsSettings[param].AsObject;
-                if(param == "damper")
+                foreach(string param in json.Keys)
                 {
-                    rateDependentPhysicsConfigs.Add(new RateDependentPhysicsConfig(
+                    JSONClass paramSettings = json[param].AsObject;
+                    if(param == "damper")
+                    {
+                        rateDependentPhysicsConfigs.Add(new RateDependentPhysicsConfig(
+                            Globals.BREAST_CONTROL.GetFloatJSONParam(param),
+                            paramSettings["minMminS"].AsFloat,
+                            paramSettings["maxMminS"].AsFloat,
+                            paramSettings["minMmaxS"].AsFloat
+                        ));
+                        continue;
+                    }
+
+                    mainPhysicsConfigs.Add(new PhysicsConfig(
                         Globals.BREAST_CONTROL.GetFloatJSONParam(param),
                         paramSettings["minMminS"].AsFloat,
                         paramSettings["maxMminS"].AsFloat,
                         paramSettings["minMmaxS"].AsFloat
                     ));
-                    continue;
                 }
+            });
 
-                mainPhysicsConfigs.Add(new PhysicsConfig(
-                    Globals.BREAST_CONTROL.GetFloatJSONParam(param),
-                    paramSettings["minMminS"].AsFloat,
-                    paramSettings["maxMminS"].AsFloat,
-                    paramSettings["minMmaxS"].AsFloat
-                ));
-            }
-
-            foreach(string param in softPhysicsSettings.Keys)
+            Persistence.LoadModePhysicsSettings(script, mode, @"softPhysics.json", (path, json) =>
             {
-                JSONClass paramSettings = softPhysicsSettings[param].AsObject;
-                softPhysicsConfigs.Add(new PhysicsConfig(
-                    Globals.BREAST_PHYSICS_MESH.GetFloatJSONParam(param),
-                    paramSettings["minMminS"].AsFloat,
-                    paramSettings["maxMminS"].AsFloat,
-                    paramSettings["minMmaxS"].AsFloat
-                ));
-            }
+                foreach(string param in json.Keys)
+                {
+                    JSONClass paramSettings = json[param].AsObject;
+                    softPhysicsConfigs.Add(new PhysicsConfig(
+                        Globals.BREAST_PHYSICS_MESH.GetFloatJSONParam(param),
+                        paramSettings["minMminS"].AsFloat,
+                        paramSettings["maxMminS"].AsFloat,
+                        paramSettings["minMmaxS"].AsFloat
+                    ));
+                }
+            });
 
-            foreach(string param in nipplePhysicsSettings.Keys)
+            Persistence.LoadModePhysicsSettings(script, mode, @"nipplePhysics.json", (path, json) =>
             {
-                JSONClass paramSettings = nipplePhysicsSettings[param].AsObject;
-                nipplePhysicsConfigs.Add(new NipplePhysicsConfig(
-                    Globals.BREAST_PHYSICS_MESH.GetFloatJSONParam(param),
-                    paramSettings["minMminS"].AsFloat,
-                    paramSettings["maxMminS"].AsFloat,
-                    paramSettings["minMmaxS"].AsFloat
-                ));
-            }
-        }
-
-        public void LoadSettings(string val)
-        {
-            if(val == Mode.ANIM_OPTIMIZED || val == Mode.BALANCED)
-            {
-                Globals.GEOMETRY.useAuxBreastColliders = true;
-            }
-            else if(val == Mode.TOUCH_OPTIMIZED)
-            {
-                Globals.GEOMETRY.useAuxBreastColliders = false;
-            }
-
-            LoadSettingsFromFile(val);
+                foreach(string param in json.Keys)
+                {
+                    JSONClass paramSettings = json[param].AsObject;
+                    nipplePhysicsConfigs.Add(new NipplePhysicsConfig(
+                        Globals.BREAST_PHYSICS_MESH.GetFloatJSONParam(param),
+                        paramSettings["minMminS"].AsFloat,
+                        paramSettings["maxMminS"].AsFloat,
+                        paramSettings["minMmaxS"].AsFloat
+                    ));
+                }
+            });
         }
 
         private void SetPhysicsDefaults()

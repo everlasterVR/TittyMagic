@@ -4,9 +4,6 @@ src\Components\SettingsMonitor.cs
 src\Configs\GravityPhysicsConfig.cs
 src\Configs\MorphConfig.cs
 src\Configs\PhysicsConfig.cs
-src\Configurators\ConfiguratorUISection.cs
-src\Configurators\GravityMorphConfigurator.cs
-src\Configurators\RelativePosMorphConfigurator.cs
 src\Handlers\GravityMorphHandler.cs
 src\Handlers\GravityPhysicsHandler.cs
 src\Handlers\NippleErectionMorphHandler.cs

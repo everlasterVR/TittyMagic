@@ -1,0 +1,46 @@
+{ 
+   "LFWD_Breast Diameter" : { 
+      "Multiplier1" : "0", 
+      "Multiplier2" : "0"
+   }, 
+   "LFWD_Breast Diameter(Pose)" : { 
+      "Multiplier1" : "0", 
+      "Multiplier2" : "0"
+   }, 
+   "LFWD_Breast Height2" : { 
+      "Multiplier1" : "0", 
+      "Multiplier2" : "0"
+   }, 
+   "LFWD_Breast Move Up" : { 
+      "Multiplier1" : "0", 
+      "Multiplier2" : "0"
+   }, 
+   "LFWD_Breast Side Smoother" : { 
+      "Multiplier1" : "0", 
+      "Multiplier2" : "0"
+   }, 
+   "LFWD_Breast Width" : { 
+      "Multiplier1" : "0", 
+      "Multiplier2" : "0"
+   }, 
+   "LFWD_Sternum Width" : { 
+      "Multiplier1" : "0", 
+      "Multiplier2" : "0"
+   }, 
+   "LFWD_Areola S2S" : { 
+      "Multiplier1" : "0", 
+      "Multiplier2" : "0"
+   }, 
+   "LFWD_Breast Depth" : { 
+      "Multiplier1" : "0", 
+      "Multiplier2" : "0"
+   }, 
+   "LFWD_Breasts Hang Forward" : { 
+      "Multiplier1" : "0", 
+      "Multiplier2" : "0"
+   }, 
+   "LFWD_Breasts TogetherApart" : { 
+      "Multiplier1" : "0", 
+      "Multiplier2" : "0"
+   }
+}

@@ -1,0 +1,66 @@
+{ 
+   "UPSD_ChestUp" : {
+      "Multiplier1" : "0.6162297",
+      "Multiplier2" : "0",
+    }, 
+   "UPSD_Breast Height" : {
+      "Multiplier1" : "0.7703279",
+      "Multiplier2" : "0",
+    }, 
+   "UPSD_Breast Sag1" : {
+      "Multiplier1" : "-1.728453",
+      "Multiplier2" : "0",
+    }, 
+   "UPSD_Breast Sag2" : {
+      "Multiplier1" : "-1.240661",
+      "Multiplier2" : "0",
+    }, 
+   "UPSD_Breasts Natural" : {
+      "Multiplier1" : "-1.779855",
+      "Multiplier2" : "0",
+    }, 
+   "UPSD_Areola UpDown" : {
+      "Multiplier1" : "-1.00132",
+      "Multiplier2" : "0",
+    }, 
+   "UPSD_Breast Rotate Up" : {
+      "Multiplier1" : "1.070543",
+      "Multiplier2" : "0",
+    }, 
+   "UPSD_Breast Top Curve2" : {
+      "Multiplier1" : "-0.8553765",
+      "Multiplier2" : "0",
+    }, 
+   "UPSD_Breasts Implants" : {
+      "Multiplier1" : "0",
+      "Multiplier2" : "0",
+    }, 
+   "UPSD_Breast Diameter" : {
+      "Multiplier1" : "0.8215395",
+      "Multiplier2" : "0",
+    }, 
+   "LBACK_Breast Zero" : {
+      "Multiplier1" : "0.2055112",
+      "Multiplier2" : "0",
+    }, 
+   "UPSD_Breast flat" : {
+      "Multiplier1" : "0.8729711",
+      "Multiplier2" : "0",
+    }, 
+   "UPSD_Breasts Hang Forward" : {
+      "Multiplier1" : "2.50833",
+      "Multiplier2" : "0",
+    }, 
+   "UPSD_BreastsShape2" : {
+      "Multiplier1" : "1.917667",
+      "Multiplier2" : "0",
+    }, 
+   "Breast move inside" : {
+      "Multiplier1" : "-2.01085",
+      "Multiplier2" : "0",
+    }, 
+   "Breast Height Lower" : {
+      "Multiplier1" : "-1.386547",
+      "Multiplier2" : "0",
+    }
+}

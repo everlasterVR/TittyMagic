@@ -19,12 +19,12 @@ namespace TittyMagic
 
         public NippleErectionMorphHandler(MVRScript script)
         {
-            SetInitialValues(script, "nippleErection", configs);
+            LoadSettings(script, configs);
         }
 
-        private void SetInitialValues(MVRScript script, string fileName, List<MorphConfig> configs)
+        private void LoadSettings(MVRScript script, List<MorphConfig> configs)
         {
-            Persistence.LoadFromPath(script, $@"{Globals.PLUGIN_PATH}\settings\morphmultipliers\{fileName}.json", (dir, json) =>
+            Persistence.LoadNippleMorphSettings(script, (dir, json) =>
             {
                 foreach(var config in configs)
                 {

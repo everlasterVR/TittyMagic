@@ -26,11 +26,25 @@ namespace TittyMagic
         public JSONStorableBool EnableAdjustment => _enableAdjustment;
         public JSONStorableString DebugInfo => _debugInfo;
 
-        private Dictionary<string, Dictionary<string, ConfiguratorUISection>> UISectionGroups;
+        private Dictionary<string, Dictionary<string, ConfiguratorUISection>> _UISectionGroups;
 
-        public void DoInit()
+        public void UpdateValueSlider(string sectionGroupName, string configName, float value)
         {
-            UISectionGroups = new Dictionary<string, Dictionary<string, ConfiguratorUISection>> {
+            if(!_UISectionGroups.ContainsKey(sectionGroupName))
+            {
+                return;
+            }
+            var sectionGroup = _UISectionGroups[sectionGroupName];
+            if(sectionGroup.ContainsKey(configName))
+            {
+                var section = _UISectionGroups[sectionGroupName][configName];
+                section.ValueStorable.val = value;
+            }
+        }
+
+        public void InitMainUI()
+        {
+            _UISectionGroups = new Dictionary<string, Dictionary<string, ConfiguratorUISection>> {
                 { Direction.DOWN, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.UP, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.BACK, new Dictionary<string, ConfiguratorUISection>() },
@@ -38,23 +52,7 @@ namespace TittyMagic
                 { Direction.LEFT, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.RIGHT, new Dictionary<string, ConfiguratorUISection>() },
             };
-        }
 
-        public void UpdateValueSlider(string sectionGroupName, string configName, float value)
-        {
-            if(UISectionGroups.ContainsKey(sectionGroupName))
-            {
-                var sectionGroup = UISectionGroups[sectionGroupName];
-                if(sectionGroup.ContainsKey(configName))
-                {
-                    var section = UISectionGroups[sectionGroupName][configName];
-                    section.ValueStorable.val = value;
-                }
-            }
-        }
-
-        public void InitMainUI()
-        {
             _enableAdjustment = UI.NewToggle(this, "Enable", true, false);
             _debugInfo = UI.NewTextField(this, "positionDiffInfo", "", 24, 115, true);
             UI.NewSpacer(this, 50f, false);
@@ -66,7 +64,7 @@ namespace TittyMagic
             var saveButton = CreateButton("Save JSON", true);
             var loadButton = CreateButton("Load JSON", true);
 
-            var group = UISectionGroups[key];
+            var group = _UISectionGroups[key];
 
             foreach(var config in configs)
             {
