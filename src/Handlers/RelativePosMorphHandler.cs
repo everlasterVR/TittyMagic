@@ -36,6 +36,14 @@ namespace TittyMagic
             try
             {
                 _configurator = (RelativePosMorphConfigurator) _script;
+                _configurator.InitMainUI();
+                _configurator.EnableAdjustment.toggle.onValueChanged.AddListener((bool val) =>
+                {
+                    if(!val)
+                    {
+                        ResetAll();
+                    }
+                });
                 _useConfigurator = true;
             }
             catch(Exception)
@@ -71,20 +79,13 @@ namespace TittyMagic
             //not working properly yet when changing mode on the fly
             if(_useConfigurator)
             {
-                _configurator.InitMainUI();
-                _configurator.EnableAdjustment.toggle.onValueChanged.AddListener((bool val) =>
-                {
-                    if(!val)
-                    {
-                        ResetAll();
-                    }
-                });
-                _configurator.InitUISection(Direction.DOWN, _downForceConfigs);
-                _configurator.InitUISection(Direction.UP, _upForceConfigs);
-                _configurator.InitUISection(Direction.BACK, _backForceConfigs);
-                _configurator.InitUISection(Direction.FORWARD, _forwardForceConfigs);
-                _configurator.InitUISection(Direction.LEFT, _leftForceConfigs);
-                _configurator.InitUISection(Direction.RIGHT, _rightForceConfigs);
+                _configurator.ResetUISectionGroups();
+                _configurator.InitUISectionGroup(Direction.DOWN, _downForceConfigs);
+                _configurator.InitUISectionGroup(Direction.UP, _upForceConfigs);
+                _configurator.InitUISectionGroup(Direction.BACK, _backForceConfigs);
+                _configurator.InitUISectionGroup(Direction.FORWARD, _forwardForceConfigs);
+                _configurator.InitUISectionGroup(Direction.LEFT, _leftForceConfigs);
+                _configurator.InitUISectionGroup(Direction.RIGHT, _rightForceConfigs);
             }
         }
 

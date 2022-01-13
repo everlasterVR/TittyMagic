@@ -169,15 +169,15 @@ namespace TittyMagic
             }
         }
 
-        private void UpdateRollPhysics(HashSet<GravityPhysicsConfig> morphs, float effect)
+        private void UpdateRollPhysics(HashSet<GravityPhysicsConfig> configs, float effect)
         {
-            foreach(var it in morphs)
+            foreach(var it in configs)
                 it.UpdateVal(effect, scale, gravity);
         }
 
-        private void UpdatePitchPhysics(HashSet<GravityPhysicsConfig> morphs, float effect, float softness = 1f)
+        private void UpdatePitchPhysics(HashSet<GravityPhysicsConfig> configs, float effect, float softness = 1f)
         {
-            foreach(var it in morphs)
+            foreach(var it in configs)
                 it.UpdateVal(effect * (1 - Mathf.Abs(roll)), scale * softness, gravity);
         }
     }

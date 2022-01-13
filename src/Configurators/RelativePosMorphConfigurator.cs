@@ -44,6 +44,14 @@ namespace TittyMagic
 
         public void InitMainUI()
         {
+            ResetUISectionGroups();
+            _enableAdjustment = UI.NewToggle(this, "Enable", true, false);
+            _debugInfo = UI.NewTextField(this, "positionDiffInfo", "", 24, 115, true);
+            UI.NewSpacer(this, 50f, false);
+        }
+
+        public void ResetUISectionGroups()
+        {
             _UISectionGroups = new Dictionary<string, Dictionary<string, ConfiguratorUISection>> {
                 { Direction.DOWN, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.UP, new Dictionary<string, ConfiguratorUISection>() },
@@ -52,13 +60,9 @@ namespace TittyMagic
                 { Direction.LEFT, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.RIGHT, new Dictionary<string, ConfiguratorUISection>() },
             };
-
-            _enableAdjustment = UI.NewToggle(this, "Enable", true, false);
-            _debugInfo = UI.NewTextField(this, "positionDiffInfo", "", 24, 115, true);
-            UI.NewSpacer(this, 50f, false);
         }
 
-        public void InitUISection(string key, List<MorphConfig> configs)
+        public void InitUISectionGroup(string key, List<MorphConfig> configs)
         {
             UI.NewTextField(this, titles[key], $"{titles[key]}", 40, 115, false);
             var saveButton = CreateButton("Save JSON", true);
@@ -113,6 +117,7 @@ namespace TittyMagic
             });
         }
 
+        // TODO fix, doesn't work
         protected void HandleLoad(string path, List<ConfiguratorUISection> sections)
         {
             Persistence.LoadFromPath(this, path, (dir, json) =>
