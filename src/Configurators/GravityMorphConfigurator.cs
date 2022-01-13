@@ -109,6 +109,7 @@ namespace TittyMagic
             var json = new JSONClass();
             foreach(var item in sections)
             {
+                json[item.Name]["IsNegative"].AsBool = item.IsNegativeStorable.val;
                 json[item.Name]["Multiplier1"].AsFloat = item.Multiplier1Storable.val;
                 json[item.Name]["Multiplier2"].AsFloat = item.Multiplier2Storable.val;
             }

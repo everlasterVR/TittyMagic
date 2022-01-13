@@ -95,11 +95,12 @@ namespace TittyMagic
             {
                 foreach(string name in json.Keys)
                 {
-                    configs.Add(new MorphConfig(name)
-                    {
-                        Multiplier1 = json[name]["Multiplier1"].AsFloat,
-                        Multiplier2 = json[name]["Multiplier2"].AsFloat
-                    });
+                    configs.Add(new MorphConfig(
+                        name,
+                        json[name]["IsNegative"].AsBool,
+                        json[name]["Multiplier1"].AsFloat,
+                        json[name]["Multiplier2"].AsFloat
+                    ));
                 }
             });
         }
@@ -191,9 +192,12 @@ namespace TittyMagic
 
         private void UpdateValue(MorphConfig config, float effect, float mass, float softness)
         {
-            config.Morph.morphValue =
+            float value =
                 softness * config.Multiplier1 * effect / 2 +
-                mass* config.Multiplier2 * effect / 2;
+                mass * config.Multiplier2 * effect / 2;
+
+            bool inRange = config.IsNegative ? value < 0 : value > 0;
+            config.Morph.morphValue = inRange ? value : 0;
         }
 
         public void ResetAll()
