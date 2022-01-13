@@ -378,8 +378,7 @@ namespace TittyMagic
 #endif
             }
 
-            //TODO re-enable
-            //gravityPhysicsH.Update(roll, pitch, massAmount, softnessAmount, gravityAmount);
+            gravityPhysicsH.Update(roll, pitch, massAmount, softnessAmount, gravityAmount);
 
 #if SHOW_DEBUG
             SetBaseDebugInfo();
