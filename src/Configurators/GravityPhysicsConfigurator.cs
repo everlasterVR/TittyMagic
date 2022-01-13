@@ -1,29 +1,28 @@
 ﻿using SimpleJSON;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace TittyMagic
 {
-    internal class GravityMorphConfigurator : MVRScript
+    internal class GravityPhysicsConfigurator : MVRScript
     {
         public Dictionary<string, string> titles = new Dictionary<string, string>
         {
-            { Direction.DOWN, "Upright morphs" },
-            { Direction.UP, "Upside down morphs" },
-            { Direction.BACK, "Lean back morphs" },
-            { Direction.FORWARD, "Lean forward morphs" },
-            { Direction.LEFT, "Roll left morphs" },
-            { Direction.RIGHT, "Roll right morphs" },
+            { Direction.DOWN, "Upright physics" },
+            { Direction.UP, "Upside down physics" },
+            { Direction.LEFT, "Roll left physics" },
+            { Direction.RIGHT, "Roll right physics" },
         };
 
         private string _lastBrowseDir;
         private const string _saveExt = "json";
 
         private JSONStorableBool _enableAdjustment;
-        private JSONStorableString _debugInfo;
+        private UIDynamicButton _saveButton;
+        private UIDynamicButton _loadButton;
 
         public JSONStorableBool EnableAdjustment => _enableAdjustment;
-        public JSONStorableString DebugInfo => _debugInfo;
 
         private Dictionary<string, Dictionary<string, ConfiguratorUISection>> _UISectionGroups;
 
@@ -46,8 +45,9 @@ namespace TittyMagic
         {
             ResetUISectionGroups();
             _enableAdjustment = UI.NewToggle(this, "Enable", true, false);
-            _debugInfo = UI.NewTextField(this, "positionDiffInfo", "", 24, 115, true);
             UI.NewSpacer(this, 50f, false);
+            _saveButton = CreateButton("Save JSON", true);
+            _loadButton = CreateButton("Load JSON", true);
         }
 
         public void ResetUISectionGroups()
@@ -55,36 +55,36 @@ namespace TittyMagic
             _UISectionGroups = new Dictionary<string, Dictionary<string, ConfiguratorUISection>> {
                 { Direction.DOWN, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.UP, new Dictionary<string, ConfiguratorUISection>() },
-                { Direction.BACK, new Dictionary<string, ConfiguratorUISection>() },
-                { Direction.FORWARD, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.LEFT, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.RIGHT, new Dictionary<string, ConfiguratorUISection>() },
             };
         }
 
-        public void InitUISectionGroup(string key, List<MorphConfig> configs)
+        public void InitUISectionGroup(string key, List<GravityPhysicsConfig> configs)
         {
             UI.NewTextField(this, titles[key], titles[key], 40, 115, false);
-            var saveButton = CreateButton("Save JSON", true);
-            var loadButton = CreateButton("Load JSON", true);
+            UI.NewSpacer(this, 115f, true);
 
             var group = _UISectionGroups[key];
-
             foreach(var config in configs)
             {
                 group.Add(config.Name, new ConfiguratorUISection(this, config));
             }
-
-            AddSaveButtonListener(saveButton, group.Values.ToList());
-            AddLoadButtonListener(loadButton, group.Values.ToList());
         }
 
-        private void AddSaveButtonListener(UIDynamicButton button, List<ConfiguratorUISection> sections)
+        public void AddButtonListeners()
+        {
+            AddSaveButtonListener(_saveButton);
+            AddLoadButtonListener(_loadButton);
+        }
+
+        private void AddSaveButtonListener(UIDynamicButton button)
         {
             button.button.onClick.AddListener(() =>
             {
+                //SuperController.singleton.NormalizeMediaPath($@"{Globals.PLUGIN_PATH}settings\morphmultipliers\animoptimized"); // Sets dir if path exists
                 SuperController.singleton.NormalizeMediaPath(_lastBrowseDir ?? Persistence.MakeDefaultDir()); // Sets dir if path exists
-                SuperController.singleton.GetMediaPathDialog((string path) => HandleSave(path, sections), _saveExt);
+                SuperController.singleton.GetMediaPathDialog((string path) => HandleSave(path), _saveExt);
 
                 // Update the browser to be a Save browser
                 uFileBrowser.FileBrowser browser = SuperController.singleton.mediaFileBrowserUI;
@@ -94,45 +94,41 @@ namespace TittyMagic
             });
         }
 
-        private void AddLoadButtonListener(UIDynamicButton button, List<ConfiguratorUISection> sections)
+        private void AddLoadButtonListener(UIDynamicButton button)
         {
             button.button.onClick.AddListener(() =>
             {
+                //SuperController.singleton.NormalizeMediaPath($@"{Globals.PLUGIN_PATH}settings\morphmultipliers\animoptimized"); // Sets dir if path exists
                 SuperController.singleton.NormalizeMediaPath(_lastBrowseDir ?? Persistence.MakeDefaultDir()); // Sets dir if path exists
-                SuperController.singleton.GetMediaPathDialog((string path) => HandleLoad(path, sections), _saveExt);
+                SuperController.singleton.GetMediaPathDialog((string path) => HandleLoad(path), _saveExt);
             });
         }
 
-        private void HandleSave(string path, List<ConfiguratorUISection> sections)
+        private void HandleSave(string path)
         {
             var json = new JSONClass();
-            foreach(var item in sections)
+            _UISectionGroups.Keys.ToList().ForEach(key =>
             {
-                json[item.Name]["IsNegative"].AsBool = item.IsNegativeStorable.val;
-                json[item.Name]["Multiplier1"].AsFloat = item.Multiplier1Storable.val;
-                json[item.Name]["Multiplier2"].AsFloat = item.Multiplier2Storable.val;
-            }
+                var sectionGroup = _UISectionGroups[key];
+                var groupJson = new JSONClass();
+                sectionGroup.Values.ToList().ForEach(item =>
+                {
+                    groupJson[item.Name]["IsNegative"].AsBool = item.IsNegativeStorable.val;
+                    groupJson[item.Name]["Multiplier1"].AsFloat = item.Multiplier1Storable.val;
+                    groupJson[item.Name]["Multiplier2"].AsFloat = item.Multiplier2Storable.val;
+                });
+                json[key] = groupJson;
+            });
+
             Persistence.SaveToPath(this, json, path, _saveExt, (dir) =>
             {
                 _lastBrowseDir = dir;
             });
         }
 
-        // TODO fix, doesn't work
-        private void HandleLoad(string path, List<ConfiguratorUISection> sections)
+        private void HandleLoad(string path)
         {
-            Persistence.LoadFromPath(this, path, (dir, json) =>
-            {
-                _lastBrowseDir = dir;
-                foreach(var item in sections)
-                {
-                    if(json.HasKey(item.Name))
-                    {
-                        item.Multiplier1Storable.val = json[item.Name]["Multiplier1"].AsFloat;
-                        item.Multiplier2Storable.val = json[item.Name]["Multiplier2"].AsFloat;
-                    }
-                }
-            });
+            // TODO ímplement
         }
     }
 }

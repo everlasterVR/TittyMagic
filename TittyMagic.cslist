@@ -1,9 +1,9 @@
 src\Components\Bindings.cs
 src\Components\SliderClickMonitor.cs
 src\Components\SettingsMonitor.cs
-src\Configs\GravityPhysicsConfig.cs
-src\Configs\MorphConfig.cs
-src\Configs\PhysicsConfig.cs
+src\Configurators\Config.cs
+src\Configurators\ConfiguratorUISection.cs
+src\Configurators\PhysicsConfig.cs
 src\Handlers\GravityMorphHandler.cs
 src\Handlers\GravityPhysicsHandler.cs
 src\Handlers\NippleErectionMorphHandler.cs

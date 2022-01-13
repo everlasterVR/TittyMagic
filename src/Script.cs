@@ -39,11 +39,11 @@ namespace TittyMagic
         private BreastMorphListener breastMorphListener;
         private BreastMassCalculator breastMassCalculator;
 
+        private StaticPhysicsHandler staticPhysicsH;
+        private GravityPhysicsHandler gravityPhysicsH;
         private GravityMorphHandler gravityMorphH;
         private RelativePosMorphHandler relativePosMorphH;
         private NippleErectionMorphHandler nippleErectionMorphH;
-        private StaticPhysicsHandler staticPhysicsH;
-        private GravityPhysicsHandler gravityPhysicsH;
 
         private JSONStorableString titleUIText;
         private JSONStorableString statusUIText;
@@ -115,17 +115,17 @@ namespace TittyMagic
                 breastMorphListener = new BreastMorphListener(geometry.morphBank1.morphs);
                 breastMassCalculator = new BreastMassCalculator(chestTransform);
 
+                staticPhysicsH = new StaticPhysicsHandler();
 #if USE_CONFIGURATORS
+                gravityPhysicsH = new GravityPhysicsHandler(FindPluginOnAtom(containingAtom, "GravityPhysicsConfigurator"));
                 gravityMorphH = new GravityMorphHandler(FindPluginOnAtom(containingAtom, "GravityMorphConfigurator"));
                 relativePosMorphH = new RelativePosMorphHandler(FindPluginOnAtom(containingAtom, "RelativePosMorphConfigurator"));
 #else
-                // preloads settings for default mode before default mode actually selected
+                gravityPhysicsH = new GravityPhysicsHandler(this);
                 gravityMorphH = new GravityMorphHandler(this);
                 relativePosMorphH = new RelativePosMorphHandler(this);
 #endif
                 nippleErectionMorphH = new NippleErectionMorphHandler(this);
-                gravityPhysicsH = new GravityPhysicsHandler();
-                staticPhysicsH = new StaticPhysicsHandler();
 
                 InitPluginUILeft();
                 InitPluginUIRight();
@@ -206,6 +206,7 @@ namespace TittyMagic
                 (mode) =>
                 {
                     UI.UpdateButtonLabels(modeButtonGroup, mode);
+                    gravityPhysicsH.LoadSettings(mode);
                     staticPhysicsH.LoadSettings(this, mode);
                     gravityMorphH.LoadSettings(mode);
                     if(mode == Mode.ANIM_OPTIMIZED)
@@ -378,7 +379,10 @@ namespace TittyMagic
 #endif
             }
 
-            gravityPhysicsH.Update(roll, pitch, massAmount, softnessAmount, gravityAmount);
+            if(gravityPhysicsH.IsEnabled())
+            {
+                gravityPhysicsH.Update(roll, pitch, massAmount, softnessAmount);
+            }
 
 #if SHOW_DEBUG
             SetBaseDebugInfo();
@@ -448,7 +452,7 @@ namespace TittyMagic
                 // update gravity physics angles
                 roll = 0;
                 pitch = 0;
-                gravityPhysicsH.Update(roll, pitch, massEstimate, softnessAmount, gravityAmount);
+                gravityPhysicsH.Update(roll, pitch, massEstimate, softnessAmount);
 
                 // TODO update gravity morphs ?
             }
