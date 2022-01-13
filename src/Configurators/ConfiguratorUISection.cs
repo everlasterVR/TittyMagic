@@ -30,5 +30,28 @@
                 config.Multiplier2 = val;
             });
         }
+
+        public ConfiguratorUISection(MVRScript script, GravityPhysicsConfig config)
+        {
+            Name = config.Name;
+            UI.NewTextField(script, Name, $"\n{Name}", 32);
+
+            IsNegativeStorable = new JSONStorableBool("IsNegative", config.IsNegative);
+
+            Multiplier1Storable = UI.NewFloatSlider(script, "Multiplier1", config.Multiplier1, -40, 40, "F2", true);
+            Multiplier1Storable.slider.onValueChanged.AddListener((float val) =>
+            {
+                config.Multiplier1 = val;
+            });
+
+            ValueStorable = UI.NewFloatSlider(script, "value", config.Setting.val, -20, 20, "F2");
+            ValueStorable.slider.interactable = false;
+
+            Multiplier2Storable = UI.NewFloatSlider(script, "Multiplier2", config.Multiplier2, -40, 40, "F2", true);
+            Multiplier2Storable.slider.onValueChanged.AddListener((float val) =>
+            {
+                config.Multiplier2 = val;
+            });
+        }
     }
 }

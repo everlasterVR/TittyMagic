@@ -1,154 +1,157 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using SimpleJSON;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace TittyMagic
 {
     internal class GravityPhysicsHandler
     {
-        private HashSet<GravityPhysicsConfig> uprightPhysics;
-        private HashSet<GravityPhysicsConfig> upsideDownPhysics;
-        private HashSet<GravityPhysicsConfig> leanBackPhysics;
-        private HashSet<GravityPhysicsConfig> leanForwardPhysics;
-        private HashSet<GravityPhysicsConfig> rollLeftPhysics;
-        private HashSet<GravityPhysicsConfig> rollRightPhysics;
+        private MVRScript _script;
+        private GravityPhysicsConfigurator _configurator;
+
+        private bool _useConfigurator;
 
         private float roll;
         private float pitch;
-        private float scale;
-        private float softness;
+        private float mass;
         private float gravity;
 
-        public GravityPhysicsHandler()
+        private Dictionary<string, List<GravityPhysicsConfig>> _configSets;
+
+        private List<GravityPhysicsConfig> _uprightConfigs;
+
+        private List<GravityPhysicsConfig> _upsideDownConfigs;
+
+        private List<GravityPhysicsConfig> _rollLeftConfigs;
+
+        private List<GravityPhysicsConfig> _rollRightConfigs;
+
+        public GravityPhysicsHandler(MVRScript script)
         {
-            // Right/left angle target moves both breasts in the same direction
-            Globals.BREAST_CONTROL.invertJoint2RotationY = false;
+            _script = script;
+            try
+            {
+                _configurator = (GravityPhysicsConfigurator) _script;
+                _configurator.InitMainUI();
+                _configurator.EnableAdjustment.toggle.onValueChanged.AddListener((bool val) =>
+                {
+                    if(!val)
+                    {
+                        ResetAll();
+                    }
+                });
+                _useConfigurator = true;
+            }
+            catch(Exception)
+            {
+                _useConfigurator = false;
+            }
+        }
 
-            // offset = how much the calculated value is offset from zero (defines a midpoint for each of x, y and z center of gravity)
-            // offsetScaleMul = multiplier for how much offset increases (on top of the base offset) based on scale
-            // logMaxX = maximum x value for the logarithmic function that affects (along with breast mass) the Max value for Mathf.SmoothStep
-            // scaleMul = the relative impact of breast mass on the final value
-            // gravityMul = the relative impact of breast gravity on the final value
-            //                           name                        offset    logMaxX     scaleMul    gravityMul
-            uprightPhysics = new HashSet<GravityPhysicsConfig>()
+        public void LoadSettings(string mode)
+        {
+            _uprightConfigs = new List<GravityPhysicsConfig>();
+            _upsideDownConfigs = new List<GravityPhysicsConfig>();
+            _rollLeftConfigs = new List<GravityPhysicsConfig>();
+            _rollRightConfigs = new List<GravityPhysicsConfig>();
+            LoadSettingsFromFile(mode);
+            _configSets = new Dictionary<string, List<GravityPhysicsConfig>>
             {
-                new GravityPhysicsConfig("targetRotationX",          0.00f,   -20f,        1.00f,      1.00f),
-            };
-            upsideDownPhysics = new HashSet<GravityPhysicsConfig>()
-            {
-                new GravityPhysicsConfig("targetRotationX",          0.00f,    5f,         1.00f,      1.00f),
-            };
-            leanBackPhysics = new HashSet<GravityPhysicsConfig>()
-            {
-                new GravityPhysicsConfig("centerOfGravityPercent",   0.30f,   -0.01f,      1.00f,      0f),
-            };
-            leanForwardPhysics = new HashSet<GravityPhysicsConfig>()
-            {
-                new GravityPhysicsConfig("centerOfGravityPercent",   0.30f,    0.05f,      1.00f,      0f),
-            };
-            rollLeftPhysics = new HashSet<GravityPhysicsConfig>()
-            {
-                new GravityPhysicsConfig("targetRotationY",          0f,       12f,        1.00f,      0f),
-            };
-            rollRightPhysics = new HashSet<GravityPhysicsConfig>()
-            {
-                new GravityPhysicsConfig("targetRotationY",          0f,      -12f,        1.00f,      0f),
+                { Direction.DOWN, _uprightConfigs },
+                { Direction.UP, _upsideDownConfigs },
+                { Direction.LEFT, _rollLeftConfigs },
+                { Direction.RIGHT, _rollRightConfigs },
             };
 
-            foreach(var it in uprightPhysics)
-                it.InitStorable();
-            foreach(var it in upsideDownPhysics)
-                it.InitStorable();
-            foreach(var it in leanBackPhysics)
-                it.InitStorable();
-            foreach(var it in leanForwardPhysics)
-                it.InitStorable();
-            foreach(var it in rollLeftPhysics)
-                it.InitStorable();
-            foreach(var it in rollRightPhysics)
-                it.InitStorable();
-            ResetAll();
+            //not working properly yet when changing mode on the fly
+            if(_useConfigurator)
+            {
+                _configurator.ResetUISectionGroups();
+                _configurator.InitUISectionGroup(Direction.DOWN, _uprightConfigs);
+                _configurator.InitUISectionGroup(Direction.UP, _upsideDownConfigs);
+                _configurator.InitUISectionGroup(Direction.LEFT, _rollLeftConfigs);
+                _configurator.InitUISectionGroup(Direction.RIGHT, _rollRightConfigs);
+                _configurator.AddButtonListeners();
+            }
+        }
+
+        private void LoadSettingsFromFile(string mode)
+        {
+            Persistence.LoadModeGravityPhysicsSettings(_script, mode, (dir, json) =>
+            {
+                foreach(string key in json.Keys)
+                {
+                    List<GravityPhysicsConfig> configs = null;
+                    if(key == Direction.DOWN)
+                        configs = _uprightConfigs;
+                    else if(key == Direction.UP)
+                        configs = _upsideDownConfigs;
+                    else if(key == Direction.LEFT)
+                        configs = _rollLeftConfigs;
+                    else if(key == Direction.RIGHT)
+                        configs = _rollRightConfigs;
+                    if(configs != null)
+                    {
+                        JSONClass groupJson = json[key].AsObject;
+                        foreach(string name in groupJson.Keys)
+                        {
+                            configs.Add(new GravityPhysicsConfig(
+                                name,
+                                groupJson[name]["IsNegative"].AsBool,
+                                groupJson[name]["Multiplier1"].AsFloat,
+                                groupJson[name]["Multiplier2"].AsFloat
+                            ));
+                        }
+                    }
+                }
+            });
+        }
+
+        public bool IsEnabled()
+        {
+            if(!_useConfigurator)
+            {
+                return true;
+            }
+            return _configurator.EnableAdjustment.val;
         }
 
         public void Update(
             float roll,
             float pitch,
-            float scale,
-            float softness,
+            float mass,
             float gravity
         )
         {
             this.roll = roll;
             this.pitch = pitch;
-            this.scale = scale;
-            this.softness = softness;
+            this.mass = mass;
             this.gravity = gravity;
 
-            AdjustPhysicsForRoll();
-            AdjustPhysicsForPitch();
-        }
-
-        public void ResetAll()
-        {
-            //foreach(var it in upsideDownPhysics)
-            foreach(var it in uprightPhysics)
-                it.Reset();
-            //foreach(var it in leanBackPhysics)
-            foreach(var it in leanForwardPhysics)
-                it.Reset();
-            //foreach(var it in rollRightPhysics)
-            foreach(var it in rollLeftPhysics)
-                it.Reset();
-        }
-
-        public string GetStatus()
-        {
-            string text = "\nGRAVITY PHYSICS\n";
-            foreach(var it in uprightPhysics)
-                text += it.GetStatus();
-            foreach(var it in upsideDownPhysics)
-                text += it.GetStatus();
-            foreach(var it in leanBackPhysics)
-                text += it.GetStatus();
-            foreach(var it in leanForwardPhysics)
-                text += it.GetStatus();
-            foreach(var it in rollLeftPhysics)
-                text += it.GetStatus();
-            foreach(var it in rollRightPhysics)
-                text += it.GetStatus();
-
-            return text;
-        }
-
-        private void AdjustPhysicsForRoll()
-        {
             // left
             if(roll >= 0)
             {
-                UpdateRollPhysics(rollLeftPhysics, roll);
+                UpdateRollPhysics(Direction.LEFT, roll);
             }
             // right
             else
             {
-                UpdateRollPhysics(rollRightPhysics, -roll);
+                UpdateRollPhysics(Direction.RIGHT, -roll);
             }
-        }
 
-        private void AdjustPhysicsForPitch()
-        {
             // leaning forward
             if(pitch >= 0)
             {
                 // upright
                 if(pitch < 1)
                 {
-                    UpdatePitchPhysics(leanForwardPhysics, pitch);
-                    UpdatePitchPhysics(uprightPhysics, 1 - pitch, softness);
+                    UpdatePitchPhysics(Direction.DOWN, 1 - pitch);
                 }
                 // upside down
                 else
                 {
-                    UpdatePitchPhysics(leanForwardPhysics, 2 - pitch);
-                    UpdatePitchPhysics(upsideDownPhysics, pitch - 1, softness);
+                    UpdatePitchPhysics(Direction.UP, pitch - 1);
                 }
             }
             // leaning back
@@ -157,28 +160,69 @@ namespace TittyMagic
                 // upright
                 if(pitch >= -1)
                 {
-                    UpdatePitchPhysics(leanBackPhysics, -pitch);
-                    UpdatePitchPhysics(uprightPhysics, 1 + pitch, softness);
+                    UpdatePitchPhysics(Direction.DOWN, 1 + pitch);
                 }
                 // upside down
                 else
                 {
-                    UpdatePitchPhysics(leanBackPhysics, 2 + pitch);
-                    UpdatePitchPhysics(upsideDownPhysics, -pitch - 1, softness);
+                    UpdatePitchPhysics(Direction.UP, -pitch - 1);
                 }
             }
         }
 
-        private void UpdateRollPhysics(HashSet<GravityPhysicsConfig> configs, float effect)
+        private void UpdateRollPhysics(string configSetName, float effect)
         {
-            foreach(var it in configs)
-                it.UpdateVal(effect, scale, gravity);
+            foreach(var config in _configSets[configSetName])
+            {
+                UpdateValue(config, effect, mass, gravity);
+                if(_useConfigurator)
+                {
+                    _configurator.UpdateValueSlider(configSetName, config.Name, config.Setting.val);
+                }
+            }
         }
 
-        private void UpdatePitchPhysics(HashSet<GravityPhysicsConfig> configs, float effect, float softness = 1f)
+        private void UpdatePitchPhysics(string configSetName, float effect)
         {
-            foreach(var it in configs)
-                it.UpdateVal(effect * (1 - Mathf.Abs(roll)), scale * softness, gravity);
+            float adjusted = effect * (1 - Mathf.Abs(roll));
+            foreach(var config in _configSets[configSetName])
+            {
+                UpdateValue(config, adjusted, mass, gravity);
+                if(_useConfigurator)
+                {
+                    _configurator.UpdateValueSlider(configSetName, config.Name, config.Setting.val);
+                }
+            }
+        }
+
+        private void UpdateValue(GravityPhysicsConfig config, float effect, float mass, float gravity)
+        {
+            float value =
+                gravity * config.Multiplier1 * effect / 2 +
+                mass * config.Multiplier2 * effect / 2;
+
+            bool inRange = config.IsNegative ? value < 0 : value > 0;
+            config.Setting.val = inRange ? value : 0;
+        }
+
+        public void ResetAll()
+        {
+            ResetPhysics(Direction.DOWN);
+            ResetPhysics(Direction.UP);
+            ResetPhysics(Direction.LEFT);
+            ResetPhysics(Direction.RIGHT);
+        }
+
+        private void ResetPhysics(string configSetName)
+        {
+            foreach(var config in _configSets[configSetName])
+            {
+                config.Setting.val = config.OriginalValue;
+                if(_useConfigurator)
+                {
+                    _configurator.UpdateValueSlider(configSetName, config.Name, 0);
+                }
+            }
         }
     }
 }

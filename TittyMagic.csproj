@@ -82,9 +82,32 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\**\*.cs" />
+    <Compile Include="src\AtomScaleListener.cs" />
+    <Compile Include="src\BreastMassCalculator.cs" />
+    <Compile Include="src\BreastMorphListener.cs" />
+    <Compile Include="src\Components\Bindings.cs" />
+    <Compile Include="src\Components\SettingsMonitor.cs" />
+    <Compile Include="src\Components\SliderClickMonitor.cs" />
+    <Compile Include="src\Configurators\Config.cs" />
+    <Compile Include="src\Configurators\ConfiguratorUISection.cs" />
+    <Compile Include="src\Configurators\GravityMorphConfigurator.cs" />
+    <Compile Include="src\Configurators\GravityPhysicsConfigurator.cs" />
+    <Compile Include="src\Configurators\PhysicsConfig.cs" />
+    <Compile Include="src\Configurators\RelativePosMorphConfigurator.cs" />
+    <Compile Include="src\Handlers\GravityMorphHandler.cs" />
+    <Compile Include="src\Handlers\GravityPhysicsHandler.cs" />
+    <Compile Include="src\Handlers\NippleErectionMorphHandler.cs" />
+    <Compile Include="src\Handlers\RelativePosMorphHandler.cs" />
+    <Compile Include="src\Handlers\StaticPhysicsHandler.cs" />
+    <Compile Include="src\Persistence.cs" />
+    <Compile Include="src\Script.cs" />
+    <Compile Include="src\Utils.cs" />
+    <Compile Include="src\Variables.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="settings\gravityphysics\touchoptimized.json" />
+    <None Include="settings\gravityphysics\balanced.json" />
+    <None Include="settings\gravityphysics\animoptimized.json" />
     <None Include="settings\morphmultipliers\animoptimized\backForce.json" />
     <None Include="settings\morphmultipliers\animoptimized\downForce.json" />
     <None Include="settings\morphmultipliers\animoptimized\forwardForce.json" />

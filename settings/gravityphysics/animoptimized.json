@@ -1,0 +1,30 @@
+{ 
+   "DOWN" : { 
+      "targetRotationX" : { 
+         "IsNegative" : "true", 
+         "Multiplier1" : "-6", 
+         "Multiplier2" : "-6"
+      }
+   }, 
+   "UP" : { 
+      "targetRotationX" : { 
+         "IsNegative" : "false", 
+         "Multiplier1" : "6", 
+         "Multiplier2" : "6"
+      }
+   }, 
+   "LEFT" : { 
+      "targetRotationY" : { 
+         "IsNegative" : "false", 
+         "Multiplier1" : "6", 
+         "Multiplier2" : "6"
+      }
+   }, 
+   "RIGHT" : { 
+      "targetRotationY" : { 
+         "IsNegative" : "true", 
+         "Multiplier1" : "-6", 
+         "Multiplier2" : "-6"
+      }
+   }
+}
