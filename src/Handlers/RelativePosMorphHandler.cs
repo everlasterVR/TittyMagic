@@ -147,13 +147,12 @@ namespace TittyMagic
             //    UpdateMorphs(Direction.LEFT, x);
             //}
 
-            // https://www.desmos.com/calculator/lhcynyc9wt
-            // small breasts experience more effect from angle, large breasts experience less effect from angle
-            // breasts with mass of about 0.33 = 0.66kg experience the normal unscaled angleY
-            float scaledAngleY = angleY / Mathf.Pow(3f * mass, 1/5f);
+            // https://www.desmos.com/calculator/mojzkllblw
+            // small breasts experience more effect from angle
+            float scaledAngleY = angleY / Mathf.Pow(mass, 1/8f);
 
-            float effectY = Calc.InverseSmoothStep(75, Mathf.Abs(scaledAngleY), 0.15f, 0.5f);
-            float effectZ = Calc.InverseSmoothStep(1, Mathf.Abs(positionDiffZ), 0.15f, 0.5f);
+            float effectY = Calc.RoundToDecimals(Mathf.InverseLerp(0, 75, Mathf.Abs(scaledAngleY)), 1000f);
+            float effectZ = Calc.RoundToDecimals(Mathf.InverseLerp(0, 1, Mathf.Abs(positionDiffZ)), 1000f);
 
             // up
             if(scaledAngleY >= 0)
