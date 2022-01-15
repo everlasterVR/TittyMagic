@@ -1,5 +1,4 @@
-﻿//#define SHOW_DEBUG
-//#define USE_CONFIGURATORS
+﻿//#define USE_CONFIGURATORS
 
 using SimpleJSON;
 using System;
@@ -70,11 +69,6 @@ namespace TittyMagic
 
         private float roll;
         private float pitch;
-
-#if SHOW_DEBUG
-        private JSONStorableString baseDebugInfo;
-        private JSONStorableString physicsDebugInfo;
-#endif
 
         public override void Init()
         {
@@ -223,10 +217,6 @@ namespace TittyMagic
             bool rightSide = true;
             statusUIText = UI.NewTextField(this, "statusText", "", 28, 100, rightSide);
 
-#if SHOW_DEBUG
-            baseDebugInfo = UI.NewTextField(this, "Base Debug Info", 26, 125, rightSide);
-            physicsDebugInfo = UI.NewTextField(this, "Physics Debug Info", 26, 945, rightSide);
-#else
             UI.NewSpacer(this, 10f, rightSide);
             JSONStorableString usage2Area = UI.NewTextField(this, "Usage Info Area 2", "", 28, 135, rightSide);
             string usage2 = UI.Size("\n", 12) + "Physics settings mode selection.";
@@ -238,7 +228,6 @@ namespace TittyMagic
                 "Breast softness adjusts soft physics settings from very firm to very soft.\n\n" +
                 "Breast gravity adjusts how much pose morphs shape the breasts in all orientations.";
             usage1Area.SetVal(usage1);
-#endif
         }
 
         #endregion User interface
@@ -352,11 +341,6 @@ namespace TittyMagic
             roll = Roll(chestTransform.rotation);
             pitch = Pitch(chestTransform.rotation);
 
-            if(gravityMorphH.IsEnabled())
-            {
-                gravityMorphH.Update(roll, pitch, massAmount, gravityAmount);
-            }
-
             if(modeChooser.val == Mode.ANIM_OPTIMIZED)
             {
                 Vector3 relativePos = RelativePosition(chestTransform, rNippleTransform.position);
@@ -369,31 +353,20 @@ namespace TittyMagic
                 {
                     relativePosMorphH.Update(angleY, positionDiffZ, massAmount, softnessAmount);
                 }
-
-#if USE_CONFIGURATORS
-                string diffText =
-                    $"{NameValueString("angleY", angleY, 1000f)} \n" +
-                    $"{NameValueString("effectY", InverseSmoothStep(45, angleY, 0.15f, 0.5f), 1000f)} \n" +
-                    $"{NameValueString("diffZ", positionDiffZ, 10000f)} ";
-                gravityMorphH.UpdateDebugInfo(diffText);
-                if(modeChooser.val == Mode.ANIM_OPTIMIZED)
+                if(gravityMorphH.IsEnabled())
                 {
-                    relativePosMorphH.UpdateDebugInfo(diffText);
+                    gravityMorphH.UpdateRoll(roll, massAmount, gravityAmount);
                 }
-#endif
+            }
+            else if(gravityMorphH.IsEnabled())
+            {
+                gravityMorphH.Update(roll, pitch, massAmount, gravityAmount);
             }
 
             if(gravityPhysicsH.IsEnabled())
             {
                 gravityPhysicsH.Update(roll, pitch, massAmount, softnessAmount);
             }
-
-#if SHOW_DEBUG
-            SetBaseDebugInfo();
-#endif
-#if SHOW_DEBUG
-            physicsDebugInfo.SetVal(staticPhysicsH.GetStatus() + gravityPhysicsH.GetStatus());
-#endif
         }
 
         private float TimeMultiplier()
@@ -620,18 +593,5 @@ namespace TittyMagic
             }
             nippleErectionMorphH.ResetAll();
         }
-
-#if SHOW_DEBUG
-
-        private void SetBaseDebugInfo()
-        {
-            baseDebugInfo.SetVal(
-                $"{NameValueString("Roll", roll, 100f, 15)}\n" +
-                $"{NameValueString("Pitch", pitch, 100f, 15)}\n" +
-                $"{breastMassCalculator.GetStatus(atomScaleListener.Value)}"
-            );
-        }
-
-#endif
     }
 }

@@ -45,7 +45,7 @@ namespace TittyMagic
         {
             ResetUISectionGroups();
             _enableAdjustment = UI.NewToggle(this, "Enable", true, false);
-            _debugInfo = UI.NewTextField(this, "positionDiffInfo", "", 24, 115, true);
+            _debugInfo = UI.NewTextField(this, "positionDiffInfo", "", 20, 115, true);
             UI.NewSpacer(this, 50f, false);
         }
 

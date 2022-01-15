@@ -147,35 +147,41 @@ namespace TittyMagic
             //    UpdateMorphs(Direction.LEFT, x);
             //}
 
+            float effectY = Calc.InverseSmoothStep(75, Mathf.Abs(angleY), 0.15f, 0.5f);
+            float effectZ = Calc.InverseSmoothStep(1, Mathf.Abs(positionDiffZ), 0.15f, 0.5f);
+
             // up
             if(angleY >= 0)
             {
-                float y = Mathf.Pow(Calc.InverseSmoothStep(80, angleY, 0.15f, 0.5f), 1/2f);
                 ResetMorphs(Direction.DOWN);
-                UpdateMorphs(Direction.UP, y);
+                UpdateMorphs(Direction.UP, effectY);
             }
             // down
             else
             {
-                float y = Mathf.Pow(Calc.InverseSmoothStep(80, -angleY, 0.15f, 0.5f), 1/2f);
                 ResetMorphs(Direction.UP);
-                UpdateMorphs(Direction.DOWN, y);
+                UpdateMorphs(Direction.DOWN, effectY);
             }
 
             // forward
             if(positionDiffZ <= 0)
             {
-                float z = Calc.InverseSmoothStep(1, -positionDiffZ, 0.15f, 0.5f);
                 ResetMorphs(Direction.BACK);
-                UpdateMorphs(Direction.FORWARD, z);
+                UpdateMorphs(Direction.FORWARD, effectZ);
             }
             // back
             else
             {
-                float z = Calc.InverseSmoothStep(1, positionDiffZ, 0.15f, 0.5f);
                 ResetMorphs(Direction.FORWARD);
-                UpdateMorphs(Direction.BACK, z);
+                UpdateMorphs(Direction.BACK, effectZ);
             }
+
+            string infoText =
+                    $"{NameValueString("angleY", angleY, 1000f)} \n" +
+                    $"{NameValueString("effectY", effectY, 1000f)} \n" +
+                    $"{NameValueString("diffZ", positionDiffZ, 10000f)} \n" +
+                    $"{NameValueString("effectZ", effectZ, 1000f)} \n";
+            UpdateDebugInfo(infoText);
         }
 
         private void UpdateMorphs(string configSetName, float effect)

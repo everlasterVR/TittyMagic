@@ -63,36 +63,42 @@ namespace TittyMagic
 
         public void LoadSettings(string mode)
         {
-            _uprightConfigs = new List<MorphConfig>();
-            _upsideDownConfigs = new List<MorphConfig>();
-            _leanBackConfigs = new List<MorphConfig>();
-            _leanForwardConfigs = new List<MorphConfig>();
+            _configSets = new Dictionary<string, List<MorphConfig>>();
+
+            if(mode != Mode.ANIM_OPTIMIZED)
+            {
+                _uprightConfigs = new List<MorphConfig>();
+                _upsideDownConfigs = new List<MorphConfig>();
+                _leanBackConfigs = new List<MorphConfig>();
+                _leanForwardConfigs = new List<MorphConfig>();
+                LoadSettingsFromFile(mode, "upright", _uprightConfigs);
+                LoadSettingsFromFile(mode, "upsideDown", _upsideDownConfigs);
+                LoadSettingsFromFile(mode, "leanBack", _leanBackConfigs);
+                LoadSettingsFromFile(mode, "leanForward", _leanForwardConfigs);
+                _configSets.Add(Direction.DOWN, _uprightConfigs);
+                _configSets.Add(Direction.UP, _upsideDownConfigs);
+                _configSets.Add(Direction.BACK, _leanBackConfigs);
+                _configSets.Add(Direction.FORWARD, _leanForwardConfigs);
+            }
+
             _rollLeftConfigs = new List<MorphConfig>();
             _rollRightConfigs = new List<MorphConfig>();
-            LoadSettingsFromFile(mode, "upright", _uprightConfigs);
-            LoadSettingsFromFile(mode, "upsideDown", _upsideDownConfigs);
-            LoadSettingsFromFile(mode, "leanBack", _leanBackConfigs);
-            LoadSettingsFromFile(mode, "leanForward", _leanForwardConfigs);
             LoadSettingsFromFile(mode, "rollLeft", _rollLeftConfigs);
             LoadSettingsFromFile(mode, "rollRight", _rollRightConfigs);
-            _configSets = new Dictionary<string, List<MorphConfig>>
-            {
-                { Direction.DOWN, _uprightConfigs },
-                { Direction.UP, _upsideDownConfigs },
-                { Direction.BACK, _leanBackConfigs },
-                { Direction.FORWARD, _leanForwardConfigs },
-                { Direction.LEFT, _rollLeftConfigs },
-                { Direction.RIGHT, _rollRightConfigs },
-            };
+            _configSets.Add(Direction.LEFT, _rollLeftConfigs);
+            _configSets.Add(Direction.RIGHT, _rollRightConfigs);
 
             //not working properly yet when changing mode on the fly
             if(_useConfigurator)
             {
                 _configurator.ResetUISectionGroups();
-                _configurator.InitUISectionGroup(Direction.DOWN, _uprightConfigs);
-                _configurator.InitUISectionGroup(Direction.UP, _upsideDownConfigs);
-                _configurator.InitUISectionGroup(Direction.BACK, _leanBackConfigs);
-                _configurator.InitUISectionGroup(Direction.FORWARD, _leanForwardConfigs);
+                if(mode != Mode.ANIM_OPTIMIZED)
+                {
+                    _configurator.InitUISectionGroup(Direction.DOWN, _uprightConfigs);
+                    _configurator.InitUISectionGroup(Direction.UP, _upsideDownConfigs);
+                    _configurator.InitUISectionGroup(Direction.BACK, _leanBackConfigs);
+                    _configurator.InitUISectionGroup(Direction.FORWARD, _leanForwardConfigs);
+                }
                 _configurator.InitUISectionGroup(Direction.LEFT, _rollLeftConfigs);
                 _configurator.InitUISectionGroup(Direction.RIGHT, _rollRightConfigs);
             }
@@ -123,13 +129,17 @@ namespace TittyMagic
             return _configurator.EnableAdjustment.val;
         }
 
-        public void UpdateDebugInfo(string text)
+        public void UpdateDebugInfo()
         {
             if(!_useConfigurator)
             {
                 return;
             }
-            _configurator.DebugInfo.val = text;
+
+            string infoText =
+                $"{NameValueString("Roll", roll, 100f, 15)}\n" +
+                $"{NameValueString("Pitch", pitch, 100f, 15)}\n";
+            _configurator.DebugInfo.val = infoText;
         }
 
         public void Update(
@@ -151,6 +161,23 @@ namespace TittyMagic
 
             AdjustMorphsForRoll();
             AdjustMorphsForPitch();
+
+            UpdateDebugInfo();
+        }
+
+        public void UpdateRoll(
+            float roll,
+            float mass,
+            float gravity
+        )
+        {
+            this.roll = roll;
+            this.mass = mass;
+            this.gravity = gravity;
+
+            AdjustMorphsForRoll();
+
+            UpdateDebugInfo();
         }
 
         private void AdjustMorphsForRoll()
@@ -260,6 +287,11 @@ namespace TittyMagic
 
         private void ResetMorphs(string configSetName)
         {
+            if(!_configSets.ContainsKey(configSetName))
+            {
+                return;
+            }
+
             foreach(var config in _configSets[configSetName])
             {
                 config.Morph.morphValue = 0;

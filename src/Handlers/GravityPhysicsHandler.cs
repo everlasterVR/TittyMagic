@@ -12,8 +12,6 @@ namespace TittyMagic
 
         private bool _useConfigurator;
 
-        private float roll;
-        private float pitch;
         private float mass;
         private float gravity;
 
@@ -124,8 +122,6 @@ namespace TittyMagic
             float gravity
         )
         {
-            this.roll = roll;
-            this.pitch = pitch;
             this.mass = mass;
             this.gravity = gravity;
 
@@ -146,12 +142,12 @@ namespace TittyMagic
                 // upright
                 if(pitch < 1)
                 {
-                    UpdatePitchPhysics(Direction.DOWN, 1 - pitch);
+                    UpdatePitchPhysics(Direction.DOWN, 1 - pitch, roll);
                 }
                 // upside down
                 else
                 {
-                    UpdatePitchPhysics(Direction.UP, pitch - 1);
+                    UpdatePitchPhysics(Direction.UP, pitch - 1, roll);
                 }
             }
             // leaning back
@@ -160,12 +156,12 @@ namespace TittyMagic
                 // upright
                 if(pitch >= -1)
                 {
-                    UpdatePitchPhysics(Direction.DOWN, 1 + pitch);
+                    UpdatePitchPhysics(Direction.DOWN, 1 + pitch, roll);
                 }
                 // upside down
                 else
                 {
-                    UpdatePitchPhysics(Direction.UP, -pitch - 1);
+                    UpdatePitchPhysics(Direction.UP, -pitch - 1, roll);
                 }
             }
         }
@@ -182,7 +178,7 @@ namespace TittyMagic
             }
         }
 
-        private void UpdatePitchPhysics(string configSetName, float effect)
+        private void UpdatePitchPhysics(string configSetName, float effect, float roll)
         {
             float adjusted = effect * (1 - Mathf.Abs(roll));
             foreach(var config in _configSets[configSetName])
