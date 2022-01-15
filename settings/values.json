@@ -1,0 +1,134 @@
+{ 
+   "DOWN" : { 
+   }, 
+   "UP" : { 
+      "UPSD_ChestUp" : { 
+         "Value" : "0.523"
+      }, 
+      "UPSD_Breast Height" : { 
+         "Value" : "0.322"
+      }, 
+      "UPSD_Breast Sag1" : { 
+         "Value" : "-0.692"
+      }, 
+      "UPSD_Breast Sag2" : { 
+         "Value" : "-0.829"
+      }, 
+      "UPSD_Breasts Natural" : { 
+         "Value" : "-0.953"
+      }, 
+      "UPSD_Breast Rotate Up" : { 
+         "Value" : "0.414"
+      }, 
+      "UPSD_Breast Top Curve2" : { 
+         "Value" : "-0.514"
+      }, 
+      "UPSD_Breast Diameter" : { 
+         "Value" : "0.238"
+      }, 
+      "UPSD_Breast Diameter(Pose)" : { 
+         "Value" : "0.448"
+      }, 
+      "Breast Width Left" : { 
+         "Value" : "0.252"
+      }, 
+      "Breast Width Right" : { 
+         "Value" : "0.252"
+      }, 
+      "LBACK_Breast Zero" : { 
+         "Value" : "0.084"
+      }, 
+      "UPSD_Breast flat" : { 
+         "Value" : "0.365"
+      }, 
+      "UPSD_Breasts Hang Forward" : { 
+         "Value" : "0.798"
+      }, 
+      "UPSD_BreastsShape2" : { 
+         "Value" : "0.619"
+      }, 
+      "Breast move inside" : { 
+         "Value" : "-0.746"
+      }, 
+      "Breast Height Lower" : { 
+         "Value" : "-0.579"
+      }, 
+      "UPSD_Breast Move Up" : { 
+         "Value" : "0.828"
+      }, 
+      "UPSD_Breasts Flatten" : { 
+         "Value" : "0.69"
+      }, 
+      "UPSD_Breast Pointed" : { 
+         "Value" : "1.214"
+      }, 
+      "UPSD_Breasts TogetherApart" : { 
+         "Value" : "0.572"
+      }, 
+      "Breast look up" : { 
+         "Value" : "0.113"
+      }, 
+      "UPSD_Breast Top Curve1" : { 
+         "Value" : "-0.304"
+      }, 
+      "UPSD_Breasts Height" : { 
+         "Value" : "-0.829"
+      }, 
+      "Breasts Under Curve" : { 
+         "Value" : "-0.344"
+      }, 
+      "UPSD_ChestUnderBreast" : { 
+         "Value" : "0.436"
+      }, 
+      "UPSD_Breast Under Smoother1" : { 
+         "Value" : "0.211"
+      }, 
+      "UPSD_Breast Under Smoother2" : { 
+         "Value" : "0.29"
+      }, 
+      "UPSD_Breast Under Smoother3" : { 
+         "Value" : "0.129"
+      }, 
+      "UPSD_Breast Under Smoother4" : { 
+         "Value" : "0.182"
+      }, 
+      "UPSD_Breast Height Upper" : { 
+         "Value" : "0.89"
+      }, 
+      "UPSD_Breasts Upward Slope" : { 
+         "Value" : "0.881"
+      }, 
+      "UPSD_Chest Height" : { 
+         "Value" : "-0.271"
+      }, 
+      "Breast upper down" : { 
+         "Value" : "-0.893"
+      }, 
+      "Breasts Small Top Slope" : { 
+         "Value" : "-0.101"
+      }, 
+      "UPSD_Center Gap Depth" : { 
+         "Value" : "-0.61"
+      }, 
+      "UPSD_Center Gap Height" : { 
+         "Value" : "0.688"
+      }, 
+      "UPSD_Center Gap UpDown" : { 
+         "Value" : "1.028"
+      }, 
+      "UPSD_Chest Smoother" : { 
+         "Value" : "0.901"
+      }, 
+      "ChestSeparateBreasts" : { 
+         "Value" : "0.182"
+      }
+   }, 
+   "BACK" : { 
+   }, 
+   "FORWARD" : { 
+   }, 
+   "LEFT" : { 
+   }, 
+   "RIGHT" : { 
+   }
+}

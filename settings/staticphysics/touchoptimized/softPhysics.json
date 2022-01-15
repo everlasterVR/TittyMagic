@@ -1,23 +1,23 @@
 {
    "softVerticesCombinedSpring" : {
-      "minMminS" : "240",
-      "maxMminS" : "240",
+      "minMminS" : "200",
+      "maxMminS" : "200",
       "minMmaxS" : "60",
    },
    "softVerticesCombinedDamper" : {
-      "minMminS" : "3.4",
-      "maxMminS" : "3.4",
-      "minMmaxS" : "2.0"
-   },
+      "minMminS" : "1.2",
+      "maxMminS" : "1.6",
+      "minMmaxS" : "0.5"
+   }, 
    "softVerticesMass" : {
       "minMminS" : "0.05",
-      "maxMminS" : "0.075",
+      "maxMminS" : "0.05",
       "minMmaxS" : "0.05"
    },
    "softVerticesBackForce" : {
-      "minMminS" : "22",
-      "maxMminS" : "42",
-      "minMmaxS" : "10"
+      "minMminS" : "12",
+      "maxMminS" : "20",
+      "minMmaxS" : "7"
    },
    "softVerticesBackForceThresholdDistance" : {
       "minMminS" : "0.001",
@@ -25,19 +25,19 @@
       "minMmaxS" : "0.001"
    },
    "softVerticesBackForceMaxForce" : {
-      "minMminS" : "22",
-      "maxMminS" : "42",
-      "minMmaxS" : "10"
-   },
+      "minMminS" : "50",
+      "maxMminS" : "50",
+      "minMmaxS" : "50"
+   }, 
    "softVerticesColliderRadius" : { 
       "minMminS" : "0.023", 
       "maxMminS" : "0.035", 
-      "minMmaxS" : "0.026", 
+      "minMmaxS" : "0.023", 
    }, 
    "softVerticesDistanceLimit" : {
-      "minMminS" : "0.026",
-      "maxMminS" : "0.064",
-      "minMmaxS" : "0.048"
+      "minMminS" : "0.030",
+      "maxMminS" : "0.070",
+      "minMmaxS" : "0.055"
    },
    "groupASpringMultiplier" : {
       "minMminS" : "0.73",
