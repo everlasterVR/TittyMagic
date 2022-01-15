@@ -124,65 +124,65 @@ namespace TittyMagic
         }
 
         public void Update(
-            Vector3 positionDiff,
+            float angleY,
+            float positionDiffZ,
             float mass,
             float softness
         )
         {
             this.mass = mass;
             this.softness = softness;
-            float x = positionDiff.x;
-            float y = positionDiff.y;
-            float z = positionDiff.z;
 
             // TODO separate l/r morphs only, separate calculation of diff
             //left
-            if(x <= 0)
-            {
-                ResetMorphs(Direction.LEFT);
-                UpdateMorphs(Direction.RIGHT, -x);
-            }
-            // right
-            else
-            {
-                ResetMorphs(Direction.RIGHT);
-                UpdateMorphs(Direction.LEFT, x);
-            }
+            //if(x <= 0)
+            //{
+            //    ResetMorphs(Direction.LEFT);
+            //    UpdateMorphs(Direction.RIGHT, -x);
+            //}
+            //// right
+            //else
+            //{
+            //    ResetMorphs(Direction.RIGHT);
+            //    UpdateMorphs(Direction.LEFT, x);
+            //}
 
             // up
-            if(y <= 0)
+            if(angleY >= 0)
             {
+                float y = Mathf.Pow(Calc.InverseSmoothStep(80, angleY, 0.15f, 0.5f), 1/2f);
                 ResetMorphs(Direction.DOWN);
-                UpdateMorphs(Direction.UP, -y);
+                UpdateMorphs(Direction.UP, y);
             }
             // down
             else
             {
+                float y = Mathf.Pow(Calc.InverseSmoothStep(80, -angleY, 0.15f, 0.5f), 1/2f);
                 ResetMorphs(Direction.UP);
                 UpdateMorphs(Direction.DOWN, y);
             }
 
             // forward
-            if(z <= 0)
+            if(positionDiffZ <= 0)
             {
+                float z = Calc.InverseSmoothStep(1, -positionDiffZ, 0.15f, 0.5f);
                 ResetMorphs(Direction.BACK);
-                UpdateMorphs(Direction.FORWARD, -z);
+                UpdateMorphs(Direction.FORWARD, z);
             }
             // back
             else
             {
+                float z = Calc.InverseSmoothStep(1, positionDiffZ, 0.15f, 0.5f);
                 ResetMorphs(Direction.FORWARD);
                 UpdateMorphs(Direction.BACK, z);
             }
         }
 
-        private void UpdateMorphs(string configSetName, float diff)
+        private void UpdateMorphs(string configSetName, float effect)
         {
-            float cubeRt = Mathf.Pow(diff, 1/3f);
-            float diffVal = Calc.InverseSmoothStep(1, cubeRt, 0.15f, 0.5f);
             foreach(var config in _configSets[configSetName])
             {
-                UpdateValue(config, diffVal, mass, softness);
+                UpdateValue(config, effect, mass, softness);
                 if(_useConfigurator)
                 {
                     _configurator.UpdateValueSlider(configSetName, config.Name, config.Morph.morphValue);

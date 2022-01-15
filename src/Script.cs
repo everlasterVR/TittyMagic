@@ -26,7 +26,6 @@ namespace TittyMagic
         private Rigidbody rPectoralRigidbody;
         private DAZCharacterSelector geometry;
         private Vector3 neutralRelativePos;
-        private Vector3 positionDiff;
 
         private float massEstimate;
         private float massAmount;
@@ -360,21 +359,26 @@ namespace TittyMagic
 
             if(modeChooser.val == Mode.ANIM_OPTIMIZED)
             {
-                positionDiff = neutralRelativePos - RelativePosition(chestTransform, rNippleTransform.position);
+                Vector3 relativePos = RelativePosition(chestTransform, rNippleTransform.position);
+                float angleY = Vector2.SignedAngle(
+                    new Vector2(neutralRelativePos.z, neutralRelativePos.y),
+                    new Vector2(relativePos.z, relativePos.y)
+                );
+                float positionDiffZ = (neutralRelativePos - relativePos).z;
                 if(relativePosMorphH.IsEnabled())
                 {
-                    relativePosMorphH.Update(positionDiff, massAmount, softnessAmount);
+                    relativePosMorphH.Update(angleY, positionDiffZ, massAmount, softnessAmount);
                 }
 
 #if USE_CONFIGURATORS
-                string positionDiffText =
-                    $"{NameValueString("x", positionDiff.x, 10000f)} \n" +
-                    $"{NameValueString("y", positionDiff.y, 10000f)} \n" +
-                    $"{NameValueString("z", positionDiff.z, 10000f)} ";
-                gravityMorphH.UpdateDebugInfo(positionDiffText);
+                string diffText =
+                    $"{NameValueString("angleY", angleY, 1000f)} \n" +
+                    $"{NameValueString("effectY", InverseSmoothStep(45, angleY, 0.15f, 0.5f), 1000f)} \n" +
+                    $"{NameValueString("diffZ", positionDiffZ, 10000f)} ";
+                gravityMorphH.UpdateDebugInfo(diffText);
                 if(modeChooser.val == Mode.ANIM_OPTIMIZED)
                 {
-                    relativePosMorphH.UpdateDebugInfo(positionDiffText);
+                    relativePosMorphH.UpdateDebugInfo(diffText);
                 }
 #endif
             }
