@@ -1,23 +1,23 @@
 { 
    "softVerticesCombinedSpring" : {
-      "minMminS" : "190",
-      "maxMminS" : "190",
-      "minMmaxS" : "110",
+      "minMminS" : "280",
+      "maxMminS" : "250",
+      "minMmaxS" : "120",
    }, 
    "softVerticesCombinedDamper" : {
-      "minMminS" : "0.30",
-      "maxMminS" : "0.15",
-      "minMmaxS" : "0.1"
+      "minMminS" : "1.2",
+      "maxMminS" : "1.6",
+      "minMmaxS" : "0.5"
    }, 
    "softVerticesMass" : {
-      "minMminS" : "0.05",
-      "maxMminS" : "0.085",
-      "minMmaxS" : "0.05"
-   }, 
+      "minMminS" : "0.050",
+      "maxMminS" : "0.070",
+      "minMmaxS" : "0.100"
+   },
    "softVerticesBackForce" : {
-      "minMminS" : "2.5",
-      "maxMminS" : "12.5",
-      "minMmaxS" : "1"
+      "minMminS" : "0",
+      "maxMminS" : "0.75",
+      "minMmaxS" : "1.25"
    }, 
    "softVerticesBackForceThresholdDistance" : {
       "minMminS" : "0",
@@ -35,38 +35,38 @@
       "minMmaxS" : "0.023",
    }, 
    "softVerticesDistanceLimit" : {
-      "minMminS" : "0.012",
-      "maxMminS" : "0.045",
-      "minMmaxS" : "0.020",
+      "minMminS" : "0.015",
+      "maxMminS" : "0.020",
+      "minMmaxS" : "0.030",
    }, 
    "groupASpringMultiplier" : {
-      "minMminS" : "0.73",
-      "maxMminS" : "0.73",
+      "minMminS" : "0.5",
+      "maxMminS" : "0.5",
       "minMmaxS" : "0.5"
    }, 
    "groupADamperMultiplier" : {
-      "minMminS" : "0.65",
-      "maxMminS" : "0.65",
+      "minMminS" : "0.5",
+      "maxMminS" : "0.5",
       "minMmaxS" : "0.5"
    }, 
    "groupBSpringMultiplier" : {
-      "minMminS" : "0.73",
-      "maxMminS" : "0.73",
-      "minMmaxS" : "0.5"
+      "minMminS" : "0.6",
+      "maxMminS" : "0.6",
+      "minMmaxS" : "0.6"
    }, 
    "groupBDamperMultiplier" : {
-      "minMminS" : "0.65",
-      "maxMminS" : "0.65",
-      "minMmaxS" : "0.5"
+      "minMminS" : "0.6",
+      "maxMminS" : "0.6",
+      "minMmaxS" : "0.6"
    }, 
    "groupCSpringMultiplier" : {
-      "minMminS" : "0.73",
-      "maxMminS" : "0.73",
+      "minMminS" : "0.5",
+      "maxMminS" : "0.5",
       "minMmaxS" : "0.5"
    }, 
    "groupCDamperMultiplier" : {
-      "minMminS" : "0.65",
-      "maxMminS" : "0.65",
+      "minMminS" : "0.5",
+      "maxMminS" : "0.5",
       "minMmaxS" : "0.5"
    }, 
 }

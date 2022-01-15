@@ -67,9 +67,6 @@ namespace TittyMagic
 
         private float timeMultiplier;
 
-        private float roll;
-        private float pitch;
-
         public override void Init()
         {
             try
@@ -338,8 +335,8 @@ namespace TittyMagic
                 return;
             }
 
-            roll = Roll(chestTransform.rotation);
-            pitch = Pitch(chestTransform.rotation);
+            float roll = Roll(chestTransform.rotation);
+            float pitch = Pitch(chestTransform.rotation);
 
             if(modeChooser.val == Mode.ANIM_OPTIMIZED)
             {
@@ -427,9 +424,7 @@ namespace TittyMagic
                 staticPhysicsH.UpdateMainPhysics(softnessAmount);
 
                 // update gravity physics angles
-                roll = 0;
-                pitch = 0;
-                gravityPhysicsH.Update(roll, pitch, massEstimate, softnessAmount);
+                gravityPhysicsH.Update(0, 0, massEstimate, softnessAmount);
 
                 // TODO update gravity morphs ?
             }

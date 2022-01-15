@@ -1,13 +1,18 @@
 {
+   "centerOfGravityPercent" : {
+      "minMminS" : "0.150",
+      "maxMminS" : "0.400",
+      "minMmaxS" : "0.100"
+   }, 
    "spring" : {
-      "minMminS" : "85",
-      "maxMminS" : "60",
-      "minMmaxS" : "85"
+      "minMminS" : "50",
+      "maxMminS" : "69",
+      "minMmaxS" : "50"
    }, 
    "damper" : { 
-      "minMminS" : "0.85",
-      "maxMminS" : "0.5",
-      "minMmaxS" : "0.85"
+      "minMminS" : "0.8",
+      "maxMminS" : "1.0",
+      "minMmaxS" : "0.5"
    }, 
    "positionSpringZ" : {
       "minMminS" : "300",
