@@ -47,26 +47,26 @@
    "groupADamperMultiplier" : {
       "minMminS" : "0.65",
       "maxMminS" : "0.65",
-      "minMmaxS" : "0.5"
+      "minMmaxS" : "0.50"
    },
    "groupBSpringMultiplier" : {
-      "minMminS" : "1.46",
-      "maxMminS" : "1.46",
-      "minMmaxS" : "1.0"
+      "minMminS" : "0.73",
+      "maxMminS" : "0.73",
+      "minMmaxS" : "0.50"
    },
    "groupBDamperMultiplier" : {
-      "minMminS" : "1.8",
-      "maxMminS" : "1.8",
-      "minMmaxS" : "1.5"
+      "minMminS" : "0.65",
+      "maxMminS" : "0.65",
+      "minMmaxS" : "0.50"
    },
    "groupCSpringMultiplier" : {
-      "minMminS" : "1.8",
-      "maxMminS" : "1.8",
-      "minMmaxS" : "1.2"
+      "minMminS" : "0.73",
+      "maxMminS" : "0.73",
+      "minMmaxS" : "0.50"
    },
    "groupCDamperMultiplier" : {
-      "minMminS" : "1.5",
-      "maxMminS" : "1.5",
-      "minMmaxS" : "1.0"
+      "minMminS" : "0.65",
+      "maxMminS" : "0.65",
+      "minMmaxS" : "0.50"
    }
 }
