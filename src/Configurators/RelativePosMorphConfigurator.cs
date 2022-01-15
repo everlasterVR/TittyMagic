@@ -46,7 +46,40 @@ namespace TittyMagic
             ResetUISectionGroups();
             _enableAdjustment = UI.NewToggle(this, "Enable", true, false);
             _debugInfo = UI.NewTextField(this, "positionDiffInfo", "", 20, 115, true);
-            UI.NewSpacer(this, 50f, false);
+            var exportValuesButton = CreateButton("Export values JSON", false);
+            AddExportButtonListener(exportValuesButton);
+        }
+
+        private void AddExportButtonListener(UIDynamicButton button)
+        {
+            button.button.onClick.AddListener(() =>
+            {
+                SuperController.singleton.NormalizeMediaPath($@"{Globals.PLUGIN_PATH}settings\"); // Sets dir if path exists
+                SuperController.singleton.GetMediaPathDialog((string path) =>
+                {
+                    var json = new JSONClass();
+                    _UISectionGroups.Keys.ToList().ForEach(key =>
+                    {
+                        var sectionGroup = _UISectionGroups[key];
+                        var groupJson = new JSONClass();
+                        sectionGroup.Values.ToList().ForEach(item =>
+                        {
+                            groupJson[item.Name]["Value"].AsFloat = Calc.RoundToDecimals(item.ValueStorable.val, 1000f);
+                        });
+                        json[key] = groupJson;
+                    });
+                    Persistence.SaveToPath(this, json, path, _saveExt, (dir) =>
+                    {
+                        _lastBrowseDir = dir;
+                    });
+                }, _saveExt);
+
+                // Update the browser to be a Save browser
+                uFileBrowser.FileBrowser browser = SuperController.singleton.mediaFileBrowserUI;
+                browser.SetTextEntry(true);
+                browser.fileEntryField.text = string.Format("{0}.{1}", ((int) (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds).ToString(), _saveExt);
+                browser.ActivateFileNameField();
+            });
         }
 
         public void ResetUISectionGroups()
@@ -108,8 +141,8 @@ namespace TittyMagic
             foreach(var item in sections)
             {
                 json[item.Name]["IsNegative"].AsBool = item.IsNegativeStorable.val;
-                json[item.Name]["Multiplier1"].AsFloat = item.Multiplier1Storable.val;
-                json[item.Name]["Multiplier2"].AsFloat = item.Multiplier2Storable.val;
+                json[item.Name]["Multiplier1"].AsFloat = Calc.RoundToDecimals(item.Multiplier1Storable.val, 1000f);
+                json[item.Name]["Multiplier2"].AsFloat = Calc.RoundToDecimals(item.Multiplier2Storable.val, 1000f);
             }
             Persistence.SaveToPath(this, json, path, _saveExt, (dir) =>
             {

@@ -114,8 +114,8 @@ namespace TittyMagic
                 sectionGroup.Values.ToList().ForEach(item =>
                 {
                     groupJson[item.Name]["IsNegative"].AsBool = item.IsNegativeStorable.val;
-                    groupJson[item.Name]["Multiplier1"].AsFloat = item.Multiplier1Storable.val;
-                    groupJson[item.Name]["Multiplier2"].AsFloat = item.Multiplier2Storable.val;
+                    groupJson[item.Name]["Multiplier1"].AsFloat = Calc.RoundToDecimals(item.Multiplier1Storable.val, 1000f);
+                    groupJson[item.Name]["Multiplier2"].AsFloat = Calc.RoundToDecimals(item.Multiplier2Storable.val, 1000f);
                 });
                 json[key] = groupJson;
             });
