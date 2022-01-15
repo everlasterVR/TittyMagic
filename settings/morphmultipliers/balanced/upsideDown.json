@@ -1,202 +1,202 @@
-{
+{ 
    "UPSD_ChestUp" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.4029325", 
-      "Multiplier2" : "1.205608"
+      "Multiplier1" : "0.443", 
+      "Multiplier2" : "1.003"
    }, 
    "UPSD_Breast Height" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.7703279", 
-      "Multiplier2" : "0"
+      "Multiplier1" : "0.847", 
+      "Multiplier2" : "0.14"
    }, 
    "UPSD_Breast Sag1" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-0.8265454", 
-      "Multiplier2" : "-1.181119"
+      "Multiplier1" : "-0.91", 
+      "Multiplier2" : "-1.05"
    }, 
    "UPSD_Breast Sag2" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-0.7014102", 
-      "Multiplier2" : "-1.822889"
+      "Multiplier1" : "-0.771", 
+      "Multiplier2" : "-1.494"
    }, 
    "UPSD_Breasts Natural" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-0.9804811", 
-      "Multiplier2" : "-1.848785"
+      "Multiplier1" : "-1.078", 
+      "Multiplier2" : "-1.564"
    }, 
    "UPSD_Breast Rotate Up" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "1.352939", 
-      "Multiplier2" : "-0.5135897"
+      "Multiplier1" : "1.488", 
+      "Multiplier2" : "-0.116"
    }, 
    "UPSD_Breast Top Curve2" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-0.2904925", 
-      "Multiplier2" : "-1.334974"
+      "Multiplier1" : "-0.319", 
+      "Multiplier2" : "-1.05"
    }, 
    "UPSD_Breast Diameter" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.4106902", 
-      "Multiplier2" : "0.2263355"
+      "Multiplier1" : "0.452", 
+      "Multiplier2" : "0.253"
    }, 
    "UPSD_Breast Diameter(Pose)" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "-0.1", 
-      "Multiplier2" : "1.666194"
+      "Multiplier1" : "-0.11", 
+      "Multiplier2" : "1.211"
    }, 
    "Breast Width Left" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "-0.1", 
-      "Multiplier2" : "1"
+      "Multiplier1" : "-0.11", 
+      "Multiplier2" : "0.723"
    }, 
    "Breast Width Right" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "-0.1", 
-      "Multiplier2" : "1"
+      "Multiplier1" : "-0.11", 
+      "Multiplier2" : "0.723"
    }, 
    "LBACK_Breast Zero" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.1284621", 
-      "Multiplier2" : "0.1026746"
+      "Multiplier1" : "0.141", 
+      "Multiplier2" : "0.094"
    }, 
    "UPSD_Breast flat" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.8729711", 
+      "Multiplier1" : "0.22", 
       "Multiplier2" : "0"
    }, 
    "UPSD_Breasts Hang Forward" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "2.50833", 
-      "Multiplier2" : "-0.8473059"
+      "Multiplier1" : "2.759", 
+      "Multiplier2" : "-0.186"
    }, 
    "UPSD_BreastsShape2" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "1.481202", 
-      "Multiplier2" : "0"
+      "Multiplier1" : "1.629", 
+      "Multiplier2" : "0.28"
    }, 
    "Breast move inside" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-1.497317", 
-      "Multiplier2" : "-0.4108313"
+      "Multiplier1" : "-1.647", 
+      "Multiplier2" : "-0.607"
    }, 
    "Breast Height Lower" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-1.386547", 
-      "Multiplier2" : "0"
+      "Multiplier1" : "-1.526", 
+      "Multiplier2" : "-0.256"
    }, 
    "UPSD_Breast Move Up" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "1.7", 
-      "Multiplier2" : "0.4"
+      "Multiplier1" : "1.87", 
+      "Multiplier2" : "0.621"
    }, 
    "UPSD_Breasts Flatten" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "1.299884", 
-      "Multiplier2" : "0.5"
+      "Multiplier1" : "1.43", 
+      "Multiplier2" : "0.603"
    }, 
    "UPSD_Breast Pointed" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "1.5", 
-      "Multiplier2" : "2"
+      "Multiplier1" : "1.65", 
+      "Multiplier2" : "1.818"
    }, 
    "UPSD_Breasts TogetherApart" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "1.000089", 
-      "Multiplier2" : "0.5256565"
+      "Multiplier1" : "1.1", 
+      "Multiplier2" : "0.595"
    }, 
    "Breast look up" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0", 
-      "Multiplier2" : "0.3852957"
+      "Multiplier2" : "0.304"
    }, 
    "UPSD_Breast Top Curve1" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-0.72712", 
-      "Multiplier2" : "0"
+      "Multiplier1" : "-0.8", 
+      "Multiplier2" : "-0.14"
    }, 
    "UPSD_Breasts Height" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-1.985318", 
-      "Multiplier2" : "0"
+      "Multiplier1" : "-2.184", 
+      "Multiplier2" : "-0.374"
    }, 
    "Breasts Under Curve" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-0.5697266", 
-      "Multiplier2" : "-0.3594509"
+      "Multiplier1" : "-0.627", 
+      "Multiplier2" : "-0.377"
    }, 
    "UPSD_ChestUnderBreast" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "1.044721", 
-      "Multiplier2" : "0"
+      "Multiplier1" : "1.15", 
+      "Multiplier2" : "0.186"
    }, 
    "UPSD_Breast Under Smoother1" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.5054526", 
+      "Multiplier1" : "0.556", 
       "Multiplier2" : "0"
    }, 
    "UPSD_Breast Under Smoother2" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.6933178", 
-      "Multiplier2" : "0"
+      "Multiplier1" : "0.762", 
+      "Multiplier2" : "0.14"
    }, 
    "UPSD_Breast Under Smoother3" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.3080177", 
+      "Multiplier1" : "0.339", 
       "Multiplier2" : "0"
    }, 
    "UPSD_Breast Under Smoother4" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.4364759", 
-      "Multiplier2" : "0"
+      "Multiplier1" : "0.48", 
+      "Multiplier2" : "0.088"
    }, 
    "UPSD_Breast Height Upper" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "2.131182", 
-      "Multiplier2" : "0"
+      "Multiplier1" : "2.344", 
+      "Multiplier2" : "0.42"
    }, 
    "UPSD_Breasts Upward Slope" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "1.352807", 
-      "Multiplier2" : "1.073929"
+      "Multiplier1" : "1.488", 
+      "Multiplier2" : "1.093"
    }, 
    "UPSD_Chest Height" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-0.6500124", 
-      "Multiplier2" : "0"
+      "Multiplier1" : "-0.715", 
+      "Multiplier2" : "-0.116"
    }, 
    "Breast upper down" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-2.139312", 
-      "Multiplier2" : "0"
+      "Multiplier1" : "-2.353", 
+      "Multiplier2" : "-0.396"
    }, 
    "Breasts Small Top Slope" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-0.1003556", 
-      "Multiplier2" : "-0.2"
+      "Multiplier1" : "-0.11", 
+      "Multiplier2" : "-0.17"
    }, 
    "UPSD_Center Gap Depth" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-0.9689589", 
-      "Multiplier2" : "-0.700291"
+      "Multiplier1" : "-1.066", 
+      "Multiplier2" : "-0.706"
    }, 
    "UPSD_Center Gap Height" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "1.429607", 
-      "Multiplier2" : "0.3081071"
+      "Multiplier1" : "1.573", 
+      "Multiplier2" : "0.509"
    }, 
    "UPSD_Center Gap UpDown" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "2.460804", 
-      "Multiplier2" : "0"
+      "Multiplier1" : "2.707", 
+      "Multiplier2" : "-1.522"
    }, 
    "UPSD_Chest Smoother" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "2.156922", 
-      "Multiplier2" : "0"
+      "Multiplier1" : "2.373", 
+      "Multiplier2" : "0.42"
    }, 
    "ChestSeparateBreasts" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.0600697", 
-      "Multiplier2" : "0.5322032"
+      "Multiplier1" : "0.066", 
+      "Multiplier2" : "0.414"
    }
 }

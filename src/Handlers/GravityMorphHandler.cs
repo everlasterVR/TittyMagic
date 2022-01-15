@@ -12,8 +12,6 @@ namespace TittyMagic
 
         private bool _useConfigurator;
 
-        private float roll;
-        private float pitch;
         private float mass;
         private float gravity;
 
@@ -129,17 +127,13 @@ namespace TittyMagic
             return _configurator.EnableAdjustment.val;
         }
 
-        public void UpdateDebugInfo()
+        public void UpdateDebugInfo(string text)
         {
             if(!_useConfigurator)
             {
                 return;
             }
-
-            string infoText =
-                $"{NameValueString("Roll", roll, 100f, 15)}\n" +
-                $"{NameValueString("Pitch", pitch, 100f, 15)}\n";
-            _configurator.DebugInfo.val = infoText;
+            _configurator.DebugInfo.val = text;
         }
 
         public void Update(
@@ -149,8 +143,6 @@ namespace TittyMagic
             float gravity
         )
         {
-            this.roll = roll;
-            this.pitch = pitch;
             this.mass = mass;
             this.gravity = gravity;
 
@@ -158,11 +150,19 @@ namespace TittyMagic
             //{
             //    it.UpdateVal();
             //}
+            //scaling reduces the effect the smaller the breast
+            float scaledRoll = roll * Mathf.Lerp(0.77f, 1f, mass);
+            float scaledPitch = pitch * Mathf.Lerp(0.77f, 1f, mass);
 
-            AdjustMorphsForRoll();
-            AdjustMorphsForPitch();
+            AdjustMorphsForRoll(scaledRoll);
+            AdjustMorphsForPitch(scaledPitch, scaledRoll);
 
-            UpdateDebugInfo();
+            string infoText =
+                $"{NameValueString("Pitch", pitch, 100f, 15)}\n" +
+                $"{NameValueString("Scaled pitch", scaledPitch, 100f, 15)}\n" +
+                $"{NameValueString("Roll", roll, 100f, 15)}\n" +
+                $"{NameValueString("Scaled roll", scaledRoll, 100f, 15)}\n";
+            UpdateDebugInfo(infoText);
         }
 
         public void UpdateRoll(
@@ -171,16 +171,20 @@ namespace TittyMagic
             float gravity
         )
         {
-            this.roll = roll;
             this.mass = mass;
             this.gravity = gravity;
 
-            AdjustMorphsForRoll();
+            float scaledRoll = roll * mass;
 
-            UpdateDebugInfo();
+            AdjustMorphsForRoll(scaledRoll);
+
+            string infoText =
+                $"{NameValueString("Roll", roll, 100f, 15)}\n" +
+                $"{NameValueString("Scaled roll", scaledRoll, 100f, 15)}\n";
+            UpdateDebugInfo(infoText);
         }
 
-        private void AdjustMorphsForRoll()
+        private void AdjustMorphsForRoll(float roll)
         {
             // left
             if(roll >= 0)
@@ -196,7 +200,7 @@ namespace TittyMagic
             }
         }
 
-        private void AdjustMorphsForPitch()
+        private void AdjustMorphsForPitch(float pitch, float roll)
         {
             // leaning forward
             if(pitch >= 0)
@@ -206,15 +210,15 @@ namespace TittyMagic
                 if(pitch < 1)
                 {
                     ResetMorphs(Direction.UP);
-                    UpdatePitchMorphs(Direction.FORWARD, pitch);
-                    UpdatePitchMorphs(Direction.DOWN, 1 - pitch);
+                    UpdatePitchMorphs(Direction.FORWARD, pitch, roll);
+                    UpdatePitchMorphs(Direction.DOWN, 1 - pitch, roll);
                 }
                 // upside down
                 else
                 {
                     ResetMorphs(Direction.DOWN);
-                    UpdatePitchMorphs(Direction.FORWARD, 2 - pitch);
-                    UpdatePitchMorphs(Direction.UP, pitch - 1);
+                    UpdatePitchMorphs(Direction.FORWARD, 2 - pitch, roll);
+                    UpdatePitchMorphs(Direction.UP, pitch - 1, roll);
                 }
             }
             // leaning back
@@ -225,15 +229,15 @@ namespace TittyMagic
                 if(pitch >= -1)
                 {
                     ResetMorphs(Direction.UP);
-                    UpdatePitchMorphs(Direction.BACK, -pitch);
-                    UpdatePitchMorphs(Direction.DOWN, 1 + pitch);
+                    UpdatePitchMorphs(Direction.BACK, -pitch, roll);
+                    UpdatePitchMorphs(Direction.DOWN, 1 + pitch, roll);
                 }
                 // upside down
                 else
                 {
                     ResetMorphs(Direction.DOWN);
-                    UpdatePitchMorphs(Direction.BACK, 2 + pitch);
-                    UpdatePitchMorphs(Direction.UP, -pitch - 1);
+                    UpdatePitchMorphs(Direction.BACK, 2 + pitch, roll);
+                    UpdatePitchMorphs(Direction.UP, -pitch - 1, roll);
                 }
             }
         }
@@ -250,7 +254,7 @@ namespace TittyMagic
             }
         }
 
-        private void UpdatePitchMorphs(string configSetName, float effect)
+        private void UpdatePitchMorphs(string configSetName, float effect, float roll)
         {
             float adjusted = effect * (1 - Mathf.Abs(roll));
             foreach(var config in _configSets[configSetName])
