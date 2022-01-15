@@ -144,7 +144,8 @@ namespace TittyMagic
                 return 1;
 
             float s = curvature < -2.99f ? -2.99f : (curvature > 0.99f ? 0.99f : curvature);
-            float p = midpoint < 0 ? 0 : (midpoint > b ? b : midpoint);
+            float p = midpoint * b;
+            p = p < 0 ? 0 : (p > b ? b : p);
             float c = 2/(1 - s) - p/b;
 
             if(value < p)
