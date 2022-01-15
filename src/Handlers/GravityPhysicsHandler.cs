@@ -128,11 +128,13 @@ namespace TittyMagic
             // left
             if(roll >= 0)
             {
+                ResetPhysics(Direction.RIGHT);
                 UpdateRollPhysics(Direction.LEFT, roll);
             }
             // right
             else
             {
+                ResetPhysics(Direction.LEFT);
                 UpdateRollPhysics(Direction.RIGHT, -roll);
             }
 
@@ -142,11 +144,13 @@ namespace TittyMagic
                 // upright
                 if(pitch < 1)
                 {
+                    ResetPhysics(Direction.UP);
                     UpdatePitchPhysics(Direction.DOWN, 1 - pitch, roll);
                 }
                 // upside down
                 else
                 {
+                    ResetPhysics(Direction.DOWN);
                     UpdatePitchPhysics(Direction.UP, pitch - 1, roll);
                 }
             }
@@ -156,11 +160,13 @@ namespace TittyMagic
                 // upright
                 if(pitch >= -1)
                 {
+                    ResetPhysics(Direction.UP);
                     UpdatePitchPhysics(Direction.DOWN, 1 + pitch, roll);
                 }
                 // upside down
                 else
                 {
+                    ResetPhysics(Direction.DOWN);
                     UpdatePitchPhysics(Direction.UP, -pitch - 1, roll);
                 }
             }
@@ -216,7 +222,7 @@ namespace TittyMagic
                 config.Setting.val = config.OriginalValue;
                 if(_useConfigurator)
                 {
-                    _configurator.UpdateValueSlider(configSetName, config.Name, 0);
+                    _configurator.UpdateValueSlider(configSetName, config.Name, config.OriginalValue);
                 }
             }
         }
