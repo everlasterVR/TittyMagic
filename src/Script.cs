@@ -66,8 +66,6 @@ namespace TittyMagic
         private int refreshStatus = RefreshStatus.WAITING;
         private bool animationWasSetFrozen = false;
 
-        private float timeMultiplier;
-
         public override void Init()
         {
             try
@@ -295,7 +293,7 @@ namespace TittyMagic
 
         private void DoFixedUpdate()
         {
-            timeSinceListenersChecked += Time.unscaledDeltaTime;
+            timeSinceListenersChecked += Time.deltaTime;
 
             if(refreshStatus == RefreshStatus.MASS_STARTED)
             {
@@ -304,10 +302,16 @@ namespace TittyMagic
 
             if(refreshStatus > RefreshStatus.MASS_STARTED)
             {
-                float gravityMagnitude = Physics.gravity.magnitude / timeMultiplier;
-                chestRigidbody.AddForce(chestTransform.up * -gravityMagnitude, ForceMode.Acceleration);
-                lPectoralRigidbody.AddForce(chestTransform.up * -gravityMagnitude, ForceMode.Acceleration);
-                rPectoralRigidbody.AddForce(chestTransform.up * -gravityMagnitude, ForceMode.Acceleration);
+                // simulate gravityPhysics when upright
+                Quaternion zero = new Quaternion(0, 0, 0, -1);
+                gravityPhysicsH.Update(0, 0, massEstimate, softnessAmount);
+
+                // simulate force of gravity when upright
+                // 0.75f is a hack, for some reason a normal gravity force pushes breasts too much down,
+                // causing the neutral position to be off by a little
+                Vector3 force = chestRigidbody.transform.up * 0.75f * -Physics.gravity.magnitude;
+                lPectoralRigidbody.AddForce(force, ForceMode.Acceleration);
+                rPectoralRigidbody.AddForce(force, ForceMode.Acceleration);
                 if(modeChooser.val == Mode.ANIM_OPTIMIZED)
                 {
                     if(refreshStatus == RefreshStatus.MASS_OK)
@@ -372,16 +376,6 @@ namespace TittyMagic
             }
         }
 
-        private float TimeMultiplier()
-        {
-            if(TimeControl.singleton == null || Mathf.Approximately(Time.timeScale, 0f))
-            {
-                return 1;
-            }
-
-            return 1 / Time.timeScale;
-        }
-
         public IEnumerator BeginRefresh()
         {
             refreshStatus = RefreshStatus.WAITING;
@@ -389,19 +383,18 @@ namespace TittyMagic
             SuperController.singleton.SetFreezeAnimation(true);
 
             // ensure refresh actually begins only once listeners report no change
-            yield return new WaitForSecondsRealtime(listenersCheckInterval);
+            yield return new WaitForSeconds(listenersCheckInterval);
             while(breastMorphListener.Changed() || atomScaleListener.Changed() || softnessSCM.isDown || gravitySCM.isDown)
             {
-                yield return new WaitForSecondsRealtime(0.1f);
+                yield return new WaitForSeconds(0.1f);
             }
-            yield return new WaitForSecondsRealtime(0.33f);
+            yield return new WaitForSeconds(0.33f);
 
             refreshStatus = RefreshStatus.MASS_STARTED;
 
             settingsMonitor.enabled = false;
 
             // simulate breasts zero G
-            chestRigidbody.useGravity = false;
             lPectoralRigidbody.useGravity = false;
             rPectoralRigidbody.useGravity = false;
 
@@ -411,6 +404,9 @@ namespace TittyMagic
             {
                 relativePosMorphH.ResetAll();
             }
+            gravityPhysicsH.ZeroAll();
+
+            yield return new WaitForSeconds(0.33f);
 
             float duration = 0;
             float interval = 0.1f;
@@ -419,7 +415,7 @@ namespace TittyMagic
                 !EqualWithin(1000f, massEstimate, DetermineMassEstimate(atomScaleListener.Value))
             ))
             {
-                yield return new WaitForSecondsRealtime(interval);
+                yield return new WaitForSeconds(interval);
                 duration += interval;
 
                 // update mass estimate
@@ -428,25 +424,18 @@ namespace TittyMagic
                 // update main static physics
                 massAmount = staticPhysicsH.SetAndReturnMassVal(massEstimate);
                 staticPhysicsH.UpdateMainPhysics(softnessAmount);
-
-                // update gravity physics angles
-                gravityPhysicsH.Update(0, 0, massEstimate, softnessAmount);
             }
             SetMassUIStatus(atomScaleListener.Value);
             staticPhysicsH.FullUpdate(softnessAmount, nippleErection.val);
 
-            timeMultiplier = TimeMultiplier();
             refreshStatus = RefreshStatus.MASS_OK;
         }
 
         private IEnumerator RefreshNeutralRelativePosition()
         {
             refreshStatus = RefreshStatus.NEUTRALPOS_STARTED;
-            float roll = Roll(chestTransform.rotation);
-            float pitch = Pitch(chestTransform.rotation);
-            gravityPhysicsH.Update(roll, pitch, massAmount, softnessAmount);
 
-            yield return new WaitForSecondsRealtime(0.33f);
+            yield return new WaitForSeconds(0.67f);
 
             float duration = 0;
             float interval = 0.1f;
@@ -459,7 +448,7 @@ namespace TittyMagic
                 ))
             )
             {
-                yield return new WaitForSecondsRealtime(interval);
+                yield return new WaitForSeconds(interval);
                 duration += interval;
                 neutralRelativePos = RelativePosition(chestTransform, rNippleTransform.position);
             }
@@ -469,7 +458,6 @@ namespace TittyMagic
 
         private void EndRefresh()
         {
-            chestRigidbody.useGravity = true;
             lPectoralRigidbody.useGravity = true;
             rPectoralRigidbody.useGravity = true;
             SuperController.singleton.SetFreezeAnimation(animationWasSetFrozen);

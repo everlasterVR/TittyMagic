@@ -210,6 +210,14 @@ namespace TittyMagic
             config.Setting.val = inRange ? value : 0;
         }
 
+        public void ZeroAll()
+        {
+            ResetPhysics(Direction.DOWN);
+            ResetPhysics(Direction.UP);
+            ResetPhysics(Direction.LEFT);
+            ResetPhysics(Direction.RIGHT);
+        }
+
         public void ResetAll()
         {
             ResetPhysics(Direction.DOWN);
