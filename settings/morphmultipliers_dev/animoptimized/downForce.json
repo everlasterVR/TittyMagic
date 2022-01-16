@@ -1,26 +1,27 @@
 { 
-   "UPR_Breast Move Down" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
-   "UPR_Chest Height" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
    "UPR_Breast Rotate Up" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.075", 
+      "Multiplier2" : "0.225"
    }, 
    "UPR_Breast Under Smoother1" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.12", 
+      "Multiplier2" : "-0.36"
    }, 
    "UPR_Breast Under Smoother3" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.24", 
+      "Multiplier2" : "-0.72"
+   }, 
+   "UPR_Breast Under Smoother4" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.12", 
+      "Multiplier2" : "-0.36"
    }, 
    "UPR_Breasts Natural" : { 
-      "Multiplier1" : "0", 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.2", 
       "Multiplier2" : "0"
    }
 }

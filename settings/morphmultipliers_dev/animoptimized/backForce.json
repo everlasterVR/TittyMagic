@@ -1,74 +1,107 @@
 { 
+   "LBACK_Breast Diameter(Pose)" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.2", 
+      "Multiplier2" : "-0.5"
+   }, 
    "LBACK_Breast Diameter" : { 
-      "Multiplier1" : "0", 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.1", 
+      "Multiplier2" : "0.65"
+   }, 
+   "LBACK_Breast flat" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.1", 
       "Multiplier2" : "0"
    }, 
-   "LBACK_Breast Height" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+   "LBACK_Breast move inside" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.1", 
+      "Multiplier2" : "-0.3"
    }, 
-   "LBACK_Breast Height Upper" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+   "LBACK_Breast Move Up" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.1", 
+      "Multiplier2" : "-0.4"
    }, 
-   "LBACK_Breast Zero" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+   "LBACK_Breast Pointed" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.15", 
+      "Multiplier2" : "-0.4"
    }, 
-   "LBACK_Breasts Flatten" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
-   "LBACK_Chest Smoother" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
-   "LBACK_Breast Depth Squash" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
-   "LBACK_Breast Move S2S Out" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
-   "LBACK_Breast Top Curve1" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
-   "LBACK_Breast Top Curve2" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+   "LBACK_Breast Rotate Up" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.1", 
+      "Multiplier2" : "-0.4"
    }, 
    "LBACK_Breast Under Smoother1" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
-   "LBACK_Breast Under Smoother3" : { 
-      "Multiplier1" : "0", 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.124", 
       "Multiplier2" : "0"
    }, 
    "LBACK_Breast Under Smoother2" : { 
-      "Multiplier1" : "0", 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.2", 
+      "Multiplier2" : "0.2"
+   }, 
+   "LBACK_Breast Under Smoother3" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.1", 
+      "Multiplier2" : "0.45"
+   }, 
+   "LBACK_Breast Zero" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.1", 
+      "Multiplier2" : "0.1"
+   }, 
+   "LBACK_Breasts Flatten" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.5", 
+      "Multiplier2" : "1"
+   }, 
+   "LBACK_Breasts Hang Forward" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.1", 
+      "Multiplier2" : "-0.2"
+   }, 
+   "LBACK_Breasts Implants" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.05", 
       "Multiplier2" : "0"
    }, 
-   "LBACK_Breast Rotate Up" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+   "LBACK_Breasts Natural" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.1", 
+      "Multiplier2" : "0.2"
    }, 
-   "LBACK_Center Gap Smooth" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+   "LBACK_Breasts TogetherApart" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.45", 
+      "Multiplier2" : "-0.8"
    }, 
-   "LBACK_Chest Height" : { 
+   "LBACK_Center Gap Depth" : { 
+      "IsNegative" : "true", 
       "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+      "Multiplier2" : "-0.4"
    }, 
-   "LBACK_ChestSmoothCenter" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+   "LBACK_L Depth Squash" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.4", 
+      "Multiplier2" : "0.5"
    }, 
-   "LBACK_ChestUp" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+   "LBACK_L Rotate X Out" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.2", 
+      "Multiplier2" : "1.4"
+   }, 
+   "LBACK_R Depth Squash" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.4", 
+      "Multiplier2" : "0.5"
+   }, 
+   "LBACK_R Rotate X Out" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.2", 
+      "Multiplier2" : "1.4"
    }
 }
