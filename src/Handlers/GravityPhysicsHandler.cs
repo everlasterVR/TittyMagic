@@ -212,10 +212,10 @@ namespace TittyMagic
 
         public void ZeroAll()
         {
-            ResetPhysics(Direction.DOWN);
-            ResetPhysics(Direction.UP);
-            ResetPhysics(Direction.LEFT);
-            ResetPhysics(Direction.RIGHT);
+            ResetPhysics(Direction.DOWN, 0f);
+            ResetPhysics(Direction.UP, 0f);
+            ResetPhysics(Direction.LEFT, 0f);
+            ResetPhysics(Direction.RIGHT, 0f);
         }
 
         public void ResetAll()
@@ -226,14 +226,15 @@ namespace TittyMagic
             ResetPhysics(Direction.RIGHT);
         }
 
-        private void ResetPhysics(string configSetName)
+        private void ResetPhysics(string configSetName, float? value = null)
         {
             foreach(var config in _configSets[configSetName])
             {
-                config.Setting.val = config.OriginalValue;
+                float newValue = value.HasValue ? value.Value : config.OriginalValue;
+                config.Setting.val = newValue;
                 if(_useConfigurator)
                 {
-                    _configurator.UpdateValueSlider(configSetName, config.Name, config.OriginalValue);
+                    _configurator.UpdateValueSlider(configSetName, config.Name, newValue);
                 }
             }
         }
