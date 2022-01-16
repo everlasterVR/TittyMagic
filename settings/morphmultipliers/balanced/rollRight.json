@@ -1,87 +1,87 @@
 { 
    "RRIGHT_Areola S2S L" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.84", 
+      "Multiplier1" : "1.68", 
       "Multiplier2" : "0"
    }, 
    "RRIGHT_Areola S2S R" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.224", 
+      "Multiplier1" : "0.448", 
       "Multiplier2" : "0"
    }, 
    "RRIGHT_Breast Depth Squash L" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.616", 
+      "Multiplier1" : "1.232", 
       "Multiplier2" : "0"
    }, 
    "RRIGHT_Breast Diameter" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-0.28", 
+      "Multiplier1" : "-0.56", 
       "Multiplier2" : "0"
    }, 
    "RRIGHT_Breast Move S2S In L" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.336", 
+      "Multiplier1" : "0.672", 
       "Multiplier2" : "0"
    }, 
    "RRIGHT_Breast Move S2S Out R" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.336", 
+      "Multiplier1" : "0.672", 
       "Multiplier2" : "0"
    }, 
    "RRIGHT_Breast Pointed" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.28", 
+      "Multiplier1" : "0.56", 
       "Multiplier2" : "0"
    }, 
    "RRIGHT_Breast Rotate X In L" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.224", 
+      "Multiplier1" : "0.448", 
       "Multiplier2" : "0"
    }, 
    "RRIGHT_Breast Rotate X In R" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.084", 
+      "Multiplier1" : "0.168", 
       "Multiplier2" : "0"
    }, 
    "RRIGHT_Breast Width L" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.28", 
+      "Multiplier1" : "0.56", 
       "Multiplier2" : "0"
    }, 
    "RRIGHT_Breast Width R" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-0.056", 
+      "Multiplier1" : "-0.112", 
       "Multiplier2" : "0"
    }, 
    "RRIGHT_Breasts Hang Forward L" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.336", 
+      "Multiplier1" : "0.672", 
       "Multiplier2" : "0"
    }, 
    "RRIGHT_Center Gap Smooth" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.672", 
+      "Multiplier1" : "1.344", 
       "Multiplier2" : "0"
    }, 
    "RRIGHT_Centre Gap Narrow" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.84", 
+      "Multiplier1" : "1.68", 
       "Multiplier2" : "0"
    }, 
    "RRIGHT_Breast Under Smoother1" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0", 
-      "Multiplier2" : "0.616"
+      "Multiplier2" : "1.232"
    }, 
    "RRIGHT_Breast Under Smoother3" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0", 
-      "Multiplier2" : "0.448"
+      "Multiplier2" : "0.896"
    }, 
    "RRIGHT_Breasts Implants L" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0", 
-      "Multiplier2" : "0.14"
+      "Multiplier2" : "0.28"
    }
 }
