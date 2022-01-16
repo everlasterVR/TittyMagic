@@ -1,46 +1,57 @@
 { 
    "LFWD_Breast Diameter" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.108", 
+      "Multiplier2" : "-0.036"
    }, 
    "LFWD_Breast Diameter(Pose)" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.396", 
+      "Multiplier2" : "0.132"
    }, 
    "LFWD_Breast Height2" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.09", 
+      "Multiplier2" : "-0.03"
    }, 
    "LFWD_Breast Move Up" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.27", 
+      "Multiplier2" : "0.09"
    }, 
    "LFWD_Breast Side Smoother" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.36", 
+      "Multiplier2" : "0.12"
    }, 
    "LFWD_Breast Width" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.09", 
+      "Multiplier2" : "-0.03"
    }, 
    "LFWD_Sternum Width" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.36", 
+      "Multiplier2" : "0.12"
    }, 
    "LFWD_Areola S2S" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.24", 
+      "Multiplier2" : "0.72"
    }, 
    "LFWD_Breast Depth" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.4", 
+      "Multiplier2" : "0.4"
    }, 
    "LFWD_Breasts Hang Forward" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.4", 
+      "Multiplier2" : "-0.1"
    }, 
    "LFWD_Breasts TogetherApart" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.24", 
+      "Multiplier2" : "-0.12"
    }
 }

@@ -67,17 +67,18 @@ namespace TittyMagic
             {
                 _uprightConfigs = new List<MorphConfig>();
                 _upsideDownConfigs = new List<MorphConfig>();
-                _leanBackConfigs = new List<MorphConfig>();
-                _leanForwardConfigs = new List<MorphConfig>();
                 LoadSettingsFromFile(mode, "upright", _uprightConfigs);
                 LoadSettingsFromFile(mode, "upsideDown", _upsideDownConfigs);
-                LoadSettingsFromFile(mode, "leanBack", _leanBackConfigs);
-                LoadSettingsFromFile(mode, "leanForward", _leanForwardConfigs);
                 _configSets.Add(Direction.DOWN, _uprightConfigs);
                 _configSets.Add(Direction.UP, _upsideDownConfigs);
-                _configSets.Add(Direction.BACK, _leanBackConfigs);
-                _configSets.Add(Direction.FORWARD, _leanForwardConfigs);
             }
+
+            _leanBackConfigs = new List<MorphConfig>();
+            _leanForwardConfigs = new List<MorphConfig>();
+            LoadSettingsFromFile(mode, "leanBack", _leanBackConfigs);
+            LoadSettingsFromFile(mode, "leanForward", _leanForwardConfigs);
+            _configSets.Add(Direction.BACK, _leanBackConfigs);
+            _configSets.Add(Direction.FORWARD, _leanForwardConfigs);
 
             _rollLeftConfigs = new List<MorphConfig>();
             _rollRightConfigs = new List<MorphConfig>();
@@ -94,9 +95,9 @@ namespace TittyMagic
                 {
                     _configurator.InitUISectionGroup(Direction.DOWN, _uprightConfigs);
                     _configurator.InitUISectionGroup(Direction.UP, _upsideDownConfigs);
-                    _configurator.InitUISectionGroup(Direction.BACK, _leanBackConfigs);
-                    _configurator.InitUISectionGroup(Direction.FORWARD, _leanForwardConfigs);
                 }
+                _configurator.InitUISectionGroup(Direction.BACK, _leanBackConfigs);
+                _configurator.InitUISectionGroup(Direction.FORWARD, _leanForwardConfigs);
                 _configurator.InitUISectionGroup(Direction.LEFT, _rollLeftConfigs);
                 _configurator.InitUISectionGroup(Direction.RIGHT, _rollRightConfigs);
             }
