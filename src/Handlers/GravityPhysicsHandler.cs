@@ -21,6 +21,10 @@ namespace TittyMagic
 
         private List<GravityPhysicsConfig> _upsideDownConfigs;
 
+        private List<GravityPhysicsConfig> _leanBackConfigs;
+
+        private List<GravityPhysicsConfig> _leanForwardConfigs;
+
         private List<GravityPhysicsConfig> _rollLeftConfigs;
 
         private List<GravityPhysicsConfig> _rollRightConfigs;
@@ -54,6 +58,8 @@ namespace TittyMagic
         {
             _uprightConfigs = new List<GravityPhysicsConfig>();
             _upsideDownConfigs = new List<GravityPhysicsConfig>();
+            _leanBackConfigs = new List<GravityPhysicsConfig>();
+            _leanForwardConfigs = new List<GravityPhysicsConfig>();
             _rollLeftConfigs = new List<GravityPhysicsConfig>();
             _rollRightConfigs = new List<GravityPhysicsConfig>();
             LoadSettingsFromFile(mode);
@@ -61,6 +67,8 @@ namespace TittyMagic
             {
                 { Direction.DOWN, _uprightConfigs },
                 { Direction.UP, _upsideDownConfigs },
+                { Direction.BACK, _leanBackConfigs },
+                { Direction.FORWARD, _leanForwardConfigs },
                 { Direction.LEFT, _rollLeftConfigs },
                 { Direction.RIGHT, _rollRightConfigs },
             };
@@ -71,6 +79,8 @@ namespace TittyMagic
                 _configurator.ResetUISectionGroups();
                 _configurator.InitUISectionGroup(Direction.DOWN, _uprightConfigs);
                 _configurator.InitUISectionGroup(Direction.UP, _upsideDownConfigs);
+                _configurator.InitUISectionGroup(Direction.BACK, _leanBackConfigs);
+                _configurator.InitUISectionGroup(Direction.FORWARD, _leanForwardConfigs);
                 _configurator.InitUISectionGroup(Direction.LEFT, _rollLeftConfigs);
                 _configurator.InitUISectionGroup(Direction.RIGHT, _rollRightConfigs);
                 _configurator.AddButtonListeners();
@@ -88,6 +98,10 @@ namespace TittyMagic
                         configs = _uprightConfigs;
                     else if(key == Direction.UP)
                         configs = _upsideDownConfigs;
+                    else if(key == Direction.BACK)
+                        configs = _leanBackConfigs;
+                    else if(key == Direction.FORWARD)
+                        configs = _leanForwardConfigs;
                     else if(key == Direction.LEFT)
                         configs = _rollLeftConfigs;
                     else if(key == Direction.RIGHT)
@@ -99,6 +113,7 @@ namespace TittyMagic
                         {
                             configs.Add(new GravityPhysicsConfig(
                                 name,
+                                groupJson[name]["Type"],
                                 groupJson[name]["IsNegative"].AsBool,
                                 groupJson[name]["Multiplier1"].AsFloat,
                                 groupJson[name]["Multiplier2"].AsFloat
@@ -107,6 +122,20 @@ namespace TittyMagic
                     }
                 }
             });
+        }
+
+        public void SetBaseValues()
+        {
+            foreach(var kvp in _configSets)
+            {
+                foreach(var config in kvp.Value)
+                {
+                    if(config.Type == "additive")
+                    {
+                        config.BaseValue = config.Setting.val;
+                    }
+                }
+            }
         }
 
         public bool IsEnabled()
@@ -144,33 +173,39 @@ namespace TittyMagic
             // leaning forward
             if(pitch >= 0)
             {
+                ResetPhysics(Direction.BACK);
                 // upright
                 if(pitch < 1)
                 {
                     ResetPhysics(Direction.UP);
                     UpdatePitchPhysics(Direction.DOWN, 1 - pitch, roll);
+                    UpdatePitchPhysics(Direction.FORWARD, pitch, roll);
                 }
                 // upside down
                 else
                 {
                     ResetPhysics(Direction.DOWN);
                     UpdatePitchPhysics(Direction.UP, pitch - 1, roll);
+                    UpdatePitchPhysics(Direction.FORWARD, 2 - pitch, roll);
                 }
             }
             // leaning back
             else
             {
+                ResetPhysics(Direction.FORWARD);
                 // upright
                 if(pitch >= -1)
                 {
                     ResetPhysics(Direction.UP);
                     UpdatePitchPhysics(Direction.DOWN, 1 + pitch, roll);
+                    UpdatePitchPhysics(Direction.BACK, -pitch, roll);
                 }
                 // upside down
                 else
                 {
                     ResetPhysics(Direction.DOWN);
                     UpdatePitchPhysics(Direction.UP, -pitch - 1, roll);
+                    UpdatePitchPhysics(Direction.BACK, 2 + pitch, roll);
                 }
             }
         }
@@ -207,30 +242,60 @@ namespace TittyMagic
                 mass * config.Multiplier2 * effect / 2;
 
             bool inRange = config.IsNegative ? value < 0 : value > 0;
-            config.Setting.val = inRange ? value : 0;
+
+            if(config.Type == "direct")
+            {
+                config.Setting.val = inRange ? value : 0;
+            }
+            else if(config.Type == "additive")
+            {
+                config.Setting.val = inRange ? config.BaseValue + value : config.BaseValue;
+            }
         }
 
         public void ZeroAll()
         {
-            ResetPhysics(Direction.DOWN, 0f);
-            ResetPhysics(Direction.UP, 0f);
-            ResetPhysics(Direction.LEFT, 0f);
-            ResetPhysics(Direction.RIGHT, 0f);
+            ZeroPhysics(Direction.DOWN);
+            ZeroPhysics(Direction.UP);
+            ZeroPhysics(Direction.BACK);
+            ZeroPhysics(Direction.FORWARD);
+            ZeroPhysics(Direction.LEFT);
+            ZeroPhysics(Direction.RIGHT);
         }
 
         public void ResetAll()
         {
             ResetPhysics(Direction.DOWN);
             ResetPhysics(Direction.UP);
+            ResetPhysics(Direction.BACK);
+            ResetPhysics(Direction.FORWARD);
             ResetPhysics(Direction.LEFT);
             ResetPhysics(Direction.RIGHT);
         }
 
-        private void ResetPhysics(string configSetName, float? value = null)
+        private void ZeroPhysics(string configSetName)
         {
             foreach(var config in _configSets[configSetName])
             {
-                float newValue = value.HasValue ? value.Value : config.OriginalValue;
+                if(config.Type == "additive")
+                {
+                    return;
+                }
+
+                float newValue = 0f;
+                config.Setting.val = newValue;
+                if(_useConfigurator)
+                {
+                    _configurator.UpdateValueSlider(configSetName, config.Name, newValue);
+                }
+            }
+        }
+
+        private void ResetPhysics(string configSetName)
+        {
+            foreach(var config in _configSets[configSetName])
+            {
+                float newValue = config.Type == "additive" ? config.BaseValue : config.OriginalValue;
                 config.Setting.val = newValue;
                 if(_useConfigurator)
                 {

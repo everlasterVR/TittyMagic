@@ -3,6 +3,7 @@
     internal class ConfiguratorUISection
     {
         public string Name { get; set; }
+        public JSONStorableString TypeStorable { get; set; }
         public JSONStorableBool IsNegativeStorable { get; set; }
         public JSONStorableFloat Multiplier1Storable { get; set; }
         public JSONStorableFloat Multiplier2Storable { get; set; }
@@ -36,6 +37,7 @@
             Name = config.Name;
             UI.NewTextField(script, Name, $"\n{Name}", 32);
 
+            TypeStorable = new JSONStorableString("Type", config.Type);
             IsNegativeStorable = new JSONStorableBool("IsNegative", config.IsNegative);
 
             Multiplier1Storable = UI.NewFloatSlider(script, "Multiplier1", config.Multiplier1, -40, 40, "F2", true);

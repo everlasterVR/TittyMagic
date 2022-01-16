@@ -18,9 +18,14 @@ namespace TittyMagic
 
         public float OriginalValue { get; set; }
 
-        public GravityPhysicsConfig(string name, bool isNegative, float multiplier1, float multiplier2)
+        public float BaseValue { get; set; }
+
+        public string Type { get; set; }
+
+        public GravityPhysicsConfig(string name, string type, bool isNegative, float multiplier1, float multiplier2)
         {
             Name = name;
+            Type = type;
             IsNegative = isNegative;
             Multiplier1 = multiplier1;
             Multiplier2 = multiplier2;

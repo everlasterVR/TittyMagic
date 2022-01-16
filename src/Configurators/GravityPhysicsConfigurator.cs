@@ -10,6 +10,8 @@ namespace TittyMagic
         {
             { Direction.DOWN, "Upright physics" },
             { Direction.UP, "Upside down physics" },
+            { Direction.BACK, "Lean back physics" },
+            { Direction.FORWARD, "Lean forward physics" },
             { Direction.LEFT, "Roll left physics" },
             { Direction.RIGHT, "Roll right physics" },
         };
@@ -54,6 +56,8 @@ namespace TittyMagic
             _UISectionGroups = new Dictionary<string, Dictionary<string, ConfiguratorUISection>> {
                 { Direction.DOWN, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.UP, new Dictionary<string, ConfiguratorUISection>() },
+                { Direction.BACK, new Dictionary<string, ConfiguratorUISection>() },
+                { Direction.FORWARD, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.LEFT, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.RIGHT, new Dictionary<string, ConfiguratorUISection>() },
             };
@@ -112,6 +116,7 @@ namespace TittyMagic
                 var groupJson = new JSONClass();
                 sectionGroup.Values.ToList().ForEach(item =>
                 {
+                    groupJson[item.Name]["Type"] = item.TypeStorable.val;
                     groupJson[item.Name]["IsNegative"].AsBool = item.IsNegativeStorable.val;
                     groupJson[item.Name]["Multiplier1"].AsFloat = Calc.RoundToDecimals(item.Multiplier1Storable.val, 1000f);
                     groupJson[item.Name]["Multiplier2"].AsFloat = Calc.RoundToDecimals(item.Multiplier2Storable.val, 1000f);

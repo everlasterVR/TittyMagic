@@ -1,20 +1,51 @@
 { 
    "DOWN" : { 
       "targetRotationX" : { 
+         "Type" : "direct", 
          "IsNegative" : "true", 
          "Multiplier1" : "-12", 
-         "Multiplier2" : "-6"
+         "Multiplier2" : "-4"
       }
    }, 
    "UP" : { 
       "targetRotationX" : { 
+         "Type" : "direct", 
          "IsNegative" : "false", 
          "Multiplier1" : "6", 
          "Multiplier2" : "2"
       }
    }, 
+   "BACK" : { 
+      "centerOfGravityPercent" : { 
+         "Type" : "additive", 
+         "IsNegative" : "false", 
+         "Multiplier1" : "0.167", 
+         "Multiplier2" : "0.12"
+      }, 
+      "spring" : { 
+         "Type" : "additive", 
+         "IsNegative" : "true", 
+         "Multiplier1" : "-33", 
+         "Multiplier2" : "-25"
+      }
+   }, 
+   "FORWARD" : { 
+      "centerOfGravityPercent" : { 
+         "Type" : "additive", 
+         "IsNegative" : "false", 
+         "Multiplier1" : "0.167", 
+         "Multiplier2" : "0.12"
+      }, 
+      "spring" : { 
+         "Type" : "additive", 
+         "IsNegative" : "true", 
+         "Multiplier1" : "-33", 
+         "Multiplier2" : "-25"
+      }
+   }, 
    "LEFT" : { 
       "targetRotationY" : { 
+         "Type" : "direct", 
          "IsNegative" : "false", 
          "Multiplier1" : "9", 
          "Multiplier2" : "3"
@@ -22,6 +53,7 @@
    }, 
    "RIGHT" : { 
       "targetRotationY" : { 
+         "Type" : "direct", 
          "IsNegative" : "true", 
          "Multiplier1" : "-9", 
          "Multiplier2" : "-3"

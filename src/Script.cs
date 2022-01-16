@@ -424,6 +424,7 @@ namespace TittyMagic
             }
             SetMassUIStatus(atomScaleListener.Value);
             staticPhysicsH.FullUpdate(softnessAmount, nippleErection.val);
+            gravityPhysicsH.SetBaseValues();
 
             refreshStatus = RefreshStatus.MASS_OK;
         }
