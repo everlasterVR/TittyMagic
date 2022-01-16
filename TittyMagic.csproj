@@ -114,9 +114,9 @@
     <None Include="settings\morphmultipliers\balanced\rollRight.json" />
     <None Include="settings\morphmultipliers\balanced\upright.json" />
     <None Include="settings\morphmultipliers\balanced\upsideDown.json" />
-    <None Include="settings\morphmultipliers_dev\animoptimized\backForce.json" />
-    <None Include="settings\morphmultipliers_dev\animoptimized\forwardForce.json" />
     <None Include="settings\morphmultipliers_dev\animoptimized\downForce.json" />
+    <None Include="settings\morphmultipliers_dev\animoptimized\leanBack.json" />
+    <None Include="settings\morphmultipliers_dev\animoptimized\leanForward.json" />
     <None Include="settings\morphmultipliers_dev\animoptimized\rollLeft.json" />
     <None Include="settings\morphmultipliers_dev\animoptimized\rollRight.json" />
     <None Include="settings\morphmultipliers_dev\animoptimized\upForce.json" />
