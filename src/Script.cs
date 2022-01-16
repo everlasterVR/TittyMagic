@@ -394,7 +394,7 @@ namespace TittyMagic
             {
                 yield return new WaitForSecondsRealtime(0.1f);
             }
-            yield return new WaitForSecondsRealtime(1.0f);
+            yield return new WaitForSecondsRealtime(0.33f);
 
             refreshStatus = RefreshStatus.MASS_STARTED;
 
@@ -414,7 +414,7 @@ namespace TittyMagic
 
             float duration = 0;
             float interval = 0.1f;
-            while(duration < 2f && (
+            while(duration < 1f && (
                 !VectorEqualWithin(1000f, rNippleRigidbody.velocity, Vector3.zero) ||
                 !EqualWithin(1000f, massEstimate, DetermineMassEstimate(atomScaleListener.Value))
             ))
@@ -442,12 +442,16 @@ namespace TittyMagic
         private IEnumerator RefreshNeutralRelativePosition()
         {
             refreshStatus = RefreshStatus.NEUTRALPOS_STARTED;
-            yield return new WaitForSecondsRealtime(1f);
+            float roll = Roll(chestTransform.rotation);
+            float pitch = Pitch(chestTransform.rotation);
+            gravityPhysicsH.Update(roll, pitch, massAmount, softnessAmount);
+
+            yield return new WaitForSecondsRealtime(0.33f);
 
             float duration = 0;
             float interval = 0.1f;
             while(
-                duration < 2f && (
+                duration < 1f && (
                 !VectorEqualWithin(
                     1000000f,
                     neutralRelativePos,
