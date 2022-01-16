@@ -71,14 +71,14 @@ namespace TittyMagic
                 LoadSettingsFromFile(mode, "upsideDown", _upsideDownConfigs);
                 _configSets.Add(Direction.DOWN, _uprightConfigs);
                 _configSets.Add(Direction.UP, _upsideDownConfigs);
-
-                _leanBackConfigs = new List<MorphConfig>();
-                _leanForwardConfigs = new List<MorphConfig>();
-                LoadSettingsFromFile(mode, "leanBack", _leanBackConfigs);
-                LoadSettingsFromFile(mode, "leanForward", _leanForwardConfigs);
-                _configSets.Add(Direction.BACK, _leanBackConfigs);
-                _configSets.Add(Direction.FORWARD, _leanForwardConfigs);
             }
+            _leanBackConfigs = new List<MorphConfig>();
+            _leanForwardConfigs = new List<MorphConfig>();
+            LoadSettingsFromFile(mode, "leanBack", _leanBackConfigs);
+            LoadSettingsFromFile(mode, "leanForward", _leanForwardConfigs);
+            _configSets.Add(Direction.BACK, _leanBackConfigs);
+            _configSets.Add(Direction.FORWARD, _leanForwardConfigs);
+
             _rollLeftConfigs = new List<MorphConfig>();
             _rollRightConfigs = new List<MorphConfig>();
             LoadSettingsFromFile(mode, "rollLeft", _rollLeftConfigs);
@@ -94,10 +94,10 @@ namespace TittyMagic
                 {
                     _configurator.InitUISectionGroup(Direction.DOWN, _uprightConfigs);
                     _configurator.InitUISectionGroup(Direction.UP, _upsideDownConfigs);
-
-                    _configurator.InitUISectionGroup(Direction.BACK, _leanBackConfigs);
-                    _configurator.InitUISectionGroup(Direction.FORWARD, _leanForwardConfigs);
                 }
+                _configurator.InitUISectionGroup(Direction.BACK, _leanBackConfigs);
+                _configurator.InitUISectionGroup(Direction.FORWARD, _leanForwardConfigs);
+
                 _configurator.InitUISectionGroup(Direction.LEFT, _rollLeftConfigs);
                 _configurator.InitUISectionGroup(Direction.RIGHT, _rollRightConfigs);
             }
@@ -138,6 +138,7 @@ namespace TittyMagic
         }
 
         public void Update(
+            string mode,
             float roll,
             float pitch,
             float mass,
@@ -153,8 +154,12 @@ namespace TittyMagic
             //}
             //scaling reduces the effect the smaller the breast
 
-            AdjustMorphsForRoll(roll);
-            AdjustMorphsForPitch(pitch, roll);
+            if(mode != Mode.ANIM_OPTIMIZED)
+            {
+                AdjustUpDownMorphs(pitch, roll);
+            }
+            AdjustLeftRightMorphs(roll);
+            AdjustForwardBackMorphs(pitch, roll);
 
             string infoText =
                 $"{NameValueString("Pitch", pitch, 100f, 15)}\n" +
@@ -163,24 +168,7 @@ namespace TittyMagic
             UpdateDebugInfo(infoText);
         }
 
-        public void UpdateRoll(
-            float roll,
-            float mass,
-            float gravity
-        )
-        {
-            this.mass = mass;
-            this.gravity = gravity;
-
-            AdjustMorphsForRoll(roll);
-
-            string infoText =
-                $"{NameValueString("Roll", roll, 100f, 15)}\n" +
-                $"";
-            UpdateDebugInfo(infoText);
-        }
-
-        private void AdjustMorphsForRoll(float roll)
+        private void AdjustLeftRightMorphs(float roll)
         {
             // left
             if(roll >= 0)
@@ -196,41 +184,51 @@ namespace TittyMagic
             }
         }
 
-        private void AdjustMorphsForPitch(float pitch, float roll)
+        private void AdjustUpDownMorphs(float pitch, float roll)
         {
             // leaning forward
             if(pitch >= 0)
             {
                 UpdatePitchMorphs(Direction.UP, pitch/2, roll);
+                UpdatePitchMorphs(Direction.DOWN, (2 - pitch)/2, roll);
+            }
+            // leaning back
+            else
+            {
+                UpdatePitchMorphs(Direction.UP, -pitch/2, roll);
+                UpdatePitchMorphs(Direction.DOWN, (2 + pitch)/2, roll);
+            }
+        }
+
+        private void AdjustForwardBackMorphs(float pitch, float roll)
+        {
+            // leaning forward
+            if(pitch >= 0)
+            {
                 ResetMorphs(Direction.BACK);
                 // upright
                 if(pitch < 1)
                 {
                     UpdatePitchMorphs(Direction.FORWARD, pitch, roll);
-                    UpdatePitchMorphs(Direction.DOWN, 1 - pitch, roll);
                 }
                 // upside down
                 else
                 {
-                    ResetMorphs(Direction.DOWN);
                     UpdatePitchMorphs(Direction.FORWARD, 2 - pitch, roll);
                 }
             }
             // leaning back
             else
             {
-                UpdatePitchMorphs(Direction.UP, -pitch/2, roll);
                 ResetMorphs(Direction.FORWARD);
                 // upright
                 if(pitch >= -1)
                 {
                     UpdatePitchMorphs(Direction.BACK, -pitch, roll);
-                    UpdatePitchMorphs(Direction.DOWN, 1 + pitch, roll);
                 }
                 // upside down
                 else
                 {
-                    ResetMorphs(Direction.DOWN);
                     UpdatePitchMorphs(Direction.BACK, 2 + pitch, roll);
                 }
             }

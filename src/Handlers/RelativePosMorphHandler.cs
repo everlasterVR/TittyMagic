@@ -21,13 +21,13 @@ namespace TittyMagic
 
         private List<MorphConfig> _upForceConfigs;
 
-        private List<MorphConfig> _backForceConfigs;
+        //private List<MorphConfig> _backForceConfigs;
 
-        private List<MorphConfig> _forwardForceConfigs;
+        //private List<MorphConfig> _forwardForceConfigs;
 
-        private List<MorphConfig> _leftForceConfigs;
+        //private List<MorphConfig> _leftForceConfigs;
 
-        private List<MorphConfig> _rightForceConfigs;
+        //private List<MorphConfig> _rightForceConfigs;
 
         public RelativePosMorphHandler(MVRScript script)
         {
@@ -56,24 +56,24 @@ namespace TittyMagic
         {
             _downForceConfigs = new List<MorphConfig>();
             _upForceConfigs = new List<MorphConfig>();
-            _backForceConfigs = new List<MorphConfig>();
-            _forwardForceConfigs = new List<MorphConfig>();
-            _leftForceConfigs = new List<MorphConfig>();
-            _rightForceConfigs = new List<MorphConfig>();
+            //_backForceConfigs = new List<MorphConfig>();
+            //_forwardForceConfigs = new List<MorphConfig>();
+            //_leftForceConfigs = new List<MorphConfig>();
+            //_rightForceConfigs = new List<MorphConfig>();
             LoadSettingsFromFile(mode, "downForce", _downForceConfigs);
             LoadSettingsFromFile(mode, "upForce", _upForceConfigs);
-            LoadSettingsFromFile(mode, "backForce", _backForceConfigs);
-            LoadSettingsFromFile(mode, "forwardForce", _forwardForceConfigs);
-            LoadSettingsFromFile(mode, "leftForce", _leftForceConfigs);
-            LoadSettingsFromFile(mode, "rightForce", _rightForceConfigs);
+            //LoadSettingsFromFile(mode, "backForce", _backForceConfigs);
+            //LoadSettingsFromFile(mode, "forwardForce", _forwardForceConfigs);
+            //LoadSettingsFromFile(mode, "leftForce", _leftForceConfigs);
+            //LoadSettingsFromFile(mode, "rightForce", _rightForceConfigs);
             _configSets = new Dictionary<string, List<MorphConfig>>
             {
                 { Direction.DOWN, _downForceConfigs },
                 { Direction.UP, _upForceConfigs },
-                { Direction.BACK, _backForceConfigs },
-                { Direction.FORWARD, _forwardForceConfigs },
-                { Direction.LEFT, _leftForceConfigs },
-                { Direction.RIGHT, _rightForceConfigs },
+                //{ Direction.BACK, _backForceConfigs },
+                //{ Direction.FORWARD, _forwardForceConfigs },
+                //{ Direction.LEFT, _leftForceConfigs },
+                //{ Direction.RIGHT, _rightForceConfigs },
             };
 
             //not working properly yet when changing mode on the fly
@@ -82,10 +82,10 @@ namespace TittyMagic
                 _configurator.ResetUISectionGroups();
                 _configurator.InitUISectionGroup(Direction.DOWN, _downForceConfigs);
                 _configurator.InitUISectionGroup(Direction.UP, _upForceConfigs);
-                _configurator.InitUISectionGroup(Direction.BACK, _backForceConfigs);
-                _configurator.InitUISectionGroup(Direction.FORWARD, _forwardForceConfigs);
-                _configurator.InitUISectionGroup(Direction.LEFT, _leftForceConfigs);
-                _configurator.InitUISectionGroup(Direction.RIGHT, _rightForceConfigs);
+                //_configurator.InitUISectionGroup(Direction.BACK, _backForceConfigs);
+                //_configurator.InitUISectionGroup(Direction.FORWARD, _forwardForceConfigs);
+                //_configurator.InitUISectionGroup(Direction.LEFT, _leftForceConfigs);
+                //_configurator.InitUISectionGroup(Direction.RIGHT, _rightForceConfigs);
             }
         }
 
@@ -152,7 +152,7 @@ namespace TittyMagic
             float scaledAngleY = angleY / Mathf.Pow(3/5f * mass, 1/7f);
 
             float effectY = Calc.RoundToDecimals(Mathf.InverseLerp(0, 75, Mathf.Abs(scaledAngleY)), 1000f);
-            float effectZ = Calc.RoundToDecimals(Mathf.InverseLerp(0, 1, Mathf.Abs(positionDiffZ)), 1000f);
+            //float effectZ = Calc.RoundToDecimals(Mathf.InverseLerp(0, 0.060f, Mathf.Abs(positionDiffZ)), 1000f);
 
             // up
             if(scaledAngleY >= 0)
@@ -167,24 +167,25 @@ namespace TittyMagic
                 UpdateMorphs(Direction.DOWN, effectY);
             }
 
-            // forward
-            if(positionDiffZ <= 0)
-            {
-                ResetMorphs(Direction.BACK);
-                UpdateMorphs(Direction.FORWARD, effectZ);
-            }
-            // back
-            else
-            {
-                ResetMorphs(Direction.FORWARD);
-                UpdateMorphs(Direction.BACK, effectZ);
-            }
+            //TODO delete or use
+            //forward
+            //if(positionDiffZ <= 0)
+            //{
+            //    ResetMorphs(Direction.BACK);
+            //    UpdateMorphs(Direction.FORWARD, effectZ);
+            //}
+            //// back
+            //else
+            //{
+            //    ResetMorphs(Direction.FORWARD);
+            //    UpdateMorphs(Direction.BACK, effectZ);
+            //}
 
             string infoText =
                     $"{NameValueString("angleY", angleY, 1000f)} \n" +
+                    $"{NameValueString("scaledAngleY", scaledAngleY, 1000f)} \n" +
                     $"{NameValueString("effectY", effectY, 1000f)} \n" +
-                    $"{NameValueString("diffZ", positionDiffZ, 10000f)} \n" +
-                    $"{NameValueString("effectZ", effectZ, 1000f)} \n";
+                    $"";
             UpdateDebugInfo(infoText);
         }
 
@@ -214,10 +215,10 @@ namespace TittyMagic
         {
             ResetMorphs(Direction.DOWN);
             ResetMorphs(Direction.UP);
-            ResetMorphs(Direction.BACK);
-            ResetMorphs(Direction.FORWARD);
-            ResetMorphs(Direction.LEFT);
-            ResetMorphs(Direction.RIGHT);
+            //ResetMorphs(Direction.BACK);
+            //ResetMorphs(Direction.FORWARD);
+            //ResetMorphs(Direction.LEFT);
+            //ResetMorphs(Direction.RIGHT);
         }
 
         private void ResetMorphs(string configSetName)

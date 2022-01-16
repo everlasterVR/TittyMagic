@@ -355,19 +355,16 @@ namespace TittyMagic
                     new Vector2(neutralRelativePos.z, neutralRelativePos.y),
                     new Vector2(relativePos.z, relativePos.y)
                 );
-                float positionDiffZ = (neutralRelativePos - relativePos).z;
+                //float positionDiffZ = (neutralRelativePos - relativePos).z;
                 if(relativePosMorphH.IsEnabled())
                 {
-                    relativePosMorphH.Update(angleY, positionDiffZ, massAmount, softnessAmount);
-                }
-                if(gravityMorphH.IsEnabled())
-                {
-                    gravityMorphH.UpdateRoll(roll, massAmount, gravityAmount);
+                    relativePosMorphH.Update(angleY, 0f, massAmount, softnessAmount);
                 }
             }
-            else if(gravityMorphH.IsEnabled())
+
+            if(gravityMorphH.IsEnabled())
             {
-                gravityMorphH.Update(roll, pitch, massAmount, gravityAmount);
+                gravityMorphH.Update(modeChooser.val, roll, pitch, massAmount, gravityAmount);
             }
 
             if(gravityPhysicsH.IsEnabled())

@@ -51,18 +51,18 @@
    }, 
    "UPSD_Breast Zero" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.284", 
-      "Multiplier2" : "0.767"
+      "Multiplier1" : "0.214", 
+      "Multiplier2" : "0.267"
    }, 
    "UPSD_Breast flat" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.1", 
-      "Multiplier2" : "0.2"
+      "Multiplier2" : "0.1"
    }, 
    "UPSD_Breasts Hang Forward" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.183", 
-      "Multiplier2" : "0.149"
+      "Multiplier2" : "0.608"
    }, 
    "UPSD_BreastsShape2" : { 
       "IsNegative" : "false", 
@@ -132,7 +132,7 @@
    "UPSD_Breast Under Smoother3" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.339", 
-      "Multiplier2" : "0"
+      "Multiplier2" : "0.19"
    }, 
    "UPSD_Breast Under Smoother4" : { 
       "IsNegative" : "false", 
