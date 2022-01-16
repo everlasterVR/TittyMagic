@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static TittyMagic.Utils;
 using static TittyMagic.Calc;
+using static TittyMagic.Globals;
 
 namespace TittyMagic
 {
@@ -92,11 +93,16 @@ namespace TittyMagic
                 rPectoralRigidbody = rigidbodies.Find(rb => rb.name == "rPectoral");
                 geometry = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
 
-                Globals.SAVES_DIR = SuperController.singleton.savesDir + @"everlaster\TittyMagicSettings\";
-                Globals.PLUGIN_PATH = GetPackagePath(this) + @"Custom\Scripts\everlaster\TittyMagic\";
-                Globals.BREAST_CONTROL = breastControl;
-                Globals.BREAST_PHYSICS_MESH = breastPhysicsMesh;
-                Globals.GEOMETRY = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
+                SAVES_DIR = SuperController.singleton.savesDir + @"everlaster\TittyMagicSettings\";
+#if USE_CONFIGURATORS
+                MORPHMULTIPLIERS_DIRNAME = "morphmultipliers_dev";
+#else
+                MORPHMULTIPLIERS_DIRNAME = "morphmultipliers";
+#endif
+                PLUGIN_PATH = GetPackagePath(this) + @"Custom\Scripts\everlaster\TittyMagic\";
+                BREAST_CONTROL = breastControl;
+                BREAST_PHYSICS_MESH = breastPhysicsMesh;
+                GEOMETRY = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
 
                 settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
                 settingsMonitor.Init(containingAtom);

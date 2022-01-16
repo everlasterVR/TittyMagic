@@ -1,6 +1,7 @@
 ﻿using SimpleJSON;
 using System;
 using System.Collections.Generic;
+using static TittyMagic.Globals;
 
 namespace TittyMagic
 {
@@ -55,7 +56,7 @@ namespace TittyMagic
         {
             button.button.onClick.AddListener(() =>
             {
-                SuperController.singleton.NormalizeMediaPath($@"{Globals.PLUGIN_PATH}settings\"); // Sets dir if path exists
+                SuperController.singleton.NormalizeMediaPath($@"{PLUGIN_PATH}settings\"); // Sets dir if path exists
                 SuperController.singleton.GetMediaPathDialog((string path) =>
                 {
                     var json = new JSONClass();

@@ -1,4 +1,5 @@
 ﻿using static TittyMagic.Utils;
+using static TittyMagic.Globals;
 
 namespace TittyMagic
 {
@@ -23,7 +24,7 @@ namespace TittyMagic
             IsNegative = isNegative;
             Multiplier1 = multiplier1;
             Multiplier2 = multiplier2;
-            Setting = Globals.BREAST_CONTROL.GetFloatJSONParam(name);
+            Setting = BREAST_CONTROL.GetFloatJSONParam(name);
             if(Setting == null)
             {
                 LogError($"BreastControl float param with name {name} not found!", nameof(GravityPhysicsConfig));
@@ -39,7 +40,7 @@ namespace TittyMagic
         public MorphConfig(string name)
         {
             Name = name;
-            Morph = Globals.GEOMETRY.morphsControlUI.GetMorphByDisplayName(name);
+            Morph = GEOMETRY.morphsControlUI.GetMorphByDisplayName(name);
             if(Morph == null)
             {
                 LogError($"Morph with name {name} not found!", nameof(MorphConfig));
@@ -52,7 +53,7 @@ namespace TittyMagic
             IsNegative = isNegative;
             Multiplier1 = multiplier1;
             Multiplier2 = multiplier2;
-            Morph = Globals.GEOMETRY.morphsControlUI.GetMorphByDisplayName(name);
+            Morph = GEOMETRY.morphsControlUI.GetMorphByDisplayName(name);
             if(Morph == null)
             {
                 LogError($"Morph with name {name} not found!", nameof(MorphConfig));

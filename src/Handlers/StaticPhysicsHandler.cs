@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using static TittyMagic.Utils;
+using static TittyMagic.Globals;
 
 namespace TittyMagic
 {
@@ -25,11 +26,11 @@ namespace TittyMagic
         {
             if(mode == Mode.BALANCED)
             {
-                Globals.GEOMETRY.useAuxBreastColliders = true;
+                GEOMETRY.useAuxBreastColliders = true;
             }
             else if(mode == Mode.TOUCH_OPTIMIZED || mode == Mode.ANIM_OPTIMIZED)
             {
-                Globals.GEOMETRY.useAuxBreastColliders = false;
+                GEOMETRY.useAuxBreastColliders = false;
             }
 
             LoadSettingsFromFiles(script, mode);
@@ -50,7 +51,7 @@ namespace TittyMagic
                     if(param == "damper")
                     {
                         rateDependentPhysicsConfigs.Add(new RateDependentPhysicsConfig(
-                            Globals.BREAST_CONTROL.GetFloatJSONParam(param),
+                            BREAST_CONTROL.GetFloatJSONParam(param),
                             paramSettings["minMminS"].AsFloat,
                             paramSettings["maxMminS"].AsFloat,
                             paramSettings["minMmaxS"].AsFloat
@@ -59,7 +60,7 @@ namespace TittyMagic
                     }
 
                     mainPhysicsConfigs.Add(new PhysicsConfig(
-                        Globals.BREAST_CONTROL.GetFloatJSONParam(param),
+                        BREAST_CONTROL.GetFloatJSONParam(param),
                         paramSettings["minMminS"].AsFloat,
                         paramSettings["maxMminS"].AsFloat,
                         paramSettings["minMmaxS"].AsFloat
@@ -73,7 +74,7 @@ namespace TittyMagic
                 {
                     JSONClass paramSettings = json[param].AsObject;
                     softPhysicsConfigs.Add(new PhysicsConfig(
-                        Globals.BREAST_PHYSICS_MESH.GetFloatJSONParam(param),
+                        BREAST_PHYSICS_MESH.GetFloatJSONParam(param),
                         paramSettings["minMminS"].AsFloat,
                         paramSettings["maxMminS"].AsFloat,
                         paramSettings["minMmaxS"].AsFloat
@@ -87,7 +88,7 @@ namespace TittyMagic
                 {
                     JSONClass paramSettings = json[param].AsObject;
                     nipplePhysicsConfigs.Add(new NipplePhysicsConfig(
-                        Globals.BREAST_PHYSICS_MESH.GetFloatJSONParam(param),
+                        BREAST_PHYSICS_MESH.GetFloatJSONParam(param),
                         paramSettings["minMminS"].AsFloat,
                         paramSettings["maxMminS"].AsFloat,
                         paramSettings["minMmaxS"].AsFloat
@@ -99,20 +100,20 @@ namespace TittyMagic
         private void SetPhysicsDefaults()
         {
             //Soft physics on
-            Globals.BREAST_PHYSICS_MESH.on = true;
+            BREAST_PHYSICS_MESH.on = true;
             //Self colliders off
-            Globals.BREAST_PHYSICS_MESH.allowSelfCollision = true;
+            BREAST_PHYSICS_MESH.allowSelfCollision = true;
             //Auto collider radius off
-            Globals.BREAST_PHYSICS_MESH.softVerticesUseAutoColliderRadius = false;
+            BREAST_PHYSICS_MESH.softVerticesUseAutoColliderRadius = false;
             //Collider depth
-            Globals.BREAST_PHYSICS_MESH.softVerticesColliderAdditionalNormalOffset = 0.002f;
+            BREAST_PHYSICS_MESH.softVerticesColliderAdditionalNormalOffset = 0.002f;
         }
 
         public float SetAndReturnMassVal(float massEstimate)
         {
             if(modeChooser.val != Mode.TOUCH_OPTIMIZED)
             {
-                Globals.BREAST_CONTROL.mass = massEstimate;
+                BREAST_CONTROL.mass = massEstimate;
             }
             massVal = Mathf.InverseLerp(0, Const.MASS_MAX, massEstimate);
             return massVal;
@@ -153,7 +154,7 @@ namespace TittyMagic
         public string GetStatus()
         {
             string text = "MAIN PHYSICS\n";
-            text += NameValueString("mass", Globals.BREAST_CONTROL.mass, padRight: 25) + "\n";
+            text += NameValueString("mass", BREAST_CONTROL.mass, padRight: 25) + "\n";
             foreach(var it in mainPhysicsConfigs)
                 text += it.GetStatus();
             foreach(var it in rateDependentPhysicsConfigs)

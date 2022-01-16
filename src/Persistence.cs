@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using SimpleJSON;
 using MVR.FileManagementSecure;
+using static TittyMagic.Globals;
 
 namespace TittyMagic
 {
@@ -32,25 +33,25 @@ namespace TittyMagic
 
         public static void LoadModePhysicsSettings(MVRScript script, string mode, string fileName, Action<string, JSONClass> callback = null)
         {
-            var path = $@"{Globals.PLUGIN_PATH}settings\staticphysics\{settingsNames[mode]}\{fileName}";
+            var path = $@"{PLUGIN_PATH}settings\staticphysics\{settingsNames[mode]}\{fileName}";
             LoadFromPath(script, path, callback);
         }
 
         public static void LoadModeGravityPhysicsSettings(MVRScript script, string mode, Action<string, JSONClass> callback = null)
         {
-            var path = $@"{Globals.PLUGIN_PATH}settings\gravityphysics\{settingsNames[mode]}.json";
+            var path = $@"{PLUGIN_PATH}settings\gravityphysics\{settingsNames[mode]}.json";
             LoadFromPath(script, path, callback);
         }
 
         public static void LoadModeMorphSettings(MVRScript script, string mode, string fileName, Action<string, JSONClass> callback = null)
         {
-            var path = $@"{Globals.PLUGIN_PATH}settings\morphmultipliers\{settingsNames[mode]}\{fileName}";
+            var path = $@"{PLUGIN_PATH}settings\{MORPHMULTIPLIERS_DIRNAME}\{settingsNames[mode]}\{fileName}";
             LoadFromPath(script, path, callback);
         }
 
         public static void LoadNippleMorphSettings(MVRScript script, Action<string, JSONClass> callback = null)
         {
-            var path = $@"{Globals.PLUGIN_PATH}settings\morphmultipliers\nippleErection.json";
+            var path = $@"{PLUGIN_PATH}settings\{MORPHMULTIPLIERS_DIRNAME}\nippleErection.json";
             LoadFromPath(script, path, callback);
         }
 
@@ -68,8 +69,8 @@ namespace TittyMagic
 
         public static string MakeDefaultDir()
         {
-            FileManagerSecure.CreateDirectory(Globals.SAVES_DIR);
-            return Globals.SAVES_DIR;
+            FileManagerSecure.CreateDirectory(SAVES_DIR);
+            return SAVES_DIR;
         }
     }
 }
