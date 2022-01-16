@@ -152,17 +152,14 @@ namespace TittyMagic
             //    it.UpdateVal();
             //}
             //scaling reduces the effect the smaller the breast
-            float scaledRoll = roll * Mathf.Lerp(0.9f, 1f, mass);
-            float scaledPitch = pitch * Mathf.Lerp(0.9f, 1f, mass);
 
-            AdjustMorphsForRoll(scaledRoll);
-            AdjustMorphsForPitch(scaledPitch, scaledRoll);
+            AdjustMorphsForRoll(roll);
+            AdjustMorphsForPitch(pitch, roll);
 
             string infoText =
                 $"{NameValueString("Pitch", pitch, 100f, 15)}\n" +
-                $"{NameValueString("Scaled pitch", scaledPitch, 100f, 15)}\n" +
                 $"{NameValueString("Roll", roll, 100f, 15)}\n" +
-                $"{NameValueString("Scaled roll", scaledRoll, 100f, 15)}\n";
+                $"";
             UpdateDebugInfo(infoText);
         }
 
@@ -175,13 +172,11 @@ namespace TittyMagic
             this.mass = mass;
             this.gravity = gravity;
 
-            float scaledRoll = roll * Mathf.Lerp(0.9f, 1f, mass);
-
-            AdjustMorphsForRoll(scaledRoll);
+            AdjustMorphsForRoll(roll);
 
             string infoText =
                 $"{NameValueString("Roll", roll, 100f, 15)}\n" +
-                $"{NameValueString("Scaled roll", scaledRoll, 100f, 15)}\n";
+                $"";
             UpdateDebugInfo(infoText);
         }
 
