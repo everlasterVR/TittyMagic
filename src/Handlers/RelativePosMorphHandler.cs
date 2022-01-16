@@ -147,9 +147,9 @@ namespace TittyMagic
             //    UpdateMorphs(Direction.LEFT, x);
             //}
 
-            // https://www.desmos.com/calculator/mojzkllblw
+            // https://www.desmos.com/calculator/84v7at4xeg
             // small breasts experience more effect from angle
-            float scaledAngleY = angleY / Mathf.Pow(mass, 1/8f);
+            float scaledAngleY = angleY / Mathf.Pow(3/5f * mass, 1/7f);
 
             float effectY = Calc.RoundToDecimals(Mathf.InverseLerp(0, 75, Mathf.Abs(scaledAngleY)), 1000f);
             float effectZ = Calc.RoundToDecimals(Mathf.InverseLerp(0, 1, Mathf.Abs(positionDiffZ)), 1000f);
