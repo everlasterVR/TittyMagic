@@ -21,7 +21,7 @@
                 config.Multiplier1 = val;
             });
 
-            ValueStorable = UI.NewFloatSlider(script, "value", config.Morph.morphValue, -2, 2, "F3");
+            ValueStorable = UI.NewFloatSlider(script, "value", config.Morph.morphValue, 2 * config.Morph.min, 2 * config.Morph.max, "F3");
             ValueStorable.slider.interactable = false;
 
             Multiplier2Storable = UI.NewFloatSlider(script, "Multiplier2", config.Multiplier2, -3, 3, "F3", true);
@@ -44,7 +44,7 @@
                 config.Multiplier1 = val;
             });
 
-            ValueStorable = UI.NewFloatSlider(script, "value", config.Setting.val, -20, 20, "F2");
+            ValueStorable = UI.NewFloatSlider(script, "value", config.Setting.val, config.Setting.min, config.Setting.max, "F2");
             ValueStorable.slider.interactable = false;
 
             Multiplier2Storable = UI.NewFloatSlider(script, "Multiplier2", config.Multiplier2, -40, 40, "F2", true);
