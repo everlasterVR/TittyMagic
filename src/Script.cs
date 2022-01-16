@@ -431,8 +431,6 @@ namespace TittyMagic
 
                 // update gravity physics angles
                 gravityPhysicsH.Update(0, 0, massEstimate, softnessAmount);
-
-                // TODO update gravity morphs ?
             }
             SetMassUIStatus(atomScaleListener.Value);
             staticPhysicsH.FullUpdate(softnessAmount, nippleErection.val);
@@ -458,6 +456,7 @@ namespace TittyMagic
             )
             {
                 yield return new WaitForSecondsRealtime(interval);
+                duration += interval;
                 neutralRelativePos = RelativePosition(chestTransform, rNippleTransform.position);
             }
 
