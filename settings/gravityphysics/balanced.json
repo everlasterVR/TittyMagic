@@ -39,8 +39,8 @@
       "spring" : { 
          "Type" : "additive", 
          "IsNegative" : "true", 
-         "Multiplier1" : "-50", 
-         "Multiplier2" : "-15"
+         "Multiplier1" : "-30", 
+         "Multiplier2" : "-10"
       }
    }, 
    "LEFT" : { 

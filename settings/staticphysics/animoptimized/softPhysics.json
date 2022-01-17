@@ -1,23 +1,23 @@
-{ 
+u{ 
    "softVerticesCombinedSpring" : {
-      "minMminS" : "260",
-      "maxMminS" : "200",
-      "minMmaxS" : "120",
+      "minMminS" : "230",
+      "maxMminS" : "250",
+      "minMmaxS" : "100",
    }, 
    "softVerticesCombinedDamper" : {
-      "minMminS" : "1.20",
+      "minMminS" : "1.40",
       "maxMminS" : "1.60",
-      "minMmaxS" : "0.60"
+      "minMmaxS" : "0.45"
    }, 
    "softVerticesMass" : {
       "minMminS" : "0.050",
-      "maxMminS" : "0.060",
-      "minMmaxS" : "0.100"
+      "maxMminS" : "0.100",
+      "minMmaxS" : "0.064"
    },
    "softVerticesBackForce" : {
-      "minMminS" : "0.50",
-      "maxMminS" : "2.50",
-      "minMmaxS" : "5.00"
+      "minMminS" : "0.20",
+      "maxMminS" : "1.50",
+      "minMmaxS" : "3.00"
    }, 
    "softVerticesBackForceThresholdDistance" : {
       "minMminS" : "0",
@@ -32,7 +32,7 @@
    "softVerticesColliderRadius" : {
       "minMminS" : "0.010",
       "maxMminS" : "0.010",
-      "minMmaxS" : "0.01",
+      "minMmaxS" : "0.010",
    }, 
    "softVerticesDistanceLimit" : {
       "minMminS" : "0.010",
