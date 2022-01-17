@@ -1,57 +1,57 @@
 { 
-   "LFWD_Breast Diameter" : { 
+   "FW Breast Small" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.4", 
+      "Multiplier2" : "0.15"
+   }, 
+   "FW Breast Diameter(Pose)" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.584", 
+      "Multiplier2" : "0.684"
+   }, 
+   "FW Breast Height2" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-0.216", 
-      "Multiplier2" : "-0.072"
-   }, 
-   "LFWD_Breast Diameter(Pose)" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0.792", 
-      "Multiplier2" : "0.264"
-   }, 
-   "LFWD_Breast Height2" : { 
-      "IsNegative" : "true", 
-      "Multiplier1" : "-0.18", 
-      "Multiplier2" : "-0.06"
-   }, 
-   "LFWD_Breast Move Up" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0.54", 
-      "Multiplier2" : "0.18"
-   }, 
-   "LFWD_Breast Side Smoother" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0.72", 
-      "Multiplier2" : "0.24"
-   }, 
-   "LFWD_Breast Width" : { 
-      "IsNegative" : "true", 
-      "Multiplier1" : "-0.18", 
-      "Multiplier2" : "-0.06"
-   }, 
-   "LFWD_Sternum Width" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0.72", 
-      "Multiplier2" : "0.24"
-   }, 
-   "LFWD_Areola S2S" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0.48", 
-      "Multiplier2" : "1.44"
-   }, 
-   "LFWD_Breast Depth" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0.8", 
-      "Multiplier2" : "0.8"
-   }, 
-   "LFWD_Breasts Hang Forward" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0.8", 
+      "Multiplier1" : "-0.4", 
       "Multiplier2" : "-0.2"
    }, 
-   "LFWD_Breasts TogetherApart" : { 
+   "FW Breast Rotate Down" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.48", 
-      "Multiplier2" : "-0.24"
+      "Multiplier1" : "0.25", 
+      "Multiplier2" : "0.16"
+   }, 
+   "FW Breast Width" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.2", 
+      "Multiplier2" : "-0.1"
+   }, 
+   "FW Sternum Width" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.412", 
+      "Multiplier2" : "0.14"
+   }, 
+   "FW Breast Depth" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "1.2", 
+      "Multiplier2" : "0.65"
+   }, 
+   "FW Breasts Hang Forward" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.2", 
+      "Multiplier2" : "0.05"
+   }, 
+   "FW Breast Pointed" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.6", 
+      "Multiplier2" : "0.4"
+   }, 
+   "FW Breast Round" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-1.2", 
+      "Multiplier2" : "-0.4"
+   }, 
+   "FW ChestSeparateBreasts" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0", 
+      "Multiplier2" : "0.3"
    }
 }
