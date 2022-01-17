@@ -1,27 +1,12 @@
 { 
-   "UPR_Breast Rotate Up" : { 
+   "DN Breast Rotate Up" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.075", 
-      "Multiplier2" : "0.225"
+      "Multiplier1" : "0.5", 
+      "Multiplier2" : "0.5"
    }, 
-   "UPR_Breast Under Smoother1" : { 
-      "IsNegative" : "true", 
-      "Multiplier1" : "-0.12", 
-      "Multiplier2" : "-0.36"
-   }, 
-   "UPR_Breast Under Smoother3" : { 
-      "IsNegative" : "true", 
-      "Multiplier1" : "-0.24", 
-      "Multiplier2" : "-0.72"
-   }, 
-   "UPR_Breast Under Smoother4" : { 
-      "IsNegative" : "true", 
-      "Multiplier1" : "-0.12", 
-      "Multiplier2" : "-0.36"
-   }, 
-   "UPR_Breasts Natural" : { 
+   "DN Breasts Natural" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.2", 
+      "Multiplier1" : "0.3", 
       "Multiplier2" : "0"
    }
 }
