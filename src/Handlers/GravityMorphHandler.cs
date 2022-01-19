@@ -148,7 +148,6 @@ namespace TittyMagic
         {
             _mass = mass;
             _gravity = gravity;
-            _additionalRollEffect = 0.33f * Mathf.Abs(roll);
 
             //foreach(var it in gravityOffsetMorphs)
             //{
@@ -158,6 +157,7 @@ namespace TittyMagic
 
             float smoothRoll = Calc.SmoothStep(roll);
             float smoothPitch = 2 * Calc.SmoothStep(pitch);
+            _additionalRollEffect = 0.4f * Mathf.Abs(smoothRoll);
 
             if(mode != Mode.ANIM_OPTIMIZED)
             {
@@ -169,7 +169,7 @@ namespace TittyMagic
             string infoText =
                 $"{NameValueString("Pitch", pitch, 100f, 15)} {Calc.RoundToDecimals(smoothPitch, 100f)}\n" +
                 $"{NameValueString("Roll", roll, 100f, 15)} {Calc.RoundToDecimals(smoothRoll, 100f)}\n" +
-                $"";
+                $"{_additionalRollEffect}";
             UpdateDebugInfo(infoText);
         }
 
@@ -194,13 +194,13 @@ namespace TittyMagic
             // leaning forward
             if(pitch >= 0)
             {
-                UpdateMorphs(Direction.UP, pitch/2, roll);
+                UpdateMorphs(Direction.UP, pitch/2, roll, _additionalRollEffect);
                 UpdateMorphs(Direction.DOWN, (2 - pitch)/2, roll);
             }
             // leaning back
             else
             {
-                UpdateMorphs(Direction.UP, -pitch/2, roll);
+                UpdateMorphs(Direction.UP, -pitch/2, roll, _additionalRollEffect);
                 UpdateMorphs(Direction.DOWN, (2 + pitch)/2, roll);
             }
         }
@@ -239,11 +239,15 @@ namespace TittyMagic
             }
         }
 
-        private void UpdateMorphs(string configSetName, float effect, float? roll = null)
+        private void UpdateMorphs(string configSetName, float effect, float? roll = null, float? additional = null)
         {
             if(roll.HasValue)
             {
                 effect = effect * (1 - Mathf.Abs(roll.Value));
+            }
+            if(additional.HasValue)
+            {
+                effect = effect + additional.Value;
             }
             foreach(var config in _configSets[configSetName])
             {
