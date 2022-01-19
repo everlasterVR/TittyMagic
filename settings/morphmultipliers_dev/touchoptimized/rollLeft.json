@@ -1,87 +1,82 @@
 { 
-   "RLEFT_Areola S2S L" : { 
+   "LT Breasts Shift S2S L" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "1.68", 
-      "Multiplier2" : "0"
+      "Multiplier1" : "2", 
+      "Multiplier2" : "-0.5"
    }, 
-   "RLEFT_Areola S2S R" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0.448", 
-      "Multiplier2" : "0"
-   }, 
-   "RLEFT_Breast Depth Squash R" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "1.232", 
-      "Multiplier2" : "0"
-   }, 
-   "RLEFT_Breast Diameter" : { 
+   "LT Breasts Hang Forward L" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-0.56", 
-      "Multiplier2" : "0"
+      "Multiplier1" : "-1", 
+      "Multiplier2" : "0.3"
    }, 
-   "RLEFT_Breast Move S2S In R" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0.672", 
-      "Multiplier2" : "0"
-   }, 
-   "RLEFT_Breast Move S2S Out L" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0.672", 
-      "Multiplier2" : "0"
-   }, 
-   "RLEFT_Breast Pointed" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0.56", 
-      "Multiplier2" : "0"
-   }, 
-   "RLEFT_Breast Rotate X In R" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0.448", 
-      "Multiplier2" : "0"
-   }, 
-   "RLEFT_Breast Rotate X In L" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0.168", 
-      "Multiplier2" : "0"
-   }, 
-   "RLEFT_Breast Width R" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0.56", 
-      "Multiplier2" : "0"
-   }, 
-   "RLEFT_Breast Width L" : { 
+   "LT Breast Width L" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-0.112", 
-      "Multiplier2" : "0"
+      "Multiplier1" : "-0.2", 
+      "Multiplier2" : "-0.2"
    }, 
-   "RLEFT_Breasts Hang Forward R" : { 
+   "LT Breast Rotate X Out L" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.6", 
+      "Multiplier2" : "0.3"
+   }, 
+   "LT Breast Rotate X In L" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.3", 
+      "Multiplier2" : "0.15"
+   }, 
+   "LT Breast Move S2S Out L" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.672", 
-      "Multiplier2" : "0"
+      "Multiplier1" : "0.2", 
+      "Multiplier2" : "-0.1"
    }, 
-   "RLEFT_Center Gap Smooth" : { 
+   "LT Breast Rotate X Out R" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-1.5", 
+      "Multiplier2" : "0.25"
+   }, 
+   "LT Breasts Flatten R" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.4", 
+      "Multiplier2" : "-0.2"
+   }, 
+   "LT Breast Width R" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "1.344", 
-      "Multiplier2" : "0"
+      "Multiplier1" : "0.3", 
+      "Multiplier2" : "0.15"
    }, 
-   "RLEFT_Centre Gap Narrow" : { 
+   "LT Breast Rotate X In R" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "1.68", 
+      "Multiplier1" : "0.2", 
       "Multiplier2" : "0"
    }, 
-   "RLEFT_Breast Under Smoother1" : { 
+   "LT Breasts Hang Forward R" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.3", 
+      "Multiplier2" : "0"
+   }, 
+   "LT Areola S2S R" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.5", 
+      "Multiplier2" : "2"
+   }, 
+   "LT Breast Diameter" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.2", 
+      "Multiplier2" : "-0.5"
+   }, 
+   "LT Breast Depth Squash R" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.2", 
+      "Multiplier2" : "2"
+   }, 
+   "LT Breast Move S2S In R" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0", 
-      "Multiplier2" : "1.232"
+      "Multiplier2" : "0.3"
    }, 
-   "RLEFT_Breast Under Smoother3" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0.896"
-   }, 
-   "RLEFT_Breasts Implants R" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0.28"
+   "LT Breasts Implants R" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "0.1", 
+      "Multiplier2" : "-0.1"
    }
 }

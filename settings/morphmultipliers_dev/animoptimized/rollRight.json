@@ -1,82 +1,82 @@
 { 
-   "RLEFT_Breast Under Smoother1" : { 
-      "Multiplier1" : "0", 
+   "RT Breasts Shift S2S R" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "2", 
+      "Multiplier2" : "-0.5"
+   }, 
+   "RT Breasts Hang Forward R" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-1", 
+      "Multiplier2" : "0.3"
+   }, 
+   "RT Breast Width R" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.2", 
+      "Multiplier2" : "-0.2"
+   }, 
+   "RT Breast Rotate X Out R" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.6", 
+      "Multiplier2" : "0.3"
+   }, 
+   "RT Breast Rotate X In R" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.3", 
+      "Multiplier2" : "0.15"
+   }, 
+   "RT Breast Move S2S Out R" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.2", 
+      "Multiplier2" : "-0.1"
+   }, 
+   "RT Breast Rotate X Out L" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-1.5", 
+      "Multiplier2" : "0.25"
+   }, 
+   "RT Breasts Flatten L" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.4", 
+      "Multiplier2" : "-0.2"
+   }, 
+   "RT Breast Width L" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.3", 
+      "Multiplier2" : "0.15"
+   }, 
+   "RT Breast Rotate X In L" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.2", 
       "Multiplier2" : "0"
    }, 
-   "RLEFT_Breast Under Smoother3" : { 
-      "Multiplier1" : "0", 
+   "RT Breasts Hang Forward L" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.3", 
       "Multiplier2" : "0"
    }, 
-   "RLEFT_Breasts Implants R" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+   "RT Areola S2S L" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.5", 
+      "Multiplier2" : "2"
    }, 
-   "RRIGHT_Areola S2S L" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+   "RT Breast Diameter" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.2", 
+      "Multiplier2" : "-0.5"
    }, 
-   "RRIGHT_Areola S2S R" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+   "RT Breast Depth Squash L" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.2", 
+      "Multiplier2" : "2"
    }, 
-   "RRIGHT_Breast Depth Squash L" : { 
+   "RT Breast Move S2S In L" : { 
+      "IsNegative" : "false", 
       "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+      "Multiplier2" : "0.3"
    }, 
-   "RRIGHT_Breast Diameter" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
-   "RRIGHT_Breast Move S2S In L" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
-   "RRIGHT_Breast Move S2S Out R" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
-   "RRIGHT_Breast Pointed" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
-   "RRIGHT_Breast Rotate X In L" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
-   "RRIGHT_Breast Rotate X In R" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
-   "RRIGHT_Breast Width L" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
-   "RRIGHT_Breast Width R" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
-   "RRIGHT_Breasts Hang Forward L" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
-   "RRIGHT_Center Gap Smooth" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
-   "RRIGHT_Centre Gap Narrow" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
-   "RRIGHT_Breast Under Smoother1" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
-   "RRIGHT_Breast Under Smoother3" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
-   "RRIGHT_Breasts Implants L" : { 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+   "RT Breasts Implants L" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "0.1", 
+      "Multiplier2" : "-0.1"
    }
 }
