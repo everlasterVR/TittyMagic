@@ -12,8 +12,9 @@ namespace TittyMagic
 
         private bool _useConfigurator;
 
-        private float mass;
-        private float gravity;
+        private float _mass;
+        private float _gravity;
+        private float _additionalRollEffect;
 
         private Dictionary<string, List<MorphConfig>> _configSets;
 
@@ -145,8 +146,9 @@ namespace TittyMagic
             float gravity
         )
         {
-            this.mass = mass;
-            this.gravity = gravity;
+            _mass = mass;
+            _gravity = gravity;
+            _additionalRollEffect = 0.33f * Mathf.Abs(roll);
 
             //foreach(var it in gravityOffsetMorphs)
             //{
@@ -154,33 +156,36 @@ namespace TittyMagic
             //}
             //scaling reduces the effect the smaller the breast
 
+            float smoothRoll = Calc.SmoothStep(roll);
+            float smoothPitch = 2 * Calc.SmoothStep(pitch);
+
             if(mode != Mode.ANIM_OPTIMIZED)
             {
-                AdjustUpDownMorphs(pitch, roll);
+                AdjustUpDownMorphs(smoothPitch, smoothRoll);
             }
-            AdjustLeftRightMorphs(roll);
-            AdjustForwardBackMorphs(pitch, roll);
+            AdjustForwardBackMorphs(smoothPitch, smoothRoll);
+            AdjustRollMorphs(smoothRoll);
 
             string infoText =
-                $"{NameValueString("Pitch", pitch, 100f, 15)}\n" +
-                $"{NameValueString("Roll", roll, 100f, 15)}\n" +
+                $"{NameValueString("Pitch", pitch, 100f, 15)} {Calc.RoundToDecimals(smoothPitch, 100f)}\n" +
+                $"{NameValueString("Roll", roll, 100f, 15)} {Calc.RoundToDecimals(smoothRoll, 100f)}\n" +
                 $"";
             UpdateDebugInfo(infoText);
         }
 
-        private void AdjustLeftRightMorphs(float roll)
+        private void AdjustRollMorphs(float roll)
         {
             // left
             if(roll >= 0)
             {
                 ResetMorphs(Direction.RIGHT);
-                UpdateRollMorphs(Direction.LEFT, roll);
+                UpdateMorphs(Direction.LEFT, roll);
             }
             // right
             else
             {
                 ResetMorphs(Direction.LEFT);
-                UpdateRollMorphs(Direction.RIGHT, -roll);
+                UpdateMorphs(Direction.RIGHT, -roll);
             }
         }
 
@@ -189,14 +194,14 @@ namespace TittyMagic
             // leaning forward
             if(pitch >= 0)
             {
-                UpdatePitchMorphs(Direction.UP, pitch/2, roll);
-                UpdatePitchMorphs(Direction.DOWN, (2 - pitch)/2, roll);
+                UpdateMorphs(Direction.UP, pitch/2, roll);
+                UpdateMorphs(Direction.DOWN, (2 - pitch)/2, roll);
             }
             // leaning back
             else
             {
-                UpdatePitchMorphs(Direction.UP, -pitch/2, roll);
-                UpdatePitchMorphs(Direction.DOWN, (2 + pitch)/2, roll);
+                UpdateMorphs(Direction.UP, -pitch/2, roll);
+                UpdateMorphs(Direction.DOWN, (2 + pitch)/2, roll);
             }
         }
 
@@ -209,12 +214,12 @@ namespace TittyMagic
                 // upright
                 if(pitch < 1)
                 {
-                    UpdatePitchMorphs(Direction.FORWARD, pitch, roll);
+                    UpdateMorphs(Direction.FORWARD, pitch, roll);
                 }
                 // upside down
                 else
                 {
-                    UpdatePitchMorphs(Direction.FORWARD, 2 - pitch, roll);
+                    UpdateMorphs(Direction.FORWARD, 2 - pitch, roll);
                 }
             }
             // leaning back
@@ -224,34 +229,25 @@ namespace TittyMagic
                 // upright
                 if(pitch >= -1)
                 {
-                    UpdatePitchMorphs(Direction.BACK, -pitch, roll);
+                    UpdateMorphs(Direction.BACK, -pitch, roll);
                 }
                 // upside down
                 else
                 {
-                    UpdatePitchMorphs(Direction.BACK, 2 + pitch, roll);
+                    UpdateMorphs(Direction.BACK, 2 + pitch, roll);
                 }
             }
         }
 
-        private void UpdateRollMorphs(string configSetName, float effect)
+        private void UpdateMorphs(string configSetName, float effect, float? roll = null)
         {
-            foreach(var config in _configSets[configSetName])
+            if(roll.HasValue)
             {
-                UpdateValue(config, effect, mass, gravity);
-                if(_useConfigurator)
-                {
-                    _configurator.UpdateValueSlider(configSetName, config.Name, config.Morph.morphValue);
-                }
+                effect = effect * (1 - Mathf.Abs(roll.Value));
             }
-        }
-
-        private void UpdatePitchMorphs(string configSetName, float effect, float roll)
-        {
-            float adjusted = effect * (1 - Mathf.Abs(roll));
             foreach(var config in _configSets[configSetName])
             {
-                UpdateValue(config, adjusted, mass, gravity);
+                UpdateValue(config, effect, _mass, _gravity);
                 if(_useConfigurator)
                 {
                     _configurator.UpdateValueSlider(configSetName, config.Name, config.Morph.morphValue);
