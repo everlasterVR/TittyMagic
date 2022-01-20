@@ -12,8 +12,8 @@ namespace TittyMagic
 
         private bool _useConfigurator;
 
-        private float mass;
-        private float gravity;
+        private float _mass;
+        private float _amount;
 
         private Dictionary<string, List<GravityPhysicsConfig>> _configSets;
 
@@ -151,11 +151,11 @@ namespace TittyMagic
             float roll,
             float pitch,
             float mass,
-            float gravity
+            float amount
         )
         {
-            this.mass = mass;
-            this.gravity = gravity;
+            _mass = mass;
+            _amount = amount;
 
             // left
             if(roll >= 0)
@@ -214,7 +214,7 @@ namespace TittyMagic
         {
             foreach(var config in _configSets[configSetName])
             {
-                UpdateValue(config, effect, mass, gravity);
+                UpdateValue(config, effect);
                 if(_useConfigurator)
                 {
                     _configurator.UpdateValueSlider(configSetName, config.Name, config.Setting.val);
@@ -227,7 +227,7 @@ namespace TittyMagic
             float adjusted = effect * (1 - Mathf.Abs(roll));
             foreach(var config in _configSets[configSetName])
             {
-                UpdateValue(config, adjusted, mass, gravity);
+                UpdateValue(config, adjusted);
                 if(_useConfigurator)
                 {
                     _configurator.UpdateValueSlider(configSetName, config.Name, config.Setting.val);
@@ -235,11 +235,11 @@ namespace TittyMagic
             }
         }
 
-        private void UpdateValue(GravityPhysicsConfig config, float effect, float mass, float gravity)
+        private void UpdateValue(GravityPhysicsConfig config, float effect)
         {
             float value =
-                gravity * config.Multiplier1 * effect / 2 +
-                mass * config.Multiplier2 * effect / 2;
+                _amount * config.Multiplier1 * effect / 2 +
+                _mass * config.Multiplier2 * effect / 2;
 
             bool inRange = config.IsNegative ? value < 0 : value > 0;
 

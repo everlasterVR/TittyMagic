@@ -13,7 +13,7 @@ namespace TittyMagic
         private bool _useConfigurator;
 
         private float _mass;
-        private float _gravity;
+        private float _amount;
         private float _additionalRollEffect;
 
         private Dictionary<string, List<MorphConfig>> _configSets;
@@ -135,11 +135,11 @@ namespace TittyMagic
             float roll,
             float pitch,
             float mass,
-            float gravity
+            float amount
         )
         {
             _mass = mass;
-            _gravity = gravity;
+            _amount = amount;
 
             float smoothRoll = Calc.SmoothStep(roll);
             float smoothPitch = 2 * Calc.SmoothStep(pitch);
@@ -237,7 +237,7 @@ namespace TittyMagic
             }
             foreach(var config in _configSets[configSetName])
             {
-                UpdateValue(config, effect, _mass, _gravity);
+                UpdateValue(config, effect);
                 if(_useConfigurator)
                 {
                     _configurator.UpdateValueSlider(configSetName, config.Name, config.Morph.morphValue);
@@ -245,11 +245,11 @@ namespace TittyMagic
             }
         }
 
-        private void UpdateValue(MorphConfig config, float effect, float mass, float gravity)
+        private void UpdateValue(MorphConfig config, float effect)
         {
             float value =
-                gravity * config.Multiplier1 * effect / 2 +
-                mass * config.Multiplier2 * effect / 2;
+                _amount * config.Multiplier1 * effect / 2 +
+                _mass * config.Multiplier2 * effect / 2;
 
             bool inRange = config.IsNegative ? value < 0 : value > 0;
             config.Morph.morphValue = inRange ? value : 0;
