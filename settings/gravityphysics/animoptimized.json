@@ -25,8 +25,8 @@
       "spring" : { 
          "Type" : "additive", 
          "IsNegative" : "true", 
-         "Multiplier1" : "-16", 
-         "Multiplier2" : "-12"
+         "Multiplier1" : "-33", 
+         "Multiplier2" : "-10"
       }
    }, 
    "FORWARD" : { 
@@ -39,8 +39,8 @@
       "spring" : { 
          "Type" : "additive", 
          "IsNegative" : "true", 
-         "Multiplier1" : "-16", 
-         "Multiplier2" : "-12"
+         "Multiplier1" : "-33", 
+         "Multiplier2" : "-10"
       }
    }, 
    "LEFT" : { 

@@ -18,14 +18,6 @@ namespace TittyMagic
 
         private Dictionary<string, List<MorphConfig>> _configSets;
 
-        //private List<MorphConfig> _gravityOffsetMorphs = new List<MorphConfig>
-        //{
-        //    { new MorphConfig("TM_UprightSmootherOffset") },
-        //    { new MorphConfig("UPR_Breast Under Smoother1") },
-        //    { new MorphConfig("UPR_Breast Under Smoother3") },
-        //    { new MorphConfig("UPR_Breast Under Smoother4") },
-        //};
-
         private List<MorphConfig> _uprightConfigs;
 
         private List<MorphConfig> _upsideDownConfigs;
@@ -148,12 +140,6 @@ namespace TittyMagic
         {
             _mass = mass;
             _gravity = gravity;
-
-            //foreach(var it in gravityOffsetMorphs)
-            //{
-            //    it.UpdateVal();
-            //}
-            //scaling reduces the effect the smaller the breast
 
             float smoothRoll = Calc.SmoothStep(roll);
             float smoothPitch = 2 * Calc.SmoothStep(pitch);

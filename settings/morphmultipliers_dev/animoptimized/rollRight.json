@@ -78,5 +78,15 @@
       "IsNegative" : "true", 
       "Multiplier1" : "0.1", 
       "Multiplier2" : "-0.1"
+   }, 
+   "RT Breast Under Smoother2" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.1", 
+      "Multiplier2" : "0.4"
+   }, 
+   "RT Breast Under Smoother3" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.4", 
+      "Multiplier2" : "0.4"
    }
 }
