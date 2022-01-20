@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -25,6 +26,7 @@ namespace TittyMagic
 
         public void Init(Atom containingAtom)
         {
+            enabled = false; // will be enabled during main refresh cycle
             atom = containingAtom;
             control = atom.freeControllers.First();
             breastInOut = atom.GetStorableByID("BreastInOut");
@@ -74,7 +76,23 @@ namespace TittyMagic
                 UserPreferences.singleton.softPhysics = true;
                 LogMessage($"Soft physics has been enabled in VaM preferences.");
             }
-            enabled = false;
+
+            StartCoroutine(FixInOut());
+        }
+
+        //prevents breasts being flattened due to breastInOut morphs on scene load with plugin already present
+        private IEnumerator FixInOut()
+        {
+            yield return new WaitForEndOfFrame();
+
+            //disable to prevent Update() from messaging about breastInOut being enabled
+            bool wasEnabled = enabled;
+            if(wasEnabled)
+                enabled = false;
+
+            breastInOut.SetBoolParamValue("enabled", true);
+            breastInOut.SetBoolParamValue("enabled", false);
+            enabled = wasEnabled;
         }
 
         private void Update()
