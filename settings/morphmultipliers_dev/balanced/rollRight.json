@@ -12,7 +12,7 @@
    "RT Breast Width R" : { 
       "IsNegative" : "true", 
       "Multiplier1" : "-0.2", 
-      "Multiplier2" : "-0.2"
+      "Multiplier2" : "-0.45"
    }, 
    "RT Breast Rotate X Out R" : { 
       "IsNegative" : "true", 
@@ -42,7 +42,7 @@
    "RT Breast Width L" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.3", 
-      "Multiplier2" : "0.15"
+      "Multiplier2" : "0.4"
    }, 
    "RT Breast Rotate X In L" : { 
       "IsNegative" : "false", 
@@ -62,7 +62,7 @@
    "RT Breast Diameter" : { 
       "IsNegative" : "true", 
       "Multiplier1" : "-0.2", 
-      "Multiplier2" : "-0.5"
+      "Multiplier2" : "-0.2"
    }, 
    "RT Breast Depth Squash L" : { 
       "IsNegative" : "false", 

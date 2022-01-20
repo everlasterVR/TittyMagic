@@ -2,7 +2,7 @@
    "FW Breast Small" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.4", 
-      "Multiplier2" : "0.15"
+      "Multiplier2" : "0.3"
    }, 
    "FW Breast Diameter(Pose)" : { 
       "IsNegative" : "false", 
