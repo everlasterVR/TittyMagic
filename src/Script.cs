@@ -63,8 +63,8 @@ namespace TittyMagic
         private bool modeSetFromJson;
         private float timeSinceListenersChecked;
         private float listenersCheckInterval = 0.1f;
-        private int _waitStatus = RefreshStatus.DONE;
-        private int _refreshStatus = RefreshStatus.DONE;
+        private int _waitStatus = -1;
+        private int _refreshStatus = -1;
         private bool animationWasSetFrozen = false;
 
         public override void Init()
@@ -128,7 +128,7 @@ namespace TittyMagic
                 SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
 
                 softnessAmount = Mathf.Pow(softness.val/softness.max, 1/2f);
-                mobilityAmount = 0.8f * Mathf.Pow(mobility.val/mobility.max, 1/2f);
+                mobilityAmount = 0.75f * Mathf.Pow(mobility.val/mobility.max, 1/2f);
 
                 StartCoroutine(SelectDefaultMode());
                 StartCoroutine(SubscribeToKeybindings());
@@ -251,13 +251,13 @@ namespace TittyMagic
                 if(linkSoftnessAndMobility.val)
                 {
                     mobility.val = val;
-                    mobilityAmount = 0.8f * Mathf.Pow(val/mobility.max, 1/2f);
+                    mobilityAmount = 0.75f * Mathf.Pow(val/mobility.max, 1/2f);
                 }
                 RefreshFromSliderChanged();
             });
             mobility.slider.onValueChanged.AddListener((float val) =>
             {
-                mobilityAmount = 0.8f * Mathf.Pow(val/mobility.max, 1/2f);
+                mobilityAmount = 0.75f * Mathf.Pow(val/mobility.max, 1/2f);
                 if(linkSoftnessAndMobility.val)
                 {
                     softness.val = val;
@@ -369,7 +369,7 @@ namespace TittyMagic
                 //float positionDiffZ = (neutralRelativePos - relativePos).z;
                 if(relativePosMorphH.IsEnabled())
                 {
-                    relativePosMorphH.Update(angleY, 0f, massAmount, mobilityAmount);
+                    relativePosMorphH.Update(angleY, 0f, massAmount, 1.2f * mobilityAmount);
                 }
             }
 
@@ -387,7 +387,7 @@ namespace TittyMagic
         private IEnumerator WaitToBeginRefresh()
         {
             _waitStatus = RefreshStatus.WAITING;
-            while(_refreshStatus != RefreshStatus.DONE)
+            while(_refreshStatus != RefreshStatus.DONE && _refreshStatus != -1)
             {
                 yield return null;
             }
