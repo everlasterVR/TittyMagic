@@ -63,7 +63,8 @@ namespace TittyMagic
         private bool modeSetFromJson;
         private float timeSinceListenersChecked;
         private float listenersCheckInterval = 0.1f;
-        private int refreshStatus = RefreshStatus.WAITING;
+        private int _waitStatus = RefreshStatus.DONE;
+        private int _refreshStatus = RefreshStatus.DONE;
         private bool animationWasSetFrozen = false;
 
         public override void Init()
@@ -200,17 +201,23 @@ namespace TittyMagic
                 (mode) =>
                 {
                     UI.UpdateButtonLabels(modeButtonGroup, mode);
-                    gravityPhysicsH.LoadSettings(mode);
-                    staticPhysicsH.LoadSettings(this, mode);
-                    gravityMorphH.LoadSettings(mode);
-                    if(mode == Mode.ANIM_OPTIMIZED)
-                    {
-                        //RelativePosMorphHandler doesn't actually support any other mode currently
-                        relativePosMorphH.LoadSettings(mode);
-                    }
-                    StartCoroutine(BeginRefresh());
+                    StartCoroutine(OnModeChosen(mode));
                 }
             );
+        }
+
+        private IEnumerator OnModeChosen(string mode)
+        {
+            gravityPhysicsH.LoadSettings(mode);
+            staticPhysicsH.LoadSettings(this, mode);
+            gravityMorphH.LoadSettings(mode);
+            if(mode == Mode.ANIM_OPTIMIZED)
+            {
+                //RelativePosMorphHandler doesn't actually support any other mode currently
+                relativePosMorphH.LoadSettings(mode);
+            }
+
+            yield return WaitToBeginRefresh();
         }
 
         private void InitPluginUIRight()
@@ -256,7 +263,11 @@ namespace TittyMagic
                     softness.val = val;
                     softnessAmount = Mathf.Pow(val/softness.max, 1/2f);
                 }
-                RefreshFromSliderChanged();
+                // prevent double call to Refresh when linked
+                else
+                {
+                    RefreshFromSliderChanged();
+                }
             });
             nippleErection.slider.onValueChanged.AddListener((float val) =>
             {
@@ -267,9 +278,9 @@ namespace TittyMagic
 
         private void RefreshFromSliderChanged()
         {
-            if(modeChooser.val == Mode.ANIM_OPTIMIZED && refreshStatus != RefreshStatus.WAITING)
+            if(modeChooser.val == Mode.ANIM_OPTIMIZED && _waitStatus != RefreshStatus.WAITING)
             {
-                StartCoroutine(BeginRefresh());
+                StartCoroutine(WaitToBeginRefresh());
             }
             else
             {
@@ -295,12 +306,12 @@ namespace TittyMagic
         {
             timeSinceListenersChecked += Time.deltaTime;
 
-            if(refreshStatus == RefreshStatus.MASS_STARTED)
+            if(_refreshStatus == RefreshStatus.MASS_STARTED)
             {
                 return;
             }
 
-            if(refreshStatus > RefreshStatus.MASS_STARTED)
+            if(_refreshStatus > RefreshStatus.MASS_STARTED)
             {
                 // simulate gravityPhysics when upright
                 Quaternion zero = new Quaternion(0, 0, 0, -1);
@@ -314,11 +325,11 @@ namespace TittyMagic
                 rPectoralRigidbody.AddForce(force, ForceMode.Acceleration);
                 if(modeChooser.val == Mode.ANIM_OPTIMIZED)
                 {
-                    if(refreshStatus == RefreshStatus.MASS_OK)
+                    if(_refreshStatus == RefreshStatus.MASS_OK)
                     {
                         StartCoroutine(RefreshNeutralRelativePosition());
                     }
-                    else if(refreshStatus == RefreshStatus.NEUTRALPOS_OK)
+                    else if(_refreshStatus == RefreshStatus.NEUTRALPOS_OK)
                     {
                         EndRefresh();
                     }
@@ -333,14 +344,14 @@ namespace TittyMagic
             if(timeSinceListenersChecked >= listenersCheckInterval)
             {
                 timeSinceListenersChecked -= listenersCheckInterval;
-                if(refreshStatus != RefreshStatus.WAITING && (breastMorphListener.Changed() || atomScaleListener.Changed()))
+                if(_waitStatus != RefreshStatus.WAITING && (breastMorphListener.Changed() || atomScaleListener.Changed()))
                 {
-                    StartCoroutine(BeginRefresh());
+                    StartCoroutine(WaitToBeginRefresh());
                     return;
                 }
             }
 
-            if(refreshStatus != RefreshStatus.DONE)
+            if(_refreshStatus != RefreshStatus.DONE)
             {
                 return;
             }
@@ -373,10 +384,21 @@ namespace TittyMagic
             }
         }
 
+        private IEnumerator WaitToBeginRefresh()
+        {
+            _waitStatus = RefreshStatus.WAITING;
+            while(_refreshStatus != RefreshStatus.DONE)
+            {
+                yield return null;
+            }
+
+            yield return BeginRefresh();
+        }
+
         public IEnumerator BeginRefresh()
         {
-            refreshStatus = RefreshStatus.WAITING;
             animationWasSetFrozen = modeSetFromJson ? false : SuperController.singleton.freezeAnimation;
+
             SuperController.singleton.SetFreezeAnimation(true);
 
             // ensure refresh actually begins only once listeners report no change
@@ -387,7 +409,7 @@ namespace TittyMagic
             }
             yield return new WaitForSeconds(0.33f);
 
-            refreshStatus = RefreshStatus.MASS_STARTED;
+            _refreshStatus = RefreshStatus.MASS_STARTED;
 
             settingsMonitor.enabled = false;
 
@@ -426,12 +448,12 @@ namespace TittyMagic
             staticPhysicsH.FullUpdate(softnessAmount, nippleErection.val);
             gravityPhysicsH.SetBaseValues();
 
-            refreshStatus = RefreshStatus.MASS_OK;
+            _refreshStatus = RefreshStatus.MASS_OK;
         }
 
         private IEnumerator RefreshNeutralRelativePosition()
         {
-            refreshStatus = RefreshStatus.NEUTRALPOS_STARTED;
+            _refreshStatus = RefreshStatus.NEUTRALPOS_STARTED;
 
             yield return new WaitForSeconds(0.67f);
 
@@ -451,7 +473,7 @@ namespace TittyMagic
                 neutralRelativePos = RelativePosition(chestTransform, rNippleTransform.position);
             }
 
-            refreshStatus = RefreshStatus.NEUTRALPOS_OK;
+            _refreshStatus = RefreshStatus.NEUTRALPOS_OK;
         }
 
         private void EndRefresh()
@@ -461,7 +483,8 @@ namespace TittyMagic
             SuperController.singleton.SetFreezeAnimation(animationWasSetFrozen);
             settingsMonitor.enabled = true;
             modeSetFromJson = false;
-            refreshStatus = RefreshStatus.DONE;
+            _waitStatus = RefreshStatus.DONE;
+            _refreshStatus = RefreshStatus.DONE;
         }
 
         public void RefreshRateDependentPhysics()
