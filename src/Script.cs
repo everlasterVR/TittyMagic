@@ -568,6 +568,7 @@ namespace TittyMagic
 
         private void OnRemoveAtom(Atom atom)
         {
+            Destroy(settingsMonitor);
             Destroy(softnessSCM);
             Destroy(mobilitySCM);
         }
@@ -575,6 +576,8 @@ namespace TittyMagic
         private void OnDestroy()
         {
             Destroy(settingsMonitor);
+            Destroy(softnessSCM);
+            Destroy(mobilitySCM);
             SuperController.singleton.onAtomRemovedHandlers -= OnRemoveAtom;
             SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
 
