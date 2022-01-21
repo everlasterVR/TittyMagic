@@ -468,7 +468,7 @@ namespace TittyMagic
 
                 // update main static physics
                 massAmount = staticPhysicsH.SetAndReturnMassVal(massEstimate);
-                massScaling = Mathf.Pow(massAmount, 2/11f);
+                massScaling = Mathf.Pow(3/4f * massAmount, 1/5f);
                 staticPhysicsH.UpdateMainPhysics(softnessAmount);
             }
             SetMassUIStatus(atomScaleListener.Value);

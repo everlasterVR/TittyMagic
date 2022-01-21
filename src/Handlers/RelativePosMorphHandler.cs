@@ -150,7 +150,7 @@ namespace TittyMagic
 
             float scaledAngleY = angleY / massScaling;
 
-            float effectY = Calc.RoundToDecimals(Mathf.InverseLerp(0, 65, Mathf.Abs(scaledAngleY)), 1000f);
+            float effectY = Calc.RoundToDecimals(Mathf.InverseLerp(0, 75, Mathf.Abs(scaledAngleY)), 1000f);
             //float effectZ = Calc.RoundToDecimals(Mathf.InverseLerp(0, 0.060f, Mathf.Abs(positionDiffZ)), 1000f);
 
             // up
