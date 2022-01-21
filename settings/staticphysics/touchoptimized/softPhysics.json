@@ -15,14 +15,14 @@
       "minMmaxS" : "0.05"
    },
    "softVerticesBackForce" : {
-      "minMminS" : "12",
-      "maxMminS" : "20",
-      "minMmaxS" : "7"
+      "minMminS" : "10",
+      "maxMminS" : "17",
+      "minMmaxS" : "6.5"
    },
    "softVerticesBackForceThresholdDistance" : {
       "minMminS" : "0.001",
       "maxMminS" : "0.001",
-      "minMmaxS" : "0.001"
+      "minMmaxS" : "0.002"
    },
    "softVerticesBackForceMaxForce" : {
       "minMminS" : "50",
