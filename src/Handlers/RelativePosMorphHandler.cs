@@ -12,8 +12,8 @@ namespace TittyMagic
 
         private bool _useConfigurator;
 
-        private float mass;
-        private float softness;
+        private float _mass;
+        private float _softness;
 
         private Dictionary<string, List<MorphConfig>> _configSets;
 
@@ -127,11 +127,12 @@ namespace TittyMagic
             float angleY,
             float positionDiffZ,
             float mass,
+            float massScaling,
             float softness
         )
         {
-            this.mass = mass;
-            this.softness = softness;
+            _mass = mass;
+            _softness = softness;
 
             // TODO separate l/r morphs only, separate calculation of diff
             //left
@@ -147,11 +148,9 @@ namespace TittyMagic
             //    UpdateMorphs(Direction.LEFT, x);
             //}
 
-            // https://www.desmos.com/calculator/0j4sbceidf
-            // small breasts experience more effect from angle
-            float scaledAngleY = angleY / Mathf.Pow(3/4f * mass, 2/7f);
+            float scaledAngleY = angleY / massScaling;
 
-            float effectY = 1.33f * Calc.RoundToDecimals(Mathf.InverseLerp(0, 80, Mathf.Abs(scaledAngleY)), 1000f);
+            float effectY = Calc.RoundToDecimals(Mathf.InverseLerp(0, 65, Mathf.Abs(scaledAngleY)), 1000f);
             //float effectZ = Calc.RoundToDecimals(Mathf.InverseLerp(0, 0.060f, Mathf.Abs(positionDiffZ)), 1000f);
 
             // up
@@ -193,7 +192,7 @@ namespace TittyMagic
         {
             foreach(var config in _configSets[configSetName])
             {
-                UpdateValue(config, effect, mass, softness);
+                UpdateValue(config, effect);
                 if(_useConfigurator)
                 {
                     _configurator.UpdateValueSlider(configSetName, config.Name, config.Morph.morphValue);
@@ -201,11 +200,11 @@ namespace TittyMagic
             }
         }
 
-        private void UpdateValue(MorphConfig config, float effect, float mass, float softness)
+        private void UpdateValue(MorphConfig config, float effect)
         {
             float value =
-                softness * config.Multiplier1 * effect / 2 +
-                mass * config.Multiplier2 * effect / 2;
+                _softness * config.Multiplier1 * effect / 2 +
+                _mass * config.Multiplier2 * effect / 2;
 
             bool inRange = config.IsNegative ? value < 0 : value > 0;
             config.Morph.morphValue = inRange ? value : 0;
