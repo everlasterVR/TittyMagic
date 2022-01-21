@@ -217,7 +217,32 @@ namespace TittyMagic
                 relativePosMorphH.LoadSettings(mode);
             }
 
+            StartCoroutine(TempDisableModeButtons());
+
             yield return WaitToBeginRefresh();
+        }
+
+        private IEnumerator TempDisableModeButtons()
+        {
+            while(_waitStatus != RefreshStatus.WAITING)
+            {
+                yield return null;
+            }
+
+            foreach(var buttonKvp in modeButtonGroup)
+            {
+                buttonKvp.Value.button.interactable = false;
+            }
+
+            while(_waitStatus != RefreshStatus.DONE)
+            {
+                yield return null;
+            }
+
+            foreach(var buttonKvp in modeButtonGroup)
+            {
+                buttonKvp.Value.button.interactable = true;
+            }
         }
 
         private void InitPluginUIRight()
@@ -351,7 +376,7 @@ namespace TittyMagic
                 }
             }
 
-            if(_refreshStatus != RefreshStatus.DONE)
+            if(_waitStatus != RefreshStatus.DONE)
             {
                 return;
             }
@@ -575,9 +600,15 @@ namespace TittyMagic
 
         private void OnDestroy()
         {
-            Destroy(settingsMonitor);
-            Destroy(softnessSCM);
-            Destroy(mobilitySCM);
+            try
+            {
+                Destroy(settingsMonitor);
+                Destroy(softnessSCM);
+                Destroy(mobilitySCM);
+            }
+            catch(Exception)
+            {
+            }
             SuperController.singleton.onAtomRemovedHandlers -= OnRemoveAtom;
             SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
 
