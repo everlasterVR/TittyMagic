@@ -147,7 +147,7 @@ namespace TittyMagic
                 yield break;
             }
 
-            modeChooser.val = Mode.ANIM_OPTIMIZED; // selection causes BeginRefresh
+            modeChooser.val = Mode.BALANCED; // selection causes BeginRefresh
         }
 
         //https://github.com/vam-community/vam-plugins-interop-specs/blob/main/keybindings.md

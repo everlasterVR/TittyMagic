@@ -85,7 +85,6 @@ namespace TittyMagic
         {
             button.button.onClick.AddListener(() =>
             {
-                //SuperController.singleton.NormalizeMediaPath($@"{Globals.PLUGIN_PATH}settings\morphmultipliers\animoptimized"); // Sets dir if path exists
                 SuperController.singleton.NormalizeMediaPath(_lastBrowseDir ?? Persistence.MakeDefaultDir()); // Sets dir if path exists
                 SuperController.singleton.GetMediaPathDialog((string path) => HandleSave(path), _saveExt);
 
@@ -101,7 +100,6 @@ namespace TittyMagic
         {
             button.button.onClick.AddListener(() =>
             {
-                //SuperController.singleton.NormalizeMediaPath($@"{Globals.PLUGIN_PATH}settings\morphmultipliers\animoptimized"); // Sets dir if path exists
                 SuperController.singleton.NormalizeMediaPath(_lastBrowseDir ?? Persistence.MakeDefaultDir()); // Sets dir if path exists
                 SuperController.singleton.GetMediaPathDialog((string path) => HandleLoad(path), _saveExt);
             });
