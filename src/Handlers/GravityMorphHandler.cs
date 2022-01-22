@@ -8,7 +8,7 @@ namespace TittyMagic
     internal class GravityMorphHandler
     {
         private MVRScript _script;
-        private GravityMorphConfigurator _configurator;
+        private IConfigurator _configurator;
 
         private bool _useConfigurator;
 
@@ -16,26 +16,26 @@ namespace TittyMagic
         private float _amount;
         private float _additionalRollEffect;
 
-        private Dictionary<string, List<MorphConfig>> _configSets;
+        private Dictionary<string, List<Config>> _configSets;
 
-        private List<MorphConfig> _uprightConfigs;
+        private List<Config> _uprightConfigs;
 
-        private List<MorphConfig> _upsideDownConfigs;
+        private List<Config> _upsideDownConfigs;
 
-        private List<MorphConfig> _leanBackConfigs;
+        private List<Config> _leanBackConfigs;
 
-        private List<MorphConfig> _leanForwardConfigs;
+        private List<Config> _leanForwardConfigs;
 
-        private List<MorphConfig> _rollLeftConfigs;
+        private List<Config> _rollLeftConfigs;
 
-        private List<MorphConfig> _rollRightConfigs;
+        private List<Config> _rollRightConfigs;
 
         public GravityMorphHandler(MVRScript script)
         {
             _script = script;
             try
             {
-                _configurator = (GravityMorphConfigurator) _script;
+                _configurator = (IConfigurator) _script;
                 _configurator.InitMainUI();
                 _configurator.EnableAdjustment.toggle.onValueChanged.AddListener((bool val) =>
                 {
@@ -54,26 +54,26 @@ namespace TittyMagic
 
         public void LoadSettings(string mode)
         {
-            _configSets = new Dictionary<string, List<MorphConfig>>();
+            _configSets = new Dictionary<string, List<Config>>();
 
             if(mode != Mode.ANIM_OPTIMIZED)
             {
-                _uprightConfigs = new List<MorphConfig>();
-                _upsideDownConfigs = new List<MorphConfig>();
+                _uprightConfigs = new List<Config>();
+                _upsideDownConfigs = new List<Config>();
                 LoadSettingsFromFile(mode, "upright", _uprightConfigs);
                 LoadSettingsFromFile(mode, "upsideDown", _upsideDownConfigs);
                 _configSets.Add(Direction.DOWN, _uprightConfigs);
                 _configSets.Add(Direction.UP, _upsideDownConfigs);
             }
-            _leanBackConfigs = new List<MorphConfig>();
-            _leanForwardConfigs = new List<MorphConfig>();
+            _leanBackConfigs = new List<Config>();
+            _leanForwardConfigs = new List<Config>();
             LoadSettingsFromFile(mode, "leanBack", _leanBackConfigs);
             LoadSettingsFromFile(mode, "leanForward", _leanForwardConfigs);
             _configSets.Add(Direction.BACK, _leanBackConfigs);
             _configSets.Add(Direction.FORWARD, _leanForwardConfigs);
 
-            _rollLeftConfigs = new List<MorphConfig>();
-            _rollRightConfigs = new List<MorphConfig>();
+            _rollLeftConfigs = new List<Config>();
+            _rollRightConfigs = new List<Config>();
             LoadSettingsFromFile(mode, "rollLeft", _rollLeftConfigs);
             LoadSettingsFromFile(mode, "rollRight", _rollRightConfigs);
             _configSets.Add(Direction.LEFT, _rollLeftConfigs);
@@ -96,7 +96,7 @@ namespace TittyMagic
             }
         }
 
-        private void LoadSettingsFromFile(string mode, string fileName, List<MorphConfig> configs)
+        private void LoadSettingsFromFile(string mode, string fileName, List<Config> configs)
         {
             Persistence.LoadModeMorphSettings(_script, mode, $"{fileName}.json", (dir, json) =>
             {
@@ -235,7 +235,7 @@ namespace TittyMagic
             {
                 effect = effect + additional.Value;
             }
-            foreach(var config in _configSets[configSetName])
+            foreach(MorphConfig config in _configSets[configSetName])
             {
                 UpdateValue(config, effect);
                 if(_useConfigurator)
@@ -274,7 +274,7 @@ namespace TittyMagic
                 return;
             }
 
-            foreach(var config in _configSets[configSetName])
+            foreach(MorphConfig config in _configSets[configSetName])
             {
                 config.Morph.morphValue = 0;
                 if(_useConfigurator)

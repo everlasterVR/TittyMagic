@@ -8,26 +8,26 @@ namespace TittyMagic
     internal class RelativePosMorphHandler
     {
         private MVRScript _script;
-        private RelativePosMorphConfigurator _configurator;
+        private IConfigurator _configurator;
 
         private bool _useConfigurator;
 
         private float _mass;
         private float _softness;
 
-        private Dictionary<string, List<MorphConfig>> _configSets;
+        private Dictionary<string, List<Config>> _configSets;
 
-        private List<MorphConfig> _downForceConfigs;
+        private List<Config> _downForceConfigs;
 
-        private List<MorphConfig> _upForceConfigs;
+        private List<Config> _upForceConfigs;
 
-        //private List<MorphConfig> _backForceConfigs;
+        //private List<Config> _backForceConfigs;
 
-        //private List<MorphConfig> _forwardForceConfigs;
+        //private List<Config> _forwardForceConfigs;
 
-        //private List<MorphConfig> _leftForceConfigs;
+        //private List<Config> _leftForceConfigs;
 
-        //private List<MorphConfig> _rightForceConfigs;
+        //private List<Config> _rightForceConfigs;
 
         public RelativePosMorphHandler(MVRScript script)
         {
@@ -35,7 +35,7 @@ namespace TittyMagic
 
             try
             {
-                _configurator = (RelativePosMorphConfigurator) _script;
+                _configurator = (IConfigurator) _script;
                 _configurator.InitMainUI();
                 _configurator.EnableAdjustment.toggle.onValueChanged.AddListener((bool val) =>
                 {
@@ -54,8 +54,8 @@ namespace TittyMagic
 
         public void LoadSettings(string mode)
         {
-            _downForceConfigs = new List<MorphConfig>();
-            _upForceConfigs = new List<MorphConfig>();
+            _downForceConfigs = new List<Config>();
+            _upForceConfigs = new List<Config>();
             //_backForceConfigs = new List<MorphConfig>();
             //_forwardForceConfigs = new List<MorphConfig>();
             //_leftForceConfigs = new List<MorphConfig>();
@@ -66,7 +66,7 @@ namespace TittyMagic
             //LoadSettingsFromFile(mode, "forwardForce", _forwardForceConfigs);
             //LoadSettingsFromFile(mode, "leftForce", _leftForceConfigs);
             //LoadSettingsFromFile(mode, "rightForce", _rightForceConfigs);
-            _configSets = new Dictionary<string, List<MorphConfig>>
+            _configSets = new Dictionary<string, List<Config>>
             {
                 { Direction.DOWN, _downForceConfigs },
                 { Direction.UP, _upForceConfigs },
@@ -89,7 +89,7 @@ namespace TittyMagic
             }
         }
 
-        private void LoadSettingsFromFile(string mode, string fileName, List<MorphConfig> configs)
+        private void LoadSettingsFromFile(string mode, string fileName, List<Config> configs)
         {
             Persistence.LoadModeMorphSettings(_script, mode, $"{fileName}.json", (dir, json) =>
             {
@@ -190,7 +190,7 @@ namespace TittyMagic
 
         private void UpdateMorphs(string configSetName, float effect)
         {
-            foreach(var config in _configSets[configSetName])
+            foreach(MorphConfig config in _configSets[configSetName])
             {
                 UpdateValue(config, effect);
                 if(_useConfigurator)
@@ -222,7 +222,7 @@ namespace TittyMagic
 
         private void ResetMorphs(string configSetName)
         {
-            foreach(var config in _configSets[configSetName])
+            foreach(MorphConfig config in _configSets[configSetName])
             {
                 config.Morph.morphValue = 0;
                 if(_useConfigurator)

@@ -8,26 +8,26 @@ namespace TittyMagic
     internal class GravityPhysicsHandler
     {
         private MVRScript _script;
-        private GravityPhysicsConfigurator _configurator;
+        private IConfigurator _configurator;
 
         private bool _useConfigurator;
 
         private float _mass;
         private float _amount;
 
-        private Dictionary<string, List<GravityPhysicsConfig>> _configSets;
+        private Dictionary<string, List<Config>> _configSets;
 
-        private List<GravityPhysicsConfig> _uprightConfigs;
+        private List<Config> _uprightConfigs;
 
-        private List<GravityPhysicsConfig> _upsideDownConfigs;
+        private List<Config> _upsideDownConfigs;
 
-        private List<GravityPhysicsConfig> _leanBackConfigs;
+        private List<Config> _leanBackConfigs;
 
-        private List<GravityPhysicsConfig> _leanForwardConfigs;
+        private List<Config> _leanForwardConfigs;
 
-        private List<GravityPhysicsConfig> _rollLeftConfigs;
+        private List<Config> _rollLeftConfigs;
 
-        private List<GravityPhysicsConfig> _rollRightConfigs;
+        private List<Config> _rollRightConfigs;
 
         public GravityPhysicsHandler(MVRScript script)
         {
@@ -37,7 +37,7 @@ namespace TittyMagic
             _script = script;
             try
             {
-                _configurator = (GravityPhysicsConfigurator) _script;
+                _configurator = (IConfigurator) _script;
                 _configurator.InitMainUI();
                 _configurator.EnableAdjustment.toggle.onValueChanged.AddListener((bool val) =>
                 {
@@ -56,14 +56,14 @@ namespace TittyMagic
 
         public void LoadSettings(string mode)
         {
-            _uprightConfigs = new List<GravityPhysicsConfig>();
-            _upsideDownConfigs = new List<GravityPhysicsConfig>();
-            _leanBackConfigs = new List<GravityPhysicsConfig>();
-            _leanForwardConfigs = new List<GravityPhysicsConfig>();
-            _rollLeftConfigs = new List<GravityPhysicsConfig>();
-            _rollRightConfigs = new List<GravityPhysicsConfig>();
+            _uprightConfigs = new List<Config>();
+            _upsideDownConfigs = new List<Config>();
+            _leanBackConfigs = new List<Config>();
+            _leanForwardConfigs = new List<Config>();
+            _rollLeftConfigs = new List<Config>();
+            _rollRightConfigs = new List<Config>();
             LoadSettingsFromFile(mode);
-            _configSets = new Dictionary<string, List<GravityPhysicsConfig>>
+            _configSets = new Dictionary<string, List<Config>>
             {
                 { Direction.DOWN, _uprightConfigs },
                 { Direction.UP, _upsideDownConfigs },
@@ -93,7 +93,7 @@ namespace TittyMagic
             {
                 foreach(string key in json.Keys)
                 {
-                    List<GravityPhysicsConfig> configs = null;
+                    List<Config> configs = null;
                     if(key == Direction.DOWN)
                         configs = _uprightConfigs;
                     else if(key == Direction.UP)
@@ -128,7 +128,7 @@ namespace TittyMagic
         {
             foreach(var kvp in _configSets)
             {
-                foreach(var config in kvp.Value)
+                foreach(GravityPhysicsConfig config in kvp.Value)
                 {
                     if(config.Type == "additive")
                     {
@@ -212,7 +212,7 @@ namespace TittyMagic
 
         private void UpdateRollPhysics(string configSetName, float effect)
         {
-            foreach(var config in _configSets[configSetName])
+            foreach(GravityPhysicsConfig config in _configSets[configSetName])
             {
                 UpdateValue(config, effect);
                 if(_useConfigurator)
@@ -225,7 +225,7 @@ namespace TittyMagic
         private void UpdatePitchPhysics(string configSetName, float effect, float roll)
         {
             float adjusted = effect * (1 - Mathf.Abs(roll));
-            foreach(var config in _configSets[configSetName])
+            foreach(GravityPhysicsConfig config in _configSets[configSetName])
             {
                 UpdateValue(config, adjusted);
                 if(_useConfigurator)
@@ -275,7 +275,7 @@ namespace TittyMagic
 
         private void ZeroPhysics(string configSetName)
         {
-            foreach(var config in _configSets[configSetName])
+            foreach(GravityPhysicsConfig config in _configSets[configSetName])
             {
                 if(config.Type == "additive")
                 {
@@ -293,7 +293,7 @@ namespace TittyMagic
 
         private void ResetPhysics(string configSetName)
         {
-            foreach(var config in _configSets[configSetName])
+            foreach(GravityPhysicsConfig config in _configSets[configSetName])
             {
                 float newValue = config.Type == "additive" ? config.BaseValue : config.OriginalValue;
                 config.Setting.val = newValue;

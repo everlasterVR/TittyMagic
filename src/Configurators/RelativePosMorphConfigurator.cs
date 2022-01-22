@@ -5,7 +5,7 @@ using static TittyMagic.Globals;
 
 namespace TittyMagic
 {
-    internal class RelativePosMorphConfigurator : MVRScript
+    internal class RelativePosMorphConfigurator : MVRScript, IConfigurator
     {
         public Dictionary<string, string> titles = new Dictionary<string, string>
         {
@@ -95,7 +95,7 @@ namespace TittyMagic
             };
         }
 
-        public void InitUISectionGroup(string key, List<MorphConfig> configs)
+        public void InitUISectionGroup(string key, List<Config> configs)
         {
             UI.NewTextField(this, titles[key], $"{titles[key]}", 40, 115, false);
             var saveButton = CreateButton("Save JSON", true);
@@ -103,13 +103,18 @@ namespace TittyMagic
 
             var group = _UISectionGroups[key];
 
-            foreach(var config in configs)
+            foreach(MorphConfig config in configs)
             {
                 group.Add(config.Name, new ConfiguratorUISection(this, config));
             }
 
             AddSaveButtonListener(saveButton, group.Values.ToList());
             AddLoadButtonListener(loadButton, group.Values.ToList());
+        }
+
+        //dummy
+        public void AddButtonListeners()
+        {
         }
 
         private void AddSaveButtonListener(UIDynamicButton button, List<ConfiguratorUISection> sections)

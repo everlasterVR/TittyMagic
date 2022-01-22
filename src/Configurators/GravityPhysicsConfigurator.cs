@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace TittyMagic
 {
-    internal class GravityPhysicsConfigurator : MVRScript
+    internal class GravityPhysicsConfigurator : MVRScript, IConfigurator
     {
         public Dictionary<string, string> titles = new Dictionary<string, string>
         {
@@ -24,6 +24,9 @@ namespace TittyMagic
         private UIDynamicButton _loadButton;
 
         public JSONStorableBool EnableAdjustment => _enableAdjustment;
+
+        // dummy
+        public JSONStorableString DebugInfo { get; }
 
         private Dictionary<string, Dictionary<string, ConfiguratorUISection>> _UISectionGroups;
 
@@ -63,13 +66,13 @@ namespace TittyMagic
             };
         }
 
-        public void InitUISectionGroup(string key, List<GravityPhysicsConfig> configs)
+        public void InitUISectionGroup(string key, List<Config> configs)
         {
             UI.NewTextField(this, titles[key], titles[key], 40, 115, false);
             UI.NewSpacer(this, 115f, true);
 
             var group = _UISectionGroups[key];
-            foreach(var config in configs)
+            foreach(GravityPhysicsConfig config in configs)
             {
                 group.Add(config.Name, new ConfiguratorUISection(this, config));
             }
