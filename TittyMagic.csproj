@@ -105,15 +105,29 @@
     <Compile Include="src\Variables.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="meta-ea.json" />
     <None Include="settings\gravityphysics\touchoptimized.json" />
     <None Include="settings\gravityphysics\balanced.json" />
     <None Include="settings\gravityphysics\animoptimized.json" />
+    <None Include="settings\morphmultipliers\animoptimized\downForce.json" />
+    <None Include="settings\morphmultipliers\animoptimized\leanBack.json" />
+    <None Include="settings\morphmultipliers\animoptimized\leanForward.json" />
+    <None Include="settings\morphmultipliers\animoptimized\rollLeft.json" />
+    <None Include="settings\morphmultipliers\animoptimized\rollRight.json" />
+    <None Include="settings\morphmultipliers\animoptimized\upForce.json" />
     <None Include="settings\morphmultipliers\balanced\leanBack.json" />
     <None Include="settings\morphmultipliers\balanced\leanForward.json" />
     <None Include="settings\morphmultipliers\balanced\rollLeft.json" />
     <None Include="settings\morphmultipliers\balanced\rollRight.json" />
     <None Include="settings\morphmultipliers\balanced\upright.json" />
     <None Include="settings\morphmultipliers\balanced\upsideDown.json" />
+    <None Include="settings\morphmultipliers\nippleErection.json" />
+    <None Include="settings\morphmultipliers\touchoptimized\leanBack.json" />
+    <None Include="settings\morphmultipliers\touchoptimized\leanForward.json" />
+    <None Include="settings\morphmultipliers\touchoptimized\rollLeft.json" />
+    <None Include="settings\morphmultipliers\touchoptimized\rollRight.json" />
+    <None Include="settings\morphmultipliers\touchoptimized\upright.json" />
+    <None Include="settings\morphmultipliers\touchoptimized\upsideDown.json" />
     <None Include="settings\morphmultipliers_dev\animoptimized\downForce.json" />
     <None Include="settings\morphmultipliers_dev\animoptimized\leanBack.json" />
     <None Include="settings\morphmultipliers_dev\animoptimized\leanForward.json" />
@@ -125,7 +139,6 @@
     <None Include="settings\morphmultipliers_dev\balanced\rollRight.json" />
     <None Include="settings\morphmultipliers_dev\balanced\rollLeft.json" />
     <None Include="settings\morphmultipliers_dev\balanced\upright.json" />
-    <None Include="settings\morphmultipliers\nippleErection.json" />
     <None Include="settings\morphmultipliers_dev\nippleErection.json" />
     <None Include="settings\morphmultipliers_dev\touchoptimized\leanBack.json" />
     <None Include="settings\morphmultipliers_dev\touchoptimized\leanForward.json" />
