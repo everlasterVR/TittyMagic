@@ -449,7 +449,7 @@ namespace TittyMagic
             {
                 // simulate gravityPhysics when upright
                 Quaternion zero = new Quaternion(0, 0, 0, -1);
-                gravityPhysicsH.Update(0, 0, _massEstimate, _gravityAmount);
+                gravityPhysicsH.Update(0, 0, _massAmount, _gravityAmount);
 
                 // simulate force of gravity when upright
                 // 0.75f is a hack, for some reason a normal gravity force pushes breasts too much down,
