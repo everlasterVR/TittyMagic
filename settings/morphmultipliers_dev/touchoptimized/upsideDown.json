@@ -176,23 +176,23 @@
    }, 
    "UP Center Gap Smooth" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "2.5", 
+      "Multiplier1" : "2", 
       "Multiplier2" : "0"
    }, 
    "UP Center Gap Depth" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-0.55", 
-      "Multiplier2" : "-0.8"
+      "Multiplier1" : "-0.6", 
+      "Multiplier2" : "-0.9"
    }, 
    "UP Center Gap Height" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "1.1", 
-      "Multiplier2" : "0.4"
+      "Multiplier1" : "1.0", 
+      "Multiplier2" : "0.5"
    }, 
    "UP Center Gap UpDown" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "2.7", 
-      "Multiplier2" : "-0.7"
+      "Multiplier1" : "2.0", 
+      "Multiplier2" : "-0.3"
    }, 
    "UP Chest Smoother" : { 
       "IsNegative" : "false", 
