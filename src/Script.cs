@@ -50,6 +50,9 @@ namespace TittyMagic
         private JSONStorableString titleUIText;
         private JSONStorableString statusUIText;
         private JSONStorableString debugUIText;
+        private JSONStorableString modeInfoText;
+        private JSONStorableString gravityInfoText;
+        private JSONStorableString mobilityInfoText;
 
         private Dictionary<string, UIDynamicButton> modeButtonGroup;
 
@@ -229,11 +232,43 @@ namespace TittyMagic
                 relativePosMorphH.LoadSettings(mode);
             }
 
+            UpdateModeInfoText(mode);
+            UpdateGravityInfoText(mode);
             BuildPluginUILowerLeft();
+            BuildPluginUILowerRight();
 
             StartCoroutine(TempDisableModeButtons());
 
             yield return WaitToBeginRefresh();
+        }
+
+        private void UpdateModeInfoText(string mode)
+        {
+            string text = UI.Size("\n", 12);
+            if(mode == Mode.ANIM_OPTIMIZED)
+            {
+                text += "Animation optimized mode morphs breasts in response to up/down forces. Sideways and forward/back shape is based only on the chest angle. Physics settings are similar to balanced mode, but hard colliders are off.";
+            }
+            else if(mode == Mode.BALANCED)
+            {
+                text += "In balanced mode, breasts have realistic mass which helps with animation, and hard colliders are on to enable collision to move breasts as well.";
+            }
+            else if(mode == Mode.TOUCH_OPTIMIZED)
+            {
+                text += "Touch optimized mode lowers breast mass, increases fat back force and turns off hard colliders. While breast movement due to gravity and other forces isn't very realistic in this mode, collision is based only on soft physics.";
+            }
+            modeInfoText.SetVal(text);
+        }
+
+        private void UpdateGravityInfoText(string mode)
+        {
+            string infoTextEnd = mode == Mode.ANIM_OPTIMIZED ?
+                "when leaning left/right and forward/back" :
+                "in all orientations";
+            gravityInfoText.SetVal(
+                UI.Size("\n", 12) +
+                $"Adjusts how much pose morphs shape the breasts {infoTextEnd}."
+            );
         }
 
         private IEnumerator TempDisableModeButtons()
@@ -265,16 +300,18 @@ namespace TittyMagic
             statusUIText = UI.NewTextField(this, "statusText", "", 28, 100, rightSide);
 
             UI.NewSpacer(this, 10f, rightSide);
-            JSONStorableString usage2Area = UI.NewTextField(this, "Usage Info Area 2", "", 28, 135, rightSide);
-            string usage2 = UI.Size("\n", 12) + "Physics settings mode selection.";
-            usage2Area.SetVal(usage2);
+            modeInfoText = UI.NewTextField(this, "Usage Info Area 2", "", 28, 210, rightSide);
 
             UI.NewSpacer(this, 10f, rightSide);
-            JSONStorableString usage1Area = UI.NewTextField(this, "Usage Info Area 1", "", 28, 255, rightSide);
-            string usage1 = UI.Size("\n", 12) +
-                "Breast softness adjusts soft physics settings from very firm to very soft.\n\n" +
-                "Breast gravity adjusts how much pose morphs shape the breasts in all orientations.";
-            usage1Area.SetVal(usage1);
+            JSONStorableString softnessInfoText = UI.NewTextField(this, "Usage Info Area 1", "", 28, 120, rightSide);
+            softnessInfoText.SetVal(
+                UI.Size("\n", 12) +
+                "Adjusts soft physics settings from very firm to very soft."
+            );
+
+            UI.NewSpacer(this, 75f, rightSide);
+            gravityInfoText = UI.NewTextField(this, "GravityInfoText", "", 28, 120, true);
+            UI.NewSpacer(this, 75f, rightSide);
 
 #if DEBUG_ON
             debugUIText = UI.NewTextField(this, "debugText", "", 28, 200, rightSide);
@@ -342,7 +379,14 @@ namespace TittyMagic
 
             if(modeChooser.val == Mode.ANIM_OPTIMIZED)
             {
-                _linkGravityAndMobility = UI.NewToggle(this, "Link gravity and mobility", true, false);
+                if(_linkGravityAndMobility == null)
+                {
+                    _linkGravityAndMobility = UI.NewToggle(this, "Link gravity and mobility", true, false);
+                }
+                else
+                {
+                    CreateToggle(_linkGravityAndMobility, false);
+                }
                 _upDownMobility = UI.NewIntSlider(this, "Up/down mobility", 2/3f * _gravity.val, 0f, 100f);
                 _upDownMobilityAmount = 1.5f * Mathf.Pow(_upDownMobility.val/100f, 1/2f);
 
@@ -397,6 +441,30 @@ namespace TittyMagic
                 nippleErectionMorphH.Update(val);
                 staticPhysicsH.UpdateNipplePhysics(_softnessAmount, val);
             });
+        }
+
+        private void BuildPluginUILowerRight()
+        {
+            if(mobilityInfoText != null)
+                RemoveTextField(mobilityInfoText);
+
+            if(modeChooser.val == Mode.ANIM_OPTIMIZED)
+            {
+                if(mobilityInfoText == null)
+                {
+                    mobilityInfoText = UI.NewTextField(this, "MobilityInfoText", "", 28, 120, true);
+                }
+                else
+                {
+                    UIDynamicTextField field = CreateTextField(mobilityInfoText, true);
+                    field.UItext.fontSize = 28;
+                    field.height = 120;
+                }
+                mobilityInfoText.SetVal(
+                    UI.Size("\n", 12) +
+                    "Adjusts the amount of up/down morphing due to forces including gravity."
+                );
+            }
         }
 
         private void RefreshFromSliderChanged()
