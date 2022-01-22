@@ -151,7 +151,7 @@ namespace TittyMagic
             }
             catch(Exception e)
             {
-                LogError($"{e}");
+                LogError($"Init: {e}");
             }
         }
 
@@ -498,8 +498,7 @@ namespace TittyMagic
             }
             catch(Exception e)
             {
-                LogError($"{e}");
-                LogError($"Try reloading plugin!");
+                LogError($"FixedUpdate: {e}");
                 enabled = false;
             }
         }
@@ -789,20 +788,13 @@ namespace TittyMagic
                 Destroy(softnessSCM);
                 Destroy(gravitySCM);
                 Destroy(upDownMobilitySCM);
+                SuperController.singleton.onAtomRemovedHandlers -= OnRemoveAtom;
+                SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
             }
-            catch(Exception)
+            catch(Exception e)
             {
+                LogError($"OnDestroy: {e}");
             }
-            SuperController.singleton.onAtomRemovedHandlers -= OnRemoveAtom;
-            SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
-
-            gravityPhysicsH.ResetAll();
-            gravityMorphH.ResetAll();
-            if(modeChooser.val == Mode.ANIM_OPTIMIZED)
-            {
-                relativePosMorphH.ResetAll();
-            }
-            nippleErectionMorphH.ResetAll();
         }
 
         public void OnEnable()
@@ -815,14 +807,21 @@ namespace TittyMagic
 
         private void OnDisable()
         {
-            settingsMonitor.enabled = false;
-            gravityPhysicsH.ResetAll();
-            gravityMorphH.ResetAll();
-            if(modeChooser.val == Mode.ANIM_OPTIMIZED)
+            try
             {
-                relativePosMorphH.ResetAll();
+                settingsMonitor.enabled = false;
+                gravityPhysicsH.ResetAll();
+                gravityMorphH.ResetAll();
+                if(modeChooser.val == Mode.ANIM_OPTIMIZED)
+                {
+                    relativePosMorphH.ResetAll();
+                }
+                nippleErectionMorphH.ResetAll();
             }
-            nippleErectionMorphH.ResetAll();
+            catch(Exception e)
+            {
+                LogError($"OnDisable: {e}");
+            }
         }
     }
 }
