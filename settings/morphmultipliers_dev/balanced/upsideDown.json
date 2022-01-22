@@ -200,13 +200,13 @@
       "Multiplier2" : "0.42"
    }, 
    "UP Areola UpDown" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "2", 
-      "Multiplier2" : "0"
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.75", 
+      "Multiplier2" : "-1.50"
    }, 
    "UP Areolae Depth" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "1", 
-      "Multiplier2" : "0"
+      "Multiplier1" : "0.2", 
+      "Multiplier2" : "0.4"
    }
 }
