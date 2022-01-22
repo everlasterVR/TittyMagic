@@ -178,6 +178,24 @@ namespace TittyMagic
             return storable;
         }
 
+        public static JSONStorableFloat NewIntSlider(
+            MVRScript script,
+            string paramName,
+            float startingValue,
+            float minValue,
+            float maxValue,
+            bool rightSide = false
+        )
+        {
+            JSONStorableFloat storable = new JSONStorableFloat(paramName, startingValue, minValue, maxValue);
+            storable.storeType = JSONStorableParam.StoreType.Physical;
+            script.RegisterFloat(storable);
+            UIDynamicSlider slider = script.CreateSlider(storable, rightSide);
+            slider.valueFormat = "0f";
+            slider.slider.wholeNumbers = true;
+            return storable;
+        }
+
         public static JSONStorableString NewTextField(
             MVRScript script,
             string paramName,
@@ -202,10 +220,11 @@ namespace TittyMagic
             return storable;
         }
 
-        public static void NewSpacer(MVRScript script, float height, bool rightSide = false)
+        public static UIDynamic NewSpacer(MVRScript script, float height, bool rightSide = false)
         {
             UIDynamic spacer = script.CreateSpacer(rightSide);
             spacer.height = height;
+            return spacer;
         }
 
         public static Dictionary<string, UIDynamicButton> CreateRadioButtonGroup(MVRScript script, JSONStorableStringChooser jsc, bool rightSide = false)

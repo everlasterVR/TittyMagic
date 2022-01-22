@@ -1,4 +1,5 @@
-﻿//#define USE_CONFIGURATORS
+﻿//#define DEBUG_ON
+//#define USE_CONFIGURATORS
 
 using SimpleJSON;
 using System;
@@ -31,7 +32,8 @@ namespace TittyMagic
         private float _massAmount;
         private float _massScaling;
         private float _softnessAmount;
-        private float _mobilityAmount;
+        private float _gravityAmount;
+        private float _upDownMobilityAmount;
 
         private SettingsMonitor settingsMonitor;
 
@@ -47,6 +49,7 @@ namespace TittyMagic
 
         private JSONStorableString titleUIText;
         private JSONStorableString statusUIText;
+        private JSONStorableString debugUIText;
 
         private Dictionary<string, UIDynamicButton> modeButtonGroup;
 
@@ -56,9 +59,13 @@ namespace TittyMagic
         private JSONStorableString pluginVersionStorable;
         private JSONStorableFloat _softness;
         private SliderClickMonitor softnessSCM;
-        private JSONStorableFloat _mobility;
-        private SliderClickMonitor mobilitySCM;
-        private JSONStorableBool _linkSoftnessAndMobility;
+        private JSONStorableFloat _gravity;
+        private SliderClickMonitor gravitySCM;
+        private JSONStorableFloat _upDownMobility;
+        private SliderClickMonitor upDownMobilitySCM;
+        private JSONStorableBool _linkSoftnessAndGravity;
+        private JSONStorableBool _linkGravityAndMobility;
+        private UIDynamic _lowerLeftSpacer;
         private JSONStorableFloat _nippleErection;
 
         private bool modeSetFromJson;
@@ -128,8 +135,13 @@ namespace TittyMagic
                 InitSliderListeners();
                 SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
 
-                _softnessAmount = Mathf.Pow(_softness.val/_softness.max, 1/2f);
-                _mobilityAmount = 0.75f * Mathf.Pow(_mobility.val/_mobility.max, 1/2f);
+                _softnessAmount = Mathf.Pow(_softness.val/100f, 1/2f);
+                _gravityAmount = Mathf.Pow(_gravity.val/100f, 1/2f);
+
+                if(modeChooser.val == Mode.ANIM_OPTIMIZED)
+                {
+                    _upDownMobilityAmount = 1.5f * Mathf.Pow(_upDownMobility.val/100f, 1/2f);
+                }
 
                 StartCoroutine(SelectDefaultMode());
                 StartCoroutine(SubscribeToKeybindings());
@@ -179,12 +191,11 @@ namespace TittyMagic
             staticPhysicsH.modeChooser = modeChooser;
 
             UI.NewSpacer(this, 10f);
-            _linkSoftnessAndMobility = UI.NewToggle(this, "Link softness and gravity", true, false);
-            _softness = UI.NewFloatSlider(this, "Breast softness", 75f, Const.SOFTNESS_MIN, Const.SOFTNESS_MAX, "F0");
-            _mobility = UI.NewFloatSlider(this, "Breast gravity", 75f, Const.GRAVITY_MIN, Const.GRAVITY_MAX, "F0");
-
+            _softness = UI.NewIntSlider(this, "Breast softness", 75f, 0f, 100f);
             UI.NewSpacer(this, 10f);
-            _nippleErection = UI.NewFloatSlider(this, "Erect nipples", 0f, 0f, 1.0f, "F2");
+            _linkSoftnessAndGravity = UI.NewToggle(this, "Link softness and gravity", true, false);
+            _gravity = UI.NewIntSlider(this, "Breast gravity", 75f, 0f, 100f);
+            UI.NewSpacer(this, 10f);
         }
 
         private JSONStorableStringChooser CreateModeChooser()
@@ -217,6 +228,8 @@ namespace TittyMagic
                 //RelativePosMorphHandler doesn't actually support any other mode currently
                 relativePosMorphH.LoadSettings(mode);
             }
+
+            BuildPluginUILowerLeft();
 
             StartCoroutine(TempDisableModeButtons());
 
@@ -262,6 +275,10 @@ namespace TittyMagic
                 "Breast softness adjusts soft physics settings from very firm to very soft.\n\n" +
                 "Breast gravity adjusts how much pose morphs shape the breasts in all orientations.";
             usage1Area.SetVal(usage1);
+
+#if DEBUG_ON
+            debugUIText = UI.NewTextField(this, "debugText", "", 28, 200, rightSide);
+#endif
         }
 
         #endregion User interface
@@ -269,32 +286,112 @@ namespace TittyMagic
         private void InitSliderListeners()
         {
             softnessSCM = _softness.slider.gameObject.AddComponent<SliderClickMonitor>();
-            mobilitySCM = _mobility.slider.gameObject.AddComponent<SliderClickMonitor>();
+            gravitySCM = _gravity.slider.gameObject.AddComponent<SliderClickMonitor>();
 
             _softness.slider.onValueChanged.AddListener((float val) =>
             {
-                _softnessAmount = Mathf.Pow(val/_softness.max, 1/2f);
-                if(_linkSoftnessAndMobility.val)
+                float newAmount = Mathf.Pow(val/100f, 1/2f);
+                if(newAmount == _softnessAmount)
                 {
-                    _mobility.val = val;
-                    _mobilityAmount = 0.75f * Mathf.Pow(val/_mobility.max, 1/2f);
+                    return;
+                }
+                _softnessAmount = newAmount;
+                if(_linkSoftnessAndGravity.val)
+                {
+                    _gravity.val = val;
+                    _gravityAmount = Mathf.Pow(val/100f, 1/2f);
                 }
                 RefreshFromSliderChanged();
             });
-            _mobility.slider.onValueChanged.AddListener((float val) =>
+            _gravity.slider.onValueChanged.AddListener((float val) =>
             {
-                _mobilityAmount = 0.75f * Mathf.Pow(val/_mobility.max, 1/2f);
-                if(_linkSoftnessAndMobility.val)
+                _gravityAmount = Mathf.Pow(val/100f, 1/2f);
+                if(_linkSoftnessAndGravity.val)
                 {
                     _softness.val = val;
-                    _softnessAmount = Mathf.Pow(val/_softness.max, 1/2f);
-                }
-                // prevent double call to Refresh when linked
-                else
-                {
+                    float newAmount = Mathf.Pow(val/100f, 1/2f);
+                    if(newAmount == _softnessAmount)
+                    {
+                        return;
+                    }
+                    _softnessAmount = Mathf.Pow(val/100f, 1/2f);
                     RefreshFromSliderChanged();
                 }
             });
+        }
+
+        private void GravityListenerForMobilityLink(float val)
+        {
+            if(_linkGravityAndMobility.val)
+            {
+                _upDownMobility.val = 2/3f * val;
+                _upDownMobilityAmount = 1.5f * Mathf.Pow(_upDownMobility.val/100f, 1/2f);
+            }
+        }
+
+        private void BuildPluginUILowerLeft()
+        {
+            if(_linkGravityAndMobility != null)
+                RemoveToggle(_linkGravityAndMobility);
+            if(_upDownMobility != null)
+                RemoveSlider(_upDownMobility);
+            if(_lowerLeftSpacer != null)
+                RemoveSpacer(_lowerLeftSpacer);
+            if(_nippleErection != null)
+                RemoveSlider(_nippleErection);
+
+            if(modeChooser.val == Mode.ANIM_OPTIMIZED)
+            {
+                _linkGravityAndMobility = UI.NewToggle(this, "Link gravity and mobility", true, false);
+                _upDownMobility = UI.NewIntSlider(this, "Up/down mobility", 2/3f * _gravity.val, 0f, 100f);
+                _upDownMobilityAmount = 1.5f * Mathf.Pow(_upDownMobility.val/100f, 1/2f);
+
+                upDownMobilitySCM = _upDownMobility.slider.gameObject.AddComponent<SliderClickMonitor>();
+                _upDownMobility.slider.onValueChanged.AddListener((float val) =>
+                {
+                    _upDownMobilityAmount = 1.5f * Mathf.Pow(val/100f, 1/2f);
+                    if(_linkGravityAndMobility.val)
+                    {
+                        _gravity.val = 1.5f * val;
+                        float newAmount = Mathf.Pow(_gravity.val/100f, 1/2f);
+                        if(newAmount == _gravityAmount)
+                        {
+                            return;
+                        }
+                        _gravityAmount = newAmount;
+                        if(_linkSoftnessAndGravity.val)
+                        {
+                            RefreshFromSliderChanged();
+                        }
+                    }
+                });
+
+                _gravity.slider.onValueChanged.AddListener(GravityListenerForMobilityLink);
+            }
+            else
+            {
+                try
+                {
+                    Destroy(upDownMobilitySCM);
+                    _gravity.slider.onValueChanged.RemoveListener(GravityListenerForMobilityLink);
+                }
+                catch(Exception)
+                {
+                }
+            }
+
+            float spacerHeight = modeChooser.val == Mode.ANIM_OPTIMIZED ? 90f : 290f;
+            _lowerLeftSpacer = UI.NewSpacer(this, spacerHeight);
+
+            if(_nippleErection == null)
+            {
+                _nippleErection = UI.NewFloatSlider(this, "Nipple erection", 0f, 0f, 1.0f, "F2");
+            }
+            else
+            {
+                UIDynamicSlider slider = CreateSlider(_nippleErection, false);
+                slider.valueFormat = "F2";
+            }
             _nippleErection.slider.onValueChanged.AddListener((float val) =>
             {
                 nippleErectionMorphH.Update(val);
@@ -313,6 +410,17 @@ namespace TittyMagic
                 staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
             }
         }
+
+#if DEBUG_ON
+        private void Update()
+        {
+            debugUIText.SetVal(
+                $"softness {_softnessAmount}\n" +
+                $"gravity {_gravityAmount}\n" +
+                $"upDownMobility {_upDownMobilityAmount}"
+            );
+        }
+#endif
 
         private void FixedUpdate()
         {
@@ -341,7 +449,7 @@ namespace TittyMagic
             {
                 // simulate gravityPhysics when upright
                 Quaternion zero = new Quaternion(0, 0, 0, -1);
-                gravityPhysicsH.Update(0, 0, _massEstimate, _softnessAmount);
+                gravityPhysicsH.Update(0, 0, _massEstimate, _gravityAmount);
 
                 // simulate force of gravity when upright
                 // 0.75f is a hack, for some reason a normal gravity force pushes breasts too much down,
@@ -395,18 +503,18 @@ namespace TittyMagic
                 //float positionDiffZ = (neutralRelativePos - relativePos).z;
                 if(relativePosMorphH.IsEnabled())
                 {
-                    relativePosMorphH.Update(angleY, 0f, _massAmount, _massScaling, 1.2f * _mobilityAmount);
+                    relativePosMorphH.Update(angleY, 0f, _massAmount, _massScaling, _upDownMobilityAmount);
                 }
             }
 
             if(gravityMorphH.IsEnabled())
             {
-                gravityMorphH.Update(modeChooser.val, roll, pitch, _massAmount, _mobilityAmount);
+                gravityMorphH.Update(modeChooser.val, roll, pitch, _massAmount, 0.75f * _gravityAmount);
             }
 
             if(gravityPhysicsH.IsEnabled())
             {
-                gravityPhysicsH.Update(roll, pitch, _massAmount, _mobilityAmount);
+                gravityPhysicsH.Update(roll, pitch, _massAmount, _gravityAmount);
             }
         }
 
@@ -429,7 +537,11 @@ namespace TittyMagic
 
             // ensure refresh actually begins only once listeners report no change
             yield return new WaitForSeconds(listenersCheckInterval);
-            while(breastMorphListener.Changed() || atomScaleListener.Changed() || softnessSCM.isDown || mobilitySCM.isDown)
+            while(breastMorphListener.Changed() ||
+                atomScaleListener.Changed() ||
+                softnessSCM.isDown ||
+                gravitySCM.isDown ||
+                (upDownMobilitySCM != null && upDownMobilitySCM.isDown))
             {
                 yield return new WaitForSeconds(0.1f);
             }
@@ -597,7 +709,8 @@ namespace TittyMagic
         {
             Destroy(settingsMonitor);
             Destroy(softnessSCM);
-            Destroy(mobilitySCM);
+            Destroy(gravitySCM);
+            Destroy(upDownMobilitySCM);
         }
 
         private void OnDestroy()
@@ -606,7 +719,8 @@ namespace TittyMagic
             {
                 Destroy(settingsMonitor);
                 Destroy(softnessSCM);
-                Destroy(mobilitySCM);
+                Destroy(gravitySCM);
+                Destroy(upDownMobilitySCM);
             }
             catch(Exception)
             {

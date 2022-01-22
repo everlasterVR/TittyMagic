@@ -4,12 +4,6 @@
     {
         public const float MASS_MIN = 0.1f;
         public const float MASS_MAX = 2.0f;
-
-        public const float SOFTNESS_MIN = 0f;
-        public const float SOFTNESS_MAX = 100f;
-
-        public const float GRAVITY_MIN = 0f;
-        public const float GRAVITY_MAX = 100f;
     }
 
     internal static class Globals
