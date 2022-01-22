@@ -27,11 +27,11 @@ namespace TittyMagic
         private DAZCharacterSelector geometry;
         private Vector3 neutralRelativePos;
 
-        private float massEstimate;
-        private float massAmount;
-        private float massScaling;
-        private float softnessAmount;
-        private float mobilityAmount;
+        private float _massEstimate;
+        private float _massAmount;
+        private float _massScaling;
+        private float _softnessAmount;
+        private float _mobilityAmount;
 
         private SettingsMonitor settingsMonitor;
 
@@ -54,12 +54,12 @@ namespace TittyMagic
 
         private JSONStorableStringChooser modeChooser;
         private JSONStorableString pluginVersionStorable;
-        private JSONStorableFloat softness;
+        private JSONStorableFloat _softness;
         private SliderClickMonitor softnessSCM;
-        private JSONStorableFloat mobility;
+        private JSONStorableFloat _mobility;
         private SliderClickMonitor mobilitySCM;
-        private JSONStorableBool linkSoftnessAndMobility;
-        private JSONStorableFloat nippleErection;
+        private JSONStorableBool _linkSoftnessAndMobility;
+        private JSONStorableFloat _nippleErection;
 
         private bool modeSetFromJson;
         private float timeSinceListenersChecked;
@@ -128,8 +128,8 @@ namespace TittyMagic
                 InitSliderListeners();
                 SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
 
-                softnessAmount = Mathf.Pow(softness.val/softness.max, 1/2f);
-                mobilityAmount = 0.75f * Mathf.Pow(mobility.val/mobility.max, 1/2f);
+                _softnessAmount = Mathf.Pow(_softness.val/_softness.max, 1/2f);
+                _mobilityAmount = 0.75f * Mathf.Pow(_mobility.val/_mobility.max, 1/2f);
 
                 StartCoroutine(SelectDefaultMode());
                 StartCoroutine(SubscribeToKeybindings());
@@ -179,12 +179,12 @@ namespace TittyMagic
             staticPhysicsH.modeChooser = modeChooser;
 
             UI.NewSpacer(this, 10f);
-            softness = UI.NewFloatSlider(this, "Breast softness", 75f, Const.SOFTNESS_MIN, Const.SOFTNESS_MAX, "F0");
-            mobility = UI.NewFloatSlider(this, "Breast mobility", 75f, Const.GRAVITY_MIN, Const.GRAVITY_MAX, "F0");
-            linkSoftnessAndMobility = UI.NewToggle(this, "Link softness and mobility", true, false);
+            _linkSoftnessAndMobility = UI.NewToggle(this, "Link softness and gravity", true, false);
+            _softness = UI.NewFloatSlider(this, "Breast softness", 75f, Const.SOFTNESS_MIN, Const.SOFTNESS_MAX, "F0");
+            _mobility = UI.NewFloatSlider(this, "Breast gravity", 75f, Const.GRAVITY_MIN, Const.GRAVITY_MAX, "F0");
 
             UI.NewSpacer(this, 10f);
-            nippleErection = UI.NewFloatSlider(this, "Erect nipples", 0f, 0f, 1.0f, "F2");
+            _nippleErection = UI.NewFloatSlider(this, "Erect nipples", 0f, 0f, 1.0f, "F2");
         }
 
         private JSONStorableStringChooser CreateModeChooser()
@@ -268,26 +268,26 @@ namespace TittyMagic
 
         private void InitSliderListeners()
         {
-            softnessSCM = softness.slider.gameObject.AddComponent<SliderClickMonitor>();
-            mobilitySCM = mobility.slider.gameObject.AddComponent<SliderClickMonitor>();
+            softnessSCM = _softness.slider.gameObject.AddComponent<SliderClickMonitor>();
+            mobilitySCM = _mobility.slider.gameObject.AddComponent<SliderClickMonitor>();
 
-            softness.slider.onValueChanged.AddListener((float val) =>
+            _softness.slider.onValueChanged.AddListener((float val) =>
             {
-                softnessAmount = Mathf.Pow(val/softness.max, 1/2f);
-                if(linkSoftnessAndMobility.val)
+                _softnessAmount = Mathf.Pow(val/_softness.max, 1/2f);
+                if(_linkSoftnessAndMobility.val)
                 {
-                    mobility.val = val;
-                    mobilityAmount = 0.75f * Mathf.Pow(val/mobility.max, 1/2f);
+                    _mobility.val = val;
+                    _mobilityAmount = 0.75f * Mathf.Pow(val/_mobility.max, 1/2f);
                 }
                 RefreshFromSliderChanged();
             });
-            mobility.slider.onValueChanged.AddListener((float val) =>
+            _mobility.slider.onValueChanged.AddListener((float val) =>
             {
-                mobilityAmount = 0.75f * Mathf.Pow(val/mobility.max, 1/2f);
-                if(linkSoftnessAndMobility.val)
+                _mobilityAmount = 0.75f * Mathf.Pow(val/_mobility.max, 1/2f);
+                if(_linkSoftnessAndMobility.val)
                 {
-                    softness.val = val;
-                    softnessAmount = Mathf.Pow(val/softness.max, 1/2f);
+                    _softness.val = val;
+                    _softnessAmount = Mathf.Pow(val/_softness.max, 1/2f);
                 }
                 // prevent double call to Refresh when linked
                 else
@@ -295,10 +295,10 @@ namespace TittyMagic
                     RefreshFromSliderChanged();
                 }
             });
-            nippleErection.slider.onValueChanged.AddListener((float val) =>
+            _nippleErection.slider.onValueChanged.AddListener((float val) =>
             {
                 nippleErectionMorphH.Update(val);
-                staticPhysicsH.UpdateNipplePhysics(softnessAmount, val);
+                staticPhysicsH.UpdateNipplePhysics(_softnessAmount, val);
             });
         }
 
@@ -310,7 +310,7 @@ namespace TittyMagic
             }
             else
             {
-                staticPhysicsH.FullUpdate(softnessAmount, nippleErection.val);
+                staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
             }
         }
 
@@ -341,7 +341,7 @@ namespace TittyMagic
             {
                 // simulate gravityPhysics when upright
                 Quaternion zero = new Quaternion(0, 0, 0, -1);
-                gravityPhysicsH.Update(0, 0, massEstimate, softnessAmount);
+                gravityPhysicsH.Update(0, 0, _massEstimate, _softnessAmount);
 
                 // simulate force of gravity when upright
                 // 0.75f is a hack, for some reason a normal gravity force pushes breasts too much down,
@@ -395,18 +395,18 @@ namespace TittyMagic
                 //float positionDiffZ = (neutralRelativePos - relativePos).z;
                 if(relativePosMorphH.IsEnabled())
                 {
-                    relativePosMorphH.Update(angleY, 0f, massAmount, massScaling, 1.2f * mobilityAmount);
+                    relativePosMorphH.Update(angleY, 0f, _massAmount, _massScaling, 1.2f * _mobilityAmount);
                 }
             }
 
             if(gravityMorphH.IsEnabled())
             {
-                gravityMorphH.Update(modeChooser.val, roll, pitch, massAmount, mobilityAmount);
+                gravityMorphH.Update(modeChooser.val, roll, pitch, _massAmount, _mobilityAmount);
             }
 
             if(gravityPhysicsH.IsEnabled())
             {
-                gravityPhysicsH.Update(roll, pitch, massAmount, mobilityAmount);
+                gravityPhysicsH.Update(roll, pitch, _massAmount, _mobilityAmount);
             }
         }
 
@@ -457,22 +457,22 @@ namespace TittyMagic
             float interval = 0.1f;
             while(duration < 1f && (
                 !VectorEqualWithin(1000f, rNippleRigidbody.velocity, Vector3.zero) ||
-                !EqualWithin(1000f, massEstimate, DetermineMassEstimate(atomScaleListener.Value))
+                !EqualWithin(1000f, _massEstimate, DetermineMassEstimate(atomScaleListener.Value))
             ))
             {
                 yield return new WaitForSeconds(interval);
                 duration += interval;
 
                 // update mass estimate
-                massEstimate = DetermineMassEstimate(atomScaleListener.Value);
+                _massEstimate = DetermineMassEstimate(atomScaleListener.Value);
 
                 // update main static physics
-                massAmount = staticPhysicsH.SetAndReturnMassVal(massEstimate);
-                massScaling = Mathf.Pow(3/4f * massAmount, 1/5f);
-                staticPhysicsH.UpdateMainPhysics(softnessAmount);
+                _massAmount = staticPhysicsH.SetAndReturnMassVal(_massEstimate);
+                _massScaling = Mathf.Pow(3/4f * _massAmount, 1/5f);
+                staticPhysicsH.UpdateMainPhysics(_softnessAmount);
             }
             SetMassUIStatus(atomScaleListener.Value);
-            staticPhysicsH.FullUpdate(softnessAmount, nippleErection.val);
+            staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
             gravityPhysicsH.SetBaseValues();
 
             _refreshStatus = RefreshStatus.MASS_OK;
@@ -516,7 +516,7 @@ namespace TittyMagic
 
         public void RefreshRateDependentPhysics()
         {
-            staticPhysicsH.UpdateRateDependentPhysics(softnessAmount);
+            staticPhysicsH.UpdateRateDependentPhysics(_softnessAmount);
         }
 
         private float DetermineMassEstimate(float atomScale)
