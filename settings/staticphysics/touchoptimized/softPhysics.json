@@ -1,13 +1,13 @@
 {
    "softVerticesCombinedSpring" : {
-      "minMminS" : "200",
-      "maxMminS" : "200",
-      "minMmaxS" : "60",
+      "minMminS" : "240",
+      "maxMminS" : "240",
+      "minMmaxS" : "70",
    },
    "softVerticesCombinedDamper" : {
-      "minMminS" : "1.2",
-      "maxMminS" : "1.6",
-      "minMmaxS" : "0.5"
+      "minMminS" : "1.6",
+      "maxMminS" : "2.1",
+      "minMmaxS" : "0.75"
    }, 
    "softVerticesMass" : {
       "minMminS" : "0.05",
