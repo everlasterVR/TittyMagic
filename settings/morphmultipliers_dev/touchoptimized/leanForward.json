@@ -6,8 +6,8 @@
    }, 
    "FW Breast Diameter(Pose)" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.584", 
-      "Multiplier2" : "0.684"
+      "Multiplier1" : "0.384", 
+      "Multiplier2" : "0.584"
    }, 
    "FW Breast Height2" : { 
       "IsNegative" : "true", 
@@ -15,14 +15,14 @@
       "Multiplier2" : "-0.2"
    }, 
    "FW Breast Rotate Down" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0.25", 
-      "Multiplier2" : "0.16"
-   }, 
-   "FW Breast Width" : { 
       "IsNegative" : "true", 
       "Multiplier1" : "-0.2", 
       "Multiplier2" : "-0.1"
+   }, 
+   "FW Breast Width" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.25", 
+      "Multiplier2" : "-0.125"
    }, 
    "FW Sternum Width" : { 
       "IsNegative" : "false", 
@@ -31,18 +31,18 @@
    }, 
    "FW Breast Depth" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "1.2", 
-      "Multiplier2" : "0.65"
+      "Multiplier1" : "0.8", 
+      "Multiplier2" : "0.5"
    }, 
    "FW Breasts Hang Forward" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.2", 
+      "Multiplier1" : "0.3", 
       "Multiplier2" : "0.05"
    }, 
    "FW Breast Pointed" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0.6", 
-      "Multiplier2" : "0.4"
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.6", 
+      "Multiplier2" : "-0.1"
    }, 
    "FW Breast Round" : { 
       "IsNegative" : "true", 
