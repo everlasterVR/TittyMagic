@@ -800,23 +800,23 @@ namespace TittyMagic
         public void OnEnable()
         {
             if(settingsMonitor != null)
-            {
                 settingsMonitor.enabled = true;
-            }
         }
 
         private void OnDisable()
         {
             try
             {
-                settingsMonitor.enabled = false;
-                gravityPhysicsH.ResetAll();
-                gravityMorphH.ResetAll();
-                if(modeChooser.val == Mode.ANIM_OPTIMIZED)
-                {
+                if(settingsMonitor != null)
+                    settingsMonitor.enabled = false;
+                if(gravityPhysicsH != null)
+                    gravityPhysicsH.ResetAll();
+                if(gravityMorphH != null)
+                    gravityMorphH.ResetAll();
+                if(modeChooser.val == Mode.ANIM_OPTIMIZED && relativePosMorphH != null)
                     relativePosMorphH.ResetAll();
-                }
-                nippleErectionMorphH.ResetAll();
+                if(nippleErectionMorphH != null)
+                    nippleErectionMorphH.ResetAll();
             }
             catch(Exception e)
             {
