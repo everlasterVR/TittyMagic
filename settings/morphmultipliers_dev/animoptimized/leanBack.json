@@ -1,12 +1,12 @@
 { 
    "BK Breast Diameter(Pose)" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-0.2", 
+      "Multiplier1" : "-0.3", 
       "Multiplier2" : "-0.5"
    }, 
    "BK Breast Diameter" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.3", 
+      "Multiplier1" : "0.6", 
       "Multiplier2" : "0.3"
    }, 
    "BK Breast flat" : { 
@@ -14,14 +14,9 @@
       "Multiplier1" : "0.3", 
       "Multiplier2" : "0"
    }, 
-   "BK Breast move inside" : { 
-      "IsNegative" : "true", 
-      "Multiplier1" : "0.1", 
-      "Multiplier2" : "-0.3"
-   }, 
    "BK Breast Move Up" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-0.1", 
+      "Multiplier1" : "-0.2", 
       "Multiplier2" : "-0.4"
    }, 
    "BK Breast Pointed" : { 
@@ -31,32 +26,32 @@
    }, 
    "BK Breast Rotate Up" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-0.15", 
-      "Multiplier2" : "-0.45"
+      "Multiplier1" : "0", 
+      "Multiplier2" : "0"
    }, 
    "BK Breast Top Curve1" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-0.6", 
-      "Multiplier2" : "-0.2"
+      "Multiplier1" : "-0.65", 
+      "Multiplier2" : "-0.3"
    }, 
    "BK Breast Top Curve2" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.45", 
+      "Multiplier1" : "0.5", 
       "Multiplier2" : "0.15"
    }, 
    "BK Breast Under Smoother1" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.124", 
-      "Multiplier2" : "0"
+      "Multiplier1" : "0.35", 
+      "Multiplier2" : "0.1"
    }, 
    "BK Breast Under Smoother2" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.2", 
+      "Multiplier1" : "0", 
       "Multiplier2" : "0.2"
    }, 
    "BK Breast Under Smoother3" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.1", 
+      "Multiplier1" : "0.3", 
       "Multiplier2" : "0.45"
    }, 
    "BK Breast Zero" : { 
@@ -86,8 +81,8 @@
    }, 
    "BK Breasts TogetherApart" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-0.9", 
-      "Multiplier2" : "-0.45"
+      "Multiplier1" : "-0.4", 
+      "Multiplier2" : "-0.8"
    }, 
    "BK Sternum Depth" : { 
       "IsNegative" : "true", 
@@ -106,22 +101,22 @@
    }, 
    "BK L Depth Squash" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.4", 
-      "Multiplier2" : "0.5"
+      "Multiplier1" : "1.2", 
+      "Multiplier2" : "0.2"
    }, 
    "BK L Rotate X Out" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.5", 
+      "Multiplier1" : "-0.1", 
       "Multiplier2" : "1"
    }, 
    "BK R Depth Squash" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.4", 
-      "Multiplier2" : "0.5"
+      "Multiplier1" : "1.2", 
+      "Multiplier2" : "0.2"
    }, 
    "BK R Rotate X Out" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "0.5", 
+      "Multiplier1" : "-0.1", 
       "Multiplier2" : "1"
    }
 }
