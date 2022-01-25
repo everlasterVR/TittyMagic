@@ -92,6 +92,7 @@
     <Compile Include="src\Configurators\ConfiguratorUISection.cs" />
     <Compile Include="src\Configurators\GravityMorphConfigurator.cs" />
     <Compile Include="src\Configurators\GravityPhysicsConfigurator.cs" />
+    <Compile Include="src\Configurators\IConfigurator.cs" />
     <Compile Include="src\Configurators\PhysicsConfig.cs" />
     <Compile Include="src\Configurators\RelativePosMorphConfigurator.cs" />
     <Compile Include="src\Handlers\GravityMorphHandler.cs" />
@@ -105,7 +106,6 @@
     <Compile Include="src\Variables.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="meta-ea.json" />
     <None Include="settings\gravityphysics\touchoptimized.json" />
     <None Include="settings\gravityphysics\balanced.json" />
     <None Include="settings\gravityphysics\animoptimized.json" />
