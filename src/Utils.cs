@@ -120,6 +120,18 @@ namespace TittyMagic
             return Mathf.Round(v1 * roundFactor) / roundFactor == Mathf.Round(v2 * roundFactor) / roundFactor;
         }
 
+        public static bool DeviatesAtLeast(float v1, float v2, int percent)
+        {
+            if(v1 > v2)
+            {
+                float deviation = (v1 - v2)/v1;
+                return (v1 - v2)/v1 > (float) percent/100;
+            }
+
+            float deviation2 = (v2 - v1)/v2;
+            return (v2 - v1)/v2 > (float) percent/100;
+        }
+
         public static bool VectorEqualWithin(float roundFactor, Vector3 v1, Vector3 v2)
         {
             return Mathf.Round(v1.x * roundFactor) / roundFactor == Mathf.Round(v2.x * roundFactor) / roundFactor

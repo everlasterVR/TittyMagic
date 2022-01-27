@@ -545,7 +545,11 @@ namespace TittyMagic
             if(timeSinceListenersChecked >= listenersCheckInterval)
             {
                 timeSinceListenersChecked -= listenersCheckInterval;
-                if(_waitStatus != RefreshStatus.WAITING && (breastMorphListener.Changed() || atomScaleListener.Changed()))
+                if(
+                    _waitStatus != RefreshStatus.WAITING &&
+                    (breastMorphListener.Changed() || atomScaleListener.Changed()) &&
+                    DeviatesAtLeast(_massEstimate, DetermineMassEstimate(atomScaleListener.Value), percent: 10)
+                )
                 {
                     StartCoroutine(WaitToBeginRefresh());
                     return;
