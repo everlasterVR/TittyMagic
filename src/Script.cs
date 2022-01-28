@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using static TittyMagic.Utils;
 using static TittyMagic.Calc;
 using static TittyMagic.Globals;
@@ -49,7 +50,9 @@ namespace TittyMagic
 
         private JSONStorableString titleUIText;
         private JSONStorableString statusUIText;
+        private InputField statusUIInputField;
         private JSONStorableString debugUIText;
+
         private JSONStorableString modeInfoText;
         private JSONStorableString gravityInfoText;
         private JSONStorableString mobilityInfoText;
@@ -189,6 +192,7 @@ namespace TittyMagic
             titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{version}</size>");
 
             UI.NewSpacer(this, 10f);
+
             modeChooser = CreateModeChooser();
             modeButtonGroup = UI.CreateRadioButtonGroup(this, modeChooser);
             staticPhysicsH.modeChooser = modeChooser;
@@ -297,7 +301,9 @@ namespace TittyMagic
         private void InitPluginUIRight()
         {
             bool rightSide = true;
-            statusUIText = UI.NewTextField(this, "statusText", "", 28, 100, rightSide);
+            statusUIText = UI.NewTextField(this, "statusText", "", 28, 50, rightSide);
+            statusUIInputField = UI.NewInputField(statusUIText.dynamicText);
+            statusUIInputField.interactable = false;
 
             UI.NewSpacer(this, 10f, rightSide);
             modeInfoText = UI.NewTextField(this, "Usage Info Area 2", "", 28, 210, rightSide);
@@ -717,44 +723,29 @@ namespace TittyMagic
         private void SetMassUIStatus(float atomScale)
         {
             float mass = breastMassCalculator.Calculate(atomScale);
+            string text = $"Mass is {RoundToDecimals(mass, 1000f)}kg";
             if(mass > Const.MASS_MAX)
             {
                 float excess = RoundToDecimals(mass - Const.MASS_MAX, 1000f);
-                statusUIText.SetVal(MassExcessStatus(excess));
+                text = MassExcessStatus(excess);
             }
             else if(mass < Const.MASS_MIN)
             {
                 float shortage = RoundToDecimals(Const.MASS_MIN - mass, 1000f);
-                statusUIText.SetVal(MassShortageStatus(shortage));
+                text = MassShortageStatus(shortage);
             }
-            else
-            {
-                statusUIText.SetVal("");
-            }
+            statusUIText.SetVal(text);
+            statusUIInputField.text = text;
         }
 
         private string MassExcessStatus(float value)
         {
-            Color color = Color.Lerp(
-                new Color(0.5f, 0.5f, 0.0f, 1f),
-                Color.red,
-                value
-            );
-            return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}><size=28>" +
-                $"Estimated mass is <b>{value}</b> over the 2.000 maximum.\n" +
-                $"</size></color>";
+            return $"Mass is {value}kg over the 2kg max";
         }
 
         private string MassShortageStatus(float value)
         {
-            Color color = Color.Lerp(
-                new Color(0.5f, 0.5f, 0.0f, 1f),
-                Color.red,
-                value*10
-            );
-            return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}><size=28>" +
-                $"Estimated mass is <b>{value}</b> below the 0.100 minimum.\n" +
-                $"</size></color>";
+            return $"Mass is {value}kg below the 0.1kg min";
         }
 
         public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)

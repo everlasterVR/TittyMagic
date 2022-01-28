@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace TittyMagic
 {
@@ -222,6 +223,20 @@ namespace TittyMagic
             textField.UItext.fontSize = fontSize;
             textField.height = height;
             return storable;
+        }
+
+        public static InputField NewInputField(UIDynamicTextField textField)
+        {
+            InputField inputField = textField.gameObject.AddComponent<InputField>();
+            inputField.textComponent = textField.UItext;
+            inputField.text = textField.text;
+            inputField.textComponent.fontSize = textField.UItext.fontSize;
+
+            var layoutElement = inputField.GetComponent<LayoutElement>();
+            layoutElement.minHeight = 0f;
+            layoutElement.preferredHeight = textField.height;
+
+            return inputField;
         }
 
         public static JSONStorableBool NewToggle(MVRScript script, string paramName, bool startingValue, bool rightSide = false)
