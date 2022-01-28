@@ -63,6 +63,7 @@ namespace TittyMagic
 
         private JSONStorableStringChooser modeChooser;
         private JSONStorableString pluginVersionStorable;
+        private JSONStorableBool _autoRecalibrateOnSizeChange;
         private JSONStorableFloat _softness;
         private SliderClickMonitor softnessSCM;
         private JSONStorableFloat _gravity;
@@ -191,7 +192,9 @@ namespace TittyMagic
             titleUIText = UI.NewTextField(this, "titleText", "", 36, 100);
             titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{version}</size>");
 
-            UI.NewSpacer(this, 10f);
+            var modeSelection = UI.NewTextField(this, "modeSelection", "", 32, 100);
+            modeSelection.SetVal("<size=28>\n\n</size><b>Mode selection</b>");
+            modeSelection.dynamicText.backgroundColor = Color.clear;
 
             modeChooser = CreateModeChooser();
             modeButtonGroup = UI.CreateRadioButtonGroup(this, modeChooser);
@@ -304,8 +307,17 @@ namespace TittyMagic
             statusUIText = UI.NewTextField(this, "statusText", "", 28, 50, rightSide);
             statusUIInputField = UI.NewInputField(statusUIText.dynamicText);
             statusUIInputField.interactable = false;
+            _autoRecalibrateOnSizeChange = UI.NewToggle(this, "Auto-recalibrate if size changed", true, rightSide);
 
-            UI.NewSpacer(this, 10f, rightSide);
+            var recalibrateButton = CreateButton("Recalibrate physics", rightSide);
+            recalibrateButton.button.interactable = !_autoRecalibrateOnSizeChange.val;
+
+            _autoRecalibrateOnSizeChange.toggle.onValueChanged.AddListener(val => recalibrateButton.button.interactable = !val);
+            recalibrateButton.button.onClick.AddListener(() =>
+                StartCoroutine(WaitToBeginRefresh(triggeredManually: true))
+            );
+
+            UI.NewSpacer(this, 20f, rightSide);
             modeInfoText = UI.NewTextField(this, "Usage Info Area 2", "", 28, 210, rightSide);
 
             UI.NewSpacer(this, 10f, rightSide);
@@ -430,7 +442,7 @@ namespace TittyMagic
                 }
             }
 
-            float spacerHeight = modeChooser.val == Mode.ANIM_OPTIMIZED ? 90f : 290f;
+            float spacerHeight = modeChooser.val == Mode.ANIM_OPTIMIZED ? 0f : 200f;
             _lowerLeftSpacer = UI.NewSpacer(this, spacerHeight);
 
             if(_nippleErection == null)
@@ -552,6 +564,7 @@ namespace TittyMagic
             {
                 timeSinceListenersChecked -= listenersCheckInterval;
                 if(
+                    _autoRecalibrateOnSizeChange.val &&
                     _waitStatus != RefreshStatus.WAITING &&
                     (breastMorphListener.Changed() || atomScaleListener.Changed()) &&
                     DeviatesAtLeast(_massEstimate, DetermineMassEstimate(atomScaleListener.Value), percent: 10)
@@ -595,7 +608,7 @@ namespace TittyMagic
             }
         }
 
-        private IEnumerator WaitToBeginRefresh()
+        private IEnumerator WaitToBeginRefresh(bool triggeredManually = false)
         {
             _waitStatus = RefreshStatus.WAITING;
             while(_refreshStatus != RefreshStatus.DONE && _refreshStatus != -1)
@@ -603,26 +616,29 @@ namespace TittyMagic
                 yield return null;
             }
 
-            yield return BeginRefresh();
+            yield return BeginRefresh(triggeredManually);
         }
 
-        public IEnumerator BeginRefresh()
+        public IEnumerator BeginRefresh(bool triggeredManually = false)
         {
             animationWasSetFrozen = modeSetFromJson ? false : SuperController.singleton.freezeAnimation;
 
             SuperController.singleton.SetFreezeAnimation(true);
 
-            // ensure refresh actually begins only once listeners report no change
-            yield return new WaitForSeconds(listenersCheckInterval);
-            while(breastMorphListener.Changed() ||
-                atomScaleListener.Changed() ||
-                softnessSCM.isDown ||
-                gravitySCM.isDown ||
-                (upDownMobilitySCM != null && upDownMobilitySCM.isDown))
+            if(!triggeredManually)
             {
-                yield return new WaitForSeconds(0.1f);
+                // ensure refresh actually begins only once listeners report no change
+                yield return new WaitForSeconds(listenersCheckInterval);
+                while(breastMorphListener.Changed() ||
+                    atomScaleListener.Changed() ||
+                    softnessSCM.isDown ||
+                    gravitySCM.isDown ||
+                    (upDownMobilitySCM != null && upDownMobilitySCM.isDown))
+                {
+                    yield return new WaitForSeconds(0.1f);
+                }
+                yield return new WaitForSeconds(0.33f);
             }
-            yield return new WaitForSeconds(0.33f);
 
             _refreshStatus = RefreshStatus.MASS_STARTED;
 
