@@ -35,9 +35,6 @@ namespace TittyMagic
             softBodyPhysicsEnabler = atom.GetStorableByID("SoftBodyPhysicsEnabler");
             softBodyPhysicsEnabler.SetBoolParamValue("enabled", true); // Atom soft physics on
 
-            // TODO only necessary in Animation optimized mode
-            control.SetBoolParamValue("freezeAtomPhysicsWhenGrabbed", false);
-
             boolValues = new Dictionary<string, bool>
             {
                 { "prefsSoftPhysics", true },
@@ -107,12 +104,6 @@ namespace TittyMagic
                     boolValues["prefsSoftPhysics"] = UserPreferences.singleton.softPhysics;
                     boolValues["bodySoftPhysics"] = softBodyPhysicsEnabler.GetBoolParamValue("enabled");
                     boolValues["breastSoftPhysics"] = Globals.BREAST_PHYSICS_MESH.on;
-
-                    if(control.GetBoolParamValue("freezeAtomPhysicsWhenGrabbed"))
-                    {
-                        control.SetBoolParamValue("freezeAtomPhysicsWhenGrabbed", false);
-                        LogMessage("Prevented enabling Freeze Physics While Grabbing - it does not work in Animation Optimized mode.");
-                    }
 
                     //In/Out morphs can become enabled by e.g. loading an appearance preset. Force off.
                     if(breastInOut.GetBoolParamValue("enabled"))
