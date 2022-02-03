@@ -523,8 +523,6 @@ namespace TittyMagic
 
         private void DoFixedUpdate()
         {
-            timeSinceListenersChecked += Time.deltaTime;
-
             if(_refreshStatus == RefreshStatus.MASS_STARTED)
             {
                 return;
@@ -560,6 +558,7 @@ namespace TittyMagic
                 return;
             }
 
+            timeSinceListenersChecked += Time.deltaTime;
             if(timeSinceListenersChecked >= listenersCheckInterval)
             {
                 timeSinceListenersChecked -= listenersCheckInterval;
@@ -766,7 +765,7 @@ namespace TittyMagic
 
         public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
         {
-            JSONClass json = base.GetJSON(includePhysical, includeAppearance, forceStore);
+            JSONClass json = base.GetJSON(false, false, forceStore);
             json["Mode"] = modeChooser.val;
             needsStore = true;
             return json;
@@ -780,7 +779,7 @@ namespace TittyMagic
                 modeChooser.val = json["Mode"];
             }
 
-            base.RestoreFromJSON(json, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
+            base.RestoreFromJSON(json, false, false, presetAtoms, setMissingToDefault);
         }
 
         private void OnRemoveAtom(Atom atom)
