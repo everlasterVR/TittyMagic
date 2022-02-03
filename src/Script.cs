@@ -75,7 +75,7 @@ namespace TittyMagic
         private UIDynamic _lowerLeftSpacer;
         private JSONStorableFloat _nippleErection;
 
-        private bool modeSetFromJson;
+        private bool loadingFromJson;
         private float timeSinceListenersChecked;
         private float listenersCheckInterval = 0.1f;
         private int _waitStatus = -1;
@@ -162,11 +162,6 @@ namespace TittyMagic
         private IEnumerator SelectDefaultMode()
         {
             yield return new WaitForEndOfFrame();
-            if(modeSetFromJson)
-            {
-                yield break;
-            }
-
             modeChooser.val = Mode.BALANCED; // selection causes BeginRefresh
         }
 
@@ -196,7 +191,7 @@ namespace TittyMagic
             modeSelection.SetVal("<size=28>\n\n</size><b>Mode selection</b>");
             modeSelection.dynamicText.backgroundColor = Color.clear;
 
-            modeChooser = CreateModeChooser();
+            CreateModeChooser();
             modeButtonGroup = UI.CreateRadioButtonGroup(this, modeChooser);
             staticPhysicsH.modeChooser = modeChooser;
 
@@ -208,9 +203,9 @@ namespace TittyMagic
             UI.NewSpacer(this, 10f);
         }
 
-        private JSONStorableStringChooser CreateModeChooser()
+        private void CreateModeChooser()
         {
-            return new JSONStorableStringChooser(
+            modeChooser = new JSONStorableStringChooser(
                 "Mode",
                 new List<string>
                 {
@@ -226,6 +221,7 @@ namespace TittyMagic
                     StartCoroutine(OnModeChosen(mode));
                 }
             );
+            RegisterStringChooser(modeChooser);
         }
 
         private IEnumerator OnModeChosen(string mode)
@@ -308,6 +304,7 @@ namespace TittyMagic
             statusUIInputField = UI.NewInputField(statusUIText.dynamicText);
             statusUIInputField.interactable = false;
             _autoRecalibrateOnSizeChange = UI.NewToggle(this, "Auto-recalibrate if size changed", true, rightSide);
+            _autoRecalibrateOnSizeChange.storeType = JSONStorableParam.StoreType.Full;
 
             var recalibrateButton = CreateButton("Recalibrate physics", rightSide);
             recalibrateButton.button.interactable = !_autoRecalibrateOnSizeChange.val;
@@ -620,7 +617,7 @@ namespace TittyMagic
 
         public IEnumerator BeginRefresh(bool triggeredManually = false)
         {
-            animationWasSetFrozen = modeSetFromJson ? false : SuperController.singleton.freezeAnimation;
+            animationWasSetFrozen = loadingFromJson ? false : SuperController.singleton.freezeAnimation;
 
             SuperController.singleton.SetFreezeAnimation(true);
 
@@ -713,7 +710,7 @@ namespace TittyMagic
             rPectoralRigidbody.useGravity = true;
             SuperController.singleton.SetFreezeAnimation(animationWasSetFrozen);
             settingsMonitor.enabled = true;
-            modeSetFromJson = false;
+            loadingFromJson = false;
             _waitStatus = RefreshStatus.DONE;
             _refreshStatus = RefreshStatus.DONE;
         }
@@ -763,22 +760,9 @@ namespace TittyMagic
             return $"Mass is {value}kg below the 0.1kg min";
         }
 
-        public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
-        {
-            JSONClass json = base.GetJSON(false, false, forceStore);
-            json["Mode"] = modeChooser.val;
-            needsStore = true;
-            return json;
-        }
-
         public override void RestoreFromJSON(JSONClass json, bool restorePhysical = true, bool restoreAppearance = true, JSONArray presetAtoms = null, bool setMissingToDefault = true)
         {
-            if(json.HasKey("Mode"))
-            {
-                modeSetFromJson = true;
-                modeChooser.val = json["Mode"];
-            }
-
+            loadingFromJson = true;
             base.RestoreFromJSON(json, false, false, presetAtoms, setMissingToDefault);
         }
 
