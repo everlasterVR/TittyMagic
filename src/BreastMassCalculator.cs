@@ -6,34 +6,34 @@ namespace TittyMagic
 {
     public class BreastMassCalculator
     {
-        private List<DAZPhysicsMeshSoftVerticesSet> rightBreastMainGroupSets;
-        private Transform chestTransform;
-        private float softVolume; // cm^3; spheroid volume estimation of right breast
+        private List<DAZPhysicsMeshSoftVerticesSet> _rightBreastMainGroupSets;
+        private Transform _chestTransform;
+        private float _softVolume; // cm^3; spheroid volume estimation of right breast
 
         public BreastMassCalculator(Transform chestTransform)
         {
-            this.chestTransform = chestTransform;
-            rightBreastMainGroupSets = Globals.BREAST_PHYSICS_MESH.softVerticesGroups
+            this._chestTransform = chestTransform;
+            _rightBreastMainGroupSets = Globals.BREAST_PHYSICS_MESH.softVerticesGroups
                 .Find(it => it.name == "right")
                 .softVerticesSets;
         }
 
         public float Calculate(float atomScale)
         {
-            softVolume = EstimateVolume(BoundsSize(), atomScale);
-            return VolumeToMass(softVolume);
+            _softVolume = EstimateVolume(BoundsSize(), atomScale);
+            return VolumeToMass(_softVolume);
         }
 
         public string GetStatus(float atomScale)
         {
             float currentSoftVolume = EstimateVolume(BoundsSize(), atomScale);
-            return $"volume: {softVolume}\ncurrent volume: {currentSoftVolume}";
+            return $"volume: {_softVolume}\ncurrent volume: {currentSoftVolume}";
         }
 
         private Vector3 BoundsSize()
         {
-            Vector3[] vertices = rightBreastMainGroupSets
-                .Select(it => Calc.RelativePosition(chestTransform, it.jointRB.position))
+            Vector3[] vertices = _rightBreastMainGroupSets
+                .Select(it => Calc.RelativePosition(_chestTransform, it.jointRB.position))
                 .ToArray();
 
             Vector3 min = Vector3.one * float.MaxValue;

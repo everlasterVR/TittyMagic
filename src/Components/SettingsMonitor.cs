@@ -9,39 +9,39 @@ namespace TittyMagic
 {
     internal class SettingsMonitor : MonoBehaviour
     {
-        private float timeSinceLastCheck;
-        private const float checkFrequency = 1f; // check for changes to settings every 1 second
+        private float _timeSinceLastCheck;
+        private const float _checkFrequency = 1f; // check for changes to settings every 1 second
 
-        private Atom atom;
-        private FreeControllerV3 control;
+        private Atom _atom;
+        private FreeControllerV3 _control;
 
-        private JSONStorable breastInOut;
-        private JSONStorable softBodyPhysicsEnabler;
+        private JSONStorable _breastInOut;
+        private JSONStorable _softBodyPhysicsEnabler;
 
-        private Dictionary<string, bool> boolValues;
-        private Dictionary<string, bool> prevBoolValues;
-        private Dictionary<string, string> messages;
+        private Dictionary<string, bool> _boolValues;
+        private Dictionary<string, bool> _prevBoolValues;
+        private Dictionary<string, string> _messages;
 
-        private float prevFixedDeltaTime;
+        private float _prevFixedDeltaTime;
 
         public void Init(Atom containingAtom)
         {
             enabled = false; // will be enabled during main refresh cycle
-            atom = containingAtom;
-            control = atom.freeControllers.First();
-            breastInOut = atom.GetStorableByID("BreastInOut");
-            breastInOut.SetBoolParamValue("enabled", false); // In/Out auto morphs off
+            _atom = containingAtom;
+            _control = _atom.freeControllers.First();
+            _breastInOut = _atom.GetStorableByID("BreastInOut");
+            _breastInOut.SetBoolParamValue("enabled", false); // In/Out auto morphs off
 
-            softBodyPhysicsEnabler = atom.GetStorableByID("SoftBodyPhysicsEnabler");
-            softBodyPhysicsEnabler.SetBoolParamValue("enabled", true); // Atom soft physics on
+            _softBodyPhysicsEnabler = _atom.GetStorableByID("SoftBodyPhysicsEnabler");
+            _softBodyPhysicsEnabler.SetBoolParamValue("enabled", true); // Atom soft physics on
 
-            boolValues = new Dictionary<string, bool>
+            _boolValues = new Dictionary<string, bool>
             {
                 { "prefsSoftPhysics", true },
                 { "bodySoftPhysics", true },
                 { "breastSoftPhysics", true },
             };
-            prevBoolValues = new Dictionary<string, bool>
+            _prevBoolValues = new Dictionary<string, bool>
             {
                 { "prefsSoftPhysics", true },
                 { "bodySoftPhysics", true },
@@ -49,10 +49,10 @@ namespace TittyMagic
             };
 
             //monitor change to physics rate
-            prevFixedDeltaTime = Time.fixedDeltaTime;
+            _prevFixedDeltaTime = Time.fixedDeltaTime;
 
             string softPhysicsRequired = "Enable it to allow physics settings to be recalculated if breast morphs are changed. (No need to reload the plugin if you do enable it.)";
-            messages = new Dictionary<string, string>
+            _messages = new Dictionary<string, string>
             {
                 {
                     "prefsSoftPhysics",
@@ -87,8 +87,8 @@ namespace TittyMagic
             if(wasEnabled)
                 enabled = false;
 
-            breastInOut.SetBoolParamValue("enabled", true);
-            breastInOut.SetBoolParamValue("enabled", false);
+            _breastInOut.SetBoolParamValue("enabled", true);
+            _breastInOut.SetBoolParamValue("enabled", false);
             enabled = wasEnabled;
         }
 
@@ -96,24 +96,24 @@ namespace TittyMagic
         {
             try
             {
-                timeSinceLastCheck += Time.unscaledDeltaTime;
-                if(timeSinceLastCheck >= checkFrequency)
+                _timeSinceLastCheck += Time.unscaledDeltaTime;
+                if(_timeSinceLastCheck >= _checkFrequency)
                 {
-                    timeSinceLastCheck -= checkFrequency;
+                    _timeSinceLastCheck -= _checkFrequency;
 
-                    boolValues["prefsSoftPhysics"] = UserPreferences.singleton.softPhysics;
-                    boolValues["bodySoftPhysics"] = softBodyPhysicsEnabler.GetBoolParamValue("enabled");
-                    boolValues["breastSoftPhysics"] = Globals.BREAST_PHYSICS_MESH.on;
+                    _boolValues["prefsSoftPhysics"] = UserPreferences.singleton.softPhysics;
+                    _boolValues["bodySoftPhysics"] = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
+                    _boolValues["breastSoftPhysics"] = Globals.BREAST_PHYSICS_MESH.on;
 
                     //In/Out morphs can become enabled by e.g. loading an appearance preset. Force off.
-                    if(breastInOut.GetBoolParamValue("enabled"))
+                    if(_breastInOut.GetBoolParamValue("enabled"))
                     {
-                        breastInOut.SetBoolParamValue("enabled", false);
+                        _breastInOut.SetBoolParamValue("enabled", false);
                         LogMessage("Auto Breast In/Out Morphs disabled - this plugin adjusts breast morphs better without it.");
                     }
 
                     bool fullUpdateNeeded = false;
-                    foreach(KeyValuePair<string, bool> kvp in boolValues)
+                    foreach(KeyValuePair<string, bool> kvp in _boolValues)
                     {
                         fullUpdateNeeded = CheckBoolValue(kvp.Key, kvp.Value);
                     }
@@ -124,11 +124,11 @@ namespace TittyMagic
                     }
 
                     float fixedDeltaTime = Time.fixedDeltaTime;
-                    if(fixedDeltaTime != prevFixedDeltaTime)
+                    if(fixedDeltaTime != _prevFixedDeltaTime)
                     {
                         gameObject.GetComponent<Script>().RefreshRateDependentPhysics();
                     }
-                    prevFixedDeltaTime = fixedDeltaTime;
+                    _prevFixedDeltaTime = fixedDeltaTime;
                 }
             }
             catch(Exception e)
@@ -141,15 +141,15 @@ namespace TittyMagic
         private bool CheckBoolValue(string key, bool value)
         {
             bool updateNeeded = false;
-            if(!value && prevBoolValues[key])
+            if(!value && _prevBoolValues[key])
             {
-                LogMessage(messages[key]);
+                LogMessage(_messages[key]);
             }
-            else if(value && !prevBoolValues[key])
+            else if(value && !_prevBoolValues[key])
             {
                 updateNeeded = true;
             }
-            prevBoolValues[key] = value;
+            _prevBoolValues[key] = value;
             return updateNeeded;
         }
     }

@@ -4,18 +4,18 @@ namespace TittyMagic
 {
     internal class AtomScaleListener
     {
-        private JSONStorableFloat atomScaleStorable;
+        private JSONStorableFloat _atomScaleStorable;
         public float Value { get; set; }
 
         public AtomScaleListener(JSONStorableFloat atomScaleStorable)
         {
-            this.atomScaleStorable = atomScaleStorable;
+            this._atomScaleStorable = atomScaleStorable;
             Value = (float) RoundToDecimals(atomScaleStorable.val, 1000f);
         }
 
         public bool Changed()
         {
-            float value = (float) RoundToDecimals(atomScaleStorable.val, 1000f);
+            float value = (float) RoundToDecimals(_atomScaleStorable.val, 1000f);
             if(value != Value)
             {
                 Value = value;

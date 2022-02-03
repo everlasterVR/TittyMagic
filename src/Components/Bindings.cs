@@ -9,7 +9,7 @@ namespace TittyMagic
 {
     internal class Bindings : MonoBehaviour
     {
-        private Script script;
+        private Script _script;
 
         public Dictionary<string, string> Settings { get; set; }
 
@@ -18,7 +18,7 @@ namespace TittyMagic
 
         public void Init(Script script)
         {
-            this.script = script;
+            _script = script;
             Settings = new Dictionary<string, string>
             {
                 { "Namespace", nameof(TittyMagic) }
@@ -37,7 +37,7 @@ namespace TittyMagic
 
         private void ShowUI(Action callback = null)
         {
-            SuperController.singleton.SelectController(script.containingAtom.freeControllers.First(), false, false, true);
+            SuperController.singleton.SelectController(_script.containingAtom.freeControllers.First(), false, false, true);
             SuperController.singleton.ShowMainHUDMonitor();
             callback?.Invoke();
         }
@@ -56,21 +56,21 @@ namespace TittyMagic
                 time += Time.unscaledDeltaTime;
                 yield return null;
 
-                var selector = script.containingAtom.gameObject.GetComponentInChildren<UITabSelector>();
+                var selector = _script.containingAtom.gameObject.GetComponentInChildren<UITabSelector>();
                 if(selector == null)
                 {
                     continue;
                 }
 
                 selector.SetActiveTab("Plugins");
-                if(script.UITransform == null)
+                if(_script.UITransform == null)
                 {
                     LogError($"No UI", nameof(Bindings));
                 }
 
-                if(script.enabled)
+                if(_script.enabled)
                 {
-                    script.UITransform.gameObject.SetActive(true);
+                    _script.UITransform.gameObject.SetActive(true);
                 }
                 yield break;
             }

@@ -4,7 +4,7 @@ namespace TittyMagic
 {
     internal class NippleErectionMorphHandler
     {
-        private List<MorphConfig> configs = new List<MorphConfig>
+        private List<MorphConfig> _configs = new List<MorphConfig>
         {
             { new MorphConfig("TM_NippleErection") },
             //{ new MorphConfig("Nipples Depth") }, // Spacedog.Import_Reloaded_Lite.2
@@ -19,7 +19,7 @@ namespace TittyMagic
 
         public NippleErectionMorphHandler(MVRScript script)
         {
-            LoadSettings(script, configs);
+            LoadSettings(script, _configs);
         }
 
         private void LoadSettings(MVRScript script, List<MorphConfig> configs)
@@ -39,7 +39,7 @@ namespace TittyMagic
 
         public void Update(float nippleErection)
         {
-            foreach(var config in configs)
+            foreach(var config in _configs)
             {
                 config.Morph.morphValue = nippleErection * config.BaseMultiplier;
             }
@@ -47,7 +47,7 @@ namespace TittyMagic
 
         public void ResetAll()
         {
-            foreach(var config in configs)
+            foreach(var config in _configs)
             {
                 config.Morph.morphValue = 0;
             }
