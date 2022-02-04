@@ -35,6 +35,7 @@ namespace TittyMagic
         private float _softnessAmount;
         private float _gravityAmount;
         private float _upDownMobilityAmount;
+        private float _angleY;
 
         private SettingsMonitor _settingsMonitor;
 
@@ -492,16 +493,22 @@ namespace TittyMagic
             }
         }
 
-#if DEBUG_ON
         private void Update()
         {
+            Vector3 relativePos = RelativePosition(_chestTransform, _rNippleTransform.position);
+            _angleY = Vector2.SignedAngle(
+                new Vector2(_neutralRelativePos.z, _neutralRelativePos.y),
+                new Vector2(relativePos.z, relativePos.y)
+            );
+
+#if DEBUG_ON
             _debugUIText.SetVal(
                 $"softness {_softnessAmount}\n" +
                 $"gravity {_gravityAmount}\n" +
                 $"upDownMobility {_upDownMobilityAmount}"
             );
-        }
 #endif
+        }
 
         private void FixedUpdate()
         {
@@ -579,15 +586,10 @@ namespace TittyMagic
 
             if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
             {
-                Vector3 relativePos = RelativePosition(_chestTransform, _rNippleTransform.position);
-                float angleY = Vector2.SignedAngle(
-                    new Vector2(_neutralRelativePos.z, _neutralRelativePos.y),
-                    new Vector2(relativePos.z, relativePos.y)
-                );
                 //float positionDiffZ = (neutralRelativePos - relativePos).z;
                 if(_relativePosMorphH.IsEnabled())
                 {
-                    _relativePosMorphH.Update(angleY, 0f, _massAmount, _massScaling, _upDownMobilityAmount);
+                    _relativePosMorphH.Update(_angleY, 0f, _massAmount, _massScaling, _upDownMobilityAmount);
                 }
             }
 
