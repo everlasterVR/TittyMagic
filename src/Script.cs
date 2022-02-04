@@ -63,7 +63,7 @@ namespace TittyMagic
         private JSONStorableString _pluginVersionStorable;
         private JSONStorableBool _autoRecalibrateOnSizeChange;
         private JSONStorableFloat _softness;
-        private SliderClickMonitor softnessSCM;
+        private SliderClickMonitor _softnessSCM;
         private JSONStorableFloat _gravity;
         private SliderClickMonitor _gravitySCM;
         private JSONStorableFloat _upDownMobility;
@@ -125,9 +125,9 @@ namespace TittyMagic
 
                 _staticPhysicsH = new StaticPhysicsHandler();
 #if USE_CONFIGURATORS
-                gravityPhysicsH = new GravityPhysicsHandler(FindPluginOnAtom(containingAtom, "GravityPhysicsConfigurator"));
-                gravityMorphH = new GravityMorphHandler(FindPluginOnAtom(containingAtom, "GravityMorphConfigurator"));
-                relativePosMorphH = new RelativePosMorphHandler(FindPluginOnAtom(containingAtom, "RelativePosMorphConfigurator"));
+                _gravityPhysicsH = new GravityPhysicsHandler(FindPluginOnAtom(containingAtom, "GravityPhysicsConfigurator"));
+                _gravityMorphH = new GravityMorphHandler(FindPluginOnAtom(containingAtom, "GravityMorphConfigurator"));
+                _relativePosMorphH = new RelativePosMorphHandler(FindPluginOnAtom(containingAtom, "RelativePosMorphConfigurator"));
 #else
                 _gravityPhysicsH = new GravityPhysicsHandler(this);
                 _gravityMorphH = new GravityMorphHandler(this);
@@ -327,7 +327,7 @@ namespace TittyMagic
             UI.NewSpacer(this, 75f, rightSide);
 
 #if DEBUG_ON
-            debugUIText = UI.NewTextField(this, "debugText", "", 28, 200, rightSide);
+            _debugUIText = UI.NewTextField(this, "debugText", "", 28, 200, rightSide);
 #endif
         }
 
@@ -335,7 +335,7 @@ namespace TittyMagic
 
         private void InitSliderListeners()
         {
-            softnessSCM = _softness.slider.gameObject.AddComponent<SliderClickMonitor>();
+            _softnessSCM = _softness.slider.gameObject.AddComponent<SliderClickMonitor>();
             _gravitySCM = _gravity.slider.gameObject.AddComponent<SliderClickMonitor>();
 
             _softness.slider.onValueChanged.AddListener((float val) =>
@@ -495,7 +495,7 @@ namespace TittyMagic
 #if DEBUG_ON
         private void Update()
         {
-            debugUIText.SetVal(
+            _debugUIText.SetVal(
                 $"softness {_softnessAmount}\n" +
                 $"gravity {_gravityAmount}\n" +
                 $"upDownMobility {_upDownMobilityAmount}"
@@ -625,7 +625,7 @@ namespace TittyMagic
                 yield return new WaitForSeconds(_listenersCheckInterval);
                 while(_breastMorphListener.Changed() ||
                     _atomScaleListener.Changed() ||
-                    softnessSCM.isDown ||
+                    _softnessSCM.isDown ||
                     _gravitySCM.isDown ||
                     (_upDownMobilitySCM != null && _upDownMobilitySCM.isDown))
                 {
@@ -767,7 +767,7 @@ namespace TittyMagic
         private void OnRemoveAtom(Atom atom)
         {
             Destroy(_settingsMonitor);
-            Destroy(softnessSCM);
+            Destroy(_softnessSCM);
             Destroy(_gravitySCM);
             Destroy(_upDownMobilitySCM);
         }
@@ -777,7 +777,7 @@ namespace TittyMagic
             try
             {
                 Destroy(_settingsMonitor);
-                Destroy(softnessSCM);
+                Destroy(_softnessSCM);
                 Destroy(_gravitySCM);
                 Destroy(_upDownMobilitySCM);
                 SuperController.singleton.onAtomRemovedHandlers -= OnRemoveAtom;
