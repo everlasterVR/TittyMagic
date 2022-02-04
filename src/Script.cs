@@ -183,23 +183,23 @@ namespace TittyMagic
 
         private void InitPluginUILeft()
         {
-            _titleUIText = UI.NewTextField(this, "titleText", "", 36, 100);
+            _titleUIText = this.NewTextField("titleText", "", 36, 100);
             _titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{version}</size>");
 
-            var modeSelection = UI.NewTextField(this, "modeSelection", "", 32, 100);
+            var modeSelection = this.NewTextField("modeSelection", "", 32, 100);
             modeSelection.SetVal("<size=28>\n\n</size><b>Mode selection</b>");
             modeSelection.dynamicText.backgroundColor = Color.clear;
 
             CreateModeChooser();
-            _modeButtonGroup = UI.CreateRadioButtonGroup(this, _modeChooser);
+            _modeButtonGroup = this.CreateRadioButtonGroup(_modeChooser);
             _staticPhysicsH.modeChooser = _modeChooser;
 
-            UI.NewSpacer(this, 10f);
-            _softness = UI.NewIntSlider(this, "Breast softness", 75f, 0f, 100f);
-            UI.NewSpacer(this, 10f);
-            _linkSoftnessAndGravity = UI.NewToggle(this, "Link softness and gravity", true, false);
-            _gravity = UI.NewIntSlider(this, "Breast gravity", 75f, 0f, 100f);
-            UI.NewSpacer(this, 10f);
+            this.NewSpacer(10f);
+            _softness = this.NewIntSlider("Breast softness", 75f, 0f, 100f);
+            this.NewSpacer(10f);
+            _linkSoftnessAndGravity = this.NewToggle("Link softness and gravity", true, false);
+            _gravity = this.NewIntSlider("Breast gravity", 75f, 0f, 100f);
+            this.NewSpacer(10f);
         }
 
         private void CreateModeChooser()
@@ -299,10 +299,10 @@ namespace TittyMagic
         private void InitPluginUIRight()
         {
             bool rightSide = true;
-            _statusUIText = UI.NewTextField(this, "statusText", "", 28, 50, rightSide);
+            _statusUIText = this.NewTextField("statusText", "", 28, 50, rightSide);
             _statusUIInputField = UI.NewInputField(_statusUIText.dynamicText);
             _statusUIInputField.interactable = false;
-            _autoRecalibrateOnSizeChange = UI.NewToggle(this, "Auto-recalibrate if size changed", true, rightSide);
+            _autoRecalibrateOnSizeChange = this.NewToggle("Auto-recalibrate if size changed", true, rightSide);
             _autoRecalibrateOnSizeChange.storeType = JSONStorableParam.StoreType.Full;
 
             var recalibrateButton = CreateButton("Recalibrate physics", rightSide);
@@ -313,22 +313,22 @@ namespace TittyMagic
                 StartCoroutine(WaitToBeginRefresh(triggeredManually: true))
             );
 
-            UI.NewSpacer(this, 20f, rightSide);
-            _modeInfoText = UI.NewTextField(this, "Usage Info Area 2", "", 28, 210, rightSide);
+            this.NewSpacer(20f, rightSide);
+            _modeInfoText = this.NewTextField("Usage Info Area 2", "", 28, 210, rightSide);
 
-            UI.NewSpacer(this, 10f, rightSide);
-            JSONStorableString softnessInfoText = UI.NewTextField(this, "Usage Info Area 1", "", 28, 120, rightSide);
+            this.NewSpacer(10f, rightSide);
+            JSONStorableString softnessInfoText = this.NewTextField("Usage Info Area 1", "", 28, 120, rightSide);
             softnessInfoText.SetVal(
                 UI.Size("\n", 12) +
                 "Adjusts soft physics settings from very firm to very soft."
             );
 
-            UI.NewSpacer(this, 75f, rightSide);
-            _gravityInfoText = UI.NewTextField(this, "GravityInfoText", "", 28, 120, true);
-            UI.NewSpacer(this, 75f, rightSide);
+            this.NewSpacer(75f, rightSide);
+            _gravityInfoText = this.NewTextField("GravityInfoText", "", 28, 120, true);
+            this.NewSpacer(75f, rightSide);
 
 #if DEBUG_ON
-            _debugUIText = UI.NewTextField(this, "debugText", "", 28, 200, rightSide);
+            _debugUIText = this.NewTextField("debugText", "", 28, 200, rightSide);
 #endif
         }
 
@@ -395,13 +395,13 @@ namespace TittyMagic
             {
                 if(_linkGravityAndMobility == null)
                 {
-                    _linkGravityAndMobility = UI.NewToggle(this, "Link gravity and mobility", true, false);
+                    _linkGravityAndMobility = this.NewToggle("Link gravity and mobility", true, false);
                 }
                 else
                 {
                     CreateToggle(_linkGravityAndMobility, false);
                 }
-                _upDownMobility = UI.NewIntSlider(this, "Up/down mobility", 2/3f * _gravity.val, 0f, 100f);
+                _upDownMobility = this.NewIntSlider("Up/down mobility", 2/3f * _gravity.val, 0f, 100f);
                 _upDownMobilityAmount = 1.5f * Mathf.Pow(_upDownMobility.val/100f, 1/2f);
 
                 _upDownMobilitySCM = _upDownMobility.slider.gameObject.AddComponent<SliderClickMonitor>();
@@ -439,11 +439,11 @@ namespace TittyMagic
             }
 
             float spacerHeight = _modeChooser.val == Mode.ANIM_OPTIMIZED ? 0f : 200f;
-            _lowerLeftSpacer = UI.NewSpacer(this, spacerHeight);
+            _lowerLeftSpacer = this.NewSpacer(spacerHeight);
 
             if(_nippleErection == null)
             {
-                _nippleErection = UI.NewFloatSlider(this, "Nipple erection", 0f, 0f, 1.0f, "F2");
+                _nippleErection = this.NewFloatSlider("Nipple erection", 0f, 0f, 1.0f, "F2");
             }
             else
             {
@@ -466,7 +466,7 @@ namespace TittyMagic
             {
                 if(_mobilityInfoText == null)
                 {
-                    _mobilityInfoText = UI.NewTextField(this, "MobilityInfoText", "", 28, 120, true);
+                    _mobilityInfoText = this.NewTextField("MobilityInfoText", "", 28, 120, true);
                 }
                 else
                 {

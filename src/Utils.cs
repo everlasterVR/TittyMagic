@@ -156,7 +156,7 @@ namespace TittyMagic
         }
 
         public static JSONStorableFloat NewFloatSlider(
-            MVRScript script,
+            this MVRScript script,
             string paramName,
             float startingValue,
             float minValue,
@@ -174,7 +174,7 @@ namespace TittyMagic
         }
 
         public static JSONStorableFloat NewIntSlider(
-            MVRScript script,
+            this MVRScript script,
             string paramName,
             float startingValue,
             float minValue,
@@ -192,7 +192,7 @@ namespace TittyMagic
         }
 
         public static JSONStorableString NewTextField(
-            MVRScript script,
+            this MVRScript script,
             string paramName,
             string initialValue,
             int fontSize,
@@ -221,7 +221,12 @@ namespace TittyMagic
             return inputField;
         }
 
-        public static JSONStorableBool NewToggle(MVRScript script, string paramName, bool startingValue, bool rightSide = false)
+        public static JSONStorableBool NewToggle(
+            this MVRScript script,
+            string paramName,
+            bool startingValue,
+            bool rightSide = false
+        )
         {
             JSONStorableBool storable = new JSONStorableBool(paramName, startingValue);
             script.CreateToggle(storable, rightSide);
@@ -229,14 +234,22 @@ namespace TittyMagic
             return storable;
         }
 
-        public static UIDynamic NewSpacer(MVRScript script, float height, bool rightSide = false)
+        public static UIDynamic NewSpacer(
+            this MVRScript script,
+            float height,
+            bool rightSide = false
+        )
         {
             UIDynamic spacer = script.CreateSpacer(rightSide);
             spacer.height = height;
             return spacer;
         }
 
-        public static Dictionary<string, UIDynamicButton> CreateRadioButtonGroup(MVRScript script, JSONStorableStringChooser jsc, bool rightSide = false)
+        public static Dictionary<string, UIDynamicButton> CreateRadioButtonGroup(
+            this MVRScript script,
+            JSONStorableStringChooser jsc,
+            bool rightSide = false
+        )
         {
             Dictionary<string, UIDynamicButton> buttons = new Dictionary<string, UIDynamicButton>();
             jsc.choices.ForEach((choice) =>
