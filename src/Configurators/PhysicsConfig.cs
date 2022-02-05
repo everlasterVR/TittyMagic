@@ -5,23 +5,25 @@ namespace TittyMagic
 {
     internal class PhysicsConfig
     {
-        protected readonly JSONStorableFloat setting;
-        protected readonly float valMinMS; //value at min mass and min softness
-        protected readonly float valMaxM; //value at max mass and min softness
-        protected readonly float valMaxS; //value at min mass and max softness
+        private readonly JSONStorableFloat setting;
+        private readonly float valMinMS; //value at min mass and min softness
+        private readonly float valMaxM; //value at max mass and min softness
+        private readonly float valMaxS; //value at min mass and max softness
+        public bool DependOnPhysicsRate { get; }
 
-        public PhysicsConfig(JSONStorableFloat setting, float valMinMS, float valMaxM, float valMaxS)
+        public PhysicsConfig(JSONStorableFloat setting, float valMinMS, float valMaxM, float valMaxS, bool dependOnPhysicsRate)
         {
             this.setting = setting;
             this.valMinMS = valMinMS;
             this.valMaxM = valMaxM;
             this.valMaxS = valMaxS;
+            DependOnPhysicsRate = dependOnPhysicsRate;
         }
 
         //input mass and softness normalized to (0,1) range
-        public void UpdateVal(float mass, float softness)
+        public void UpdateVal(float mass, float softness, float multiplier = 1, float addend = 0)
         {
-            setting.val = Calculate(mass, softness);
+            setting.val = multiplier * Calculate(mass, softness) + addend;
         }
 
         public string GetStatus()
@@ -32,40 +34,6 @@ namespace TittyMagic
         protected float Calculate(float mass, float softness)
         {
             return Mathf.Lerp(valMinMS, valMaxM, mass) + Mathf.Lerp(valMinMS, valMaxS, softness) - valMinMS;
-        }
-    }
-
-    internal class NipplePhysicsConfig : PhysicsConfig
-    {
-        public NipplePhysicsConfig(
-            JSONStorableFloat setting,
-            float valMinMS,
-            float valMaxM,
-            float valMaxS
-        ) : base(setting, valMinMS, valMaxM, valMaxS)
-        {
-        }
-
-        public void UpdateVal(float mass, float softness, float nippleErection)
-        {
-            setting.val = 1.25f * nippleErection + Calculate(mass, softness);
-        }
-    }
-
-    internal class RateDependentPhysicsConfig : PhysicsConfig
-    {
-        public RateDependentPhysicsConfig(
-            JSONStorableFloat setting,
-            float valMinMS,
-            float valMaxM,
-            float valMaxS
-        ) : base(setting, valMinMS, valMaxM, valMaxS)
-        {
-        }
-
-        public void UpdateVal(float mass, float softness, float physicsRateMultiplier)
-        {
-            setting.val = physicsRateMultiplier * Calculate(mass, softness);
         }
     }
 }

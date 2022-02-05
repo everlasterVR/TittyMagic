@@ -2,12 +2,13 @@
    "softVerticesCombinedSpring" : {
       "minMminS" : "240",
       "maxMminS" : "240",
-      "minMmaxS" : "70",
+      "minMmaxS" : "70"
    },
    "softVerticesCombinedDamper" : {
       "minMminS" : "1.6",
       "maxMminS" : "2.1",
-      "minMmaxS" : "0.75"
+      "minMmaxS" : "0.75",
+      "dependOnPhysicsRate" : "true"
    }, 
    "softVerticesMass" : {
       "minMminS" : "0.05",
@@ -32,7 +33,7 @@
    "softVerticesColliderRadius" : { 
       "minMminS" : "0.023", 
       "maxMminS" : "0.035", 
-      "minMmaxS" : "0.023", 
+      "minMmaxS" : "0.023"
    }, 
    "softVerticesDistanceLimit" : {
       "minMminS" : "0.030",
