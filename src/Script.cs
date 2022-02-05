@@ -36,6 +36,8 @@ namespace TittyMagic
         private float _gravityAmount;
         private float _upDownMobilityAmount;
         private float _angleY;
+        private float _roll;
+        private float _pitch;
 
         private SettingsMonitor _settingsMonitor;
 
@@ -495,11 +497,19 @@ namespace TittyMagic
 
         private void Update()
         {
+            if(_waitStatus != RefreshStatus.DONE)
+            {
+                return;
+            }
+
             Vector3 relativePos = RelativePosition(_chestTransform, _rNippleTransform.position);
             _angleY = Vector2.SignedAngle(
                 new Vector2(_neutralRelativePos.z, _neutralRelativePos.y),
                 new Vector2(relativePos.z, relativePos.y)
             );
+
+            _roll = Roll(_chestTransform.rotation);
+            _pitch = Pitch(_chestTransform.rotation);
 
 #if DEBUG_ON
             _debugUIText.SetVal(
@@ -581,9 +591,6 @@ namespace TittyMagic
                 return;
             }
 
-            float roll = Roll(_chestTransform.rotation);
-            float pitch = Pitch(_chestTransform.rotation);
-
             if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
             {
                 //float positionDiffZ = (neutralRelativePos - relativePos).z;
@@ -595,12 +602,12 @@ namespace TittyMagic
 
             if(_gravityMorphH.IsEnabled())
             {
-                _gravityMorphH.Update(_modeChooser.val, roll, pitch, _massAmount, 0.75f * _gravityAmount);
+                _gravityMorphH.Update(_modeChooser.val, _roll, _pitch, _massAmount, 0.75f * _gravityAmount);
             }
 
             if(_gravityPhysicsH.IsEnabled())
             {
-                _gravityPhysicsH.Update(roll, pitch, _massAmount, _gravityAmount);
+                _gravityPhysicsH.Update(_roll, _pitch, _massAmount, _gravityAmount);
             }
         }
 
