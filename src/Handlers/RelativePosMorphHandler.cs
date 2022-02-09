@@ -124,10 +124,9 @@ namespace TittyMagic
         }
 
         public void Update(
-            float angleY,
+            float scaledAngleY,
             float positionDiffZ,
             float mass,
-            float massScaling,
             float softness
         )
         {
@@ -147,8 +146,6 @@ namespace TittyMagic
             //    ResetMorphs(Direction.RIGHT);
             //    UpdateMorphs(Direction.LEFT, x);
             //}
-
-            float scaledAngleY = angleY / massScaling;
 
             float effectY = Calc.RoundToDecimals(Mathf.InverseLerp(0, 75, Mathf.Abs(scaledAngleY)), 1000f);
             //float effectZ = Calc.RoundToDecimals(Mathf.InverseLerp(0, 0.060f, Mathf.Abs(positionDiffZ)), 1000f);
@@ -181,7 +178,6 @@ namespace TittyMagic
             //}
 
             string infoText =
-                    $"{NameValueString("angleY", angleY, 1000f)} \n" +
                     $"{NameValueString("scaledAngleY", scaledAngleY, 1000f)} \n" +
                     $"{NameValueString("effectY", effectY, 1000f)} \n" +
                     $"";

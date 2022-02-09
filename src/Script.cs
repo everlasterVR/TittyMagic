@@ -596,7 +596,12 @@ namespace TittyMagic
                 //float positionDiffZ = (neutralRelativePos - relativePos).z;
                 if(_relativePosMorphH.IsEnabled())
                 {
-                    _relativePosMorphH.Update(_angleY, 0f, _massAmount, _massScaling, _upDownMobilityAmount);
+                    _relativePosMorphH.Update(
+                        _angleY / _massScaling,
+                        0f,
+                        _massAmount,
+                        _upDownMobilityAmount
+                    );
                 }
             }
 
