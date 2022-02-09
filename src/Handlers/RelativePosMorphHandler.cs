@@ -13,7 +13,7 @@ namespace TittyMagic
         private bool _useConfigurator;
 
         private float _mass;
-        private float _softness;
+        private float _mobility;
 
         private Dictionary<string, List<Config>> _configSets;
 
@@ -25,9 +25,9 @@ namespace TittyMagic
 
         //private List<Config> _forwardForceConfigs;
 
-        //private List<Config> _leftForceConfigs;
+        private List<Config> _leftForceConfigs;
 
-        //private List<Config> _rightForceConfigs;
+        private List<Config> _rightForceConfigs;
 
         public RelativePosMorphHandler(MVRScript script)
         {
@@ -56,32 +56,32 @@ namespace TittyMagic
         {
             _downForceConfigs = new List<Config>();
             _upForceConfigs = new List<Config>();
-            //_backForceConfigs = new List<MorphConfig>();
-            //_forwardForceConfigs = new List<MorphConfig>();
-            //_leftForceConfigs = new List<MorphConfig>();
-            //_rightForceConfigs = new List<MorphConfig>();
+            //_backForceConfigs = new List<Config>();
+            //_forwardForceConfigs = new List<Config>();
+            _leftForceConfigs = new List<Config>();
+            _rightForceConfigs = new List<Config>();
             LoadSettingsFromFile(mode, "downForce", _downForceConfigs);
             LoadSettingsFromFile(mode, "upForce", _upForceConfigs);
             //LoadSettingsFromFile(mode, "backForce", _backForceConfigs);
             //LoadSettingsFromFile(mode, "forwardForce", _forwardForceConfigs);
-            //LoadSettingsFromFile(mode, "leftForce", _leftForceConfigs);
-            //LoadSettingsFromFile(mode, "rightForce", _rightForceConfigs);
+            LoadSettingsFromFile(mode, "leftForce", _leftForceConfigs);
+            LoadSettingsFromFile(mode, "rightForce", _rightForceConfigs);
             _configSets = new Dictionary<string, List<Config>>
             {
                 { Direction.DOWN, _downForceConfigs },
                 { Direction.UP, _upForceConfigs },
                 //{ Direction.BACK, _backForceConfigs },
                 //{ Direction.FORWARD, _forwardForceConfigs },
-                //{ Direction.LEFT, _leftForceConfigs },
-                //{ Direction.RIGHT, _rightForceConfigs },
+                { Direction.LEFT, _leftForceConfigs },
+                { Direction.RIGHT, _rightForceConfigs },
             };
 
             //not working properly yet when changing mode on the fly
             if(_useConfigurator)
             {
                 _configurator.ResetUISectionGroups();
-                _configurator.InitUISectionGroup(Direction.DOWN, _downForceConfigs);
-                _configurator.InitUISectionGroup(Direction.UP, _upForceConfigs);
+                //_configurator.InitUISectionGroup(Direction.DOWN, _downForceConfigs);
+                //_configurator.InitUISectionGroup(Direction.UP, _upForceConfigs);
                 //_configurator.InitUISectionGroup(Direction.BACK, _backForceConfigs);
                 //_configurator.InitUISectionGroup(Direction.FORWARD, _forwardForceConfigs);
                 //_configurator.InitUISectionGroup(Direction.LEFT, _leftForceConfigs);
@@ -126,29 +126,17 @@ namespace TittyMagic
         public void Update(
             float scaledAngleY,
             float positionDiffZ,
+            float scaledAngleX,
             float mass,
-            float softness
+            float mobility
         )
         {
             _mass = mass;
-            _softness = softness;
-
-            // TODO separate l/r morphs only, separate calculation of diff
-            //left
-            //if(x <= 0)
-            //{
-            //    ResetMorphs(Direction.LEFT);
-            //    UpdateMorphs(Direction.RIGHT, -x);
-            //}
-            //// right
-            //else
-            //{
-            //    ResetMorphs(Direction.RIGHT);
-            //    UpdateMorphs(Direction.LEFT, x);
-            //}
+            _mobility = mobility;
 
             float effectY = Calc.RoundToDecimals(Mathf.InverseLerp(0, 75, Mathf.Abs(scaledAngleY)), 1000f);
             //float effectZ = Calc.RoundToDecimals(Mathf.InverseLerp(0, 0.060f, Mathf.Abs(positionDiffZ)), 1000f);
+            float effectX = Calc.RoundToDecimals(Mathf.InverseLerp(0, 60, Mathf.Abs(scaledAngleX)), 1000f);
 
             // up
             if(scaledAngleY >= 0)
@@ -177,9 +165,24 @@ namespace TittyMagic
             //    UpdateMorphs(Direction.BACK, effectZ);
             //}
 
+            //left
+            if(scaledAngleX >= 0)
+            {
+                ResetMorphs(Direction.LEFT);
+                UpdateMorphs(Direction.RIGHT, effectX);
+            }
+            // right
+            else
+            {
+                ResetMorphs(Direction.RIGHT);
+                UpdateMorphs(Direction.LEFT, effectX);
+            }
+
             string infoText =
                     $"{NameValueString("scaledAngleY", scaledAngleY, 1000f)} \n" +
                     $"{NameValueString("effectY", effectY, 1000f)} \n" +
+                    $"{NameValueString("scaledAngleX", scaledAngleX, 1000f)} \n" +
+                    $"{NameValueString("effectX", effectX, 1000f)} \n" +
                     $"";
             UpdateDebugInfo(infoText);
         }
@@ -199,7 +202,7 @@ namespace TittyMagic
         private void UpdateValue(MorphConfig config, float effect)
         {
             float value =
-                _softness * config.Multiplier1 * effect / 2 +
+                _mobility * config.Multiplier1 * effect / 2 +
                 _mass * config.Multiplier2 * effect / 2;
 
             bool inRange = config.IsNegative ? value < 0 : value > 0;
@@ -212,8 +215,8 @@ namespace TittyMagic
             ResetMorphs(Direction.UP);
             //ResetMorphs(Direction.BACK);
             //ResetMorphs(Direction.FORWARD);
-            //ResetMorphs(Direction.LEFT);
-            //ResetMorphs(Direction.RIGHT);
+            ResetMorphs(Direction.LEFT);
+            ResetMorphs(Direction.RIGHT);
         }
 
         private void ResetMorphs(string configSetName)

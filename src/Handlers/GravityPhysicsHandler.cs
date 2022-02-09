@@ -77,12 +77,12 @@ namespace TittyMagic
             if(_useConfigurator)
             {
                 _configurator.ResetUISectionGroups();
-                _configurator.InitUISectionGroup(Direction.DOWN, _uprightConfigs);
-                _configurator.InitUISectionGroup(Direction.UP, _upsideDownConfigs);
-                _configurator.InitUISectionGroup(Direction.BACK, _leanBackConfigs);
-                _configurator.InitUISectionGroup(Direction.FORWARD, _leanForwardConfigs);
-                _configurator.InitUISectionGroup(Direction.LEFT, _rollLeftConfigs);
-                _configurator.InitUISectionGroup(Direction.RIGHT, _rollRightConfigs);
+                //_configurator.InitUISectionGroup(Direction.DOWN, _uprightConfigs);
+                //_configurator.InitUISectionGroup(Direction.UP, _upsideDownConfigs);
+                //_configurator.InitUISectionGroup(Direction.BACK, _leanBackConfigs);
+                //_configurator.InitUISectionGroup(Direction.FORWARD, _leanForwardConfigs);
+                //_configurator.InitUISectionGroup(Direction.LEFT, _rollLeftConfigs);
+                //_configurator.InitUISectionGroup(Direction.RIGHT, _rollRightConfigs);
                 _configurator.AddButtonListeners();
             }
         }

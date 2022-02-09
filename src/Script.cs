@@ -36,6 +36,7 @@ namespace TittyMagic
         private float _gravityAmount;
         private float _upDownMobilityAmount;
         private float _angleY;
+        private float _angleX;
         private float _roll;
         private float _pitch;
 
@@ -507,6 +508,10 @@ namespace TittyMagic
                 new Vector2(_neutralRelativePos.z, _neutralRelativePos.y),
                 new Vector2(relativePos.z, relativePos.y)
             );
+            _angleX = Vector2.SignedAngle(
+                new Vector2(_neutralRelativePos.z, _neutralRelativePos.x),
+                new Vector2(relativePos.z, relativePos.x)
+            );
 
             _roll = Roll(_chestTransform.rotation);
             _pitch = Pitch(_chestTransform.rotation);
@@ -599,6 +604,7 @@ namespace TittyMagic
                     _relativePosMorphH.Update(
                         _angleY / _massScaling,
                         0f,
+                        _angleX / _massScaling,
                         _massAmount,
                         _upDownMobilityAmount
                     );

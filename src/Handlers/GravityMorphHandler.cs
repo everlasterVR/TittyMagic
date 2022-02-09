@@ -64,6 +64,13 @@ namespace TittyMagic
                 LoadSettingsFromFile(mode, "upsideDown", _upsideDownConfigs);
                 _configSets.Add(Direction.DOWN, _uprightConfigs);
                 _configSets.Add(Direction.UP, _upsideDownConfigs);
+
+                _rollLeftConfigs = new List<Config>();
+                _rollRightConfigs = new List<Config>();
+                LoadSettingsFromFile(mode, "rollLeft", _rollLeftConfigs);
+                LoadSettingsFromFile(mode, "rollRight", _rollRightConfigs);
+                _configSets.Add(Direction.LEFT, _rollLeftConfigs);
+                _configSets.Add(Direction.RIGHT, _rollRightConfigs);
             }
             _leanBackConfigs = new List<Config>();
             _leanForwardConfigs = new List<Config>();
@@ -72,27 +79,20 @@ namespace TittyMagic
             _configSets.Add(Direction.BACK, _leanBackConfigs);
             _configSets.Add(Direction.FORWARD, _leanForwardConfigs);
 
-            _rollLeftConfigs = new List<Config>();
-            _rollRightConfigs = new List<Config>();
-            LoadSettingsFromFile(mode, "rollLeft", _rollLeftConfigs);
-            LoadSettingsFromFile(mode, "rollRight", _rollRightConfigs);
-            _configSets.Add(Direction.LEFT, _rollLeftConfigs);
-            _configSets.Add(Direction.RIGHT, _rollRightConfigs);
-
             //not working properly yet when changing mode on the fly
             if(_useConfigurator)
             {
                 _configurator.ResetUISectionGroups();
                 if(mode != Mode.ANIM_OPTIMIZED)
                 {
-                    _configurator.InitUISectionGroup(Direction.DOWN, _uprightConfigs);
-                    _configurator.InitUISectionGroup(Direction.UP, _upsideDownConfigs);
-                }
-                _configurator.InitUISectionGroup(Direction.BACK, _leanBackConfigs);
-                _configurator.InitUISectionGroup(Direction.FORWARD, _leanForwardConfigs);
+                    //_configurator.InitUISectionGroup(Direction.DOWN, _uprightConfigs);
+                    //_configurator.InitUISectionGroup(Direction.UP, _upsideDownConfigs);
 
-                _configurator.InitUISectionGroup(Direction.LEFT, _rollLeftConfigs);
-                _configurator.InitUISectionGroup(Direction.RIGHT, _rollRightConfigs);
+                    //_configurator.InitUISectionGroup(Direction.LEFT, _rollLeftConfigs);
+                    //_configurator.InitUISectionGroup(Direction.RIGHT, _rollRightConfigs);
+                }
+                //_configurator.InitUISectionGroup(Direction.BACK, _leanBackConfigs);
+                //_configurator.InitUISectionGroup(Direction.FORWARD, _leanForwardConfigs);
             }
         }
 
@@ -148,9 +148,9 @@ namespace TittyMagic
             if(mode != Mode.ANIM_OPTIMIZED)
             {
                 AdjustUpDownMorphs(smoothPitch, smoothRoll);
+                AdjustRollMorphs(smoothRoll);
             }
             AdjustForwardBackMorphs(smoothPitch, smoothRoll);
-            AdjustRollMorphs(smoothRoll);
 
             string infoText =
                 $"{NameValueString("Pitch", pitch, 100f, 15)} {Calc.RoundToDecimals(smoothPitch, 100f)}\n" +
