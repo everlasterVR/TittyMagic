@@ -59,7 +59,12 @@
       "Multiplier1" : "0.5", 
       "Multiplier2" : "2"
    }, 
-   "LT Breast Diameter" : { 
+   "LT Breast Diameter L" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.2", 
+      "Multiplier2" : "-0.2"
+   }, 
+   "LT Breast Diameter R" : { 
       "IsNegative" : "true", 
       "Multiplier1" : "-0.2", 
       "Multiplier2" : "-0.2"
@@ -79,12 +84,22 @@
       "Multiplier1" : "0.1", 
       "Multiplier2" : "-0.1"
    }, 
-   "LT Breast Under Smoother2" : { 
+   "LT Breast Under Smoother2 L" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.1", 
       "Multiplier2" : "0.4"
    }, 
-   "LT Breast Under Smoother3" : { 
+   "LT Breast Under Smoother2 R" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.1", 
+      "Multiplier2" : "0.4"
+   }, 
+   "LT Breast Under Smoother3 L" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.4", 
+      "Multiplier2" : "0.4"
+   }, 
+   "LT Breast Under Smoother3 R" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.4", 
       "Multiplier2" : "0.4"

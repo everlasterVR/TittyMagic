@@ -13,8 +13,10 @@ namespace TittyMagic
             { Direction.UP, "Up force morphs" },
             //{ Direction.BACK, "Back force morphs" },
             //{ Direction.FORWARD, "Forward force morphs" },
-            //{ Direction.LEFT, "Left force morphs" },
-            //{ Direction.RIGHT, "Right force morphs" },
+            { Direction.LEFT_L, "Left force morphs" },
+            { Direction.LEFT_R, "Left force morphs" },
+            { Direction.RIGHT_L, "Right force morphs" },
+            { Direction.RIGHT_R, "Right force morphs" },
         };
 
         private string _lastBrowseDir;
@@ -90,8 +92,10 @@ namespace TittyMagic
                 { Direction.UP, new Dictionary<string, ConfiguratorUISection>() },
                 //{ Direction.BACK, new Dictionary<string, ConfiguratorUISection>() },
                 //{ Direction.FORWARD, new Dictionary<string, ConfiguratorUISection>() },
-                //{ Direction.LEFT, new Dictionary<string, ConfiguratorUISection>() },
-                //{ Direction.RIGHT, new Dictionary<string, ConfiguratorUISection>() },
+                { Direction.LEFT_L, new Dictionary<string, ConfiguratorUISection>() },
+                { Direction.LEFT_R, new Dictionary<string, ConfiguratorUISection>() },
+                { Direction.RIGHT_L, new Dictionary<string, ConfiguratorUISection>() },
+                { Direction.RIGHT_R, new Dictionary<string, ConfiguratorUISection>() },
             };
         }
 

@@ -30,7 +30,11 @@
         public const string BACK = "BACK";
         public const string FORWARD = "FORWARD";
         public const string LEFT = "LEFT";
+        public const string LEFT_L = "LEFT_L";
+        public const string LEFT_R = "LEFT_R";
         public const string RIGHT = "RIGHT";
+        public const string RIGHT_L = "RIGHT_L";
+        public const string RIGHT_R = "RIGHT_R";
     }
 
     internal static class RefreshStatus

@@ -1,34 +1,4 @@
 { 
-   "RT Breasts Shift S2S R" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "2", 
-      "Multiplier2" : "-0.5"
-   }, 
-   "RT Breasts Hang Forward R" : { 
-      "IsNegative" : "true", 
-      "Multiplier1" : "-1", 
-      "Multiplier2" : "0.3"
-   }, 
-   "RT Breast Width R" : { 
-      "IsNegative" : "true", 
-      "Multiplier1" : "-0.2", 
-      "Multiplier2" : "-0.45"
-   }, 
-   "RT Breast Rotate X Out R" : { 
-      "IsNegative" : "true", 
-      "Multiplier1" : "-0.6", 
-      "Multiplier2" : "0.3"
-   }, 
-   "RT Breast Rotate X In R" : { 
-      "IsNegative" : "true", 
-      "Multiplier1" : "-0.3", 
-      "Multiplier2" : "0.15"
-   }, 
-   "RT Breast Move S2S Out R" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0.2", 
-      "Multiplier2" : "-0.1"
-   }, 
    "RT Breast Rotate X Out L" : { 
       "IsNegative" : "true", 
       "Multiplier1" : "-1.5", 
@@ -59,7 +29,7 @@
       "Multiplier1" : "0.5", 
       "Multiplier2" : "2"
    }, 
-   "RT Breast Diameter" : { 
+   "RT Breast Diameter L" : { 
       "IsNegative" : "true", 
       "Multiplier1" : "-0.2", 
       "Multiplier2" : "-0.2"
@@ -79,12 +49,12 @@
       "Multiplier1" : "0.1", 
       "Multiplier2" : "-0.1"
    }, 
-   "RT Breast Under Smoother2" : { 
+   "RT Breast Under Smoother2 L" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.1", 
       "Multiplier2" : "0.4"
    }, 
-   "RT Breast Under Smoother3" : { 
+   "RT Breast Under Smoother3 L" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.4", 
       "Multiplier2" : "0.4"
