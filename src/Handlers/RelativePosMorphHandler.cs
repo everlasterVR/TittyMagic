@@ -106,9 +106,9 @@ namespace TittyMagic
         }
 
         public void Update(
-            float scaledAngleY,
-            float positionDiffZ,
-            float scaledAngleX,
+            float scaledAngleYRight,
+            float positionDiffZRight,
+            float scaledAngleXRight,
             float mass,
             float mobility
         )
@@ -116,60 +116,57 @@ namespace TittyMagic
             _mass = mass;
             _mobility = mobility;
 
-            float effectY = Calc.RoundToDecimals(Mathf.InverseLerp(0, 75, Mathf.Abs(scaledAngleY)), 1000f);
-            //float effectZ = Calc.RoundToDecimals(Mathf.InverseLerp(0, 0.060f, Mathf.Abs(positionDiffZ)), 1000f);
-            float effectX = Calc.RoundToDecimals(Mathf.InverseLerp(0, 60, Mathf.Abs(scaledAngleX)), 1000f);
+            float effectYRight = Calc.RoundToDecimals(Mathf.InverseLerp(0, 75, Mathf.Abs(scaledAngleYRight)), 1000f);
+            //float effectZRight = Calc.RoundToDecimals(Mathf.InverseLerp(0, 0.060f, Mathf.Abs(positionDiffZRight)), 1000f);
+            float effectXRight = Calc.RoundToDecimals(Mathf.InverseLerp(0, 60, Mathf.Abs(scaledAngleXRight)), 1000f);
 
             // up
-            if(scaledAngleY >= 0)
+            if(scaledAngleYRight >= 0)
             {
                 ResetMorphs(Direction.DOWN);
-                UpdateMorphs(Direction.UP, effectY);
+                UpdateMorphs(Direction.UP, effectYRight);
             }
             // down
             else
             {
                 ResetMorphs(Direction.UP);
-                UpdateMorphs(Direction.DOWN, effectY);
+                UpdateMorphs(Direction.DOWN, effectYRight);
             }
 
             //TODO delete or use
             //forward
-            //if(positionDiffZ <= 0)
+            //if(positionDiffZRight <= 0)
             //{
             //    ResetMorphs(Direction.BACK);
-            //    UpdateMorphs(Direction.FORWARD, effectZ);
+            //    UpdateMorphs(Direction.FORWARD, effectZRight);
             //}
             //// back
             //else
             //{
             //    ResetMorphs(Direction.FORWARD);
-            //    UpdateMorphs(Direction.BACK, effectZ);
+            //    UpdateMorphs(Direction.BACK, effectZRight);
             //}
 
             //left
-            if(scaledAngleX >= 0)
+            if(scaledAngleXRight >= 0)
             {
                 ResetMorphs(Direction.LEFT_L);
                 ResetMorphs(Direction.LEFT_R);
-                UpdateMorphs(Direction.RIGHT_L, effectX);
-                UpdateMorphs(Direction.RIGHT_R, effectX);
+                UpdateMorphs(Direction.RIGHT_L, effectXRight);
+                UpdateMorphs(Direction.RIGHT_R, effectXRight);
             }
             // right
             else
             {
                 ResetMorphs(Direction.RIGHT_L);
                 ResetMorphs(Direction.RIGHT_R);
-                UpdateMorphs(Direction.LEFT_L, effectX);
-                UpdateMorphs(Direction.LEFT_R, effectX);
+                UpdateMorphs(Direction.LEFT_L, effectXRight);
+                UpdateMorphs(Direction.LEFT_R, effectXRight);
             }
 
             string infoText =
-                    $"{NameValueString("scaledAngleY", scaledAngleY, 1000f)} \n" +
-                    $"{NameValueString("effectY", effectY, 1000f)} \n" +
-                    $"{NameValueString("scaledAngleX", scaledAngleX, 1000f)} \n" +
-                    $"{NameValueString("effectX", effectX, 1000f)} \n" +
-                    $"";
+                    $"{NameValueString("scaledAngleY", scaledAngleYRight, 1000f)} \n" +
+                    $"{NameValueString("scaledAngleX", scaledAngleXRight, 1000f)} \n";
             UpdateDebugInfo(infoText);
         }
 

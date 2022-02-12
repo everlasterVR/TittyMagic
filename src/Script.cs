@@ -22,12 +22,11 @@ namespace TittyMagic
         private List<Rigidbody> _rigidbodies;
         private Rigidbody _chestRigidbody;
         private Transform _chestTransform;
-        private Rigidbody _rNippleRigidbody;
-        private Transform _rNippleTransform;
-        private Rigidbody _lPectoralRigidbody;
-        private Rigidbody _rPectoralRigidbody;
+        private Rigidbody _nippleRbRight;
+        private Transform _nippleTransformRight;
+        private Rigidbody _pectoralRbLeft;
+        private Rigidbody _pectoralRbRight;
         private DAZCharacterSelector _geometry;
-        private Vector3 _neutralRelativePos;
 
         private float _massEstimate;
         private float _massAmount;
@@ -35,10 +34,14 @@ namespace TittyMagic
         private float _softnessAmount;
         private float _gravityAmount;
         private float _upDownMobilityAmount;
-        private float _angleY;
-        private float _angleX;
-        private float _roll;
-        private float _pitch;
+        private Vector3 _neutralRelativePosLeft;
+        private Vector3 _neutralRelativePosRight;
+        private float _angleYLeft;
+        private float _angleYRight;
+        private float _angleXLeft;
+        private float _angleXRight;
+        private float _chestRoll;
+        private float _chestPitch;
 
         private SettingsMonitor _settingsMonitor;
 
@@ -103,10 +106,10 @@ namespace TittyMagic
                 _rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
                 _chestRigidbody = _rigidbodies.Find(rb => rb.name == "chest");
                 _chestTransform = _chestRigidbody.transform;
-                _rNippleRigidbody = _rigidbodies.Find(rb => rb.name == "rNipple");
-                _rNippleTransform = _rNippleRigidbody.transform;
-                _lPectoralRigidbody = _rigidbodies.Find(rb => rb.name == "lPectoral");
-                _rPectoralRigidbody = _rigidbodies.Find(rb => rb.name == "rPectoral");
+                _nippleRbRight = _rigidbodies.Find(rb => rb.name == "rNipple");
+                _nippleTransformRight = _nippleRbRight.transform;
+                _pectoralRbLeft = _rigidbodies.Find(rb => rb.name == "lPectoral");
+                _pectoralRbRight = _rigidbodies.Find(rb => rb.name == "rPectoral");
                 _geometry = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
 
                 SAVES_DIR = SuperController.singleton.savesDir + @"everlaster\TittyMagicSettings\";
@@ -503,18 +506,18 @@ namespace TittyMagic
                 return;
             }
 
-            Vector3 relativePos = RelativePosition(_chestTransform, _rNippleTransform.position);
-            _angleY = Vector2.SignedAngle(
-                new Vector2(_neutralRelativePos.z, _neutralRelativePos.y),
+            Vector3 relativePos = RelativePosition(_chestTransform, _nippleTransformRight.position);
+            _angleYRight = Vector2.SignedAngle(
+                new Vector2(_neutralRelativePosRight.z, _neutralRelativePosRight.y),
                 new Vector2(relativePos.z, relativePos.y)
             );
-            _angleX = Vector2.SignedAngle(
-                new Vector2(_neutralRelativePos.z, _neutralRelativePos.x),
+            _angleXRight = Vector2.SignedAngle(
+                new Vector2(_neutralRelativePosRight.z, _neutralRelativePosRight.x),
                 new Vector2(relativePos.z, relativePos.x)
             );
 
-            _roll = Roll(_chestTransform.rotation);
-            _pitch = Pitch(_chestTransform.rotation);
+            _chestRoll = Roll(_chestTransform.rotation);
+            _chestPitch = Pitch(_chestTransform.rotation);
 
 #if DEBUG_ON
             _debugUIText.SetVal(
@@ -555,8 +558,8 @@ namespace TittyMagic
                 // 0.75f is a hack, for some reason a normal gravity force pushes breasts too much down,
                 // causing the neutral position to be off by a little
                 Vector3 force = _chestRigidbody.transform.up * 0.75f * -Physics.gravity.magnitude;
-                _lPectoralRigidbody.AddForce(force, ForceMode.Acceleration);
-                _rPectoralRigidbody.AddForce(force, ForceMode.Acceleration);
+                _pectoralRbLeft.AddForce(force, ForceMode.Acceleration);
+                _pectoralRbRight.AddForce(force, ForceMode.Acceleration);
                 if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
                 {
                     if(_refreshStatus == RefreshStatus.MASS_OK)
@@ -602,9 +605,9 @@ namespace TittyMagic
                 if(_relativePosMorphH.IsEnabled())
                 {
                     _relativePosMorphH.Update(
-                        _angleY / _massScaling,
+                        _angleYRight / _massScaling,
                         0f,
-                        _angleX / _massScaling,
+                        _angleXRight / _massScaling,
                         _massAmount,
                         _upDownMobilityAmount
                     );
@@ -613,12 +616,12 @@ namespace TittyMagic
 
             if(_gravityMorphH.IsEnabled())
             {
-                _gravityMorphH.Update(_modeChooser.val, _roll, _pitch, _massAmount, 0.75f * _gravityAmount);
+                _gravityMorphH.Update(_modeChooser.val, _chestRoll, _chestPitch, _massAmount, 0.75f * _gravityAmount);
             }
 
             if(_gravityPhysicsH.IsEnabled())
             {
-                _gravityPhysicsH.Update(_roll, _pitch, _massAmount, _gravityAmount);
+                _gravityPhysicsH.Update(_chestRoll, _chestPitch, _massAmount, _gravityAmount);
             }
         }
 
@@ -659,8 +662,8 @@ namespace TittyMagic
             _settingsMonitor.enabled = false;
 
             // simulate breasts zero G
-            _lPectoralRigidbody.useGravity = false;
-            _rPectoralRigidbody.useGravity = false;
+            _pectoralRbLeft.useGravity = false;
+            _pectoralRbRight.useGravity = false;
 
             // zero pose morphs
             _gravityMorphH.ResetAll();
@@ -675,7 +678,7 @@ namespace TittyMagic
             float duration = 0;
             float interval = 0.1f;
             while(duration < 1f && (
-                !VectorEqualWithin(1000f, _rNippleRigidbody.velocity, Vector3.zero) ||
+                !VectorEqualWithin(1000f, _nippleRbRight.velocity, Vector3.zero) ||
                 !EqualWithin(1000f, _massEstimate, DetermineMassEstimate(_atomScaleListener.Value))
             ))
             {
@@ -709,14 +712,14 @@ namespace TittyMagic
                 duration < 1f && (
                 !VectorEqualWithin(
                     1000000f,
-                    _neutralRelativePos,
-                    RelativePosition(_chestTransform, _rNippleTransform.position)
-                ))
+                    _neutralRelativePosRight,
+                    RelativePosition(_chestTransform, _nippleTransformRight.position)
+                )
             )
             {
                 yield return new WaitForSeconds(interval);
                 duration += interval;
-                _neutralRelativePos = RelativePosition(_chestTransform, _rNippleTransform.position);
+                _neutralRelativePosRight = RelativePosition(_chestTransform, _nippleTransformRight.position);
             }
 
             _refreshStatus = RefreshStatus.NEUTRALPOS_OK;
@@ -724,8 +727,8 @@ namespace TittyMagic
 
         private void EndRefresh()
         {
-            _lPectoralRigidbody.useGravity = true;
-            _rPectoralRigidbody.useGravity = true;
+            _pectoralRbLeft.useGravity = true;
+            _pectoralRbRight.useGravity = true;
             SuperController.singleton.SetFreezeAnimation(_animationWasSetFrozen);
             _settingsMonitor.enabled = true;
             _loadingFromJson = false;
