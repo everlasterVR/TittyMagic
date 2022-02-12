@@ -17,22 +17,6 @@ namespace TittyMagic
 
         private Dictionary<string, List<Config>> _configSets;
 
-        private List<Config> _downForceConfigs;
-
-        private List<Config> _upForceConfigs;
-
-        //private List<Config> _backForceConfigs;
-
-        //private List<Config> _forwardForceConfigs;
-
-        private List<Config> _leftForceConfigsL;
-
-        private List<Config> _leftForceConfigsR;
-
-        private List<Config> _rightForceConfigsL;
-
-        private List<Config> _rightForceConfigsR;
-
         public RelativePosMorphHandler(MVRScript script)
         {
             _script = script;
@@ -58,51 +42,36 @@ namespace TittyMagic
 
         public void LoadSettings(string mode)
         {
-            _downForceConfigs = new List<Config>();
-            _upForceConfigs = new List<Config>();
-            //_backForceConfigs = new List<Config>();
-            //_forwardForceConfigs = new List<Config>();
-            _leftForceConfigsL = new List<Config>();
-            _leftForceConfigsR = new List<Config>();
-            _rightForceConfigsL = new List<Config>();
-            _rightForceConfigsR = new List<Config>();
-            LoadSettingsFromFile(mode, "downForce", _downForceConfigs);
-            LoadSettingsFromFile(mode, "upForce", _upForceConfigs);
-            //LoadSettingsFromFile(mode, "backForce", _backForceConfigs);
-            //LoadSettingsFromFile(mode, "forwardForce", _forwardForceConfigs);
-            LoadSettingsFromFile(mode, "leftForceL", _leftForceConfigsL);
-            LoadSettingsFromFile(mode, "leftForceR", _leftForceConfigsR);
-            LoadSettingsFromFile(mode, "rightForceL", _rightForceConfigsL);
-            LoadSettingsFromFile(mode, "rightForceR", _rightForceConfigsR);
             _configSets = new Dictionary<string, List<Config>>
             {
-                { Direction.DOWN, _downForceConfigs },
-                { Direction.UP, _upForceConfigs },
-                //{ Direction.BACK, _backForceConfigs },
-                //{ Direction.FORWARD, _forwardForceConfigs },
-                { Direction.LEFT_L, _leftForceConfigsL },
-                { Direction.LEFT_R, _leftForceConfigsR },
-                { Direction.RIGHT_L, _rightForceConfigsL },
-                { Direction.RIGHT_R, _rightForceConfigsR },
+                { Direction.DOWN, LoadSettingsFromFile(mode, "downForce") },
+                { Direction.UP, LoadSettingsFromFile(mode, "upForce") },
+                //{ Direction.BACK, LoadSettingsFromFile(mode, "backForce") },
+                //{ Direction.FORWARD, LoadSettingsFromFile(mode, "forwardForce") },
+                { Direction.LEFT_L, LoadSettingsFromFile(mode, "leftForceL") },
+                { Direction.LEFT_R, LoadSettingsFromFile(mode, "leftForceR") },
+                { Direction.RIGHT_L, LoadSettingsFromFile(mode, "rightForceL") },
+                { Direction.RIGHT_R, LoadSettingsFromFile(mode, "rightForceR") },
             };
 
             //not working properly yet when changing mode on the fly
             if(_useConfigurator)
             {
                 _configurator.ResetUISectionGroups();
-                //_configurator.InitUISectionGroup(Direction.DOWN, _downForceConfigs);
-                //_configurator.InitUISectionGroup(Direction.UP, _upForceConfigs);
-                //_configurator.InitUISectionGroup(Direction.BACK, _backForceConfigs);
-                //_configurator.InitUISectionGroup(Direction.FORWARD, _forwardForceConfigs);
-                //_configurator.InitUISectionGroup(Direction.LEFT_L, _leftForceConfigsL);
-                //_configurator.InitUISectionGroup(Direction.LEFT_R, _leftForceConfigsR);
-                //_configurator.InitUISectionGroup(Direction.RIGHT_L, _rightForceConfigsL);
-                //_configurator.InitUISectionGroup(Direction.RIGHT_R, _rightForceConfigsR);
+                //_configurator.InitUISectionGroup(Direction.DOWN, _configSets[Direction.DOWN]);
+                //_configurator.InitUISectionGroup(Direction.UP, _configSets[Direction.UP]);
+                //_configurator.InitUISectionGroup(Direction.BACK, _configSets[Direction.BACK]);
+                //_configurator.InitUISectionGroup(Direction.FORWARD, _configSets[Direction.FORWARD]);
+                //_configurator.InitUISectionGroup(Direction.LEFT_L, _configSets[Direction.LEFT_L]);
+                //_configurator.InitUISectionGroup(Direction.LEFT_R, _configSets[Direction.LEFT_R]);
+                //_configurator.InitUISectionGroup(Direction.RIGHT_L, _configSets[Direction.RIGHT_L]);
+                //_configurator.InitUISectionGroup(Direction.RIGHT_R, _configSets[Direction.RIGHT_R]);
             }
         }
 
-        private void LoadSettingsFromFile(string mode, string fileName, List<Config> configs)
+        private List<Config> LoadSettingsFromFile(string mode, string fileName)
         {
+            var configs = new List<Config>();
             Persistence.LoadModeMorphSettings(_script, mode, $"{fileName}.json", (dir, json) =>
             {
                 foreach(string name in json.Keys)
@@ -115,6 +84,7 @@ namespace TittyMagic
                     ));
                 }
             });
+            return configs;
         }
 
         public bool IsEnabled()
@@ -227,14 +197,10 @@ namespace TittyMagic
 
         public void ResetAll()
         {
-            ResetMorphs(Direction.DOWN);
-            ResetMorphs(Direction.UP);
-            //ResetMorphs(Direction.BACK);
-            //ResetMorphs(Direction.FORWARD);
-            ResetMorphs(Direction.LEFT_L);
-            ResetMorphs(Direction.LEFT_R);
-            ResetMorphs(Direction.RIGHT_L);
-            ResetMorphs(Direction.RIGHT_R);
+            foreach(var configSet in _configSets)
+            {
+                ResetMorphs(configSet.Key);
+            }
         }
 
         private void ResetMorphs(string configSetName)

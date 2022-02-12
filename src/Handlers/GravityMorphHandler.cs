@@ -18,18 +18,6 @@ namespace TittyMagic
 
         private Dictionary<string, List<Config>> _configSets;
 
-        private List<Config> _uprightConfigs;
-
-        private List<Config> _upsideDownConfigs;
-
-        private List<Config> _leanBackConfigs;
-
-        private List<Config> _leanForwardConfigs;
-
-        private List<Config> _rollLeftConfigs;
-
-        private List<Config> _rollRightConfigs;
-
         public GravityMorphHandler(MVRScript script)
         {
             _script = script;
@@ -58,26 +46,13 @@ namespace TittyMagic
 
             if(mode != Mode.ANIM_OPTIMIZED)
             {
-                _uprightConfigs = new List<Config>();
-                _upsideDownConfigs = new List<Config>();
-                LoadSettingsFromFile(mode, "upright", _uprightConfigs);
-                LoadSettingsFromFile(mode, "upsideDown", _upsideDownConfigs);
-                _configSets.Add(Direction.DOWN, _uprightConfigs);
-                _configSets.Add(Direction.UP, _upsideDownConfigs);
-
-                _rollLeftConfigs = new List<Config>();
-                _rollRightConfigs = new List<Config>();
-                LoadSettingsFromFile(mode, "rollLeft", _rollLeftConfigs);
-                LoadSettingsFromFile(mode, "rollRight", _rollRightConfigs);
-                _configSets.Add(Direction.LEFT, _rollLeftConfigs);
-                _configSets.Add(Direction.RIGHT, _rollRightConfigs);
+                _configSets.Add(Direction.DOWN, LoadSettingsFromFile(mode, "upright"));
+                _configSets.Add(Direction.UP, LoadSettingsFromFile(mode, "upsideDown"));
+                _configSets.Add(Direction.LEFT, LoadSettingsFromFile(mode, "rollLeft"));
+                _configSets.Add(Direction.RIGHT, LoadSettingsFromFile(mode, "rollRight"));
             }
-            _leanBackConfigs = new List<Config>();
-            _leanForwardConfigs = new List<Config>();
-            LoadSettingsFromFile(mode, "leanBack", _leanBackConfigs);
-            LoadSettingsFromFile(mode, "leanForward", _leanForwardConfigs);
-            _configSets.Add(Direction.BACK, _leanBackConfigs);
-            _configSets.Add(Direction.FORWARD, _leanForwardConfigs);
+            _configSets.Add(Direction.BACK, LoadSettingsFromFile(mode, "leanBack"));
+            _configSets.Add(Direction.FORWARD, LoadSettingsFromFile(mode, "leanForward"));
 
             //not working properly yet when changing mode on the fly
             if(_useConfigurator)
@@ -85,19 +60,20 @@ namespace TittyMagic
                 _configurator.ResetUISectionGroups();
                 if(mode != Mode.ANIM_OPTIMIZED)
                 {
-                    //_configurator.InitUISectionGroup(Direction.DOWN, _uprightConfigs);
-                    //_configurator.InitUISectionGroup(Direction.UP, _upsideDownConfigs);
+                    //_configurator.InitUISectionGroup(Direction.DOWN, _configSets[Direction.DOWN]);
+                    //_configurator.InitUISectionGroup(Direction.UP, _configSets[Direction.UP]);
 
-                    //_configurator.InitUISectionGroup(Direction.LEFT, _rollLeftConfigs);
-                    //_configurator.InitUISectionGroup(Direction.RIGHT, _rollRightConfigs);
+                    //_configurator.InitUISectionGroup(Direction.LEFT, _configSets[Direction.LEFT]);
+                    //_configurator.InitUISectionGroup(Direction.RIGHT, _configSets[Direction.RIGHT]);
                 }
-                //_configurator.InitUISectionGroup(Direction.BACK, _leanBackConfigs);
-                //_configurator.InitUISectionGroup(Direction.FORWARD, _leanForwardConfigs);
+                //_configurator.InitUISectionGroup(Direction.BACK, _configSets[Direction.BACK]);
+                //_configurator.InitUISectionGroup(Direction.FORWARD, _configSets[Direction.FORWARD]);
             }
         }
 
-        private void LoadSettingsFromFile(string mode, string fileName, List<Config> configs)
+        private List<Config> LoadSettingsFromFile(string mode, string fileName)
         {
+            var configs = new List<Config>();
             Persistence.LoadModeMorphSettings(_script, mode, $"{fileName}.json", (dir, json) =>
             {
                 foreach(string name in json.Keys)
@@ -110,6 +86,7 @@ namespace TittyMagic
                     ));
                 }
             });
+            return configs;
         }
 
         public bool IsEnabled()
@@ -257,23 +234,14 @@ namespace TittyMagic
 
         public void ResetAll()
         {
-            //foreach(var it in gravityOffsetMorphs)
-            //    it.Reset();
-            ResetMorphs(Direction.DOWN);
-            ResetMorphs(Direction.UP);
-            ResetMorphs(Direction.BACK);
-            ResetMorphs(Direction.FORWARD);
-            ResetMorphs(Direction.LEFT);
-            ResetMorphs(Direction.RIGHT);
+            foreach(var configSet in _configSets)
+            {
+                ResetMorphs(configSet.Key);
+            }
         }
 
         private void ResetMorphs(string configSetName)
         {
-            if(!_configSets.ContainsKey(configSetName))
-            {
-                return;
-            }
-
             foreach(MorphConfig config in _configSets[configSetName])
             {
                 config.Morph.morphValue = 0;
