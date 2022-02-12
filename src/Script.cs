@@ -22,7 +22,9 @@ namespace TittyMagic
         private List<Rigidbody> _rigidbodies;
         private Rigidbody _chestRigidbody;
         private Transform _chestTransform;
+        private Rigidbody _nippleRbLeft;
         private Rigidbody _nippleRbRight;
+        private Transform _nippleTransformLeft;
         private Transform _nippleTransformRight;
         private Rigidbody _pectoralRbLeft;
         private Rigidbody _pectoralRbRight;
@@ -106,6 +108,8 @@ namespace TittyMagic
                 _rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
                 _chestRigidbody = _rigidbodies.Find(rb => rb.name == "chest");
                 _chestTransform = _chestRigidbody.transform;
+                _nippleRbLeft = _rigidbodies.Find(rb => rb.name == "lNipple");
+                _nippleTransformLeft = _nippleRbLeft.transform;
                 _nippleRbRight = _rigidbodies.Find(rb => rb.name == "rNipple");
                 _nippleTransformRight = _nippleRbRight.transform;
                 _pectoralRbLeft = _rigidbodies.Find(rb => rb.name == "lPectoral");
@@ -506,15 +510,8 @@ namespace TittyMagic
                 return;
             }
 
-            Vector3 relativePos = RelativePosition(_chestTransform, _nippleTransformRight.position);
-            _angleYRight = Vector2.SignedAngle(
-                new Vector2(_neutralRelativePosRight.z, _neutralRelativePosRight.y),
-                new Vector2(relativePos.z, relativePos.y)
-            );
-            _angleXRight = Vector2.SignedAngle(
-                new Vector2(_neutralRelativePosRight.z, _neutralRelativePosRight.x),
-                new Vector2(relativePos.z, relativePos.x)
-            );
+            UpdateRelativeAnglesLeft();
+            UpdateRelativeAnglesRight();
 
             _chestRoll = Roll(_chestTransform.rotation);
             _chestPitch = Pitch(_chestTransform.rotation);
@@ -526,6 +523,32 @@ namespace TittyMagic
                 $"upDownMobility {_upDownMobilityAmount}"
             );
 #endif
+        }
+
+        private void UpdateRelativeAnglesLeft()
+        {
+            Vector3 relativePos = RelativePosition(_chestTransform, _nippleTransformLeft.position);
+            _angleYLeft = Vector2.SignedAngle(
+                new Vector2(_neutralRelativePosLeft.z, _neutralRelativePosLeft.y),
+                new Vector2(relativePos.z, relativePos.y)
+            );
+            _angleXLeft = Vector2.SignedAngle(
+                new Vector2(_neutralRelativePosLeft.z, _neutralRelativePosLeft.x),
+                new Vector2(relativePos.z, relativePos.x)
+            );
+        }
+
+        private void UpdateRelativeAnglesRight()
+        {
+            Vector3 relativePos = RelativePosition(_chestTransform, _nippleTransformRight.position);
+            _angleYRight = Vector2.SignedAngle(
+                new Vector2(_neutralRelativePosRight.z, _neutralRelativePosRight.y),
+                new Vector2(relativePos.z, relativePos.y)
+            );
+            _angleXRight = Vector2.SignedAngle(
+                new Vector2(_neutralRelativePosRight.z, _neutralRelativePosRight.x),
+                new Vector2(relativePos.z, relativePos.x)
+            );
         }
 
         private void FixedUpdate()
@@ -605,8 +628,10 @@ namespace TittyMagic
                 if(_relativePosMorphH.IsEnabled())
                 {
                     _relativePosMorphH.Update(
+                        _angleYLeft / _massScaling,
                         _angleYRight / _massScaling,
                         0f,
+                        _angleXLeft / _massScaling,
                         _angleXRight / _massScaling,
                         _massAmount,
                         _upDownMobilityAmount
@@ -678,6 +703,7 @@ namespace TittyMagic
             float duration = 0;
             float interval = 0.1f;
             while(duration < 1f && (
+                !VectorEqualWithin(1000f, _nippleRbLeft.velocity, Vector3.zero) ||
                 !VectorEqualWithin(1000f, _nippleRbRight.velocity, Vector3.zero) ||
                 !EqualWithin(1000f, _massEstimate, DetermineMassEstimate(_atomScaleListener.Value))
             ))
@@ -709,7 +735,12 @@ namespace TittyMagic
             float duration = 0;
             float interval = 0.1f;
             while(
-                duration < 1f && (
+                duration < 1f &&
+                !VectorEqualWithin(
+                    1000000f,
+                    _neutralRelativePosLeft,
+                    RelativePosition(_chestTransform, _nippleTransformLeft.position)
+                ) &&
                 !VectorEqualWithin(
                     1000000f,
                     _neutralRelativePosRight,
@@ -719,6 +750,7 @@ namespace TittyMagic
             {
                 yield return new WaitForSeconds(interval);
                 duration += interval;
+                _neutralRelativePosLeft = RelativePosition(_chestTransform, _nippleTransformLeft.position);
                 _neutralRelativePosRight = RelativePosition(_chestTransform, _nippleTransformRight.position);
             }
 

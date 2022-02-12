@@ -131,8 +131,10 @@
     <None Include="settings\morphmultipliers_dev\animoptimized\downForce.json" />
     <None Include="settings\morphmultipliers_dev\animoptimized\leanBack.json" />
     <None Include="settings\morphmultipliers_dev\animoptimized\leanForward.json" />
-    <None Include="settings\morphmultipliers_dev\animoptimized\leftForce.json" />
-    <None Include="settings\morphmultipliers_dev\animoptimized\rightForce.json" />
+    <None Include="settings\morphmultipliers_dev\animoptimized\leftForceL.json" />
+    <None Include="settings\morphmultipliers_dev\animoptimized\leftForceR.json" />
+    <None Include="settings\morphmultipliers_dev\animoptimized\rightForceL.json" />
+    <None Include="settings\morphmultipliers_dev\animoptimized\rightForceR.json" />
     <None Include="settings\morphmultipliers_dev\animoptimized\upForce.json" />
     <None Include="settings\morphmultipliers_dev\balanced\leanBack.json" />
     <None Include="settings\morphmultipliers_dev\balanced\leanForward.json" />

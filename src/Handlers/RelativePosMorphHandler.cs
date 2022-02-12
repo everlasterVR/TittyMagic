@@ -106,8 +106,10 @@ namespace TittyMagic
         }
 
         public void Update(
+            float scaledAngleYLeft, //todo use
             float scaledAngleYRight,
-            float positionDiffZRight,
+            float positionDiffZRight, //todo use
+            float scaledAngleXLeft,
             float scaledAngleXRight,
             float mass,
             float mobility
@@ -118,6 +120,7 @@ namespace TittyMagic
 
             float effectYRight = Calc.RoundToDecimals(Mathf.InverseLerp(0, 75, Mathf.Abs(scaledAngleYRight)), 1000f);
             //float effectZRight = Calc.RoundToDecimals(Mathf.InverseLerp(0, 0.060f, Mathf.Abs(positionDiffZRight)), 1000f);
+            float effectXLeft = Calc.RoundToDecimals(Mathf.InverseLerp(0, 60, Mathf.Abs(scaledAngleXLeft)), 1000f);
             float effectXRight = Calc.RoundToDecimals(Mathf.InverseLerp(0, 60, Mathf.Abs(scaledAngleXRight)), 1000f);
 
             // up
@@ -147,26 +150,37 @@ namespace TittyMagic
             //    UpdateMorphs(Direction.BACK, effectZRight);
             //}
 
-            //left
-            if(scaledAngleXRight >= 0)
+            //left force on left breast
+            if(scaledAngleXLeft >= 0)
             {
                 ResetMorphs(Direction.LEFT_L);
-                ResetMorphs(Direction.LEFT_R);
-                UpdateMorphs(Direction.RIGHT_L, effectXRight);
-                UpdateMorphs(Direction.RIGHT_R, effectXRight);
+                UpdateMorphs(Direction.RIGHT_L, effectXLeft);
             }
-            // right
+            //right force on left breast
             else
             {
                 ResetMorphs(Direction.RIGHT_L);
+                UpdateMorphs(Direction.LEFT_L, effectXLeft);
+            }
+
+            //left force on right breast
+            if(scaledAngleXRight >= 0)
+            {
+                ResetMorphs(Direction.LEFT_R);
+                UpdateMorphs(Direction.RIGHT_R, effectXRight);
+            }
+            //right force on right breast
+            else
+            {
                 ResetMorphs(Direction.RIGHT_R);
-                UpdateMorphs(Direction.LEFT_L, effectXRight);
                 UpdateMorphs(Direction.LEFT_R, effectXRight);
             }
 
             string infoText =
-                    $"{NameValueString("scaledAngleY", scaledAngleYRight, 1000f)} \n" +
-                    $"{NameValueString("scaledAngleX", scaledAngleXRight, 1000f)} \n";
+                    $"{NameValueString("scaledAngleYLeft", scaledAngleYLeft, 1000f)} \n" +
+                    $"{NameValueString("scaledAngleYRight", scaledAngleYRight, 1000f)} \n" +
+                    $"{NameValueString("scaledAngleXLeft", scaledAngleXLeft, 1000f)} \n" +
+                    $"{NameValueString("scaledAngleXRight", scaledAngleXRight, 1000f)} \n";
             UpdateDebugInfo(infoText);
         }
 
