@@ -44,12 +44,7 @@
       "Multiplier1" : "0.3", 
       "Multiplier2" : "0.2"
    }, 
-   "UP Breast Width L" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0.2", 
-      "Multiplier2" : "0.3"
-   }, 
-   "UP Breast Width R" : { 
+   "UP Breast Width" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.2", 
       "Multiplier2" : "0.3"
@@ -59,7 +54,7 @@
       "Multiplier1" : "0.22", 
       "Multiplier2" : "0.2"
    }, 
-   "UP Breast flat" : { 
+   "UP Breast flat(Fixed)" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.65", 
       "Multiplier2" : "0.1"
@@ -102,7 +97,7 @@
    "UP Breast look up" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0", 
-      "Multiplier2" : "0"
+      "Multiplier2" : "0.3"
    }, 
    "UP Breast Top Curve1" : { 
       "IsNegative" : "true", 
@@ -164,35 +159,10 @@
       "Multiplier1" : "-0.8", 
       "Multiplier2" : "-0.5"
    }, 
-   "UP Breasts Small Top Slope" : { 
+   "UP Breasts Small Top Slope" : {
       "IsNegative" : "true", 
       "Multiplier1" : "-0.11", 
       "Multiplier2" : "0"
-   }, 
-   "UP Center Gap Smooth" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "1.7", 
-      "Multiplier2" : "0.2"
-   }, 
-   "UP Center Gap Depth" : { 
-      "IsNegative" : "true", 
-      "Multiplier1" : "-0.5", 
-      "Multiplier2" : "-0.8"
-   }, 
-   "UP Center Gap Height" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "1.2", 
-      "Multiplier2" : "0.5"
-   }, 
-   "UP Center Gap UpDown" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "2", 
-      "Multiplier2" : "-0.3"
-   }, 
-   "UP Chest Smoother" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "2.37", 
-      "Multiplier2" : "0.42"
    }, 
    "UP Areolae Depth" : { 
       "IsNegative" : "false", 

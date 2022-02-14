@@ -26,7 +26,11 @@
     public static class Direction
     {
         public const string DOWN = "DOWN";
+        public const string DOWN_L = "DOWN_L";
+        public const string DOWN_R = "DOWN_R";
         public const string UP = "UP";
+        public const string UP_L = "UP_L";
+        public const string UP_R = "UP_R";
         public const string BACK = "BACK";
         public const string FORWARD = "FORWARD";
         public const string LEFT = "LEFT";

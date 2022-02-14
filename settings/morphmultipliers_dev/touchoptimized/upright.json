@@ -1,10 +1,20 @@
 { 
-   "DN Breast Rotate Up" : { 
+   "DN Breast Rotate Up L" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.5", 
       "Multiplier2" : "0.5"
    }, 
-   "DN Breasts Natural" : { 
+   "DN Breast Rotate Up R" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.5", 
+      "Multiplier2" : "0.5"
+   }, 
+   "DN Breasts Natural L" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.3", 
+      "Multiplier2" : "0"
+   }, 
+   "DN Breasts Natural R" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.3", 
       "Multiplier2" : "0"

@@ -1,5 +1,5 @@
 ﻿//#define DEBUG_ON
-//#define USE_CONFIGURATORS
+#define USE_CONFIGURATORS
 
 using SimpleJSON;
 using System;
@@ -171,7 +171,7 @@ namespace TittyMagic
         private IEnumerator SelectDefaultMode()
         {
             yield return new WaitForEndOfFrame();
-            _modeChooser.val = Mode.BALANCED; // selection causes BeginRefresh
+            _modeChooser.val = Mode.ANIM_OPTIMIZED; // selection causes BeginRefresh
         }
 
         //https://github.com/vam-community/vam-plugins-interop-specs/blob/main/keybindings.md

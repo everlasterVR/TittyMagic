@@ -44,8 +44,10 @@ namespace TittyMagic
         {
             _configSets = new Dictionary<string, List<Config>>
             {
-                { Direction.DOWN, LoadSettingsFromFile(mode, "downForce") },
-                { Direction.UP, LoadSettingsFromFile(mode, "upForce") },
+                { Direction.DOWN_L, LoadSettingsFromFile(mode, "downForce", " L") },
+                { Direction.DOWN_R, LoadSettingsFromFile(mode, "downForce", " R") },
+                { Direction.UP_L, LoadSettingsFromFile(mode, "upForce", " L") },
+                { Direction.UP_R, LoadSettingsFromFile(mode, "upForce", " R") },
                 //{ Direction.BACK, LoadSettingsFromFile(mode, "backForce") },
                 //{ Direction.FORWARD, LoadSettingsFromFile(mode, "forwardForce") },
                 { Direction.LEFT_L, LoadSettingsFromFile(mode, "leftForceL") },
@@ -58,8 +60,10 @@ namespace TittyMagic
             if(_useConfigurator)
             {
                 _configurator.ResetUISectionGroups();
-                //_configurator.InitUISectionGroup(Direction.DOWN, _configSets[Direction.DOWN]);
-                //_configurator.InitUISectionGroup(Direction.UP, _configSets[Direction.UP]);
+                //_configurator.InitUISectionGroup(Direction.DOWN_L, _configSets[Direction.DOWN_L]);
+                //_configurator.InitUISectionGroup(Direction.DOWN_R, _configSets[Direction.DOWN_R]);
+                //_configurator.InitUISectionGroup(Direction.UP_L, _configSets[Direction.UP_L]);
+                //_configurator.InitUISectionGroup(Direction.UP_R, _configSets[Direction.UP_R]);
                 //_configurator.InitUISectionGroup(Direction.BACK, _configSets[Direction.BACK]);
                 //_configurator.InitUISectionGroup(Direction.FORWARD, _configSets[Direction.FORWARD]);
                 //_configurator.InitUISectionGroup(Direction.LEFT_L, _configSets[Direction.LEFT_L]);
@@ -69,15 +73,16 @@ namespace TittyMagic
             }
         }
 
-        private List<Config> LoadSettingsFromFile(string mode, string fileName)
+        private List<Config> LoadSettingsFromFile(string mode, string fileName, string morphNameSuffix = null)
         {
             var configs = new List<Config>();
             Persistence.LoadModeMorphSettings(_script, mode, $"{fileName}.json", (dir, json) =>
             {
                 foreach(string name in json.Keys)
                 {
+                    string morphName = string.IsNullOrEmpty(morphNameSuffix) ? name : name + $"{morphNameSuffix}";
                     configs.Add(new MorphConfig(
-                        name,
+                        morphName,
                         json[name]["IsNegative"].AsBool,
                         json[name]["Multiplier1"].AsFloat,
                         json[name]["Multiplier2"].AsFloat
@@ -106,7 +111,7 @@ namespace TittyMagic
         }
 
         public void Update(
-            float scaledAngleYLeft, //todo use
+            float scaledAngleYLeft,
             float scaledAngleYRight,
             float positionDiffZRight, //todo use
             float scaledAngleXLeft,
@@ -118,22 +123,36 @@ namespace TittyMagic
             _mass = mass;
             _mobility = mobility;
 
+            float effectYLeft = Calc.RoundToDecimals(Mathf.InverseLerp(0, 75, Mathf.Abs(scaledAngleYLeft)), 1000f);
             float effectYRight = Calc.RoundToDecimals(Mathf.InverseLerp(0, 75, Mathf.Abs(scaledAngleYRight)), 1000f);
             //float effectZRight = Calc.RoundToDecimals(Mathf.InverseLerp(0, 0.060f, Mathf.Abs(positionDiffZRight)), 1000f);
             float effectXLeft = Calc.RoundToDecimals(Mathf.InverseLerp(0, 60, Mathf.Abs(scaledAngleXLeft)), 1000f);
             float effectXRight = Calc.RoundToDecimals(Mathf.InverseLerp(0, 60, Mathf.Abs(scaledAngleXRight)), 1000f);
 
-            // up
-            if(scaledAngleYRight >= 0)
+            // up force on left breast
+            if(scaledAngleYLeft >= 0)
             {
-                ResetMorphs(Direction.DOWN);
-                UpdateMorphs(Direction.UP, effectYRight);
+                ResetMorphs(Direction.DOWN_L);
+                UpdateMorphs(Direction.UP_L, effectYLeft);
             }
-            // down
+            // down force on left breast
             else
             {
-                ResetMorphs(Direction.UP);
-                UpdateMorphs(Direction.DOWN, effectYRight);
+                ResetMorphs(Direction.UP_L);
+                UpdateMorphs(Direction.DOWN_L, effectYLeft);
+            }
+
+            // up force on right breast
+            if(scaledAngleYRight >= 0)
+            {
+                ResetMorphs(Direction.DOWN_R);
+                UpdateMorphs(Direction.UP_R, effectYRight);
+            }
+            // down force on right breast
+            else
+            {
+                ResetMorphs(Direction.UP_R);
+                UpdateMorphs(Direction.DOWN_R, effectYRight);
             }
 
             //TODO delete or use

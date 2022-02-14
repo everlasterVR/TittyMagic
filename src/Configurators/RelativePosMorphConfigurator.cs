@@ -9,14 +9,16 @@ namespace TittyMagic
     {
         public Dictionary<string, string> titles = new Dictionary<string, string>
         {
-            { Direction.DOWN, "Down force morphs" },
-            { Direction.UP, "Up force morphs" },
+            { Direction.DOWN_L, "Down force morphs L" },
+            { Direction.DOWN_R, "Down force morphs R" },
+            { Direction.UP_L, "Up force morphs L" },
+            { Direction.UP_R, "Up force morphs R" },
             //{ Direction.BACK, "Back force morphs" },
             //{ Direction.FORWARD, "Forward force morphs" },
-            { Direction.LEFT_L, "Left force morphs" },
-            { Direction.LEFT_R, "Left force morphs" },
-            { Direction.RIGHT_L, "Right force morphs" },
-            { Direction.RIGHT_R, "Right force morphs" },
+            { Direction.LEFT_L, "Left force morphs L" },
+            { Direction.LEFT_R, "Left force morphs R" },
+            { Direction.RIGHT_L, "Right force morphs L" },
+            { Direction.RIGHT_R, "Right force morphs R" },
         };
 
         private string _lastBrowseDir;
@@ -88,8 +90,10 @@ namespace TittyMagic
         public void ResetUISectionGroups()
         {
             _UISectionGroups = new Dictionary<string, Dictionary<string, ConfiguratorUISection>> {
-                { Direction.DOWN, new Dictionary<string, ConfiguratorUISection>() },
-                { Direction.UP, new Dictionary<string, ConfiguratorUISection>() },
+                { Direction.DOWN_L, new Dictionary<string, ConfiguratorUISection>() },
+                { Direction.DOWN_R, new Dictionary<string, ConfiguratorUISection>() },
+                { Direction.UP_L, new Dictionary<string, ConfiguratorUISection>() },
+                { Direction.UP_R, new Dictionary<string, ConfiguratorUISection>() },
                 //{ Direction.BACK, new Dictionary<string, ConfiguratorUISection>() },
                 //{ Direction.FORWARD, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.LEFT_L, new Dictionary<string, ConfiguratorUISection>() },

@@ -46,8 +46,8 @@ namespace TittyMagic
 
             if(mode != Mode.ANIM_OPTIMIZED)
             {
-                _configSets.Add(Direction.DOWN, LoadSettingsFromFile(mode, "upright"));
-                _configSets.Add(Direction.UP, LoadSettingsFromFile(mode, "upsideDown"));
+                _configSets.Add(Direction.DOWN, LoadSettingsFromFile(mode, "upright", separateLeftRight: true));
+                _configSets.Add(Direction.UP, LoadSettingsFromFile(mode, "upsideDown", separateLeftRight: true));
                 _configSets.Add(Direction.LEFT, LoadSettingsFromFile(mode, "rollLeft"));
                 _configSets.Add(Direction.RIGHT, LoadSettingsFromFile(mode, "rollRight"));
             }
@@ -71,19 +71,37 @@ namespace TittyMagic
             }
         }
 
-        private List<Config> LoadSettingsFromFile(string mode, string fileName)
+        private List<Config> LoadSettingsFromFile(string mode, string fileName, bool separateLeftRight = false)
         {
             var configs = new List<Config>();
             Persistence.LoadModeMorphSettings(_script, mode, $"{fileName}.json", (dir, json) =>
             {
                 foreach(string name in json.Keys)
                 {
-                    configs.Add(new MorphConfig(
-                        name,
-                        json[name]["IsNegative"].AsBool,
-                        json[name]["Multiplier1"].AsFloat,
-                        json[name]["Multiplier2"].AsFloat
-                    ));
+                    if(separateLeftRight)
+                    {
+                        configs.Add(new MorphConfig(
+                            $"{name} L",
+                            json[name]["IsNegative"].AsBool,
+                            json[name]["Multiplier1"].AsFloat,
+                            json[name]["Multiplier2"].AsFloat
+                        ));
+                        configs.Add(new MorphConfig(
+                            $"{name} R",
+                            json[name]["IsNegative"].AsBool,
+                            json[name]["Multiplier1"].AsFloat,
+                            json[name]["Multiplier2"].AsFloat
+                        ));
+                    }
+                    else
+                    {
+                        configs.Add(new MorphConfig(
+                            name,
+                            json[name]["IsNegative"].AsBool,
+                            json[name]["Multiplier1"].AsFloat,
+                            json[name]["Multiplier2"].AsFloat
+                        ));
+                    }
                 }
             });
             return configs;
