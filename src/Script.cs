@@ -161,6 +161,10 @@ namespace TittyMagic
         private IEnumerator SelectDefaultMode()
         {
             yield return new WaitForEndOfFrame();
+            if(_loadingFromJson)
+            {
+                yield break;
+            }
             _modeChooser.val = Mode.BALANCED; // selection causes BeginRefresh
         }
 
@@ -762,6 +766,11 @@ namespace TittyMagic
 
         public override void RestoreFromJSON(JSONClass json, bool restorePhysical = true, bool restoreAppearance = true, JSONArray presetAtoms = null, bool setMissingToDefault = true)
         {
+            if(json.HasKey("Mode"))
+            {
+                _loadingFromJson = true;
+                _modeChooser.val = json["Mode"];
+            }
             _loadingFromJson = true;
             base.RestoreFromJSON(json, false, false, presetAtoms, setMissingToDefault);
         }
