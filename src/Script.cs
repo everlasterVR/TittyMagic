@@ -804,6 +804,8 @@ namespace TittyMagic
         {
             if(_settingsMonitor != null)
                 _settingsMonitor.enabled = true;
+            if(_gravityPhysicsH != null)
+                _gravityPhysicsH.SetInvertJoint2RotationY(false);
         }
 
         private void OnDisable()
@@ -813,7 +815,10 @@ namespace TittyMagic
                 if(_settingsMonitor != null)
                     _settingsMonitor.enabled = false;
                 if(_gravityPhysicsH != null)
+                {
                     _gravityPhysicsH.ResetAll();
+                    _gravityPhysicsH.SetInvertJoint2RotationY(true);
+                }
                 if(_gravityMorphH != null)
                     _gravityMorphH.ResetAll();
                 if(_modeChooser.val == Mode.ANIM_OPTIMIZED && _relativePosMorphH != null)

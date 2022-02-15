@@ -31,8 +31,7 @@ namespace TittyMagic
 
         public GravityPhysicsHandler(MVRScript script)
         {
-            // Right/left angle target moves both breasts in the same direction
-            Globals.BREAST_CONTROL.invertJoint2RotationY = false;
+            SetInvertJoint2RotationY(false);
 
             _script = script;
             try
@@ -283,6 +282,12 @@ namespace TittyMagic
             ResetPhysics(Direction.FORWARD);
             ResetPhysics(Direction.LEFT);
             ResetPhysics(Direction.RIGHT);
+        }
+
+        public void SetInvertJoint2RotationY(bool value)
+        {
+            // false: Right/left angle target moves both breasts in the same direction
+            Globals.BREAST_CONTROL.invertJoint2RotationY = value;
         }
 
         private void ZeroPhysics(string configSetName)
