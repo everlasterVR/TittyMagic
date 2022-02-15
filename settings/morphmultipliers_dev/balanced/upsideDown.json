@@ -44,12 +44,7 @@
       "Multiplier1" : "0.3", 
       "Multiplier2" : "0.2"
    }, 
-   "UP Breast Width L" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0.2", 
-      "Multiplier2" : "0.3"
-   }, 
-   "UP Breast Width R" : { 
+   "UP Breast Width" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.2", 
       "Multiplier2" : "0.3"
@@ -59,7 +54,7 @@
       "Multiplier1" : "0.2", 
       "Multiplier2" : "0.3"
    }, 
-   "UP Breast flat" : { 
+   "UP Breast flat(Fixed)" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.7", 
       "Multiplier2" : "0.15"
@@ -168,11 +163,6 @@
       "IsNegative" : "true", 
       "Multiplier1" : "-0.11", 
       "Multiplier2" : "-0.17"
-   }, 
-   "UP Chest Smoother" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "2.37", 
-      "Multiplier2" : "0.42"
    }, 
    "UP Areolae Depth" : { 
       "IsNegative" : "false", 
