@@ -1,5 +1,5 @@
 ﻿//#define DEBUG_ON
-#define USE_CONFIGURATORS
+//#define USE_CONFIGURATORS
 
 using SimpleJSON;
 using System;
