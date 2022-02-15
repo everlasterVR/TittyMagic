@@ -145,11 +145,6 @@ namespace TittyMagic
                 _softnessAmount = Mathf.Pow(_softness.val/100f, 1/2f);
                 _gravityAmount = Mathf.Pow(_gravity.val/100f, 1/2f);
 
-                if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
-                {
-                    _upDownMobilityAmount = 1.5f * Mathf.Pow(_upDownMobility.val/100f, 1/2f);
-                }
-
                 StartCoroutine(SelectDefaultMode());
                 StartCoroutine(SubscribeToKeybindings());
             }
