@@ -502,11 +502,23 @@ namespace TittyMagic
 
         private void Update()
         {
-            Vector3 relativePos = RelativePosition(_chestTransform, _rNippleTransform.position);
-            _angleY = Vector2.SignedAngle(
-                new Vector2(_neutralRelativePos.z, _neutralRelativePos.y),
-                new Vector2(relativePos.z, relativePos.y)
-            );
+            if(_waitStatus != RefreshStatus.DONE)
+            {
+                return;
+            }
+
+            if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
+            {
+                Vector3 relativePos = RelativePosition(_chestTransform, _rNippleTransform.position);
+                _angleY = Vector2.SignedAngle(
+                    new Vector2(_neutralRelativePos.z, _neutralRelativePos.y),
+                    new Vector2(relativePos.z, relativePos.y)
+                );
+            }
+            else
+            {
+                _angleY = 0;
+            }
 
 #if DEBUG_ON
             _debugUIText.SetVal(
@@ -689,8 +701,6 @@ namespace TittyMagic
         private IEnumerator RefreshNeutralRelativePosition()
         {
             _refreshStatus = RefreshStatus.NEUTRALPOS_STARTED;
-
-            yield return new WaitForSeconds(0.67f);
 
             float duration = 0;
             float interval = 0.1f;
