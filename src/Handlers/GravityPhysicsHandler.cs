@@ -118,6 +118,15 @@ namespace TittyMagic
             _mass = mass;
             _amount = amount;
 
+            float smoothRoll = Calc.SmoothStep(roll);
+            float smoothPitch = 2 * Calc.SmoothStep(pitch);
+
+            AdjustRollPhysics(smoothRoll);
+            AdjustPitchPhysics(smoothPitch, smoothRoll);
+        }
+
+        private void AdjustRollPhysics(float roll)
+        {
             // left
             if(roll >= 0)
             {
@@ -130,7 +139,10 @@ namespace TittyMagic
                 ResetPhysics(Direction.LEFT);
                 UpdateRollPhysics(Direction.RIGHT, -roll);
             }
+        }
 
+        private void AdjustPitchPhysics(float pitch, float roll)
+        {
             // leaning forward
             if(pitch >= 0)
             {
