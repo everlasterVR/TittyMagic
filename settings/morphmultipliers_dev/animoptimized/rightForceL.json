@@ -1,4 +1,9 @@
 { 
+   "RT Breasts Shift S2S Right L" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "2", 
+      "Multiplier2" : "-0.5"
+   }, 
    "RT Breast Rotate X Out L" : { 
       "IsNegative" : "true", 
       "Multiplier1" : "-1.5", 
