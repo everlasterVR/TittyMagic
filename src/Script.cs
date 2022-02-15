@@ -87,6 +87,7 @@ namespace TittyMagic
             {
                 _pluginVersionStorable = new JSONStorableString("Version", "");
                 _pluginVersionStorable.val = $"{version}";
+                _pluginVersionStorable.storeType = JSONStorableParam.StoreType.Full;
                 RegisterString(_pluginVersionStorable);
 
                 if(containingAtom.type != "Person")
@@ -224,6 +225,7 @@ namespace TittyMagic
                     StartCoroutine(OnModeChosen(mode));
                 }
             );
+            _modeChooser.storeType = JSONStorableParam.StoreType.Full;
             RegisterStringChooser(_modeChooser);
         }
 
@@ -400,6 +402,7 @@ namespace TittyMagic
                 if(_linkGravityAndMobility == null)
                 {
                     _linkGravityAndMobility = this.NewToggle("Link gravity and mobility", true, false);
+                    _linkGravityAndMobility.storeType = JSONStorableParam.StoreType.Full;
                 }
                 else
                 {
@@ -448,6 +451,7 @@ namespace TittyMagic
             if(_nippleErection == null)
             {
                 _nippleErection = this.NewFloatSlider("Nipple erection", 0f, 0f, 1.0f, "F2");
+                _nippleErection.storeType = JSONStorableParam.StoreType.Full;
             }
             else
             {
@@ -487,6 +491,10 @@ namespace TittyMagic
 
         private void RefreshFromSliderChanged()
         {
+            if(_loadingFromJson)
+            {
+                return;
+            }
             if(_modeChooser.val == Mode.ANIM_OPTIMIZED && _waitStatus != RefreshStatus.WAITING)
             {
                 StartCoroutine(WaitToBeginRefresh());
@@ -771,8 +779,7 @@ namespace TittyMagic
                 _loadingFromJson = true;
                 _modeChooser.val = json["Mode"];
             }
-            _loadingFromJson = true;
-            base.RestoreFromJSON(json, false, false, presetAtoms, setMissingToDefault);
+            base.RestoreFromJSON(json, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
         }
 
         private void OnRemoveAtom(Atom atom)
