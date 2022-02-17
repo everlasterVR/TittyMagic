@@ -702,6 +702,8 @@ namespace TittyMagic
         {
             _refreshStatus = RefreshStatus.NEUTRALPOS_STARTED;
 
+            yield return new WaitForSeconds(0.5f);
+
             float duration = 0;
             float interval = 0.1f;
             while(
