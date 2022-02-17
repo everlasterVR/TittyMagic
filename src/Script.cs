@@ -32,7 +32,7 @@ namespace TittyMagic
 
         private float _massEstimate;
         private float _massAmount;
-        private float _massScaling;
+        private float _relativePosMassMultiplier;
         private float _softnessAmount;
         private float _gravityAmount;
         private float _upDownMobilityAmount;
@@ -647,15 +647,15 @@ namespace TittyMagic
 
             if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
             {
-                //float positionDiffZ = (neutralRelativePos - relativePos).z;
                 if(_relativePosMorphH.IsEnabled())
                 {
                     _relativePosMorphH.Update(
-                        _angleYLeft / _massScaling,
-                        _angleYRight / _massScaling,
+                        _angleYLeft,
+                        _angleYRight,
                         0f,
-                        _angleXLeft / _massScaling,
-                        _angleXRight / _massScaling,
+                        _angleXLeft,
+                        _angleXRight,
+                        _relativePosMassMultiplier,
                         _massAmount,
                         _upDownMobilityAmount
                     );
@@ -739,7 +739,7 @@ namespace TittyMagic
 
                 // update main static physics
                 _massAmount = _staticPhysicsH.SetAndReturnMassVal(_massEstimate);
-                _massScaling = Mathf.Pow(3/4f * _massAmount, 1/5f);
+                _relativePosMassMultiplier = 1 / Mathf.Pow(3/4f * _massAmount, 1/5f);
                 _staticPhysicsH.UpdateMainPhysics(_softnessAmount);
             }
             SetMassUIStatus(_atomScaleListener.Value);

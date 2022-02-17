@@ -12,6 +12,7 @@ namespace TittyMagic
 
         private bool _useConfigurator;
 
+        private float _multiplier;
         private float _mass;
         private float _mobility;
 
@@ -111,26 +112,28 @@ namespace TittyMagic
         }
 
         public void Update(
-            float scaledAngleYLeft,
-            float scaledAngleYRight,
+            float angleYLeft,
+            float angleYRight,
             float positionDiffZRight, //todo use
-            float scaledAngleXLeft,
-            float scaledAngleXRight,
+            float angleXLeft,
+            float angleXRight,
+            float multiplier,
             float mass,
             float mobility
         )
         {
+            _multiplier = multiplier;
             _mass = mass;
             _mobility = mobility;
 
-            float effectYLeft = Calc.RoundToDecimals(Mathf.InverseLerp(0, 75, Mathf.Abs(scaledAngleYLeft)), 1000f);
-            float effectYRight = Calc.RoundToDecimals(Mathf.InverseLerp(0, 75, Mathf.Abs(scaledAngleYRight)), 1000f);
-            //float effectZRight = Calc.RoundToDecimals(Mathf.InverseLerp(0, 0.060f, Mathf.Abs(positionDiffZRight)), 1000f);
-            float effectXLeft = Calc.RoundToDecimals(Mathf.InverseLerp(0, 60, Mathf.Abs(scaledAngleXLeft)), 1000f);
-            float effectXRight = Calc.RoundToDecimals(Mathf.InverseLerp(0, 60, Mathf.Abs(scaledAngleXRight)), 1000f);
+            float effectYLeft = CalculateEffect(angleYLeft, 75);
+            float effectYRight = CalculateEffect(angleYRight, 75);
+            //float effectZRight = CalculateEffect(positionDiffZRight, 0.060f);
+            float effectXLeft = CalculateEffect(angleXLeft, 60);
+            float effectXRight = CalculateEffect(angleXRight, 60);
 
             // up force on left breast
-            if(scaledAngleYLeft >= 0)
+            if(angleYLeft >= 0)
             {
                 ResetMorphs(Direction.DOWN_L);
                 UpdateMorphs(Direction.UP_L, effectYLeft);
@@ -143,7 +146,7 @@ namespace TittyMagic
             }
 
             // up force on right breast
-            if(scaledAngleYRight >= 0)
+            if(angleYRight >= 0)
             {
                 ResetMorphs(Direction.DOWN_R);
                 UpdateMorphs(Direction.UP_R, effectYRight);
@@ -170,7 +173,7 @@ namespace TittyMagic
             //}
 
             //left force on left breast
-            if(scaledAngleXLeft >= 0)
+            if(angleXLeft >= 0)
             {
                 ResetMorphs(Direction.LEFT_L);
                 UpdateMorphs(Direction.RIGHT_L, effectXLeft);
@@ -183,7 +186,7 @@ namespace TittyMagic
             }
 
             //left force on right breast
-            if(scaledAngleXRight >= 0)
+            if(angleXRight >= 0)
             {
                 ResetMorphs(Direction.LEFT_R);
                 UpdateMorphs(Direction.RIGHT_R, effectXRight);
@@ -196,11 +199,19 @@ namespace TittyMagic
             }
 
             string infoText =
-                    $"{NameValueString("scaledAngleYLeft", scaledAngleYLeft, 1000f)} \n" +
-                    $"{NameValueString("scaledAngleYRight", scaledAngleYRight, 1000f)} \n" +
-                    $"{NameValueString("scaledAngleXLeft", scaledAngleXLeft, 1000f)} \n" +
-                    $"{NameValueString("scaledAngleXRight", scaledAngleXRight, 1000f)} \n";
+                    $"{NameValueString("angleYLeft", angleYLeft, 1000f)} \n" +
+                    $"{NameValueString("angleYRight", angleYRight, 1000f)} \n" +
+                    $"{NameValueString("angleXLeft", angleXLeft, 1000f)} \n" +
+                    $"{NameValueString("angleXRight", angleXRight, 1000f)} \n";
             UpdateDebugInfo(infoText);
+        }
+
+        private float CalculateEffect(float value, float max)
+        {
+            return Calc.RoundToDecimals(
+                Mathf.InverseLerp(0, max, Mathf.Abs(value * _multiplier)),
+                1000f
+            );
         }
 
         private void UpdateMorphs(string configSetName, float effect)
