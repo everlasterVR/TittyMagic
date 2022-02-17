@@ -166,7 +166,7 @@ namespace TittyMagic
         )
         {
             JSONStorableFloat storable = new JSONStorableFloat(paramName, startingValue, minValue, maxValue);
-            storable.storeType = JSONStorableParam.StoreType.Physical;
+            storable.storeType = JSONStorableParam.StoreType.Full;
             script.RegisterFloat(storable);
             UIDynamicSlider slider = script.CreateSlider(storable, rightSide);
             slider.valueFormat = valueFormat;
@@ -183,7 +183,7 @@ namespace TittyMagic
         )
         {
             JSONStorableFloat storable = new JSONStorableFloat(paramName, startingValue, minValue, maxValue);
-            storable.storeType = JSONStorableParam.StoreType.Physical;
+            storable.storeType = JSONStorableParam.StoreType.Full;
             script.RegisterFloat(storable);
             UIDynamicSlider slider = script.CreateSlider(storable, rightSide);
             slider.valueFormat = "0f";
@@ -229,6 +229,7 @@ namespace TittyMagic
         )
         {
             JSONStorableBool storable = new JSONStorableBool(paramName, startingValue);
+            storable.storeType = JSONStorableParam.StoreType.Full;
             script.CreateToggle(storable, rightSide);
             script.RegisterBool(storable);
             return storable;

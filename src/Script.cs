@@ -95,6 +95,7 @@ namespace TittyMagic
             {
                 _pluginVersionStorable = new JSONStorableString("Version", "");
                 _pluginVersionStorable.val = $"{version}";
+                _pluginVersionStorable.storeType = JSONStorableParam.StoreType.Full;
                 RegisterString(_pluginVersionStorable);
 
                 if(containingAtom.type != "Person")
@@ -153,11 +154,6 @@ namespace TittyMagic
 
                 _softnessAmount = Mathf.Pow(_softness.val/100f, 1/2f);
                 _gravityAmount = Mathf.Pow(_gravity.val/100f, 1/2f);
-
-                if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
-                {
-                    _upDownMobilityAmount = 1.5f * Mathf.Pow(_upDownMobility.val/100f, 1/2f);
-                }
 
                 StartCoroutine(SelectDefaultMode());
                 StartCoroutine(SubscribeToKeybindings());
@@ -234,6 +230,7 @@ namespace TittyMagic
                     StartCoroutine(OnModeChosen(mode));
                 }
             );
+            _modeChooser.storeType = JSONStorableParam.StoreType.Full;
             RegisterStringChooser(_modeChooser);
         }
 
@@ -410,6 +407,7 @@ namespace TittyMagic
                 if(_linkGravityAndMobility == null)
                 {
                     _linkGravityAndMobility = this.NewToggle("Link gravity and mobility", true, false);
+                    _linkGravityAndMobility.storeType = JSONStorableParam.StoreType.Full;
                 }
                 else
                 {
@@ -458,6 +456,7 @@ namespace TittyMagic
             if(_nippleErection == null)
             {
                 _nippleErection = this.NewFloatSlider("Nipple erection", 0f, 0f, 1.0f, "F2");
+                _nippleErection.storeType = JSONStorableParam.StoreType.Full;
             }
             else
             {
@@ -497,6 +496,10 @@ namespace TittyMagic
 
         private void RefreshFromSliderChanged()
         {
+            if(_loadingFromJson)
+            {
+                return;
+            }
             if(_modeChooser.val == Mode.ANIM_OPTIMIZED && _waitStatus != RefreshStatus.WAITING)
             {
                 StartCoroutine(WaitToBeginRefresh());
@@ -531,28 +534,44 @@ namespace TittyMagic
 
         private void UpdateRelativeAnglesLeft()
         {
-            Vector3 relativePos = RelativePosition(_chestTransform, _nippleTransformLeft.position);
-            _angleYLeft = Vector2.SignedAngle(
-                new Vector2(_neutralRelativePosLeft.z, _neutralRelativePosLeft.y),
-                new Vector2(relativePos.z, relativePos.y)
-            );
-            _angleXLeft = Vector2.SignedAngle(
-                new Vector2(_neutralRelativePosLeft.z, _neutralRelativePosLeft.x),
-                new Vector2(relativePos.z, relativePos.x)
-            );
+            if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
+            {
+                Vector3 relativePos = RelativePosition(_chestTransform, _nippleTransformLeft.position);
+                _angleYLeft = Vector2.SignedAngle(
+                    new Vector2(_neutralRelativePosLeft.z, _neutralRelativePosLeft.y),
+                    new Vector2(relativePos.z, relativePos.y)
+                );
+                _angleXLeft = Vector2.SignedAngle(
+                    new Vector2(_neutralRelativePosLeft.z, _neutralRelativePosLeft.x),
+                    new Vector2(relativePos.z, relativePos.x)
+                );
+            }
+            else
+            {
+                _angleYLeft = 0;
+                _angleXLeft = 0;
+            }
         }
 
         private void UpdateRelativeAnglesRight()
         {
-            Vector3 relativePos = RelativePosition(_chestTransform, _nippleTransformRight.position);
-            _angleYRight = Vector2.SignedAngle(
-                new Vector2(_neutralRelativePosRight.z, _neutralRelativePosRight.y),
-                new Vector2(relativePos.z, relativePos.y)
-            );
-            _angleXRight = Vector2.SignedAngle(
-                new Vector2(_neutralRelativePosRight.z, _neutralRelativePosRight.x),
-                new Vector2(relativePos.z, relativePos.x)
-            );
+            if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
+            {
+                Vector3 relativePos = RelativePosition(_chestTransform, _nippleTransformRight.position);
+                _angleYRight = Vector2.SignedAngle(
+                    new Vector2(_neutralRelativePosRight.z, _neutralRelativePosRight.y),
+                    new Vector2(relativePos.z, relativePos.y)
+                );
+                _angleXRight = Vector2.SignedAngle(
+                    new Vector2(_neutralRelativePosRight.z, _neutralRelativePosRight.x),
+                    new Vector2(relativePos.z, relativePos.x)
+                );
+            }
+            else
+            {
+                _angleYRight = 0;
+                _angleXRight = 0;
+            }
         }
 
         private void FixedUpdate()
@@ -734,8 +753,6 @@ namespace TittyMagic
         {
             _refreshStatus = RefreshStatus.NEUTRALPOS_STARTED;
 
-            yield return new WaitForSeconds(0.67f);
-
             float duration = 0;
             float interval = 0.1f;
             while(
@@ -824,8 +841,7 @@ namespace TittyMagic
                 _loadingFromJson = true;
                 _modeChooser.val = json["Mode"];
             }
-            _loadingFromJson = true;
-            base.RestoreFromJSON(json, false, false, presetAtoms, setMissingToDefault);
+            base.RestoreFromJSON(json, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
         }
 
         private void OnRemoveAtom(Atom atom)
@@ -857,6 +873,8 @@ namespace TittyMagic
         {
             if(_settingsMonitor != null)
                 _settingsMonitor.enabled = true;
+            if(_gravityPhysicsH != null)
+                _gravityPhysicsH.SetInvertJoint2RotationY(false);
         }
 
         private void OnDisable()
@@ -866,7 +884,10 @@ namespace TittyMagic
                 if(_settingsMonitor != null)
                     _settingsMonitor.enabled = false;
                 if(_gravityPhysicsH != null)
+                {
                     _gravityPhysicsH.ResetAll();
+                    _gravityPhysicsH.SetInvertJoint2RotationY(true);
+                }
                 if(_gravityMorphH != null)
                     _gravityMorphH.ResetAll();
                 if(_modeChooser.val == Mode.ANIM_OPTIMIZED && _relativePosMorphH != null)
