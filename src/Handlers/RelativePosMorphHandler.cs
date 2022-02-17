@@ -49,6 +49,7 @@ namespace TittyMagic
                 { Direction.DOWN_R, LoadSettingsFromFile(mode, "downForce", " R") },
                 { Direction.UP_L, LoadSettingsFromFile(mode, "upForce", " L") },
                 { Direction.UP_R, LoadSettingsFromFile(mode, "upForce", " R") },
+                { Direction.UP_C, LoadSettingsFromFile(mode, "upForceCenter") },
                 //{ Direction.BACK, LoadSettingsFromFile(mode, "backForce") },
                 //{ Direction.FORWARD, LoadSettingsFromFile(mode, "forwardForce") },
                 { Direction.LEFT_L, LoadSettingsFromFile(mode, "leftForceL") },
@@ -65,6 +66,7 @@ namespace TittyMagic
                 //_configurator.InitUISectionGroup(Direction.DOWN_R, _configSets[Direction.DOWN_R]);
                 //_configurator.InitUISectionGroup(Direction.UP_L, _configSets[Direction.UP_L]);
                 //_configurator.InitUISectionGroup(Direction.UP_R, _configSets[Direction.UP_R]);
+                //_configurator.InitUISectionGroup(Direction.UP_C, _configSets[Direction.UP_C]);
                 //_configurator.InitUISectionGroup(Direction.BACK, _configSets[Direction.BACK]);
                 //_configurator.InitUISectionGroup(Direction.FORWARD, _configSets[Direction.FORWARD]);
                 //_configurator.InitUISectionGroup(Direction.LEFT_L, _configSets[Direction.LEFT_L]);
@@ -128,6 +130,8 @@ namespace TittyMagic
 
             float effectYLeft = CalculateEffect(angleYLeft, 75);
             float effectYRight = CalculateEffect(angleYRight, 75);
+            float angleYCenter = (angleYRight + angleYLeft) / 2;
+            float effectYCenter = CalculateEffect(angleYCenter, 75);
             //float effectZRight = CalculateEffect(positionDiffZRight, 0.060f);
             float effectXLeft = CalculateEffect(angleXLeft, 60);
             float effectXRight = CalculateEffect(angleXRight, 60);
@@ -156,6 +160,16 @@ namespace TittyMagic
             {
                 ResetMorphs(Direction.UP_R);
                 UpdateMorphs(Direction.DOWN_R, effectYRight);
+            }
+
+            //up force on average of left and right breast
+            if(angleYCenter >= 0)
+            {
+                UpdateMorphs(Direction.UP_C, effectYCenter);
+            }
+            else
+            {
+                ResetMorphs(Direction.UP_C);
             }
 
             //TODO delete or use

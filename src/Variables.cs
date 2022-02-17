@@ -31,6 +31,7 @@
         public const string UP = "UP";
         public const string UP_L = "UP_L";
         public const string UP_R = "UP_R";
+        public const string UP_C = "UP_C";
         public const string BACK = "BACK";
         public const string FORWARD = "FORWARD";
         public const string LEFT = "LEFT";
