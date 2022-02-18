@@ -23,15 +23,7 @@ namespace TittyMagic
 
         public void LoadSettings(MVRScript script, string mode)
         {
-            if(mode == Mode.BALANCED)
-            {
-                GEOMETRY.useAuxBreastColliders = true;
-            }
-            else if(mode == Mode.TOUCH_OPTIMIZED || mode == Mode.ANIM_OPTIMIZED)
-            {
-                GEOMETRY.useAuxBreastColliders = false;
-            }
-
+            GEOMETRY.useAuxBreastColliders = mode != Mode.TOUCH_OPTIMIZED;
             LoadSettingsFromFiles(script, mode);
         }
 
