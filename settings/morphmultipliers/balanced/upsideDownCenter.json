@@ -14,6 +14,11 @@
       "Multiplier1" : "1.2", 
       "Multiplier2" : "0.5"
    }, 
+   "UP Centre Gap Wide" : {
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.5", 
+      "Multiplier2" : "0.25"
+   }, 
    "UP Center Gap UpDown" : {
       "IsNegative" : "false", 
       "Multiplier1" : "2", 
@@ -23,5 +28,10 @@
       "IsNegative" : "false", 
       "Multiplier1" : "2.37", 
       "Multiplier2" : "0.42"
+   }, 
+   "UP ChestSmoothCenter" : {
+      "IsNegative" : "false", 
+      "Multiplier1" : "3", 
+      "Multiplier2" : "0.84"
    }
 }
