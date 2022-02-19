@@ -117,6 +117,7 @@
     <None Include="settings\morphmultipliers\animoptimized\rightForceL.json" />
     <None Include="settings\morphmultipliers\animoptimized\rightForceR.json" />
     <None Include="settings\morphmultipliers\animoptimized\upForce.json" />
+    <None Include="settings\morphmultipliers\animoptimized\upForceCenter.json" />
     <None Include="settings\morphmultipliers\balanced\leanBack.json" />
     <None Include="settings\morphmultipliers\balanced\leanForward.json" />
     <None Include="settings\morphmultipliers\balanced\rollRight.json" />
