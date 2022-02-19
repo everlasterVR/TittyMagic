@@ -118,11 +118,7 @@ namespace TittyMagic
                 _geometry = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
 
                 SAVES_DIR = SuperController.singleton.savesDir + @"everlaster\TittyMagicSettings\";
-#if USE_CONFIGURATORS
-                MORPHMULTIPLIERS_DIRNAME = "morphmultipliers_dev";
-#else
-                MORPHMULTIPLIERS_DIRNAME = "morphmultipliers";
-#endif
+                MORPHS_PATH = MorphsPath();
                 PLUGIN_PATH = GetPackagePath(this) + @"Custom\Scripts\everlaster\TittyMagic\";
                 BREAST_CONTROL = breastControl;
                 BREAST_PHYSICS_MESH = breastPhysicsMesh;
@@ -753,6 +749,8 @@ namespace TittyMagic
         {
             _refreshStatus = RefreshStatus.NEUTRALPOS_STARTED;
 
+            yield return new WaitForSeconds(0.5f);
+
             float duration = 0;
             float interval = 0.1f;
             while(
@@ -842,6 +840,18 @@ namespace TittyMagic
                 _modeChooser.val = json["Mode"];
             }
             base.RestoreFromJSON(json, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
+        }
+
+        private string MorphsPath()
+        {
+            var packageId = GetPackageId(this);
+            var path = "Custom/Atom/Person/Morphs/female/everlaster";
+            if(string.IsNullOrEmpty(packageId))
+            {
+                return $"{path}/TM3_Dev/";
+            }
+
+            return packageId + $":/{path}/TittyMagic/";
         }
 
         private void OnRemoveAtom(Atom atom)

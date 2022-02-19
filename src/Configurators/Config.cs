@@ -45,10 +45,11 @@ namespace TittyMagic
         public MorphConfig(string name)
         {
             Name = name;
-            Morph = GEOMETRY.morphsControlUI.GetMorphByDisplayName(name);
+            var uid = MORPHS_PATH + $"{name}.vmi";
+            Morph = GEOMETRY.morphsControlUI.GetMorphByUid(uid);
             if(Morph == null)
             {
-                LogError($"Morph with name {name} not found!", nameof(MorphConfig));
+                LogError($"Morph with uid '{uid}' not found!", nameof(MorphConfig));
             }
         }
 
@@ -58,10 +59,12 @@ namespace TittyMagic
             IsNegative = isNegative;
             Multiplier1 = multiplier1;
             Multiplier2 = multiplier2;
-            Morph = GEOMETRY.morphsControlUI.GetMorphByDisplayName(name);
+            var dir = name.Substring(0, 2); // e.g. UP morphs are in UP/ dir
+            var uid = MORPHS_PATH + $"{dir}/{name}.vmi";
+            Morph = GEOMETRY.morphsControlUI.GetMorphByUid(uid);
             if(Morph == null)
             {
-                LogError($"Morph with name {name} not found!", nameof(MorphConfig));
+                LogError($"Morph with uid '{uid}' not found!", nameof(MorphConfig));
             }
         }
     }

@@ -30,12 +30,18 @@ namespace TittyMagic
 
         //MacGruber / Discord 20.10.2020
         //Get path prefix of the package that contains this plugin
-        public static string GetPackagePath(MVRScript script)
+        public static string GetPackageId(MVRScript script)
         {
             string id = script.name.Substring(0, script.name.IndexOf('_'));
             string filename = script.manager.GetJSON()["plugins"][id].Value;
             int idx = filename.IndexOf(":/");
-            return idx >= 0 ? filename.Substring(0, idx + 2) : "";
+            return idx >= 0 ? filename.Substring(0, idx) : "";
+        }
+
+        public static string GetPackagePath(MVRScript script)
+        {
+            var packageId = GetPackageId(script);
+            return packageId == "" ? "" : $"{packageId}:/";
         }
 
         public static string NameValueString(
