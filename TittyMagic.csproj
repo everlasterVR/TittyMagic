@@ -122,6 +122,7 @@
     <None Include="settings\morphmultipliers\balanced\rollRight.json" />
     <None Include="settings\morphmultipliers\balanced\rollLeft.json" />
     <None Include="settings\morphmultipliers\balanced\upright.json" />
+    <None Include="settings\morphmultipliers\balanced\upsideDownCenter.json" />
     <None Include="settings\morphmultipliers\nippleErection.json" />
     <None Include="settings\morphmultipliers\touchoptimized\leanBack.json" />
     <None Include="settings\morphmultipliers\touchoptimized\leanForward.json" />
@@ -129,6 +130,7 @@
     <None Include="settings\morphmultipliers\touchoptimized\rollLeft.json" />
     <None Include="settings\morphmultipliers\touchoptimized\upright.json" />
     <None Include="settings\morphmultipliers\touchoptimized\upsideDown.json" />
+    <None Include="settings\morphmultipliers\touchoptimized\upsideDownCenter.json" />
     <None Include="settings\staticphysics\animoptimized\mainPhysics.json" />
     <None Include="settings\staticphysics\animoptimized\nipplePhysics.json" />
     <None Include="settings\staticphysics\animoptimized\softPhysics.json" />

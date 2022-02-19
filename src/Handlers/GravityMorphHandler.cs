@@ -48,6 +48,7 @@ namespace TittyMagic
             {
                 _configSets.Add(Direction.DOWN, LoadSettingsFromFile(mode, "upright", separateLeftRight: true));
                 _configSets.Add(Direction.UP, LoadSettingsFromFile(mode, "upsideDown", separateLeftRight: true));
+                _configSets.Add(Direction.UP_C, LoadSettingsFromFile(mode, "upsideDownCenter"));
                 _configSets.Add(Direction.LEFT, LoadSettingsFromFile(mode, "rollLeft"));
                 _configSets.Add(Direction.RIGHT, LoadSettingsFromFile(mode, "rollRight"));
             }
@@ -62,6 +63,7 @@ namespace TittyMagic
                 {
                     //_configurator.InitUISectionGroup(Direction.DOWN, _configSets[Direction.DOWN]);
                     //_configurator.InitUISectionGroup(Direction.UP, _configSets[Direction.UP]);
+                    //_configurator.InitUISectionGroup(Direction.UP_C, _configSets[Direction.UP]);
 
                     //_configurator.InitUISectionGroup(Direction.LEFT, _configSets[Direction.LEFT]);
                     //_configurator.InitUISectionGroup(Direction.RIGHT, _configSets[Direction.RIGHT]);
@@ -176,12 +178,14 @@ namespace TittyMagic
             if(pitch >= 0)
             {
                 UpdateMorphs(Direction.UP, pitch/2, roll, _additionalRollEffect);
+                UpdateMorphs(Direction.UP_C, pitch/2, roll, _additionalRollEffect);
                 UpdateMorphs(Direction.DOWN, (2 - pitch)/2, roll);
             }
             // leaning back
             else
             {
                 UpdateMorphs(Direction.UP, -pitch/2, roll, _additionalRollEffect);
+                UpdateMorphs(Direction.UP_C, -pitch/2, roll, _additionalRollEffect);
                 UpdateMorphs(Direction.DOWN, (2 + pitch)/2, roll);
             }
         }
