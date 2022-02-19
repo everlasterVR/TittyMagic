@@ -45,13 +45,13 @@ namespace TittyMagic
 
         public static void LoadModeMorphSettings(MVRScript script, string mode, string fileName, Action<string, JSONClass> callback = null)
         {
-            var path = $@"{PLUGIN_PATH}settings\morphmultipliers_dev\{settingsNames[mode]}\{fileName}";
+            var path = $@"{PLUGIN_PATH}settings\morphmultipliers\{settingsNames[mode]}\{fileName}";
             LoadFromPath(script, path, callback);
         }
 
         public static void LoadNippleMorphSettings(MVRScript script, Action<string, JSONClass> callback = null)
         {
-            var path = $@"{PLUGIN_PATH}settings\morphmultipliers_dev\nippleErection.json";
+            var path = $@"{PLUGIN_PATH}settings\morphmultipliers\nippleErection.json";
             LoadFromPath(script, path, callback);
         }
 
