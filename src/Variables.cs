@@ -11,6 +11,7 @@
         public static string SAVES_DIR { get; set; }
         public static string MORPHMULTIPLIERS_DIRNAME { get; set; }
         public static string PLUGIN_PATH { get; set; }
+        public static string MORPHS_PATH { get; set; }
         public static AdjustJoints BREAST_CONTROL { get; set; }
         public static DAZPhysicsMesh BREAST_PHYSICS_MESH { get; set; }
         public static DAZCharacterSelector GEOMETRY { get; set; }
