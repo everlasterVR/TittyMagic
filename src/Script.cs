@@ -19,10 +19,8 @@ namespace TittyMagic
 
         private Bindings _customBindings;
 
-        private List<Rigidbody> _rigidbodies;
         private Rigidbody _chestRigidbody;
         private Transform _chestTransform;
-        private Rigidbody _rNippleRigidbody;
         private Transform _rNippleTransform;
         private Rigidbody _lPectoralRigidbody;
         private Rigidbody _rPectoralRigidbody;
@@ -98,13 +96,13 @@ namespace TittyMagic
 
                 AdjustJoints breastControl = containingAtom.GetStorableByID("BreastControl") as AdjustJoints;
                 DAZPhysicsMesh breastPhysicsMesh = containingAtom.GetStorableByID("BreastPhysicsMesh") as DAZPhysicsMesh;
-                _rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
-                _chestRigidbody = _rigidbodies.Find(rb => rb.name == "chest");
+                var rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
+                _chestRigidbody = rigidbodies.Find(rb => rb.name == "chest");
                 _chestTransform = _chestRigidbody.transform;
-                _rNippleRigidbody = _rigidbodies.Find(rb => rb.name == "rNipple");
-                _rNippleTransform = _rNippleRigidbody.transform;
-                _lPectoralRigidbody = _rigidbodies.Find(rb => rb.name == "lPectoral");
-                _rPectoralRigidbody = _rigidbodies.Find(rb => rb.name == "rPectoral");
+                var rNippleRigidbody = rigidbodies.Find(rb => rb.name == "rNipple");
+                _rNippleTransform = rNippleRigidbody?.transform;
+                _lPectoralRigidbody = rigidbodies.Find(rb => rb.name == "lPectoral");
+                _rPectoralRigidbody = rigidbodies.Find(rb => rb.name == "rPectoral");
                 _geometry = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
 
                 SAVES_DIR = SuperController.singleton.savesDir + @"everlaster\TittyMagicSettings\";
@@ -146,6 +144,7 @@ namespace TittyMagic
             }
             catch(Exception e)
             {
+                enabled = false;
                 LogError($"Init: {e}");
             }
         }
@@ -503,7 +502,7 @@ namespace TittyMagic
                 return;
             }
 
-            if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
+            if(_modeChooser.val == Mode.ANIM_OPTIMIZED && _rNippleTransform != null)
             {
                 Vector3 relativePos = RelativePosition(_chestTransform, _rNippleTransform.position);
                 _angleY = Vector2.SignedAngle(
@@ -619,7 +618,7 @@ namespace TittyMagic
             }
         }
 
-        private IEnumerator WaitToBeginRefresh(bool triggeredManually = false)
+        public IEnumerator WaitToBeginRefresh(bool triggeredManually = false)
         {
             _waitStatus = RefreshStatus.WAITING;
             while(_refreshStatus != RefreshStatus.DONE && _refreshStatus != -1)
@@ -699,17 +698,31 @@ namespace TittyMagic
         {
             _refreshStatus = RefreshStatus.NEUTRALPOS_STARTED;
 
+            if(_rNippleTransform == null)
+            {
+                var rNippleRigidbody = containingAtom
+                    .GetComponentsInChildren<Rigidbody>()
+                    .ToList()
+                    .Find(rb => rb.name == "rNipple");
+                _rNippleTransform = rNippleRigidbody?.transform;
+                if(_rNippleTransform == null)
+                {
+                    _refreshStatus = RefreshStatus.NEUTRALPOS_OK;
+                    yield break;
+                }
+            }
+
             yield return new WaitForSeconds(0.5f);
 
             float duration = 0;
             float interval = 0.1f;
             while(
-                duration < 1f && (
+                duration < 1f &&
                 !VectorEqualWithin(
                     1000000f,
                     _neutralRelativePos,
                     RelativePosition(_chestTransform, _rNippleTransform.position)
-                ))
+                )
             )
             {
                 yield return new WaitForSeconds(interval);
@@ -844,7 +857,7 @@ namespace TittyMagic
                 }
                 if(_gravityMorphH != null)
                     _gravityMorphH.ResetAll();
-                if(_modeChooser.val == Mode.ANIM_OPTIMIZED && _relativePosMorphH != null)
+                if(_modeChooser?.val == Mode.ANIM_OPTIMIZED && _relativePosMorphH != null)
                     _relativePosMorphH.ResetAll();
                 if(_nippleErectionMorphH != null)
                     _nippleErectionMorphH.ResetAll();
