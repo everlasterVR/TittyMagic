@@ -672,10 +672,10 @@ namespace TittyMagic
 
             float duration = 0;
             float interval = 0.1f;
-            while(duration < 1f && (
-                !VectorEqualWithin(1000f, _rNippleRigidbody.velocity, Vector3.zero) ||
+            while(
+                duration < 1f &&
                 !EqualWithin(1000f, _massEstimate, DetermineMassEstimate(_atomScaleListener.Value))
-            ))
+            )
             {
                 yield return new WaitForSeconds(interval);
                 duration += interval;
