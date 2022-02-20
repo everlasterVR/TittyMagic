@@ -622,12 +622,7 @@ namespace TittyMagic
             if(_timeSinceListenersChecked >= _listenersCheckInterval)
             {
                 _timeSinceListenersChecked -= _listenersCheckInterval;
-                if(
-                    _autoRecalibrateOnSizeChange.val &&
-                    _waitStatus != RefreshStatus.WAITING &&
-                    (_breastMorphListener.Changed() || _atomScaleListener.Changed()) &&
-                    DeviatesAtLeast(_massEstimate, DetermineMassEstimate(_atomScaleListener.Value), percent: 10)
-                )
+                if(CheckListeners())
                 {
                     StartCoroutine(WaitToBeginRefresh());
                     return;
@@ -799,6 +794,14 @@ namespace TittyMagic
             _refreshStatus = RefreshStatus.DONE;
         }
 
+        private bool CheckListeners()
+        {
+            return _autoRecalibrateOnSizeChange.val &&
+                _waitStatus != RefreshStatus.WAITING &&
+                (_breastMorphListener.Changed() || _atomScaleListener.Changed()) &&
+                DeviatesAtLeast(_massEstimate, DetermineMassEstimate(_atomScaleListener.Value), percent: 10);
+        }
+
         public void RefreshRateDependentPhysics()
         {
             _staticPhysicsH.UpdateRateDependentPhysics(_softnessAmount);
@@ -897,6 +900,10 @@ namespace TittyMagic
                 _settingsMonitor.enabled = true;
             if(_gravityPhysicsH != null)
                 _gravityPhysicsH.SetInvertJoint2RotationY(false);
+            if(CheckListeners())
+            {
+                StartCoroutine(WaitToBeginRefresh());
+            }
         }
 
         private void OnDisable()
