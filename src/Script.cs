@@ -632,8 +632,9 @@ namespace TittyMagic
 
         public IEnumerator BeginRefresh(bool triggeredManually = false)
         {
-            _animationWasSetFrozen = _loadingFromJson ? false : SuperController.singleton.freezeAnimation;
-
+            _animationWasSetFrozen =
+                SuperController.singleton.freezeAnimationToggle?.isOn == true ||
+                SuperController.singleton.freezeAnimationToggleAlt?.isOn == true;
             SuperController.singleton.SetFreezeAnimation(true);
 
             if(!triggeredManually)
