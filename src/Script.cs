@@ -19,11 +19,8 @@ namespace TittyMagic
 
         private Bindings _customBindings;
 
-        private List<Rigidbody> _rigidbodies;
         private Rigidbody _chestRigidbody;
         private Transform _chestTransform;
-        private Rigidbody _nippleRbLeft;
-        private Rigidbody _nippleRbRight;
         private Transform _nippleTransformLeft;
         private Transform _nippleTransformRight;
         private Rigidbody _pectoralRbLeft;
@@ -106,15 +103,15 @@ namespace TittyMagic
 
                 AdjustJoints breastControl = containingAtom.GetStorableByID("BreastControl") as AdjustJoints;
                 DAZPhysicsMesh breastPhysicsMesh = containingAtom.GetStorableByID("BreastPhysicsMesh") as DAZPhysicsMesh;
-                _rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
-                _chestRigidbody = _rigidbodies.Find(rb => rb.name == "chest");
+                var rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
+                _chestRigidbody = rigidbodies.Find(rb => rb.name == "chest");
                 _chestTransform = _chestRigidbody.transform;
-                _nippleRbLeft = _rigidbodies.Find(rb => rb.name == "lNipple");
-                _nippleTransformLeft = _nippleRbLeft.transform;
-                _nippleRbRight = _rigidbodies.Find(rb => rb.name == "rNipple");
-                _nippleTransformRight = _nippleRbRight.transform;
-                _pectoralRbLeft = _rigidbodies.Find(rb => rb.name == "lPectoral");
-                _pectoralRbRight = _rigidbodies.Find(rb => rb.name == "rPectoral");
+                var nippleRbLeft = rigidbodies.Find(rb => rb.name == "lNipple");
+                _nippleTransformLeft = nippleRbLeft.transform;
+                var nippleRbRight = rigidbodies.Find(rb => rb.name == "rNipple");
+                _nippleTransformRight = nippleRbRight.transform;
+                _pectoralRbLeft = rigidbodies.Find(rb => rb.name == "lPectoral");
+                _pectoralRbRight = rigidbodies.Find(rb => rb.name == "rPectoral");
                 _geometry = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
 
                 SAVES_DIR = SuperController.singleton.savesDir + @"everlaster\TittyMagicSettings\";
@@ -156,6 +153,7 @@ namespace TittyMagic
             }
             catch(Exception e)
             {
+                enabled = false;
                 LogError($"Init: {e}");
             }
         }
@@ -530,7 +528,7 @@ namespace TittyMagic
 
         private void UpdateRelativeAnglesLeft()
         {
-            if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
+            if(_modeChooser.val == Mode.ANIM_OPTIMIZED && _nippleTransformLeft != null && _nippleTransformRight != null)
             {
                 Vector3 relativePos = RelativePosition(_chestTransform, _nippleTransformLeft.position);
                 _angleYLeft = Vector2.SignedAngle(
@@ -669,7 +667,7 @@ namespace TittyMagic
             }
         }
 
-        private IEnumerator WaitToBeginRefresh(bool triggeredManually = false)
+        public IEnumerator WaitToBeginRefresh(bool triggeredManually = false)
         {
             _waitStatus = RefreshStatus.WAITING;
             while(_refreshStatus != RefreshStatus.DONE && _refreshStatus != -1)
@@ -682,8 +680,9 @@ namespace TittyMagic
 
         public IEnumerator BeginRefresh(bool triggeredManually = false)
         {
-            _animationWasSetFrozen = _loadingFromJson ? false : SuperController.singleton.freezeAnimation;
-
+            _animationWasSetFrozen =
+                SuperController.singleton.freezeAnimationToggle?.isOn == true ||
+                SuperController.singleton.freezeAnimationToggleAlt?.isOn == true;
             SuperController.singleton.SetFreezeAnimation(true);
 
             if(!triggeredManually)
@@ -721,11 +720,10 @@ namespace TittyMagic
 
             float duration = 0;
             float interval = 0.1f;
-            while(duration < 1f && (
-                !VectorEqualWithin(1000f, _nippleRbLeft.velocity, Vector3.zero) ||
-                !VectorEqualWithin(1000f, _nippleRbRight.velocity, Vector3.zero) ||
+            while(
+                duration < 1f &&
                 !EqualWithin(1000f, _massEstimate, DetermineMassEstimate(_atomScaleListener.Value))
-            ))
+            )
             {
                 yield return new WaitForSeconds(interval);
                 duration += interval;
@@ -748,6 +746,20 @@ namespace TittyMagic
         private IEnumerator RefreshNeutralRelativePosition()
         {
             _refreshStatus = RefreshStatus.NEUTRALPOS_STARTED;
+
+            if(_nippleTransformLeft == null || _nippleTransformRight == null)
+            {
+                var rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
+                var nippleRbLeft = rigidbodies.Find(rb => rb.name == "lNipple");
+                _nippleTransformLeft = nippleRbLeft?.transform;
+                var nippleRbRight = rigidbodies.Find(rb => rb.name == "rNipple");
+                _nippleTransformRight = nippleRbRight?.transform;
+                if(_nippleTransformLeft == null || _nippleTransformRight == null)
+                {
+                    _refreshStatus = RefreshStatus.NEUTRALPOS_OK;
+                    yield break;
+                }
+            }
 
             yield return new WaitForSeconds(0.5f);
 
@@ -900,7 +912,7 @@ namespace TittyMagic
                 }
                 if(_gravityMorphH != null)
                     _gravityMorphH.ResetAll();
-                if(_modeChooser.val == Mode.ANIM_OPTIMIZED && _relativePosMorphH != null)
+                if(_modeChooser?.val == Mode.ANIM_OPTIMIZED && _relativePosMorphH != null)
                     _relativePosMorphH.ResetAll();
                 if(_nippleErectionMorphH != null)
                     _nippleErectionMorphH.ResetAll();

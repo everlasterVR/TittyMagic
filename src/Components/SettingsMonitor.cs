@@ -40,18 +40,20 @@ namespace TittyMagic
                 { "prefsSoftPhysics", true },
                 { "bodySoftPhysics", true },
                 { "breastSoftPhysics", true },
+                { "advancedColliders", true },
             };
             _prevBoolValues = new Dictionary<string, bool>
             {
                 { "prefsSoftPhysics", true },
                 { "bodySoftPhysics", true },
                 { "breastSoftPhysics", true },
+                { "advancedColliders", true },
             };
 
             //monitor change to physics rate
             _prevFixedDeltaTime = Time.fixedDeltaTime;
 
-            string softPhysicsRequired = "Enable it to allow physics settings to be recalculated if breast morphs are changed. (No need to reload the plugin if you do enable it.)";
+            string softPhysicsRequired = "Enable it to allow physics settings to be recalculated if breast morphs are changed.";
             _messages = new Dictionary<string, string>
             {
                 {
@@ -65,6 +67,10 @@ namespace TittyMagic
                 {
                     "breastSoftPhysics",
                     $"Soft Physics is not enabled in F Breast Physics 2 tab. {softPhysicsRequired}"
+                },
+                {
+                    "advancedColliders",
+                    $"Advanced Colliders are not enabled in Control & Physics 1 tab. Enable them to allow Animation optimized mode to work correctly."
                 },
             };
 
@@ -104,23 +110,24 @@ namespace TittyMagic
                     _boolValues["prefsSoftPhysics"] = UserPreferences.singleton.softPhysics;
                     _boolValues["bodySoftPhysics"] = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
                     _boolValues["breastSoftPhysics"] = Globals.BREAST_PHYSICS_MESH.on;
+                    _boolValues["advancedColliders"] = Globals.GEOMETRY.useAdvancedColliders;
 
                     //In/Out morphs can become enabled by e.g. loading an appearance preset. Force off.
                     if(_breastInOut.GetBoolParamValue("enabled"))
                     {
                         _breastInOut.SetBoolParamValue("enabled", false);
-                        LogMessage("Auto Breast In/Out Morphs disabled - this plugin adjusts breast morphs better without it.");
+                        LogMessage("Auto Breast In/Out Morphs disabled - TittyMagic adjusts breast morphs better without them.");
                     }
 
                     bool fullUpdateNeeded = false;
                     foreach(KeyValuePair<string, bool> kvp in _boolValues)
                     {
-                        fullUpdateNeeded = CheckBoolValue(kvp.Key, kvp.Value);
+                        fullUpdateNeeded = fullUpdateNeeded || CheckBoolValue(kvp.Key, kvp.Value);
                     }
 
                     if(fullUpdateNeeded)
                     {
-                        StartCoroutine(gameObject.GetComponent<Script>().BeginRefresh());
+                        StartCoroutine(gameObject.GetComponent<Script>().WaitToBeginRefresh());
                     }
 
                     float fixedDeltaTime = Time.fixedDeltaTime;
