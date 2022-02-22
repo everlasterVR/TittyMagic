@@ -39,6 +39,8 @@ namespace TittyMagic
         private float _angleYRight;
         private float _angleXLeft;
         private float _angleXRight;
+        private float _depthDiffLeft;
+        private float _depthDiffRight;
         private float _chestRoll;
         private float _chestPitch;
 
@@ -539,11 +541,13 @@ namespace TittyMagic
                     new Vector2(_neutralRelativePosLeft.z, _neutralRelativePosLeft.x),
                     new Vector2(relativePos.z, relativePos.x)
                 );
+                _depthDiffLeft = (_neutralRelativePosLeft - relativePos).z;
             }
             else
             {
                 _angleYLeft = 0;
                 _angleXLeft = 0;
+                _depthDiffLeft = 0;
             }
         }
 
@@ -560,11 +564,13 @@ namespace TittyMagic
                     new Vector2(_neutralRelativePosRight.z, _neutralRelativePosRight.x),
                     new Vector2(relativePos.z, relativePos.x)
                 );
+                _depthDiffRight = (_neutralRelativePosRight - relativePos).z;
             }
             else
             {
                 _angleYRight = 0;
                 _angleXRight = 0;
+                _depthDiffRight = 0;
             }
         }
 
@@ -641,7 +647,8 @@ namespace TittyMagic
                     _relativePosMorphH.Update(
                         _angleYLeft,
                         _angleYRight,
-                        0f,
+                        _depthDiffLeft,
+                        _depthDiffRight,
                         _angleXLeft,
                         _angleXRight,
                         _relativePosMassMultiplier,
@@ -756,12 +763,12 @@ namespace TittyMagic
                 }
             }
 
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.67f);
 
             float duration = 0;
             float interval = 0.1f;
             while(
-                duration < 1f &&
+                duration < 2f &&
                 !VectorEqualWithin(
                     1000000f,
                     _neutralRelativePosLeft,

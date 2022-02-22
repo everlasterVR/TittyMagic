@@ -51,9 +51,9 @@ namespace TittyMagic
                 _configSets.Add(Direction.UP_C, LoadSettingsFromFile(mode, "upsideDownCenter"));
                 _configSets.Add(Direction.LEFT, LoadSettingsFromFile(mode, "rollLeft"));
                 _configSets.Add(Direction.RIGHT, LoadSettingsFromFile(mode, "rollRight"));
+                _configSets.Add(Direction.BACK, LoadSettingsFromFile(mode, "leanBack"));
+                _configSets.Add(Direction.FORWARD, LoadSettingsFromFile(mode, "leanForward"));
             }
-            _configSets.Add(Direction.BACK, LoadSettingsFromFile(mode, "leanBack"));
-            _configSets.Add(Direction.FORWARD, LoadSettingsFromFile(mode, "leanForward"));
 
             //not working properly yet when changing mode on the fly
             if(_useConfigurator)
@@ -67,9 +67,10 @@ namespace TittyMagic
 
                     //_configurator.InitUISectionGroup(Direction.LEFT, _configSets[Direction.LEFT]);
                     //_configurator.InitUISectionGroup(Direction.RIGHT, _configSets[Direction.RIGHT]);
+
+                    //_configurator.InitUISectionGroup(Direction.BACK, _configSets[Direction.BACK]);
+                    //_configurator.InitUISectionGroup(Direction.FORWARD, _configSets[Direction.FORWARD]);
                 }
-                //_configurator.InitUISectionGroup(Direction.BACK, _configSets[Direction.BACK]);
-                //_configurator.InitUISectionGroup(Direction.FORWARD, _configSets[Direction.FORWARD]);
             }
         }
 
@@ -146,8 +147,8 @@ namespace TittyMagic
             {
                 AdjustUpDownMorphs(smoothPitch, smoothRoll);
                 AdjustRollMorphs(smoothRoll);
+                AdjustForwardBackMorphs(smoothPitch, smoothRoll);
             }
-            AdjustForwardBackMorphs(smoothPitch, smoothRoll);
 
             string infoText =
                 $"{NameValueString("Pitch", pitch, 100f, 15)} {Calc.RoundToDecimals(smoothPitch, 100f)}\n" +

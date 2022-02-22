@@ -50,8 +50,12 @@ namespace TittyMagic
                 { Direction.UP_L, LoadSettingsFromFile(mode, "upForce", " L") },
                 { Direction.UP_R, LoadSettingsFromFile(mode, "upForce", " R") },
                 { Direction.UP_C, LoadSettingsFromFile(mode, "upForceCenter") },
-                //{ Direction.BACK, LoadSettingsFromFile(mode, "backForce") },
-                //{ Direction.FORWARD, LoadSettingsFromFile(mode, "forwardForce") },
+                { Direction.BACK_L, LoadSettingsFromFile(mode, "backForce", " L") },
+                { Direction.BACK_R, LoadSettingsFromFile(mode, "backForce", " R") },
+                { Direction.BACK_C, LoadSettingsFromFile(mode, "backForceCenter") },
+                { Direction.FORWARD_L, LoadSettingsFromFile(mode, "forwardForce", " L") },
+                { Direction.FORWARD_R, LoadSettingsFromFile(mode, "forwardForce", " R") },
+                { Direction.FORWARD_C, LoadSettingsFromFile(mode, "forwardForceCenter") },
                 { Direction.LEFT_L, LoadSettingsFromFile(mode, "leftForceL") },
                 { Direction.LEFT_R, LoadSettingsFromFile(mode, "leftForceR") },
                 { Direction.RIGHT_L, LoadSettingsFromFile(mode, "rightForceL") },
@@ -67,8 +71,12 @@ namespace TittyMagic
                 //_configurator.InitUISectionGroup(Direction.UP_L, _configSets[Direction.UP_L]);
                 //_configurator.InitUISectionGroup(Direction.UP_R, _configSets[Direction.UP_R]);
                 //_configurator.InitUISectionGroup(Direction.UP_C, _configSets[Direction.UP_C]);
-                //_configurator.InitUISectionGroup(Direction.BACK, _configSets[Direction.BACK]);
-                //_configurator.InitUISectionGroup(Direction.FORWARD, _configSets[Direction.FORWARD]);
+                //_configurator.InitUISectionGroup(Direction.BACK_L, _configSets[Direction.BACK_L]);
+                //_configurator.InitUISectionGroup(Direction.BACK_R, _configSets[Direction.BACK_R]);
+                //_configurator.InitUISectionGroup(Direction.BACK_C, _configSets[Direction.BACK_C]);
+                //_configurator.InitUISectionGroup(Direction.FORWARD_L, _configSets[Direction.FORWARD_L]);
+                //_configurator.InitUISectionGroup(Direction.FORWARD_R, _configSets[Direction.FORWARD_R]);
+                //_configurator.InitUISectionGroup(Direction.FORWARD_C, _configSets[Direction.FORWARD_C]);
                 //_configurator.InitUISectionGroup(Direction.LEFT_L, _configSets[Direction.LEFT_L]);
                 //_configurator.InitUISectionGroup(Direction.LEFT_R, _configSets[Direction.LEFT_R]);
                 //_configurator.InitUISectionGroup(Direction.RIGHT_L, _configSets[Direction.RIGHT_L]);
@@ -116,7 +124,8 @@ namespace TittyMagic
         public void Update(
             float angleYLeft,
             float angleYRight,
-            float positionDiffZRight, //todo use
+            float depthDiffLeft,
+            float depthDiffRight,
             float angleXLeft,
             float angleXRight,
             float multiplier,
@@ -132,9 +141,19 @@ namespace TittyMagic
             float effectYRight = CalculateEffect(angleYRight, 75);
             float angleYCenter = (angleYRight + angleYLeft) / 2;
             float effectYCenter = CalculateEffect(angleYCenter, 75);
-            //float effectZRight = CalculateEffect(positionDiffZRight, 0.060f);
             float effectXLeft = CalculateEffect(angleXLeft, 60);
             float effectXRight = CalculateEffect(angleXRight, 60);
+
+            //reduce depth morphing when rotating/moving outward
+            if(angleXLeft < 0)
+            {
+                depthDiffLeft = depthDiffLeft * (1 - effectXLeft);
+            }
+            if(angleXRight > 0)
+            {
+                depthDiffRight = depthDiffRight * (1 - effectXRight);
+            }
+            float effectZCenter = (depthDiffLeft + depthDiffRight) / 2;
 
             // up force on left breast
             if(angleYLeft >= 0)
@@ -162,7 +181,7 @@ namespace TittyMagic
                 UpdateMorphs(Direction.DOWN_R, effectYRight);
             }
 
-            //up force on average of left and right breast
+            // up force on average of left and right breast
             if(angleYCenter >= 0)
             {
                 UpdateMorphs(Direction.UP_C, effectYCenter);
@@ -172,40 +191,65 @@ namespace TittyMagic
                 ResetMorphs(Direction.UP_C);
             }
 
-            //TODO delete or use
-            //forward
-            //if(positionDiffZRight <= 0)
-            //{
-            //    ResetMorphs(Direction.BACK);
-            //    UpdateMorphs(Direction.FORWARD, effectZRight);
-            //}
-            //// back
-            //else
-            //{
-            //    ResetMorphs(Direction.FORWARD);
-            //    UpdateMorphs(Direction.BACK, effectZRight);
-            //}
+            // forward force on left breast
+            if(depthDiffLeft <= 0)
+            {
+                ResetMorphs(Direction.BACK_L);
+                UpdateMorphs(Direction.FORWARD_L, Mathf.InverseLerp(0, 0.056f, -depthDiffLeft * _multiplier));
+            }
+            // back force on left breast
+            else
+            {
+                ResetMorphs(Direction.FORWARD_L);
+                UpdateMorphs(Direction.BACK_L, Mathf.InverseLerp(0, 0.075f, depthDiffLeft * _multiplier));
+            }
 
-            //left force on left breast
+            // forward force on right breast
+            if(depthDiffRight <= 0)
+            {
+                ResetMorphs(Direction.BACK_R);
+                UpdateMorphs(Direction.FORWARD_R, Mathf.InverseLerp(0, 0.056f, -depthDiffRight * _multiplier));
+            }
+            // back force on right breast
+            else
+            {
+                ResetMorphs(Direction.FORWARD_R);
+                UpdateMorphs(Direction.BACK_R, Mathf.InverseLerp(0, 0.075f, depthDiffRight * _multiplier));
+            }
+
+            // forward force on average of left and right breast
+            if(effectZCenter <= 0)
+            {
+                ResetMorphs(Direction.BACK_C);
+                UpdateMorphs(Direction.FORWARD_C, Mathf.InverseLerp(0, 0.056f, -effectZCenter * _multiplier));
+            }
+            // back force on average of left and right breast
+            else
+            {
+                ResetMorphs(Direction.FORWARD_C);
+                UpdateMorphs(Direction.BACK_C, Mathf.InverseLerp(0, 0.075f, effectZCenter * _multiplier));
+            }
+
+            // left force on left breast
             if(angleXLeft >= 0)
             {
                 ResetMorphs(Direction.LEFT_L);
                 UpdateMorphs(Direction.RIGHT_L, effectXLeft);
             }
-            //right force on left breast
+            // right force on left breast
             else
             {
                 ResetMorphs(Direction.RIGHT_L);
                 UpdateMorphs(Direction.LEFT_L, effectXLeft);
             }
 
-            //left force on right breast
+            // left force on right breast
             if(angleXRight >= 0)
             {
                 ResetMorphs(Direction.LEFT_R);
                 UpdateMorphs(Direction.RIGHT_R, effectXRight);
             }
-            //right force on right breast
+            // right force on right breast
             else
             {
                 ResetMorphs(Direction.RIGHT_R);
@@ -213,10 +257,12 @@ namespace TittyMagic
             }
 
             string infoText =
-                    $"{NameValueString("angleYLeft", angleYLeft, 1000f)} \n" +
-                    $"{NameValueString("angleYRight", angleYRight, 1000f)} \n" +
-                    $"{NameValueString("angleXLeft", angleXLeft, 1000f)} \n" +
-                    $"{NameValueString("angleXRight", angleXRight, 1000f)} \n";
+                $"{NameValueString("depthDiffLeft", depthDiffLeft, 1000f)} \n" +
+                $"{NameValueString("depthDiffRight", depthDiffRight, 1000f)} \n" +
+                //$"{NameValueString("angleYLeft", angleYLeft, 1000f)} \n" +
+                //$"{NameValueString("angleYRight", angleYRight, 1000f)} \n" +
+                $"{NameValueString("angleXLeft", angleXLeft, 1000f)} \n" +
+                $"{NameValueString("angleXRight", angleXRight, 1000f)} \n";
             UpdateDebugInfo(infoText);
         }
 
