@@ -32,7 +32,7 @@ namespace TittyMagic
         private float _relativePosMassMultiplier;
         private float _softnessAmount;
         private float _gravityAmount;
-        private float _upDownMobilityAmount;
+        private float _mobilityAmount;
         private Vector3 _neutralRelativePosLeft;
         private Vector3 _neutralRelativePosRight;
         private float _angleYLeft;
@@ -72,8 +72,8 @@ namespace TittyMagic
         private SliderClickMonitor _softnessSCM;
         private JSONStorableFloat _gravity;
         private SliderClickMonitor _gravitySCM;
-        private JSONStorableFloat _upDownMobility;
-        private SliderClickMonitor _upDownMobilitySCM;
+        private JSONStorableFloat _mobility;
+        private SliderClickMonitor _mobilitySCM;
         private JSONStorableBool _linkSoftnessAndGravity;
         private JSONStorableBool _linkGravityAndMobility;
         private UIDynamic _lowerLeftSpacer;
@@ -254,28 +254,31 @@ namespace TittyMagic
             string text = UI.Size("\n", 12);
             if(mode == Mode.ANIM_OPTIMIZED)
             {
-                text += "Animation optimized mode morphs breasts in response to up/down forces. Sideways and forward/back shape is based only on the chest angle. Physics settings are similar to balanced mode, but hard colliders are off.";
+                text += "Animation optimized mode morphs breasts in response to forces. Breast mobility is increased and more dynamic. Physics settings are similar to Balanced mode.";
             }
             else if(mode == Mode.BALANCED)
             {
-                text += "In balanced mode, breasts have realistic mass which helps with animation, and hard colliders are on to enable collision to move breasts as well.";
+                text += "In Balanced mode, breasts have realistic mass. There should be a sense of weight both in animations and when touched.";
             }
             else if(mode == Mode.TOUCH_OPTIMIZED)
             {
-                text += "Touch optimized mode lowers breast mass, increases fat back force and turns off hard colliders. While breast movement due to gravity and other forces isn't very realistic in this mode, collision is based only on soft physics.";
+                text += "Touch optimized mode lowers breast mass and increases fat back force. Animation is less realistic, but collision is more accurate with hard colliders turned off.";
             }
             _modeInfoText.SetVal(text);
         }
 
         private void UpdateGravityInfoText(string mode)
         {
-            string infoTextEnd = mode == Mode.ANIM_OPTIMIZED ?
-                "when leaning left/right and forward/back" :
-                "in all orientations";
-            _gravityInfoText.SetVal(
-                UI.Size("\n", 12) +
-                $"Adjusts how much pose morphs shape the breasts {infoTextEnd}."
-            );
+            string text;
+            if(mode == Mode.ANIM_OPTIMIZED)
+            {
+                text = "Adjusts the amount of breast depth morphing when leaning forward/back.";
+            }
+            else
+            {
+                text = "Adjusts how much pose morphs shape the breasts in all orientations.";
+            }
+            _gravityInfoText.val = UI.Size("\n", 12) + text;
         }
 
         private IEnumerator TempDisableModeButtons()
@@ -380,8 +383,8 @@ namespace TittyMagic
         {
             if(_linkGravityAndMobility.val)
             {
-                _upDownMobility.val = 2/3f * val;
-                _upDownMobilityAmount = 1.5f * Mathf.Pow(_upDownMobility.val/100f, 1/2f);
+                _mobility.val = 2/3f * val;
+                _mobilityAmount = 1.5f * Mathf.Pow(_mobility.val/100f, 1/2f);
             }
         }
 
@@ -389,8 +392,8 @@ namespace TittyMagic
         {
             if(_linkGravityAndMobility != null)
                 RemoveToggle(_linkGravityAndMobility);
-            if(_upDownMobility != null)
-                RemoveSlider(_upDownMobility);
+            if(_mobility != null)
+                RemoveSlider(_mobility);
             if(_lowerLeftSpacer != null)
                 RemoveSpacer(_lowerLeftSpacer);
             if(_nippleErection != null)
@@ -407,13 +410,13 @@ namespace TittyMagic
                 {
                     CreateToggle(_linkGravityAndMobility, false);
                 }
-                _upDownMobility = this.NewIntSlider("Up/down mobility", 2/3f * _gravity.val, 0f, 100f);
-                _upDownMobilityAmount = 1.5f * Mathf.Pow(_upDownMobility.val/100f, 1/2f);
+                _mobility = this.NewIntSlider("Breast mobility", 2/3f * _gravity.val, 0f, 100f);
+                _mobilityAmount = 1.5f * Mathf.Pow(_mobility.val/100f, 1/2f);
 
-                _upDownMobilitySCM = _upDownMobility.slider.gameObject.AddComponent<SliderClickMonitor>();
-                _upDownMobility.slider.onValueChanged.AddListener((float val) =>
+                _mobilitySCM = _mobility.slider.gameObject.AddComponent<SliderClickMonitor>();
+                _mobility.slider.onValueChanged.AddListener((float val) =>
                 {
-                    _upDownMobilityAmount = 1.5f * Mathf.Pow(val/100f, 1/2f);
+                    _mobilityAmount = 1.5f * Mathf.Pow(val/100f, 1/2f);
                     if(_linkGravityAndMobility.val)
                     {
                         _gravity.val = 1.5f * val;
@@ -436,7 +439,7 @@ namespace TittyMagic
             {
                 try
                 {
-                    Destroy(_upDownMobilitySCM);
+                    Destroy(_mobilitySCM);
                     _gravity.slider.onValueChanged.RemoveListener(GravityListenerForMobilityLink);
                 }
                 catch(Exception)
@@ -483,7 +486,7 @@ namespace TittyMagic
                 }
                 _mobilityInfoText.SetVal(
                     UI.Size("\n", 12) +
-                    "Adjusts the amount of up/down morphing due to forces including gravity."
+                    "Adjusts the amount of morphing (except breast depth) due to forces including gravity."
                 );
             }
         }
@@ -521,7 +524,7 @@ namespace TittyMagic
             _debugUIText.SetVal(
                 $"softness {_softnessAmount}\n" +
                 $"gravity {_gravityAmount}\n" +
-                $"upDownMobility {_upDownMobilityAmount}"
+                $"mobility {_mobilityAmount}"
             );
 #endif
         }
@@ -646,7 +649,7 @@ namespace TittyMagic
                         _angleXRight,
                         _relativePosMassMultiplier,
                         _massAmount,
-                        _upDownMobilityAmount
+                        _mobilityAmount
                     );
                 }
             }
@@ -688,7 +691,7 @@ namespace TittyMagic
                     _atomScaleListener.Changed() ||
                     _softnessSCM.isDown ||
                     _gravitySCM.isDown ||
-                    (_upDownMobilitySCM != null && _upDownMobilitySCM.isDown))
+                    (_mobilitySCM != null && _mobilitySCM.isDown))
                 {
                     yield return new WaitForSeconds(0.1f);
                 }
@@ -874,7 +877,7 @@ namespace TittyMagic
             Destroy(_settingsMonitor);
             Destroy(_softnessSCM);
             Destroy(_gravitySCM);
-            Destroy(_upDownMobilitySCM);
+            Destroy(_mobilitySCM);
         }
 
         private void OnDestroy()
@@ -884,7 +887,7 @@ namespace TittyMagic
                 Destroy(_settingsMonitor);
                 Destroy(_softnessSCM);
                 Destroy(_gravitySCM);
-                Destroy(_upDownMobilitySCM);
+                Destroy(_mobilitySCM);
                 SuperController.singleton.onAtomRemovedHandlers -= OnRemoveAtom;
                 SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
             }
