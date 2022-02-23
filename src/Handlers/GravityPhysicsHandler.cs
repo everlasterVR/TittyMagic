@@ -17,18 +17,6 @@ namespace TittyMagic
 
         private Dictionary<string, List<Config>> _configSets;
 
-        private List<Config> _uprightConfigs;
-
-        private List<Config> _upsideDownConfigs;
-
-        private List<Config> _leanBackConfigs;
-
-        private List<Config> _leanForwardConfigs;
-
-        private List<Config> _rollLeftConfigs;
-
-        private List<Config> _rollRightConfigs;
-
         public GravityPhysicsHandler(MVRScript script)
         {
             SetInvertJoint2RotationY(false);
@@ -55,72 +43,45 @@ namespace TittyMagic
 
         public void LoadSettings(string mode)
         {
-            _uprightConfigs = new List<Config>();
-            _upsideDownConfigs = new List<Config>();
-            _leanBackConfigs = new List<Config>();
-            _leanForwardConfigs = new List<Config>();
-            _rollLeftConfigs = new List<Config>();
-            _rollRightConfigs = new List<Config>();
-            LoadSettingsFromFile(mode);
-            _configSets = new Dictionary<string, List<Config>>
-            {
-                { Direction.DOWN, _uprightConfigs },
-                { Direction.UP, _upsideDownConfigs },
-                { Direction.BACK, _leanBackConfigs },
-                { Direction.FORWARD, _leanForwardConfigs },
-                { Direction.LEFT, _rollLeftConfigs },
-                { Direction.RIGHT, _rollRightConfigs },
-            };
+            _configSets = LoadSettingsFromFile(mode);
 
             //not working properly yet when changing mode on the fly
             if(_useConfigurator)
             {
                 _configurator.ResetUISectionGroups();
-                _configurator.InitUISectionGroup(Direction.DOWN, _uprightConfigs);
-                _configurator.InitUISectionGroup(Direction.UP, _upsideDownConfigs);
-                _configurator.InitUISectionGroup(Direction.BACK, _leanBackConfigs);
-                _configurator.InitUISectionGroup(Direction.FORWARD, _leanForwardConfigs);
-                _configurator.InitUISectionGroup(Direction.LEFT, _rollLeftConfigs);
-                _configurator.InitUISectionGroup(Direction.RIGHT, _rollRightConfigs);
+                //_configurator.InitUISectionGroup(Direction.DOWN, _configSets[Direction.DOWN]);
+                //_configurator.InitUISectionGroup(Direction.UP, _configSets[Direction.UP]);
+                //_configurator.InitUISectionGroup(Direction.BACK, _configSets[Direction.BACK]);
+                //_configurator.InitUISectionGroup(Direction.FORWARD, _configSets[Direction.FORWARD]);
+                //_configurator.InitUISectionGroup(Direction.LEFT, _configSets[Direction.LEFT]);
+                //_configurator.InitUISectionGroup(Direction.RIGHT, _configSets[Direction.RIGHT]);
                 _configurator.AddButtonListeners();
             }
         }
 
-        private void LoadSettingsFromFile(string mode)
+        private Dictionary<string, List<Config>> LoadSettingsFromFile(string mode)
         {
+            var configSets = new Dictionary<string, List<Config>>();
             Persistence.LoadModeGravityPhysicsSettings(_script, mode, (dir, json) =>
             {
-                foreach(string key in json.Keys)
+                foreach(string direction in json.Keys)
                 {
-                    List<Config> configs = null;
-                    if(key == Direction.DOWN)
-                        configs = _uprightConfigs;
-                    else if(key == Direction.UP)
-                        configs = _upsideDownConfigs;
-                    else if(key == Direction.BACK)
-                        configs = _leanBackConfigs;
-                    else if(key == Direction.FORWARD)
-                        configs = _leanForwardConfigs;
-                    else if(key == Direction.LEFT)
-                        configs = _rollLeftConfigs;
-                    else if(key == Direction.RIGHT)
-                        configs = _rollRightConfigs;
-                    if(configs != null)
+                    var configs = new List<Config>();
+                    JSONClass groupJson = json[direction].AsObject;
+                    foreach(string name in groupJson.Keys)
                     {
-                        JSONClass groupJson = json[key].AsObject;
-                        foreach(string name in groupJson.Keys)
-                        {
-                            configs.Add(new GravityPhysicsConfig(
-                                name,
-                                groupJson[name]["Type"],
-                                groupJson[name]["IsNegative"].AsBool,
-                                groupJson[name]["Multiplier1"].AsFloat,
-                                groupJson[name]["Multiplier2"].AsFloat
-                            ));
-                        }
+                        configs.Add(new GravityPhysicsConfig(
+                            name,
+                            groupJson[name]["Type"],
+                            groupJson[name]["IsNegative"].AsBool,
+                            groupJson[name]["Multiplier1"].AsFloat,
+                            groupJson[name]["Multiplier2"].AsFloat
+                        ));
                     }
+                    configSets[direction] = configs;
                 }
             });
+            return configSets;
         }
 
         public void SetBaseValues()
@@ -266,22 +227,12 @@ namespace TittyMagic
 
         public void ZeroAll()
         {
-            ZeroPhysics(Direction.DOWN);
-            ZeroPhysics(Direction.UP);
-            ZeroPhysics(Direction.BACK);
-            ZeroPhysics(Direction.FORWARD);
-            ZeroPhysics(Direction.LEFT);
-            ZeroPhysics(Direction.RIGHT);
+            _configSets?.Keys.ToList().ForEach(key => ZeroPhysics(key));
         }
 
         public void ResetAll()
         {
-            ResetPhysics(Direction.DOWN);
-            ResetPhysics(Direction.UP);
-            ResetPhysics(Direction.BACK);
-            ResetPhysics(Direction.FORWARD);
-            ResetPhysics(Direction.LEFT);
-            ResetPhysics(Direction.RIGHT);
+            _configSets?.Keys.ToList().ForEach(key => ResetPhysics(key));
         }
 
         public void SetInvertJoint2RotationY(bool value)

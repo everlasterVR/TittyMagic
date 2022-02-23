@@ -1,90 +1,65 @@
 { 
-   "RT Breasts Shift S2S R" : { 
+   "LT Breasts Shift S2S Left R" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "2", 
       "Multiplier2" : "-0.5"
    }, 
-   "RT Breasts Hang Forward R" : { 
-      "IsNegative" : "true", 
-      "Multiplier1" : "-1", 
-      "Multiplier2" : "0.3"
-   }, 
-   "RT Breast Width R" : { 
-      "IsNegative" : "true", 
-      "Multiplier1" : "-0.2", 
-      "Multiplier2" : "-0.45"
-   }, 
-   "RT Breast Rotate X Out R" : { 
-      "IsNegative" : "true", 
-      "Multiplier1" : "-0.6", 
-      "Multiplier2" : "0.3"
-   }, 
-   "RT Breast Rotate X In R" : { 
-      "IsNegative" : "true", 
-      "Multiplier1" : "-0.3", 
-      "Multiplier2" : "0.15"
-   }, 
-   "RT Breast Move S2S Out R" : { 
-      "IsNegative" : "false", 
-      "Multiplier1" : "0.2", 
-      "Multiplier2" : "-0.1"
-   }, 
-   "RT Breast Rotate X Out L" : { 
+   "LT Breast Rotate X Out R" : { 
       "IsNegative" : "true", 
       "Multiplier1" : "-1.5", 
       "Multiplier2" : "0.25"
    }, 
-   "RT Breasts Flatten L" : { 
+   "LT Breasts Flatten R" : { 
       "IsNegative" : "true", 
       "Multiplier1" : "-0.4", 
       "Multiplier2" : "-0.2"
    }, 
-   "RT Breast Width L" : { 
+   "LT Breast Width R" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.3", 
       "Multiplier2" : "0.4"
    }, 
-   "RT Breast Rotate X In L" : { 
+   "LT Breast Rotate X In R" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.2", 
       "Multiplier2" : "0"
    }, 
-   "RT Breasts Hang Forward L" : { 
+   "LT Breasts Hang Forward R" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.3", 
       "Multiplier2" : "0"
    }, 
-   "RT Areola S2S L" : { 
+   "LT Areola S2S R" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.5", 
       "Multiplier2" : "2"
    }, 
-   "RT Breast Diameter" : { 
+   "LT Breast Diameter R" : { 
       "IsNegative" : "true", 
       "Multiplier1" : "-0.2", 
       "Multiplier2" : "-0.2"
    }, 
-   "RT Breast Depth Squash L" : { 
+   "LT Breast Depth Squash R" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.2", 
       "Multiplier2" : "2"
    }, 
-   "RT Breast Move S2S In L" : { 
+   "LT Breast Move S2S In R" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0", 
       "Multiplier2" : "0.3"
    }, 
-   "RT Breasts Implants L" : { 
+   "LT Breasts Implants R" : { 
       "IsNegative" : "true", 
       "Multiplier1" : "0.1", 
       "Multiplier2" : "-0.1"
    }, 
-   "RT Breast Under Smoother2" : { 
+   "LT Breast Under Smoother2 R" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.1", 
       "Multiplier2" : "0.4"
    }, 
-   "RT Breast Under Smoother3" : { 
+   "LT Breast Under Smoother3 R" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.4", 
       "Multiplier2" : "0.4"

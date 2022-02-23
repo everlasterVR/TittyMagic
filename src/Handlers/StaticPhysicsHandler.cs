@@ -9,9 +9,8 @@ namespace TittyMagic
     internal class StaticPhysicsHandler
     {
         private HashSet<PhysicsConfig> _mainPhysicsConfigs;
-        private HashSet<RateDependentPhysicsConfig> _rateDependentPhysicsConfigs;
         private HashSet<PhysicsConfig> _softPhysicsConfigs;
-        private HashSet<NipplePhysicsConfig> _nipplePhysicsConfigs;
+        private HashSet<PhysicsConfig> _nipplePhysicsConfigs;
 
         public JSONStorableStringChooser modeChooser;
 
@@ -24,46 +23,27 @@ namespace TittyMagic
 
         public void LoadSettings(MVRScript script, string mode)
         {
-            if(mode == Mode.BALANCED)
-            {
-                GEOMETRY.useAuxBreastColliders = true;
-            }
-            else if(mode == Mode.TOUCH_OPTIMIZED || mode == Mode.ANIM_OPTIMIZED)
-            {
-                GEOMETRY.useAuxBreastColliders = false;
-            }
-
+            GEOMETRY.useAuxBreastColliders = mode != Mode.TOUCH_OPTIMIZED;
             LoadSettingsFromFiles(script, mode);
         }
 
         private void LoadSettingsFromFiles(MVRScript script, string mode)
         {
             _mainPhysicsConfigs = new HashSet<PhysicsConfig>();
-            _rateDependentPhysicsConfigs = new HashSet<RateDependentPhysicsConfig>();
             _softPhysicsConfigs = new HashSet<PhysicsConfig>();
-            _nipplePhysicsConfigs = new HashSet<NipplePhysicsConfig>();
+            _nipplePhysicsConfigs = new HashSet<PhysicsConfig>();
 
             Persistence.LoadModePhysicsSettings(script, mode, @"mainPhysics.json", (path, json) =>
             {
                 foreach(string param in json.Keys)
                 {
                     JSONClass paramSettings = json[param].AsObject;
-                    if(param == "damper")
-                    {
-                        _rateDependentPhysicsConfigs.Add(new RateDependentPhysicsConfig(
-                            BREAST_CONTROL.GetFloatJSONParam(param),
-                            paramSettings["minMminS"].AsFloat,
-                            paramSettings["maxMminS"].AsFloat,
-                            paramSettings["minMmaxS"].AsFloat
-                        ));
-                        continue;
-                    }
-
                     _mainPhysicsConfigs.Add(new PhysicsConfig(
                         BREAST_CONTROL.GetFloatJSONParam(param),
                         paramSettings["minMminS"].AsFloat,
                         paramSettings["maxMminS"].AsFloat,
-                        paramSettings["minMmaxS"].AsFloat
+                        paramSettings["minMmaxS"].AsFloat,
+                        paramSettings["dependOnPhysicsRate"].AsBool
                     ));
                 }
             });
@@ -77,7 +57,8 @@ namespace TittyMagic
                         BREAST_PHYSICS_MESH.GetFloatJSONParam(param),
                         paramSettings["minMminS"].AsFloat,
                         paramSettings["maxMminS"].AsFloat,
-                        paramSettings["minMmaxS"].AsFloat
+                        paramSettings["minMmaxS"].AsFloat,
+                        paramSettings["dependOnPhysicsRate"].AsBool
                     ));
                 }
             });
@@ -87,11 +68,12 @@ namespace TittyMagic
                 foreach(string param in json.Keys)
                 {
                     JSONClass paramSettings = json[param].AsObject;
-                    _nipplePhysicsConfigs.Add(new NipplePhysicsConfig(
+                    _nipplePhysicsConfigs.Add(new PhysicsConfig(
                         BREAST_PHYSICS_MESH.GetFloatJSONParam(param),
                         paramSettings["minMminS"].AsFloat,
                         paramSettings["maxMminS"].AsFloat,
-                        paramSettings["minMmaxS"].AsFloat
+                        paramSettings["minMmaxS"].AsFloat,
+                        paramSettings["dependOnPhysicsRate"].AsBool
                     ));
                 }
             });
@@ -121,52 +103,58 @@ namespace TittyMagic
 
         public void UpdateMainPhysics(float softnessVal)
         {
+            var physicsRateMultiplier = PhysicsRateMultiplier();
             foreach(var it in _mainPhysicsConfigs)
-                it.UpdateVal(_massVal, softnessVal);
-            foreach(var it in _rateDependentPhysicsConfigs)
-                it.UpdateVal(_massVal, softnessVal, PhysicsRateMultiplier());
+            {
+                if(it.DependOnPhysicsRate)
+                    it.UpdateVal(_massVal, softnessVal, physicsRateMultiplier);
+                else
+                    it.UpdateVal(_massVal, softnessVal);
+            }
         }
 
         public void UpdateRateDependentPhysics(float softnessVal)
         {
-            foreach(var it in _rateDependentPhysicsConfigs)
-                it.UpdateVal(_massVal, softnessVal, PhysicsRateMultiplier());
+            var physicsRateMultiplier = PhysicsRateMultiplier();
+            foreach(var it in _mainPhysicsConfigs)
+            {
+                if(it.DependOnPhysicsRate)
+                    it.UpdateVal(_massVal, softnessVal, physicsRateMultiplier);
+            }
+            foreach(var it in _softPhysicsConfigs)
+            {
+                if(it.DependOnPhysicsRate)
+                    it.UpdateVal(_massVal, softnessVal, physicsRateMultiplier);
+            }
         }
 
         public void UpdateNipplePhysics(float softnessVal, float nippleErectionVal)
         {
             foreach(var it in _nipplePhysicsConfigs)
-                it.UpdateVal(_massVal, softnessVal, nippleErectionVal);
+                it.UpdateVal(_massVal, softnessVal, 1, 1.25f * nippleErectionVal);
         }
 
         public void FullUpdate(float softnessVal, float nippleErectionVal)
         {
+            var physicsRateMultiplier = PhysicsRateMultiplier();
             foreach(var it in _mainPhysicsConfigs)
-                it.UpdateVal(_massVal, softnessVal);
-            foreach(var it in _rateDependentPhysicsConfigs)
-                it.UpdateVal(_massVal, softnessVal, PhysicsRateMultiplier());
+            {
+                if(it.DependOnPhysicsRate)
+                    it.UpdateVal(_massVal, softnessVal, physicsRateMultiplier);
+                else
+                    it.UpdateVal(_massVal, softnessVal);
+            }
             foreach(var it in _softPhysicsConfigs)
-                it.UpdateVal(_massVal, softnessVal);
+            {
+                if(it.DependOnPhysicsRate)
+                    it.UpdateVal(_massVal, softnessVal, physicsRateMultiplier);
+                else
+                    it.UpdateVal(_massVal, softnessVal);
+            }
             foreach(var it in _nipplePhysicsConfigs)
-                it.UpdateVal(_massVal, softnessVal, nippleErectionVal);
-        }
-
-        public string GetStatus()
-        {
-            string text = "MAIN PHYSICS\n";
-            text += NameValueString("mass", BREAST_CONTROL.mass, padRight: 25) + "\n";
-            foreach(var it in _mainPhysicsConfigs)
-                text += it.GetStatus();
-            foreach(var it in _rateDependentPhysicsConfigs)
-                text += it.GetStatus();
-
-            text += "\nSOFT PHYSICS\n";
-            foreach(var it in _softPhysicsConfigs)
-                text += it.GetStatus();
-            foreach(var it in _nipplePhysicsConfigs)
-                text += it.GetStatus();
-
-            return text;
+            {
+                it.UpdateVal(_massVal, softnessVal, 1, 1.25f * nippleErectionVal);
+            }
         }
 
         //see UserPreferences.cs methods SetPhysics45, 60, 72 etc.

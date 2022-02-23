@@ -27,11 +27,26 @@
     public static class Direction
     {
         public const string DOWN = "DOWN";
+        public const string DOWN_L = "DOWN_L";
+        public const string DOWN_R = "DOWN_R";
         public const string UP = "UP";
+        public const string UP_L = "UP_L";
+        public const string UP_R = "UP_R";
+        public const string UP_C = "UP_C";
         public const string BACK = "BACK";
+        public const string BACK_L = "BACK_L";
+        public const string BACK_R = "BACK_R";
+        public const string BACK_C = "BACK_C";
         public const string FORWARD = "FORWARD";
+        public const string FORWARD_L = "FORWARD_L";
+        public const string FORWARD_R = "FORWARD_R";
+        public const string FORWARD_C = "FORWARD_C";
         public const string LEFT = "LEFT";
+        public const string LEFT_L = "LEFT_L";
+        public const string LEFT_R = "LEFT_R";
         public const string RIGHT = "RIGHT";
+        public const string RIGHT_L = "RIGHT_L";
+        public const string RIGHT_R = "RIGHT_R";
     }
 
     internal static class RefreshStatus

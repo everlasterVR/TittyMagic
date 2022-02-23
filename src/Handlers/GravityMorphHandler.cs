@@ -18,18 +18,6 @@ namespace TittyMagic
 
         private Dictionary<string, List<Config>> _configSets;
 
-        private List<Config> _uprightConfigs;
-
-        private List<Config> _upsideDownConfigs;
-
-        private List<Config> _leanBackConfigs;
-
-        private List<Config> _leanForwardConfigs;
-
-        private List<Config> _rollLeftConfigs;
-
-        private List<Config> _rollRightConfigs;
-
         public GravityMorphHandler(MVRScript script)
         {
             _script = script;
@@ -54,62 +42,71 @@ namespace TittyMagic
 
         public void LoadSettings(string mode)
         {
-            _configSets = new Dictionary<string, List<Config>>();
-
-            if(mode != Mode.ANIM_OPTIMIZED)
+            _configSets = new Dictionary<string, List<Config>>
             {
-                _uprightConfigs = new List<Config>();
-                _upsideDownConfigs = new List<Config>();
-                LoadSettingsFromFile(mode, "upright", _uprightConfigs);
-                LoadSettingsFromFile(mode, "upsideDown", _upsideDownConfigs);
-                _configSets.Add(Direction.DOWN, _uprightConfigs);
-                _configSets.Add(Direction.UP, _upsideDownConfigs);
-            }
-            _leanBackConfigs = new List<Config>();
-            _leanForwardConfigs = new List<Config>();
-            LoadSettingsFromFile(mode, "leanBack", _leanBackConfigs);
-            LoadSettingsFromFile(mode, "leanForward", _leanForwardConfigs);
-            _configSets.Add(Direction.BACK, _leanBackConfigs);
-            _configSets.Add(Direction.FORWARD, _leanForwardConfigs);
-
-            _rollLeftConfigs = new List<Config>();
-            _rollRightConfigs = new List<Config>();
-            LoadSettingsFromFile(mode, "rollLeft", _rollLeftConfigs);
-            LoadSettingsFromFile(mode, "rollRight", _rollRightConfigs);
-            _configSets.Add(Direction.LEFT, _rollLeftConfigs);
-            _configSets.Add(Direction.RIGHT, _rollRightConfigs);
+                { Direction.DOWN, LoadSettingsFromFile(mode, "upright", separateLeftRight: true) },
+                { Direction.UP, LoadSettingsFromFile(mode, "upsideDown", separateLeftRight: true) },
+                { Direction.UP_C, LoadSettingsFromFile(mode, "upsideDownCenter") },
+                { Direction.LEFT, LoadSettingsFromFile(mode, "rollLeft") },
+                { Direction.RIGHT, LoadSettingsFromFile(mode, "rollRight") },
+                { Direction.BACK, LoadSettingsFromFile(mode, "leanBack", separateLeftRight: true) },
+                { Direction.BACK_C, LoadSettingsFromFile(mode, "leanBackCenter") },
+                { Direction.FORWARD, LoadSettingsFromFile(mode, "leanForward", separateLeftRight: true) },
+                { Direction.FORWARD_C, LoadSettingsFromFile(mode, "leanForwardCenter") },
+            };
 
             //not working properly yet when changing mode on the fly
             if(_useConfigurator)
             {
                 _configurator.ResetUISectionGroups();
-                if(mode != Mode.ANIM_OPTIMIZED)
-                {
-                    _configurator.InitUISectionGroup(Direction.DOWN, _uprightConfigs);
-                    _configurator.InitUISectionGroup(Direction.UP, _upsideDownConfigs);
-                }
-                _configurator.InitUISectionGroup(Direction.BACK, _leanBackConfigs);
-                _configurator.InitUISectionGroup(Direction.FORWARD, _leanForwardConfigs);
+                //_configurator.InitUISectionGroup(Direction.DOWN, _configSets[Direction.DOWN]);
+                //_configurator.InitUISectionGroup(Direction.UP, _configSets[Direction.UP]);
+                //_configurator.InitUISectionGroup(Direction.UP_C, _configSets[Direction.UP_C]);
 
-                _configurator.InitUISectionGroup(Direction.LEFT, _rollLeftConfigs);
-                _configurator.InitUISectionGroup(Direction.RIGHT, _rollRightConfigs);
+                //_configurator.InitUISectionGroup(Direction.LEFT, _configSets[Direction.LEFT]);
+                //_configurator.InitUISectionGroup(Direction.RIGHT, _configSets[Direction.RIGHT]);
+
+                //_configurator.InitUISectionGroup(Direction.BACK, _configSets[Direction.BACK]);
+                //_configurator.InitUISectionGroup(Direction.BACK_C, _configSets[Direction.BACK_C]);
+                //_configurator.InitUISectionGroup(Direction.FORWARD, _configSets[Direction.FORWARD]);
+                //_configurator.InitUISectionGroup(Direction.FORWARD_C, _configSets[Direction.FORWARD_C]);
             }
         }
 
-        private void LoadSettingsFromFile(string mode, string fileName, List<Config> configs)
+        private List<Config> LoadSettingsFromFile(string mode, string fileName, bool separateLeftRight = false)
         {
+            var configs = new List<Config>();
             Persistence.LoadModeMorphSettings(_script, mode, $"{fileName}.json", (dir, json) =>
             {
                 foreach(string name in json.Keys)
                 {
-                    configs.Add(new MorphConfig(
-                        name,
-                        json[name]["IsNegative"].AsBool,
-                        json[name]["Multiplier1"].AsFloat,
-                        json[name]["Multiplier2"].AsFloat
-                    ));
+                    if(separateLeftRight)
+                    {
+                        configs.Add(new MorphConfig(
+                            $"{name} L",
+                            json[name]["IsNegative"].AsBool,
+                            json[name]["Multiplier1"].AsFloat,
+                            json[name]["Multiplier2"].AsFloat
+                        ));
+                        configs.Add(new MorphConfig(
+                            $"{name} R",
+                            json[name]["IsNegative"].AsBool,
+                            json[name]["Multiplier1"].AsFloat,
+                            json[name]["Multiplier2"].AsFloat
+                        ));
+                    }
+                    else
+                    {
+                        configs.Add(new MorphConfig(
+                            name,
+                            json[name]["IsNegative"].AsBool,
+                            json[name]["Multiplier1"].AsFloat,
+                            json[name]["Multiplier2"].AsFloat
+                        ));
+                    }
                 }
             });
+            return configs;
         }
 
         public bool IsEnabled()
@@ -131,7 +128,6 @@ namespace TittyMagic
         }
 
         public void Update(
-            string mode,
             float roll,
             float pitch,
             float mass,
@@ -145,12 +141,9 @@ namespace TittyMagic
             float smoothPitch = 2 * Calc.SmoothStep(pitch);
             _additionalRollEffect = 0.4f * Mathf.Abs(smoothRoll);
 
-            if(mode != Mode.ANIM_OPTIMIZED)
-            {
-                AdjustUpDownMorphs(smoothPitch, smoothRoll);
-            }
-            AdjustForwardBackMorphs(smoothPitch, smoothRoll);
+            AdjustUpDownMorphs(smoothPitch, smoothRoll);
             AdjustRollMorphs(smoothRoll);
+            AdjustForwardBackMorphs(smoothPitch, smoothRoll);
 
             string infoText =
                 $"{NameValueString("Pitch", pitch, 100f, 15)} {Calc.RoundToDecimals(smoothPitch, 100f)}\n" +
@@ -181,12 +174,14 @@ namespace TittyMagic
             if(pitch >= 0)
             {
                 UpdateMorphs(Direction.UP, pitch/2, roll, _additionalRollEffect);
+                UpdateMorphs(Direction.UP_C, pitch/2, roll, _additionalRollEffect);
                 UpdateMorphs(Direction.DOWN, (2 - pitch)/2, roll);
             }
             // leaning back
             else
             {
                 UpdateMorphs(Direction.UP, -pitch/2, roll, _additionalRollEffect);
+                UpdateMorphs(Direction.UP_C, -pitch/2, roll, _additionalRollEffect);
                 UpdateMorphs(Direction.DOWN, (2 + pitch)/2, roll);
             }
         }
@@ -197,30 +192,36 @@ namespace TittyMagic
             if(pitch >= 0)
             {
                 ResetMorphs(Direction.BACK);
+                ResetMorphs(Direction.BACK_C);
                 // upright
                 if(pitch < 1)
                 {
                     UpdateMorphs(Direction.FORWARD, pitch, roll);
+                    UpdateMorphs(Direction.FORWARD_C, pitch, roll);
                 }
                 // upside down
                 else
                 {
                     UpdateMorphs(Direction.FORWARD, 2 - pitch, roll);
+                    UpdateMorphs(Direction.FORWARD_C, 2 - pitch, roll);
                 }
             }
             // leaning back
             else
             {
                 ResetMorphs(Direction.FORWARD);
+                ResetMorphs(Direction.FORWARD_C);
                 // upright
                 if(pitch >= -1)
                 {
                     UpdateMorphs(Direction.BACK, -pitch, roll);
+                    UpdateMorphs(Direction.BACK_C, -pitch, roll);
                 }
                 // upside down
                 else
                 {
                     UpdateMorphs(Direction.BACK, 2 + pitch, roll);
+                    UpdateMorphs(Direction.BACK_C, 2 + pitch, roll);
                 }
             }
         }
@@ -257,23 +258,11 @@ namespace TittyMagic
 
         public void ResetAll()
         {
-            //foreach(var it in gravityOffsetMorphs)
-            //    it.Reset();
-            ResetMorphs(Direction.DOWN);
-            ResetMorphs(Direction.UP);
-            ResetMorphs(Direction.BACK);
-            ResetMorphs(Direction.FORWARD);
-            ResetMorphs(Direction.LEFT);
-            ResetMorphs(Direction.RIGHT);
+            _configSets?.Keys.ToList().ForEach(key => ResetMorphs(key));
         }
 
         private void ResetMorphs(string configSetName)
         {
-            if(!_configSets.ContainsKey(configSetName))
-            {
-                return;
-            }
-
             foreach(MorphConfig config in _configSets[configSetName])
             {
                 config.Morph.morphValue = 0;
