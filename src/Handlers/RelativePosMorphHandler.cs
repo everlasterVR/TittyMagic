@@ -12,13 +12,12 @@ namespace TittyMagic
 
         private bool _useConfigurator;
 
-        private float _angleMultiplier;
-        private float _depthMultiplier;
+        private float _yAngleMultiplier;
+        private float _xAngleMultiplier;
+        private float _backDepthMultiplier;
+        private float _forwardDepthMultiplier;
         private float _mass;
         private float _mobility;
-
-        private readonly float _backDepthMax = 0.08f;
-        private readonly float _forwardDepthMax = 0.065f;
 
         private Dictionary<string, List<Config>> _configSets;
 
@@ -132,29 +131,33 @@ namespace TittyMagic
             float depthDiffRight,
             float angleXLeft,
             float angleXRight,
-            float angleMultiplier,
-            float depthMultiplier,
+            float yAngleMultiplier,
+            float xAngleMultiplier,
+            float backDepthMultiplier,
+            float forwardDepthMultiplier,
             float mass,
             float mobility
         )
         {
-            _angleMultiplier = angleMultiplier;
-            _depthMultiplier = depthMultiplier;
+            _yAngleMultiplier = yAngleMultiplier;
+            _xAngleMultiplier = xAngleMultiplier;
+            _backDepthMultiplier = backDepthMultiplier;
+            _forwardDepthMultiplier = forwardDepthMultiplier;
             _mass = mass;
             _mobility = mobility;
 
-            float effectYLeft = CalculateAngleEffect(angleYLeft, 75);
-            float effectYRight = CalculateAngleEffect(angleYRight, 75);
+            float effectYLeft = CalculateYAngleEffect(angleYLeft, 75);
+            float effectYRight = CalculateYAngleEffect(angleYRight, 75);
             float angleYCenter = (angleYRight + angleYLeft) / 2;
-            float effectYCenter = CalculateAngleEffect(angleYCenter, 75);
+            float effectYCenter = CalculateYAngleEffect(angleYCenter, 75);
 
             float effectZLeft = CalculateDepthEffect(depthDiffLeft, 0.075f);
             float effectZRight = CalculateDepthEffect(depthDiffRight, 0.075f);
             float depthDiffCenter = (depthDiffLeft + depthDiffRight) / 2;
             float effectZCenter = CalculateDepthEffect(depthDiffCenter, 0.075f);
 
-            float effectXLeft = CalculateAngleEffect(angleXLeft, 60);
-            float effectXRight = CalculateAngleEffect(angleXRight, 60);
+            float effectXLeft = CalculateXAngleEffect(angleXLeft, 60);
+            float effectXRight = CalculateXAngleEffect(angleXRight, 60);
 
             // up force on left breast
             if(angleYLeft >= 0)
@@ -267,17 +270,26 @@ namespace TittyMagic
             UpdateDebugInfo(infoText);
         }
 
-        private float CalculateAngleEffect(float value, float max)
+        private float CalculateYAngleEffect(float value, float max)
         {
             return Calc.RoundToDecimals(
-                Mathf.InverseLerp(0, max, _angleMultiplier * Mathf.Abs(value)),
+                Mathf.InverseLerp(0, max, _yAngleMultiplier * Mathf.Abs(value)),
                 1000f
             );
         }
 
         private float CalculateDepthEffect(float value, float max)
         {
-            return Mathf.InverseLerp(0, max, _depthMultiplier * Mathf.Abs(value));
+            var multiplier = value < 0 ? _forwardDepthMultiplier : _backDepthMultiplier;
+            return Mathf.InverseLerp(0, max, multiplier * Mathf.Abs(value));
+        }
+
+        private float CalculateXAngleEffect(float value, float max)
+        {
+            return Calc.RoundToDecimals(
+                Mathf.InverseLerp(0, max, _xAngleMultiplier * Mathf.Abs(value)),
+                1000f
+            );
         }
 
         private void UpdateMorphs(string configSetName, float effect)

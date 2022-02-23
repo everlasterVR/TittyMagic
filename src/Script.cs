@@ -29,8 +29,10 @@ namespace TittyMagic
 
         private float _massEstimate;
         private float _massAmount;
-        private float _relativeAngleMassMultiplier;
-        private float _depthDiffMassMultiplier;
+        private float _verticalAngleMassMultiplier;
+        private float _rollAngleMassMultiplier;
+        private float _backDepthDiffMassMultiplier;
+        private float _forwardDepthDiffMassMultiplier;
         private float _softnessAmount;
         private float _gravityAmount;
         private Vector3 _neutralRelativePosLeft;
@@ -566,8 +568,10 @@ namespace TittyMagic
                         _depthDiffRight,
                         _angleXLeft,
                         _angleXRight,
-                        _relativeAngleMassMultiplier,
-                        _depthDiffMassMultiplier,
+                        _verticalAngleMassMultiplier,
+                        _rollAngleMassMultiplier,
+                        _backDepthDiffMassMultiplier,
+                        _forwardDepthDiffMassMultiplier,
                         _massAmount,
                         _gravityAmount
                     );
@@ -656,8 +660,10 @@ namespace TittyMagic
 
                 // update main static physics
                 _massAmount = _staticPhysicsH.SetAndReturnMassVal(_massEstimate);
-                _relativeAngleMassMultiplier = 1 / Mathf.Pow(3/4f * _massAmount, 1/5f);
-                _depthDiffMassMultiplier = (1 / Mathf.Pow(1/2f * _massAmount, 1/3f)) - 0.51f;
+                _verticalAngleMassMultiplier = -Mathf.Pow(1.67f * _massAmount, 0.53f) + 2.5f;
+                _rollAngleMassMultiplier = -Mathf.Pow(_massAmount, 1.75f) + 2.67f;
+                _backDepthDiffMassMultiplier = (1 / Mathf.Pow(1/2f * _massAmount, 1/3f)) - 0.51f;
+                _forwardDepthDiffMassMultiplier = (1 / Mathf.Pow(1/2f * (_massAmount - 0.03f), 1/4f)) + 1.1f;
                 _staticPhysicsH.UpdateMainPhysics(_softnessAmount);
             }
             SetMassUIStatus(_atomScaleListener.Value);
