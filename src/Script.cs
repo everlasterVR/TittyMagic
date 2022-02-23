@@ -35,10 +35,14 @@ namespace TittyMagic
         private float _mobilityAmount;
         private Vector3 _neutralRelativePosLeft;
         private Vector3 _neutralRelativePosRight;
+        private float _neutralDepthLeft;
+        private float _neutralDepthRight;
         private float _angleYLeft;
         private float _angleYRight;
         private float _angleXLeft;
         private float _angleXRight;
+        private float _depthDiffLeft;
+        private float _depthDiffRight;
         private float _chestRoll;
         private float _chestPitch;
 
@@ -232,11 +236,14 @@ namespace TittyMagic
         {
             _gravityPhysicsH.LoadSettings(mode);
             _staticPhysicsH.LoadSettings(this, mode);
-            _gravityMorphH.LoadSettings(mode);
             if(mode == Mode.ANIM_OPTIMIZED)
             {
                 //RelativePosMorphHandler doesn't actually support any other mode currently
                 _relativePosMorphH.LoadSettings(mode);
+            }
+            else
+            {
+                _gravityMorphH.LoadSettings(mode);
             }
 
             UpdateModeInfoText(mode);
@@ -514,8 +521,11 @@ namespace TittyMagic
                 return;
             }
 
-            UpdateRelativeAnglesLeft();
-            UpdateRelativeAnglesRight();
+            if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
+            {
+                UpdateAnglesAndDepthDiffLeft();
+                UpdateAnglesAndDepthDiffRight();
+            }
 
             _chestRoll = Roll(_chestTransform.rotation);
             _chestPitch = Pitch(_chestTransform.rotation);
@@ -529,46 +539,46 @@ namespace TittyMagic
 #endif
         }
 
-        private void UpdateRelativeAnglesLeft()
+        private void UpdateAnglesAndDepthDiffLeft()
         {
-            if(_modeChooser.val == Mode.ANIM_OPTIMIZED && _nippleTransformLeft != null && _nippleTransformRight != null)
-            {
-                Vector3 relativePos = RelativePosition(_chestTransform, _nippleTransformLeft.position);
-                _angleYLeft = Vector2.SignedAngle(
-                    new Vector2(_neutralRelativePosLeft.z, _neutralRelativePosLeft.y),
-                    new Vector2(relativePos.z, relativePos.y)
-                );
-                _angleXLeft = Vector2.SignedAngle(
-                    new Vector2(_neutralRelativePosLeft.z, _neutralRelativePosLeft.x),
-                    new Vector2(relativePos.z, relativePos.x)
-                );
-            }
-            else
+            if(_nippleTransformLeft == null)
             {
                 _angleYLeft = 0;
                 _angleXLeft = 0;
+                _depthDiffLeft = 0;
+                return;
             }
+
+            Vector3 relativePos = RelativePosition(_chestTransform, _nippleTransformLeft.position);
+            _angleYLeft = Vector2.SignedAngle(
+                new Vector2(_neutralRelativePosLeft.z, _neutralRelativePosLeft.y),
+                new Vector2(relativePos.z, relativePos.y)
+            );
+            _angleXLeft = Vector2.SignedAngle(
+                new Vector2(_neutralRelativePosLeft.z, _neutralRelativePosLeft.x),
+                new Vector2(relativePos.z, relativePos.x)
+            );
+            _depthDiffLeft = Vector3.Distance(_pectoralRbLeft.position, _nippleTransformLeft.position) - _neutralDepthLeft;
         }
 
-        private void UpdateRelativeAnglesRight()
+        private void UpdateAnglesAndDepthDiffRight()
         {
-            if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
-            {
-                Vector3 relativePos = RelativePosition(_chestTransform, _nippleTransformRight.position);
-                _angleYRight = Vector2.SignedAngle(
-                    new Vector2(_neutralRelativePosRight.z, _neutralRelativePosRight.y),
-                    new Vector2(relativePos.z, relativePos.y)
-                );
-                _angleXRight = Vector2.SignedAngle(
-                    new Vector2(_neutralRelativePosRight.z, _neutralRelativePosRight.x),
-                    new Vector2(relativePos.z, relativePos.x)
-                );
-            }
-            else
+            if(_nippleTransformRight == null)
             {
                 _angleYRight = 0;
                 _angleXRight = 0;
+                _depthDiffRight = 0;
             }
+            Vector3 relativePos = RelativePosition(_chestTransform, _nippleTransformRight.position);
+            _angleYRight = Vector2.SignedAngle(
+                new Vector2(_neutralRelativePosRight.z, _neutralRelativePosRight.y),
+                new Vector2(relativePos.z, relativePos.y)
+            );
+            _angleXRight = Vector2.SignedAngle(
+                new Vector2(_neutralRelativePosRight.z, _neutralRelativePosRight.x),
+                new Vector2(relativePos.z, relativePos.x)
+            );
+            _depthDiffRight = Vector3.Distance(_pectoralRbRight.position, _nippleTransformRight.position) - _neutralDepthRight;
         }
 
         private void FixedUpdate()
@@ -644,7 +654,8 @@ namespace TittyMagic
                     _relativePosMorphH.Update(
                         _angleYLeft,
                         _angleYRight,
-                        0f,
+                        _depthDiffLeft,
+                        _depthDiffRight,
                         _angleXLeft,
                         _angleXRight,
                         _relativePosMassMultiplier,
@@ -653,10 +664,12 @@ namespace TittyMagic
                     );
                 }
             }
-
-            if(_gravityMorphH.IsEnabled())
+            else
             {
-                _gravityMorphH.Update(_modeChooser.val, _chestRoll, _chestPitch, _massAmount, 0.75f * _gravityAmount);
+                if(_gravityMorphH.IsEnabled())
+                {
+                    _gravityMorphH.Update(_chestRoll, _chestPitch, _massAmount, 0.75f * _gravityAmount);
+                }
             }
 
             if(_gravityPhysicsH.IsEnabled())
@@ -695,6 +708,7 @@ namespace TittyMagic
                 {
                     yield return new WaitForSeconds(0.1f);
                 }
+
                 yield return new WaitForSeconds(0.33f);
             }
 
@@ -707,10 +721,13 @@ namespace TittyMagic
             _pectoralRbRight.useGravity = false;
 
             // zero pose morphs
-            _gravityMorphH.ResetAll();
             if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
             {
                 _relativePosMorphH.ResetAll();
+            }
+            else
+            {
+                _gravityMorphH.ResetAll();
             }
             _gravityPhysicsH.ZeroAll();
 
@@ -759,12 +776,12 @@ namespace TittyMagic
                 }
             }
 
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.67f);
 
             float duration = 0;
             float interval = 0.1f;
             while(
-                duration < 1f &&
+                duration < 2f &&
                 !VectorEqualWithin(
                     1000000f,
                     _neutralRelativePosLeft,
@@ -774,13 +791,17 @@ namespace TittyMagic
                     1000000f,
                     _neutralRelativePosRight,
                     RelativePosition(_chestTransform, _nippleTransformRight.position)
-                )
+                ) &&
+                !EqualWithin(100000f, _neutralDepthLeft, Vector3.Distance(_pectoralRbLeft.position, _nippleTransformLeft.position)) &&
+                !EqualWithin(100000f, _neutralDepthRight, Vector3.Distance(_pectoralRbRight.position, _nippleTransformRight.position))
             )
             {
                 yield return new WaitForSeconds(interval);
                 duration += interval;
                 _neutralRelativePosLeft = RelativePosition(_chestTransform, _nippleTransformLeft.position);
                 _neutralRelativePosRight = RelativePosition(_chestTransform, _nippleTransformRight.position);
+                _neutralDepthLeft = Vector3.Distance(_pectoralRbLeft.position, _nippleTransformLeft.position);
+                _neutralDepthRight = Vector3.Distance(_pectoralRbRight.position, _nippleTransformRight.position);
             }
 
             _refreshStatus = RefreshStatus.NEUTRALPOS_OK;

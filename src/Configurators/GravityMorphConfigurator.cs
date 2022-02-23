@@ -13,7 +13,9 @@ namespace TittyMagic
             { Direction.UP, "Upside down morphs" },
             { Direction.UP_C, "Upside down center morphs" },
             { Direction.BACK, "Lean back morphs" },
+            { Direction.BACK_C, "Lean back center morphs" },
             { Direction.FORWARD, "Lean forward morphs" },
+            { Direction.FORWARD_C, "Lean forward center morphs" },
             { Direction.LEFT, "Roll left morphs" },
             { Direction.RIGHT, "Roll right morphs" },
         };
