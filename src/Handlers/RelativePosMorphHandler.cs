@@ -294,10 +294,7 @@ namespace TittyMagic
 
         public void ResetAll()
         {
-            foreach(var configSet in _configSets)
-            {
-                ResetMorphs(configSet.Key);
-            }
+            _configSets?.Keys.ToList().ForEach(key => ResetMorphs(key));
         }
 
         private void ResetMorphs(string configSetName)

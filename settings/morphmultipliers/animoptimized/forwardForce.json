@@ -33,5 +33,15 @@
       "IsNegative" : "true", 
       "Multiplier1" : "-0.6", 
       "Multiplier2" : "-0.1"
+   }, 
+   "FW Breast Small" : {
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.4", 
+      "Multiplier2" : "0.3"
+   }, 
+   "FW Breast Round" : {
+      "IsNegative" : "true", 
+      "Multiplier1" : "-1.2", 
+      "Multiplier2" : "-0.4"
    }
 }

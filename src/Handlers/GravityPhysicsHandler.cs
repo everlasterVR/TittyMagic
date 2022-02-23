@@ -227,18 +227,12 @@ namespace TittyMagic
 
         public void ZeroAll()
         {
-            foreach(var configSet in _configSets)
-            {
-                ZeroPhysics(configSet.Key);
-            }
+            _configSets?.Keys.ToList().ForEach(key => ZeroPhysics(key));
         }
 
         public void ResetAll()
         {
-            foreach(var configSet in _configSets)
-            {
-                ResetPhysics(configSet.Key);
-            }
+            _configSets?.Keys.ToList().ForEach(key => ResetPhysics(key));
         }
 
         public void SetInvertJoint2RotationY(bool value)

@@ -236,11 +236,14 @@ namespace TittyMagic
         {
             _gravityPhysicsH.LoadSettings(mode);
             _staticPhysicsH.LoadSettings(this, mode);
-            _gravityMorphH.LoadSettings(mode);
             if(mode == Mode.ANIM_OPTIMIZED)
             {
                 //RelativePosMorphHandler doesn't actually support any other mode currently
                 _relativePosMorphH.LoadSettings(mode);
+            }
+            else
+            {
+                _gravityMorphH.LoadSettings(mode);
             }
 
             UpdateModeInfoText(mode);
@@ -659,10 +662,12 @@ namespace TittyMagic
                     );
                 }
             }
-
-            if(_gravityMorphH.IsEnabled())
+            else
             {
-                _gravityMorphH.Update(_modeChooser.val, _chestRoll, _chestPitch, _massAmount, 0.75f * _gravityAmount);
+                if(_gravityMorphH.IsEnabled())
+                {
+                    _gravityMorphH.Update(_chestRoll, _chestPitch, _massAmount, 0.75f * _gravityAmount);
+                }
             }
 
             if(_gravityPhysicsH.IsEnabled())
@@ -701,6 +706,7 @@ namespace TittyMagic
                 {
                     yield return new WaitForSeconds(0.1f);
                 }
+
                 yield return new WaitForSeconds(0.33f);
             }
 
@@ -713,10 +719,13 @@ namespace TittyMagic
             _pectoralRbRight.useGravity = false;
 
             // zero pose morphs
-            _gravityMorphH.ResetAll();
             if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
             {
                 _relativePosMorphH.ResetAll();
+            }
+            else
+            {
+                _gravityMorphH.ResetAll();
             }
             _gravityPhysicsH.ZeroAll();
 

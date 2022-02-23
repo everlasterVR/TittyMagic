@@ -9,7 +9,7 @@
       "Multiplier1" : "0.6", 
       "Multiplier2" : "0.3"
    }, 
-   "BK Breast flat" : { 
+   "BK Breast flat(Fixed)" : { 
       "IsNegative" : "false", 
       "Multiplier1" : "0.3", 
       "Multiplier2" : "0"
@@ -79,37 +79,22 @@
       "Multiplier1" : "-0.4", 
       "Multiplier2" : "-0.8"
    }, 
-   "BK Sternum Depth" : { 
-      "IsNegative" : "true", 
-      "Multiplier1" : "0.1", 
-      "Multiplier2" : "-0.4"
-   }, 
-   "BK Sternum Width" : { 
-      "IsNegative" : "true", 
-      "Multiplier1" : "-0.3", 
-      "Multiplier2" : "-0.3"
-   }, 
-   "BK Center Gap Depth" : { 
-      "IsNegative" : "true", 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "-0.4"
-   }, 
-   "BK L Depth Squash" : { 
+   "BK Depth Squash" : {
       "IsNegative" : "false", 
       "Multiplier1" : "1.2", 
       "Multiplier2" : "0.2"
    }, 
-   "BK L Rotate X Out" : { 
+   "BK Rotate X Out" : {
       "IsNegative" : "false", 
       "Multiplier1" : "-0.1", 
       "Multiplier2" : "1"
    }, 
-   "BK R Depth Squash" : { 
+   "BK Depth Squash" : {
       "IsNegative" : "false", 
       "Multiplier1" : "1.2", 
       "Multiplier2" : "0.2"
    }, 
-   "BK R Rotate X Out" : { 
+   "BK Rotate X Out" : {
       "IsNegative" : "false", 
       "Multiplier1" : "-0.1", 
       "Multiplier2" : "1"
