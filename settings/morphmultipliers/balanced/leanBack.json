@@ -24,11 +24,6 @@
       "Multiplier1" : "-0.15", 
       "Multiplier2" : "-0.4"
    }, 
-   "BK Breast Rotate Up" : { 
-      "IsNegative" : "true", 
-      "Multiplier1" : "0", 
-      "Multiplier2" : "0"
-   }, 
    "BK Breast Top Curve1" : { 
       "IsNegative" : "true", 
       "Multiplier1" : "-0.65", 
