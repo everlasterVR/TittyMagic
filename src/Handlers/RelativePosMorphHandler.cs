@@ -12,7 +12,8 @@ namespace TittyMagic
 
         private bool _useConfigurator;
 
-        private float _multiplier;
+        private float _angleMultiplier;
+        private float _depthMultiplier;
         private float _mass;
         private float _mobility;
 
@@ -131,12 +132,14 @@ namespace TittyMagic
             float depthDiffRight,
             float angleXLeft,
             float angleXRight,
-            float multiplier,
+            float angleMultiplier,
+            float depthMultiplier,
             float mass,
             float mobility
         )
         {
-            _multiplier = multiplier;
+            _angleMultiplier = angleMultiplier;
+            _depthMultiplier = depthMultiplier;
             _mass = mass;
             _mobility = mobility;
 
@@ -267,14 +270,14 @@ namespace TittyMagic
         private float CalculateAngleEffect(float value, float max)
         {
             return Calc.RoundToDecimals(
-                Mathf.InverseLerp(0, max, Mathf.Abs(value * _multiplier)),
+                Mathf.InverseLerp(0, max, _angleMultiplier * Mathf.Abs(value)),
                 1000f
             );
         }
 
         private float CalculateDepthEffect(float value, float max)
         {
-            return Mathf.InverseLerp(0, max, Mathf.Abs(value));
+            return Mathf.InverseLerp(0, max, _depthMultiplier * Mathf.Abs(value));
         }
 
         private void UpdateMorphs(string configSetName, float effect)

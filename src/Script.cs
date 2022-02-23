@@ -29,7 +29,8 @@ namespace TittyMagic
 
         private float _massEstimate;
         private float _massAmount;
-        private float _relativePosMassMultiplier;
+        private float _relativeAngleMassMultiplier;
+        private float _depthDiffMassMultiplier;
         private float _softnessAmount;
         private float _gravityAmount;
         private Vector3 _neutralRelativePosLeft;
@@ -565,7 +566,8 @@ namespace TittyMagic
                         _depthDiffRight,
                         _angleXLeft,
                         _angleXRight,
-                        _relativePosMassMultiplier,
+                        _relativeAngleMassMultiplier,
+                        _depthDiffMassMultiplier,
                         _massAmount,
                         _gravityAmount
                     );
@@ -654,7 +656,8 @@ namespace TittyMagic
 
                 // update main static physics
                 _massAmount = _staticPhysicsH.SetAndReturnMassVal(_massEstimate);
-                _relativePosMassMultiplier = 1 / Mathf.Pow(3/4f * _massAmount, 1/5f);
+                _relativeAngleMassMultiplier = 1 / Mathf.Pow(3/4f * _massAmount, 1/5f);
+                _depthDiffMassMultiplier = (1 / Mathf.Pow(1/2f * _massAmount, 1/3f)) - 0.51f;
                 _staticPhysicsH.UpdateMainPhysics(_softnessAmount);
             }
             SetMassUIStatus(_atomScaleListener.Value);
