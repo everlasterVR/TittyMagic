@@ -197,6 +197,20 @@ namespace TittyMagic
             return storable;
         }
 
+        public static UIDynamicSlider NewIntSlider(
+            this MVRScript script,
+            JSONStorableFloat storable,
+            bool rightSide = false
+        )
+        {
+            storable.storeType = JSONStorableParam.StoreType.Full;
+            script.RegisterFloat(storable);
+            UIDynamicSlider slider = script.CreateSlider(storable, rightSide);
+            slider.valueFormat = "0f";
+            slider.slider.wholeNumbers = true;
+            return slider;
+        }
+
         public static JSONStorableString NewTextField(
             this MVRScript script,
             string paramName,
@@ -239,6 +253,18 @@ namespace TittyMagic
             script.CreateToggle(storable, rightSide);
             script.RegisterBool(storable);
             return storable;
+        }
+
+        public static UIDynamicToggle NewToggle(
+            this MVRScript script,
+            JSONStorableBool storable,
+            bool rightSide = false
+        )
+        {
+            storable.storeType = JSONStorableParam.StoreType.Full;
+            script.RegisterBool(storable);
+            var toggle = script.CreateToggle(storable, rightSide);
+            return toggle;
         }
 
         public static UIDynamic NewSpacer(
