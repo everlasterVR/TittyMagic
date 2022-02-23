@@ -16,6 +16,9 @@ namespace TittyMagic
         private float _mass;
         private float _mobility;
 
+        private readonly float _backDepthMax = 0.08f;
+        private readonly float _forwardDepthMax = 0.065f;
+
         private Dictionary<string, List<Config>> _configSets;
 
         public RelativePosMorphHandler(MVRScript script)
@@ -141,19 +144,12 @@ namespace TittyMagic
             float effectYRight = CalculateEffect(angleYRight, 75);
             float angleYCenter = (angleYRight + angleYLeft) / 2;
             float effectYCenter = CalculateEffect(angleYCenter, 75);
+            float effectZLeft = CalculateEffect(depthDiffLeft, 0.075f);
+            float effectZRight = CalculateEffect(depthDiffRight, 0.075f);
+            float depthDiffCenter = (depthDiffLeft + depthDiffRight) / 2;
+            float effectZCenter = CalculateEffect(depthDiffCenter, 0.075f);
             float effectXLeft = CalculateEffect(angleXLeft, 60);
             float effectXRight = CalculateEffect(angleXRight, 60);
-
-            //reduce depth morphing when rotating/moving outward
-            if(angleXLeft < 0)
-            {
-                depthDiffLeft = depthDiffLeft * (1 - effectXLeft);
-            }
-            if(angleXRight > 0)
-            {
-                depthDiffRight = depthDiffRight * (1 - effectXRight);
-            }
-            float effectZCenter = (depthDiffLeft + depthDiffRight) / 2;
 
             // up force on left breast
             if(angleYLeft >= 0)
@@ -195,39 +191,39 @@ namespace TittyMagic
             if(depthDiffLeft <= 0)
             {
                 ResetMorphs(Direction.BACK_L);
-                UpdateMorphs(Direction.FORWARD_L, Mathf.InverseLerp(0, 0.056f, -depthDiffLeft * _multiplier));
+                UpdateMorphs(Direction.FORWARD_L, effectZLeft);
             }
             // back force on left breast
             else
             {
                 ResetMorphs(Direction.FORWARD_L);
-                UpdateMorphs(Direction.BACK_L, Mathf.InverseLerp(0, 0.075f, depthDiffLeft * _multiplier));
+                UpdateMorphs(Direction.BACK_L, effectZLeft);
             }
 
             // forward force on right breast
             if(depthDiffRight <= 0)
             {
                 ResetMorphs(Direction.BACK_R);
-                UpdateMorphs(Direction.FORWARD_R, Mathf.InverseLerp(0, 0.056f, -depthDiffRight * _multiplier));
+                UpdateMorphs(Direction.FORWARD_R, effectZRight);
             }
             // back force on right breast
             else
             {
                 ResetMorphs(Direction.FORWARD_R);
-                UpdateMorphs(Direction.BACK_R, Mathf.InverseLerp(0, 0.075f, depthDiffRight * _multiplier));
+                UpdateMorphs(Direction.BACK_R, effectZRight);
             }
 
             // forward force on average of left and right breast
-            if(effectZCenter <= 0)
+            if(depthDiffCenter <= 0)
             {
                 ResetMorphs(Direction.BACK_C);
-                UpdateMorphs(Direction.FORWARD_C, Mathf.InverseLerp(0, 0.056f, -effectZCenter * _multiplier));
+                UpdateMorphs(Direction.FORWARD_C, effectZCenter);
             }
             // back force on average of left and right breast
             else
             {
                 ResetMorphs(Direction.FORWARD_C);
-                UpdateMorphs(Direction.BACK_C, Mathf.InverseLerp(0, 0.075f, effectZCenter * _multiplier));
+                UpdateMorphs(Direction.BACK_C, effectZCenter);
             }
 
             // left force on left breast

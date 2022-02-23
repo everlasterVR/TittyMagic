@@ -96,11 +96,11 @@ namespace TittyMagic
 
         public static Vector3 RelativePosition(Transform origin, Vector3 position)
         {
-            Vector3 distance = position - origin.position;
+            Vector3 difference = position - origin.position;
             return new Vector3(
-                Vector3.Dot(distance, origin.right.normalized),
-                Vector3.Dot(distance, origin.up.normalized),
-                Vector3.Dot(distance, origin.forward.normalized)
+                Vector3.Dot(difference, origin.right.normalized),
+                Vector3.Dot(difference, origin.up.normalized),
+                Vector3.Dot(difference, origin.forward.normalized)
             );
         }
 

@@ -35,6 +35,8 @@ namespace TittyMagic
         private float _upDownMobilityAmount;
         private Vector3 _neutralRelativePosLeft;
         private Vector3 _neutralRelativePosRight;
+        private float _neutralDepthLeft;
+        private float _neutralDepthRight;
         private float _angleYLeft;
         private float _angleYRight;
         private float _angleXLeft;
@@ -541,7 +543,7 @@ namespace TittyMagic
                     new Vector2(_neutralRelativePosLeft.z, _neutralRelativePosLeft.x),
                     new Vector2(relativePos.z, relativePos.x)
                 );
-                _depthDiffLeft = (_neutralRelativePosLeft - relativePos).z;
+                _depthDiffLeft = Vector3.Distance(_pectoralRbLeft.position, _nippleTransformLeft.position) - _neutralDepthLeft;
             }
             else
             {
@@ -564,7 +566,7 @@ namespace TittyMagic
                     new Vector2(_neutralRelativePosRight.z, _neutralRelativePosRight.x),
                     new Vector2(relativePos.z, relativePos.x)
                 );
-                _depthDiffRight = (_neutralRelativePosRight - relativePos).z;
+                _depthDiffRight = Vector3.Distance(_pectoralRbRight.position, _nippleTransformRight.position) - _neutralDepthRight;
             }
             else
             {
@@ -778,13 +780,17 @@ namespace TittyMagic
                     1000000f,
                     _neutralRelativePosRight,
                     RelativePosition(_chestTransform, _nippleTransformRight.position)
-                )
+                ) &&
+                !EqualWithin(100000f, _neutralDepthLeft, Vector3.Distance(_pectoralRbLeft.position, _nippleTransformLeft.position)) &&
+                !EqualWithin(100000f, _neutralDepthRight, Vector3.Distance(_pectoralRbRight.position, _nippleTransformRight.position))
             )
             {
                 yield return new WaitForSeconds(interval);
                 duration += interval;
                 _neutralRelativePosLeft = RelativePosition(_chestTransform, _nippleTransformLeft.position);
                 _neutralRelativePosRight = RelativePosition(_chestTransform, _nippleTransformRight.position);
+                _neutralDepthLeft = Vector3.Distance(_pectoralRbLeft.position, _nippleTransformLeft.position);
+                _neutralDepthRight = Vector3.Distance(_pectoralRbRight.position, _nippleTransformRight.position);
             }
 
             _refreshStatus = RefreshStatus.NEUTRALPOS_OK;
