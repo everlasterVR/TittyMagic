@@ -140,16 +140,18 @@ namespace TittyMagic
             _mass = mass;
             _mobility = mobility;
 
-            float effectYLeft = CalculateEffect(angleYLeft, 75);
-            float effectYRight = CalculateEffect(angleYRight, 75);
+            float effectYLeft = CalculateAngleEffect(angleYLeft, 75);
+            float effectYRight = CalculateAngleEffect(angleYRight, 75);
             float angleYCenter = (angleYRight + angleYLeft) / 2;
-            float effectYCenter = CalculateEffect(angleYCenter, 75);
-            float effectZLeft = CalculateEffect(depthDiffLeft, 0.075f);
-            float effectZRight = CalculateEffect(depthDiffRight, 0.075f);
+            float effectYCenter = CalculateAngleEffect(angleYCenter, 75);
+
+            float effectZLeft = CalculateDepthEffect(depthDiffLeft, 0.075f);
+            float effectZRight = CalculateDepthEffect(depthDiffRight, 0.075f);
             float depthDiffCenter = (depthDiffLeft + depthDiffRight) / 2;
-            float effectZCenter = CalculateEffect(depthDiffCenter, 0.075f);
-            float effectXLeft = CalculateEffect(angleXLeft, 60);
-            float effectXRight = CalculateEffect(angleXRight, 60);
+            float effectZCenter = CalculateDepthEffect(depthDiffCenter, 0.075f);
+
+            float effectXLeft = CalculateAngleEffect(angleXLeft, 60);
+            float effectXRight = CalculateAngleEffect(angleXRight, 60);
 
             // up force on left breast
             if(angleYLeft >= 0)
@@ -262,12 +264,17 @@ namespace TittyMagic
             UpdateDebugInfo(infoText);
         }
 
-        private float CalculateEffect(float value, float max)
+        private float CalculateAngleEffect(float value, float max)
         {
             return Calc.RoundToDecimals(
                 Mathf.InverseLerp(0, max, Mathf.Abs(value * _multiplier)),
                 1000f
             );
+        }
+
+        private float CalculateDepthEffect(float value, float max)
+        {
+            return Mathf.InverseLerp(0, max, Mathf.Abs(value));
         }
 
         private void UpdateMorphs(string configSetName, float effect)
