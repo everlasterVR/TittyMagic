@@ -518,8 +518,11 @@ namespace TittyMagic
                 return;
             }
 
-            UpdateRelativeAnglesLeft();
-            UpdateRelativeAnglesRight();
+            if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
+            {
+                UpdateAnglesAndDepthDiffLeft();
+                UpdateAnglesAndDepthDiffRight();
+            }
 
             _chestRoll = Roll(_chestTransform.rotation);
             _chestPitch = Pitch(_chestTransform.rotation);
@@ -533,50 +536,46 @@ namespace TittyMagic
 #endif
         }
 
-        private void UpdateRelativeAnglesLeft()
+        private void UpdateAnglesAndDepthDiffLeft()
         {
-            if(_modeChooser.val == Mode.ANIM_OPTIMIZED && _nippleTransformLeft != null && _nippleTransformRight != null)
-            {
-                Vector3 relativePos = RelativePosition(_chestTransform, _nippleTransformLeft.position);
-                _angleYLeft = Vector2.SignedAngle(
-                    new Vector2(_neutralRelativePosLeft.z, _neutralRelativePosLeft.y),
-                    new Vector2(relativePos.z, relativePos.y)
-                );
-                _angleXLeft = Vector2.SignedAngle(
-                    new Vector2(_neutralRelativePosLeft.z, _neutralRelativePosLeft.x),
-                    new Vector2(relativePos.z, relativePos.x)
-                );
-                _depthDiffLeft = Vector3.Distance(_pectoralRbLeft.position, _nippleTransformLeft.position) - _neutralDepthLeft;
-            }
-            else
+            if(_nippleTransformLeft == null)
             {
                 _angleYLeft = 0;
                 _angleXLeft = 0;
                 _depthDiffLeft = 0;
+                return;
             }
+
+            Vector3 relativePos = RelativePosition(_chestTransform, _nippleTransformLeft.position);
+            _angleYLeft = Vector2.SignedAngle(
+                new Vector2(_neutralRelativePosLeft.z, _neutralRelativePosLeft.y),
+                new Vector2(relativePos.z, relativePos.y)
+            );
+            _angleXLeft = Vector2.SignedAngle(
+                new Vector2(_neutralRelativePosLeft.z, _neutralRelativePosLeft.x),
+                new Vector2(relativePos.z, relativePos.x)
+            );
+            _depthDiffLeft = Vector3.Distance(_pectoralRbLeft.position, _nippleTransformLeft.position) - _neutralDepthLeft;
         }
 
-        private void UpdateRelativeAnglesRight()
+        private void UpdateAnglesAndDepthDiffRight()
         {
-            if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
-            {
-                Vector3 relativePos = RelativePosition(_chestTransform, _nippleTransformRight.position);
-                _angleYRight = Vector2.SignedAngle(
-                    new Vector2(_neutralRelativePosRight.z, _neutralRelativePosRight.y),
-                    new Vector2(relativePos.z, relativePos.y)
-                );
-                _angleXRight = Vector2.SignedAngle(
-                    new Vector2(_neutralRelativePosRight.z, _neutralRelativePosRight.x),
-                    new Vector2(relativePos.z, relativePos.x)
-                );
-                _depthDiffRight = Vector3.Distance(_pectoralRbRight.position, _nippleTransformRight.position) - _neutralDepthRight;
-            }
-            else
+            if(_nippleTransformRight == null)
             {
                 _angleYRight = 0;
                 _angleXRight = 0;
                 _depthDiffRight = 0;
             }
+            Vector3 relativePos = RelativePosition(_chestTransform, _nippleTransformRight.position);
+            _angleYRight = Vector2.SignedAngle(
+                new Vector2(_neutralRelativePosRight.z, _neutralRelativePosRight.y),
+                new Vector2(relativePos.z, relativePos.y)
+            );
+            _angleXRight = Vector2.SignedAngle(
+                new Vector2(_neutralRelativePosRight.z, _neutralRelativePosRight.x),
+                new Vector2(relativePos.z, relativePos.x)
+            );
+            _depthDiffRight = Vector3.Distance(_pectoralRbRight.position, _nippleTransformRight.position) - _neutralDepthRight;
         }
 
         private void FixedUpdate()
