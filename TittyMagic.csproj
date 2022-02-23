@@ -109,9 +109,12 @@
     <None Include="settings\gravityphysics\touchoptimized.json" />
     <None Include="settings\gravityphysics\balanced.json" />
     <None Include="settings\gravityphysics\animoptimized.json" />
+    <None Include="settings\morphmultipliers\animoptimized\backForceCenter.json" />
     <None Include="settings\morphmultipliers\animoptimized\downForce.json" />
-    <None Include="settings\morphmultipliers\animoptimized\leanBack.json" />
-    <None Include="settings\morphmultipliers\animoptimized\leanForward.json" />
+    <None Include="settings\morphmultipliers\animoptimized\backForce.json" />
+    <None Include="settings\morphmultipliers\animoptimized\tmp.json" />
+    <None Include="settings\morphmultipliers\animoptimized\forwardForceCenter.json" />
+    <None Include="settings\morphmultipliers\animoptimized\forwardForce.json" />
     <None Include="settings\morphmultipliers\animoptimized\leftForceL.json" />
     <None Include="settings\morphmultipliers\animoptimized\leftForceR.json" />
     <None Include="settings\morphmultipliers\animoptimized\rightForceL.json" />
