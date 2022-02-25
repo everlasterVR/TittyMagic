@@ -791,7 +791,10 @@ namespace TittyMagic
             if(json.HasKey("Mode"))
             {
                 _loadingFromJson = true;
-                _modeChooser.val = json["Mode"];
+                var mode = json["Mode"];
+                if(mode == "TouchOptimized") // compatibility with 2.1 saves
+                    mode = "touch optimized";
+                _modeChooser.val = mode;
             }
             base.RestoreFromJSON(json, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
         }

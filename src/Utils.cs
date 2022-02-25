@@ -307,6 +307,8 @@ namespace TittyMagic
 
         public static void UpdateButtonLabels(Dictionary<string, UIDynamicButton> buttons, string selected)
         {
+            if(selected == "TouchOptimized") // compatibility with 2.1 saves
+                selected = "Touch optimized";
             buttons[selected].label = RadioButtonLabel(selected, true);
             buttons.Where(kvp => kvp.Key != selected).ToList()
                 .ForEach(kvp => kvp.Value.label = RadioButtonLabel(kvp.Key, false));
