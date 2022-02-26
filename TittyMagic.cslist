@@ -18,5 +18,6 @@ src\BreastMassCalculator.cs
 src\BreastMorphListener.cs
 src\Persistence.cs
 src\Script.cs
+src\TrackNipple.cs
 src\Utils.cs
 src\Variables.cs
