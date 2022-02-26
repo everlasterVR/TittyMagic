@@ -46,9 +46,6 @@ namespace TittyMagic
         {
             if(NippleRb?.transform == null)
             {
-                AngleY = 0;
-                AngleX = 0;
-                DepthDiff = 0;
                 return;
             }
 
