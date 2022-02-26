@@ -281,7 +281,7 @@ namespace TittyMagic
         private float CalculateDepthEffect(float value, float max)
         {
             var multiplier = value < 0 ? _forwardDepthMultiplier : _backDepthMultiplier;
-            return Mathf.InverseLerp(0, max, multiplier * Mathf.Abs(value));
+            return Calc.InverseSmoothStep(max, multiplier * Mathf.Abs(value), 0, 0.5f);
         }
 
         private float CalculateXAngleEffect(float value, float max)
