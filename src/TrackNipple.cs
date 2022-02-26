@@ -30,7 +30,7 @@ namespace TittyMagic
             bool positionCalibrated = Calc.VectorEqualWithin(
                 1000000f,
                 _neutralRelativePosition,
-                CalculateRelativePosition()
+                Calc.RelativePosition(_chestRb, NippleRb.position)
             );
             bool depthCalibrated = Calc.EqualWithin(100000f, _neutralDepth, CalculateDepth());
             return positionCalibrated && depthCalibrated;
@@ -38,7 +38,7 @@ namespace TittyMagic
 
         public void Calibrate()
         {
-            _neutralRelativePosition = CalculateRelativePosition();
+            _neutralRelativePosition = Calc.RelativePosition(_chestRb, NippleRb.position);
             _neutralDepth = CalculateDepth();
         }
 
@@ -49,7 +49,7 @@ namespace TittyMagic
                 return;
             }
 
-            Vector3 relativePos = CalculateRelativePosition();
+            Vector3 relativePos = Calc.RelativePosition(_chestRb, NippleRb.position);
             AngleY = Vector2.SignedAngle(
                 new Vector2(_neutralRelativePosition.z, _neutralRelativePosition.y),
                 new Vector2(relativePos.z, relativePos.y)
@@ -59,17 +59,6 @@ namespace TittyMagic
                 new Vector2(relativePos.z, relativePos.x)
             );
             DepthDiff = CalculateDepth() - _neutralDepth;
-        }
-
-        private Vector3 CalculateRelativePosition()
-        {
-            Vector3 difference = NippleRb.position - _chestRb.position;
-            Transform chestTransform = _chestRb.transform;
-            return new Vector3(
-                Vector3.Dot(difference, chestTransform.right.normalized),
-                Vector3.Dot(difference, chestTransform.up.normalized),
-                Vector3.Dot(difference, chestTransform.forward.normalized)
-            );
         }
 
         private float CalculateDepth()
