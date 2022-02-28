@@ -11,6 +11,7 @@ namespace TittyMagic
 
         void ResetUISectionGroups();
 
+        // ReSharper disable once UnusedMemberInSuper.Global
         void InitUISectionGroup(string key, List<Config> configs);
 
         void AddButtonListeners();

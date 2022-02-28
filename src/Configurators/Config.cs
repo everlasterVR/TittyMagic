@@ -5,8 +5,8 @@ namespace TittyMagic
 {
     public class Config
     {
-        public string Name { get; set; }
-        public bool IsNegative { get; set; }
+        public string Name { get; protected set; }
+        public bool IsNegative { get; protected set; }
         public float BaseMultiplier { get; set; }
         public float Multiplier1 { get; set; }
         public float Multiplier2 { get; set; }
@@ -16,11 +16,11 @@ namespace TittyMagic
     {
         public JSONStorableFloat Setting { get; }
 
-        public float OriginalValue { get; set; }
+        public float OriginalValue { get; }
 
         public float BaseValue { get; set; }
 
-        public string Type { get; set; }
+        public string Type { get; }
 
         public GravityPhysicsConfig(string name, string type, bool isNegative, float multiplier1, float multiplier2)
         {
@@ -33,7 +33,9 @@ namespace TittyMagic
             if(Setting == null)
             {
                 LogError($"BreastControl float param with name {name} not found!", nameof(GravityPhysicsConfig));
+                return;
             }
+
             OriginalValue = Setting.val;
         }
     }
@@ -45,7 +47,7 @@ namespace TittyMagic
         public MorphConfig(string name)
         {
             Name = name;
-            var uid = MORPHS_PATH + $"{name}.vmi";
+            string uid = MORPHS_PATH + $"{name}.vmi";
             Morph = GEOMETRY.morphsControlUI.GetMorphByUid(uid);
             if(Morph == null)
             {
@@ -59,8 +61,8 @@ namespace TittyMagic
             IsNegative = isNegative;
             Multiplier1 = multiplier1;
             Multiplier2 = multiplier2;
-            var dir = name.Substring(0, 2); // e.g. UP morphs are in UP/ dir
-            var uid = MORPHS_PATH + $"{dir}/{name}.vmi";
+            string dir = name.Substring(0, 2); // e.g. UP morphs are in UP/ dir
+            string uid = MORPHS_PATH + $"{dir}/{name}.vmi";
             Morph = GEOMETRY.morphsControlUI.GetMorphByUid(uid);
             if(Morph == null)
             {

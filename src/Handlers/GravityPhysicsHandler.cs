@@ -1,5 +1,4 @@
 ﻿using System;
-using SimpleJSON;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,10 +6,10 @@ namespace TittyMagic
 {
     internal class GravityPhysicsHandler
     {
-        private MVRScript _script;
-        private IConfigurator _configurator;
+        private readonly MVRScript _script;
+        private readonly IConfigurator _configurator;
 
-        private bool _useConfigurator;
+        private readonly bool _useConfigurator;
 
         private float _mass;
         private float _amount;
@@ -19,20 +18,22 @@ namespace TittyMagic
 
         public GravityPhysicsHandler(MVRScript script)
         {
-            SetInvertJoint2RotationY(false);
+            Globals.BREAST_CONTROL.invertJoint2RotationY = false;
 
             _script = script;
             try
             {
                 _configurator = (IConfigurator) _script;
                 _configurator.InitMainUI();
-                _configurator.EnableAdjustment.toggle.onValueChanged.AddListener((bool val) =>
-                {
-                    if(!val)
+                _configurator.EnableAdjustment.toggle.onValueChanged.AddListener(
+                    val =>
                     {
-                        ResetAll();
+                        if(!val)
+                        {
+                            ResetAll();
+                        }
                     }
-                });
+                );
                 _useConfigurator = true;
             }
             catch(Exception)
@@ -45,16 +46,16 @@ namespace TittyMagic
         {
             _configSets = LoadSettingsFromFile(mode);
 
-            //not working properly yet when changing mode on the fly
+            // not working properly yet when changing mode on the fly
             if(_useConfigurator)
             {
                 _configurator.ResetUISectionGroups();
-                //_configurator.InitUISectionGroup(Direction.DOWN, _configSets[Direction.DOWN]);
-                //_configurator.InitUISectionGroup(Direction.UP, _configSets[Direction.UP]);
-                //_configurator.InitUISectionGroup(Direction.BACK, _configSets[Direction.BACK]);
-                //_configurator.InitUISectionGroup(Direction.FORWARD, _configSets[Direction.FORWARD]);
-                //_configurator.InitUISectionGroup(Direction.LEFT, _configSets[Direction.LEFT]);
-                //_configurator.InitUISectionGroup(Direction.RIGHT, _configSets[Direction.RIGHT]);
+                // _configurator.InitUISectionGroup(Direction.DOWN, _configSets[Direction.DOWN]);
+                // _configurator.InitUISectionGroup(Direction.UP, _configSets[Direction.UP]);
+                // _configurator.InitUISectionGroup(Direction.BACK, _configSets[Direction.BACK]);
+                // _configurator.InitUISectionGroup(Direction.FORWARD, _configSets[Direction.FORWARD]);
+                // _configurator.InitUISectionGroup(Direction.LEFT, _configSets[Direction.LEFT]);
+                // _configurator.InitUISectionGroup(Direction.RIGHT, _configSets[Direction.RIGHT]);
                 _configurator.AddButtonListeners();
             }
         }
@@ -62,25 +63,32 @@ namespace TittyMagic
         private Dictionary<string, List<Config>> LoadSettingsFromFile(string mode)
         {
             var configSets = new Dictionary<string, List<Config>>();
-            Persistence.LoadModeGravityPhysicsSettings(_script, mode, (dir, json) =>
-            {
-                foreach(string direction in json.Keys)
+            Persistence.LoadModeGravityPhysicsSettings(
+                _script,
+                mode,
+                (dir, json) =>
                 {
-                    var configs = new List<Config>();
-                    JSONClass groupJson = json[direction].AsObject;
-                    foreach(string name in groupJson.Keys)
+                    foreach(string direction in json.Keys)
                     {
-                        configs.Add(new GravityPhysicsConfig(
-                            name,
-                            groupJson[name]["Type"],
-                            groupJson[name]["IsNegative"].AsBool,
-                            groupJson[name]["Multiplier1"].AsFloat,
-                            groupJson[name]["Multiplier2"].AsFloat
-                        ));
+                        var configs = new List<Config>();
+                        var groupJson = json[direction].AsObject;
+                        foreach(string name in groupJson.Keys)
+                        {
+                            configs.Add(
+                                new GravityPhysicsConfig(
+                                    name,
+                                    groupJson[name]["Type"],
+                                    groupJson[name]["IsNegative"].AsBool,
+                                    groupJson[name]["Multiplier1"].AsFloat,
+                                    groupJson[name]["Multiplier2"].AsFloat
+                                )
+                            );
+                        }
+
+                        configSets[direction] = configs;
                     }
-                    configSets[direction] = configs;
                 }
-            });
+            );
             return configSets;
         }
 
@@ -88,11 +96,12 @@ namespace TittyMagic
         {
             foreach(var kvp in _configSets)
             {
-                foreach(GravityPhysicsConfig config in kvp.Value)
+                foreach(var config in kvp.Value)
                 {
-                    if(config.Type == "additive")
+                    var gravityPhysicsConfig = (GravityPhysicsConfig) config;
+                    if(gravityPhysicsConfig.Type == "additive")
                     {
-                        config.BaseValue = config.Setting.val;
+                        gravityPhysicsConfig.BaseValue = gravityPhysicsConfig.Setting.val;
                     }
                 }
             }
@@ -100,11 +109,7 @@ namespace TittyMagic
 
         public bool IsEnabled()
         {
-            if(!_useConfigurator)
-            {
-                return true;
-            }
-            return _configurator.EnableAdjustment.val;
+            return !_useConfigurator || _configurator.EnableAdjustment.val;
         }
 
         public void Update(
@@ -184,12 +189,13 @@ namespace TittyMagic
 
         private void UpdateRollPhysics(string configSetName, float effect)
         {
-            foreach(GravityPhysicsConfig config in _configSets[configSetName])
+            foreach(var config in _configSets[configSetName])
             {
-                UpdateValue(config, effect);
+                var gravityPhysicsConfig = (GravityPhysicsConfig) config;
+                UpdateValue(gravityPhysicsConfig, effect);
                 if(_useConfigurator)
                 {
-                    _configurator.UpdateValueSlider(configSetName, config.Name, config.Setting.val);
+                    _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.Name, gravityPhysicsConfig.Setting.val);
                 }
             }
         }
@@ -197,12 +203,13 @@ namespace TittyMagic
         private void UpdatePitchPhysics(string configSetName, float effect, float roll)
         {
             float adjusted = effect * (1 - Mathf.Abs(roll));
-            foreach(GravityPhysicsConfig config in _configSets[configSetName])
+            foreach(var config in _configSets[configSetName])
             {
-                UpdateValue(config, adjusted);
+                var gravityPhysicsConfig = (GravityPhysicsConfig) config;
+                UpdateValue(gravityPhysicsConfig, adjusted);
                 if(_useConfigurator)
                 {
-                    _configurator.UpdateValueSlider(configSetName, config.Name, config.Setting.val);
+                    _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.Name, gravityPhysicsConfig.Setting.val);
                 }
             }
         }
@@ -210,8 +217,8 @@ namespace TittyMagic
         private void UpdateValue(GravityPhysicsConfig config, float effect)
         {
             float value =
-                _amount * config.Multiplier1 * effect / 2 +
-                _mass * config.Multiplier2 * effect / 2;
+                (_amount * config.Multiplier1 * effect / 2) +
+                (_mass * config.Multiplier2 * effect / 2);
 
             bool inRange = config.IsNegative ? value < 0 : value > 0;
 
@@ -227,47 +234,43 @@ namespace TittyMagic
 
         public void ZeroAll()
         {
-            _configSets?.Keys.ToList().ForEach(key => ZeroPhysics(key));
+            _configSets?.Keys.ToList().ForEach(ZeroPhysics);
         }
 
         public void ResetAll()
         {
-            _configSets?.Keys.ToList().ForEach(key => ResetPhysics(key));
-        }
-
-        public void SetInvertJoint2RotationY(bool value)
-        {
-            // false: Right/left angle target moves both breasts in the same direction
-            Globals.BREAST_CONTROL.invertJoint2RotationY = value;
+            _configSets?.Keys.ToList().ForEach(ResetPhysics);
         }
 
         private void ZeroPhysics(string configSetName)
         {
-            foreach(GravityPhysicsConfig config in _configSets[configSetName])
+            foreach(var config in _configSets[configSetName])
             {
-                if(config.Type == "additive")
+                var gravityPhysicsConfig = (GravityPhysicsConfig) config;
+                if(gravityPhysicsConfig.Type == "additive")
                 {
                     return;
                 }
 
-                float newValue = 0f;
-                config.Setting.val = newValue;
+                const float newValue = 0f;
+                gravityPhysicsConfig.Setting.val = newValue;
                 if(_useConfigurator)
                 {
-                    _configurator.UpdateValueSlider(configSetName, config.Name, newValue);
+                    _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.Name, newValue);
                 }
             }
         }
 
         private void ResetPhysics(string configSetName)
         {
-            foreach(GravityPhysicsConfig config in _configSets[configSetName])
+            foreach(var config in _configSets[configSetName])
             {
-                float newValue = config.Type == "additive" ? config.BaseValue : config.OriginalValue;
-                config.Setting.val = newValue;
+                var gravityPhysicsConfig = (GravityPhysicsConfig) config;
+                float newValue = gravityPhysicsConfig.Type == "additive" ? gravityPhysicsConfig.BaseValue : gravityPhysicsConfig.OriginalValue;
+                gravityPhysicsConfig.Setting.val = newValue;
                 if(_useConfigurator)
                 {
-                    _configurator.UpdateValueSlider(configSetName, config.Name, newValue);
+                    _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.Name, newValue);
                 }
             }
         }

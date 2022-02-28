@@ -5,7 +5,7 @@ namespace TittyMagic
 {
     internal class SliderClickMonitor : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
-        public bool isDown = false;
+        public bool isDown;
 
         public void OnPointerDown(PointerEventData data)
         {

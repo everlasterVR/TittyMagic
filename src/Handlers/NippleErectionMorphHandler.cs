@@ -4,17 +4,17 @@ namespace TittyMagic
 {
     internal class NippleErectionMorphHandler
     {
-        private List<MorphConfig> _configs = new List<MorphConfig>
+        private readonly List<MorphConfig> _configs = new List<MorphConfig>
         {
-            { new MorphConfig("TM_NippleErection") },
-            //{ new MorphConfig("Nipples Depth") }, // Spacedog.Import_Reloaded_Lite.2
-            //{ new MorphConfig("Natural Nipples") }, // Spacedog.Import_Reloaded_Lite.2
-            //{ new MorphConfig("Nipple") }, // Spacedog.Import_Reloaded_Lite.2
-            //{ new MorphConfig("Nipple Length") },
-            //{ new MorphConfig("Nipples Apply") },
-            //{ new MorphConfig("Nipples Bulbous") }, // kemenate.Morphs.10
-            //{ new MorphConfig("Nipples Sag") }, // kemenate.Morphs.10
-            //{ new MorphConfig("Nipples Tilt") }, // kemenate.Morphs.10
+            new MorphConfig("TM_NippleErection"),
+            // new MorphConfig("Nipples Depth"), // Spacedog.Import_Reloaded_Lite.2
+            // new MorphConfig("Natural Nipples"), // Spacedog.Import_Reloaded_Lite.2
+            // new MorphConfig("Nipple"), // Spacedog.Import_Reloaded_Lite.2
+            // new MorphConfig("Nipple Length"),
+            // new MorphConfig("Nipples Apply"),
+            // new MorphConfig("Nipples Bulbous"), // kemenate.Morphs.10
+            // new MorphConfig("Nipples Sag"), // kemenate.Morphs.10
+            // new MorphConfig("Nipples Tilt") // kemenate.Morphs.10
         };
 
         public NippleErectionMorphHandler(MVRScript script)
@@ -22,19 +22,22 @@ namespace TittyMagic
             LoadSettings(script, _configs);
         }
 
-        private void LoadSettings(MVRScript script, List<MorphConfig> configs)
+        private static void LoadSettings(MVRScript script, List<MorphConfig> configs)
         {
-            Persistence.LoadNippleMorphSettings(script, (dir, json) =>
-            {
-                foreach(var config in configs)
+            Persistence.LoadNippleMorphSettings(
+                script,
+                (dir, json) =>
                 {
-                    if(json.HasKey(config.Name))
+                    foreach(var config in configs)
                     {
-                        float value = json[config.Name].AsFloat;
-                        config.BaseMultiplier = value;
+                        if(json.HasKey(config.Name))
+                        {
+                            float value = json[config.Name].AsFloat;
+                            config.BaseMultiplier = value;
+                        }
                     }
                 }
-            });
+            );
         }
 
         public void Update(float nippleErection)

@@ -7,11 +7,9 @@ namespace TittyMagic
 {
     internal class RelativePosMorphHandler
     {
-        private MVRScript _script;
-        private IConfigurator _configurator;
-
-        private bool _useConfigurator;
-
+        private readonly MVRScript _script;
+        private readonly IConfigurator _configurator;
+        private readonly bool _useConfigurator;
         private float _yAngleMultiplier;
         private float _xAngleMultiplier;
         private float _backDepthMultiplier;
@@ -29,13 +27,15 @@ namespace TittyMagic
             {
                 _configurator = (IConfigurator) _script;
                 _configurator.InitMainUI();
-                _configurator.EnableAdjustment.toggle.onValueChanged.AddListener((bool val) =>
-                {
-                    if(!val)
+                _configurator.EnableAdjustment.toggle.onValueChanged.AddListener(
+                    val =>
                     {
-                        ResetAll();
+                        if(!val)
+                        {
+                            ResetAll();
+                        }
                     }
-                });
+                );
                 _useConfigurator = true;
             }
             catch(Exception)
@@ -65,62 +65,66 @@ namespace TittyMagic
                 { Direction.RIGHT_R, LoadSettingsFromFile(mode, "rightForceR") },
             };
 
-            //not working properly yet when changing mode on the fly
+            // not working properly yet when changing mode on the fly
             if(_useConfigurator)
             {
                 _configurator.ResetUISectionGroups();
-                //_configurator.InitUISectionGroup(Direction.DOWN_L, _configSets[Direction.DOWN_L]);
-                //_configurator.InitUISectionGroup(Direction.DOWN_R, _configSets[Direction.DOWN_R]);
-                //_configurator.InitUISectionGroup(Direction.UP_L, _configSets[Direction.UP_L]);
-                //_configurator.InitUISectionGroup(Direction.UP_R, _configSets[Direction.UP_R]);
-                //_configurator.InitUISectionGroup(Direction.UP_C, _configSets[Direction.UP_C]);
-                //_configurator.InitUISectionGroup(Direction.BACK_L, _configSets[Direction.BACK_L]);
-                //_configurator.InitUISectionGroup(Direction.BACK_R, _configSets[Direction.BACK_R]);
-                //_configurator.InitUISectionGroup(Direction.BACK_C, _configSets[Direction.BACK_C]);
-                //_configurator.InitUISectionGroup(Direction.FORWARD_L, _configSets[Direction.FORWARD_L]);
-                //_configurator.InitUISectionGroup(Direction.FORWARD_R, _configSets[Direction.FORWARD_R]);
-                //_configurator.InitUISectionGroup(Direction.FORWARD_C, _configSets[Direction.FORWARD_C]);
-                //_configurator.InitUISectionGroup(Direction.LEFT_L, _configSets[Direction.LEFT_L]);
-                //_configurator.InitUISectionGroup(Direction.LEFT_R, _configSets[Direction.LEFT_R]);
-                //_configurator.InitUISectionGroup(Direction.RIGHT_L, _configSets[Direction.RIGHT_L]);
-                //_configurator.InitUISectionGroup(Direction.RIGHT_R, _configSets[Direction.RIGHT_R]);
+                // _configurator.InitUISectionGroup(Direction.DOWN_L, _configSets[Direction.DOWN_L]);
+                // _configurator.InitUISectionGroup(Direction.DOWN_R, _configSets[Direction.DOWN_R]);
+                // _configurator.InitUISectionGroup(Direction.UP_L, _configSets[Direction.UP_L]);
+                // _configurator.InitUISectionGroup(Direction.UP_R, _configSets[Direction.UP_R]);
+                // _configurator.InitUISectionGroup(Direction.UP_C, _configSets[Direction.UP_C]);
+                // _configurator.InitUISectionGroup(Direction.BACK_L, _configSets[Direction.BACK_L]);
+                // _configurator.InitUISectionGroup(Direction.BACK_R, _configSets[Direction.BACK_R]);
+                // _configurator.InitUISectionGroup(Direction.BACK_C, _configSets[Direction.BACK_C]);
+                // _configurator.InitUISectionGroup(Direction.FORWARD_L, _configSets[Direction.FORWARD_L]);
+                // _configurator.InitUISectionGroup(Direction.FORWARD_R, _configSets[Direction.FORWARD_R]);
+                // _configurator.InitUISectionGroup(Direction.FORWARD_C, _configSets[Direction.FORWARD_C]);
+                // _configurator.InitUISectionGroup(Direction.LEFT_L, _configSets[Direction.LEFT_L]);
+                // _configurator.InitUISectionGroup(Direction.LEFT_R, _configSets[Direction.LEFT_R]);
+                // _configurator.InitUISectionGroup(Direction.RIGHT_L, _configSets[Direction.RIGHT_L]);
+                // _configurator.InitUISectionGroup(Direction.RIGHT_R, _configSets[Direction.RIGHT_R]);
             }
         }
 
         private List<Config> LoadSettingsFromFile(string mode, string fileName, string morphNameSuffix = null)
         {
             var configs = new List<Config>();
-            Persistence.LoadModeMorphSettings(_script, mode, $"{fileName}.json", (dir, json) =>
-            {
-                foreach(string name in json.Keys)
+            Persistence.LoadModeMorphSettings(
+                _script,
+                mode,
+                $"{fileName}.json",
+                (dir, json) =>
                 {
-                    string morphName = string.IsNullOrEmpty(morphNameSuffix) ? name : name + $"{morphNameSuffix}";
-                    configs.Add(new MorphConfig(
-                        morphName,
-                        json[name]["IsNegative"].AsBool,
-                        json[name]["Multiplier1"].AsFloat,
-                        json[name]["Multiplier2"].AsFloat
-                    ));
+                    foreach(string name in json.Keys)
+                    {
+                        string morphName = string.IsNullOrEmpty(morphNameSuffix) ? name : name + $"{morphNameSuffix}";
+                        configs.Add(
+                            new MorphConfig(
+                                morphName,
+                                json[name]["IsNegative"].AsBool,
+                                json[name]["Multiplier1"].AsFloat,
+                                json[name]["Multiplier2"].AsFloat
+                            )
+                        );
+                    }
                 }
-            });
+            );
             return configs;
         }
 
         public bool IsEnabled()
         {
-            if(!_useConfigurator)
-            {
-                return true;
-            }
-            return _configurator.EnableAdjustment.val;
+            return !_useConfigurator || _configurator.EnableAdjustment.val;
         }
 
-        public void UpdateDebugInfo(string text)
+        private void UpdateDebugInfo(string text)
         {
             if(!_useConfigurator)
             {
                 return;
             }
+
             _configurator.DebugInfo.val = text;
         }
 
@@ -261,12 +265,12 @@ namespace TittyMagic
             }
 
             string infoText =
-                $"{NameValueString("depthDiffLeft", depthDiffLeft, 1000f)} \n" +
-                $"{NameValueString("depthDiffRight", depthDiffRight, 1000f)} \n" +
-                //$"{NameValueString("angleYLeft", angleYLeft, 1000f)} \n" +
-                //$"{NameValueString("angleYRight", angleYRight, 1000f)} \n" +
-                $"{NameValueString("angleXLeft", angleXLeft, 1000f)} \n" +
-                $"{NameValueString("angleXRight", angleXRight, 1000f)} \n";
+                $"{NameValueString("depthDiffLeft", depthDiffLeft)} \n" +
+                $"{NameValueString("depthDiffRight", depthDiffRight)} \n" +
+                // $"{NameValueString("angleYLeft", angleYLeft)} \n" +
+                // $"{NameValueString("angleYRight", angleYRight)} \n" +
+                $"{NameValueString("angleXLeft", angleXLeft)} \n" +
+                $"{NameValueString("angleXRight", angleXRight)} \n";
             UpdateDebugInfo(infoText);
         }
 
@@ -277,7 +281,7 @@ namespace TittyMagic
 
         private float CalculateDepthEffect(float value)
         {
-            var multiplier = value < 0 ? _forwardDepthMultiplier : _backDepthMultiplier;
+            float multiplier = value < 0 ? _forwardDepthMultiplier : _backDepthMultiplier;
             return multiplier * Mathf.Abs(value);
         }
 
@@ -288,12 +292,13 @@ namespace TittyMagic
 
         private void UpdateMorphs(string configSetName, float effect)
         {
-            foreach(MorphConfig config in _configSets[configSetName])
+            foreach(var config in _configSets[configSetName])
             {
-                UpdateValue(config, effect);
+                var morphConfig = (MorphConfig) config;
+                UpdateValue(morphConfig, effect);
                 if(_useConfigurator)
                 {
-                    _configurator.UpdateValueSlider(configSetName, config.Name, config.Morph.morphValue);
+                    _configurator.UpdateValueSlider(configSetName, morphConfig.Name, morphConfig.Morph.morphValue);
                 }
             }
         }
@@ -301,8 +306,8 @@ namespace TittyMagic
         private void UpdateValue(MorphConfig config, float effect)
         {
             float value =
-                _mobility * config.Multiplier1 * effect / 2 +
-                _mass * config.Multiplier2 * effect / 2;
+                (_mobility * config.Multiplier1 * effect / 2) +
+                (_mass * config.Multiplier2 * effect / 2);
 
             bool inRange = config.IsNegative ? value < 0 : value > 0;
             config.Morph.morphValue = inRange ? Calc.RoundToDecimals(value, 1000f) : 0;
@@ -310,17 +315,18 @@ namespace TittyMagic
 
         public void ResetAll()
         {
-            _configSets?.Keys.ToList().ForEach(key => ResetMorphs(key));
+            _configSets?.Keys.ToList().ForEach(ResetMorphs);
         }
 
         private void ResetMorphs(string configSetName)
         {
-            foreach(MorphConfig config in _configSets[configSetName])
+            foreach(var config in _configSets[configSetName])
             {
-                config.Morph.morphValue = 0;
+                var morphConfig = (MorphConfig) config;
+                morphConfig.Morph.morphValue = 0;
                 if(_useConfigurator)
                 {
-                    _configurator.UpdateValueSlider(configSetName, config.Name, 0);
+                    _configurator.UpdateValueSlider(configSetName, morphConfig.Name, 0);
                 }
             }
         }

@@ -6,7 +6,7 @@ namespace TittyMagic
 {
     internal class GravityPhysicsConfigurator : MVRScript, IConfigurator
     {
-        public Dictionary<string, string> titles = new Dictionary<string, string>
+        private readonly Dictionary<string, string> _titles = new Dictionary<string, string>
         {
             { Direction.DOWN, "Upright physics" },
             { Direction.UP, "Upside down physics" },
@@ -17,30 +17,29 @@ namespace TittyMagic
         };
 
         private string _lastBrowseDir;
-        private const string _saveExt = "json";
+        private const string SAVE_EXT = "json";
 
-        private JSONStorableBool _enableAdjustment;
         private UIDynamicButton _saveButton;
         private UIDynamicButton _loadButton;
 
-        public JSONStorableBool EnableAdjustment => _enableAdjustment;
+        public JSONStorableBool EnableAdjustment { get; private set; }
 
         // dummy
-        public JSONStorableString DebugInfo { get; }
+        public JSONStorableString DebugInfo => null;
 
-        private Dictionary<string, Dictionary<string, ConfiguratorUISection>> _UISectionGroups;
+        private Dictionary<string, Dictionary<string, ConfiguratorUISection>> _uiSectionGroups;
 
         public void UpdateValueSlider(string sectionGroupName, string configName, float value)
         {
-            if(!_UISectionGroups.ContainsKey(sectionGroupName))
+            if(!_uiSectionGroups.ContainsKey(sectionGroupName))
             {
                 return;
             }
 
-            var sectionGroup = _UISectionGroups[sectionGroupName];
+            var sectionGroup = _uiSectionGroups[sectionGroupName];
             if(sectionGroup.ContainsKey(configName))
             {
-                var section = _UISectionGroups[sectionGroupName][configName];
+                var section = _uiSectionGroups[sectionGroupName][configName];
                 section.ValueStorable.val = value;
             }
         }
@@ -48,15 +47,16 @@ namespace TittyMagic
         public void InitMainUI()
         {
             ResetUISectionGroups();
-            _enableAdjustment = UI.NewToggle(this, "Enable", true, false);
-            UI.NewSpacer(this, 50f, false);
+            EnableAdjustment = this.NewToggle("Enable", true);
+            this.NewSpacer(50f);
             _saveButton = CreateButton("Save JSON", true);
             _loadButton = CreateButton("Load JSON", true);
         }
 
         public void ResetUISectionGroups()
         {
-            _UISectionGroups = new Dictionary<string, Dictionary<string, ConfiguratorUISection>> {
+            _uiSectionGroups = new Dictionary<string, Dictionary<string, ConfiguratorUISection>>
+            {
                 { Direction.DOWN, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.UP, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.BACK, new Dictionary<string, ConfiguratorUISection>() },
@@ -68,13 +68,14 @@ namespace TittyMagic
 
         public void InitUISectionGroup(string key, List<Config> configs)
         {
-            UI.NewTextField(this, titles[key], titles[key], 40, 115, false);
-            UI.NewSpacer(this, 115f, true);
+            this.NewTextField(_titles[key], _titles[key], 40, 115);
+            this.NewSpacer(115f, true);
 
-            var group = _UISectionGroups[key];
-            foreach(GravityPhysicsConfig config in configs)
+            var group = _uiSectionGroups[key];
+            foreach(var config in configs)
             {
-                group.Add(config.Name, new ConfiguratorUISection(this, config));
+                var gravityPhysicsConfig = (GravityPhysicsConfig) config;
+                group.Add(gravityPhysicsConfig.Name, new ConfiguratorUISection(this, gravityPhysicsConfig));
             }
         }
 
@@ -86,54 +87,61 @@ namespace TittyMagic
 
         private void AddSaveButtonListener(UIDynamicButton button)
         {
-            button.button.onClick.AddListener(() =>
-            {
-                SuperController.singleton.NormalizeMediaPath(_lastBrowseDir ?? Persistence.MakeDefaultDir()); // Sets dir if path exists
-                SuperController.singleton.GetMediaPathDialog((string path) => HandleSave(path), _saveExt);
+            button.button.onClick.AddListener(
+                () =>
+                {
+                    SuperController.singleton.NormalizeMediaPath(_lastBrowseDir ?? Persistence.MakeDefaultDir()); // Sets dir if path exists
+                    SuperController.singleton.GetMediaPathDialog(HandleSave, SAVE_EXT);
 
-                // Update the browser to be a Save browser
-                uFileBrowser.FileBrowser browser = SuperController.singleton.mediaFileBrowserUI;
-                browser.SetTextEntry(true);
-                browser.fileEntryField.text = string.Format("{0}.{1}", ((int) (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds).ToString(), _saveExt);
-                browser.ActivateFileNameField();
-            });
+                    // Update the browser to be a Save browser
+                    var browser = SuperController.singleton.mediaFileBrowserUI;
+                    browser.SetTextEntry(true);
+                    browser.fileEntryField.text = $"{((int) (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds).ToString()}.{SAVE_EXT}";
+                    browser.ActivateFileNameField();
+                }
+            );
         }
 
         private void AddLoadButtonListener(UIDynamicButton button)
         {
-            button.button.onClick.AddListener(() =>
-            {
-                SuperController.singleton.NormalizeMediaPath(_lastBrowseDir ?? Persistence.MakeDefaultDir()); // Sets dir if path exists
-                SuperController.singleton.GetMediaPathDialog((string path) => HandleLoad(path), _saveExt);
-            });
+            button.button.onClick.AddListener(
+                () =>
+                {
+                    SuperController.singleton.NormalizeMediaPath(_lastBrowseDir ?? Persistence.MakeDefaultDir()); // Sets dir if path exists
+                    SuperController.singleton.GetMediaPathDialog(HandleLoad, SAVE_EXT);
+                }
+            );
         }
 
         private void HandleSave(string path)
         {
             var json = new JSONClass();
-            _UISectionGroups.Keys.ToList().ForEach(key =>
-            {
-                var sectionGroup = _UISectionGroups[key];
-                var groupJson = new JSONClass();
-                sectionGroup.Values.ToList().ForEach(item =>
-                {
-                    groupJson[item.Name]["Type"] = item.TypeStorable.val;
-                    groupJson[item.Name]["IsNegative"].AsBool = item.IsNegativeStorable.val;
-                    groupJson[item.Name]["Multiplier1"].AsFloat = Calc.RoundToDecimals(item.Multiplier1Storable.val, 1000f);
-                    groupJson[item.Name]["Multiplier2"].AsFloat = Calc.RoundToDecimals(item.Multiplier2Storable.val, 1000f);
-                });
-                json[key] = groupJson;
-            });
+            _uiSectionGroups.Keys.ToList()
+                .ForEach(
+                    key =>
+                    {
+                        var sectionGroup = _uiSectionGroups[key];
+                        var groupJson = new JSONClass();
+                        sectionGroup.Values.ToList()
+                            .ForEach(
+                                item =>
+                                {
+                                    groupJson[item.Name]["Type"] = item.TypeStorable.val;
+                                    groupJson[item.Name]["IsNegative"].AsBool = item.IsNegativeStorable.val;
+                                    groupJson[item.Name]["Multiplier1"].AsFloat = Calc.RoundToDecimals(item.Multiplier1Storable.val, 1000f);
+                                    groupJson[item.Name]["Multiplier2"].AsFloat = Calc.RoundToDecimals(item.Multiplier2Storable.val, 1000f);
+                                }
+                            );
+                        json[key] = groupJson;
+                    }
+                );
 
-            Persistence.SaveToPath(this, json, path, _saveExt, (dir) =>
-            {
-                _lastBrowseDir = dir;
-            });
+            Persistence.SaveToPath(this, json, path, SAVE_EXT, dir => { _lastBrowseDir = dir; });
         }
 
-        private void HandleLoad(string path)
+        private static void HandleLoad(string path)
         {
-            // TODO ímplement
+            // TODO implement
         }
     }
 }

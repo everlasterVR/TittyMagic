@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using static TittyMagic.Utils;
 
@@ -10,10 +9,9 @@ namespace TittyMagic
     internal class SettingsMonitor : MonoBehaviour
     {
         private float _timeSinceLastCheck;
-        private const float _checkFrequency = 1f; // check for changes to settings every 1 second
+        private const float CHECK_FREQUENCY = 1f; // check for changes to settings every 1 second
 
         private Atom _atom;
-        private FreeControllerV3 _control;
 
         private JSONStorable _breastInOut;
         private JSONStorable _softBodyPhysicsEnabler;
@@ -28,7 +26,6 @@ namespace TittyMagic
         {
             enabled = false; // will be enabled during main refresh cycle
             _atom = containingAtom;
-            _control = _atom.freeControllers.First();
             _breastInOut = _atom.GetStorableByID("BreastInOut");
             _breastInOut.SetBoolParamValue("enabled", false); // In/Out auto morphs off
 
@@ -53,7 +50,7 @@ namespace TittyMagic
             //monitor change to physics rate
             _prevFixedDeltaTime = Time.fixedDeltaTime;
 
-            string softPhysicsRequired = "Enable it to allow physics settings to be recalculated if breast morphs are changed.";
+            const string softPhysicsRequired = "Enable it to allow physics settings to be recalculated if breast morphs are changed.";
             _messages = new Dictionary<string, string>
             {
                 {
@@ -70,14 +67,14 @@ namespace TittyMagic
                 },
                 {
                     "advancedColliders",
-                    $"Advanced Colliders are not enabled in Control & Physics 1 tab. Enable them to allow Animation optimized mode to work correctly."
+                    "Advanced Colliders are not enabled in Control & Physics 1 tab. Enable them to allow Animation optimized mode to work correctly."
                 },
             };
 
             if(!UserPreferences.singleton.softPhysics)
             {
                 UserPreferences.singleton.softPhysics = true;
-                LogMessage($"Soft physics has been enabled in VaM preferences.");
+                LogMessage("Soft physics has been enabled in VaM preferences.");
             }
 
             StartCoroutine(FixInOut());
@@ -103,9 +100,9 @@ namespace TittyMagic
             try
             {
                 _timeSinceLastCheck += Time.unscaledDeltaTime;
-                if(_timeSinceLastCheck >= _checkFrequency)
+                if(_timeSinceLastCheck >= CHECK_FREQUENCY)
                 {
-                    _timeSinceLastCheck -= _checkFrequency;
+                    _timeSinceLastCheck -= CHECK_FREQUENCY;
 
                     _boolValues["prefsSoftPhysics"] = UserPreferences.singleton.softPhysics;
                     _boolValues["bodySoftPhysics"] = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
@@ -120,7 +117,7 @@ namespace TittyMagic
                     }
 
                     bool fullUpdateNeeded = false;
-                    foreach(KeyValuePair<string, bool> kvp in _boolValues)
+                    foreach(var kvp in _boolValues)
                     {
                         fullUpdateNeeded = fullUpdateNeeded || CheckBoolValue(kvp.Key, kvp.Value);
                     }
@@ -131,10 +128,11 @@ namespace TittyMagic
                     }
 
                     float fixedDeltaTime = Time.fixedDeltaTime;
-                    if(fixedDeltaTime != _prevFixedDeltaTime)
+                    if(Math.Abs(fixedDeltaTime - _prevFixedDeltaTime) > 0.001f)
                     {
                         gameObject.GetComponent<Script>().RefreshRateDependentPhysics();
                     }
+
                     _prevFixedDeltaTime = fixedDeltaTime;
                 }
             }
@@ -156,6 +154,7 @@ namespace TittyMagic
             {
                 updateNeeded = true;
             }
+
             _prevBoolValues[key] = value;
             return updateNeeded;
         }

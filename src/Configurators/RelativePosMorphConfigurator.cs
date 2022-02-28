@@ -1,13 +1,13 @@
-﻿using SimpleJSON;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using SimpleJSON;
 using static TittyMagic.Globals;
 
 namespace TittyMagic
 {
     internal class RelativePosMorphConfigurator : MVRScript, IConfigurator
     {
-        public Dictionary<string, string> titles = new Dictionary<string, string>
+        private readonly Dictionary<string, string> _titles = new Dictionary<string, string>
         {
             { Direction.DOWN_L, "Down force morphs L" },
             { Direction.DOWN_R, "Down force morphs R" },
@@ -27,26 +27,25 @@ namespace TittyMagic
         };
 
         private string _lastBrowseDir;
-        private const string _saveExt = "json";
+        private const string SAVE_EXT = "json";
 
-        private JSONStorableBool _enableAdjustment;
-        private JSONStorableString _debugInfo;
+        public JSONStorableBool EnableAdjustment { get; private set; }
 
-        public JSONStorableBool EnableAdjustment => _enableAdjustment;
-        public JSONStorableString DebugInfo => _debugInfo;
+        public JSONStorableString DebugInfo { get; private set; }
 
-        private Dictionary<string, Dictionary<string, ConfiguratorUISection>> _UISectionGroups;
+        private Dictionary<string, Dictionary<string, ConfiguratorUISection>> _uiSectionGroups;
 
         public void UpdateValueSlider(string sectionGroupName, string configName, float value)
         {
-            if(!_UISectionGroups.ContainsKey(sectionGroupName))
+            if(!_uiSectionGroups.ContainsKey(sectionGroupName))
             {
                 return;
             }
-            var sectionGroup = _UISectionGroups[sectionGroupName];
+
+            var sectionGroup = _uiSectionGroups[sectionGroupName];
             if(sectionGroup.ContainsKey(configName))
             {
-                var section = _UISectionGroups[sectionGroupName][configName];
+                var section = _uiSectionGroups[sectionGroupName][configName];
                 section.ValueStorable.val = value;
             }
         }
@@ -54,54 +53,57 @@ namespace TittyMagic
         public void InitMainUI()
         {
             ResetUISectionGroups();
-            _enableAdjustment = UI.NewToggle(this, "Enable", true, false);
-            _debugInfo = UI.NewTextField(this, "positionDiffInfo", "", 20, 115, true);
-            var exportValuesButton = CreateButton("Export values JSON", false);
+            EnableAdjustment = this.NewToggle("Enable", true);
+            DebugInfo = this.NewTextField("positionDiffInfo", "", 20, 115, true);
+            var exportValuesButton = CreateButton("Export values JSON");
             AddExportButtonListener(exportValuesButton);
         }
 
         private void AddExportButtonListener(UIDynamicButton button)
         {
-            button.button.onClick.AddListener(() =>
-            {
-                SuperController.singleton.NormalizeMediaPath($@"{PLUGIN_PATH}settings\"); // Sets dir if path exists
-                SuperController.singleton.GetMediaPathDialog((string path) =>
+            button.button.onClick.AddListener(
+                () =>
                 {
-                    var json = new JSONClass();
-                    _UISectionGroups.Keys.ToList().ForEach(key =>
-                    {
-                        var sectionGroup = _UISectionGroups[key];
-                        var groupJson = new JSONClass();
-                        sectionGroup.Values.ToList().ForEach(item =>
+                    SuperController.singleton.NormalizeMediaPath($@"{PLUGIN_PATH}settings\"); // Sets dir if path exists
+                    SuperController.singleton.GetMediaPathDialog(
+                        path =>
                         {
-                            groupJson[item.Name]["Value"].AsFloat = Calc.RoundToDecimals(item.ValueStorable.val, 1000f);
-                        });
-                        json[key] = groupJson;
-                    });
-                    Persistence.SaveToPath(this, json, path, _saveExt, (dir) =>
-                    {
-                        _lastBrowseDir = dir;
-                    });
-                }, _saveExt);
+                            var json = new JSONClass();
+                            _uiSectionGroups.Keys.ToList()
+                                .ForEach(
+                                    key =>
+                                    {
+                                        var sectionGroup = _uiSectionGroups[key];
+                                        var groupJson = new JSONClass();
+                                        sectionGroup.Values.ToList().ForEach(item => { groupJson[item.Name]["Value"].AsFloat = Calc.RoundToDecimals(item.ValueStorable.val, 1000f); });
+                                        json[key] = groupJson;
+                                    }
+                                );
+                            Persistence.SaveToPath(this, json, path, SAVE_EXT, dir => { _lastBrowseDir = dir; });
+                        },
+                        SAVE_EXT
+                    );
 
-                // Update the browser to be a Save browser
-                uFileBrowser.FileBrowser browser = SuperController.singleton.mediaFileBrowserUI;
-                browser.SetTextEntry(true);
-                browser.fileEntryField.text = string.Format("{0}.{1}", ((int) (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds).ToString(), _saveExt);
-                browser.ActivateFileNameField();
-            });
+                    // Update the browser to be a Save browser
+                    var browser = SuperController.singleton.mediaFileBrowserUI;
+                    browser.SetTextEntry(true);
+                    browser.fileEntryField.text = $"{((int) (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds).ToString()}.{SAVE_EXT}";
+                    browser.ActivateFileNameField();
+                }
+            );
         }
 
         public void ResetUISectionGroups()
         {
-            _UISectionGroups = new Dictionary<string, Dictionary<string, ConfiguratorUISection>> {
+            _uiSectionGroups = new Dictionary<string, Dictionary<string, ConfiguratorUISection>>
+            {
                 { Direction.DOWN_L, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.DOWN_R, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.UP_L, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.UP_R, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.UP_C, new Dictionary<string, ConfiguratorUISection>() },
-                //{ Direction.BACK, new Dictionary<string, ConfiguratorUISection>() },
-                //{ Direction.FORWARD, new Dictionary<string, ConfiguratorUISection>() },
+                // { Direction.BACK, new Dictionary<string, ConfiguratorUISection>() },
+                // { Direction.FORWARD, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.LEFT_L, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.LEFT_R, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.RIGHT_L, new Dictionary<string, ConfiguratorUISection>() },
@@ -111,51 +113,56 @@ namespace TittyMagic
 
         public void InitUISectionGroup(string key, List<Config> configs)
         {
-            UI.NewTextField(this, titles[key], $"{titles[key]}", 40, 115, false);
+            this.NewTextField(_titles[key], $"{_titles[key]}", 40, 115);
             var saveButton = CreateButton("Save JSON", true);
             var loadButton = CreateButton("Load JSON", true);
 
-            var group = _UISectionGroups[key];
+            var group = _uiSectionGroups[key];
 
-            foreach(MorphConfig config in configs)
+            foreach(var config in configs)
             {
-                group.Add(config.Name, new ConfiguratorUISection(this, config));
+                var morphConfig = (MorphConfig) config;
+                group.Add(morphConfig.Name, new ConfiguratorUISection(this, morphConfig));
             }
 
             AddSaveButtonListener(saveButton, group.Values.ToList());
             AddLoadButtonListener(loadButton, group.Values.ToList());
         }
 
-        //dummy
+        // dummy
         public void AddButtonListeners()
         {
         }
 
         private void AddSaveButtonListener(UIDynamicButton button, List<ConfiguratorUISection> sections)
         {
-            button.button.onClick.AddListener(() =>
-            {
-                SuperController.singleton.NormalizeMediaPath(_lastBrowseDir ?? Persistence.MakeDefaultDir()); // Sets dir if path exists
-                SuperController.singleton.GetMediaPathDialog((string path) => HandleSave(path, sections), _saveExt);
+            button.button.onClick.AddListener(
+                () =>
+                {
+                    SuperController.singleton.NormalizeMediaPath(_lastBrowseDir ?? Persistence.MakeDefaultDir()); // Sets dir if path exists
+                    SuperController.singleton.GetMediaPathDialog(path => HandleSave(path, sections), SAVE_EXT);
 
-                // Update the browser to be a Save browser
-                uFileBrowser.FileBrowser browser = SuperController.singleton.mediaFileBrowserUI;
-                browser.SetTextEntry(true);
-                browser.fileEntryField.text = string.Format("{0}.{1}", ((int) (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds).ToString(), _saveExt);
-                browser.ActivateFileNameField();
-            });
+                    // Update the browser to be a Save browser
+                    var browser = SuperController.singleton.mediaFileBrowserUI;
+                    browser.SetTextEntry(true);
+                    browser.fileEntryField.text = $"{((int) (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds).ToString()}.{SAVE_EXT}";
+                    browser.ActivateFileNameField();
+                }
+            );
         }
 
-        protected void AddLoadButtonListener(UIDynamicButton button, List<ConfiguratorUISection> sections)
+        private void AddLoadButtonListener(UIDynamicButton button, List<ConfiguratorUISection> sections)
         {
-            button.button.onClick.AddListener(() =>
-            {
-                SuperController.singleton.NormalizeMediaPath(_lastBrowseDir ?? Persistence.MakeDefaultDir()); // Sets dir if path exists
-                SuperController.singleton.GetMediaPathDialog((string path) => HandleLoad(path, sections), _saveExt);
-            });
+            button.button.onClick.AddListener(
+                () =>
+                {
+                    SuperController.singleton.NormalizeMediaPath(_lastBrowseDir ?? Persistence.MakeDefaultDir()); // Sets dir if path exists
+                    SuperController.singleton.GetMediaPathDialog(path => HandleLoad(path, sections), SAVE_EXT);
+                }
+            );
         }
 
-        protected void HandleSave(string path, List<ConfiguratorUISection> sections)
+        private void HandleSave(string path, List<ConfiguratorUISection> sections)
         {
             var json = new JSONClass();
             foreach(var item in sections)
@@ -164,27 +171,29 @@ namespace TittyMagic
                 json[item.Name]["Multiplier1"].AsFloat = Calc.RoundToDecimals(item.Multiplier1Storable.val, 1000f);
                 json[item.Name]["Multiplier2"].AsFloat = Calc.RoundToDecimals(item.Multiplier2Storable.val, 1000f);
             }
-            Persistence.SaveToPath(this, json, path, _saveExt, (dir) =>
-            {
-                _lastBrowseDir = dir;
-            });
+
+            Persistence.SaveToPath(this, json, path, SAVE_EXT, dir => { _lastBrowseDir = dir; });
         }
 
         // TODO fix, doesn't work
-        protected void HandleLoad(string path, List<ConfiguratorUISection> sections)
+        private void HandleLoad(string path, List<ConfiguratorUISection> sections)
         {
-            Persistence.LoadFromPath(this, path, (dir, json) =>
-            {
-                _lastBrowseDir = dir;
-                foreach(var item in sections)
+            Persistence.LoadFromPath(
+                this,
+                path,
+                (dir, json) =>
                 {
-                    if(json.HasKey(item.Name))
+                    _lastBrowseDir = dir;
+                    foreach(var item in sections)
                     {
-                        item.Multiplier1Storable.val = json[item.Name]["Multiplier1"].AsFloat;
-                        item.Multiplier2Storable.val = json[item.Name]["Multiplier2"].AsFloat;
+                        if(json.HasKey(item.Name))
+                        {
+                            item.Multiplier1Storable.val = json[item.Name]["Multiplier1"].AsFloat;
+                            item.Multiplier2Storable.val = json[item.Name]["Multiplier2"].AsFloat;
+                        }
                     }
                 }
-            });
+            );
         }
     }
 }

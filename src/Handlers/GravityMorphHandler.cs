@@ -7,10 +7,9 @@ namespace TittyMagic
 {
     internal class GravityMorphHandler
     {
-        private MVRScript _script;
-        private IConfigurator _configurator;
-
-        private bool _useConfigurator;
+        private readonly MVRScript _script;
+        private readonly IConfigurator _configurator;
+        private readonly bool _useConfigurator;
 
         private float _mass;
         private float _amount;
@@ -25,13 +24,15 @@ namespace TittyMagic
             {
                 _configurator = (IConfigurator) _script;
                 _configurator.InitMainUI();
-                _configurator.EnableAdjustment.toggle.onValueChanged.AddListener((bool val) =>
-                {
-                    if(!val)
+                _configurator.EnableAdjustment.toggle.onValueChanged.AddListener(
+                    val =>
                     {
-                        ResetAll();
+                        if(!val)
+                        {
+                            ResetAll();
+                        }
                     }
-                });
+                );
                 _useConfigurator = true;
             }
             catch(Exception)
@@ -44,86 +45,94 @@ namespace TittyMagic
         {
             _configSets = new Dictionary<string, List<Config>>
             {
-                { Direction.DOWN, LoadSettingsFromFile(mode, "upright", separateLeftRight: true) },
-                { Direction.UP, LoadSettingsFromFile(mode, "upsideDown", separateLeftRight: true) },
+                { Direction.DOWN, LoadSettingsFromFile(mode, "upright", true) },
+                { Direction.UP, LoadSettingsFromFile(mode, "upsideDown", true) },
                 { Direction.UP_C, LoadSettingsFromFile(mode, "upsideDownCenter") },
                 { Direction.LEFT, LoadSettingsFromFile(mode, "rollLeft") },
                 { Direction.RIGHT, LoadSettingsFromFile(mode, "rollRight") },
-                { Direction.BACK, LoadSettingsFromFile(mode, "leanBack", separateLeftRight: true) },
+                { Direction.BACK, LoadSettingsFromFile(mode, "leanBack", true) },
                 { Direction.BACK_C, LoadSettingsFromFile(mode, "leanBackCenter") },
-                { Direction.FORWARD, LoadSettingsFromFile(mode, "leanForward", separateLeftRight: true) },
+                { Direction.FORWARD, LoadSettingsFromFile(mode, "leanForward", true) },
                 { Direction.FORWARD_C, LoadSettingsFromFile(mode, "leanForwardCenter") },
             };
 
-            //not working properly yet when changing mode on the fly
+            // not working properly yet when changing mode on the fly
             if(_useConfigurator)
             {
                 _configurator.ResetUISectionGroups();
-                //_configurator.InitUISectionGroup(Direction.DOWN, _configSets[Direction.DOWN]);
-                //_configurator.InitUISectionGroup(Direction.UP, _configSets[Direction.UP]);
-                //_configurator.InitUISectionGroup(Direction.UP_C, _configSets[Direction.UP_C]);
-
-                //_configurator.InitUISectionGroup(Direction.LEFT, _configSets[Direction.LEFT]);
-                //_configurator.InitUISectionGroup(Direction.RIGHT, _configSets[Direction.RIGHT]);
-
-                //_configurator.InitUISectionGroup(Direction.BACK, _configSets[Direction.BACK]);
-                //_configurator.InitUISectionGroup(Direction.BACK_C, _configSets[Direction.BACK_C]);
-                //_configurator.InitUISectionGroup(Direction.FORWARD, _configSets[Direction.FORWARD]);
-                //_configurator.InitUISectionGroup(Direction.FORWARD_C, _configSets[Direction.FORWARD_C]);
+                // _configurator.InitUISectionGroup(Direction.DOWN, _configSets[Direction.DOWN]);
+                // _configurator.InitUISectionGroup(Direction.UP, _configSets[Direction.UP]);
+                // _configurator.InitUISectionGroup(Direction.UP_C, _configSets[Direction.UP_C]);
+                //
+                // _configurator.InitUISectionGroup(Direction.LEFT, _configSets[Direction.LEFT]);
+                // _configurator.InitUISectionGroup(Direction.RIGHT, _configSets[Direction.RIGHT]);
+                //
+                // _configurator.InitUISectionGroup(Direction.BACK, _configSets[Direction.BACK]);
+                // _configurator.InitUISectionGroup(Direction.BACK_C, _configSets[Direction.BACK_C]);
+                // _configurator.InitUISectionGroup(Direction.FORWARD, _configSets[Direction.FORWARD]);
+                // _configurator.InitUISectionGroup(Direction.FORWARD_C, _configSets[Direction.FORWARD_C]);
             }
         }
 
         private List<Config> LoadSettingsFromFile(string mode, string fileName, bool separateLeftRight = false)
         {
             var configs = new List<Config>();
-            Persistence.LoadModeMorphSettings(_script, mode, $"{fileName}.json", (dir, json) =>
-            {
-                foreach(string name in json.Keys)
+            Persistence.LoadModeMorphSettings(
+                _script,
+                mode,
+                $"{fileName}.json",
+                (dir, json) =>
                 {
-                    if(separateLeftRight)
+                    foreach(string name in json.Keys)
                     {
-                        configs.Add(new MorphConfig(
-                            $"{name} L",
-                            json[name]["IsNegative"].AsBool,
-                            json[name]["Multiplier1"].AsFloat,
-                            json[name]["Multiplier2"].AsFloat
-                        ));
-                        configs.Add(new MorphConfig(
-                            $"{name} R",
-                            json[name]["IsNegative"].AsBool,
-                            json[name]["Multiplier1"].AsFloat,
-                            json[name]["Multiplier2"].AsFloat
-                        ));
-                    }
-                    else
-                    {
-                        configs.Add(new MorphConfig(
-                            name,
-                            json[name]["IsNegative"].AsBool,
-                            json[name]["Multiplier1"].AsFloat,
-                            json[name]["Multiplier2"].AsFloat
-                        ));
+                        if(separateLeftRight)
+                        {
+                            configs.Add(
+                                new MorphConfig(
+                                    $"{name} L",
+                                    json[name]["IsNegative"].AsBool,
+                                    json[name]["Multiplier1"].AsFloat,
+                                    json[name]["Multiplier2"].AsFloat
+                                )
+                            );
+                            configs.Add(
+                                new MorphConfig(
+                                    $"{name} R",
+                                    json[name]["IsNegative"].AsBool,
+                                    json[name]["Multiplier1"].AsFloat,
+                                    json[name]["Multiplier2"].AsFloat
+                                )
+                            );
+                        }
+                        else
+                        {
+                            configs.Add(
+                                new MorphConfig(
+                                    name,
+                                    json[name]["IsNegative"].AsBool,
+                                    json[name]["Multiplier1"].AsFloat,
+                                    json[name]["Multiplier2"].AsFloat
+                                )
+                            );
+                        }
                     }
                 }
-            });
+            );
             return configs;
         }
 
         public bool IsEnabled()
         {
-            if(!_useConfigurator)
-            {
-                return true;
-            }
-            return _configurator.EnableAdjustment.val;
+            return !_useConfigurator || _configurator.EnableAdjustment.val;
         }
 
-        public void UpdateDebugInfo(string text)
+        private void UpdateDebugInfo(string text)
         {
             if(!_useConfigurator)
             {
                 return;
             }
+
             _configurator.DebugInfo.val = text;
         }
 
@@ -146,8 +155,8 @@ namespace TittyMagic
             AdjustForwardBackMorphs(smoothPitch, smoothRoll);
 
             string infoText =
-                $"{NameValueString("Pitch", pitch, 100f, 15)} {Calc.RoundToDecimals(smoothPitch, 100f)}\n" +
-                $"{NameValueString("Roll", roll, 100f, 15)} {Calc.RoundToDecimals(smoothRoll, 100f)}\n" +
+                $"{NameValueString("Pitch", pitch, 100f)} {Calc.RoundToDecimals(smoothPitch, 100f)}\n" +
+                $"{NameValueString("Roll", roll, 100f)} {Calc.RoundToDecimals(smoothRoll, 100f)}\n" +
                 $"{_additionalRollEffect}";
             UpdateDebugInfo(infoText);
         }
@@ -173,16 +182,16 @@ namespace TittyMagic
             // leaning forward
             if(pitch >= 0)
             {
-                UpdateMorphs(Direction.UP, pitch/2, roll, _additionalRollEffect);
-                UpdateMorphs(Direction.UP_C, pitch/2, roll, _additionalRollEffect);
-                UpdateMorphs(Direction.DOWN, (2 - pitch)/2, roll);
+                UpdateMorphs(Direction.UP, pitch / 2, roll, _additionalRollEffect);
+                UpdateMorphs(Direction.UP_C, pitch / 2, roll, _additionalRollEffect);
+                UpdateMorphs(Direction.DOWN, (2 - pitch) / 2, roll);
             }
             // leaning back
             else
             {
-                UpdateMorphs(Direction.UP, -pitch/2, roll, _additionalRollEffect);
-                UpdateMorphs(Direction.UP_C, -pitch/2, roll, _additionalRollEffect);
-                UpdateMorphs(Direction.DOWN, (2 + pitch)/2, roll);
+                UpdateMorphs(Direction.UP, -pitch / 2, roll, _additionalRollEffect);
+                UpdateMorphs(Direction.UP_C, -pitch / 2, roll, _additionalRollEffect);
+                UpdateMorphs(Direction.DOWN, (2 + pitch) / 2, roll);
             }
         }
 
@@ -232,16 +241,19 @@ namespace TittyMagic
             {
                 effect = effect * (1 - Mathf.Abs(roll.Value));
             }
+
             if(additional.HasValue)
             {
                 effect = effect + additional.Value;
             }
-            foreach(MorphConfig config in _configSets[configSetName])
+
+            foreach(var config in _configSets[configSetName])
             {
-                UpdateValue(config, effect);
+                var morphConfig = (MorphConfig) config;
+                UpdateValue(morphConfig, effect);
                 if(_useConfigurator)
                 {
-                    _configurator.UpdateValueSlider(configSetName, config.Name, config.Morph.morphValue);
+                    _configurator.UpdateValueSlider(configSetName, morphConfig.Name, morphConfig.Morph.morphValue);
                 }
             }
         }
@@ -249,8 +261,8 @@ namespace TittyMagic
         private void UpdateValue(MorphConfig config, float effect)
         {
             float value =
-                _amount * config.Multiplier1 * effect / 2 +
-                _mass * config.Multiplier2 * effect / 2;
+                (_amount * config.Multiplier1 * effect / 2) +
+                (_mass * config.Multiplier2 * effect / 2);
 
             bool inRange = config.IsNegative ? value < 0 : value > 0;
             config.Morph.morphValue = inRange ? Calc.RoundToDecimals(value, 1000f) : 0;
@@ -258,17 +270,18 @@ namespace TittyMagic
 
         public void ResetAll()
         {
-            _configSets?.Keys.ToList().ForEach(key => ResetMorphs(key));
+            _configSets?.Keys.ToList().ForEach(ResetMorphs);
         }
 
         private void ResetMorphs(string configSetName)
         {
-            foreach(MorphConfig config in _configSets[configSetName])
+            foreach(var config in _configSets[configSetName])
             {
-                config.Morph.morphValue = 0;
+                var morphConfig = (MorphConfig) config;
+                morphConfig.Morph.morphValue = 0;
                 if(_useConfigurator)
                 {
-                    _configurator.UpdateValueSlider(configSetName, config.Name, 0);
+                    _configurator.UpdateValueSlider(configSetName, morphConfig.Name, 0);
                 }
             }
         }
