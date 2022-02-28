@@ -54,11 +54,11 @@ namespace TittyMagic
         private JSONStorableString _titleUIText;
         private JSONStorableString _statusUIText;
         private InputField _statusUIInputField;
+#if DEBUG_ON
         private JSONStorableString _debugUIText;
-
+#endif
         private JSONStorableString _modeInfoText;
         private JSONStorableString _gravityInfoText;
-        private JSONStorableString _mobilityInfoText;
 
         private Dictionary<string, UIDynamicButton> _modeButtonGroup;
 
@@ -108,8 +108,6 @@ namespace TittyMagic
                 _trackLeftNipple = new TrackNipple(_chestRb, _pectoralRbLeft, nippleRbLeft);
                 _trackRightNipple = new TrackNipple(_chestRb, _pectoralRbRight, nippleRbRight);
 
-                _geometry = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
-
                 SAVES_DIR = SuperController.singleton.savesDir + @"everlaster\TittyMagicSettings\";
                 MORPHS_PATH = MorphsPath();
                 PLUGIN_PATH = GetPackagePath(this) + @"Custom\Scripts\everlaster\TittyMagic\";
@@ -121,7 +119,7 @@ namespace TittyMagic
                 _settingsMonitor.Init(containingAtom);
 
                 _atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
-                _breastMorphListener = new BreastMorphListener(_geometry.morphBank1.morphs);
+                _breastMorphListener = new BreastMorphListener(GEOMETRY.morphBank1.morphs);
                 _breastMassCalculator = new BreastMassCalculator(_chestRb);
 
                 _staticPhysicsH = new StaticPhysicsHandler();
@@ -435,8 +433,7 @@ namespace TittyMagic
 #if DEBUG_ON
             _debugUIText.SetVal(
                 $"softness {_softnessAmount}\n" +
-                $"gravity {_gravityAmount}\n" +
-                $"mobility {_mobilityAmount}"
+                $"gravity {_gravityAmount}"
             );
 #endif
         }
