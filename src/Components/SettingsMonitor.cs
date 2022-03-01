@@ -56,7 +56,7 @@ namespace TittyMagic
                     float fixedDeltaTime = Time.fixedDeltaTime;
                     if(Math.Abs(fixedDeltaTime - _prevFixedDeltaTime) > 0.001f)
                     {
-                        gameObject.GetComponent<Script>().RefreshRateDependentPhysics();
+                        gameObject.GetComponent<Script>().UpdateRateDependentPhysics();
                     }
 
                     _prevFixedDeltaTime = fixedDeltaTime;

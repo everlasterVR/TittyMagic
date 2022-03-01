@@ -139,6 +139,8 @@ namespace TittyMagic
             _dazCharacter = containingAtom.GetComponentInChildren<DAZCharacter>();
             _breastMassCalculator = new BreastMassCalculator(_dazCharacter.skin);
 
+            _staticPhysicsH = new StaticPhysicsHandler(_isFemale);
+            _gravityPhysicsH = new GravityPhysicsHandler(this);
             _gravityMorphH = new GravityMorphHandler(this);
             _nippleErectionMorphH = new NippleErectionMorphHandler(this);
 
@@ -170,8 +172,6 @@ namespace TittyMagic
                 _settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
                 _settingsMonitor.Init(containingAtom);
 
-                _staticPhysicsH = new StaticPhysicsHandler();
-                _gravityPhysicsH = new GravityPhysicsHandler(this);
                 _relativePosMorphH = new RelativePosMorphHandler(this);
 
                 InitPluginUI();
@@ -199,6 +199,8 @@ namespace TittyMagic
                 _gravityAmount = Mathf.Pow(_gravity.val / 100f, 1 / 2f);
 
                 _gravityMorphH.LoadSettings(Mode.BALANCED);
+                _gravityPhysicsH.LoadSettings(Mode.BALANCED);
+                _staticPhysicsH.LoadPectoralSettings(this);
                 StartCoroutine(WaitToBeginRefresh());
             }
             catch(Exception e)
@@ -608,7 +610,7 @@ namespace TittyMagic
                 _gravityMorphH.Update(_chestRoll, _chestPitch, _massAmount, 0.75f * _gravityAmount);
             }
 
-            if(_isFemale && _gravityPhysicsH.IsEnabled())
+            if(_gravityPhysicsH.IsEnabled())
             {
                 _gravityPhysicsH.Update(_chestRoll, _chestPitch, _massAmount, _gravityAmount);
             }
@@ -762,13 +764,12 @@ namespace TittyMagic
             _gravityPhysicsH.SetBaseValues();
         }
 
-        // TODO finish up
         private IEnumerator RefreshMale()
         {
             _pectoralRbLeft.useGravity = false;
             _pectoralRbRight.useGravity = false;
             _gravityMorphH.ResetAll();
-            // _gravityPhysicsH.ZeroAll();
+            _gravityPhysicsH.ZeroAll();
 
             yield return new WaitForSeconds(0.33f);
             float duration = 0;
@@ -782,14 +783,12 @@ namespace TittyMagic
                 duration += interval;
 
                 _massEstimate = DetermineMassEstimate(_atomScaleListener.scale);
-                _massAmount = Mathf.InverseLerp(0, Const.MASS_MAX, _massEstimate);
-                // _massAmount = _staticPhysicsH.SetAndReturnMassVal(_massEstimate);
-                // _staticPhysicsH.UpdateMainPhysics(_softnessAmount);
+                _massAmount = _staticPhysicsH.SetAndReturnMassVal(_massEstimate);
+                _staticPhysicsH.UpdatePectoralPhysics();
             }
 
             SetMassUIStatus(_atomScaleListener.scale);
-            // _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
-            // _gravityPhysicsH.SetBaseValues();
+            _gravityPhysicsH.SetBaseValues();
         }
 
         private IEnumerator CalibrateNipplesTracking()
@@ -850,7 +849,7 @@ namespace TittyMagic
                 DeviatesAtLeast(_massEstimate, DetermineMassEstimate(_atomScaleListener.scale), 10);
         }
 
-        public void RefreshRateDependentPhysics()
+        public void UpdateRateDependentPhysics()
         {
             _staticPhysicsH.UpdateRateDependentPhysics(_softnessAmount);
         }

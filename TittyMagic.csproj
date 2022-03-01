@@ -145,6 +145,7 @@
     <None Include="settings\staticphysics\balanced\mainPhysics.json" />
     <None Include="settings\staticphysics\balanced\nipplePhysics.json" />
     <None Include="settings\staticphysics\balanced\softPhysics.json" />
+    <None Include="settings\staticphysics\pectoralPhysics.json" />
     <None Include="settings\staticphysics\touchoptimized\mainPhysics.json" />
     <None Include="settings\staticphysics\touchoptimized\nipplePhysics.json" />
     <None Include="settings\staticphysics\touchoptimized\softPhysics.json" />
