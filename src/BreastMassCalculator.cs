@@ -7,16 +7,30 @@ namespace TittyMagic
     internal class BreastMassCalculator
     {
         private readonly DAZSkinV2 _skin;
+        private readonly bool _isFemale;
+        private readonly List<int> _leftIndices;
+        private readonly List<int> _rightIndices;
 
-        public BreastMassCalculator(DAZSkinV2 skin)
+        public BreastMassCalculator(DAZSkinV2 skin, bool isFemale)
         {
             _skin = skin;
+            _isFemale = isFemale;
+            if(_isFemale)
+            {
+                _leftIndices = VertexIndexGroups.LEFT_BREAST;
+                _rightIndices = VertexIndexGroups.RIGHT_BREAST;
+            }
+            else
+            {
+                _leftIndices = VertexIndexGroups.LEFT_PECTORAL;
+                _rightIndices = VertexIndexGroups.RIGHT_PECTORAL;
+            }
         }
 
         public float Calculate(float atomScale)
         {
-            var boundsLeft = BoundsSize(GetPositions(VertexIndexGroups.LEFT_BREAST));
-            var boundsRight = BoundsSize(GetPositions(VertexIndexGroups.RIGHT_BREAST));
+            var boundsLeft = BoundsSize(GetPositions(_leftIndices));
+            var boundsRight = BoundsSize(GetPositions(_rightIndices));
             float leftVolume = EstimateVolume(boundsLeft, atomScale);
             float rightVolume = EstimateVolume(boundsRight, atomScale);
             return VolumeToMass((leftVolume + rightVolume) / 2);
