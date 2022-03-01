@@ -4,8 +4,8 @@ namespace TittyMagic
 {
     internal interface IConfigurator
     {
-        JSONStorableBool EnableAdjustment { get; }
-        JSONStorableString DebugInfo { get; }
+        JSONStorableBool enableAdjustment { get; }
+        JSONStorableString debugInfo { get; }
 
         void InitMainUI();
 

@@ -4,12 +4,13 @@ using UnityEngine;
 
 namespace TittyMagic
 {
-    public class BreastMassCalculator
+    internal class BreastMassCalculator
     {
         private readonly List<DAZPhysicsMeshSoftVerticesSet> _rightBreastMainGroupSets;
         private readonly Rigidbody _chestRb;
         private float _softVolume; // cm^3; spheroid volume estimation of right breast
 
+        // TODO refactor to use specific list of vertices on g2f
         public BreastMassCalculator(Rigidbody chestRb)
         {
             _chestRb = chestRb;

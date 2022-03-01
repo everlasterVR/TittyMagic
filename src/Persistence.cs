@@ -8,7 +8,7 @@ namespace TittyMagic
 {
     internal static class Persistence
     {
-        private static readonly Dictionary<string, string> SettingsNames = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> _settingsNames = new Dictionary<string, string>
         {
             { Mode.ANIM_OPTIMIZED, "animoptimized" },
             { Mode.BALANCED, "balanced" },
@@ -34,19 +34,19 @@ namespace TittyMagic
 
         public static void LoadModePhysicsSettings(MVRScript script, string mode, string fileName, Action<string, JSONClass> callback = null)
         {
-            string path = $@"{PLUGIN_PATH}settings\staticphysics\{SettingsNames[mode]}\{fileName}";
+            string path = $@"{PLUGIN_PATH}settings\staticphysics\{_settingsNames[mode]}\{fileName}";
             LoadFromPath(script, path, callback);
         }
 
         public static void LoadModeGravityPhysicsSettings(MVRScript script, string mode, Action<string, JSONClass> callback = null)
         {
-            string path = $@"{PLUGIN_PATH}settings\gravityphysics\{SettingsNames[mode]}.json";
+            string path = $@"{PLUGIN_PATH}settings\gravityphysics\{_settingsNames[mode]}.json";
             LoadFromPath(script, path, callback);
         }
 
         public static void LoadModeMorphSettings(MVRScript script, string mode, string fileName, Action<string, JSONClass> callback = null)
         {
-            string path = $@"{PLUGIN_PATH}settings\morphmultipliers\{SettingsNames[mode]}\{fileName}";
+            string path = $@"{PLUGIN_PATH}settings\morphmultipliers\{_settingsNames[mode]}\{fileName}";
             LoadFromPath(script, path, callback);
         }
 

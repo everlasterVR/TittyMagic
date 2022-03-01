@@ -22,10 +22,10 @@ namespace TittyMagic
         private UIDynamicButton _saveButton;
         private UIDynamicButton _loadButton;
 
-        public JSONStorableBool EnableAdjustment { get; private set; }
+        public JSONStorableBool enableAdjustment { get; private set; }
 
         // dummy
-        public JSONStorableString DebugInfo => null;
+        public JSONStorableString debugInfo => null;
 
         private Dictionary<string, Dictionary<string, ConfiguratorUISection>> _uiSectionGroups;
 
@@ -40,14 +40,14 @@ namespace TittyMagic
             if(sectionGroup.ContainsKey(configName))
             {
                 var section = _uiSectionGroups[sectionGroupName][configName];
-                section.ValueStorable.val = value;
+                section.valueStorable.val = value;
             }
         }
 
         public void InitMainUI()
         {
             ResetUISectionGroups();
-            EnableAdjustment = this.NewToggle("Enable", true);
+            enableAdjustment = this.NewToggle("Enable", true);
             this.NewSpacer(50f);
             _saveButton = CreateButton("Save JSON", true);
             _loadButton = CreateButton("Load JSON", true);
@@ -75,7 +75,7 @@ namespace TittyMagic
             foreach(var config in configs)
             {
                 var gravityPhysicsConfig = (GravityPhysicsConfig) config;
-                group.Add(gravityPhysicsConfig.Name, new ConfiguratorUISection(this, gravityPhysicsConfig));
+                group.Add(gravityPhysicsConfig.name, new ConfiguratorUISection(this, gravityPhysicsConfig));
             }
         }
 
@@ -126,10 +126,10 @@ namespace TittyMagic
                             .ForEach(
                                 item =>
                                 {
-                                    groupJson[item.Name]["Type"] = item.TypeStorable.val;
-                                    groupJson[item.Name]["IsNegative"].AsBool = item.IsNegativeStorable.val;
-                                    groupJson[item.Name]["Multiplier1"].AsFloat = Calc.RoundToDecimals(item.Multiplier1Storable.val, 1000f);
-                                    groupJson[item.Name]["Multiplier2"].AsFloat = Calc.RoundToDecimals(item.Multiplier2Storable.val, 1000f);
+                                    groupJson[item.name]["Type"] = item.typeStorable.val;
+                                    groupJson[item.name]["IsNegative"].AsBool = item.isNegativeStorable.val;
+                                    groupJson[item.name]["Multiplier1"].AsFloat = Calc.RoundToDecimals(item.multiplier1Storable.val, 1000f);
+                                    groupJson[item.name]["Multiplier2"].AsFloat = Calc.RoundToDecimals(item.multiplier2Storable.val, 1000f);
                                 }
                             );
                         json[key] = groupJson;

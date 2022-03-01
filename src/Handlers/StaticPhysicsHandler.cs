@@ -10,7 +10,7 @@ namespace TittyMagic
         private HashSet<PhysicsConfig> _softPhysicsConfigs;
         private HashSet<PhysicsConfig> _nipplePhysicsConfigs;
 
-        public JSONStorableStringChooser ModeChooser;
+        public JSONStorableStringChooser modeChooser; // TODO male
 
         private float _massVal;
 
@@ -112,7 +112,7 @@ namespace TittyMagic
 
         public float SetAndReturnMassVal(float massEstimate)
         {
-            if(ModeChooser.val != Mode.TOUCH_OPTIMIZED)
+            if(modeChooser.val != Mode.TOUCH_OPTIMIZED)
             {
                 BREAST_CONTROL.mass = massEstimate;
             }
@@ -126,7 +126,7 @@ namespace TittyMagic
             float physicsRateMultiplier = PhysicsRateMultiplier();
             foreach(var it in _mainPhysicsConfigs)
             {
-                if(it.DependOnPhysicsRate)
+                if(it.dependOnPhysicsRate)
                     it.UpdateVal(_massVal, softnessVal, physicsRateMultiplier);
                 else
                     it.UpdateVal(_massVal, softnessVal);
@@ -138,13 +138,13 @@ namespace TittyMagic
             float physicsRateMultiplier = PhysicsRateMultiplier();
             foreach(var it in _mainPhysicsConfigs)
             {
-                if(it.DependOnPhysicsRate)
+                if(it.dependOnPhysicsRate)
                     it.UpdateVal(_massVal, softnessVal, physicsRateMultiplier);
             }
 
             foreach(var it in _softPhysicsConfigs)
             {
-                if(it.DependOnPhysicsRate)
+                if(it.dependOnPhysicsRate)
                     it.UpdateVal(_massVal, softnessVal, physicsRateMultiplier);
             }
         }
@@ -162,7 +162,7 @@ namespace TittyMagic
             float physicsRateMultiplier = PhysicsRateMultiplier();
             foreach(var it in _mainPhysicsConfigs)
             {
-                if(it.DependOnPhysicsRate)
+                if(it.dependOnPhysicsRate)
                     it.UpdateVal(_massVal, softnessVal, physicsRateMultiplier);
                 else
                     it.UpdateVal(_massVal, softnessVal);
@@ -170,7 +170,7 @@ namespace TittyMagic
 
             foreach(var it in _softPhysicsConfigs)
             {
-                if(it.DependOnPhysicsRate)
+                if(it.dependOnPhysicsRate)
                     it.UpdateVal(_massVal, softnessVal, physicsRateMultiplier);
                 else
                     it.UpdateVal(_massVal, softnessVal);

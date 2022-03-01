@@ -11,18 +11,18 @@ namespace TittyMagic
     {
         private Script _script;
 
-        public Dictionary<string, string> Settings { get; set; }
-        public List<object> OnKeyDownActions { get; set; }
-        public JSONStorableAction OpenUIAction { get; set; }
+        public Dictionary<string, string> settings { get; set; }
+        public List<object> onKeyDownActions { get; set; }
+        public JSONStorableAction openUIAction { get; set; }
 
         public void Init(Script script)
         {
             _script = script;
-            Settings = new Dictionary<string, string>
+            settings = new Dictionary<string, string>
             {
                 { "Namespace", nameof(TittyMagic) },
             };
-            OnKeyDownActions = new List<object>
+            onKeyDownActions = new List<object>
             {
                 OpenUI(),
             };
@@ -30,8 +30,8 @@ namespace TittyMagic
 
         private object OpenUI()
         {
-            OpenUIAction = new JSONStorableAction(nameof(OpenUI), () => ShowUI(() => StartCoroutine(SelectPluginUICo())));
-            return OpenUIAction;
+            openUIAction = new JSONStorableAction(nameof(OpenUI), () => ShowUI(() => StartCoroutine(SelectPluginUICo())));
+            return openUIAction;
         }
 
         private void ShowUI(Action callback = null)

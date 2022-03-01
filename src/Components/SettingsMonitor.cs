@@ -22,6 +22,7 @@ namespace TittyMagic
 
         private float _prevFixedDeltaTime;
 
+        // TODO male init
         public void Init(Atom containingAtom)
         {
             enabled = false; // will be enabled during main refresh cycle

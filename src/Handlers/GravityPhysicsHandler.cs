@@ -25,7 +25,7 @@ namespace TittyMagic
             {
                 _configurator = (IConfigurator) _script;
                 _configurator.InitMainUI();
-                _configurator.EnableAdjustment.toggle.onValueChanged.AddListener(
+                _configurator.enableAdjustment.toggle.onValueChanged.AddListener(
                     val =>
                     {
                         if(!val)
@@ -99,9 +99,9 @@ namespace TittyMagic
                 foreach(var config in kvp.Value)
                 {
                     var gravityPhysicsConfig = (GravityPhysicsConfig) config;
-                    if(gravityPhysicsConfig.Type == "additive")
+                    if(gravityPhysicsConfig.type == "additive")
                     {
-                        gravityPhysicsConfig.BaseValue = gravityPhysicsConfig.Setting.val;
+                        gravityPhysicsConfig.baseValue = gravityPhysicsConfig.setting.val;
                     }
                 }
             }
@@ -109,7 +109,7 @@ namespace TittyMagic
 
         public bool IsEnabled()
         {
-            return !_useConfigurator || _configurator.EnableAdjustment.val;
+            return !_useConfigurator || _configurator.enableAdjustment.val;
         }
 
         public void Update(
@@ -195,7 +195,7 @@ namespace TittyMagic
                 UpdateValue(gravityPhysicsConfig, effect);
                 if(_useConfigurator)
                 {
-                    _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.Name, gravityPhysicsConfig.Setting.val);
+                    _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.name, gravityPhysicsConfig.setting.val);
                 }
             }
         }
@@ -209,7 +209,7 @@ namespace TittyMagic
                 UpdateValue(gravityPhysicsConfig, adjusted);
                 if(_useConfigurator)
                 {
-                    _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.Name, gravityPhysicsConfig.Setting.val);
+                    _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.name, gravityPhysicsConfig.setting.val);
                 }
             }
         }
@@ -217,18 +217,18 @@ namespace TittyMagic
         private void UpdateValue(GravityPhysicsConfig config, float effect)
         {
             float value =
-                (_amount * config.Multiplier1 * effect / 2) +
-                (_mass * config.Multiplier2 * effect / 2);
+                (_amount * config.multiplier1 * effect / 2) +
+                (_mass * config.multiplier2 * effect / 2);
 
-            bool inRange = config.IsNegative ? value < 0 : value > 0;
+            bool inRange = config.isNegative ? value < 0 : value > 0;
 
-            if(config.Type == "direct")
+            if(config.type == "direct")
             {
-                config.Setting.val = inRange ? value : 0;
+                config.setting.val = inRange ? value : 0;
             }
-            else if(config.Type == "additive")
+            else if(config.type == "additive")
             {
-                config.Setting.val = inRange ? config.BaseValue + value : config.BaseValue;
+                config.setting.val = inRange ? config.baseValue + value : config.baseValue;
             }
         }
 
@@ -247,16 +247,16 @@ namespace TittyMagic
             foreach(var config in _configSets[configSetName])
             {
                 var gravityPhysicsConfig = (GravityPhysicsConfig) config;
-                if(gravityPhysicsConfig.Type == "additive")
+                if(gravityPhysicsConfig.type == "additive")
                 {
                     return;
                 }
 
                 const float newValue = 0f;
-                gravityPhysicsConfig.Setting.val = newValue;
+                gravityPhysicsConfig.setting.val = newValue;
                 if(_useConfigurator)
                 {
-                    _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.Name, newValue);
+                    _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.name, newValue);
                 }
             }
         }
@@ -266,11 +266,11 @@ namespace TittyMagic
             foreach(var config in _configSets[configSetName])
             {
                 var gravityPhysicsConfig = (GravityPhysicsConfig) config;
-                float newValue = gravityPhysicsConfig.Type == "additive" ? gravityPhysicsConfig.BaseValue : gravityPhysicsConfig.OriginalValue;
-                gravityPhysicsConfig.Setting.val = newValue;
+                float newValue = gravityPhysicsConfig.type == "additive" ? gravityPhysicsConfig.baseValue : gravityPhysicsConfig.originalValue;
+                gravityPhysicsConfig.setting.val = newValue;
                 if(_useConfigurator)
                 {
-                    _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.Name, newValue);
+                    _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.name, newValue);
                 }
             }
         }

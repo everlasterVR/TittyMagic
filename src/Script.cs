@@ -1,5 +1,4 @@
-﻿// #define DEBUG_ON
-// #define USE_CONFIGURATORS
+﻿// #define USE_CONFIGURATORS
 
 using System;
 using System.Collections;
@@ -19,6 +18,7 @@ namespace TittyMagic
 
         private Bindings _customBindings;
 
+        private List<Rigidbody> _rigidbodies;
         private Rigidbody _chestRb;
         private Rigidbody _pectoralRbLeft;
         private Rigidbody _pectoralRbRight;
@@ -52,9 +52,6 @@ namespace TittyMagic
         private JSONStorableString _titleUIText;
         private JSONStorableString _statusUIText;
         private InputField _statusUIInputField;
-#if DEBUG_ON
-        private JSONStorableString _debugUIText;
-#endif
         private JSONStorableString _modeInfoText;
         private JSONStorableString _gravityInfoText;
 
@@ -63,6 +60,7 @@ namespace TittyMagic
         private JSONStorableStringChooser _modeChooser;
         private JSONStorableString _pluginVersionStorable;
         private JSONStorableBool _autoRecalibrateOnSizeChange;
+        private UIDynamicButton _recalibrateButton;
         private JSONStorableFloat _softness;
         private SliderClickMonitor _softnessSCM;
         private JSONStorableFloat _gravity;
@@ -72,6 +70,7 @@ namespace TittyMagic
         private UIDynamicToggle _linkSoftnessAndGravityToggle;
         private JSONStorableFloat _nippleErection;
 
+        private bool _isFemale;
         private bool _initDone;
         private bool _loadingFromJson;
         private float _timeSinceListenersChecked;
@@ -116,50 +115,92 @@ namespace TittyMagic
             MORPHS_PATH = MorphsPath();
             PLUGIN_PATH = GetPackagePath(this) + @"Custom\Scripts\everlaster\TittyMagic\";
             GEOMETRY = (DAZCharacterSelector) containingAtom.GetStorableByID("geometry");
-            BREAST_CONTROL = (AdjustJoints) containingAtom.GetStorableByID("BreastControl");
-            BREAST_PHYSICS_MESH = (DAZPhysicsMesh) containingAtom.GetStorableByID("BreastPhysicsMesh");
 
-            var rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
-            _chestRb = rigidbodies.Find(rb => rb.name == "chest");
-            _pectoralRbLeft = rigidbodies.Find(rb => rb.name == "lPectoral");
-            _pectoralRbRight = rigidbodies.Find(rb => rb.name == "rPectoral");
-            var nippleRbLeft = rigidbodies.Find(rb => rb.name == "lNipple");
-            var nippleRbRight = rigidbodies.Find(rb => rb.name == "rNipple");
-
-            _trackLeftNipple = new TrackNipple(_chestRb, _pectoralRbLeft, nippleRbLeft);
-            _trackRightNipple = new TrackNipple(_chestRb, _pectoralRbRight, nippleRbRight);
-
-            _settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
-            _settingsMonitor.Init(containingAtom);
-
-            _atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
-            _breastMorphListener = new BreastMorphListener(GEOMETRY.morphBank1.morphs);
-            _breastMassCalculator = new BreastMassCalculator(_chestRb);
-
-            _staticPhysicsH = new StaticPhysicsHandler();
-#if USE_CONFIGURATORS
-                _gravityPhysicsH = new GravityPhysicsHandler(FindPluginOnAtom(containingAtom, "GravityPhysicsConfigurator"));
-                _gravityMorphH = new GravityMorphHandler(FindPluginOnAtom(containingAtom, "GravityMorphConfigurator"));
-                _relativePosMorphH = new RelativePosMorphHandler(FindPluginOnAtom(containingAtom, "RelativePosMorphConfigurator"));
-#else
-            _gravityPhysicsH = new GravityPhysicsHandler(this);
-            _gravityMorphH = new GravityMorphHandler(this);
-            _relativePosMorphH = new RelativePosMorphHandler(this);
-#endif
-            _nippleErectionMorphH = new NippleErectionMorphHandler(this);
-
-            InitPluginUILeft();
-            InitPluginUIRight();
-            InitSliderListeners();
-            SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
-
-            if(!_loadingFromJson)
+            _isFemale = GEOMETRY.gender == DAZCharacterSelector.Gender.Female;
+            if(_isFemale)
             {
-                _modeChooser.val = Mode.ANIM_OPTIMIZED; // selection causes BeginRefresh;
+                MORPHS_CONTROL_UI = GEOMETRY.morphsControlUI;
+                BREAST_CONTROL = (AdjustJoints) containingAtom.GetStorableByID("BreastControl");
+                BREAST_PHYSICS_MESH = (DAZPhysicsMesh) containingAtom.GetStorableByID("BreastPhysicsMesh");
+            }
+            else
+            {
+                MORPHS_CONTROL_UI = GEOMETRY.morphsControlUIOtherGender;
+                BREAST_CONTROL = (AdjustJoints) containingAtom.GetStorableByID("PectoralControl");
             }
 
+            _rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
+            _chestRb = _rigidbodies.Find(rb => rb.name == "chest");
+            _pectoralRbLeft = _rigidbodies.Find(rb => rb.name == "lPectoral");
+            _pectoralRbRight = _rigidbodies.Find(rb => rb.name == "rPectoral");
+
+            _atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
+            _breastMorphListener = new BreastMorphListener(GEOMETRY.morphBank1.morphs); // male morphs?
+            _breastMassCalculator = new BreastMassCalculator(_chestRb);
+
+            _gravityMorphH = new GravityMorphHandler(this);
+            _nippleErectionMorphH = new NippleErectionMorphHandler(this);
+
+            if(_isFemale)
+            {
+                InitFemale();
+            }
+            else
+            {
+                InitMale();
+            }
+
+            SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
             _initDone = true;
             StartCoroutine(SetPluginVersion());
+        }
+
+        private void InitFemale()
+        {
+            try
+            {
+                var nippleRbLeft = _rigidbodies.Find(rb => rb.name == "lNipple");
+                var nippleRbRight = _rigidbodies.Find(rb => rb.name == "rNipple");
+                _trackLeftNipple = new TrackNipple(_chestRb, _pectoralRbLeft, nippleRbLeft);
+                _trackRightNipple = new TrackNipple(_chestRb, _pectoralRbRight, nippleRbRight);
+
+                _settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
+                _settingsMonitor.Init(containingAtom);
+
+                _staticPhysicsH = new StaticPhysicsHandler();
+                _gravityPhysicsH = new GravityPhysicsHandler(this);
+                _relativePosMorphH = new RelativePosMorphHandler(this);
+
+                InitPluginUI();
+                InitSliderListeners();
+
+                if(!_loadingFromJson)
+                {
+                    _modeChooser.val = Mode.ANIM_OPTIMIZED; // selection causes BeginRefresh;
+                }
+            }
+            catch(Exception e)
+            {
+                LogError($"InitFemale: {e}");
+                enabled = false;
+            }
+        }
+
+        private void InitMale()
+        {
+            try
+            {
+                InitPluginUI();
+                _gravityAmount = Mathf.Pow(_gravity.val / 100f, 1 / 2f);
+
+                _gravityMorphH.LoadSettings(Mode.BALANCED);
+                StartCoroutine(WaitToBeginRefresh());
+            }
+            catch(Exception e)
+            {
+                LogError($"InitMale: {e}");
+                enabled = false;
+            }
         }
 
         // https://github.com/vam-community/vam-plugins-interop-specs/blob/main/keybindings.md
@@ -177,8 +218,8 @@ namespace TittyMagic
         {
             _customBindings = gameObject.AddComponent<Bindings>();
             _customBindings.Init(this);
-            bindings.Add(_customBindings.Settings);
-            bindings.AddRange(_customBindings.OnKeyDownActions);
+            bindings.Add(_customBindings.settings);
+            bindings.AddRange(_customBindings.onKeyDownActions);
         }
 
         private IEnumerator SetPluginVersion()
@@ -193,10 +234,42 @@ namespace TittyMagic
 
         #region User interface
 
-        private void InitPluginUILeft()
+        private void InitPluginUI()
         {
             _titleUIText = this.NewTextField("titleText", "", 36, 100);
             _titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{VERSION}</size>");
+
+            _statusUIText = this.NewTextField("statusText", "", 28, 50, true);
+            _statusUIInputField = UI.NewInputField(_statusUIText.dynamicText);
+            _statusUIInputField.interactable = false;
+            _autoRecalibrateOnSizeChange = this.NewToggle("Auto-recalibrate if size changed", true, true);
+            _autoRecalibrateOnSizeChange.storeType = JSONStorableParam.StoreType.Full;
+
+            _recalibrateButton = CreateButton("Recalibrate physics", true);
+            _recalibrateButton.button.interactable = !_autoRecalibrateOnSizeChange.val;
+
+            _autoRecalibrateOnSizeChange.toggle.onValueChanged.AddListener(
+                val => _recalibrateButton.button.interactable = !val
+            );
+
+            this.NewSpacer(20f, true);
+            _modeInfoText = this.NewTextField("Usage Info Area 2", "", 28, 210, true);
+
+            if(_isFemale)
+            {
+                InitPluginUIFemale();
+            }
+            else
+            {
+                InitPluginUIMale();
+            }
+        }
+
+        private void InitPluginUIFemale()
+        {
+            _recalibrateButton.button.onClick.AddListener(
+                () => StartCoroutine(WaitToBeginRefresh(true))
+            );
 
             var modeSelection = this.NewTextField("modeSelection", "", 32, 100);
             modeSelection.SetVal("<size=28>\n\n</size><b>Mode selection</b>");
@@ -204,10 +277,11 @@ namespace TittyMagic
 
             CreateModeChooser();
             _modeButtonGroup = this.CreateRadioButtonGroup(_modeChooser);
-            _staticPhysicsH.ModeChooser = _modeChooser;
+            _staticPhysicsH.modeChooser = _modeChooser;
 
             this.NewSpacer(10f);
             _softness = this.NewIntSlider("Breast softness", 75f, 0f, 100f);
+
             this.NewSpacer(10f);
             _linkSoftnessAndGravity = new JSONStorableBool("Link softness and gravity", true);
             _linkSoftnessAndGravityToggle = this.NewToggle(_linkSoftnessAndGravity);
@@ -223,6 +297,47 @@ namespace TittyMagic
                     _staticPhysicsH.UpdateNipplePhysics(_softnessAmount, val);
                 }
             );
+
+            this.NewSpacer(10f, true);
+            var softnessInfoText = this.NewTextField("Usage Info Area 1", "", 28, 120, true);
+            softnessInfoText.SetVal(
+                UI.Size("\n", 12) +
+                "Adjusts soft physics settings from very firm to very soft."
+            );
+
+            this.NewSpacer(75f, true);
+            _gravityInfoText = this.NewTextField("GravityInfoText", "", 28, 120, true);
+        }
+
+        private void InitPluginUIMale()
+        {
+            _recalibrateButton.button.onClick.AddListener(
+                () => StartCoroutine(WaitToBeginRefresh(true))
+            );
+
+            this.NewSpacer(10f);
+            _gravity = new JSONStorableFloat("Breast gravity", 75f, 0f, 100f);
+
+            this.NewIntSlider(_gravity);
+            _gravity.slider.onValueChanged.AddListener(
+                val => { _gravityAmount = Mathf.Pow(val / 100f, 0.5f); }
+            );
+
+            this.NewSpacer(210f);
+            _nippleErection = this.NewFloatSlider("Nipple erection", 0f, 0f, 1.0f, "F2");
+            _nippleErection.slider.onValueChanged.AddListener(
+                val =>
+                {
+                    _nippleErectionMorphH.Update(val);
+                    // _staticPhysicsH.UpdateNipplePhysics(_softnessAmount, val); // TODO male
+                }
+            );
+
+            _modeInfoText.val = "Futa mode";
+
+            this.NewSpacer(75f, true);
+            _gravityInfoText = this.NewTextField("GravityInfoText", "", 28, 120, true);
+            _gravityInfoText.val = UI.Size("\n", 12) + "Adjusts the amount of morphing in different poses/orientations.";
         }
 
         private void CreateModeChooser()
@@ -329,44 +444,6 @@ namespace TittyMagic
             }
         }
 
-        private void InitPluginUIRight()
-        {
-            const bool rightSide = true;
-            _statusUIText = this.NewTextField("statusText", "", 28, 50, rightSide);
-            _statusUIInputField = UI.NewInputField(_statusUIText.dynamicText);
-            _statusUIInputField.interactable = false;
-            _autoRecalibrateOnSizeChange = this.NewToggle("Auto-recalibrate if size changed", true, rightSide);
-            _autoRecalibrateOnSizeChange.storeType = JSONStorableParam.StoreType.Full;
-
-            var recalibrateButton = CreateButton("Recalibrate physics", rightSide);
-            recalibrateButton.button.interactable = !_autoRecalibrateOnSizeChange.val;
-
-            _autoRecalibrateOnSizeChange.toggle.onValueChanged.AddListener(
-                val => recalibrateButton.button.interactable = !val
-            );
-            recalibrateButton.button.onClick.AddListener(
-                () => StartCoroutine(WaitToBeginRefresh(true))
-            );
-
-            this.NewSpacer(20f, rightSide);
-            _modeInfoText = this.NewTextField("Usage Info Area 2", "", 28, 210, rightSide);
-
-            this.NewSpacer(10f, rightSide);
-            var softnessInfoText = this.NewTextField("Usage Info Area 1", "", 28, 120, rightSide);
-            softnessInfoText.SetVal(
-                UI.Size("\n", 12) +
-                "Adjusts soft physics settings from very firm to very soft."
-            );
-
-            this.NewSpacer(75f, rightSide);
-            _gravityInfoText = this.NewTextField("GravityInfoText", "", 28, 120, true);
-            this.NewSpacer(75f, rightSide);
-
-#if DEBUG_ON
-            _debugUIText = this.NewTextField("debugText", "", 28, 200, rightSide);
-#endif
-        }
-
         private void InitSliderListeners()
         {
             _softnessSCM = _softness.slider.gameObject.AddComponent<SliderClickMonitor>();
@@ -433,15 +510,22 @@ namespace TittyMagic
                 return;
             }
 
-            _chestRoll = Roll(_chestRb.rotation);
-            _chestPitch = Pitch(_chestRb.rotation);
+            try
+            {
+                if(_isFemale && _modeChooser.val == Mode.ANIM_OPTIMIZED)
+                {
+                    _trackLeftNipple.UpdateAnglesAndDepthDiff();
+                    _trackRightNipple.UpdateAnglesAndDepthDiff();
+                }
 
-#if DEBUG_ON
-            _debugUIText.SetVal(
-                $"softness {_softnessAmount}\n" +
-                $"gravity {_gravityAmount}"
-            );
-#endif
+                _chestRoll = Roll(_chestRb.rotation);
+                _chestPitch = Pitch(_chestRb.rotation);
+            }
+            catch(Exception e)
+            {
+                LogError($"Update: {e}");
+                enabled = false;
+            }
         }
 
         private void FixedUpdate()
@@ -453,7 +537,44 @@ namespace TittyMagic
 
             try
             {
-                DoFixedUpdate();
+                if(_refreshStatus == RefreshStatus.MASS_STARTED) return;
+
+                if(_refreshStatus > RefreshStatus.MASS_STARTED)
+                {
+                    if(_isFemale)
+                    {
+                        EndRefreshFemale();
+                    }
+                    else
+                    {
+                        EndRefresh();
+                    }
+                }
+
+                if(_waitStatus != RefreshStatus.DONE) return;
+
+                // TODO male
+                if(_isFemale)
+                {
+                    _timeSinceListenersChecked += Time.deltaTime;
+                    if(_timeSinceListenersChecked >= LISTENERS_CHECK_INTERVAL)
+                    {
+                        _timeSinceListenersChecked -= LISTENERS_CHECK_INTERVAL;
+                        if(CheckListeners())
+                        {
+                            StartCoroutine(WaitToBeginRefresh());
+                            return;
+                        }
+                    }
+                }
+
+                if(_isFemale && _modeChooser.val == Mode.ANIM_OPTIMIZED)
+                {
+                    _trackLeftNipple.UpdateAnglesAndDepthDiff();
+                    _trackRightNipple.UpdateAnglesAndDepthDiff();
+                }
+
+                RunHandlers();
             }
             catch(Exception e)
             {
@@ -462,11 +583,39 @@ namespace TittyMagic
             }
         }
 
-        private void DoFixedUpdate()
+        private void RunHandlers()
         {
-            if(_refreshStatus == RefreshStatus.MASS_STARTED) return;
+            if(_isFemale && _modeChooser.val == Mode.ANIM_OPTIMIZED && _relativePosMorphH.IsEnabled())
+            {
+                _relativePosMorphH.Update(
+                    _trackLeftNipple.angleY,
+                    _trackRightNipple.angleY,
+                    _trackLeftNipple.depthDiff,
+                    _trackRightNipple.depthDiff,
+                    _trackLeftNipple.angleX,
+                    _trackRightNipple.angleX,
+                    _verticalAngleMassMultiplier,
+                    _rollAngleMassMultiplier,
+                    _backDepthDiffMassMultiplier,
+                    _forwardDepthDiffMassMultiplier,
+                    _massAmount,
+                    _gravityAmount
+                );
+            }
+            else if(_gravityMorphH.IsEnabled())
+            {
+                _gravityMorphH.Update(_chestRoll, _chestPitch, _massAmount, 0.75f * _gravityAmount);
+            }
 
-            if(_refreshStatus > RefreshStatus.MASS_STARTED)
+            if(_isFemale && _gravityPhysicsH.IsEnabled())
+            {
+                _gravityPhysicsH.Update(_chestRoll, _chestPitch, _massAmount, _gravityAmount);
+            }
+        }
+
+        private void EndRefreshFemale()
+        {
+            try
             {
                 // simulate gravityPhysics when upright
                 _gravityPhysicsH.Update(0, 0, _massAmount, _gravityAmount);
@@ -492,61 +641,12 @@ namespace TittyMagic
                 {
                     EndRefresh();
                 }
-
-                return;
             }
-
-            _timeSinceListenersChecked += Time.deltaTime;
-            if(_timeSinceListenersChecked >= LISTENERS_CHECK_INTERVAL)
+            catch(Exception e)
             {
-                _timeSinceListenersChecked -= LISTENERS_CHECK_INTERVAL;
-                if(CheckListeners())
-                {
-                    StartCoroutine(WaitToBeginRefresh());
-
-                    return;
-                }
+                LogError($"EndRefreshFemale: {e}");
+                enabled = false;
             }
-
-            if(_waitStatus != RefreshStatus.DONE) return;
-
-            if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
-            {
-                _trackLeftNipple.UpdateAnglesAndDepthDiff();
-                _trackRightNipple.UpdateAnglesAndDepthDiff();
-            }
-
-            RunHandlers();
-        }
-
-        private void RunHandlers()
-        {
-            if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
-            {
-                if(_relativePosMorphH.IsEnabled())
-                {
-                    _relativePosMorphH.Update(
-                        _trackLeftNipple.AngleY,
-                        _trackRightNipple.AngleY,
-                        _trackLeftNipple.DepthDiff,
-                        _trackRightNipple.DepthDiff,
-                        _trackLeftNipple.AngleX,
-                        _trackRightNipple.AngleX,
-                        _verticalAngleMassMultiplier,
-                        _rollAngleMassMultiplier,
-                        _backDepthDiffMassMultiplier,
-                        _forwardDepthDiffMassMultiplier,
-                        _massAmount,
-                        _gravityAmount
-                    );
-                }
-            }
-            else
-            {
-                if(_gravityMorphH.IsEnabled()) _gravityMorphH.Update(_chestRoll, _chestPitch, _massAmount, 0.75f * _gravityAmount);
-            }
-
-            if(_gravityPhysicsH.IsEnabled()) _gravityPhysicsH.Update(_chestRoll, _chestPitch, _massAmount, _gravityAmount);
         }
 
         public IEnumerator WaitToBeginRefresh(bool triggeredManually = false, Action onModeChosen = null)
@@ -566,22 +666,6 @@ namespace TittyMagic
 
         private void PreRefresh()
         {
-            if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
-            {
-                _trackLeftNipple.ResetAnglesAndDepthDiff();
-                _trackRightNipple.ResetAnglesAndDepthDiff();
-            }
-
-            _chestRoll = 0;
-            _chestPitch = 0;
-            _massEstimate = DetermineMassEstimate(_atomScaleListener.Value);
-            _massAmount = _staticPhysicsH.SetAndReturnMassVal(_massEstimate);
-            _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
-            RunHandlers();
-        }
-
-        private IEnumerator BeginRefresh(bool triggeredManually = false)
-        {
             bool mainToggleFrozen =
                 SuperController.singleton.freezeAnimationToggle != null &&
                 SuperController.singleton.freezeAnimationToggle.isOn;
@@ -591,15 +675,33 @@ namespace TittyMagic
             _animationWasSetFrozen = mainToggleFrozen || altToggleFrozen;
             SuperController.singleton.SetFreezeAnimation(true);
 
+            if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
+            {
+                _trackLeftNipple.ResetAnglesAndDepthDiff();
+                _trackRightNipple.ResetAnglesAndDepthDiff();
+            }
+
+            _chestRoll = 0;
+            _chestPitch = 0;
+            _massEstimate = DetermineMassEstimate(_atomScaleListener.scale);
+            _massAmount = _staticPhysicsH.SetAndReturnMassVal(_massEstimate);
+            _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
+            RunHandlers();
+        }
+
+        private IEnumerator BeginRefresh(bool triggeredManually = false)
+        {
             if(!triggeredManually)
             {
                 // ensure refresh actually begins only once listeners report no change
                 yield return new WaitForSeconds(LISTENERS_CHECK_INTERVAL);
 
-                while(_breastMorphListener.Changed() ||
+                while(
+                    _breastMorphListener.Changed() ||
                     _atomScaleListener.Changed() ||
-                    _softnessSCM.isDown ||
-                    _gravitySCM.isDown)
+                    (_softnessSCM != null && _softnessSCM.isDown) ||
+                    (_gravitySCM != null && _gravitySCM.isDown)
+                )
                 {
                     yield return new WaitForSeconds(0.1f);
                 }
@@ -608,7 +710,20 @@ namespace TittyMagic
             }
 
             _refreshStatus = RefreshStatus.MASS_STARTED;
+            if(_isFemale)
+            {
+                yield return RefreshFemale();
+            }
+            else
+            {
+                yield return RefreshMale();
+            }
 
+            _refreshStatus = RefreshStatus.MASS_OK;
+        }
+
+        private IEnumerator RefreshFemale()
+        {
             _settingsMonitor.enabled = false;
 
             // simulate breasts zero G
@@ -623,14 +738,14 @@ namespace TittyMagic
             const float interval = 0.1f;
             while(
                 duration < 1f &&
-                !EqualWithin(1000f, _massEstimate, DetermineMassEstimate(_atomScaleListener.Value))
+                !EqualWithin(1000f, _massEstimate, DetermineMassEstimate(_atomScaleListener.scale))
             )
             {
                 yield return new WaitForSeconds(interval);
                 duration += interval;
 
                 // update mass estimate
-                _massEstimate = DetermineMassEstimate(_atomScaleListener.Value);
+                _massEstimate = DetermineMassEstimate(_atomScaleListener.scale);
 
                 // update main static physics
                 _massAmount = _staticPhysicsH.SetAndReturnMassVal(_massEstimate);
@@ -641,11 +756,42 @@ namespace TittyMagic
                 _staticPhysicsH.UpdateMainPhysics(_softnessAmount);
             }
 
-            SetMassUIStatus(_atomScaleListener.Value);
+            SetMassUIStatus(_atomScaleListener.scale);
             _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
             _gravityPhysicsH.SetBaseValues();
+        }
 
-            _refreshStatus = RefreshStatus.MASS_OK;
+        // TODO finish up
+        private IEnumerator RefreshMale()
+        {
+            // _settingsMonitor.enabled = false;
+
+            _pectoralRbLeft.useGravity = false;
+            _pectoralRbRight.useGravity = false;
+            _gravityMorphH.ResetAll();
+            // _gravityPhysicsH.ZeroAll();
+
+            yield return new WaitForSeconds(0.33f);
+            float duration = 0;
+            const float interval = 0.1f;
+            while(
+                duration < 1f &&
+                !EqualWithin(1000f, _massEstimate, 1f)
+            )
+            {
+                yield return new WaitForSeconds(interval);
+                duration += interval;
+
+                // _massEstimate = DetermineMassEstimate(_atomScaleListener.Value);
+                // _massAmount = _staticPhysicsH.SetAndReturnMassVal(_massEstimate);
+                _massEstimate = 1f;
+                _massAmount = Mathf.InverseLerp(0, Const.MASS_MAX, _massEstimate);
+                // _staticPhysicsH.UpdateMainPhysics(_softnessAmount);
+            }
+
+            // SetMassUIStatus(_atomScaleListener.Value);
+            // _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
+            // _gravityPhysicsH.SetBaseValues();
         }
 
         private IEnumerator CalibrateNipplesTracking()
@@ -654,9 +800,9 @@ namespace TittyMagic
 
             if(!_trackLeftNipple.HasTransform() || !_trackRightNipple.HasTransform())
             {
-                var rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
-                _trackLeftNipple.NippleRb = rigidbodies.Find(rb => rb.name == "lNipple");
-                _trackRightNipple.NippleRb = rigidbodies.Find(rb => rb.name == "rNipple");
+                var rigidbodiesList = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
+                _trackLeftNipple.nippleRb = rigidbodiesList.Find(rb => rb.name == "lNipple");
+                _trackRightNipple.nippleRb = rigidbodiesList.Find(rb => rb.name == "rNipple");
                 if(!_trackLeftNipple.HasTransform() || !_trackRightNipple.HasTransform())
                 {
                     _refreshStatus = RefreshStatus.NEUTRALPOS_OK;
@@ -689,7 +835,11 @@ namespace TittyMagic
             _pectoralRbLeft.useGravity = true;
             _pectoralRbRight.useGravity = true;
             SuperController.singleton.SetFreezeAnimation(_animationWasSetFrozen);
-            _settingsMonitor.enabled = true;
+            if(_settingsMonitor != null)
+            {
+                _settingsMonitor.enabled = true;
+            }
+
             _waitStatus = RefreshStatus.DONE;
             _refreshStatus = RefreshStatus.DONE;
         }
@@ -699,7 +849,7 @@ namespace TittyMagic
             return _autoRecalibrateOnSizeChange.val &&
                 _waitStatus != RefreshStatus.WAITING &&
                 (_breastMorphListener.Changed() || _atomScaleListener.Changed()) &&
-                DeviatesAtLeast(_massEstimate, DetermineMassEstimate(_atomScaleListener.Value), 10);
+                DeviatesAtLeast(_massEstimate, DetermineMassEstimate(_atomScaleListener.scale), 10);
         }
 
         public void RefreshRateDependentPhysics()
@@ -717,6 +867,7 @@ namespace TittyMagic
             return mass;
         }
 
+        // TODO
         private void SetMassUIStatus(float atomScale)
         {
             float mass = _breastMassCalculator.Calculate(atomScale);

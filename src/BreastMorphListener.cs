@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static TittyMagic.Utils;
 
 namespace TittyMagic
 {
@@ -33,6 +32,7 @@ namespace TittyMagic
         private readonly HashSet<DAZMorph> _listenedMorphs = new HashSet<DAZMorph>();
         private readonly Dictionary<string, float> _status = new Dictionary<string, float>();
 
+        // TODO listen for male chest morphs
         public BreastMorphListener(List<DAZMorph> morphs)
         {
             foreach(var morph in morphs)

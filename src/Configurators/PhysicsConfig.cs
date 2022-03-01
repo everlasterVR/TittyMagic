@@ -8,7 +8,7 @@ namespace TittyMagic
         private readonly float _valMinMS; // value at min mass and min softness
         private readonly float _valMaxM; // value at max mass and min softness
         private readonly float _valMaxS; // value at min mass and max softness
-        public bool DependOnPhysicsRate { get; }
+        public bool dependOnPhysicsRate { get; }
 
         public PhysicsConfig(JSONStorableFloat setting, float valMinMS, float valMaxM, float valMaxS, bool dependOnPhysicsRate)
         {
@@ -16,7 +16,7 @@ namespace TittyMagic
             _valMinMS = valMinMS;
             _valMaxM = valMaxM;
             _valMaxS = valMaxS;
-            DependOnPhysicsRate = dependOnPhysicsRate;
+            this.dependOnPhysicsRate = dependOnPhysicsRate;
         }
 
         // input mass and softness normalized to (0,1) range

@@ -5,7 +5,7 @@ using static TittyMagic.Utils;
 
 namespace TittyMagic
 {
-    internal class GravityMorphHandler
+    public class GravityMorphHandler
     {
         private readonly MVRScript _script;
         private readonly IConfigurator _configurator;
@@ -24,7 +24,7 @@ namespace TittyMagic
             {
                 _configurator = (IConfigurator) _script;
                 _configurator.InitMainUI();
-                _configurator.EnableAdjustment.toggle.onValueChanged.AddListener(
+                _configurator.enableAdjustment.toggle.onValueChanged.AddListener(
                     val =>
                     {
                         if(!val)
@@ -123,7 +123,7 @@ namespace TittyMagic
 
         public bool IsEnabled()
         {
-            return !_useConfigurator || _configurator.EnableAdjustment.val;
+            return !_useConfigurator || _configurator.enableAdjustment.val;
         }
 
         private void UpdateDebugInfo(string text)
@@ -133,7 +133,7 @@ namespace TittyMagic
                 return;
             }
 
-            _configurator.DebugInfo.val = text;
+            _configurator.debugInfo.val = text;
         }
 
         public void Update(
@@ -253,7 +253,7 @@ namespace TittyMagic
                 UpdateValue(morphConfig, effect);
                 if(_useConfigurator)
                 {
-                    _configurator.UpdateValueSlider(configSetName, morphConfig.Name, morphConfig.Morph.morphValue);
+                    _configurator.UpdateValueSlider(configSetName, morphConfig.name, morphConfig.morph.morphValue);
                 }
             }
         }
@@ -261,11 +261,11 @@ namespace TittyMagic
         private void UpdateValue(MorphConfig config, float effect)
         {
             float value =
-                (_amount * config.Multiplier1 * effect / 2) +
-                (_mass * config.Multiplier2 * effect / 2);
+                (_amount * config.multiplier1 * effect / 2) +
+                (_mass * config.multiplier2 * effect / 2);
 
-            bool inRange = config.IsNegative ? value < 0 : value > 0;
-            config.Morph.morphValue = inRange ? Calc.RoundToDecimals(value, 1000f) : 0;
+            bool inRange = config.isNegative ? value < 0 : value > 0;
+            config.morph.morphValue = inRange ? Calc.RoundToDecimals(value, 1000f) : 0;
         }
 
         public void ResetAll()
@@ -278,10 +278,10 @@ namespace TittyMagic
             foreach(var config in _configSets[configSetName])
             {
                 var morphConfig = (MorphConfig) config;
-                morphConfig.Morph.morphValue = 0;
+                morphConfig.morph.morphValue = 0;
                 if(_useConfigurator)
                 {
-                    _configurator.UpdateValueSlider(configSetName, morphConfig.Name, 0);
+                    _configurator.UpdateValueSlider(configSetName, morphConfig.name, 0);
                 }
             }
         }

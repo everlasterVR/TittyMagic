@@ -2,7 +2,7 @@
 
 namespace TittyMagic
 {
-    internal class NippleErectionMorphHandler
+    public class NippleErectionMorphHandler
     {
         private readonly List<MorphConfig> _configs = new List<MorphConfig>
         {
@@ -30,10 +30,10 @@ namespace TittyMagic
                 {
                     foreach(var config in configs)
                     {
-                        if(json.HasKey(config.Name))
+                        if(json.HasKey(config.name))
                         {
-                            float value = json[config.Name].AsFloat;
-                            config.BaseMultiplier = value;
+                            float value = json[config.name].AsFloat;
+                            config.baseMultiplier = value;
                         }
                     }
                 }
@@ -44,7 +44,7 @@ namespace TittyMagic
         {
             foreach(var config in _configs)
             {
-                config.Morph.morphValue = nippleErection * config.BaseMultiplier;
+                config.morph.morphValue = nippleErection * config.baseMultiplier;
             }
         }
 
@@ -52,7 +52,7 @@ namespace TittyMagic
         {
             foreach(var config in _configs)
             {
-                config.Morph.morphValue = 0;
+                config.morph.morphValue = 0;
             }
         }
     }

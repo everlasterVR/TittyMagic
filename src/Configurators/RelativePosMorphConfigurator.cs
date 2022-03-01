@@ -29,9 +29,9 @@ namespace TittyMagic
         private string _lastBrowseDir;
         private const string SAVE_EXT = "json";
 
-        public JSONStorableBool EnableAdjustment { get; private set; }
+        public JSONStorableBool enableAdjustment { get; private set; }
 
-        public JSONStorableString DebugInfo { get; private set; }
+        public JSONStorableString debugInfo { get; private set; }
 
         private Dictionary<string, Dictionary<string, ConfiguratorUISection>> _uiSectionGroups;
 
@@ -46,15 +46,15 @@ namespace TittyMagic
             if(sectionGroup.ContainsKey(configName))
             {
                 var section = _uiSectionGroups[sectionGroupName][configName];
-                section.ValueStorable.val = value;
+                section.valueStorable.val = value;
             }
         }
 
         public void InitMainUI()
         {
             ResetUISectionGroups();
-            EnableAdjustment = this.NewToggle("Enable", true);
-            DebugInfo = this.NewTextField("positionDiffInfo", "", 20, 115, true);
+            enableAdjustment = this.NewToggle("Enable", true);
+            debugInfo = this.NewTextField("positionDiffInfo", "", 20, 115, true);
             var exportValuesButton = CreateButton("Export values JSON");
             AddExportButtonListener(exportValuesButton);
         }
@@ -75,7 +75,7 @@ namespace TittyMagic
                                     {
                                         var sectionGroup = _uiSectionGroups[key];
                                         var groupJson = new JSONClass();
-                                        sectionGroup.Values.ToList().ForEach(item => { groupJson[item.Name]["Value"].AsFloat = Calc.RoundToDecimals(item.ValueStorable.val, 1000f); });
+                                        sectionGroup.Values.ToList().ForEach(item => { groupJson[item.name]["Value"].AsFloat = Calc.RoundToDecimals(item.valueStorable.val, 1000f); });
                                         json[key] = groupJson;
                                     }
                                 );
@@ -122,7 +122,7 @@ namespace TittyMagic
             foreach(var config in configs)
             {
                 var morphConfig = (MorphConfig) config;
-                group.Add(morphConfig.Name, new ConfiguratorUISection(this, morphConfig));
+                group.Add(morphConfig.name, new ConfiguratorUISection(this, morphConfig));
             }
 
             AddSaveButtonListener(saveButton, group.Values.ToList());
@@ -167,9 +167,9 @@ namespace TittyMagic
             var json = new JSONClass();
             foreach(var item in sections)
             {
-                json[item.Name]["IsNegative"].AsBool = item.IsNegativeStorable.val;
-                json[item.Name]["Multiplier1"].AsFloat = Calc.RoundToDecimals(item.Multiplier1Storable.val, 1000f);
-                json[item.Name]["Multiplier2"].AsFloat = Calc.RoundToDecimals(item.Multiplier2Storable.val, 1000f);
+                json[item.name]["IsNegative"].AsBool = item.isNegativeStorable.val;
+                json[item.name]["Multiplier1"].AsFloat = Calc.RoundToDecimals(item.multiplier1Storable.val, 1000f);
+                json[item.name]["Multiplier2"].AsFloat = Calc.RoundToDecimals(item.multiplier2Storable.val, 1000f);
             }
 
             Persistence.SaveToPath(this, json, path, SAVE_EXT, dir => { _lastBrowseDir = dir; });
@@ -186,10 +186,10 @@ namespace TittyMagic
                     _lastBrowseDir = dir;
                     foreach(var item in sections)
                     {
-                        if(json.HasKey(item.Name))
+                        if(json.HasKey(item.name))
                         {
-                            item.Multiplier1Storable.val = json[item.Name]["Multiplier1"].AsFloat;
-                            item.Multiplier2Storable.val = json[item.Name]["Multiplier2"].AsFloat;
+                            item.multiplier1Storable.val = json[item.name]["Multiplier1"].AsFloat;
+                            item.multiplier2Storable.val = json[item.name]["Multiplier2"].AsFloat;
                         }
                     }
                 }
