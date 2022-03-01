@@ -6,31 +6,29 @@ namespace TittyMagic
 {
     internal class BreastMassCalculator
     {
-        private readonly List<DAZPhysicsMeshSoftVerticesSet> _rightBreastMainGroupSets;
-        private readonly Rigidbody _chestRb;
-        private float _softVolume; // cm^3; spheroid volume estimation of right breast
+        private readonly DAZSkinV2 _skin;
 
-        // TODO refactor to use specific list of vertices on g2f
-        public BreastMassCalculator(Rigidbody chestRb)
+        public BreastMassCalculator(DAZSkinV2 skin)
         {
-            _chestRb = chestRb;
-            _rightBreastMainGroupSets = Globals.BREAST_PHYSICS_MESH.softVerticesGroups
-                .Find(it => it.name == "right")
-                .softVerticesSets;
+            _skin = skin;
         }
 
         public float Calculate(float atomScale)
         {
-            _softVolume = EstimateVolume(BoundsSize(), atomScale);
-            return VolumeToMass(_softVolume);
+            var boundsLeft = BoundsSize(GetPositions(VertexIndexGroups.LEFT_BREAST));
+            var boundsRight = BoundsSize(GetPositions(VertexIndexGroups.RIGHT_BREAST));
+            float leftVolume = EstimateVolume(boundsLeft, atomScale);
+            float rightVolume = EstimateVolume(boundsRight, atomScale);
+            return VolumeToMass((leftVolume + rightVolume) / 2);
         }
 
-        private Vector3 BoundsSize()
+        private List<Vector3> GetPositions(IEnumerable<int> vertexIndices)
         {
-            var vertices = _rightBreastMainGroupSets
-                .Select(it => Calc.RelativePosition(_chestRb, it.jointRB.position))
-                .ToArray();
+            return vertexIndices.Select(i => _skin.rawSkinnedVerts[i]).ToList();
+        }
 
+        private static Vector3 BoundsSize(List<Vector3> vertices)
+        {
             var min = Vector3.one * float.MaxValue;
             var max = Vector3.one * float.MinValue;
             foreach(var vertex in vertices)

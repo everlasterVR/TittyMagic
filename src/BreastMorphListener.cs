@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static TittyMagic.Utils;
 
 namespace TittyMagic
 {
@@ -26,14 +27,44 @@ namespace TittyMagic
             "Athletic",
             "BodyShort",
             "Hollow back",
+            "Body Tone",
+            "Bodybuilder Details",
+            "Julian Body",
+            "Shoulders Width",
+            "Nipples Large",
+            "WeebU.My_morphs.3.SideBulge",
+            "Ribs Width",
+            "Rectus Width",
+            "Rectus Outer Detail",
+            "Distort 1",
+            "Distort 2",
+            "Amy AiMei",
+            "succubus body",
+            "Impact - Breast",
+            "Breath1",
+            "Ribcage undefined",
+            "Sternocleidomastoid",
+        };
+
+        private readonly List<string> _excludeMaleMorphs = new List<string>
+        {
+            "Asdfhga",
         };
 
         private const float FILTER_STRENGTH = 0.005f;
         private readonly HashSet<DAZMorph> _listenedMorphs = new HashSet<DAZMorph>();
         private readonly Dictionary<string, float> _status = new Dictionary<string, float>();
 
-        // TODO listen for male chest morphs
-        public BreastMorphListener(List<DAZMorph> morphs)
+        public BreastMorphListener(List<DAZMorph> femaleMorphs, List<DAZMorph> maleMorphs)
+        {
+            ProcessMorphs(femaleMorphs);
+            ProcessMorphs(maleMorphs);
+#if DEBUG_ON
+            SuperController.LogMessage(GetStatus() + "- - - - - - - - - -\n");
+#endif
+        }
+
+        private void ProcessMorphs(List<DAZMorph> morphs)
         {
             foreach(var morph in morphs)
             {
@@ -54,14 +85,10 @@ namespace TittyMagic
                 {
                     // ignored
 #if DEBUG_ON
-                    LogMessage($"Unable to initialize listener for morph {morph.morphName}.", nameof(BreastMorphListener));
+                    SuperController.LogMessage($"Unable to initialize listener for morph {morph.morphName}.");
 #endif
                 }
             }
-
-#if DEBUG_ON
-            LogMessage(GetStatus() + "- - - - - - - - - -\n", nameof(BreastMorphListener));
-#endif
         }
 
         public bool Changed()
@@ -73,7 +100,7 @@ namespace TittyMagic
                 {
                     _status[morph.uid] = value;
 #if DEBUG_ON
-                    LogMessage($"change detected! morph {MorphName(morph)}", nameof(BreastMorphListener));
+                    SuperController.LogMessage($"change detected! morph {MorphName(morph)}");
 #endif
                     return true;
                 }
@@ -114,7 +141,7 @@ namespace TittyMagic
             string message = $"These {_listenedMorphs.Count} morphs are being monitored for changes:\n";
             foreach(var morph in _listenedMorphs)
             {
-                message = message + MorphName(morph) + "\n";
+                message += MorphName(morph) + "\n";
             }
 
             return message;

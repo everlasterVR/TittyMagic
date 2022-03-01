@@ -22,6 +22,7 @@ namespace TittyMagic
         private Rigidbody _chestRb;
         private Rigidbody _pectoralRbLeft;
         private Rigidbody _pectoralRbRight;
+        private DAZCharacter _dazCharacter;
 
         private float _massEstimate;
         private float _massAmount;
@@ -135,8 +136,8 @@ namespace TittyMagic
             _pectoralRbRight = _rigidbodies.Find(rb => rb.name == "rPectoral");
 
             _atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
-            _breastMorphListener = new BreastMorphListener(GEOMETRY.morphBank1.morphs); // male morphs?
-            _breastMassCalculator = new BreastMassCalculator(_chestRb);
+            _dazCharacter = containingAtom.GetComponentInChildren<DAZCharacter>();
+            _breastMassCalculator = new BreastMassCalculator(_dazCharacter.skin);
 
             _gravityMorphH = new GravityMorphHandler(this);
             _nippleErectionMorphH = new NippleErectionMorphHandler(this);
@@ -159,6 +160,8 @@ namespace TittyMagic
         {
             try
             {
+                _breastMorphListener = new BreastMorphListener(GEOMETRY.morphBank1.morphs, GEOMETRY.morphBank1OtherGender.morphs);
+
                 var nippleRbLeft = _rigidbodies.Find(rb => rb.name == "lNipple");
                 var nippleRbRight = _rigidbodies.Find(rb => rb.name == "rNipple");
                 _trackLeftNipple = new TrackNipple(_chestRb, _pectoralRbLeft, nippleRbLeft);
@@ -190,6 +193,8 @@ namespace TittyMagic
         {
             try
             {
+                _breastMorphListener = new BreastMorphListener(GEOMETRY.morphBank1OtherGender.morphs, GEOMETRY.morphBank1.morphs);
+
                 InitPluginUI();
                 _gravityAmount = Mathf.Pow(_gravity.val / 100f, 1 / 2f);
 
@@ -553,18 +558,14 @@ namespace TittyMagic
 
                 if(_waitStatus != RefreshStatus.DONE) return;
 
-                // TODO male
-                if(_isFemale)
+                _timeSinceListenersChecked += Time.deltaTime;
+                if(_timeSinceListenersChecked >= LISTENERS_CHECK_INTERVAL)
                 {
-                    _timeSinceListenersChecked += Time.deltaTime;
-                    if(_timeSinceListenersChecked >= LISTENERS_CHECK_INTERVAL)
+                    _timeSinceListenersChecked -= LISTENERS_CHECK_INTERVAL;
+                    if(CheckListeners())
                     {
-                        _timeSinceListenersChecked -= LISTENERS_CHECK_INTERVAL;
-                        if(CheckListeners())
-                        {
-                            StartCoroutine(WaitToBeginRefresh());
-                            return;
-                        }
+                        StartCoroutine(WaitToBeginRefresh());
+                        return;
                     }
                 }
 
@@ -776,20 +777,19 @@ namespace TittyMagic
             const float interval = 0.1f;
             while(
                 duration < 1f &&
-                !EqualWithin(1000f, _massEstimate, 1f)
+                !EqualWithin(1000f, _massEstimate, DetermineMassEstimate(_atomScaleListener.scale))
             )
             {
                 yield return new WaitForSeconds(interval);
                 duration += interval;
 
-                // _massEstimate = DetermineMassEstimate(_atomScaleListener.Value);
-                // _massAmount = _staticPhysicsH.SetAndReturnMassVal(_massEstimate);
-                _massEstimate = 1f;
+                _massEstimate = DetermineMassEstimate(_atomScaleListener.scale);
                 _massAmount = Mathf.InverseLerp(0, Const.MASS_MAX, _massEstimate);
+                // _massAmount = _staticPhysicsH.SetAndReturnMassVal(_massEstimate);
                 // _staticPhysicsH.UpdateMainPhysics(_softnessAmount);
             }
 
-            // SetMassUIStatus(_atomScaleListener.Value);
+            SetMassUIStatus(_atomScaleListener.scale);
             // _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
             // _gravityPhysicsH.SetBaseValues();
         }
@@ -867,7 +867,6 @@ namespace TittyMagic
             return mass;
         }
 
-        // TODO
         private void SetMassUIStatus(float atomScale)
         {
             float mass = _breastMassCalculator.Calculate(atomScale);
