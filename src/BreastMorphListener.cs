@@ -46,11 +46,6 @@ namespace TittyMagic
             "Sternocleidomastoid",
         };
 
-        private readonly List<string> _excludeMaleMorphs = new List<string>
-        {
-            "Asdfhga",
-        };
-
         private const float FILTER_STRENGTH = 0.005f;
         private readonly HashSet<DAZMorph> _listenedMorphs = new HashSet<DAZMorph>();
         private readonly Dictionary<string, float> _status = new Dictionary<string, float>();

@@ -100,8 +100,6 @@ namespace TittyMagic
 
         private static void SetPhysicsDefaults()
         {
-            // Soft physics on
-            BREAST_PHYSICS_MESH.on = true;
             // Self colliders off
             BREAST_PHYSICS_MESH.allowSelfCollision = true;
             // Auto collider radius off

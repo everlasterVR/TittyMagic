@@ -765,8 +765,6 @@ namespace TittyMagic
         // TODO finish up
         private IEnumerator RefreshMale()
         {
-            // _settingsMonitor.enabled = false;
-
             _pectoralRbLeft.useGravity = false;
             _pectoralRbRight.useGravity = false;
             _gravityMorphH.ResetAll();
