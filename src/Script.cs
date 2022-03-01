@@ -137,7 +137,7 @@ namespace TittyMagic
 
             _atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
             _dazCharacter = containingAtom.GetComponentInChildren<DAZCharacter>();
-            _breastMassCalculator = new BreastMassCalculator(_dazCharacter.skin, _isFemale);
+            _breastMassCalculator = new BreastMassCalculator(_dazCharacter.skin);
 
             _gravityMorphH = new GravityMorphHandler(this);
             _nippleErectionMorphH = new NippleErectionMorphHandler(this);

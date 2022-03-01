@@ -7,30 +7,16 @@ namespace TittyMagic
     internal class BreastMassCalculator
     {
         private readonly DAZSkinV2 _skin;
-        private readonly bool _isFemale;
-        private readonly List<int> _leftIndices;
-        private readonly List<int> _rightIndices;
 
-        public BreastMassCalculator(DAZSkinV2 skin, bool isFemale)
+        public BreastMassCalculator(DAZSkinV2 skin)
         {
             _skin = skin;
-            _isFemale = isFemale;
-            if(_isFemale)
-            {
-                _leftIndices = VertexIndexGroups.LEFT_BREAST;
-                _rightIndices = VertexIndexGroups.RIGHT_BREAST;
-            }
-            else
-            {
-                _leftIndices = VertexIndexGroups.LEFT_PECTORAL;
-                _rightIndices = VertexIndexGroups.RIGHT_PECTORAL;
-            }
         }
 
         public float Calculate(float atomScale)
         {
-            var boundsLeft = BoundsSize(GetPositions(_leftIndices));
-            var boundsRight = BoundsSize(GetPositions(_rightIndices));
+            var boundsLeft = BoundsSize(GetPositions(VertexIndexGroups.LEFT_BREAST));
+            var boundsRight = BoundsSize(GetPositions(VertexIndexGroups.RIGHT_BREAST));
             float leftVolume = EstimateVolume(boundsLeft, atomScale);
             float rightVolume = EstimateVolume(boundsRight, atomScale);
             return VolumeToMass((leftVolume + rightVolume) / 2);
@@ -63,7 +49,9 @@ namespace TittyMagic
         {
             float toCm3 = Mathf.Pow(10, 6);
             float z = size.z * ResolveAtomScaleFactor(atomScale);
-            return toCm3 * (4 * Mathf.PI * size.x / 2 * size.y / 2 * z / 2) / 3;
+            float volume = toCm3 * (4 * Mathf.PI * size.x / 2 * size.y / 2 * z / 2) / 3;
+            // * 0.75f compensates for change in estimated volume compared to pre v3.2 bounds calculation 
+            return volume * 0.75f;
         }
 
         // compensates for the increasing outer size and hard colliders of larger breasts
