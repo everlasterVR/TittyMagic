@@ -61,6 +61,13 @@ namespace TittyMagic
             DepthDiff = CalculateDepth() - _neutralDepth;
         }
 
+        public void ResetAnglesAndDepthDiff()
+        {
+            AngleY = 0;
+            AngleX = 0;
+            DepthDiff = 0;
+        }
+
         private float CalculateDepth()
         {
             return Vector3.Distance(_pectoralRb.position, NippleRb.position);

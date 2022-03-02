@@ -76,7 +76,7 @@ namespace TittyMagic
 
         private bool _loadingFromJson;
         private float _timeSinceListenersChecked;
-        private float _listenersCheckInterval = 0.1f;
+        private float _listenersCheckInterval = 0.0333f;
         private int _waitStatus = -1;
         private int _refreshStatus = -1;
         private bool _animationWasSetFrozen = false;
@@ -504,6 +504,11 @@ namespace TittyMagic
                 return;
             }
 
+            RunHandlers();
+        }
+
+        private void RunHandlers()
+        {
             if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
             {
                 if(_relativePosMorphH.IsEnabled())
@@ -546,7 +551,23 @@ namespace TittyMagic
                 yield return null;
             }
 
+            PreRefresh();
             yield return BeginRefresh(triggeredManually);
+        }
+
+        public void PreRefresh()
+        {
+            if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
+            {
+                _trackLeftNipple.ResetAnglesAndDepthDiff();
+                _trackRightNipple.ResetAnglesAndDepthDiff();
+            }
+            _chestRoll = 0;
+            _chestPitch = 0;
+            _massEstimate = DetermineMassEstimate(_atomScaleListener.Value);
+            _massAmount = _staticPhysicsH.SetAndReturnMassVal(_massEstimate);
+            _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
+            RunHandlers();
         }
 
         public IEnumerator BeginRefresh(bool triggeredManually = false)
@@ -579,18 +600,9 @@ namespace TittyMagic
             _pectoralRbLeft.useGravity = false;
             _pectoralRbRight.useGravity = false;
 
-            // zero pose morphs
-            if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
-            {
-                _relativePosMorphH.ResetAll();
-            }
-            else
-            {
-                _gravityMorphH.ResetAll();
-            }
-            _gravityPhysicsH.ZeroAll();
-
             yield return new WaitForSeconds(0.33f);
+
+            RunHandlers();
 
             float duration = 0;
             float interval = 0.1f;
