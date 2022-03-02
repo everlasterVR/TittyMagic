@@ -105,8 +105,9 @@ namespace TittyMagic
                 var nippleRbLeft = rigidbodies.Find(rb => rb.name == "lNipple");
                 var nippleRbRight = rigidbodies.Find(rb => rb.name == "rNipple");
 
-                _trackLeftNipple = new TrackNipple(_chestRb, _pectoralRbLeft, nippleRbLeft);
-                _trackRightNipple = new TrackNipple(_chestRb, _pectoralRbRight, nippleRbRight);
+                var dazCharacter = containingAtom.GetComponentInChildren<DAZCharacter>();
+                _trackLeftNipple = new TrackNipple(_chestRb, _pectoralRbLeft, nippleRbLeft, dazCharacter.skin, VertexIndexGroups.TIP_LEFT);
+                _trackRightNipple = new TrackNipple(_chestRb, _pectoralRbRight, nippleRbRight, dazCharacter.skin, VertexIndexGroups.TIP_RIGHT);
 
                 SAVES_DIR = SuperController.singleton.savesDir + @"everlaster\TittyMagicSettings\";
                 MORPHS_PATH = MorphsPath();

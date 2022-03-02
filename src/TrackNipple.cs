@@ -10,6 +10,8 @@ namespace TittyMagic
         private Rigidbody _chestRb;
         private Rigidbody _pectoralRb;
         public Rigidbody NippleRb { get; set; }
+        private DAZSkinV2 _skin;
+        private List<int> _tipVertexIndices;
 
         private Vector3 _neutralRelativePosition;
         private float _neutralDepth;
@@ -18,11 +20,13 @@ namespace TittyMagic
         public float AngleX { get; set; }
         public float DepthDiff { get; set; }
 
-        public TrackNipple(Rigidbody chestRb, Rigidbody pectoralRb, Rigidbody nippleRb)
+        public TrackNipple(Rigidbody chestRb, Rigidbody pectoralRb, Rigidbody nippleRb, DAZSkinV2 skin, List<int> tipVertexIndices)
         {
             _chestRb = chestRb;
-            NippleRb = nippleRb;
             _pectoralRb = pectoralRb;
+            NippleRb = nippleRb;
+            _skin = skin;
+            _tipVertexIndices = tipVertexIndices;
         }
 
         public bool CalibrationDone()
@@ -70,7 +74,8 @@ namespace TittyMagic
 
         private float CalculateDepth()
         {
-            return Vector3.Distance(_pectoralRb.position, NippleRb.position);
+            var tipPosition = Calc.AveragePosition(_tipVertexIndices.Select(i => _skin.rawSkinnedVerts[i]).ToList());
+            return Vector3.Distance(_pectoralRb.position, tipPosition);
         }
     }
 }

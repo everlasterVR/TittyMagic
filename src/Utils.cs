@@ -123,10 +123,20 @@ namespace TittyMagic
             Vector3 difference = position - origin.position;
             Transform transform = origin.transform;
             return new Vector3(
-                Vector3.Dot(difference, transform.right.normalized),
-                Vector3.Dot(difference, transform.up.normalized),
-                Vector3.Dot(difference, transform.forward.normalized)
+                Vector3.Dot(difference, transform.right),
+                Vector3.Dot(difference, transform.up),
+                Vector3.Dot(difference, transform.forward)
             );
+        }
+
+        public static Vector3 AveragePosition(List<Vector3> positions)
+        {
+            Vector3 sum = Vector3.zero;
+            foreach(var position in positions)
+            {
+                sum += position;
+            }
+            return sum / positions.Count;
         }
 
         public static bool EqualWithin(float roundFactor, float v1, float v2)
