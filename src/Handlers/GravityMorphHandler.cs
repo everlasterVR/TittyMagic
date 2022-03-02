@@ -236,9 +236,10 @@ namespace TittyMagic
             {
                 effect = effect + additional.Value;
             }
+            float rounded = Calc.RoundToDecimals(effect, 1000f);
             foreach(MorphConfig config in _configSets[configSetName])
             {
-                UpdateValue(config, effect);
+                UpdateValue(config, rounded);
                 if(_useConfigurator)
                 {
                     _configurator.UpdateValueSlider(configSetName, config.Name, config.Morph.morphValue);
