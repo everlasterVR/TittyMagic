@@ -422,12 +422,6 @@ namespace TittyMagic
                 return;
             }
 
-            if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
-            {
-                _trackLeftNipple.UpdateAnglesAndDepthDiff();
-                _trackRightNipple.UpdateAnglesAndDepthDiff();
-            }
-
             _chestRoll = Roll(_chestRb.rotation);
             _chestPitch = Pitch(_chestRb.rotation);
 
@@ -503,6 +497,12 @@ namespace TittyMagic
             if(_waitStatus != RefreshStatus.DONE)
             {
                 return;
+            }
+
+            if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
+            {
+                _trackLeftNipple.UpdateAnglesAndDepthDiff();
+                _trackRightNipple.UpdateAnglesAndDepthDiff();
             }
 
             RunHandlers();
