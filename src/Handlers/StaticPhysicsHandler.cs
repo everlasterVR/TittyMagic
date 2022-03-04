@@ -26,8 +26,15 @@ namespace TittyMagic
 
         public void LoadSettings(MVRScript script, string mode)
         {
-            GEOMETRY.useAuxBreastColliders = mode != Mode.TOUCH_OPTIMIZED;
-            LoadSettingsFromFiles(script, mode);
+            GEOMETRY.useAuxBreastColliders = mode != Mode.TOUCH_OPTIMIZED && mode != Mode.FUTA;
+            if(mode == Mode.FUTA)
+            {
+                LoadPectoralSettings(script);
+            }
+            else
+            {
+                LoadSettingsFromFiles(script, mode);
+            }
         }
 
         private void LoadSettingsFromFiles(MVRScript script, string mode)
@@ -103,7 +110,7 @@ namespace TittyMagic
             );
         }
 
-        public void LoadPectoralSettings(MVRScript script)
+        private void LoadPectoralSettings(MVRScript script)
         {
             _pectoralPhysicsConfigs = new HashSet<PectoralPhysicsConfig>();
 

@@ -107,6 +107,7 @@
     <Compile Include="src\Variables.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="settings\gravityphysics\pectoral.json" />
     <None Include="settings\gravityphysics\touchoptimized.json" />
     <None Include="settings\gravityphysics\balanced.json" />
     <None Include="settings\gravityphysics\animoptimized.json" />

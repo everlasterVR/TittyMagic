@@ -198,8 +198,8 @@ namespace TittyMagic
                 _gravityAmount = Mathf.Pow(_gravity.val / 100f, 1 / 2f);
 
                 _gravityMorphH.LoadSettings(Mode.BALANCED);
-                _gravityPhysicsH.LoadSettings(Mode.BALANCED);
-                _staticPhysicsH.LoadPectoralSettings(this);
+                _gravityPhysicsH.LoadSettings(Mode.FUTA);
+                _staticPhysicsH.LoadSettings(this, Mode.FUTA);
                 StartCoroutine(WaitToBeginRefresh());
             }
             catch(Exception e)

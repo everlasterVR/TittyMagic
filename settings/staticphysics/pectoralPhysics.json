@@ -4,12 +4,12 @@
       "maxM": "0.430"
    },
    "spring": {
-      "minM": "72",
-      "maxM": "50"
+      "minM": "55",
+      "maxM": "35"
    },
    "damper": {
-      "minM": "0.6",
-      "maxM": "1.75"
+      "minM": "0.3",
+      "maxM": "0.8"
    },
    "positionSpringZ": {
       "minM": "170",

@@ -13,6 +13,7 @@ namespace TittyMagic
             { Mode.ANIM_OPTIMIZED, "animoptimized" },
             { Mode.BALANCED, "balanced" },
             { Mode.TOUCH_OPTIMIZED, "touchoptimized" },
+            { Mode.FUTA, "pectoral" },
         };
 
         public static void SaveToPath(MVRScript script, JSONClass json, string path, string saveExt, Action<string> callback = null)
