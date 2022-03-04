@@ -90,6 +90,7 @@ namespace TittyMagic
         }
 
         // https://www.desmos.com/calculator/crrr1uryep
+        // ReSharper disable once UnusedMember.Global
         public static float InverseSmoothStep(float b, float value, float curvature, float midpoint)
         {
             if(value < 0)
@@ -129,6 +130,7 @@ namespace TittyMagic
             );
         }
 
+        // ReSharper disable once UnusedMember.Global
         public static Vector3 AveragePosition(List<Vector3> positions)
         {
             var sum = Vector3.zero;
