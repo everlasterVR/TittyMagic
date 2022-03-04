@@ -22,7 +22,6 @@ namespace TittyMagic
         private Rigidbody _chestRb;
         private Rigidbody _pectoralRbLeft;
         private Rigidbody _pectoralRbRight;
-        private DAZCharacter _dazCharacter;
 
         private float _massEstimate;
         private float _massAmount;
@@ -136,8 +135,8 @@ namespace TittyMagic
             _pectoralRbRight = _rigidbodies.Find(rb => rb.name == "rPectoral");
 
             _atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
-            _dazCharacter = containingAtom.GetComponentInChildren<DAZCharacter>();
-            _breastMassCalculator = new BreastMassCalculator(_dazCharacter.skin);
+            var dazCharacter = containingAtom.GetComponentInChildren<DAZCharacter>();
+            _breastMassCalculator = new BreastMassCalculator(dazCharacter.skin);
 
             _staticPhysicsH = new StaticPhysicsHandler(_isFemale);
             _gravityPhysicsH = new GravityPhysicsHandler(this);
@@ -616,42 +615,6 @@ namespace TittyMagic
             }
         }
 
-        private void EndRefreshFemale()
-        {
-            try
-            {
-                // simulate gravityPhysics when upright
-                _gravityPhysicsH.Update(0, 0, _massAmount, _gravityAmount);
-
-                // simulate force of gravity when upright
-                // 0.75f is a hack, for some reason a normal gravity force pushes breasts too much down,
-                // causing the neutral position to be off by a little
-                var force = _chestRb.transform.up * (0.75f * -Physics.gravity.magnitude);
-                _pectoralRbLeft.AddForce(force, ForceMode.Acceleration);
-                _pectoralRbRight.AddForce(force, ForceMode.Acceleration);
-                if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
-                {
-                    if(_refreshStatus == RefreshStatus.MASS_OK)
-                    {
-                        StartCoroutine(CalibrateNipplesTracking());
-                    }
-                    else if(_refreshStatus == RefreshStatus.NEUTRALPOS_OK)
-                    {
-                        EndRefresh();
-                    }
-                }
-                else
-                {
-                    EndRefresh();
-                }
-            }
-            catch(Exception e)
-            {
-                LogError($"EndRefreshFemale: {e}");
-                enabled = false;
-            }
-        }
-
         public IEnumerator WaitToBeginRefresh(bool triggeredManually = false, Action onModeChosen = null)
         {
             _waitStatus = RefreshStatus.WAITING;
@@ -678,7 +641,7 @@ namespace TittyMagic
             _animationWasSetFrozen = mainToggleFrozen || altToggleFrozen;
             SuperController.singleton.SetFreezeAnimation(true);
 
-            if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
+            if(_isFemale && _modeChooser.val == Mode.ANIM_OPTIMIZED)
             {
                 _trackLeftNipple.ResetAnglesAndDepthDiff();
                 _trackRightNipple.ResetAnglesAndDepthDiff();
@@ -688,7 +651,15 @@ namespace TittyMagic
             _chestPitch = 0;
             _massEstimate = DetermineMassEstimate(_atomScaleListener.scale);
             _massAmount = _staticPhysicsH.SetAndReturnMassVal(_massEstimate);
-            _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
+            if(_isFemale)
+            {
+                _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
+            }
+            else
+            {
+                _staticPhysicsH.UpdatePectoralPhysics();
+            }
+
             RunHandlers();
         }
 
@@ -766,12 +737,10 @@ namespace TittyMagic
 
         private IEnumerator RefreshMale()
         {
-            _pectoralRbLeft.useGravity = false;
-            _pectoralRbRight.useGravity = false;
-            _gravityMorphH.ResetAll();
-            _gravityPhysicsH.ZeroAll();
-
             yield return new WaitForSeconds(0.33f);
+
+            RunHandlers();
+
             float duration = 0;
             const float interval = 0.1f;
             while(
@@ -825,6 +794,42 @@ namespace TittyMagic
             }
 
             _refreshStatus = RefreshStatus.NEUTRALPOS_OK;
+        }
+
+        private void EndRefreshFemale()
+        {
+            try
+            {
+                // simulate gravityPhysics when upright
+                _gravityPhysicsH.Update(0, 0, _massAmount, _gravityAmount);
+
+                // simulate force of gravity when upright
+                // 0.75f is a hack, for some reason a normal gravity force pushes breasts too much down,
+                // causing the neutral position to be off by a little
+                var force = _chestRb.transform.up * (0.75f * -Physics.gravity.magnitude);
+                _pectoralRbLeft.AddForce(force, ForceMode.Acceleration);
+                _pectoralRbRight.AddForce(force, ForceMode.Acceleration);
+                if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
+                {
+                    if(_refreshStatus == RefreshStatus.MASS_OK)
+                    {
+                        StartCoroutine(CalibrateNipplesTracking());
+                    }
+                    else if(_refreshStatus == RefreshStatus.NEUTRALPOS_OK)
+                    {
+                        EndRefresh();
+                    }
+                }
+                else
+                {
+                    EndRefresh();
+                }
+            }
+            catch(Exception e)
+            {
+                LogError($"EndRefreshFemale: {e}");
+                enabled = false;
+            }
         }
 
         private void EndRefresh()
