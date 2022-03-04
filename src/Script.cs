@@ -224,14 +224,14 @@ namespace TittyMagic
                 (mode) =>
                 {
                     UI.UpdateButtonLabels(_modeButtonGroup, mode);
-                    StartCoroutine(OnModeChosen(mode));
+                    StartCoroutine(WaitToBeginRefresh(true, () => OnModeChosen(mode)));
                 }
             );
             _modeChooser.storeType = JSONStorableParam.StoreType.Full;
             RegisterStringChooser(_modeChooser);
         }
 
-        private IEnumerator OnModeChosen(string mode)
+        private void OnModeChosen(string mode)
         {
             _gravityPhysicsH.LoadSettings(mode);
             _staticPhysicsH.LoadSettings(this, mode);
@@ -250,8 +250,6 @@ namespace TittyMagic
             UpdateGravityInfoText(mode);
 
             StartCoroutine(TempDisableModeButtons());
-
-            yield return WaitToBeginRefresh();
         }
 
         private void UpdateToggleAndSliderTexts(string mode)
@@ -543,13 +541,15 @@ namespace TittyMagic
             }
         }
 
-        public IEnumerator WaitToBeginRefresh(bool triggeredManually = false)
+        public IEnumerator WaitToBeginRefresh(bool triggeredManually = false, Action onModeChosen = null)
         {
             _waitStatus = RefreshStatus.WAITING;
             while(_refreshStatus != RefreshStatus.DONE && _refreshStatus != -1)
             {
                 yield return null;
             }
+
+            onModeChosen?.Invoke();
 
             PreRefresh();
             yield return BeginRefresh(triggeredManually);
