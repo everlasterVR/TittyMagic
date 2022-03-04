@@ -120,9 +120,8 @@ namespace TittyMagic
 
         public static Vector3 RelativePosition(Rigidbody origin, Vector3 position)
         {
+            Vector3 difference = position - origin.position;
             Transform transform = origin.transform;
-            //must use Transform.position instead of Rigidbody.position, the latter gets reset every once in a while for some reason
-            Vector3 difference = position - transform.position;
             return new Vector3(
                 Vector3.Dot(difference, transform.right),
                 Vector3.Dot(difference, transform.up),
