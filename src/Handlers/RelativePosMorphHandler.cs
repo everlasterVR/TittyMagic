@@ -282,7 +282,7 @@ namespace TittyMagic
         {
             var multiplier = value < 0 ? _forwardDepthMultiplier : _backDepthMultiplier;
             return Calc.RoundToDecimals(
-                Mathf.InverseLerp(0, max, Mathf.Abs(value)),
+                Mathf.InverseLerp(0, max, multiplier * Mathf.Abs(value)),
                 1000f
             );
         }

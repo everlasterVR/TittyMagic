@@ -623,7 +623,7 @@ namespace TittyMagic
                 _verticalAngleMassMultiplier = -Mathf.Pow(1.67f * _massAmount, 0.53f) + 2.5f;
                 _rollAngleMassMultiplier = -Mathf.Pow(_massAmount, 1.75f) + 2.67f;
                 _backDepthDiffMassMultiplier = (1 / Mathf.Pow(1/2f * _massAmount, 1/3f)) - 0.51f;
-                _forwardDepthDiffMassMultiplier = (1 / Mathf.Pow(1/2f * (_massAmount - 0.03f), 1/4f)) + 1.1f;
+                _forwardDepthDiffMassMultiplier = (2 / Mathf.Pow(0.9f * (_massAmount + 0.02f), 1/4f));
                 _staticPhysicsH.UpdateMainPhysics(_softnessAmount);
             }
             SetMassUIStatus(_atomScaleListener.Value);
