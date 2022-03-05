@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -12,11 +11,14 @@ namespace TittyMagic
         public Rigidbody NippleRb { get; set; }
 
         private Vector3 _neutralRelativePosition;
-        private float _neutralDepth;
+        private Vector3 _neutralRelativePectoralPosition;
 
         public float AngleY { get; set; }
         public float AngleX { get; set; }
         public float DepthDiff { get; set; }
+
+        private const int smoothFramesCount = 1;
+        private float[] _zDiffs = new float[smoothFramesCount];
 
         public TrackNipple(Rigidbody chestRb, Rigidbody pectoralRb, Rigidbody nippleRb)
         {
@@ -32,14 +34,18 @@ namespace TittyMagic
                 _neutralRelativePosition,
                 Calc.RelativePosition(_chestRb, NippleRb.position)
             );
-            bool depthCalibrated = Calc.EqualWithin(100000f, _neutralDepth, CalculateDepth());
-            return positionCalibrated && depthCalibrated;
+            bool pectoralPositionCalibrated = Calc.VectorEqualWithin(
+                1000000f,
+                _neutralRelativePectoralPosition,
+                Calc.RelativePosition(_chestRb, _pectoralRb.position)
+            );
+            return positionCalibrated && pectoralPositionCalibrated;
         }
 
         public void Calibrate()
         {
             _neutralRelativePosition = Calc.RelativePosition(_chestRb, NippleRb.position);
-            _neutralDepth = CalculateDepth();
+            _neutralRelativePectoralPosition = Calc.RelativePosition(_chestRb, _pectoralRb.position);
         }
 
         public void UpdateAnglesAndDepthDiff()
@@ -58,7 +64,11 @@ namespace TittyMagic
                 new Vector2(_neutralRelativePosition.z, _neutralRelativePosition.x),
                 new Vector2(relativePos.z, relativePos.x)
             );
-            DepthDiff = CalculateDepth() - _neutralDepth;
+
+            Array.Copy(_zDiffs, 0, _zDiffs, 1, _zDiffs.Length - 1);
+            Vector3 relativePectoralPos = Calc.RelativePosition(_chestRb, _pectoralRb.position);
+            _zDiffs[0] = (_neutralRelativePectoralPosition - relativePectoralPos).z;
+            DepthDiff = _zDiffs.Average();
         }
 
         public void ResetAnglesAndDepthDiff()
@@ -66,11 +76,6 @@ namespace TittyMagic
             AngleY = 0;
             AngleX = 0;
             DepthDiff = 0;
-        }
-
-        private float CalculateDepth()
-        {
-            return Vector3.Distance(_pectoralRb.position, NippleRb.position);
         }
     }
 }
