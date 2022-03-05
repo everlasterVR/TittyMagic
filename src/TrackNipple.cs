@@ -17,7 +17,7 @@ namespace TittyMagic
         public float AngleX { get; set; }
         public float DepthDiff { get; set; }
 
-        private const int smoothUpdatesCount = 5;
+        private const int smoothUpdatesCount = 4;
         private float[] _zDiffs = new float[smoothUpdatesCount];
 
         public TrackNipple(Rigidbody chestRb, Rigidbody pectoralRb, Rigidbody nippleRb)
