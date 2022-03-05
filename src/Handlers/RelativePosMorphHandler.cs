@@ -146,18 +146,18 @@ namespace TittyMagic
             _mass = mass;
             _mobility = mobility;
 
-            float effectYLeft = CalculateYAngleEffect(angleYLeft, 75);
-            float effectYRight = CalculateYAngleEffect(angleYRight, 75);
+            float effectYLeft = CalculateYAngleEffect(angleYLeft);
+            float effectYRight = CalculateYAngleEffect(angleYRight);
             float angleYCenter = (angleYRight + angleYLeft) / 2;
-            float effectYCenter = CalculateYAngleEffect(angleYCenter, 75);
+            float effectYCenter = CalculateYAngleEffect(angleYCenter);
 
             float effectZLeft = CalculateDepthEffect(depthDiffLeft);
             float effectZRight = CalculateDepthEffect(depthDiffRight);
             float depthDiffCenter = (depthDiffLeft + depthDiffRight) / 2;
             float effectZCenter = CalculateDepthEffect(depthDiffCenter);
 
-            float effectXLeft = CalculateXAngleEffect(angleXLeft, 60);
-            float effectXRight = CalculateXAngleEffect(angleXRight, 60);
+            float effectXLeft = CalculateXAngleEffect(angleXLeft);
+            float effectXRight = CalculateXAngleEffect(angleXRight);
 
             // up force on left breast
             if(angleYLeft >= 0)
@@ -270,12 +270,9 @@ namespace TittyMagic
             UpdateDebugInfo(infoText);
         }
 
-        private float CalculateYAngleEffect(float value, float max)
+        private float CalculateYAngleEffect(float value)
         {
-            return Calc.RoundToDecimals(
-                Mathf.InverseLerp(0, max, _yAngleMultiplier * Mathf.Abs(value)),
-                1000f
-            );
+            return _yAngleMultiplier * (Mathf.Abs(value) / 80);
         }
 
         private float CalculateDepthEffect(float value)
@@ -284,12 +281,9 @@ namespace TittyMagic
             return multiplier * Mathf.Abs(value);
         }
 
-        private float CalculateXAngleEffect(float value, float max)
+        private float CalculateXAngleEffect(float value)
         {
-            return Calc.RoundToDecimals(
-                Mathf.InverseLerp(0, max, _xAngleMultiplier * Mathf.Abs(value)),
-                1000f
-            );
+            return _xAngleMultiplier * (Mathf.Abs(value) / 65);
         }
 
         private void UpdateMorphs(string configSetName, float effect)
