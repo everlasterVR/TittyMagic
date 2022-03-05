@@ -17,8 +17,8 @@ namespace TittyMagic
         public float AngleX { get; set; }
         public float DepthDiff { get; set; }
 
-        private const int smoothFramesCount = 1;
-        private float[] _zDiffs = new float[smoothFramesCount];
+        private const int smoothUpdatesCount = 5;
+        private float[] _zDiffs = new float[smoothUpdatesCount];
 
         public TrackNipple(Rigidbody chestRb, Rigidbody pectoralRb, Rigidbody nippleRb)
         {
@@ -68,7 +68,7 @@ namespace TittyMagic
             Array.Copy(_zDiffs, 0, _zDiffs, 1, _zDiffs.Length - 1);
             Vector3 relativePectoralPos = Calc.RelativePosition(_chestRb, _pectoralRb.position);
             _zDiffs[0] = (_neutralRelativePectoralPosition - relativePectoralPos).z;
-            DepthDiff = _zDiffs.Average();
+            DepthDiff = Calc.ExponentialMovingAverage(_zDiffs, 0.75f)[0];
         }
 
         public void ResetAnglesAndDepthDiff()

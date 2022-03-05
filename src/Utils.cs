@@ -162,6 +162,18 @@ namespace TittyMagic
                 && Mathf.Round(v1.y * roundFactor) / roundFactor == Mathf.Round(v2.y * roundFactor) / roundFactor
                 && Mathf.Round(v1.z * roundFactor) / roundFactor == Mathf.Round(v2.z * roundFactor) / roundFactor;
         }
+
+        public static float[] ExponentialMovingAverage(float[] source, float k)
+        {
+            float[] result = new float[source.Length];
+            result[source.Length - 1] = source[source.Length - 1];
+            for(int i = source.Length - 2; i >= 0; i--)
+            {
+                result[i] = k * source[i] + (1 - k) * result[i + 1];
+            }
+
+            return result;
+        }
     }
 
     internal static class UI

@@ -16,14 +16,14 @@
       "dependOnPhysicsRate" : "true"
    }, 
    "positionSpringZ" : {
-      "minMminS" : "300",
-      "maxMminS" : "250",
-      "minMmaxS" : "150"
+      "minMminS" : "360",
+      "maxMminS" : "320",
+      "minMmaxS" : "180"
    }, 
    "positionDamperZ" : {
-      "minMminS" : "20",
-      "maxMminS" : "40",
-      "minMmaxS" : "20",
+      "minMminS" : "29",
+      "maxMminS" : "25",
+      "minMmaxS" : "9",
       "dependOnPhysicsRate" : "true"
    }
 }

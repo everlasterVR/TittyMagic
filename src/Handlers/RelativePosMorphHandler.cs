@@ -151,10 +151,10 @@ namespace TittyMagic
             float angleYCenter = (angleYRight + angleYLeft) / 2;
             float effectYCenter = CalculateYAngleEffect(angleYCenter, 75);
 
-            float effectZLeft = CalculateDepthEffect(depthDiffLeft, 0.075f);
-            float effectZRight = CalculateDepthEffect(depthDiffRight, 0.075f);
+            float effectZLeft = CalculateDepthEffect(depthDiffLeft);
+            float effectZRight = CalculateDepthEffect(depthDiffRight);
             float depthDiffCenter = (depthDiffLeft + depthDiffRight) / 2;
-            float effectZCenter = CalculateDepthEffect(depthDiffCenter, 0.075f);
+            float effectZCenter = CalculateDepthEffect(depthDiffCenter);
 
             float effectXLeft = CalculateXAngleEffect(angleXLeft, 60);
             float effectXRight = CalculateXAngleEffect(angleXRight, 60);
@@ -278,13 +278,10 @@ namespace TittyMagic
             );
         }
 
-        private float CalculateDepthEffect(float value, float max)
+        private float CalculateDepthEffect(float value)
         {
             var multiplier = value < 0 ? _forwardDepthMultiplier : _backDepthMultiplier;
-            return Calc.RoundToDecimals(
-                Mathf.InverseLerp(0, max, multiplier * Mathf.Abs(value)),
-                1000f
-            );
+            return multiplier * Mathf.Abs(value);
         }
 
         private float CalculateXAngleEffect(float value, float max)
