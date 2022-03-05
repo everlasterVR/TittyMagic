@@ -305,7 +305,7 @@ namespace TittyMagic
                 _mass * config.Multiplier2 * effect / 2;
 
             bool inRange = config.IsNegative ? value < 0 : value > 0;
-            config.Morph.morphValue = inRange ? value : 0;
+            config.Morph.morphValue = inRange ? Calc.RoundToDecimals(value, 1000f) : 0;
         }
 
         public void ResetAll()
