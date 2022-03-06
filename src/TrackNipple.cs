@@ -64,10 +64,15 @@ namespace TittyMagic
                 new Vector2(relativePos.z, relativePos.x)
             );
 
+            depthDiff = ExpAverageDepthDiff();
+        }
+
+        private float ExpAverageDepthDiff()
+        {
             Array.Copy(_zDiffs, 0, _zDiffs, 1, _zDiffs.Length - 1);
             var relativePectoralPos = Calc.RelativePosition(_chestRb, _pectoralRb.position);
             _zDiffs[0] = (_neutralRelativePectoralPosition - relativePectoralPos).z;
-            depthDiff = Calc.ExponentialMovingAverage(_zDiffs, 0.75f)[0];
+            return Calc.ExponentialMovingAverage(_zDiffs, 0.75f)[0];
         }
 
         public void ResetAnglesAndDepthDiff()

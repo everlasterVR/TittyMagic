@@ -10,10 +10,6 @@ namespace TittyMagic
         private readonly MVRScript _script;
         private readonly IConfigurator _configurator;
         private readonly bool _useConfigurator;
-        private float _yAngleMultiplier;
-        private float _xAngleMultiplier;
-        private float _backDepthMultiplier;
-        private float _forwardDepthMultiplier;
         private float _mass;
         private float _mobility;
 
@@ -143,25 +139,29 @@ namespace TittyMagic
             float mobility
         )
         {
-            _yAngleMultiplier = yAngleMultiplier;
-            _xAngleMultiplier = xAngleMultiplier;
-            _backDepthMultiplier = backDepthMultiplier;
-            _forwardDepthMultiplier = forwardDepthMultiplier;
             _mass = mass;
             _mobility = mobility;
 
-            float effectYLeft = CalculateYAngleEffect(angleYLeft);
-            float effectYRight = CalculateYAngleEffect(angleYRight);
+            AdjustUpDownMorphs(angleYLeft, angleYRight, yAngleMultiplier);
+            AdjustDepthMorphs(depthDiffLeft, depthDiffRight, backDepthMultiplier, forwardDepthMultiplier);
+            AdjustLeftRightMorphs(angleXLeft, angleXRight, xAngleMultiplier);
+
+            string infoText =
+                $"{NameValueString("depthDiffLeft", depthDiffLeft)} \n" +
+                $"{NameValueString("depthDiffRight", depthDiffRight)} \n" +
+                // $"{NameValueString("angleYLeft", angleYLeft)} \n" +
+                // $"{NameValueString("angleYRight", angleYRight)} \n" +
+                $"{NameValueString("angleXLeft", angleXLeft)} \n" +
+                $"{NameValueString("angleXRight", angleXRight)} \n";
+            UpdateDebugInfo(infoText);
+        }
+
+        private void AdjustUpDownMorphs(float angleYLeft, float angleYRight, float multiplier)
+        {
+            float effectYLeft = multiplier * Mathf.Abs(angleYLeft) / 80;
+            float effectYRight = multiplier * Mathf.Abs(angleYRight) / 80;
             float angleYCenter = (angleYRight + angleYLeft) / 2;
-            float effectYCenter = CalculateYAngleEffect(angleYCenter);
-
-            float effectZLeft = CalculateDepthEffect(depthDiffLeft);
-            float effectZRight = CalculateDepthEffect(depthDiffRight);
-            float depthDiffCenter = (depthDiffLeft + depthDiffRight) / 2;
-            float effectZCenter = CalculateDepthEffect(depthDiffCenter);
-
-            float effectXLeft = CalculateXAngleEffect(angleXLeft);
-            float effectXRight = CalculateXAngleEffect(angleXRight);
+            float effectYCenter = multiplier * Mathf.Abs(angleYCenter) / 80;
 
             // up force on left breast
             if(angleYLeft >= 0)
@@ -198,6 +198,14 @@ namespace TittyMagic
             {
                 ResetMorphs(Direction.UP_C);
             }
+        }
+
+        private void AdjustDepthMorphs(float depthDiffLeft, float depthDiffRight, float backMultiplier, float forwardMultiplier)
+        {
+            float effectZLeft = (depthDiffLeft < 0 ? forwardMultiplier : backMultiplier) * Mathf.Abs(depthDiffLeft);
+            float effectZRight = (depthDiffRight < 0 ? forwardMultiplier : backMultiplier) * Mathf.Abs(depthDiffRight);
+            float depthDiffCenter = (depthDiffLeft + depthDiffRight) / 2;
+            float effectZCenter = (depthDiffCenter < 0 ? forwardMultiplier : backMultiplier) * Mathf.Abs(depthDiffCenter);
 
             // forward force on left breast
             if(depthDiffLeft <= 0)
@@ -237,6 +245,12 @@ namespace TittyMagic
                 ResetMorphs(Direction.FORWARD_C);
                 UpdateMorphs(Direction.BACK_C, effectZCenter);
             }
+        }
+
+        private void AdjustLeftRightMorphs(float angleXLeft, float angleXRight, float multiplier)
+        {
+            float effectXLeft = multiplier * Mathf.Abs(angleXLeft) / 65;
+            float effectXRight = multiplier * Mathf.Abs(angleXRight) / 65;
 
             // left force on left breast
             if(angleXLeft >= 0)
@@ -263,31 +277,6 @@ namespace TittyMagic
                 ResetMorphs(Direction.RIGHT_R);
                 UpdateMorphs(Direction.LEFT_R, effectXRight);
             }
-
-            string infoText =
-                $"{NameValueString("depthDiffLeft", depthDiffLeft)} \n" +
-                $"{NameValueString("depthDiffRight", depthDiffRight)} \n" +
-                // $"{NameValueString("angleYLeft", angleYLeft)} \n" +
-                // $"{NameValueString("angleYRight", angleYRight)} \n" +
-                $"{NameValueString("angleXLeft", angleXLeft)} \n" +
-                $"{NameValueString("angleXRight", angleXRight)} \n";
-            UpdateDebugInfo(infoText);
-        }
-
-        private float CalculateYAngleEffect(float value)
-        {
-            return _yAngleMultiplier * (Mathf.Abs(value) / 80);
-        }
-
-        private float CalculateDepthEffect(float value)
-        {
-            float multiplier = value < 0 ? _forwardDepthMultiplier : _backDepthMultiplier;
-            return multiplier * Mathf.Abs(value);
-        }
-
-        private float CalculateXAngleEffect(float value)
-        {
-            return _xAngleMultiplier * (Mathf.Abs(value) / 65);
         }
 
         private void UpdateMorphs(string configSetName, float effect)
