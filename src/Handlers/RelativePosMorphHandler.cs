@@ -115,16 +115,6 @@ namespace TittyMagic
             return !_useConfigurator || _configurator.enableAdjustment.val;
         }
 
-        private void UpdateDebugInfo(string text)
-        {
-            if(!_useConfigurator)
-            {
-                return;
-            }
-
-            _configurator.debugInfo.val = text;
-        }
-
         public void Update(
             float angleYLeft,
             float angleYRight,
@@ -147,14 +137,16 @@ namespace TittyMagic
             AdjustDepthMorphs(depthDiffLeft, depthDiffRight, backDepthMultiplier, forwardDepthMultiplier);
             AdjustLeftRightMorphs(angleXLeft, angleXRight, xAngleMultiplier);
 
-            string infoText =
-                $"{NameValueString("depthDiffLeft", depthDiffLeft)} \n" +
-                $"{NameValueString("depthDiffRight", depthDiffRight)} \n" +
-                // $"{NameValueString("angleYLeft", angleYLeft)} \n" +
-                // $"{NameValueString("angleYRight", angleYRight)} \n" +
-                $"{NameValueString("angleXLeft", angleXLeft)} \n" +
-                $"{NameValueString("angleXRight", angleXRight)} \n";
-            UpdateDebugInfo(infoText);
+            if(_useConfigurator)
+            {
+                _configurator.debugInfo.val =
+                    $"{NameValueString("depthDiffLeft", depthDiffLeft)} \n" +
+                    $"{NameValueString("depthDiffRight", depthDiffRight)} \n" +
+                    // $"{NameValueString("angleYLeft", angleYLeft)} \n" +
+                    // $"{NameValueString("angleYRight", angleYRight)} \n" +
+                    $"{NameValueString("angleXLeft", angleXLeft)} \n" +
+                    $"{NameValueString("angleXRight", angleXRight)} \n";
+            }
         }
 
         private void AdjustUpDownMorphs(float angleYLeft, float angleYRight, float multiplier)

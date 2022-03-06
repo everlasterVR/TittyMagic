@@ -62,7 +62,7 @@ namespace TittyMagic
         private Dictionary<string, List<Config>> LoadSettingsFromFile(string mode)
         {
             var configSets = new Dictionary<string, List<Config>>();
-            Persistence.LoadModeGravityPhysicsSettings(
+            Persistence.LoadModePhysicsSettings(
                 _script,
                 mode,
                 (dir, json) =>
@@ -74,8 +74,9 @@ namespace TittyMagic
                         foreach(string name in groupJson.Keys)
                         {
                             configs.Add(
-                                new MainPhysicsConfig(
+                                new PhysicsConfig(
                                     name,
+                                    groupJson[name]["Category"],
                                     groupJson[name]["Type"],
                                     groupJson[name]["IsNegative"].AsBool,
                                     groupJson[name]["Multiplier1"].AsFloat,
@@ -97,7 +98,7 @@ namespace TittyMagic
             {
                 foreach(var config in kvp.Value)
                 {
-                    var gravityPhysicsConfig = (MainPhysicsConfig) config;
+                    var gravityPhysicsConfig = (PhysicsConfig) config;
                     if(gravityPhysicsConfig.type == "additive")
                     {
                         gravityPhysicsConfig.baseValue = gravityPhysicsConfig.setting.val;
@@ -190,7 +191,7 @@ namespace TittyMagic
         {
             foreach(var config in _configSets[configSetName])
             {
-                var gravityPhysicsConfig = (MainPhysicsConfig) config;
+                var gravityPhysicsConfig = (PhysicsConfig) config;
                 UpdateValue(gravityPhysicsConfig, effect);
                 if(_useConfigurator)
                 {
@@ -204,7 +205,7 @@ namespace TittyMagic
             float adjusted = effect * (1 - Mathf.Abs(roll));
             foreach(var config in _configSets[configSetName])
             {
-                var gravityPhysicsConfig = (MainPhysicsConfig) config;
+                var gravityPhysicsConfig = (PhysicsConfig) config;
                 UpdateValue(gravityPhysicsConfig, adjusted);
                 if(_useConfigurator)
                 {
@@ -213,7 +214,7 @@ namespace TittyMagic
             }
         }
 
-        private void UpdateValue(MainPhysicsConfig config, float effect)
+        private void UpdateValue(PhysicsConfig config, float effect)
         {
             float value =
                 (_amount * config.multiplier1 * effect / 2) +
@@ -236,30 +237,11 @@ namespace TittyMagic
             _configSets?.Keys.ToList().ForEach(ResetPhysics);
         }
 
-        private void ZeroPhysics(string configSetName)
-        {
-            foreach(var config in _configSets[configSetName])
-            {
-                var gravityPhysicsConfig = (MainPhysicsConfig) config;
-                if(gravityPhysicsConfig.type == "additive")
-                {
-                    return;
-                }
-
-                const float newValue = 0f;
-                gravityPhysicsConfig.setting.val = newValue;
-                if(_useConfigurator)
-                {
-                    _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.name, newValue);
-                }
-            }
-        }
-
         private void ResetPhysics(string configSetName)
         {
             foreach(var config in _configSets[configSetName])
             {
-                var gravityPhysicsConfig = (MainPhysicsConfig) config;
+                var gravityPhysicsConfig = (PhysicsConfig) config;
                 float newValue = gravityPhysicsConfig.type == "additive" ? gravityPhysicsConfig.baseValue : gravityPhysicsConfig.originalValue;
                 gravityPhysicsConfig.setting.val = newValue;
                 if(_useConfigurator)

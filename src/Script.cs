@@ -332,11 +332,7 @@ namespace TittyMagic
             this.NewSpacer(210f);
             _nippleErection = this.NewFloatSlider("Nipple erection", 0f, 0f, 1.0f, "F2");
             _nippleErection.slider.onValueChanged.AddListener(
-                val =>
-                {
-                    _nippleErectionMorphH.Update(val);
-                    // _staticPhysicsH.UpdateNipplePhysics(_softnessAmount, val); // TODO male
-                }
+                val => { _nippleErectionMorphH.Update(val); }
             );
 
             _modeInfoText.val = "Futa mode";

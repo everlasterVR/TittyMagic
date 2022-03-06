@@ -7,7 +7,6 @@ src\Configurators\GravityMorphConfigurator.cs
 src\Configurators\GravityPhysicsConfigurator.cs
 src\Configurators\IConfigurator.cs
 src\Configurators\RelativePosMorphConfigurator.cs
-src\Configurators\PhysicsConfig.cs
 src\Handlers\GravityMorphHandler.cs
 src\Handlers\GravityPhysicsHandler.cs
 src\Handlers\NippleErectionMorphHandler.cs

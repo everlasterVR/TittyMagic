@@ -13,7 +13,7 @@ namespace TittyMagic
         public float multiplier2 { get; set; }
     }
 
-    internal class MainPhysicsConfig : Config
+    internal class PhysicsConfig : Config
     {
         public JSONStorableFloat setting { get; }
 
@@ -23,21 +23,38 @@ namespace TittyMagic
 
         public string type { get; }
 
-        public MainPhysicsConfig(string name, string type, bool isNegative, float multiplier1, float multiplier2)
+        public PhysicsConfig(string name, string category, string type, bool isNegative, float multiplier1, float multiplier2)
         {
             this.name = name;
             this.type = type;
             this.isNegative = isNegative;
             this.multiplier1 = multiplier1;
             this.multiplier2 = multiplier2;
-            setting = BREAST_CONTROL.GetFloatJSONParam(name);
-            if(setting == null)
+            setting = GetSetting(category);
+            originalValue = setting.val;
+        }
+
+        private JSONStorableFloat GetSetting(string category)
+        {
+            JSONStorableFloat storable = null;
+            if(category == "main")
             {
-                LogError($"BreastControl float param with name {name} not found!", nameof(MainPhysicsConfig));
-                return;
+                storable = BREAST_CONTROL.GetFloatJSONParam(name);
+                if(storable == null)
+                {
+                    LogError($"BreastControl float param with name {name} not found!");
+                }
+            }
+            else if(category == "soft")
+            {
+                storable = BREAST_PHYSICS_MESH.GetFloatJSONParam(name);
+                if(storable == null)
+                {
+                    LogError($"BreastPhysicsMesh float param with name {name} not found!");
+                }
             }
 
-            originalValue = setting.val;
+            return storable;
         }
     }
 
@@ -48,12 +65,7 @@ namespace TittyMagic
         public MorphConfig(string name)
         {
             this.name = name;
-            string uid = MORPHS_PATH + $"{name}.vmi";
-            morph = MORPHS_CONTROL_UI.GetMorphByUid(uid);
-            if(morph == null)
-            {
-                LogError($"Morph with uid '{uid}' not found!", nameof(MorphConfig));
-            }
+            morph = GetMorph();
         }
 
         public MorphConfig(string name, bool isNegative, float multiplier1, float multiplier2)
@@ -62,13 +74,32 @@ namespace TittyMagic
             this.isNegative = isNegative;
             this.multiplier1 = multiplier1;
             this.multiplier2 = multiplier2;
+            morph = GetMorphFromSubDir();
+        }
+
+        private DAZMorph GetMorph()
+        {
+            string uid = MORPHS_PATH + $"{name}.vmi";
+            var dazMorph = MORPHS_CONTROL_UI.GetMorphByUid(uid);
+            if(dazMorph == null)
+            {
+                LogError($"Morph with uid '{uid}' not found!");
+            }
+
+            return dazMorph;
+        }
+
+        private DAZMorph GetMorphFromSubDir()
+        {
             string dir = name.Substring(0, 2); // e.g. UP morphs are in UP/ dir
             string uid = MORPHS_PATH + $"{dir}/{name}.vmi";
-            morph = MORPHS_CONTROL_UI.GetMorphByUid(uid);
-            if(morph == null)
+            var dazMorph = MORPHS_CONTROL_UI.GetMorphByUid(uid);
+            if(dazMorph == null)
             {
-                LogError($"Morph with uid '{uid}' not found!", nameof(MorphConfig));
+                LogError($"Morph with uid '{uid}' not found!");
             }
+
+            return dazMorph;
         }
     }
 

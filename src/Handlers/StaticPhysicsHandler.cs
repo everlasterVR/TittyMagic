@@ -43,7 +43,7 @@ namespace TittyMagic
             _softPhysicsConfigs = new HashSet<BreastStaticPhysicsConfig>();
             _nipplePhysicsConfigs = new HashSet<BreastStaticPhysicsConfig>();
 
-            Persistence.LoadModePhysicsSettings(
+            Persistence.LoadModeStaticPhysicsSettings(
                 script,
                 mode,
                 @"mainPhysics.json",
@@ -65,7 +65,7 @@ namespace TittyMagic
                 }
             );
 
-            Persistence.LoadModePhysicsSettings(
+            Persistence.LoadModeStaticPhysicsSettings(
                 script,
                 mode,
                 @"softPhysics.json",
@@ -87,7 +87,7 @@ namespace TittyMagic
                 }
             );
 
-            Persistence.LoadModePhysicsSettings(
+            Persistence.LoadModeStaticPhysicsSettings(
                 script,
                 mode,
                 @"nipplePhysics.json",

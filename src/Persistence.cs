@@ -33,15 +33,15 @@ namespace TittyMagic
             callback?.Invoke(browseDir);
         }
 
-        public static void LoadModePhysicsSettings(MVRScript script, string mode, string fileName, Action<string, JSONClass> callback = null)
+        public static void LoadModeStaticPhysicsSettings(MVRScript script, string mode, string fileName, Action<string, JSONClass> callback = null)
         {
             string path = $@"{PLUGIN_PATH}settings\staticphysics\{_settingsNames[mode]}\{fileName}";
             LoadFromPath(script, path, callback);
         }
 
-        public static void LoadModeGravityPhysicsSettings(MVRScript script, string mode, Action<string, JSONClass> callback = null)
+        public static void LoadModePhysicsSettings(MVRScript script, string mode, Action<string, JSONClass> callback = null)
         {
-            string path = $@"{PLUGIN_PATH}settings\gravityphysics\{_settingsNames[mode]}.json";
+            string path = $@"{PLUGIN_PATH}settings\physicsmultipliers\{_settingsNames[mode]}.json";
             LoadFromPath(script, path, callback);
         }
 

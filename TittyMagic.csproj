@@ -106,10 +106,10 @@
     <Compile Include="src\Variables.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="settings\gravityphysics\pectoral.json" />
-    <None Include="settings\gravityphysics\touchoptimized.json" />
-    <None Include="settings\gravityphysics\balanced.json" />
-    <None Include="settings\gravityphysics\animoptimized.json" />
+    <None Include="settings\physicsmultipliers\pectoral.json" />
+    <None Include="settings\physicsmultipliers\touchoptimized.json" />
+    <None Include="settings\physicsmultipliers\balanced.json" />
+    <None Include="settings\physicsmultipliers\animoptimized.json" />
     <None Include="settings\morphmultipliers\animoptimized\backForceCenter.json" />
     <None Include="settings\morphmultipliers\animoptimized\downForce.json" />
     <None Include="settings\morphmultipliers\animoptimized\backForce.json" />
