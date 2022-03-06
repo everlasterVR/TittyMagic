@@ -115,8 +115,13 @@ namespace TittyMagic
                 yield return null;
             }
 
-            AdjustJoints breastControl = containingAtom.GetStorableByID("BreastControl") as AdjustJoints;
-            DAZPhysicsMesh breastPhysicsMesh = containingAtom.GetStorableByID("BreastPhysicsMesh") as DAZPhysicsMesh;
+            SAVES_DIR = SuperController.singleton.savesDir + @"everlaster\TittyMagicSettings\";
+            MORPHS_PATH = MorphsPath();
+            PLUGIN_PATH = GetPackagePath(this) + @"Custom\Scripts\everlaster\TittyMagic\";
+            BREAST_CONTROL = containingAtom.GetStorableByID("BreastControl") as AdjustJoints;
+            BREAST_PHYSICS_MESH = containingAtom.GetStorableByID("BreastPhysicsMesh") as DAZPhysicsMesh;
+            GEOMETRY = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
+
             var rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
             _chestRb = rigidbodies.Find(rb => rb.name == "chest");
             _pectoralRbLeft = rigidbodies.Find(rb => rb.name == "lPectoral");
@@ -126,13 +131,6 @@ namespace TittyMagic
 
             _trackLeftNipple = new TrackNipple(_chestRb, _pectoralRbLeft, nippleRbLeft);
             _trackRightNipple = new TrackNipple(_chestRb, _pectoralRbRight, nippleRbRight);
-
-            SAVES_DIR = SuperController.singleton.savesDir + @"everlaster\TittyMagicSettings\";
-            MORPHS_PATH = MorphsPath();
-            PLUGIN_PATH = GetPackagePath(this) + @"Custom\Scripts\everlaster\TittyMagic\";
-            BREAST_CONTROL = breastControl;
-            BREAST_PHYSICS_MESH = breastPhysicsMesh;
-            GEOMETRY = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
 
             _settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
             _settingsMonitor.Init(containingAtom);
@@ -812,7 +810,7 @@ namespace TittyMagic
                 _settingsMonitor.enabled = true;
             if(_gravityPhysicsH != null)
                 _gravityPhysicsH.SetInvertJoint2RotationY(false);
-            if(CheckListeners())
+            if(_initDone && CheckListeners())
             {
                 StartCoroutine(WaitToBeginRefresh());
             }
