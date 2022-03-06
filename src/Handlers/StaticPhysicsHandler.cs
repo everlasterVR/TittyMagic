@@ -6,11 +6,11 @@ namespace TittyMagic
 {
     internal class StaticPhysicsHandler
     {
-        private HashSet<BreastPhysicsConfig> _mainPhysicsConfigs;
-        private HashSet<BreastPhysicsConfig> _softPhysicsConfigs;
-        private HashSet<BreastPhysicsConfig> _nipplePhysicsConfigs;
+        private HashSet<BreastStaticPhysicsConfig> _mainPhysicsConfigs;
+        private HashSet<BreastStaticPhysicsConfig> _softPhysicsConfigs;
+        private HashSet<BreastStaticPhysicsConfig> _nipplePhysicsConfigs;
 
-        private HashSet<PectoralPhysicsConfig> _pectoralPhysicsConfigs;
+        private HashSet<PectoralStaticPhysicsConfig> _pectoralPhysicsConfigs;
 
         public JSONStorableStringChooser modeChooser; // TODO male
 
@@ -39,9 +39,9 @@ namespace TittyMagic
 
         private void LoadSettingsFromFiles(MVRScript script, string mode)
         {
-            _mainPhysicsConfigs = new HashSet<BreastPhysicsConfig>();
-            _softPhysicsConfigs = new HashSet<BreastPhysicsConfig>();
-            _nipplePhysicsConfigs = new HashSet<BreastPhysicsConfig>();
+            _mainPhysicsConfigs = new HashSet<BreastStaticPhysicsConfig>();
+            _softPhysicsConfigs = new HashSet<BreastStaticPhysicsConfig>();
+            _nipplePhysicsConfigs = new HashSet<BreastStaticPhysicsConfig>();
 
             Persistence.LoadModePhysicsSettings(
                 script,
@@ -53,7 +53,7 @@ namespace TittyMagic
                     {
                         var paramSettings = json[param].AsObject;
                         _mainPhysicsConfigs.Add(
-                            new BreastPhysicsConfig(
+                            new BreastStaticPhysicsConfig(
                                 BREAST_CONTROL.GetFloatJSONParam(param),
                                 paramSettings["minMminS"].AsFloat,
                                 paramSettings["maxMminS"].AsFloat,
@@ -75,7 +75,7 @@ namespace TittyMagic
                     {
                         var paramSettings = json[param].AsObject;
                         _softPhysicsConfigs.Add(
-                            new BreastPhysicsConfig(
+                            new BreastStaticPhysicsConfig(
                                 BREAST_PHYSICS_MESH.GetFloatJSONParam(param),
                                 paramSettings["minMminS"].AsFloat,
                                 paramSettings["maxMminS"].AsFloat,
@@ -97,7 +97,7 @@ namespace TittyMagic
                     {
                         var paramSettings = json[param].AsObject;
                         _nipplePhysicsConfigs.Add(
-                            new BreastPhysicsConfig(
+                            new BreastStaticPhysicsConfig(
                                 BREAST_PHYSICS_MESH.GetFloatJSONParam(param),
                                 paramSettings["minMminS"].AsFloat,
                                 paramSettings["maxMminS"].AsFloat,
@@ -112,7 +112,7 @@ namespace TittyMagic
 
         private void LoadPectoralSettings(MVRScript script)
         {
-            _pectoralPhysicsConfigs = new HashSet<PectoralPhysicsConfig>();
+            _pectoralPhysicsConfigs = new HashSet<PectoralStaticPhysicsConfig>();
 
             Persistence.LoadFromPath(
                 script,
@@ -123,7 +123,7 @@ namespace TittyMagic
                     {
                         var paramSettings = json[param].AsObject;
                         _pectoralPhysicsConfigs.Add(
-                            new PectoralPhysicsConfig(
+                            new PectoralStaticPhysicsConfig(
                                 BREAST_CONTROL.GetFloatJSONParam(param),
                                 paramSettings["minM"].AsFloat,
                                 paramSettings["maxM"].AsFloat

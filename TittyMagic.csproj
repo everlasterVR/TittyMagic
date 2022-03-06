@@ -94,7 +94,6 @@
     <Compile Include="src\Configurators\GravityMorphConfigurator.cs" />
     <Compile Include="src\Configurators\GravityPhysicsConfigurator.cs" />
     <Compile Include="src\Configurators\IConfigurator.cs" />
-    <Compile Include="src\Configurators\PhysicsConfig.cs" />
     <Compile Include="src\Configurators\RelativePosMorphConfigurator.cs" />
     <Compile Include="src\Handlers\GravityMorphHandler.cs" />
     <Compile Include="src\Handlers\GravityPhysicsHandler.cs" />
