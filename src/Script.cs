@@ -76,6 +76,7 @@ namespace TittyMagic
 
         private bool _initDone;
         private bool _loadingFromJson;
+        private bool _setModeFromJson;
         private float _timeSinceListenersChecked;
         private float _listenersCheckInterval = 0.0333f;
         private int _waitStatus = -1;
@@ -87,7 +88,6 @@ namespace TittyMagic
             try
             {
                 _pluginVersionStorable = new JSONStorableString("Version", "");
-                _pluginVersionStorable.val = $"{version}";
                 _pluginVersionStorable.storeType = JSONStorableParam.StoreType.Full;
                 RegisterString(_pluginVersionStorable);
 
@@ -156,12 +156,13 @@ namespace TittyMagic
             InitSliderListeners();
             SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
 
-            if(!_loadingFromJson)
+            if(!_setModeFromJson)
             {
                 _modeChooser.val = Mode.ANIM_OPTIMIZED; // selection causes BeginRefresh;
             }
 
             _initDone = true;
+            StartCoroutine(SetPluginVersion());
         }
 
         //https://github.com/vam-community/vam-plugins-interop-specs/blob/main/keybindings.md
@@ -177,6 +178,15 @@ namespace TittyMagic
             _customBindings.Init(this);
             bindings.Add(_customBindings.Settings);
             bindings.AddRange(_customBindings.OnKeyDownActions);
+        }
+
+        private IEnumerator SetPluginVersion()
+        {
+            while(_loadingFromJson)
+            {
+                yield return null;
+            }
+            _pluginVersionStorable.val = $"{version}";
         }
 
         #region User interface
@@ -403,7 +413,7 @@ namespace TittyMagic
 
         private void RefreshFromSliderChanged()
         {
-            if(_loadingFromJson)
+            if(_setModeFromJson)
             {
                 return;
             }
@@ -683,7 +693,7 @@ namespace TittyMagic
             _pectoralRbRight.useGravity = true;
             SuperController.singleton.SetFreezeAnimation(_animationWasSetFrozen);
             _settingsMonitor.enabled = true;
-            _loadingFromJson = false;
+            _setModeFromJson = false;
             _waitStatus = RefreshStatus.DONE;
             _refreshStatus = RefreshStatus.DONE;
         }
@@ -743,22 +753,20 @@ namespace TittyMagic
 
         public override void RestoreFromJSON(JSONClass json, bool restorePhysical = true, bool restoreAppearance = true, JSONArray presetAtoms = null, bool setMissingToDefault = true)
         {
+            _loadingFromJson = true;
             StartCoroutine(DelayedRestore(json, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault));
         }
 
         private IEnumerator DelayedRestore(JSONClass json, bool restorePhysical, bool restoreAppearance, JSONArray presetAtoms, bool setMissingToDefault)
         {
-            if(json.HasKey("Mode"))
-            {
-                _loadingFromJson = true;
-            }
+            _setModeFromJson = json.HasKey("Mode");
 
             while(!_initDone)
             {
                 yield return null;
             }
 
-            if(json.HasKey("Mode"))
+            if(_setModeFromJson)
             {
                 var mode = json["Mode"];
                 if(mode == "TouchOptimized") // compatibility with 2.1 saves
@@ -767,6 +775,7 @@ namespace TittyMagic
             }
 
             base.RestoreFromJSON(json, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
+            _loadingFromJson = false;
         }
 
         private string MorphsPath()
