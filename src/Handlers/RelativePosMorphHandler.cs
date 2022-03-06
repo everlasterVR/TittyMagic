@@ -10,6 +10,7 @@ namespace TittyMagic
         private readonly MVRScript _script;
         private readonly IConfigurator _configurator;
         private readonly bool _useConfigurator;
+
         private float _mass;
         private float _mobility;
 

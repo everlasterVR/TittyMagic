@@ -12,7 +12,7 @@ namespace TittyMagic
         public float multiplier2 { get; set; }
     }
 
-    internal class GravityPhysicsConfig : Config
+    internal class MainPhysicsConfig : Config
     {
         public JSONStorableFloat setting { get; }
 
@@ -22,7 +22,7 @@ namespace TittyMagic
 
         public string type { get; }
 
-        public GravityPhysicsConfig(string name, string type, bool isNegative, float multiplier1, float multiplier2)
+        public MainPhysicsConfig(string name, string type, bool isNegative, float multiplier1, float multiplier2)
         {
             this.name = name;
             this.type = type;
@@ -32,7 +32,7 @@ namespace TittyMagic
             setting = BREAST_CONTROL.GetFloatJSONParam(name);
             if(setting == null)
             {
-                LogError($"BreastControl float param with name {name} not found!", nameof(GravityPhysicsConfig));
+                LogError($"BreastControl float param with name {name} not found!", nameof(MainPhysicsConfig));
                 return;
             }
 

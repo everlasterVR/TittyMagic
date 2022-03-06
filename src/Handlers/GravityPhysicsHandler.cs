@@ -8,7 +8,6 @@ namespace TittyMagic
     {
         private readonly MVRScript _script;
         private readonly IConfigurator _configurator;
-
         private readonly bool _useConfigurator;
 
         private float _mass;
@@ -75,7 +74,7 @@ namespace TittyMagic
                         foreach(string name in groupJson.Keys)
                         {
                             configs.Add(
-                                new GravityPhysicsConfig(
+                                new MainPhysicsConfig(
                                     name,
                                     groupJson[name]["Type"],
                                     groupJson[name]["IsNegative"].AsBool,
@@ -98,7 +97,7 @@ namespace TittyMagic
             {
                 foreach(var config in kvp.Value)
                 {
-                    var gravityPhysicsConfig = (GravityPhysicsConfig) config;
+                    var gravityPhysicsConfig = (MainPhysicsConfig) config;
                     if(gravityPhysicsConfig.type == "additive")
                     {
                         gravityPhysicsConfig.baseValue = gravityPhysicsConfig.setting.val;
@@ -191,7 +190,7 @@ namespace TittyMagic
         {
             foreach(var config in _configSets[configSetName])
             {
-                var gravityPhysicsConfig = (GravityPhysicsConfig) config;
+                var gravityPhysicsConfig = (MainPhysicsConfig) config;
                 UpdateValue(gravityPhysicsConfig, effect);
                 if(_useConfigurator)
                 {
@@ -205,7 +204,7 @@ namespace TittyMagic
             float adjusted = effect * (1 - Mathf.Abs(roll));
             foreach(var config in _configSets[configSetName])
             {
-                var gravityPhysicsConfig = (GravityPhysicsConfig) config;
+                var gravityPhysicsConfig = (MainPhysicsConfig) config;
                 UpdateValue(gravityPhysicsConfig, adjusted);
                 if(_useConfigurator)
                 {
@@ -214,7 +213,7 @@ namespace TittyMagic
             }
         }
 
-        private void UpdateValue(GravityPhysicsConfig config, float effect)
+        private void UpdateValue(MainPhysicsConfig config, float effect)
         {
             float value =
                 (_amount * config.multiplier1 * effect / 2) +
@@ -241,7 +240,7 @@ namespace TittyMagic
         {
             foreach(var config in _configSets[configSetName])
             {
-                var gravityPhysicsConfig = (GravityPhysicsConfig) config;
+                var gravityPhysicsConfig = (MainPhysicsConfig) config;
                 if(gravityPhysicsConfig.type == "additive")
                 {
                     return;
@@ -260,7 +259,7 @@ namespace TittyMagic
         {
             foreach(var config in _configSets[configSetName])
             {
-                var gravityPhysicsConfig = (GravityPhysicsConfig) config;
+                var gravityPhysicsConfig = (MainPhysicsConfig) config;
                 float newValue = gravityPhysicsConfig.type == "additive" ? gravityPhysicsConfig.baseValue : gravityPhysicsConfig.originalValue;
                 gravityPhysicsConfig.setting.val = newValue;
                 if(_useConfigurator)

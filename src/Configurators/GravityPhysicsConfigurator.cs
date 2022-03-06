@@ -74,7 +74,7 @@ namespace TittyMagic
             var group = _uiSectionGroups[key];
             foreach(var config in configs)
             {
-                var gravityPhysicsConfig = (GravityPhysicsConfig) config;
+                var gravityPhysicsConfig = (MainPhysicsConfig) config;
                 group.Add(gravityPhysicsConfig.name, new ConfiguratorUISection(this, gravityPhysicsConfig));
             }
         }
