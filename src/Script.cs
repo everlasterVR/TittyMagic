@@ -76,7 +76,6 @@ namespace TittyMagic
 
         private bool _initDone;
         private bool _loadingFromJson;
-        private bool _setModeFromJson;
         private float _timeSinceListenersChecked;
         private float _listenersCheckInterval = 0.0333f;
         private int _waitStatus = -1;
@@ -156,7 +155,7 @@ namespace TittyMagic
             InitSliderListeners();
             SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
 
-            if(!_setModeFromJson)
+            if(!_loadingFromJson)
             {
                 _modeChooser.val = Mode.ANIM_OPTIMIZED; // selection causes BeginRefresh;
             }
@@ -413,7 +412,7 @@ namespace TittyMagic
 
         private void RefreshFromSliderChanged()
         {
-            if(_setModeFromJson)
+            if(_loadingFromJson)
             {
                 return;
             }
@@ -693,7 +692,6 @@ namespace TittyMagic
             _pectoralRbRight.useGravity = true;
             SuperController.singleton.SetFreezeAnimation(_animationWasSetFrozen);
             _settingsMonitor.enabled = true;
-            _setModeFromJson = false;
             _waitStatus = RefreshStatus.DONE;
             _refreshStatus = RefreshStatus.DONE;
         }
@@ -759,23 +757,34 @@ namespace TittyMagic
 
         private IEnumerator DelayedRestore(JSONClass json, bool restorePhysical, bool restoreAppearance, JSONArray presetAtoms, bool setMissingToDefault)
         {
-            _setModeFromJson = json.HasKey("Mode");
-
             while(!_initDone)
             {
                 yield return null;
             }
 
-            if(_setModeFromJson)
-            {
-                var mode = json["Mode"];
-                if(mode == "TouchOptimized") // compatibility with 2.1 saves
-                    mode = "touch optimized";
-                _modeChooser.val = mode;
-            }
-
+            SetJsonMode(json);
+            // for some reason, base restore doesn't always trigger mode selection
+            _modeChooser.val = json["Mode"];
             base.RestoreFromJSON(json, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
+
             _loadingFromJson = false;
+        }
+
+        private void SetJsonMode(JSONClass json)
+        {
+            if(!json.HasKey("Mode"))
+            {
+                json["Mode"] = Mode.ANIM_OPTIMIZED;
+            }
+            else if(json["Mode"] == "TouchOptimized")
+            {
+                // compatibility with 2.1 saves
+                json["Mode"] = Mode.TOUCH_OPTIMIZED;
+            }
+            else if(!_modeChooser.choices.Contains(json["Mode"]))
+            {
+                json["Mode"] = Mode.ANIM_OPTIMIZED;
+            }
         }
 
         private string MorphsPath()
