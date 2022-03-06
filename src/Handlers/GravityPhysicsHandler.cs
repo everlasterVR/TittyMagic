@@ -232,11 +232,6 @@ namespace TittyMagic
             }
         }
 
-        public void ZeroAll()
-        {
-            _configSets?.Keys.ToList().ForEach(ZeroPhysics);
-        }
-
         public void ResetAll()
         {
             _configSets?.Keys.ToList().ForEach(ResetPhysics);
