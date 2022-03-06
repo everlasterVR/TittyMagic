@@ -74,6 +74,7 @@ namespace TittyMagic
         private UIDynamicToggle _linkSoftnessAndGravityToggle;
         private JSONStorableFloat _nippleErection;
 
+        private bool _initDone;
         private bool _loadingFromJson;
         private float _timeSinceListenersChecked;
         private float _listenersCheckInterval = 0.0333f;
@@ -96,53 +97,7 @@ namespace TittyMagic
                     return;
                 }
 
-                AdjustJoints breastControl = containingAtom.GetStorableByID("BreastControl") as AdjustJoints;
-                DAZPhysicsMesh breastPhysicsMesh = containingAtom.GetStorableByID("BreastPhysicsMesh") as DAZPhysicsMesh;
-                var rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
-                _chestRb = rigidbodies.Find(rb => rb.name == "chest");
-                _pectoralRbLeft = rigidbodies.Find(rb => rb.name == "lPectoral");
-                _pectoralRbRight = rigidbodies.Find(rb => rb.name == "rPectoral");
-                var nippleRbLeft = rigidbodies.Find(rb => rb.name == "lNipple");
-                var nippleRbRight = rigidbodies.Find(rb => rb.name == "rNipple");
-
-                _trackLeftNipple = new TrackNipple(_chestRb, _pectoralRbLeft, nippleRbLeft);
-                _trackRightNipple = new TrackNipple(_chestRb, _pectoralRbRight, nippleRbRight);
-
-                SAVES_DIR = SuperController.singleton.savesDir + @"everlaster\TittyMagicSettings\";
-                MORPHS_PATH = MorphsPath();
-                PLUGIN_PATH = GetPackagePath(this) + @"Custom\Scripts\everlaster\TittyMagic\";
-                BREAST_CONTROL = breastControl;
-                BREAST_PHYSICS_MESH = breastPhysicsMesh;
-                GEOMETRY = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
-
-                _settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
-                _settingsMonitor.Init(containingAtom);
-
-                _atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
-                _breastMorphListener = new BreastMorphListener(GEOMETRY.morphBank1.morphs);
-                _breastMassCalculator = new BreastMassCalculator(_chestRb);
-
-                _staticPhysicsH = new StaticPhysicsHandler();
-#if USE_CONFIGURATORS
-                _gravityPhysicsH = new GravityPhysicsHandler(FindPluginOnAtom(containingAtom, "GravityPhysicsConfigurator"));
-                _gravityMorphH = new GravityMorphHandler(FindPluginOnAtom(containingAtom, "GravityMorphConfigurator"));
-                _relativePosMorphH = new RelativePosMorphHandler(FindPluginOnAtom(containingAtom, "RelativePosMorphConfigurator"));
-#else
-                _gravityPhysicsH = new GravityPhysicsHandler(this);
-                _gravityMorphH = new GravityMorphHandler(this);
-                _relativePosMorphH = new RelativePosMorphHandler(this);
-#endif
-                _nippleErectionMorphH = new NippleErectionMorphHandler(this);
-
-                InitPluginUILeft();
-                InitPluginUIRight();
-                InitSliderListeners();
-                SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
-
-                _softnessAmount = Mathf.Pow(_softness.val/100f, 1/2f);
-                _gravityAmount = Mathf.Pow(_gravity.val/100f, 1/2f);
-
-                StartCoroutine(SelectDefaultMode());
+                StartCoroutine(DelayedInit());
                 StartCoroutine(SubscribeToKeybindings());
             }
             catch(Exception e)
@@ -152,14 +107,63 @@ namespace TittyMagic
             }
         }
 
-        private IEnumerator SelectDefaultMode()
+        private IEnumerator DelayedInit()
         {
             yield return new WaitForEndOfFrame();
-            if(_loadingFromJson)
+            while(SuperController.singleton.isLoading)
             {
-                yield break;
+                yield return null;
             }
-            _modeChooser.val = Mode.ANIM_OPTIMIZED; // selection causes BeginRefresh
+
+            AdjustJoints breastControl = containingAtom.GetStorableByID("BreastControl") as AdjustJoints;
+            DAZPhysicsMesh breastPhysicsMesh = containingAtom.GetStorableByID("BreastPhysicsMesh") as DAZPhysicsMesh;
+            var rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
+            _chestRb = rigidbodies.Find(rb => rb.name == "chest");
+            _pectoralRbLeft = rigidbodies.Find(rb => rb.name == "lPectoral");
+            _pectoralRbRight = rigidbodies.Find(rb => rb.name == "rPectoral");
+            var nippleRbLeft = rigidbodies.Find(rb => rb.name == "lNipple");
+            var nippleRbRight = rigidbodies.Find(rb => rb.name == "rNipple");
+
+            _trackLeftNipple = new TrackNipple(_chestRb, _pectoralRbLeft, nippleRbLeft);
+            _trackRightNipple = new TrackNipple(_chestRb, _pectoralRbRight, nippleRbRight);
+
+            SAVES_DIR = SuperController.singleton.savesDir + @"everlaster\TittyMagicSettings\";
+            MORPHS_PATH = MorphsPath();
+            PLUGIN_PATH = GetPackagePath(this) + @"Custom\Scripts\everlaster\TittyMagic\";
+            BREAST_CONTROL = breastControl;
+            BREAST_PHYSICS_MESH = breastPhysicsMesh;
+            GEOMETRY = containingAtom.GetStorableByID("geometry") as DAZCharacterSelector;
+
+            _settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
+            _settingsMonitor.Init(containingAtom);
+
+            _atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
+            _breastMorphListener = new BreastMorphListener(GEOMETRY.morphBank1.morphs);
+            _breastMassCalculator = new BreastMassCalculator(_chestRb);
+
+            _staticPhysicsH = new StaticPhysicsHandler();
+#if USE_CONFIGURATORS
+                _gravityPhysicsH = new GravityPhysicsHandler(FindPluginOnAtom(containingAtom, "GravityPhysicsConfigurator"));
+                _gravityMorphH = new GravityMorphHandler(FindPluginOnAtom(containingAtom, "GravityMorphConfigurator"));
+                _relativePosMorphH = new RelativePosMorphHandler(FindPluginOnAtom(containingAtom, "RelativePosMorphConfigurator"));
+#else
+            _gravityPhysicsH = new GravityPhysicsHandler(this);
+            _gravityMorphH = new GravityMorphHandler(this);
+            _relativePosMorphH = new RelativePosMorphHandler(this);
+#endif
+            _nippleErectionMorphH = new NippleErectionMorphHandler(this);
+
+            InitPluginUILeft();
+            InitPluginUIRight();
+            InitSliderListeners();
+            SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
+
+            if(!_loadingFromJson)
+            {
+                _modeChooser.val = Mode.ANIM_OPTIMIZED; // selection causes BeginRefresh;
+            }
+
+            _initDone = true;
         }
 
         //https://github.com/vam-community/vam-plugins-interop-specs/blob/main/keybindings.md
@@ -392,6 +396,9 @@ namespace TittyMagic
                     RefreshFromSliderChanged();
                 }
             });
+
+            _softnessAmount = Mathf.Pow(_softness.val/100f, 1/2f);
+            _gravityAmount = Mathf.Pow(_gravity.val/100f, 1/2f);
         }
 
         #endregion User interface
@@ -414,7 +421,7 @@ namespace TittyMagic
 
         private void Update()
         {
-            if(_waitStatus != RefreshStatus.DONE)
+            if(!_initDone || _waitStatus != RefreshStatus.DONE)
             {
                 return;
             }
@@ -432,6 +439,11 @@ namespace TittyMagic
 
         private void FixedUpdate()
         {
+            if(!_initDone)
+            {
+                return;
+            }
+
             try
             {
                 DoFixedUpdate();
@@ -733,14 +745,29 @@ namespace TittyMagic
 
         public override void RestoreFromJSON(JSONClass json, bool restorePhysical = true, bool restoreAppearance = true, JSONArray presetAtoms = null, bool setMissingToDefault = true)
         {
+            StartCoroutine(DelayedRestore(json, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault));
+        }
+
+        private IEnumerator DelayedRestore(JSONClass json, bool restorePhysical, bool restoreAppearance, JSONArray presetAtoms, bool setMissingToDefault)
+        {
             if(json.HasKey("Mode"))
             {
                 _loadingFromJson = true;
+            }
+
+            while(!_initDone)
+            {
+                yield return null;
+            }
+
+            if(json.HasKey("Mode"))
+            {
                 var mode = json["Mode"];
                 if(mode == "TouchOptimized") // compatibility with 2.1 saves
                     mode = "touch optimized";
                 _modeChooser.val = mode;
             }
+
             base.RestoreFromJSON(json, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
         }
 
