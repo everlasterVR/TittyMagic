@@ -625,10 +625,7 @@ namespace TittyMagic
 
             float duration = 0;
             float interval = 0.1f;
-            while(
-                duration < 1f &&
-                !EqualWithin(1000f, _massEstimate, DetermineMassEstimate(_atomScaleListener.Value))
-            )
+            while(duration < 0.5f)
             {
                 yield return new WaitForSeconds(interval);
                 duration += interval;
@@ -638,12 +635,14 @@ namespace TittyMagic
 
                 // update main static physics
                 _massAmount = _staticPhysicsH.SetAndReturnMassVal(_massEstimate);
-                _verticalAngleMassMultiplier = -Mathf.Pow(1.67f * _massAmount, 0.53f) + 2.5f;
-                _rollAngleMassMultiplier = -Mathf.Pow(_massAmount, 1.75f) + 2.67f;
-                _backDepthDiffMassMultiplier = 12 * ((1 / Mathf.Pow(1/2f * _massAmount, 1/3f)) - 0.51f);
-                _forwardDepthDiffMassMultiplier = 17 / Mathf.Pow(0.9f * (_massAmount + 0.02f), 1/4f);
                 _staticPhysicsH.UpdateMainPhysics(_softnessAmount);
             }
+
+            _verticalAngleMassMultiplier = -Mathf.Pow(1.67f * _massAmount, 0.53f) + 2.5f;
+            _rollAngleMassMultiplier = -Mathf.Pow(_massAmount, 1.75f) + 2.67f;
+            _backDepthDiffMassMultiplier = 12 * ((1 / Mathf.Pow(1/2f * _massAmount, 1/3f)) - 0.51f);
+            _forwardDepthDiffMassMultiplier = 17 / Mathf.Pow(0.9f * (_massAmount + 0.02f), 1/4f);
+
             SetMassUIStatus(_atomScaleListener.Value);
             _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
             _gravityPhysicsH.SetBaseValues();
