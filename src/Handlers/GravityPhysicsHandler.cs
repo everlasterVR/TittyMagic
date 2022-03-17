@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using static TittyMagic.Utils;
 
 namespace TittyMagic
 {
@@ -20,9 +20,11 @@ namespace TittyMagic
             Globals.BREAST_CONTROL.invertJoint2RotationY = false;
 
             _script = script;
-            try
+            // _useConfigurator = true;
+
+            if(_useConfigurator)
             {
-                _configurator = (IConfigurator) _script;
+                _configurator = (IConfigurator) FindPluginOnAtom(_script.containingAtom, nameof(GravityPhysicsConfigurator));
                 _configurator.InitMainUI();
                 _configurator.enableAdjustment.toggle.onValueChanged.AddListener(
                     val =>
@@ -33,11 +35,6 @@ namespace TittyMagic
                         }
                     }
                 );
-                _useConfigurator = true;
-            }
-            catch(Exception)
-            {
-                _useConfigurator = false;
             }
         }
 

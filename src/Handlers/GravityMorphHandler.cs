@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using static TittyMagic.Utils;
 
@@ -20,9 +19,11 @@ namespace TittyMagic
         public GravityMorphHandler(MVRScript script)
         {
             _script = script;
-            try
+            // _useConfigurator = true;
+
+            if(_useConfigurator)
             {
-                _configurator = (IConfigurator) _script;
+                _configurator = (IConfigurator) FindPluginOnAtom(_script.containingAtom, nameof(GravityMorphConfigurator));
                 _configurator.InitMainUI();
                 _configurator.enableAdjustment.toggle.onValueChanged.AddListener(
                     val =>
@@ -33,11 +34,6 @@ namespace TittyMagic
                         }
                     }
                 );
-                _useConfigurator = true;
-            }
-            catch(Exception)
-            {
-                _useConfigurator = false;
             }
         }
 

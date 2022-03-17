@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using static TittyMagic.Utils;
 
@@ -19,10 +18,11 @@ namespace TittyMagic
         public RelativePosMorphHandler(MVRScript script)
         {
             _script = script;
+            // _useConfigurator = true;
 
-            try
+            if(_useConfigurator)
             {
-                _configurator = (IConfigurator) _script;
+                _configurator = (IConfigurator) FindPluginOnAtom(_script.containingAtom, nameof(RelativePosMorphConfigurator));
                 _configurator.InitMainUI();
                 _configurator.enableAdjustment.toggle.onValueChanged.AddListener(
                     val =>
@@ -33,11 +33,6 @@ namespace TittyMagic
                         }
                     }
                 );
-                _useConfigurator = true;
-            }
-            catch(Exception)
-            {
-                _useConfigurator = false;
             }
         }
 
