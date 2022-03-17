@@ -70,6 +70,10 @@ namespace TittyMagic
         private UIDynamicToggle _linkSoftnessAndGravityToggle;
         private JSONStorableFloat _nippleErection;
 
+        private JSONStorableFloat _testMultiplierX;
+        private JSONStorableFloat _testMultiplierY;
+        private JSONStorableFloat _testMultiplierZ;
+
         private bool _isFemale;
         private bool _initDone;
         private bool _loadingFromJson;
@@ -295,7 +299,11 @@ namespace TittyMagic
             _gravitySlider = this.NewIntSlider(_gravity);
 
             this.NewSpacer(210f);
-            _nippleErection = this.NewFloatSlider("Nipple erection", 0f, 0f, 1.0f, "F2");
+            _testMultiplierX = this.NewFloatSlider("MultiplierX", 1.00f, 1.00f, 2.00f, "F2");
+            _testMultiplierY = this.NewFloatSlider("MultiplierY", 1.00f, 1.00f, 2.00f, "F2");
+            _testMultiplierZ = this.NewFloatSlider("MultiplierZ", 1.00f, 1.00f, 2.00f, "F2");
+
+            _nippleErection = this.NewFloatSlider("Nipple erection", 0.00f, 0.00f, 1.00f, "F2");
             _nippleErection.slider.onValueChanged.AddListener(
                 val =>
                 {
@@ -368,7 +376,7 @@ namespace TittyMagic
         {
             _gravityPhysicsH.LoadSettings(mode);
             _staticPhysicsH.LoadSettings(this, mode);
-            if(mode == Mode.ANIM_OPTIMIZED)
+            if(mode == Mode.ANIM_OPTIMIZED || mode == Mode.TOUCH_OPTIMIZED)
             {
                 // RelativePosMorphHandler doesn't actually support any other mode currently
                 _relativePosMorphH.LoadSettings(mode);
@@ -387,7 +395,7 @@ namespace TittyMagic
 
         private void UpdateToggleAndSliderTexts(string mode)
         {
-            if(mode == Mode.ANIM_OPTIMIZED)
+            if(mode == Mode.ANIM_OPTIMIZED || mode == Mode.TOUCH_OPTIMIZED)
             {
                 _linkSoftnessAndGravityToggle.label = "Link softness and mobility";
                 _gravitySlider.label = "Breast mobility";
@@ -495,7 +503,7 @@ namespace TittyMagic
         {
             if(_loadingFromJson) return;
 
-            if(_modeChooser.val == Mode.ANIM_OPTIMIZED && _waitStatus != RefreshStatus.WAITING)
+            if((_modeChooser.val == Mode.ANIM_OPTIMIZED || _modeChooser.val == Mode.TOUCH_OPTIMIZED) && _waitStatus != RefreshStatus.WAITING)
             {
                 StartCoroutine(WaitToBeginRefresh());
             }
@@ -514,7 +522,7 @@ namespace TittyMagic
 
             try
             {
-                if(_isFemale && _modeChooser.val == Mode.ANIM_OPTIMIZED)
+                if(_isFemale && (_modeChooser.val == Mode.ANIM_OPTIMIZED || _modeChooser.val == Mode.TOUCH_OPTIMIZED))
                 {
                     _trackLeftNipple.UpdateAnglesAndDepthDiff();
                     _trackRightNipple.UpdateAnglesAndDepthDiff();
@@ -566,7 +574,7 @@ namespace TittyMagic
                     }
                 }
 
-                if(_isFemale && _modeChooser.val == Mode.ANIM_OPTIMIZED)
+                if(_isFemale && (_modeChooser.val == Mode.ANIM_OPTIMIZED || _modeChooser.val == Mode.TOUCH_OPTIMIZED))
                 {
                     _trackLeftNipple.UpdateAnglesAndDepthDiff();
                     _trackRightNipple.UpdateAnglesAndDepthDiff();
@@ -583,22 +591,25 @@ namespace TittyMagic
 
         private void RunHandlers()
         {
-            if(_isFemale && _modeChooser.val == Mode.ANIM_OPTIMIZED && _relativePosMorphH.IsEnabled())
+            if(_isFemale && (_modeChooser.val == Mode.ANIM_OPTIMIZED || _modeChooser.val == Mode.TOUCH_OPTIMIZED))
             {
-                _relativePosMorphH.Update(
-                    _trackLeftNipple.angleY,
-                    _trackRightNipple.angleY,
-                    _trackLeftNipple.depthDiff,
-                    _trackRightNipple.depthDiff,
-                    _trackLeftNipple.angleX,
-                    _trackRightNipple.angleX,
-                    _verticalAngleMassMultiplier,
-                    _rollAngleMassMultiplier,
-                    _backDepthDiffMassMultiplier,
-                    _forwardDepthDiffMassMultiplier,
-                    _massAmount,
-                    _gravityAmount
-                );
+                if(_relativePosMorphH.IsEnabled())
+                {
+                    _relativePosMorphH.Update(
+                        _testMultiplierY.val * _trackLeftNipple.angleY,
+                        _testMultiplierY.val * _trackRightNipple.angleY,
+                        _testMultiplierZ.val * _trackLeftNipple.depthDiff,
+                        _testMultiplierZ.val * _trackRightNipple.depthDiff,
+                        _testMultiplierX.val * _trackLeftNipple.angleX,
+                        _testMultiplierX.val * _trackRightNipple.angleX,
+                        _verticalAngleMassMultiplier,
+                        _rollAngleMassMultiplier,
+                        _backDepthDiffMassMultiplier,
+                        _forwardDepthDiffMassMultiplier,
+                        _massAmount,
+                        _gravityAmount
+                    );
+                }
             }
             else if(_gravityMorphH.IsEnabled())
             {
@@ -637,7 +648,7 @@ namespace TittyMagic
             _animationWasSetFrozen = mainToggleFrozen || altToggleFrozen;
             SuperController.singleton.SetFreezeAnimation(true);
 
-            if(_isFemale && _modeChooser.val == Mode.ANIM_OPTIMIZED)
+            if(_isFemale && (_modeChooser.val == Mode.ANIM_OPTIMIZED || _modeChooser.val == Mode.TOUCH_OPTIMIZED))
             {
                 _trackLeftNipple.ResetAnglesAndDepthDiff();
                 _trackRightNipple.ResetAnglesAndDepthDiff();
@@ -803,7 +814,7 @@ namespace TittyMagic
                 var force = _chestRb.transform.up * (0.75f * -Physics.gravity.magnitude);
                 _pectoralRbLeft.AddForce(force, ForceMode.Acceleration);
                 _pectoralRbRight.AddForce(force, ForceMode.Acceleration);
-                if(_modeChooser.val == Mode.ANIM_OPTIMIZED)
+                if(_modeChooser.val == Mode.ANIM_OPTIMIZED || _modeChooser.val == Mode.TOUCH_OPTIMIZED)
                 {
                     if(_refreshStatus == RefreshStatus.MASS_OK)
                     {
@@ -992,9 +1003,7 @@ namespace TittyMagic
                 _gravityPhysicsH?.ResetAll();
                 BREAST_CONTROL.invertJoint2RotationY = true;
                 _gravityMorphH?.ResetAll();
-
-                if(_modeChooser?.val == Mode.ANIM_OPTIMIZED) _relativePosMorphH?.ResetAll();
-
+                _relativePosMorphH?.ResetAll();
                 _nippleErectionMorphH?.ResetAll();
             }
             catch(Exception e)
