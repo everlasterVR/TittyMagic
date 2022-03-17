@@ -654,7 +654,7 @@ namespace TittyMagic
 
             _chestRoll = 0;
             _chestPitch = 0;
-            _massEstimate = DetermineMassEstimate(_atomScaleListener.scale);
+            _massEstimate = EstimateMass();
             _massAmount = _staticPhysicsH.SetAndReturnMassVal(_massEstimate);
             if(_isFemale)
             {
@@ -720,10 +720,7 @@ namespace TittyMagic
                 yield return new WaitForSeconds(interval);
                 duration += interval;
 
-                // update mass estimate
-                _massEstimate = DetermineMassEstimate(_atomScaleListener.scale);
-
-                // update main static physics
+                _massEstimate = EstimateMass();
                 _massAmount = _staticPhysicsH.SetAndReturnMassVal(_massEstimate);
                 _staticPhysicsH.UpdateMainPhysics(_softnessAmount);
             }
@@ -748,13 +745,13 @@ namespace TittyMagic
             const float interval = 0.1f;
             while(
                 duration < 1f &&
-                !EqualWithin(1000f, _massEstimate, DetermineMassEstimate(_atomScaleListener.scale))
+                !EqualWithin(1000f, _massEstimate, EstimateMass())
             )
             {
                 yield return new WaitForSeconds(interval);
                 duration += interval;
 
-                _massEstimate = DetermineMassEstimate(_atomScaleListener.scale);
+                _massEstimate = EstimateMass();
                 _massAmount = _staticPhysicsH.SetAndReturnMassVal(_massEstimate);
                 _staticPhysicsH.UpdatePectoralPhysics();
             }
@@ -854,7 +851,7 @@ namespace TittyMagic
             return _autoRecalibrateOnSizeChange.val &&
                 _waitStatus != RefreshStatus.WAITING &&
                 (_breastMorphListener.Changed() || _atomScaleListener.Changed()) &&
-                DeviatesAtLeast(_massEstimate, DetermineMassEstimate(_atomScaleListener.scale), 10);
+                DeviatesAtLeast(_massEstimate, EstimateMass(), 10);
         }
 
         public void UpdateRateDependentPhysics()
@@ -862,14 +859,13 @@ namespace TittyMagic
             _staticPhysicsH.UpdateRateDependentPhysics(_softnessAmount);
         }
 
-        private float DetermineMassEstimate(float atomScale)
+        private float EstimateMass()
         {
-            float mass = _breastMassCalculator.Calculate(atomScale);
-
-            if(mass > Const.MASS_MAX) return Const.MASS_MAX;
-            if(mass < Const.MASS_MIN) return Const.MASS_MIN;
-
-            return mass;
+            return Mathf.Clamp(
+                _breastMassCalculator.Calculate(_atomScaleListener.scale),
+                Const.MASS_MIN,
+                Const.MASS_MAX
+            );
         }
 
         private void SetMassUIStatus(float atomScale)
