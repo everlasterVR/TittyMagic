@@ -40,8 +40,6 @@ namespace TittyMagic
         {
             _configSets = new Dictionary<string, List<Config>>
             {
-                { Direction.DOWN_L, LoadSettingsFromFile(mode, "downForce", " L") },
-                { Direction.DOWN_R, LoadSettingsFromFile(mode, "downForce", " R") },
                 { Direction.UP_L, LoadSettingsFromFile(mode, "upForce", " L") },
                 { Direction.UP_R, LoadSettingsFromFile(mode, "upForce", " R") },
                 { Direction.UP_C, LoadSettingsFromFile(mode, "upForceCenter") },
@@ -61,8 +59,6 @@ namespace TittyMagic
             if(_useConfigurator)
             {
                 _configurator.ResetUISectionGroups();
-                // _configurator.InitUISectionGroup(Direction.DOWN_L, _configSets[Direction.DOWN_L]);
-                // _configurator.InitUISectionGroup(Direction.DOWN_R, _configSets[Direction.DOWN_R]);
                 // _configurator.InitUISectionGroup(Direction.UP_L, _configSets[Direction.UP_L]);
                 // _configurator.InitUISectionGroup(Direction.UP_R, _configSets[Direction.UP_R]);
                 // _configurator.InitUISectionGroup(Direction.UP_C, _configSets[Direction.UP_C]);
@@ -128,7 +124,7 @@ namespace TittyMagic
             _mass = mass;
             _mobility = mobility;
 
-            AdjustUpDownMorphs(angleYLeft, angleYRight, yAngleMultiplier);
+            AdjustUpMorphs(angleYLeft, angleYRight, yAngleMultiplier);
             AdjustDepthMorphs(depthDiffLeft, depthDiffRight, backDepthMultiplier, forwardDepthMultiplier);
             AdjustLeftRightMorphs(angleXLeft, angleXRight, xAngleMultiplier);
 
@@ -144,7 +140,7 @@ namespace TittyMagic
             }
         }
 
-        private void AdjustUpDownMorphs(float angleYLeft, float angleYRight, float multiplier)
+        private void AdjustUpMorphs(float angleYLeft, float angleYRight, float multiplier)
         {
             float effectYLeft = multiplier * Mathf.Abs(angleYLeft) / 80;
             float effectYRight = multiplier * Mathf.Abs(angleYRight) / 80;
@@ -154,27 +150,23 @@ namespace TittyMagic
             // up force on left breast
             if(angleYLeft >= 0)
             {
-                ResetMorphs(Direction.DOWN_L);
                 UpdateMorphs(Direction.UP_L, effectYLeft);
             }
             // down force on left breast
             else
             {
                 ResetMorphs(Direction.UP_L);
-                UpdateMorphs(Direction.DOWN_L, effectYLeft);
             }
 
             // up force on right breast
             if(angleYRight >= 0)
             {
-                ResetMorphs(Direction.DOWN_R);
                 UpdateMorphs(Direction.UP_R, effectYRight);
             }
             // down force on right breast
             else
             {
                 ResetMorphs(Direction.UP_R);
-                UpdateMorphs(Direction.DOWN_R, effectYRight);
             }
 
             // up force on average of left and right breast

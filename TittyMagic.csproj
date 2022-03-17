@@ -108,7 +108,6 @@
   <ItemGroup>
     <None Include="settings\morphmultipliers\touchoptimized\backForce.json" />
     <None Include="settings\morphmultipliers\touchoptimized\backForceCenter.json" />
-    <None Include="settings\morphmultipliers\touchoptimized\downForce.json" />
     <None Include="settings\morphmultipliers\touchoptimized\forwardForce.json" />
     <None Include="settings\morphmultipliers\touchoptimized\forwardForceCenter.json" />
     <None Include="settings\morphmultipliers\touchoptimized\leftForceL.json" />
@@ -122,7 +121,6 @@
     <None Include="settings\physicsmultipliers\balanced.json" />
     <None Include="settings\physicsmultipliers\animoptimized.json" />
     <None Include="settings\morphmultipliers\animoptimized\backForceCenter.json" />
-    <None Include="settings\morphmultipliers\animoptimized\downForce.json" />
     <None Include="settings\morphmultipliers\animoptimized\backForce.json" />
     <None Include="settings\morphmultipliers\animoptimized\forwardForceCenter.json" />
     <None Include="settings\morphmultipliers\animoptimized\forwardForce.json" />

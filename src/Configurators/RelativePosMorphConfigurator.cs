@@ -9,8 +9,6 @@ namespace TittyMagic
     {
         private readonly Dictionary<string, string> _titles = new Dictionary<string, string>
         {
-            { Direction.DOWN_L, "Down force morphs L" },
-            { Direction.DOWN_R, "Down force morphs R" },
             { Direction.UP_L, "Up force morphs L" },
             { Direction.UP_R, "Up force morphs R" },
             { Direction.UP_C, "Up force morphs center" },
@@ -97,8 +95,6 @@ namespace TittyMagic
         {
             _uiSectionGroups = new Dictionary<string, Dictionary<string, ConfiguratorUISection>>
             {
-                { Direction.DOWN_L, new Dictionary<string, ConfiguratorUISection>() },
-                { Direction.DOWN_R, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.UP_L, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.UP_R, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.UP_C, new Dictionary<string, ConfiguratorUISection>() },
