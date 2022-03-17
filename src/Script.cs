@@ -285,7 +285,6 @@ namespace TittyMagic
 
             CreateModeChooser();
             _modeButtonGroup = this.CreateRadioButtonGroup(_modeChooser);
-            _staticPhysicsH.modeChooser = _modeChooser;
 
             this.NewSpacer(10f);
             _softness = this.NewIntSlider("Breast softness", 75f, 0f, 100f);
@@ -376,7 +375,6 @@ namespace TittyMagic
             _staticPhysicsH.LoadSettings(this, mode);
             if(mode == Mode.ANIM_OPTIMIZED || mode == Mode.TOUCH_OPTIMIZED)
             {
-                // RelativePosMorphHandler doesn't actually support any other mode currently
                 _relativePosMorphH.LoadSettings(mode);
             }
             else
@@ -862,7 +860,7 @@ namespace TittyMagic
         private float EstimateMass()
         {
             return Mathf.Clamp(
-                _breastMassCalculator.Calculate(_atomScaleListener.scale),
+                _breastMassCalculator.Calculate(_modeChooser.val, _atomScaleListener.scale),
                 Const.MASS_MIN,
                 Const.MASS_MAX
             );
@@ -870,7 +868,7 @@ namespace TittyMagic
 
         private void SetMassUIStatus(float atomScale)
         {
-            float mass = _breastMassCalculator.Calculate(atomScale);
+            float mass = _breastMassCalculator.Calculate(_modeChooser.val, atomScale);
             string text = $"Mass is {RoundToDecimals(mass, 1000f)}kg";
             if(mass > Const.MASS_MAX)
             {

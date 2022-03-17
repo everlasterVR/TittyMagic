@@ -13,13 +13,14 @@ namespace TittyMagic
             _skin = skin;
         }
 
-        public float Calculate(float atomScale)
+        public float Calculate(string mode, float atomScale)
         {
             var boundsLeft = BoundsSize(GetPositions(VertexIndexGroups.LEFT_BREAST));
             var boundsRight = BoundsSize(GetPositions(VertexIndexGroups.RIGHT_BREAST));
             float leftVolume = EstimateVolume(boundsLeft, atomScale);
             float rightVolume = EstimateVolume(boundsRight, atomScale);
-            return VolumeToMass((leftVolume + rightVolume) / 2);
+            float mass = VolumeToMass((leftVolume + rightVolume) / 2);
+            return mode == Mode.TOUCH_OPTIMIZED ? 0.75f * mass : mass;
         }
 
         private List<Vector3> GetPositions(IEnumerable<int> vertexIndices)

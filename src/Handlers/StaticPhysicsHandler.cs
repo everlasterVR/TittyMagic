@@ -9,10 +9,7 @@ namespace TittyMagic
         private HashSet<BreastStaticPhysicsConfig> _mainPhysicsConfigs;
         private HashSet<BreastStaticPhysicsConfig> _softPhysicsConfigs;
         private HashSet<BreastStaticPhysicsConfig> _nipplePhysicsConfigs;
-
         private HashSet<PectoralStaticPhysicsConfig> _pectoralPhysicsConfigs;
-
-        public JSONStorableStringChooser modeChooser; // TODO male
 
         private float _massVal;
 
@@ -146,11 +143,7 @@ namespace TittyMagic
 
         public float SetAndReturnMassVal(float massEstimate)
         {
-            if(modeChooser?.val != Mode.TOUCH_OPTIMIZED)
-            {
-                BREAST_CONTROL.mass = massEstimate;
-            }
-
+            BREAST_CONTROL.mass = massEstimate;
             _massVal = Mathf.InverseLerp(0, Const.MASS_MAX, massEstimate);
             return _massVal;
         }
