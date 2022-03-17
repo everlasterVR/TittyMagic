@@ -142,10 +142,10 @@ namespace TittyMagic
 
         private void AdjustUpMorphs(float angleYLeft, float angleYRight, float multiplier)
         {
-            float effectYLeft = multiplier * Mathf.Abs(angleYLeft) / 80;
-            float effectYRight = multiplier * Mathf.Abs(angleYRight) / 80;
+            float effectYLeft = CalculateYEffect(angleYLeft, multiplier);
+            float effectYRight = CalculateYEffect(angleYRight, multiplier);
             float angleYCenter = (angleYRight + angleYLeft) / 2;
-            float effectYCenter = multiplier * Mathf.Abs(angleYCenter) / 80;
+            float effectYCenter = CalculateYEffect(angleYCenter, multiplier);
 
             // up force on left breast
             if(angleYLeft >= 0)
@@ -182,10 +182,11 @@ namespace TittyMagic
 
         private void AdjustDepthMorphs(float depthDiffLeft, float depthDiffRight, float backMultiplier, float forwardMultiplier)
         {
-            float effectZLeft = (depthDiffLeft < 0 ? forwardMultiplier : backMultiplier) * Mathf.Abs(depthDiffLeft);
-            float effectZRight = (depthDiffRight < 0 ? forwardMultiplier : backMultiplier) * Mathf.Abs(depthDiffRight);
+            float effectZLeft = CalculateZEffect(depthDiffLeft, depthDiffLeft < 0 ? forwardMultiplier : backMultiplier);
+            float effectZRight = CalculateZEffect(depthDiffRight, depthDiffRight < 0 ? forwardMultiplier : backMultiplier);
+
             float depthDiffCenter = (depthDiffLeft + depthDiffRight) / 2;
-            float effectZCenter = (depthDiffCenter < 0 ? forwardMultiplier : backMultiplier) * Mathf.Abs(depthDiffCenter);
+            float effectZCenter = CalculateZEffect(depthDiffCenter, depthDiffCenter < 0 ? forwardMultiplier : backMultiplier);
 
             // forward force on left breast
             if(depthDiffLeft <= 0)
@@ -229,8 +230,8 @@ namespace TittyMagic
 
         private void AdjustLeftRightMorphs(float angleXLeft, float angleXRight, float multiplier)
         {
-            float effectXLeft = multiplier * Mathf.Abs(angleXLeft) / 65;
-            float effectXRight = multiplier * Mathf.Abs(angleXRight) / 65;
+            float effectXLeft = CalculateXEffect(angleXLeft, multiplier);
+            float effectXRight = CalculateXEffect(angleXRight, multiplier);
 
             // left force on left breast
             if(angleXLeft >= 0)
@@ -257,6 +258,21 @@ namespace TittyMagic
                 ResetMorphs(Direction.RIGHT_R);
                 UpdateMorphs(Direction.LEFT_R, effectXRight);
             }
+        }
+
+        private static float CalculateYEffect(float angle, float multiplier)
+        {
+            return Mathf.InverseLerp(0, 75, multiplier * Mathf.Abs(angle));
+        }
+
+        private static float CalculateZEffect(float distance, float multiplier)
+        {
+            return Mathf.InverseLerp(0, 1 / 12f, multiplier * Mathf.Abs(distance));
+        }
+
+        private static float CalculateXEffect(float angle, float multiplier)
+        {
+            return Mathf.InverseLerp(0, 60, multiplier * Mathf.Abs(angle));
         }
 
         private void UpdateMorphs(string configSetName, float effect)
