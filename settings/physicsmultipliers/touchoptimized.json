@@ -5,7 +5,7 @@
          "Type": "direct",
          "IsNegative": "true",
          "Multiplier1": "-16",
-         "Multiplier2": "-12"
+         "Multiplier2": "-11"
       }
    },
    "UP": {
@@ -13,7 +13,7 @@
          "Category": "main",
          "Type": "direct",
          "IsNegative": "false",
-         "Multiplier1": "10",
+         "Multiplier1": "12",
          "Multiplier2": "8"
       }
    },
@@ -54,8 +54,8 @@
          "Category": "main",
          "Type": "direct",
          "IsNegative": "false",
-         "Multiplier1": "9",
-         "Multiplier2": "4"
+         "Multiplier1": "16",
+         "Multiplier2": "11"
       }
    },
    "RIGHT": {
@@ -63,8 +63,8 @@
          "Category": "main",
          "Type": "direct",
          "IsNegative": "true",
-         "Multiplier1": "-9",
-         "Multiplier2": "-4"
+         "Multiplier1": "-16",
+         "Multiplier2": "-11"
       }
    }
 }
