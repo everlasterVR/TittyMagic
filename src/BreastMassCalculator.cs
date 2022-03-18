@@ -13,14 +13,13 @@ namespace TittyMagic
             _skin = skin;
         }
 
-        public float Calculate(string mode, float atomScale)
+        public float Calculate(float atomScale)
         {
             var boundsLeft = BoundsSize(GetPositions(VertexIndexGroups.LEFT_BREAST));
             var boundsRight = BoundsSize(GetPositions(VertexIndexGroups.RIGHT_BREAST));
             float leftVolume = EstimateVolume(boundsLeft, atomScale);
             float rightVolume = EstimateVolume(boundsRight, atomScale);
-            float mass = VolumeToMass((leftVolume + rightVolume) / 2);
-            return mode == Mode.TOUCH_OPTIMIZED ? 0.75f * mass : mass;
+            return VolumeToMass((leftVolume + rightVolume) / 2);
         }
 
         private List<Vector3> GetPositions(IEnumerable<int> vertexIndices)
@@ -55,10 +54,9 @@ namespace TittyMagic
             return volume * 0.75f;
         }
 
-        // compensates for the increasing outer size and hard colliders of larger breasts
         private static float VolumeToMass(float volume)
         {
-            return Mathf.Pow(volume * 0.82f / 1000, 1.2f);
+            return Mathf.Pow(0.91f * volume / 1000, 1.21f);
         }
 
         // This somewhat accurately scales breast volume to the apparent breast size when atom scale is adjusted.

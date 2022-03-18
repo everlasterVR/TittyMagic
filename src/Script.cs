@@ -860,7 +860,7 @@ namespace TittyMagic
         private float EstimateMass()
         {
             return Mathf.Clamp(
-                _breastMassCalculator.Calculate(_modeChooser.val, _atomScaleListener.scale),
+                _breastMassCalculator.Calculate(_atomScaleListener.scale),
                 Const.MASS_MIN,
                 Const.MASS_MAX
             );
@@ -868,7 +868,7 @@ namespace TittyMagic
 
         private void SetMassUIStatus(float atomScale)
         {
-            float mass = _breastMassCalculator.Calculate(_modeChooser.val, atomScale);
+            float mass = _breastMassCalculator.Calculate(atomScale);
             string text = $"Mass is {RoundToDecimals(mass, 1000f)}kg";
             if(mass > Const.MASS_MAX)
             {

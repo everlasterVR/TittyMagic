@@ -1,29 +1,29 @@
 {
    "centerOfGravityPercent": {
-      "minMminS": "0.420",
-      "maxMminS": "0.420",
-      "minMmaxS": "0.420"
+      "minMminS": "0.380",
+      "maxMminS": "0.620",
+      "minMmaxS": "0.380"
    },
    "spring": {
-      "minMminS": "50",
-      "maxMminS": "50",
-      "minMmaxS": "50"
+      "minMminS": "44",
+      "maxMminS": "58",
+      "minMmaxS": "44"
    },
    "damper": {
-      "minMminS": "0.14",
-      "maxMminS": "0.14",
-      "minMmaxS": "0.14",
+      "minMminS": "0.2",
+      "maxMminS": "1.2",
+      "minMmaxS": "0.2",
       "dependOnPhysicsRate": "true"
    },
    "positionSpringZ": {
-      "minMminS": "640",
-      "maxMminS": "640",
-      "minMmaxS": "640"
+      "minMminS": "840",
+      "maxMminS": "530",
+      "minMmaxS": "840"
    },
    "positionDamperZ": {
-      "minMminS": "10",
-      "maxMminS": "10",
-      "minMmaxS": "10",
+      "minMminS": "8",
+      "maxMminS": "12",
+      "minMmaxS": "8",
       "dependOnPhysicsRate": "true"
    }
 }

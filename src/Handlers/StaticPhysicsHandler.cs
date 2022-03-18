@@ -138,7 +138,7 @@ namespace TittyMagic
             // Auto collider radius off
             BREAST_PHYSICS_MESH.softVerticesUseAutoColliderRadius = false;
             // Collider depth
-            BREAST_PHYSICS_MESH.softVerticesColliderAdditionalNormalOffset = 0.002f;
+            BREAST_PHYSICS_MESH.softVerticesColliderAdditionalNormalOffset = 0.001f;
         }
 
         public float SetAndReturnMassVal(float massEstimate)
