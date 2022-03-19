@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿// #define USE_CONFIGURATOR
+using System.Collections.Generic;
 using UnityEngine;
 using static TittyMagic.Utils;
 
@@ -8,7 +9,6 @@ namespace TittyMagic
     {
         private readonly MVRScript _script;
         private readonly IConfigurator _configurator;
-        private readonly bool _useConfigurator;
 
         private float _mass;
         private float _mobility;
@@ -18,22 +18,19 @@ namespace TittyMagic
         public RelativePosMorphHandler(MVRScript script)
         {
             _script = script;
-            // _useConfigurator = true;
-
-            if(_useConfigurator)
-            {
-                _configurator = (IConfigurator) FindPluginOnAtom(_script.containingAtom, nameof(RelativePosMorphConfigurator));
-                _configurator.InitMainUI();
-                _configurator.enableAdjustment.toggle.onValueChanged.AddListener(
-                    val =>
+#if USE_CONFIGURATOR
+            _configurator = (IConfigurator) FindPluginOnAtom(_script.containingAtom, nameof(RelativePosMorphConfigurator));
+            _configurator.InitMainUI();
+            _configurator.enableAdjustment.toggle.onValueChanged.AddListener(
+                val =>
+                {
+                    if(!val)
                     {
-                        if(!val)
-                        {
-                            ResetAll();
-                        }
+                        ResetAll();
                     }
-                );
-            }
+                }
+            );
+#endif
         }
 
         public void LoadSettings(string mode)
@@ -56,7 +53,7 @@ namespace TittyMagic
             };
 
             // not working properly yet when changing mode on the fly
-            if(_useConfigurator)
+            if(_configurator != null)
             {
                 _configurator.ResetUISectionGroups();
                 // _configurator.InitUISectionGroup(Direction.UP_L, _configSets[Direction.UP_L]);
@@ -103,7 +100,7 @@ namespace TittyMagic
 
         public bool IsEnabled()
         {
-            return !_useConfigurator || _configurator.enableAdjustment.val;
+            return _configurator == null || _configurator.enableAdjustment.val;
         }
 
         public void Update(
@@ -128,7 +125,7 @@ namespace TittyMagic
             AdjustUpMorphs(angleYLeft, angleYRight, yAngleMultiplier);
             AdjustDepthMorphs(depthDiffLeft, depthDiffRight, backDepthMultiplier, forwardDepthMultiplier);
 
-            if(_useConfigurator)
+            if(_configurator != null)
             {
                 _configurator.debugInfo.val =
                     $"{NameValueString("depthDiffLeft", depthDiffLeft)} \n" +
@@ -281,7 +278,7 @@ namespace TittyMagic
             {
                 var morphConfig = (MorphConfig) config;
                 UpdateValue(morphConfig, effect);
-                if(_useConfigurator)
+                if(_configurator != null)
                 {
                     _configurator.UpdateValueSlider(configSetName, morphConfig.name, morphConfig.morph.morphValue);
                 }
@@ -309,7 +306,7 @@ namespace TittyMagic
             {
                 var morphConfig = (MorphConfig) config;
                 morphConfig.morph.morphValue = 0;
-                if(_useConfigurator)
+                if(_configurator != null)
                 {
                     _configurator.UpdateValueSlider(configSetName, morphConfig.name, 0);
                 }

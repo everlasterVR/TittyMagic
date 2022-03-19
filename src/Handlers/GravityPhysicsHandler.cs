@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿// #define USE_CONFIGURATOR
+using System.Collections.Generic;
 using UnityEngine;
 using static TittyMagic.Utils;
 
@@ -8,7 +9,6 @@ namespace TittyMagic
     {
         private readonly MVRScript _script;
         private readonly IConfigurator _configurator;
-        private readonly bool _useConfigurator;
 
         private float _mass;
         private float _amount;
@@ -24,22 +24,19 @@ namespace TittyMagic
             Globals.BREAST_CONTROL.invertJoint2RotationY = false;
 
             _script = script;
-            // _useConfigurator = true;
-
-            if(_useConfigurator)
-            {
-                _configurator = (IConfigurator) FindPluginOnAtom(_script.containingAtom, nameof(GravityPhysicsConfigurator));
-                _configurator.InitMainUI();
-                _configurator.enableAdjustment.toggle.onValueChanged.AddListener(
-                    val =>
+#if USE_CONFIGURATOR
+            _configurator = (IConfigurator) FindPluginOnAtom(_script.containingAtom, nameof(GravityPhysicsConfigurator));
+            _configurator.InitMainUI();
+            _configurator.enableAdjustment.toggle.onValueChanged.AddListener(
+                val =>
+                {
+                    if(!val)
                     {
-                        if(!val)
-                        {
-                            ResetAll();
-                        }
+                        ResetAll();
                     }
-                );
-            }
+                }
+            );
+#endif
         }
 
         public void LoadSettings(string mode)
@@ -47,7 +44,7 @@ namespace TittyMagic
             _configSets = LoadSettingsFromFile(mode);
 
             // not working properly yet when changing mode on the fly
-            if(_useConfigurator)
+            if(_configurator != null)
             {
                 _configurator.ResetUISectionGroups();
                 // _configurator.InitUISectionGroup(Direction.DOWN, _configSets[Direction.DOWN]);
@@ -110,7 +107,7 @@ namespace TittyMagic
 
         public bool IsEnabled()
         {
-            return !_useConfigurator || _configurator.enableAdjustment.val;
+            return _configurator == null || _configurator.enableAdjustment.val;
         }
 
         public void Update(
@@ -200,7 +197,7 @@ namespace TittyMagic
             {
                 var gravityPhysicsConfig = (PhysicsConfig) config;
                 UpdateValue(gravityPhysicsConfig, _xPhysicsMultiplier * effect);
-                if(_useConfigurator)
+                if(_configurator != null)
                 {
                     _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.name, gravityPhysicsConfig.setting.val);
                 }
@@ -214,7 +211,7 @@ namespace TittyMagic
             {
                 var gravityPhysicsConfig = (PhysicsConfig) config;
                 UpdateValue(gravityPhysicsConfig, adjusted);
-                if(_useConfigurator)
+                if(_configurator != null)
                 {
                     _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.name, gravityPhysicsConfig.setting.val);
                 }
@@ -228,7 +225,7 @@ namespace TittyMagic
             {
                 var gravityPhysicsConfig = (PhysicsConfig) config;
                 UpdateValue(gravityPhysicsConfig, adjusted);
-                if(_useConfigurator)
+                if(_configurator != null)
                 {
                     _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.name, gravityPhysicsConfig.setting.val);
                 }
@@ -265,7 +262,7 @@ namespace TittyMagic
                 var gravityPhysicsConfig = (PhysicsConfig) config;
                 float newValue = gravityPhysicsConfig.type == "additive" ? gravityPhysicsConfig.baseValue : gravityPhysicsConfig.originalValue;
                 gravityPhysicsConfig.setting.val = newValue;
-                if(_useConfigurator)
+                if(_configurator != null)
                 {
                     _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.name, newValue);
                 }
