@@ -341,8 +341,8 @@ namespace TittyMagic
             title.SetVal("<size=28>\n\n</size><b>Dynamic morphing multipliers</b>");
             title.dynamicText.backgroundColor = Color.clear;
 
-            _xMorphingMultiplier = this.NewFloatSlider("Left/right", 1.00f, 0.00f, 2.00f, "F2");
             _yMorphingMultiplier = this.NewFloatSlider("Up/down", 1.00f, 0.00f, 2.00f, "F2");
+            _xMorphingMultiplier = this.NewFloatSlider("Left/right", 1.00f, 0.00f, 2.00f, "F2");
             _zMorphingMultiplier = this.NewFloatSlider("Forward/back", 1.00f, 0.00f, 2.00f, "F2");
 
             this.NewSpacer(100f, true);
@@ -358,8 +358,8 @@ namespace TittyMagic
             title.SetVal("<size=28>\n\n</size><b>Gravity physics multipliers</b>");
             title.dynamicText.backgroundColor = Color.clear;
 
-            _xPhysicsMultiplier = this.NewFloatSlider("Left/right", 1.00f, 0.00f, 2.00f, "F2");
             _yPhysicsMultiplier = this.NewFloatSlider("Up/down", 1.00f, 0.00f, 2.00f, "F2");
+            _xPhysicsMultiplier = this.NewFloatSlider("Left/right", 1.00f, 0.00f, 2.00f, "F2");
             _zPhysicsMultiplier = this.NewFloatSlider("Forward/back", 1.00f, 0.00f, 2.00f, "F2");
 
             this.NewSpacer(100f, true);
