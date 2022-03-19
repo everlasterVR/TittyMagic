@@ -872,27 +872,17 @@ namespace TittyMagic
             string text = $"Mass is {RoundToDecimals(mass, 1000f)}kg";
             if(mass > Const.MASS_MAX)
             {
-                float excess = RoundToDecimals(mass - Const.MASS_MAX, 1000f);
-                text = MassExcessStatus(excess);
+                float value = RoundToDecimals(mass - Const.MASS_MAX, 1000f);
+                text = $"Mass is {value}kg over the 2kg max";
             }
             else if(mass < Const.MASS_MIN)
             {
-                float shortage = RoundToDecimals(Const.MASS_MIN - mass, 1000f);
-                text = MassShortageStatus(shortage);
+                float value = RoundToDecimals(Const.MASS_MIN - mass, 1000f);
+                text = $"Mass is {value}kg below the 0.1kg min";
             }
 
             _statusUIText.SetVal(text);
             _statusUIInputField.text = text;
-        }
-
-        private static string MassExcessStatus(float value)
-        {
-            return $"Mass is {value}kg over the 2kg max";
-        }
-
-        private static string MassShortageStatus(float value)
-        {
-            return $"Mass is {value}kg below the 0.1kg min";
         }
 
         public override void RestoreFromJSON(

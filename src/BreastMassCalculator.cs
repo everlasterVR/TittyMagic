@@ -56,7 +56,7 @@ namespace TittyMagic
 
         private static float VolumeToMass(float volume)
         {
-            return Mathf.Pow(0.91f * volume / 1000, 1.21f);
+            return Mathf.Pow(0.78f * volume / 1000, 1.5f);
         }
 
         // This somewhat accurately scales breast volume to the apparent breast size when atom scale is adjusted.
