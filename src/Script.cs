@@ -50,7 +50,6 @@ namespace TittyMagic
         private JSONStorableString _statusUIText;
         private InputField _statusUIInputField;
         private JSONStorableString _modeInfoText;
-        private JSONStorableString _gravityInfoText;
 
         private Dictionary<string, UIDynamicButton> _modeButtonGroup;
 
@@ -280,23 +279,10 @@ namespace TittyMagic
             );
 
             CreateModeChooser();
-            _softness = this.NewIntSlider("Breast softness", 75f, 0f, 100f);
+            CreateSoftnessSlider();
             CreateMorphingMultipliers();
             CreateGravityPhysicsMultipliers();
             CreateAdditionalSettings();
-
-            this.NewSpacer(10f, true);
-            var softnessInfoText = this.NewTextField("Usage Info Area 1", "", 28, 120, true);
-            softnessInfoText.SetVal(
-                UI.Size("\n", 12) +
-                "Adjusts soft physics settings from very firm to very soft."
-            );
-
-            this.NewSpacer(75f, true);
-            _gravityInfoText = this.NewTextField("GravityInfoText", "", 28, 120, true);
-            _gravityInfoText.val = UI.Size("\n", 12) +
-                "Adjusts breast physics target angles and center of gravity based on chest angle. " +
-                "Higher value means breasts drop more heavily up/down and left/right, and are more swingy when leaning forward/back.";
         }
 
         private void InitPluginUIMale()
@@ -310,12 +296,6 @@ namespace TittyMagic
             CreateAdditionalSettings();
 
             _modeInfoText.val = "Futa mode";
-
-            this.NewSpacer(75f, true);
-            _gravityInfoText = this.NewTextField("GravityInfoText", "", 28, 120, true);
-            _gravityInfoText.val = UI.Size("\n", 12) +
-                "Adjusts breast physics target angles and center of gravity based on chest angle. " +
-                "Higher value means breasts drop more heavily up/down and left/right, and are more swingy when leaning forward/back.";
         }
 
         private void CreateModeChooser()
@@ -345,6 +325,16 @@ namespace TittyMagic
             _modeButtonGroup = this.CreateRadioButtonGroup(_modeChooser);
         }
 
+        private void CreateSoftnessSlider()
+        {
+            _softness = this.NewIntSlider("Breast softness", 75f, 0f, 100f);
+            var softnessInfoText = this.NewTextField("Usage Info Area 1", "", 28, 120, true);
+            softnessInfoText.SetVal(
+                UI.Size("\n", 12) +
+                "Adjusts soft physics settings from very firm to very soft."
+            );
+        }
+
         private void CreateMorphingMultipliers()
         {
             var title = this.NewTextField("morphingMultipliers", "", 32, 100);
@@ -354,6 +344,12 @@ namespace TittyMagic
             _xMorphingMultiplier = this.NewFloatSlider("Left/right", 1.00f, 0.00f, 2.00f, "F2");
             _yMorphingMultiplier = this.NewFloatSlider("Up/down", 1.00f, 0.00f, 2.00f, "F2");
             _zMorphingMultiplier = this.NewFloatSlider("Forward/back", 1.00f, 0.00f, 2.00f, "F2");
+
+            this.NewSpacer(100f, true);
+            var gravityInfoText = this.NewTextField("GravityInfoText", "", 28, 390, true);
+            gravityInfoText.val = UI.Size("\n", 12) +
+                "Adjusts the amount of breast morphing due to forces (or chest angle in Balanced mode). " +
+                "Values much higher than 1.00 generally don't work well, but it might depend on breast shape.";
         }
 
         private void CreateGravityPhysicsMultipliers()
@@ -365,6 +361,12 @@ namespace TittyMagic
             _xPhysicsMultiplier = this.NewFloatSlider("Left/right", 1.00f, 0.00f, 2.00f, "F2");
             _yPhysicsMultiplier = this.NewFloatSlider("Up/down", 1.00f, 0.00f, 2.00f, "F2");
             _zPhysicsMultiplier = this.NewFloatSlider("Forward/back", 1.00f, 0.00f, 2.00f, "F2");
+
+            this.NewSpacer(100f, true);
+            var morphingInfoText = this.NewTextField("MorphingInfoText", "", 28, 390, true);
+            morphingInfoText.val = UI.Size("\n", 12) +
+                "Adjusts breast physics target angles and center of gravity based on chest angle. " +
+                "Higher value means breasts drop more heavily up/down and left/right, and are more swingy when leaning forward/back.";
         }
 
         private void CreateAdditionalSettings()
@@ -411,7 +413,7 @@ namespace TittyMagic
             else if(mode == Mode.BALANCED)
                 text += "In Balanced mode, breasts have realistic mass. There should be a sense of weight both in animations and when touched.";
             else if(mode == Mode.TOUCH_OPTIMIZED)
-                text += "Touch optimized mode lowers breast mass and increases fat back force. Animation is less realistic, but collision is more accurate with hard colliders turned off.";
+                text += "WIP";
 
             _modeInfoText.SetVal(text);
         }
