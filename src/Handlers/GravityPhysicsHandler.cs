@@ -1,6 +1,7 @@
 ﻿// #define USE_CONFIGURATOR
 using System.Collections.Generic;
 using UnityEngine;
+using static TittyMagic.GravityEffectCalc;
 
 namespace TittyMagic
 {
@@ -123,27 +124,67 @@ namespace TittyMagic
             float smoothPitch = 2 * Calc.SmoothStep(pitch);
 
             AdjustRollPhysics(smoothRoll);
-            AdjustPitchPhysics(smoothPitch, smoothRoll);
+            AdjustUpDownPhysics(smoothPitch, smoothRoll);
+            AdjustDepthPhysics(smoothPitch, smoothRoll);
         }
 
         private void AdjustRollPhysics(float roll)
         {
+            float effect = CalculateRollEffect(roll, xMultiplier);
             // left
             if(roll >= 0)
             {
                 ResetPhysics(Direction.RIGHT);
-                UpdateRollPhysics(Direction.LEFT, roll);
+                UpdatePhysics(Direction.LEFT, effect);
             }
             // right
             else
             {
                 ResetPhysics(Direction.LEFT);
-                UpdateRollPhysics(Direction.RIGHT, -roll);
+                UpdatePhysics(Direction.RIGHT, effect);
             }
         }
 
-        private void AdjustPitchPhysics(float pitch, float roll)
+        private void AdjustUpDownPhysics(float pitch, float roll)
         {
+            float effect = CalculateUpDownEffect(pitch, roll, yMultiplier);
+            // leaning forward
+            if(pitch >= 0)
+            {
+                // upright
+                if(pitch < 1)
+                {
+                    ResetPhysics(Direction.UP);
+                    UpdatePhysics(Direction.DOWN, effect);
+                }
+                // upside down
+                else
+                {
+                    ResetPhysics(Direction.DOWN);
+                    UpdatePhysics(Direction.UP, effect);
+                }
+            }
+            // leaning back
+            else
+            {
+                // upright
+                if(pitch >= -1)
+                {
+                    ResetPhysics(Direction.UP);
+                    UpdatePhysics(Direction.DOWN, effect);
+                }
+                // upside down
+                else
+                {
+                    ResetPhysics(Direction.DOWN);
+                    UpdatePhysics(Direction.UP, effect);
+                }
+            }
+        }
+
+        private void AdjustDepthPhysics(float pitch, float roll)
+        {
+            float effect = CalculateDepthEffect(pitch, roll, zMultiplier);
             // leaning forward
             if(pitch >= 0)
             {
@@ -151,16 +192,12 @@ namespace TittyMagic
                 // upright
                 if(pitch < 1)
                 {
-                    ResetPhysics(Direction.UP);
-                    UpdateUpDownPhysics(Direction.DOWN, 1 - pitch, roll);
-                    UpdateForwardBackPhysics(Direction.FORWARD, pitch, roll);
+                    UpdatePhysics(Direction.FORWARD, effect);
                 }
                 // upside down
                 else
                 {
-                    ResetPhysics(Direction.DOWN);
-                    UpdateUpDownPhysics(Direction.UP, pitch - 1, roll);
-                    UpdateForwardBackPhysics(Direction.FORWARD, 2 - pitch, roll);
+                    UpdatePhysics(Direction.FORWARD, effect);
                 }
             }
             // leaning back
@@ -170,54 +207,22 @@ namespace TittyMagic
                 // upright
                 if(pitch >= -1)
                 {
-                    ResetPhysics(Direction.UP);
-                    UpdateUpDownPhysics(Direction.DOWN, 1 + pitch, roll);
-                    UpdateForwardBackPhysics(Direction.BACK, -pitch, roll);
+                    UpdatePhysics(Direction.BACK, effect);
                 }
                 // upside down
                 else
                 {
-                    ResetPhysics(Direction.DOWN);
-                    UpdateUpDownPhysics(Direction.UP, -pitch - 1, roll);
-                    UpdateForwardBackPhysics(Direction.BACK, 2 + pitch, roll);
+                    UpdatePhysics(Direction.BACK, effect);
                 }
             }
         }
 
-        private void UpdateRollPhysics(string configSetName, float effect)
+        private void UpdatePhysics(string configSetName, float effect)
         {
             foreach(var config in _configSets[configSetName])
             {
                 var gravityPhysicsConfig = (PhysicsConfig) config;
-                UpdateValue(gravityPhysicsConfig, xMultiplier.m.val * effect);
-                if(_configurator != null)
-                {
-                    _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.name, gravityPhysicsConfig.setting.val);
-                }
-            }
-        }
-
-        private void UpdateUpDownPhysics(string configSetName, float effect, float roll)
-        {
-            float adjusted = yMultiplier.m.val * effect * (1 - Mathf.Abs(roll));
-            foreach(var config in _configSets[configSetName])
-            {
-                var gravityPhysicsConfig = (PhysicsConfig) config;
-                UpdateValue(gravityPhysicsConfig, adjusted);
-                if(_configurator != null)
-                {
-                    _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.name, gravityPhysicsConfig.setting.val);
-                }
-            }
-        }
-
-        private void UpdateForwardBackPhysics(string configSetName, float effect, float roll)
-        {
-            float adjusted = zMultiplier.m.val * effect * (1 - Mathf.Abs(roll));
-            foreach(var config in _configSets[configSetName])
-            {
-                var gravityPhysicsConfig = (PhysicsConfig) config;
-                UpdateValue(gravityPhysicsConfig, adjusted);
+                UpdateValue(gravityPhysicsConfig, effect);
                 if(_configurator != null)
                 {
                     _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.name, gravityPhysicsConfig.setting.val);
@@ -228,8 +233,8 @@ namespace TittyMagic
         private void UpdateValue(PhysicsConfig config, float effect)
         {
             float value =
-                (_amount * config.multiplier1 * effect / 2) +
-                (_mass * config.multiplier2 * effect / 2);
+                (_amount * config.multiplier1 * effect) +
+                (_mass * config.multiplier2 * effect);
 
             bool inRange = config.isNegative ? value < 0 : value > 0;
 

@@ -85,7 +85,7 @@
     <Compile Include="src\AtomScaleListener.cs" />
     <Compile Include="src\BreastMassCalculator.cs" />
     <Compile Include="src\BreastMorphListener.cs" />
-    <Compile Include="src\Handlers\GravityMorphCalc.cs" />
+    <Compile Include="src\Handlers\GravityEffectCalc.cs" />
     <Compile Include="src\Handlers\Multiplier.cs" />
     <Compile Include="src\TrackNipple.cs" />
     <Compile Include="src\Components\Bindings.cs" />

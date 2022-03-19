@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using static TittyMagic.Utils;
-using static TittyMagic.GravityMorphCalc;
+using static TittyMagic.GravityEffectCalc;
 
 namespace TittyMagic
 {
@@ -139,7 +139,7 @@ namespace TittyMagic
 
             AdjustRollMorphs(smoothRoll);
             AdjustUpDownMorphs(smoothPitch, smoothRoll, additionalRollEffect);
-            AdjustForwardBackMorphs(smoothPitch, smoothRoll);
+            AdjustDepthMorphs(smoothPitch, smoothRoll);
 
             if(_configurator != null)
             {
@@ -187,7 +187,7 @@ namespace TittyMagic
             }
         }
 
-        private void AdjustForwardBackMorphs(float pitch, float roll)
+        private void AdjustDepthMorphs(float pitch, float roll)
         {
             float effect = CalculateDepthEffect(pitch, roll, zMultiplier);
             // leaning forward
