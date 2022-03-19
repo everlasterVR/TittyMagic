@@ -592,12 +592,12 @@ namespace TittyMagic
                 if(_relativePosMorphH.IsEnabled())
                 {
                     _relativePosMorphH.Update(
-                        _testMultiplierY.val * _trackLeftNipple.angleY,
-                        _testMultiplierY.val * _trackRightNipple.angleY,
-                        _testMultiplierZ.val * _trackLeftNipple.depthDiff,
-                        _testMultiplierZ.val * _trackRightNipple.depthDiff,
-                        _testMultiplierX.val * _trackLeftNipple.angleX,
-                        _testMultiplierX.val * _trackRightNipple.angleX,
+                        _trackLeftNipple.angleY,
+                        _trackRightNipple.angleY,
+                        _trackLeftNipple.depthDiff,
+                        _trackRightNipple.depthDiff,
+                        _trackLeftNipple.angleX,
+                        _trackRightNipple.angleX,
                         _verticalAngleMassMultiplier,
                         _rollAngleMassMultiplier,
                         _backDepthDiffMassMultiplier,
@@ -723,14 +723,26 @@ namespace TittyMagic
                 _staticPhysicsH.UpdateMainPhysics(_softnessAmount);
             }
 
+            SetMorphingMassMultipliers();
+            SetMassUIStatus(_atomScaleListener.scale);
+            _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
+            _gravityPhysicsH.SetBaseValues();
+        }
+
+        private void SetMorphingMassMultipliers()
+        {
             _verticalAngleMassMultiplier = -Mathf.Pow(1.67f * _massAmount, 0.53f) + 2.5f;
             _rollAngleMassMultiplier = -Mathf.Pow(_massAmount, 1.75f) + 2.67f;
             _backDepthDiffMassMultiplier = (1 / Mathf.Pow(1 / 2f * _massAmount, 1 / 3f)) - 0.51f;
             _forwardDepthDiffMassMultiplier = 17 / (12 * Mathf.Pow(0.9f * (_massAmount + 0.02f), 1 / 4f));
 
-            SetMassUIStatus(_atomScaleListener.scale);
-            _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
-            _gravityPhysicsH.SetBaseValues();
+            if(_modeChooser.val == Mode.TOUCH_OPTIMIZED)
+            {
+                _verticalAngleMassMultiplier *= Mathf.Lerp(1.03f, 1.36f, _massAmount);
+                _rollAngleMassMultiplier *= Mathf.Lerp(1.03f, 1.36f, _massAmount);
+                _backDepthDiffMassMultiplier *= Mathf.Lerp(1.25f, 1.6f, _massAmount);
+                _forwardDepthDiffMassMultiplier *= Mathf.Lerp(1.25f, 1.6f, _massAmount);
+            }
         }
 
         private IEnumerator RefreshMale()
