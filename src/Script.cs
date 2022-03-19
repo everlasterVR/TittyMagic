@@ -66,11 +66,10 @@ namespace TittyMagic
         private SliderClickMonitor _gravitySCM;
         private JSONStorableBool _linkSoftnessAndGravity;
         private UIDynamicToggle _linkSoftnessAndGravityToggle;
+        private JSONStorableFloat _yMorphingMultiplier;
+        private JSONStorableFloat _xMorphingMultiplier;
+        private JSONStorableFloat _zMorphingMultiplier;
         private JSONStorableFloat _nippleErection;
-
-        private JSONStorableFloat _testMultiplierX;
-        private JSONStorableFloat _testMultiplierY;
-        private JSONStorableFloat _testMultiplierZ;
 
         private bool _isFemale;
         private bool _initDone;
@@ -279,12 +278,7 @@ namespace TittyMagic
                 () => StartCoroutine(WaitToBeginRefresh(true))
             );
 
-            var modeSelection = this.NewTextField("modeSelection", "", 32, 100);
-            modeSelection.SetVal("<size=28>\n\n</size><b>Mode selection</b>");
-            modeSelection.dynamicText.backgroundColor = Color.clear;
-
             CreateModeChooser();
-            _modeButtonGroup = this.CreateRadioButtonGroup(_modeChooser);
 
             this.NewSpacer(10f);
             _softness = this.NewIntSlider("Breast softness", 75f, 0f, 100f);
@@ -295,19 +289,8 @@ namespace TittyMagic
             _gravity = new JSONStorableFloat("Breast gravity", 75f, 0f, 100f);
             _gravitySlider = this.NewIntSlider(_gravity);
 
-            this.NewSpacer(210f);
-            _testMultiplierX = this.NewFloatSlider("MultiplierX", 1.00f, 1.00f, 2.00f, "F2");
-            _testMultiplierY = this.NewFloatSlider("MultiplierY", 1.00f, 1.00f, 2.00f, "F2");
-            _testMultiplierZ = this.NewFloatSlider("MultiplierZ", 1.00f, 1.00f, 2.00f, "F2");
-
-            _nippleErection = this.NewFloatSlider("Nipple erection", 0.00f, 0.00f, 1.00f, "F2");
-            _nippleErection.slider.onValueChanged.AddListener(
-                val =>
-                {
-                    _nippleErectionMorphH.Update(val);
-                    _staticPhysicsH.UpdateNipplePhysics(_softnessAmount, val);
-                }
-            );
+            CreateMorphingMultipliers();
+            CreateAdditionalSettings();
 
             this.NewSpacer(10f, true);
             var softnessInfoText = this.NewTextField("Usage Info Area 1", "", 28, 120, true);
@@ -334,11 +317,8 @@ namespace TittyMagic
                 val => { _gravityAmount = Mathf.Pow(val / 100f, 0.5f); }
             );
 
-            this.NewSpacer(210f);
-            _nippleErection = this.NewFloatSlider("Nipple erection", 0f, 0f, 1.0f, "F2");
-            _nippleErection.slider.onValueChanged.AddListener(
-                val => { _nippleErectionMorphH.Update(val); }
-            );
+            CreateMorphingMultipliers();
+            CreateAdditionalSettings();
 
             _modeInfoText.val = "Futa mode";
 
@@ -349,6 +329,10 @@ namespace TittyMagic
 
         private void CreateModeChooser()
         {
+            var title = this.NewTextField("modeSelection", "", 32, 100);
+            title.SetVal("<size=28>\n\n</size><b>Mode selection</b>");
+            title.dynamicText.backgroundColor = Color.clear;
+
             _modeChooser = new JSONStorableStringChooser(
                 "Mode",
                 new List<string>
@@ -367,6 +351,37 @@ namespace TittyMagic
             );
             _modeChooser.storeType = JSONStorableParam.StoreType.Full;
             RegisterStringChooser(_modeChooser);
+            _modeButtonGroup = this.CreateRadioButtonGroup(_modeChooser);
+        }
+
+        private void CreateMorphingMultipliers()
+        {
+            var title = this.NewTextField("morphingMultipliers", "", 32, 100);
+            title.SetVal("<size=28>\n\n</size><b>Dynamic morphing multipliers</b>");
+            title.dynamicText.backgroundColor = Color.clear;
+
+            _yMorphingMultiplier = this.NewFloatSlider("Up/down", 1.00f, 0.00f, 2.00f, "F2");
+            _xMorphingMultiplier = this.NewFloatSlider("Left/right", 1.00f, 0.00f, 2.00f, "F2");
+            _zMorphingMultiplier = this.NewFloatSlider("Forward/back", 1.00f, 0.00f, 2.00f, "F2");
+        }
+
+        private void CreateAdditionalSettings()
+        {
+            var title = this.NewTextField("additionalSettings", "", 32, 100);
+            title.SetVal("<size=28>\n\n</size><b>Additional settings</b>");
+            title.dynamicText.backgroundColor = Color.clear;
+
+            _nippleErection = this.NewFloatSlider("Nipple erection", 0.00f, 0.00f, 1.00f, "F2");
+            _nippleErection.slider.onValueChanged.AddListener(
+                val =>
+                {
+                    _nippleErectionMorphH.Update(val);
+                    if(_isFemale)
+                    {
+                        _staticPhysicsH.UpdateNipplePhysics(_softnessAmount, val);
+                    }
+                }
+            );
         }
 
         private void OnModeChosen(string mode)
@@ -598,10 +613,10 @@ namespace TittyMagic
                         _trackRightNipple.depthDiff,
                         _trackLeftNipple.angleX,
                         _trackRightNipple.angleX,
-                        _verticalAngleMassMultiplier,
-                        _rollAngleMassMultiplier,
-                        _backDepthDiffMassMultiplier,
-                        _forwardDepthDiffMassMultiplier,
+                        _yMorphingMultiplier.val * _verticalAngleMassMultiplier,
+                        _xMorphingMultiplier.val * _rollAngleMassMultiplier,
+                        _zMorphingMultiplier.val * _backDepthDiffMassMultiplier,
+                        _zMorphingMultiplier.val * _forwardDepthDiffMassMultiplier,
                         _massAmount,
                         _gravityAmount
                     );
@@ -609,7 +624,15 @@ namespace TittyMagic
             }
             else if(_gravityMorphH.IsEnabled())
             {
-                _gravityMorphH.Update(_chestRoll, _chestPitch, _massAmount, 0.75f * _gravityAmount);
+                _gravityMorphH.Update(
+                    _chestRoll,
+                    _chestPitch,
+                    _massAmount,
+                    0.75f * _gravityAmount,
+                    _yMorphingMultiplier.val,
+                    _xMorphingMultiplier.val,
+                    _zMorphingMultiplier.val
+                );
             }
 
             if(_gravityPhysicsH.IsEnabled())

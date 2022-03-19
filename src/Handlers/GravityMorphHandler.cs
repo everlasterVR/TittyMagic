@@ -14,6 +14,10 @@ namespace TittyMagic
         private float _amount;
         private float _additionalRollEffect;
 
+        private float _xMorphingMultiplier;
+        private float _yMorphingMultiplier;
+        private float _zMorphingMultiplier;
+
         private Dictionary<string, List<Config>> _configSets;
 
         public GravityMorphHandler(MVRScript script)
@@ -136,11 +140,17 @@ namespace TittyMagic
             float roll,
             float pitch,
             float mass,
-            float amount
+            float amount,
+            float yMorphingMultiplier,
+            float xMorphingMultiplier,
+            float zMorphingMultiplier
         )
         {
             _mass = mass;
             _amount = amount;
+            _yMorphingMultiplier = yMorphingMultiplier;
+            _xMorphingMultiplier = xMorphingMultiplier;
+            _zMorphingMultiplier = zMorphingMultiplier;
 
             float smoothRoll = Calc.SmoothStep(roll);
             float smoothPitch = 2 * Calc.SmoothStep(pitch);
@@ -163,13 +173,13 @@ namespace TittyMagic
             if(roll >= 0)
             {
                 ResetMorphs(Direction.RIGHT);
-                UpdateMorphs(Direction.LEFT, roll);
+                UpdateLeftRightMorphs(Direction.LEFT, roll);
             }
             // right
             else
             {
                 ResetMorphs(Direction.LEFT);
-                UpdateMorphs(Direction.RIGHT, -roll);
+                UpdateLeftRightMorphs(Direction.RIGHT, -roll);
             }
         }
 
@@ -178,16 +188,16 @@ namespace TittyMagic
             // leaning forward
             if(pitch >= 0)
             {
-                UpdateMorphs(Direction.UP, pitch / 2, roll, _additionalRollEffect);
-                UpdateMorphs(Direction.UP_C, pitch / 2, roll, _additionalRollEffect);
-                UpdateMorphs(Direction.DOWN, (2 - pitch) / 2, roll);
+                UpdateUpDownMorphs(Direction.UP, pitch / 2, roll, _additionalRollEffect);
+                UpdateUpDownMorphs(Direction.UP_C, pitch / 2, roll, _additionalRollEffect);
+                UpdateUpDownMorphs(Direction.DOWN, (2 - pitch) / 2, roll);
             }
             // leaning back
             else
             {
-                UpdateMorphs(Direction.UP, -pitch / 2, roll, _additionalRollEffect);
-                UpdateMorphs(Direction.UP_C, -pitch / 2, roll, _additionalRollEffect);
-                UpdateMorphs(Direction.DOWN, (2 + pitch) / 2, roll);
+                UpdateUpDownMorphs(Direction.UP, -pitch / 2, roll, _additionalRollEffect);
+                UpdateUpDownMorphs(Direction.UP_C, -pitch / 2, roll, _additionalRollEffect);
+                UpdateUpDownMorphs(Direction.DOWN, (2 + pitch) / 2, roll);
             }
         }
 
@@ -201,14 +211,14 @@ namespace TittyMagic
                 // upright
                 if(pitch < 1)
                 {
-                    UpdateMorphs(Direction.FORWARD, pitch, roll);
-                    UpdateMorphs(Direction.FORWARD_C, pitch, roll);
+                    UpdateForwardBackMorphs(Direction.FORWARD, pitch, roll);
+                    UpdateForwardBackMorphs(Direction.FORWARD_C, pitch, roll);
                 }
                 // upside down
                 else
                 {
-                    UpdateMorphs(Direction.FORWARD, 2 - pitch, roll);
-                    UpdateMorphs(Direction.FORWARD_C, 2 - pitch, roll);
+                    UpdateForwardBackMorphs(Direction.FORWARD, 2 - pitch, roll);
+                    UpdateForwardBackMorphs(Direction.FORWARD_C, 2 - pitch, roll);
                 }
             }
             // leaning back
@@ -219,34 +229,57 @@ namespace TittyMagic
                 // upright
                 if(pitch >= -1)
                 {
-                    UpdateMorphs(Direction.BACK, -pitch, roll);
-                    UpdateMorphs(Direction.BACK_C, -pitch, roll);
+                    UpdateForwardBackMorphs(Direction.BACK, -pitch, roll);
+                    UpdateForwardBackMorphs(Direction.BACK_C, -pitch, roll);
                 }
                 // upside down
                 else
                 {
-                    UpdateMorphs(Direction.BACK, 2 + pitch, roll);
-                    UpdateMorphs(Direction.BACK_C, 2 + pitch, roll);
+                    UpdateForwardBackMorphs(Direction.BACK, 2 + pitch, roll);
+                    UpdateForwardBackMorphs(Direction.BACK_C, 2 + pitch, roll);
                 }
             }
         }
 
-        private void UpdateMorphs(string configSetName, float effect, float? roll = null, float? additional = null)
+        private void UpdateLeftRightMorphs(string configSetName, float effect)
         {
-            if(roll.HasValue)
+            foreach(var config in _configSets[configSetName])
             {
-                effect = effect * (1 - Mathf.Abs(roll.Value));
+                var morphConfig = (MorphConfig) config;
+                UpdateValue(morphConfig, _xMorphingMultiplier * effect);
+                if(_useConfigurator)
+                {
+                    _configurator.UpdateValueSlider(configSetName, morphConfig.name, morphConfig.morph.morphValue);
+                }
             }
+        }
 
+        private void UpdateUpDownMorphs(string configSetName, float effect, float roll, float? additional = null)
+        {
+            effect *= 1 - Mathf.Abs(roll);
             if(additional.HasValue)
             {
-                effect = effect + additional.Value;
+                effect += additional.Value;
             }
 
             foreach(var config in _configSets[configSetName])
             {
                 var morphConfig = (MorphConfig) config;
-                UpdateValue(morphConfig, effect);
+                UpdateValue(morphConfig, _yMorphingMultiplier * effect);
+                if(_useConfigurator)
+                {
+                    _configurator.UpdateValueSlider(configSetName, morphConfig.name, morphConfig.morph.morphValue);
+                }
+            }
+        }
+
+        private void UpdateForwardBackMorphs(string configSetName, float effect, float roll)
+        {
+            effect = effect * (1 - Mathf.Abs(roll));
+            foreach(var config in _configSets[configSetName])
+            {
+                var morphConfig = (MorphConfig) config;
+                UpdateValue(morphConfig, _zMorphingMultiplier * effect);
                 if(_useConfigurator)
                 {
                     _configurator.UpdateValueSlider(configSetName, morphConfig.name, morphConfig.morph.morphValue);
