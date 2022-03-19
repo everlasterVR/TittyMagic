@@ -590,7 +590,7 @@ namespace TittyMagic
                         _zMorphingMultiplier.val * _backDepthDiffMassMultiplier,
                         _zMorphingMultiplier.val * _forwardDepthDiffMassMultiplier,
                         _massAmount,
-                        _softnessAmount
+                        0.75f * _softnessAmount
                     );
                 }
             }
