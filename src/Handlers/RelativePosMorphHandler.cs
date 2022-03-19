@@ -113,8 +113,8 @@ namespace TittyMagic
             float depthDiffRight,
             float angleXLeft,
             float angleXRight,
-            float yAngleMultiplier,
             float xAngleMultiplier,
+            float yAngleMultiplier,
             float backDepthMultiplier,
             float forwardDepthMultiplier,
             float mass,
@@ -124,9 +124,9 @@ namespace TittyMagic
             _mass = mass;
             _mobility = mobility;
 
+            AdjustLeftRightMorphs(angleXLeft, angleXRight, xAngleMultiplier);
             AdjustUpMorphs(angleYLeft, angleYRight, yAngleMultiplier);
             AdjustDepthMorphs(depthDiffLeft, depthDiffRight, backDepthMultiplier, forwardDepthMultiplier);
-            AdjustLeftRightMorphs(angleXLeft, angleXRight, xAngleMultiplier);
 
             if(_useConfigurator)
             {

@@ -118,15 +118,15 @@ namespace TittyMagic
             float pitch,
             float mass,
             float amount,
-            float yPhysicsMultiplier,
             float xPhysicsMultiplier,
+            float yPhysicsMultiplier,
             float zPhysicsMultiplier
         )
         {
             _mass = mass;
             _amount = amount;
-            _yPhysicsMultiplier = yPhysicsMultiplier;
             _xPhysicsMultiplier = xPhysicsMultiplier;
+            _yPhysicsMultiplier = yPhysicsMultiplier;
             _zPhysicsMultiplier = zPhysicsMultiplier;
 
             float smoothRoll = Calc.SmoothStep(roll);

@@ -583,8 +583,8 @@ namespace TittyMagic
                         _trackRightNipple.depthDiff,
                         _trackLeftNipple.angleX,
                         _trackRightNipple.angleX,
-                        _yMorphingMultiplier.val * _verticalAngleMassMultiplier,
                         _xMorphingMultiplier.val * _rollAngleMassMultiplier,
+                        _yMorphingMultiplier.val * _verticalAngleMassMultiplier,
                         _zMorphingMultiplier.val * _backDepthDiffMassMultiplier,
                         _zMorphingMultiplier.val * _forwardDepthDiffMassMultiplier,
                         _massAmount,
@@ -599,8 +599,8 @@ namespace TittyMagic
                     _chestPitch,
                     _massAmount,
                     0.75f * _softnessAmount,
-                    _yMorphingMultiplier.val,
                     _xMorphingMultiplier.val,
+                    _yMorphingMultiplier.val,
                     _zMorphingMultiplier.val
                 );
             }
@@ -612,8 +612,8 @@ namespace TittyMagic
                     _chestPitch,
                     _massAmount,
                     _softnessAmount,
-                    _yPhysicsMultiplier.val,
                     _xPhysicsMultiplier.val,
+                    _yPhysicsMultiplier.val,
                     _zPhysicsMultiplier.val
                 );
             }

@@ -141,23 +141,23 @@ namespace TittyMagic
             float pitch,
             float mass,
             float amount,
-            float yMorphingMultiplier,
             float xMorphingMultiplier,
+            float yMorphingMultiplier,
             float zMorphingMultiplier
         )
         {
             _mass = mass;
             _amount = amount;
-            _yMorphingMultiplier = yMorphingMultiplier;
             _xMorphingMultiplier = xMorphingMultiplier;
+            _yMorphingMultiplier = yMorphingMultiplier;
             _zMorphingMultiplier = zMorphingMultiplier;
 
             float smoothRoll = Calc.SmoothStep(roll);
             float smoothPitch = 2 * Calc.SmoothStep(pitch);
             _additionalRollEffect = 0.4f * Mathf.Abs(smoothRoll);
 
-            AdjustUpDownMorphs(smoothPitch, smoothRoll);
             AdjustRollMorphs(smoothRoll);
+            AdjustUpDownMorphs(smoothPitch, smoothRoll);
             AdjustForwardBackMorphs(smoothPitch, smoothRoll);
 
             string infoText =
