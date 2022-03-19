@@ -466,8 +466,8 @@ namespace TittyMagic
         private void GravityPhysicsSliderListeners()
         {
             _xPhysicsSCM = _xPhysicsMultiplier.slider.gameObject.AddComponent<SliderClickMonitor>();
-            _yPhysicsSCM = _xPhysicsMultiplier.slider.gameObject.AddComponent<SliderClickMonitor>();
-            _zPhysicsSCM = _xPhysicsMultiplier.slider.gameObject.AddComponent<SliderClickMonitor>();
+            _yPhysicsSCM = _yPhysicsMultiplier.slider.gameObject.AddComponent<SliderClickMonitor>();
+            _zPhysicsSCM = _zPhysicsMultiplier.slider.gameObject.AddComponent<SliderClickMonitor>();
 
             _xPhysicsMultiplier.slider.onValueChanged.AddListener(
                 val => { RefreshFromSliderChanged(); }
