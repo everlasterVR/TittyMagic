@@ -13,6 +13,10 @@ namespace TittyMagic
         private float _mass;
         private float _amount;
 
+        private float _xPhysicsMultiplier;
+        private float _yPhysicsMultiplier;
+        private float _zPhysicsMultiplier;
+
         private Dictionary<string, List<Config>> _configSets;
 
         public GravityPhysicsHandler(MVRScript script)
@@ -113,11 +117,17 @@ namespace TittyMagic
             float roll,
             float pitch,
             float mass,
-            float amount
+            float amount,
+            float yPhysicsMultiplier,
+            float xPhysicsMultiplier,
+            float zPhysicsMultiplier
         )
         {
             _mass = mass;
             _amount = amount;
+            _yPhysicsMultiplier = yPhysicsMultiplier;
+            _xPhysicsMultiplier = xPhysicsMultiplier;
+            _zPhysicsMultiplier = zPhysicsMultiplier;
 
             float smoothRoll = Calc.SmoothStep(roll);
             float smoothPitch = 2 * Calc.SmoothStep(pitch);
@@ -152,34 +162,34 @@ namespace TittyMagic
                 if(pitch < 1)
                 {
                     ResetPhysics(Direction.UP);
-                    UpdatePitchPhysics(Direction.DOWN, 1 - pitch, roll);
-                    UpdatePitchPhysics(Direction.FORWARD, pitch, roll);
+                    UpdateUpDownPhysics(Direction.DOWN, 1 - pitch, roll);
+                    UpdateForwardBackPhysics(Direction.FORWARD, pitch, roll);
                 }
                 // upside down
                 else
                 {
                     ResetPhysics(Direction.DOWN);
-                    UpdatePitchPhysics(Direction.UP, pitch - 1, roll);
-                    UpdatePitchPhysics(Direction.FORWARD, 2 - pitch, roll);
+                    UpdateUpDownPhysics(Direction.UP, pitch - 1, roll);
+                    UpdateForwardBackPhysics(Direction.FORWARD, 2 - pitch, roll);
                 }
             }
             // leaning back
             else
             {
-                ResetPhysics(Direction.FORWARD);
+                // ResetPhysics(Direction.FORWARD);
                 // upright
                 if(pitch >= -1)
                 {
                     ResetPhysics(Direction.UP);
-                    UpdatePitchPhysics(Direction.DOWN, 1 + pitch, roll);
-                    UpdatePitchPhysics(Direction.BACK, -pitch, roll);
+                    UpdateUpDownPhysics(Direction.DOWN, 1 + pitch, roll);
+                    UpdateForwardBackPhysics(Direction.BACK, -pitch, roll);
                 }
                 // upside down
                 else
                 {
                     ResetPhysics(Direction.DOWN);
-                    UpdatePitchPhysics(Direction.UP, -pitch - 1, roll);
-                    UpdatePitchPhysics(Direction.BACK, 2 + pitch, roll);
+                    UpdateUpDownPhysics(Direction.UP, -pitch - 1, roll);
+                    UpdateForwardBackPhysics(Direction.BACK, 2 + pitch, roll);
                 }
             }
         }
@@ -189,7 +199,7 @@ namespace TittyMagic
             foreach(var config in _configSets[configSetName])
             {
                 var gravityPhysicsConfig = (PhysicsConfig) config;
-                UpdateValue(gravityPhysicsConfig, effect);
+                UpdateValue(gravityPhysicsConfig, _xPhysicsMultiplier * effect);
                 if(_useConfigurator)
                 {
                     _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.name, gravityPhysicsConfig.setting.val);
@@ -197,9 +207,23 @@ namespace TittyMagic
             }
         }
 
-        private void UpdatePitchPhysics(string configSetName, float effect, float roll)
+        private void UpdateUpDownPhysics(string configSetName, float effect, float roll)
         {
-            float adjusted = effect * (1 - Mathf.Abs(roll));
+            float adjusted = _yPhysicsMultiplier * effect * (1 - Mathf.Abs(roll));
+            foreach(var config in _configSets[configSetName])
+            {
+                var gravityPhysicsConfig = (PhysicsConfig) config;
+                UpdateValue(gravityPhysicsConfig, adjusted);
+                if(_useConfigurator)
+                {
+                    _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.name, gravityPhysicsConfig.setting.val);
+                }
+            }
+        }
+
+        private void UpdateForwardBackPhysics(string configSetName, float effect, float roll)
+        {
+            float adjusted = _zPhysicsMultiplier * effect * (1 - Mathf.Abs(roll));
             foreach(var config in _configSets[configSetName])
             {
                 var gravityPhysicsConfig = (PhysicsConfig) config;

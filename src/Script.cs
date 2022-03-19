@@ -28,7 +28,6 @@ namespace TittyMagic
         private float _backDepthDiffMassMultiplier;
         private float _forwardDepthDiffMassMultiplier;
         private float _softnessAmount;
-        private float _gravityAmount;
 
         private TrackNipple _trackLeftNipple;
         private TrackNipple _trackRightNipple;
@@ -61,14 +60,15 @@ namespace TittyMagic
         private UIDynamicButton _recalibrateButton;
         private JSONStorableFloat _softness;
         private SliderClickMonitor _softnessSCM;
-        private JSONStorableFloat _gravity;
-        private UIDynamicSlider _gravitySlider;
-        private SliderClickMonitor _gravitySCM;
-        private JSONStorableBool _linkSoftnessAndGravity;
-        private UIDynamicToggle _linkSoftnessAndGravityToggle;
-        private JSONStorableFloat _yMorphingMultiplier;
         private JSONStorableFloat _xMorphingMultiplier;
+        private JSONStorableFloat _yMorphingMultiplier;
         private JSONStorableFloat _zMorphingMultiplier;
+        private JSONStorableFloat _xPhysicsMultiplier;
+        private JSONStorableFloat _yPhysicsMultiplier;
+        private JSONStorableFloat _zPhysicsMultiplier;
+        private SliderClickMonitor _xPhysicsSCM;
+        private SliderClickMonitor _yPhysicsSCM;
+        private SliderClickMonitor _zPhysicsSCM;
         private JSONStorableFloat _nippleErection;
 
         private bool _isFemale;
@@ -175,7 +175,8 @@ namespace TittyMagic
                 _relativePosMorphH = new RelativePosMorphHandler(this);
 
                 InitPluginUI();
-                InitSliderListeners();
+                SoftnessSliderListener();
+                GravityPhysicsSliderListeners();
 
                 if(!_loadingFromJson)
                 {
@@ -196,7 +197,7 @@ namespace TittyMagic
                 _breastMorphListener = new BreastMorphListener(GEOMETRY.morphBank1OtherGender.morphs, GEOMETRY.morphBank1.morphs);
 
                 InitPluginUI();
-                _gravityAmount = Mathf.Pow(_gravity.val / 100f, 1 / 2f);
+                GravityPhysicsSliderListeners();
 
                 _gravityMorphH.LoadSettings(Mode.BALANCED);
                 _gravityPhysicsH.LoadSettings(Mode.FUTA);
@@ -279,17 +280,9 @@ namespace TittyMagic
             );
 
             CreateModeChooser();
-
-            this.NewSpacer(10f);
             _softness = this.NewIntSlider("Breast softness", 75f, 0f, 100f);
-
-            this.NewSpacer(10f);
-            _linkSoftnessAndGravity = new JSONStorableBool("Link softness and gravity", true);
-            _linkSoftnessAndGravityToggle = this.NewToggle(_linkSoftnessAndGravity);
-            _gravity = new JSONStorableFloat("Breast gravity", 75f, 0f, 100f);
-            _gravitySlider = this.NewIntSlider(_gravity);
-
             CreateMorphingMultipliers();
+            CreateGravityPhysicsMultipliers();
             CreateAdditionalSettings();
 
             this.NewSpacer(10f, true);
@@ -301,6 +294,9 @@ namespace TittyMagic
 
             this.NewSpacer(75f, true);
             _gravityInfoText = this.NewTextField("GravityInfoText", "", 28, 120, true);
+            _gravityInfoText.val = UI.Size("\n", 12) +
+                "Adjusts breast physics target angles and center of gravity based on chest angle. " +
+                "Higher value means breasts drop more heavily up/down and left/right, and are more swingy when leaning forward/back.";
         }
 
         private void InitPluginUIMale()
@@ -309,22 +305,17 @@ namespace TittyMagic
                 () => StartCoroutine(WaitToBeginRefresh(true))
             );
 
-            this.NewSpacer(10f);
-            _gravity = new JSONStorableFloat("Breast gravity", 75f, 0f, 100f);
-
-            this.NewIntSlider(_gravity);
-            _gravity.slider.onValueChanged.AddListener(
-                val => { _gravityAmount = Mathf.Pow(val / 100f, 0.5f); }
-            );
-
             CreateMorphingMultipliers();
+            CreateGravityPhysicsMultipliers();
             CreateAdditionalSettings();
 
             _modeInfoText.val = "Futa mode";
 
             this.NewSpacer(75f, true);
             _gravityInfoText = this.NewTextField("GravityInfoText", "", 28, 120, true);
-            _gravityInfoText.val = UI.Size("\n", 12) + "Adjusts the amount of morphing in different poses/orientations.";
+            _gravityInfoText.val = UI.Size("\n", 12) +
+                "Adjusts breast physics target angles and center of gravity based on chest angle. " +
+                "Higher value means breasts drop more heavily up/down and left/right, and are more swingy when leaning forward/back.";
         }
 
         private void CreateModeChooser()
@@ -360,9 +351,20 @@ namespace TittyMagic
             title.SetVal("<size=28>\n\n</size><b>Dynamic morphing multipliers</b>");
             title.dynamicText.backgroundColor = Color.clear;
 
-            _yMorphingMultiplier = this.NewFloatSlider("Up/down", 1.00f, 0.00f, 2.00f, "F2");
             _xMorphingMultiplier = this.NewFloatSlider("Left/right", 1.00f, 0.00f, 2.00f, "F2");
+            _yMorphingMultiplier = this.NewFloatSlider("Up/down", 1.00f, 0.00f, 2.00f, "F2");
             _zMorphingMultiplier = this.NewFloatSlider("Forward/back", 1.00f, 0.00f, 2.00f, "F2");
+        }
+
+        private void CreateGravityPhysicsMultipliers()
+        {
+            var title = this.NewTextField("gravityPhysicsMultipliers", "", 32, 100);
+            title.SetVal("<size=28>\n\n</size><b>Gravity physics multipliers</b>");
+            title.dynamicText.backgroundColor = Color.clear;
+
+            _xPhysicsMultiplier = this.NewFloatSlider("Left/right", 1.00f, 0.00f, 2.00f, "F2");
+            _yPhysicsMultiplier = this.NewFloatSlider("Up/down", 1.00f, 0.00f, 2.00f, "F2");
+            _zPhysicsMultiplier = this.NewFloatSlider("Forward/back", 1.00f, 0.00f, 2.00f, "F2");
         }
 
         private void CreateAdditionalSettings()
@@ -397,25 +399,8 @@ namespace TittyMagic
                 _gravityMorphH.LoadSettings(mode);
             }
 
-            UpdateToggleAndSliderTexts(mode);
             UpdateModeInfoText(mode);
-            UpdateGravityInfoText(mode);
-
             StartCoroutine(TempDisableModeButtons());
-        }
-
-        private void UpdateToggleAndSliderTexts(string mode)
-        {
-            if(mode == Mode.ANIM_OPTIMIZED || mode == Mode.TOUCH_OPTIMIZED)
-            {
-                _linkSoftnessAndGravityToggle.label = "Link softness and mobility";
-                _gravitySlider.label = "Breast mobility";
-            }
-            else
-            {
-                _linkSoftnessAndGravityToggle.label = "Link softness and gravity";
-                _gravitySlider.label = "Breast gravity";
-            }
         }
 
         private void UpdateModeInfoText(string mode)
@@ -429,17 +414,6 @@ namespace TittyMagic
                 text += "Touch optimized mode lowers breast mass and increases fat back force. Animation is less realistic, but collision is more accurate with hard colliders turned off.";
 
             _modeInfoText.SetVal(text);
-        }
-
-        private void UpdateGravityInfoText(string mode)
-        {
-            string text;
-            if(mode == Mode.ANIM_OPTIMIZED)
-                text = "Adjusts the amount of morphing due to forces including gravity.";
-            else
-                text = "Adjusts the amount of morphing in different poses/orientations.";
-
-            _gravityInfoText.val = UI.Size("\n", 12) + text;
         }
 
         private IEnumerator TempDisableModeButtons()
@@ -465,47 +439,43 @@ namespace TittyMagic
             }
         }
 
-        private void InitSliderListeners()
+        private void SoftnessSliderListener()
         {
             _softnessSCM = _softness.slider.gameObject.AddComponent<SliderClickMonitor>();
-            _gravitySCM = _gravity.slider.gameObject.AddComponent<SliderClickMonitor>();
 
             _softness.slider.onValueChanged.AddListener(
                 val =>
                 {
                     float newAmount = Mathf.Pow(val / 100f, 0.5f);
-
-                    if(Math.Abs(newAmount - _softnessAmount) < 0.001f) return;
+                    if(Math.Abs(newAmount - _softnessAmount) < 0.001f)
+                    {
+                        return;
+                    }
 
                     _softnessAmount = newAmount;
-                    if(_linkSoftnessAndGravity.val)
-                    {
-                        _gravity.val = val;
-                        _gravityAmount = Mathf.Pow(val / 100f, 0.5f);
-                    }
 
                     RefreshFromSliderChanged();
                 }
             );
-            _gravity.slider.onValueChanged.AddListener(
-                val =>
-                {
-                    _gravityAmount = Mathf.Pow(val / 100f, 0.5f);
-                    if(_linkSoftnessAndGravity.val)
-                    {
-                        _softness.val = val;
-                        float newAmount = Mathf.Pow(val / 100f, 0.5f);
 
-                        if(Math.Abs(newAmount - _softnessAmount) < 0.001f) return;
+            _softnessAmount = Mathf.Pow(_softness.val / 100f, 0.5f);
+        }
 
-                        _softnessAmount = Mathf.Pow(val / 100f, 0.5f);
-                        RefreshFromSliderChanged();
-                    }
-                }
+        private void GravityPhysicsSliderListeners()
+        {
+            _xPhysicsSCM = _xPhysicsMultiplier.slider.gameObject.AddComponent<SliderClickMonitor>();
+            _yPhysicsSCM = _xPhysicsMultiplier.slider.gameObject.AddComponent<SliderClickMonitor>();
+            _zPhysicsSCM = _xPhysicsMultiplier.slider.gameObject.AddComponent<SliderClickMonitor>();
+
+            _xPhysicsMultiplier.slider.onValueChanged.AddListener(
+                val => { RefreshFromSliderChanged(); }
             );
-
-            _softnessAmount = Mathf.Pow(_softness.val / 100f, 1 / 2f);
-            _gravityAmount = Mathf.Pow(_gravity.val / 100f, 1 / 2f);
+            _yPhysicsMultiplier.slider.onValueChanged.AddListener(
+                val => { RefreshFromSliderChanged(); }
+            );
+            _zPhysicsMultiplier.slider.onValueChanged.AddListener(
+                val => { RefreshFromSliderChanged(); }
+            );
         }
 
         #endregion User interface
@@ -618,7 +588,7 @@ namespace TittyMagic
                         _zMorphingMultiplier.val * _backDepthDiffMassMultiplier,
                         _zMorphingMultiplier.val * _forwardDepthDiffMassMultiplier,
                         _massAmount,
-                        _gravityAmount
+                        _softnessAmount
                     );
                 }
             }
@@ -628,7 +598,7 @@ namespace TittyMagic
                     _chestRoll,
                     _chestPitch,
                     _massAmount,
-                    0.75f * _gravityAmount,
+                    0.75f * _softnessAmount,
                     _yMorphingMultiplier.val,
                     _xMorphingMultiplier.val,
                     _zMorphingMultiplier.val
@@ -637,7 +607,15 @@ namespace TittyMagic
 
             if(_gravityPhysicsH.IsEnabled())
             {
-                _gravityPhysicsH.Update(_chestRoll, _chestPitch, _massAmount, _gravityAmount);
+                _gravityPhysicsH.Update(
+                    _chestRoll,
+                    _chestPitch,
+                    _massAmount,
+                    _softnessAmount,
+                    _yPhysicsMultiplier.val,
+                    _xPhysicsMultiplier.val,
+                    _zPhysicsMultiplier.val
+                );
             }
         }
 
@@ -700,7 +678,9 @@ namespace TittyMagic
                     _breastMorphListener.Changed() ||
                     _atomScaleListener.Changed() ||
                     (_softnessSCM != null && _softnessSCM.isDown) ||
-                    (_gravitySCM != null && _gravitySCM.isDown)
+                    (_xPhysicsSCM != null && _xPhysicsSCM.isDown) ||
+                    (_yPhysicsSCM != null && _yPhysicsSCM.isDown) ||
+                    (_zPhysicsSCM != null && _zPhysicsSCM.isDown)
                 )
                 {
                     yield return new WaitForSeconds(0.1f);
@@ -834,7 +814,7 @@ namespace TittyMagic
             try
             {
                 // simulate gravityPhysics when upright
-                _gravityPhysicsH.Update(0, 0, _massAmount, _gravityAmount);
+                _gravityPhysicsH.Update(0, 0, _massAmount, _softnessAmount, _yPhysicsMultiplier.val, _xPhysicsMultiplier.val, _zPhysicsMultiplier.val);
 
                 // simulate force of gravity when upright
                 // 0.75f is a hack, for some reason a normal gravity force pushes breasts too much down,
@@ -981,7 +961,9 @@ namespace TittyMagic
         {
             Destroy(_settingsMonitor);
             Destroy(_softnessSCM);
-            Destroy(_gravitySCM);
+            Destroy(_xPhysicsSCM);
+            Destroy(_yPhysicsSCM);
+            Destroy(_zPhysicsSCM);
         }
 
         private void OnDestroy()
@@ -990,7 +972,9 @@ namespace TittyMagic
             {
                 Destroy(_settingsMonitor);
                 Destroy(_softnessSCM);
-                Destroy(_gravitySCM);
+                Destroy(_xPhysicsSCM);
+                Destroy(_yPhysicsSCM);
+                Destroy(_zPhysicsSCM);
                 SuperController.singleton.onAtomRemovedHandlers -= OnRemoveAtom;
                 SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
             }
