@@ -9,6 +9,7 @@ src\Configurators\IConfigurator.cs
 src\Configurators\RelativePosMorphConfigurator.cs
 src\Handlers\GravityMorphHandler.cs
 src\Handlers\GravityPhysicsHandler.cs
+src\Handlers\GravityMorphCalc.cs
 src\Handlers\Multiplier.cs
 src\Handlers\NippleErectionMorphHandler.cs
 src\Handlers\RelativePosMorphHandler.cs

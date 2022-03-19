@@ -166,7 +166,7 @@ namespace TittyMagic
             // leaning back
             else
             {
-                // ResetPhysics(Direction.FORWARD);
+                ResetPhysics(Direction.FORWARD);
                 // upright
                 if(pitch >= -1)
                 {
