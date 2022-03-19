@@ -216,6 +216,20 @@ namespace TittyMagic
             return storable;
         }
 
+        public static UIDynamicSlider NewFloatSlider(
+            this MVRScript script,
+            JSONStorableFloat storable,
+            string valueFormat,
+            bool rightSide = false
+        )
+        {
+            storable.storeType = JSONStorableParam.StoreType.Full;
+            script.RegisterFloat(storable);
+            var slider = script.CreateSlider(storable, rightSide);
+            slider.valueFormat = valueFormat;
+            return slider;
+        }
+
         public static JSONStorableFloat NewIntSlider(
             this MVRScript script,
             string paramName,

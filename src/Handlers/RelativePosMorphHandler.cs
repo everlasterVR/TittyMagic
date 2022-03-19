@@ -13,6 +13,10 @@ namespace TittyMagic
         private float _mass;
         private float _mobility;
 
+        public Multiplier xMultiplier { get; set; }
+        public Multiplier yMultiplier { get; set; }
+        public Multiplier zMultiplier { get; set; }
+
         private Dictionary<string, List<Config>> _configSets;
 
         public RelativePosMorphHandler(MVRScript script)
@@ -110,10 +114,6 @@ namespace TittyMagic
             float depthDiffRight,
             float angleXLeft,
             float angleXRight,
-            float xAngleMultiplier,
-            float yAngleMultiplier,
-            float backDepthMultiplier,
-            float forwardDepthMultiplier,
             float mass,
             float mobility
         )
@@ -121,9 +121,9 @@ namespace TittyMagic
             _mass = mass;
             _mobility = mobility;
 
-            AdjustLeftRightMorphs(angleXLeft, angleXRight, xAngleMultiplier);
-            AdjustUpMorphs(angleYLeft, angleYRight, yAngleMultiplier);
-            AdjustDepthMorphs(depthDiffLeft, depthDiffRight, backDepthMultiplier, forwardDepthMultiplier);
+            AdjustLeftRightMorphs(angleXLeft, angleXRight);
+            AdjustUpMorphs(angleYLeft, angleYRight);
+            AdjustDepthMorphs(depthDiffLeft, depthDiffRight);
 
             if(_configurator != null)
             {
@@ -137,8 +137,9 @@ namespace TittyMagic
             }
         }
 
-        private void AdjustUpMorphs(float angleYLeft, float angleYRight, float multiplier)
+        private void AdjustUpMorphs(float angleYLeft, float angleYRight)
         {
+            float multiplier = yMultiplier.m.val * yMultiplier.extraMultiplier1 * (yMultiplier.extraMultiplier2 ?? 1);
             float effectYLeft = CalculateYEffect(angleYLeft, multiplier);
             float effectYRight = CalculateYEffect(angleYRight, multiplier);
             float angleYCenter = (angleYRight + angleYLeft) / 2;
@@ -177,8 +178,11 @@ namespace TittyMagic
             }
         }
 
-        private void AdjustDepthMorphs(float depthDiffLeft, float depthDiffRight, float backMultiplier, float forwardMultiplier)
+        private void AdjustDepthMorphs(float depthDiffLeft, float depthDiffRight)
         {
+            float forwardMultiplier = zMultiplier.m.val * zMultiplier.extraMultiplier1 * (zMultiplier.extraMultiplier2 ?? 1);
+            float backMultiplier = zMultiplier.m.val * zMultiplier.oppositeExtraMultiplier1 * (zMultiplier.oppositeExtraMultiplier2 ?? 1);
+
             float effectZLeft = CalculateZEffect(depthDiffLeft, depthDiffLeft < 0 ? forwardMultiplier : backMultiplier);
             float effectZRight = CalculateZEffect(depthDiffRight, depthDiffRight < 0 ? forwardMultiplier : backMultiplier);
 
@@ -225,8 +229,9 @@ namespace TittyMagic
             }
         }
 
-        private void AdjustLeftRightMorphs(float angleXLeft, float angleXRight, float multiplier)
+        private void AdjustLeftRightMorphs(float angleXLeft, float angleXRight)
         {
+            float multiplier = xMultiplier.m.val * xMultiplier.extraMultiplier1 * (xMultiplier.extraMultiplier2 ?? 1);
             float effectXLeft = CalculateXEffect(angleXLeft, multiplier);
             float effectXRight = CalculateXEffect(angleXRight, multiplier);
 

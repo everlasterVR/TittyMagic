@@ -14,9 +14,9 @@ namespace TittyMagic
         private float _amount;
         private float _additionalRollEffect;
 
-        private float _xMorphingMultiplier;
-        private float _yMorphingMultiplier;
-        private float _zMorphingMultiplier;
+        public Multiplier xMultiplier { get; set; }
+        public Multiplier yMultiplier { get; set; }
+        public Multiplier zMultiplier { get; set; }
 
         private Dictionary<string, List<Config>> _configSets;
 
@@ -137,17 +137,11 @@ namespace TittyMagic
             float roll,
             float pitch,
             float mass,
-            float amount,
-            float xMorphingMultiplier,
-            float yMorphingMultiplier,
-            float zMorphingMultiplier
+            float amount
         )
         {
             _mass = mass;
             _amount = amount;
-            _xMorphingMultiplier = xMorphingMultiplier;
-            _yMorphingMultiplier = yMorphingMultiplier;
-            _zMorphingMultiplier = zMorphingMultiplier;
 
             float smoothRoll = Calc.SmoothStep(roll);
             float smoothPitch = 2 * Calc.SmoothStep(pitch);
@@ -243,7 +237,7 @@ namespace TittyMagic
             foreach(var config in _configSets[configSetName])
             {
                 var morphConfig = (MorphConfig) config;
-                UpdateValue(morphConfig, _xMorphingMultiplier * effect);
+                UpdateValue(morphConfig, xMultiplier.m.val * effect);
                 if(_configurator != null)
                 {
                     _configurator.UpdateValueSlider(configSetName, morphConfig.name, morphConfig.morph.morphValue);
@@ -262,7 +256,7 @@ namespace TittyMagic
             foreach(var config in _configSets[configSetName])
             {
                 var morphConfig = (MorphConfig) config;
-                UpdateValue(morphConfig, _yMorphingMultiplier * effect);
+                UpdateValue(morphConfig, yMultiplier.m.val * effect);
                 if(_configurator != null)
                 {
                     _configurator.UpdateValueSlider(configSetName, morphConfig.name, morphConfig.morph.morphValue);
@@ -276,7 +270,7 @@ namespace TittyMagic
             foreach(var config in _configSets[configSetName])
             {
                 var morphConfig = (MorphConfig) config;
-                UpdateValue(morphConfig, _zMorphingMultiplier * effect);
+                UpdateValue(morphConfig, zMultiplier.m.val * effect);
                 if(_configurator != null)
                 {
                     _configurator.UpdateValueSlider(configSetName, morphConfig.name, morphConfig.morph.morphValue);

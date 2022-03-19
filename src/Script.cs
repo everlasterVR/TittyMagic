@@ -23,10 +23,6 @@ namespace TittyMagic
 
         private float _massEstimate;
         private float _massAmount;
-        private float _verticalAngleMassMultiplier;
-        private float _rollAngleMassMultiplier;
-        private float _backDepthDiffMassMultiplier;
-        private float _forwardDepthDiffMassMultiplier;
         private float _softnessAmount;
 
         private TrackNipple _trackLeftNipple;
@@ -41,9 +37,9 @@ namespace TittyMagic
         private BreastMassCalculator _breastMassCalculator;
 
         private StaticPhysicsHandler _staticPhysicsH;
-        private GravityPhysicsHandler _gravityPhysicsH;
-        private GravityMorphHandler _gravityMorphH;
-        private RelativePosMorphHandler _relativePosMorphH;
+        private GravityPhysicsHandler _gravityPhysicsHandler;
+        private GravityMorphHandler _gravityMorphHandler;
+        private RelativePosMorphHandler _relativePosMorphHandler;
         private NippleErectionMorphHandler _nippleErectionMorphH;
 
         private JSONStorableString _titleUIText;
@@ -59,12 +55,6 @@ namespace TittyMagic
         private UIDynamicButton _recalibrateButton;
         private JSONStorableFloat _softness;
         private SliderClickMonitor _softnessSCM;
-        private JSONStorableFloat _xMorphingMultiplier;
-        private JSONStorableFloat _yMorphingMultiplier;
-        private JSONStorableFloat _zMorphingMultiplier;
-        private JSONStorableFloat _xPhysicsMultiplier;
-        private JSONStorableFloat _yPhysicsMultiplier;
-        private JSONStorableFloat _zPhysicsMultiplier;
         private SliderClickMonitor _xPhysicsSCM;
         private SliderClickMonitor _yPhysicsSCM;
         private SliderClickMonitor _zPhysicsSCM;
@@ -139,8 +129,8 @@ namespace TittyMagic
             _breastMassCalculator = new BreastMassCalculator(dazCharacter.skin);
 
             _staticPhysicsH = new StaticPhysicsHandler(_isFemale);
-            _gravityPhysicsH = new GravityPhysicsHandler(this);
-            _gravityMorphH = new GravityMorphHandler(this);
+            _gravityPhysicsHandler = new GravityPhysicsHandler(this);
+            _gravityMorphHandler = new GravityMorphHandler(this);
             _nippleErectionMorphH = new NippleErectionMorphHandler(this);
 
             if(_isFemale)
@@ -171,7 +161,7 @@ namespace TittyMagic
                 _settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
                 _settingsMonitor.Init(containingAtom);
 
-                _relativePosMorphH = new RelativePosMorphHandler(this);
+                _relativePosMorphHandler = new RelativePosMorphHandler(this);
 
                 InitPluginUI();
                 SoftnessSliderListener();
@@ -198,8 +188,8 @@ namespace TittyMagic
                 InitPluginUI();
                 GravityPhysicsSliderListeners();
 
-                _gravityMorphH.LoadSettings(Mode.BALANCED);
-                _gravityPhysicsH.LoadSettings(Mode.FUTA);
+                _gravityMorphHandler.LoadSettings(Mode.BALANCED);
+                _gravityPhysicsHandler.LoadSettings(Mode.FUTA);
                 _staticPhysicsH.LoadSettings(this, Mode.FUTA);
                 StartCoroutine(WaitToBeginRefresh());
             }
@@ -341,9 +331,25 @@ namespace TittyMagic
             title.SetVal("<size=28>\n\n</size><b>Dynamic morphing multipliers</b>");
             title.dynamicText.backgroundColor = Color.clear;
 
-            _yMorphingMultiplier = this.NewFloatSlider("Up/down", 1.00f, 0.00f, 2.00f, "F2");
-            _xMorphingMultiplier = this.NewFloatSlider("Left/right", 1.00f, 0.00f, 2.00f, "F2");
-            _zMorphingMultiplier = this.NewFloatSlider("Forward/back", 1.00f, 0.00f, 2.00f, "F2");
+            var yStorable = new JSONStorableFloat("Morphing Up/down", 1.00f, 0.00f, 2.00f);
+            var xStorable = new JSONStorableFloat("Morphing Left/right", 1.00f, 0.00f, 2.00f);
+            var zStorable = new JSONStorableFloat("Morphing Forward/back", 1.00f, 0.00f, 2.00f);
+
+            this.NewFloatSlider(yStorable, "F2");
+            this.NewFloatSlider(xStorable, "F2");
+            this.NewFloatSlider(zStorable, "F2");
+
+            var yMultiplier = new Multiplier(yStorable);
+            var xMultiplier = new Multiplier(xStorable);
+            var zMultiplier = new Multiplier(zStorable);
+
+            _relativePosMorphHandler.yMultiplier = yMultiplier;
+            _relativePosMorphHandler.xMultiplier = xMultiplier;
+            _relativePosMorphHandler.zMultiplier = zMultiplier;
+
+            _gravityMorphHandler.yMultiplier = yMultiplier;
+            _gravityMorphHandler.xMultiplier = xMultiplier;
+            _gravityMorphHandler.zMultiplier = zMultiplier;
 
             this.NewSpacer(100f, true);
             var gravityInfoText = this.NewTextField("GravityInfoText", "", 28, 390, true);
@@ -358,9 +364,21 @@ namespace TittyMagic
             title.SetVal("<size=28>\n\n</size><b>Gravity physics multipliers</b>");
             title.dynamicText.backgroundColor = Color.clear;
 
-            _yPhysicsMultiplier = this.NewFloatSlider("Up/down", 1.00f, 0.00f, 2.00f, "F2");
-            _xPhysicsMultiplier = this.NewFloatSlider("Left/right", 1.00f, 0.00f, 2.00f, "F2");
-            _zPhysicsMultiplier = this.NewFloatSlider("Forward/back", 1.00f, 0.00f, 2.00f, "F2");
+            var yStorable = new JSONStorableFloat("Physics Up/down", 1.00f, 0.00f, 2.00f);
+            var xStorable = new JSONStorableFloat("Physics Left/right", 1.00f, 0.00f, 2.00f);
+            var zStorable = new JSONStorableFloat("Physics Forward/back", 1.00f, 0.00f, 2.00f);
+
+            this.NewFloatSlider(yStorable, "F2");
+            this.NewFloatSlider(xStorable, "F2");
+            this.NewFloatSlider(zStorable, "F2");
+
+            var yMultiplier = new Multiplier(yStorable);
+            var xMultiplier = new Multiplier(xStorable);
+            var zMultiplier = new Multiplier(zStorable);
+
+            _gravityPhysicsHandler.yMultiplier = yMultiplier;
+            _gravityPhysicsHandler.xMultiplier = xMultiplier;
+            _gravityPhysicsHandler.zMultiplier = zMultiplier;
 
             this.NewSpacer(100f, true);
             var morphingInfoText = this.NewTextField("MorphingInfoText", "", 28, 390, true);
@@ -390,15 +408,15 @@ namespace TittyMagic
 
         private void OnModeChosen(string mode)
         {
-            _gravityPhysicsH.LoadSettings(mode);
+            _gravityPhysicsHandler.LoadSettings(mode);
             _staticPhysicsH.LoadSettings(this, mode);
             if(mode == Mode.ANIM_OPTIMIZED || mode == Mode.TOUCH_OPTIMIZED)
             {
-                _relativePosMorphH.LoadSettings(mode);
+                _relativePosMorphHandler.LoadSettings(mode);
             }
             else
             {
-                _gravityMorphH.LoadSettings(mode);
+                _gravityMorphHandler.LoadSettings(mode);
             }
 
             UpdateModeInfoText(mode);
@@ -465,17 +483,21 @@ namespace TittyMagic
 
         private void GravityPhysicsSliderListeners()
         {
-            _xPhysicsSCM = _xPhysicsMultiplier.slider.gameObject.AddComponent<SliderClickMonitor>();
-            _yPhysicsSCM = _yPhysicsMultiplier.slider.gameObject.AddComponent<SliderClickMonitor>();
-            _zPhysicsSCM = _zPhysicsMultiplier.slider.gameObject.AddComponent<SliderClickMonitor>();
+            var xSlider = _gravityPhysicsHandler.xMultiplier.m.slider;
+            var ySlider = _gravityPhysicsHandler.yMultiplier.m.slider;
+            var zSlider = _gravityPhysicsHandler.zMultiplier.m.slider;
 
-            _xPhysicsMultiplier.slider.onValueChanged.AddListener(
+            _xPhysicsSCM = xSlider.gameObject.AddComponent<SliderClickMonitor>();
+            _yPhysicsSCM = ySlider.gameObject.AddComponent<SliderClickMonitor>();
+            _zPhysicsSCM = zSlider.gameObject.AddComponent<SliderClickMonitor>();
+
+            xSlider.onValueChanged.AddListener(
                 val => { RefreshFromSliderChanged(); }
             );
-            _yPhysicsMultiplier.slider.onValueChanged.AddListener(
+            ySlider.onValueChanged.AddListener(
                 val => { RefreshFromSliderChanged(); }
             );
-            _zPhysicsMultiplier.slider.onValueChanged.AddListener(
+            zSlider.onValueChanged.AddListener(
                 val => { RefreshFromSliderChanged(); }
             );
         }
@@ -576,47 +598,37 @@ namespace TittyMagic
         {
             if(_isFemale && (_modeChooser.val == Mode.ANIM_OPTIMIZED || _modeChooser.val == Mode.TOUCH_OPTIMIZED))
             {
-                if(_relativePosMorphH.IsEnabled())
+                if(_relativePosMorphHandler.IsEnabled())
                 {
-                    _relativePosMorphH.Update(
+                    _relativePosMorphHandler.Update(
                         _trackLeftNipple.angleY,
                         _trackRightNipple.angleY,
                         _trackLeftNipple.depthDiff,
                         _trackRightNipple.depthDiff,
                         _trackLeftNipple.angleX,
                         _trackRightNipple.angleX,
-                        _xMorphingMultiplier.val * _rollAngleMassMultiplier,
-                        _yMorphingMultiplier.val * _verticalAngleMassMultiplier,
-                        _zMorphingMultiplier.val * _backDepthDiffMassMultiplier,
-                        _zMorphingMultiplier.val * _forwardDepthDiffMassMultiplier,
                         _massAmount,
                         0.75f * _softnessAmount
                     );
                 }
             }
-            else if(_gravityMorphH.IsEnabled())
+            else if(_gravityMorphHandler.IsEnabled())
             {
-                _gravityMorphH.Update(
+                _gravityMorphHandler.Update(
                     _chestRoll,
                     _chestPitch,
                     _massAmount,
-                    0.75f * _softnessAmount,
-                    _xMorphingMultiplier.val,
-                    _yMorphingMultiplier.val,
-                    _zMorphingMultiplier.val
+                    0.75f * _softnessAmount
                 );
             }
 
-            if(_gravityPhysicsH.IsEnabled())
+            if(_gravityPhysicsHandler.IsEnabled())
             {
-                _gravityPhysicsH.Update(
+                _gravityPhysicsHandler.Update(
                     _chestRoll,
                     _chestPitch,
                     _massAmount,
-                    _softnessAmount,
-                    _xPhysicsMultiplier.val,
-                    _yPhysicsMultiplier.val,
-                    _zPhysicsMultiplier.val
+                    _softnessAmount
                 );
             }
         }
@@ -728,25 +740,26 @@ namespace TittyMagic
                 _staticPhysicsH.UpdateMainPhysics(_softnessAmount);
             }
 
-            SetMorphingMassMultipliers();
+            SetMorphingMultipliers();
             SetMassUIStatus(_atomScaleListener.scale);
             _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
-            _gravityPhysicsH.SetBaseValues();
+            _gravityPhysicsHandler.SetBaseValues();
         }
 
-        private void SetMorphingMassMultipliers()
+        private void SetMorphingMultipliers()
         {
-            _verticalAngleMassMultiplier = -Mathf.Pow(1.67f * _massAmount, 0.53f) + 2.5f;
-            _rollAngleMassMultiplier = -Mathf.Pow(_massAmount, 1.75f) + 2.67f;
-            _backDepthDiffMassMultiplier = (1 / Mathf.Pow(1 / 2f * _massAmount, 1 / 3f)) - 0.51f;
-            _forwardDepthDiffMassMultiplier = 17 / (12 * Mathf.Pow(0.9f * (_massAmount + 0.02f), 1 / 4f));
+            // updates GravityMorphHandler's multipliers as well since it is referencing the same Multiplier objects.
+            _relativePosMorphHandler.yMultiplier.extraMultiplier1 = -Mathf.Pow(1.67f * _massAmount, 0.53f) + 2.5f;
+            _relativePosMorphHandler.xMultiplier.extraMultiplier1 = -Mathf.Pow(_massAmount, 1.75f) + 2.67f;
+            _relativePosMorphHandler.zMultiplier.extraMultiplier1 = (1 / Mathf.Pow(1 / 2f * _massAmount, 1 / 3f)) - 0.51f;
+            _relativePosMorphHandler.zMultiplier.oppositeExtraMultiplier1 = 17 / (12 * Mathf.Pow(0.9f * (_massAmount + 0.02f), 1 / 4f));
 
             if(_modeChooser.val == Mode.TOUCH_OPTIMIZED)
             {
-                _verticalAngleMassMultiplier *= Mathf.Lerp(1.03f, 1.36f, _massAmount);
-                _rollAngleMassMultiplier *= Mathf.Lerp(1.03f, 1.36f, _massAmount);
-                _backDepthDiffMassMultiplier *= Mathf.Lerp(1.25f, 1.6f, _massAmount);
-                _forwardDepthDiffMassMultiplier *= Mathf.Lerp(1.25f, 1.6f, _massAmount);
+                _relativePosMorphHandler.yMultiplier.extraMultiplier2 = Mathf.Lerp(1.03f, 1.36f, _massAmount);
+                _relativePosMorphHandler.xMultiplier.extraMultiplier2 = Mathf.Lerp(1.03f, 1.36f, _massAmount);
+                _relativePosMorphHandler.zMultiplier.extraMultiplier2 = Mathf.Lerp(1.25f, 1.6f, _massAmount);
+                _relativePosMorphHandler.zMultiplier.oppositeExtraMultiplier2 = Mathf.Lerp(1.25f, 1.6f, _massAmount);
             }
         }
 
@@ -772,7 +785,7 @@ namespace TittyMagic
             }
 
             SetMassUIStatus(_atomScaleListener.scale);
-            _gravityPhysicsH.SetBaseValues();
+            _gravityPhysicsHandler.SetBaseValues();
         }
 
         private IEnumerator CalibrateNipplesTracking()
@@ -816,7 +829,7 @@ namespace TittyMagic
             try
             {
                 // simulate gravityPhysics when upright
-                _gravityPhysicsH.Update(0, 0, _massAmount, _softnessAmount, _yPhysicsMultiplier.val, _xPhysicsMultiplier.val, _zPhysicsMultiplier.val);
+                _gravityPhysicsHandler.Update(0, 0, _massAmount, _softnessAmount);
 
                 // simulate force of gravity when upright
                 // 0.75f is a hack, for some reason a normal gravity force pushes breasts too much down,
@@ -1003,10 +1016,10 @@ namespace TittyMagic
             {
                 if(_settingsMonitor != null) _settingsMonitor.enabled = false;
 
-                _gravityPhysicsH?.ResetAll();
+                _gravityPhysicsHandler?.ResetAll();
                 BREAST_CONTROL.invertJoint2RotationY = true;
-                _gravityMorphH?.ResetAll();
-                _relativePosMorphH?.ResetAll();
+                _gravityMorphHandler?.ResetAll();
+                _relativePosMorphHandler?.ResetAll();
                 _nippleErectionMorphH?.ResetAll();
             }
             catch(Exception e)

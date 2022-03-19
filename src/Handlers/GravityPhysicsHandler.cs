@@ -1,7 +1,6 @@
 ﻿// #define USE_CONFIGURATOR
 using System.Collections.Generic;
 using UnityEngine;
-using static TittyMagic.Utils;
 
 namespace TittyMagic
 {
@@ -13,9 +12,9 @@ namespace TittyMagic
         private float _mass;
         private float _amount;
 
-        private float _xPhysicsMultiplier;
-        private float _yPhysicsMultiplier;
-        private float _zPhysicsMultiplier;
+        public Multiplier xMultiplier { get; set; }
+        public Multiplier yMultiplier { get; set; }
+        public Multiplier zMultiplier { get; set; }
 
         private Dictionary<string, List<Config>> _configSets;
 
@@ -114,17 +113,11 @@ namespace TittyMagic
             float roll,
             float pitch,
             float mass,
-            float amount,
-            float xPhysicsMultiplier,
-            float yPhysicsMultiplier,
-            float zPhysicsMultiplier
+            float amount
         )
         {
             _mass = mass;
             _amount = amount;
-            _xPhysicsMultiplier = xPhysicsMultiplier;
-            _yPhysicsMultiplier = yPhysicsMultiplier;
-            _zPhysicsMultiplier = zPhysicsMultiplier;
 
             float smoothRoll = Calc.SmoothStep(roll);
             float smoothPitch = 2 * Calc.SmoothStep(pitch);
@@ -196,7 +189,7 @@ namespace TittyMagic
             foreach(var config in _configSets[configSetName])
             {
                 var gravityPhysicsConfig = (PhysicsConfig) config;
-                UpdateValue(gravityPhysicsConfig, _xPhysicsMultiplier * effect);
+                UpdateValue(gravityPhysicsConfig, xMultiplier.m.val * effect);
                 if(_configurator != null)
                 {
                     _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.name, gravityPhysicsConfig.setting.val);
@@ -206,7 +199,7 @@ namespace TittyMagic
 
         private void UpdateUpDownPhysics(string configSetName, float effect, float roll)
         {
-            float adjusted = _yPhysicsMultiplier * effect * (1 - Mathf.Abs(roll));
+            float adjusted = yMultiplier.m.val * effect * (1 - Mathf.Abs(roll));
             foreach(var config in _configSets[configSetName])
             {
                 var gravityPhysicsConfig = (PhysicsConfig) config;
@@ -220,7 +213,7 @@ namespace TittyMagic
 
         private void UpdateForwardBackPhysics(string configSetName, float effect, float roll)
         {
-            float adjusted = _zPhysicsMultiplier * effect * (1 - Mathf.Abs(roll));
+            float adjusted = zMultiplier.m.val * effect * (1 - Mathf.Abs(roll));
             foreach(var config in _configSets[configSetName])
             {
                 var gravityPhysicsConfig = (PhysicsConfig) config;
