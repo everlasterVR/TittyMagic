@@ -22,15 +22,16 @@
          "Category": "main",
          "Type": "additive",
          "IsNegative": "false",
-         "Multiplier1": "0.167",
-         "Multiplier2": "0.12"
+         "Multiplier1": "0.16",
+         "Multiplier2": "0.8",
+         "MultiplyInvertedMass": "true"
       },
       "spring": {
          "Category": "main",
          "Type": "additive",
          "IsNegative": "true",
-         "Multiplier1": "-25",
-         "Multiplier2": "-10"
+         "Multiplier1": "-10",
+         "Multiplier2": "-20"
       }
    },
    "FORWARD": {
@@ -38,15 +39,16 @@
          "Category": "main",
          "Type": "additive",
          "IsNegative": "false",
-         "Multiplier1": "0.167",
-         "Multiplier2": "0.12"
+         "Multiplier1": "0.16",
+         "Multiplier2": "0.08",
+         "MultiplyInvertedMass": "true"
       },
       "spring": {
          "Category": "main",
          "Type": "additive",
          "IsNegative": "true",
-         "Multiplier1": "-25",
-         "Multiplier2": "-10"
+         "Multiplier1": "-10",
+         "Multiplier2": "-20"
       }
    },
    "LEFT": {

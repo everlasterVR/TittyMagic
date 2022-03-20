@@ -78,7 +78,8 @@ namespace TittyMagic
                                     groupJson[name]["Type"],
                                     groupJson[name]["IsNegative"].AsBool,
                                     groupJson[name]["Multiplier1"].AsFloat,
-                                    groupJson[name]["Multiplier2"].AsFloat
+                                    groupJson[name]["Multiplier2"].AsFloat,
+                                    groupJson[name]["MultiplyInvertedMass"].AsBool
                                 )
                             );
                         }
@@ -232,10 +233,7 @@ namespace TittyMagic
 
         private void UpdateValue(PhysicsConfig config, float effect)
         {
-            float value =
-                (_amount * config.multiplier1 * effect) +
-                (_mass * config.multiplier2 * effect);
-
+            float value = CalculateValue(config, effect);
             bool inRange = config.isNegative ? value < 0 : value > 0;
 
             if(config.type == "direct")
@@ -246,6 +244,18 @@ namespace TittyMagic
             {
                 config.setting.val = inRange ? config.baseValue + value : config.baseValue;
             }
+        }
+
+        private float CalculateValue(Config config, float effect)
+        {
+            if(config.multiplyInvertedMass)
+            {
+                return (_amount * config.multiplier1 * effect) +
+                    ((1 - _mass) * config.multiplier2 * effect);
+            }
+
+            return (_amount * config.multiplier1 * effect) +
+                (_mass * config.multiplier2 * effect);
         }
 
         public void ResetAll()

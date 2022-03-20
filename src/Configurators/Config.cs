@@ -11,6 +11,7 @@ namespace TittyMagic
         public float baseMultiplier { get; set; }
         public float multiplier1 { get; set; }
         public float multiplier2 { get; set; }
+        public bool multiplyInvertedMass { get; protected set; }
     }
 
     internal class PhysicsConfig : Config
@@ -23,13 +24,14 @@ namespace TittyMagic
 
         public string type { get; }
 
-        public PhysicsConfig(string name, string category, string type, bool isNegative, float multiplier1, float multiplier2)
+        public PhysicsConfig(string name, string category, string type, bool isNegative, float multiplier1, float multiplier2, bool multiplyInvertedMass)
         {
             this.name = name;
             this.type = type;
             this.isNegative = isNegative;
             this.multiplier1 = multiplier1;
             this.multiplier2 = multiplier2;
+            this.multiplyInvertedMass = multiplyInvertedMass;
             setting = GetSetting(category);
             originalValue = setting.val;
         }
