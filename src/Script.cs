@@ -339,9 +339,9 @@ namespace TittyMagic
             this.NewFloatSlider(xStorable, "F2");
             this.NewFloatSlider(zStorable, "F2");
 
-            var yMultiplier = new Multiplier(yStorable);
-            var xMultiplier = new Multiplier(xStorable);
-            var zMultiplier = new Multiplier(zStorable);
+            var yMultiplier = new Multiplier(yStorable.slider, true);
+            var xMultiplier = new Multiplier(xStorable.slider, true);
+            var zMultiplier = new Multiplier(zStorable.slider);
 
             _forceMorphHandler.yMultiplier = yMultiplier;
             _forceMorphHandler.xMultiplier = xMultiplier;
@@ -372,9 +372,9 @@ namespace TittyMagic
             this.NewFloatSlider(xStorable, "F2");
             this.NewFloatSlider(zStorable, "F2");
 
-            var yMultiplier = new Multiplier(yStorable);
-            var xMultiplier = new Multiplier(xStorable);
-            var zMultiplier = new Multiplier(zStorable);
+            var yMultiplier = new Multiplier(yStorable.slider);
+            var xMultiplier = new Multiplier(xStorable.slider);
+            var zMultiplier = new Multiplier(zStorable.slider);
 
             _gravityPhysicsHandler.yMultiplier = yMultiplier;
             _gravityPhysicsHandler.xMultiplier = xMultiplier;
@@ -483,9 +483,9 @@ namespace TittyMagic
 
         private void GravityPhysicsSliderListeners()
         {
-            var xSlider = _gravityPhysicsHandler.xMultiplier.m.slider;
-            var ySlider = _gravityPhysicsHandler.yMultiplier.m.slider;
-            var zSlider = _gravityPhysicsHandler.zMultiplier.m.slider;
+            var xSlider = _gravityPhysicsHandler.xMultiplier.slider;
+            var ySlider = _gravityPhysicsHandler.yMultiplier.slider;
+            var zSlider = _gravityPhysicsHandler.zMultiplier.slider;
 
             _xPhysicsSCM = xSlider.gameObject.AddComponent<SliderClickMonitor>();
             _yPhysicsSCM = ySlider.gameObject.AddComponent<SliderClickMonitor>();
@@ -745,15 +745,16 @@ namespace TittyMagic
         private void SetMorphingMultipliers()
         {
             // updates GravityMorphHandler's multipliers as well since it is referencing the same Multiplier objects.
-            _forceMorphHandler.yMultiplier.extraMultiplier1 = -Mathf.Pow(1.67f * _massAmount, 0.53f) + 2.5f;
-            _forceMorphHandler.xMultiplier.extraMultiplier1 = -Mathf.Pow(_massAmount, 1.75f) + 2.67f;
+            // 1.05f because these were calibrated before use of QuadraticRegression in morphing sliders where default 1 slider value resulted in 0.95 actual value
+            _forceMorphHandler.yMultiplier.extraMultiplier1 = 1.05f * (2.5f - Mathf.Pow(1.67f * _massAmount, 0.53f));
+            _forceMorphHandler.xMultiplier.extraMultiplier1 = 1.05f * (2.67f - Mathf.Pow(_massAmount, 1.75f));
             _forceMorphHandler.zMultiplier.extraMultiplier1 = (1 / Mathf.Pow(1 / 2f * _massAmount, 1 / 3f)) - 0.51f;
             _forceMorphHandler.zMultiplier.oppositeExtraMultiplier1 = 17 / (12 * Mathf.Pow(0.9f * (_massAmount + 0.02f), 1 / 4f));
 
             if(_modeChooser.val == Mode.TOUCH_OPTIMIZED)
             {
-                _forceMorphHandler.yMultiplier.extraMultiplier2 = Mathf.Lerp(1.03f, 1.36f, _massAmount);
-                _forceMorphHandler.xMultiplier.extraMultiplier2 = Mathf.Lerp(1.03f, 1.36f, _massAmount);
+                _forceMorphHandler.yMultiplier.extraMultiplier2 = Mathf.Lerp(1.15f, 1.36f, _massAmount);
+                _forceMorphHandler.xMultiplier.extraMultiplier2 = Mathf.Lerp(1.15f, 1.36f, _massAmount);
                 _forceMorphHandler.zMultiplier.extraMultiplier2 = Mathf.Lerp(1.25f, 1.6f, _massAmount);
                 _forceMorphHandler.zMultiplier.oppositeExtraMultiplier2 = Mathf.Lerp(1.25f, 1.6f, _massAmount);
             }

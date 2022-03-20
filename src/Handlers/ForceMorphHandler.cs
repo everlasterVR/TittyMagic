@@ -146,7 +146,7 @@ namespace TittyMagic
 
         private void AdjustUpMorphs(float extraMultiplier2)
         {
-            float multiplier = yMultiplier.m.val * yMultiplier.extraMultiplier1 * extraMultiplier2;
+            float multiplier = yMultiplier.mainMultiplier * yMultiplier.extraMultiplier1 * extraMultiplier2;
             float effectYLeft = CalculateYEffect(_trackLeftNipple.angleY, multiplier);
             float effectYRight = CalculateYEffect(_trackRightNipple.angleY, multiplier);
             float angleYCenter = (_trackRightNipple.angleY + _trackLeftNipple.angleY) / 2;
@@ -187,8 +187,8 @@ namespace TittyMagic
 
         private void AdjustDepthMorphs(float extraMultiplier2, float oppositeExtraMultiplier2)
         {
-            float forwardMultiplier = zMultiplier.m.val * zMultiplier.extraMultiplier1 * extraMultiplier2;
-            float backMultiplier = zMultiplier.m.val * zMultiplier.oppositeExtraMultiplier1 * oppositeExtraMultiplier2;
+            float forwardMultiplier = zMultiplier.mainMultiplier * zMultiplier.extraMultiplier1 * extraMultiplier2;
+            float backMultiplier = zMultiplier.mainMultiplier * zMultiplier.oppositeExtraMultiplier1 * oppositeExtraMultiplier2;
 
             float effectZLeft = CalculateZEffect(_trackLeftNipple.depthDiff, _trackLeftNipple.depthDiff < 0 ? forwardMultiplier : backMultiplier);
             float effectZRight = CalculateZEffect(_trackRightNipple.depthDiff, _trackRightNipple.depthDiff < 0 ? forwardMultiplier : backMultiplier);
@@ -238,7 +238,7 @@ namespace TittyMagic
 
         private void AdjustLeftRightMorphs(float extraMultiplier2)
         {
-            float multiplier = xMultiplier.m.val * xMultiplier.extraMultiplier1 * extraMultiplier2;
+            float multiplier = xMultiplier.mainMultiplier * xMultiplier.extraMultiplier1 * extraMultiplier2;
             float effectXLeft = CalculateXEffect(_trackLeftNipple.angleX, multiplier);
             float effectXRight = CalculateXEffect(_trackRightNipple.angleX, multiplier);
 
@@ -271,17 +271,17 @@ namespace TittyMagic
 
         private static float CalculateYEffect(float angle, float multiplier)
         {
-            return Mathf.InverseLerp(0, 75, multiplier * Mathf.Abs(angle));
+            return multiplier * Mathf.Abs(angle) / 75;
         }
 
         private static float CalculateZEffect(float distance, float multiplier)
         {
-            return Mathf.InverseLerp(0, 1 / 12f, multiplier * Mathf.Abs(distance));
+            return multiplier * Mathf.Abs(distance) * 12;
         }
 
         private static float CalculateXEffect(float angle, float multiplier)
         {
-            return Mathf.InverseLerp(0, 60, multiplier * Mathf.Abs(angle));
+            return multiplier * Mathf.Abs(angle) / 60;
         }
 
         private void UpdateMorphs(string configSetName, float effect)

@@ -173,6 +173,12 @@ namespace TittyMagic
 
             return result;
         }
+
+        // https://www.desmos.com/calculator/8dtzezrgm7
+        public static float QuadraticRegression(float value)
+        {
+            return (-0.25f * value * value) + (1.2f * value);
+        }
     }
 
     // ReSharper disable UnusedMember.Global MemberCanBePrivate.Global

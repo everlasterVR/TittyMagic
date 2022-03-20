@@ -1,6 +1,6 @@
 ﻿// #define USE_CONFIGURATOR
 using System.Collections.Generic;
-using UnityEngine;
+using static TittyMagic.Utils;
 using static TittyMagic.GravityEffectCalc;
 
 namespace TittyMagic

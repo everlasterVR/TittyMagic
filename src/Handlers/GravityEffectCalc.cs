@@ -7,23 +7,23 @@ namespace TittyMagic
         public static float CalculateRollEffect(float roll, Multiplier multiplier)
         {
             // div by 2 because softness and mass affect equally
-            return Mathf.Abs(roll) * multiplier.m.val / 2;
+            return Mathf.Abs(roll) * multiplier.mainMultiplier / 2;
         }
 
         public static float CalculateUpEffect(float pitch, float roll, Multiplier multiplier, float additionalRollEffect)
         {
             float effect = Mathf.Abs(pitch) * RollMultiplier(roll) / 2;
-            return (effect + additionalRollEffect) * multiplier.m.val / 2;
+            return (effect + additionalRollEffect) * multiplier.mainMultiplier / 2;
         }
 
         public static float CalculateDownEffect(float pitch, float roll, Multiplier multiplier)
         {
-            return (2 - (Mathf.Abs(pitch) / 2)) * RollMultiplier(roll) * multiplier.m.val / 2;
+            return (2 - (Mathf.Abs(pitch) / 2)) * RollMultiplier(roll) * multiplier.mainMultiplier / 2;
         }
 
         public static float CalculateDepthEffect(float pitch, float roll, Multiplier multiplier)
         {
-            return DepthAdjustByAngle(pitch) * RollMultiplier(roll) * multiplier.m.val / 2;
+            return DepthAdjustByAngle(pitch) * RollMultiplier(roll) * multiplier.mainMultiplier / 2;
         }
 
         private static float DepthAdjustByAngle(float pitch)
@@ -54,7 +54,7 @@ namespace TittyMagic
 
         public static float CalculateUpDownEffect(float pitch, float roll, Multiplier multiplier)
         {
-            return UpDownAdjustByAngle(pitch) * RollMultiplier(roll) * multiplier.m.val / 2;
+            return UpDownAdjustByAngle(pitch) * RollMultiplier(roll) * multiplier.mainMultiplier / 2;
         }
 
         private static float UpDownAdjustByAngle(float pitch)
