@@ -601,6 +601,8 @@ namespace TittyMagic
                 if(_forceMorphHandler.IsEnabled())
                 {
                     _forceMorphHandler.Update(
+                        _chestRoll,
+                        _chestPitch,
                         _massAmount,
                         0.75f * _softnessAmount
                     );
@@ -754,6 +756,13 @@ namespace TittyMagic
                 _forceMorphHandler.xMultiplier.extraMultiplier2 = Mathf.Lerp(1.03f, 1.36f, _massAmount);
                 _forceMorphHandler.zMultiplier.extraMultiplier2 = Mathf.Lerp(1.25f, 1.6f, _massAmount);
                 _forceMorphHandler.zMultiplier.oppositeExtraMultiplier2 = Mathf.Lerp(1.25f, 1.6f, _massAmount);
+            }
+            else
+            {
+                _forceMorphHandler.yMultiplier.extraMultiplier2 = null;
+                _forceMorphHandler.xMultiplier.extraMultiplier2 = null;
+                _forceMorphHandler.zMultiplier.extraMultiplier2 = null;
+                _forceMorphHandler.zMultiplier.oppositeExtraMultiplier2 = null;
             }
         }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using static TittyMagic.Utils;
+using static TittyMagic.GravityEffectCalc;
 
 namespace TittyMagic
 {
@@ -113,6 +114,8 @@ namespace TittyMagic
         }
 
         public void Update(
+            float roll,
+            float pitch,
             float mass,
             float softness
         )
@@ -120,9 +123,12 @@ namespace TittyMagic
             _mass = mass;
             _softness = softness;
 
-            AdjustLeftRightMorphs();
-            AdjustUpMorphs();
-            AdjustDepthMorphs();
+            AdjustLeftRightMorphs(CalculateRollExtraMultiplier(roll, xMultiplier.extraMultiplier2));
+            AdjustUpMorphs(CalculateUpDownExtraMultiplier(roll, pitch, yMultiplier.extraMultiplier2));
+            AdjustDepthMorphs(
+                CalculateDepthExtraMultiplier(roll, pitch, yMultiplier.extraMultiplier2),
+                CalculateDepthExtraMultiplier(roll, pitch, yMultiplier.oppositeExtraMultiplier2)
+            );
 
             if(_configurator != null)
             {
@@ -132,13 +138,15 @@ namespace TittyMagic
                     $"{NameValueString("Left angleY", _trackLeftNipple.angleY)} \n" +
                     $"{NameValueString("Right angleY", _trackRightNipple.angleY)} \n" +
                     $"{NameValueString("Left angleX", _trackLeftNipple.angleX)} \n" +
-                    $"{NameValueString("Right angleX", _trackRightNipple.angleX)} \n";
+                    $"{NameValueString("Right angleX", _trackRightNipple.angleX)} \n" +
+                    $"{NameValueString("Roll", roll)} \n" +
+                    $"{NameValueString("Pitch", pitch)}";
             }
         }
 
-        private void AdjustUpMorphs()
+        private void AdjustUpMorphs(float extraMultiplier2)
         {
-            float multiplier = yMultiplier.m.val * yMultiplier.extraMultiplier1 * (yMultiplier.extraMultiplier2 ?? 1);
+            float multiplier = yMultiplier.m.val * yMultiplier.extraMultiplier1 * extraMultiplier2;
             float effectYLeft = CalculateYEffect(_trackLeftNipple.angleY, multiplier);
             float effectYRight = CalculateYEffect(_trackRightNipple.angleY, multiplier);
             float angleYCenter = (_trackRightNipple.angleY + _trackLeftNipple.angleY) / 2;
@@ -177,10 +185,10 @@ namespace TittyMagic
             }
         }
 
-        private void AdjustDepthMorphs()
+        private void AdjustDepthMorphs(float extraMultiplier2, float oppositeExtraMultiplier2)
         {
-            float forwardMultiplier = zMultiplier.m.val * zMultiplier.extraMultiplier1 * (zMultiplier.extraMultiplier2 ?? 1);
-            float backMultiplier = zMultiplier.m.val * zMultiplier.oppositeExtraMultiplier1 * (zMultiplier.oppositeExtraMultiplier2 ?? 1);
+            float forwardMultiplier = zMultiplier.m.val * zMultiplier.extraMultiplier1 * extraMultiplier2;
+            float backMultiplier = zMultiplier.m.val * zMultiplier.oppositeExtraMultiplier1 * oppositeExtraMultiplier2;
 
             float effectZLeft = CalculateZEffect(_trackLeftNipple.depthDiff, _trackLeftNipple.depthDiff < 0 ? forwardMultiplier : backMultiplier);
             float effectZRight = CalculateZEffect(_trackRightNipple.depthDiff, _trackRightNipple.depthDiff < 0 ? forwardMultiplier : backMultiplier);
@@ -228,9 +236,9 @@ namespace TittyMagic
             }
         }
 
-        private void AdjustLeftRightMorphs()
+        private void AdjustLeftRightMorphs(float extraMultiplier2)
         {
-            float multiplier = xMultiplier.m.val * xMultiplier.extraMultiplier1 * (xMultiplier.extraMultiplier2 ?? 1);
+            float multiplier = xMultiplier.m.val * xMultiplier.extraMultiplier1 * extraMultiplier2;
             float effectXLeft = CalculateXEffect(_trackLeftNipple.angleX, multiplier);
             float effectXRight = CalculateXEffect(_trackRightNipple.angleX, multiplier);
 
