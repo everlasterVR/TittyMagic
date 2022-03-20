@@ -10,8 +10,8 @@ namespace TittyMagic
         private readonly MVRScript _script;
         private readonly IConfigurator _configurator;
 
-        private float _mass;
-        private float _mobility;
+        private readonly TrackNipple _trackLeftNipple;
+        private readonly TrackNipple _trackRightNipple;
 
         public Multiplier xMultiplier { get; set; }
         public Multiplier yMultiplier { get; set; }
@@ -19,9 +19,14 @@ namespace TittyMagic
 
         private Dictionary<string, List<Config>> _configSets;
 
-        public RelativePosMorphHandler(MVRScript script)
+        private float _mass;
+        private float _softness;
+
+        public RelativePosMorphHandler(MVRScript script, TrackNipple trackLeftNipple, TrackNipple trackRightNipple)
         {
             _script = script;
+            _trackLeftNipple = trackLeftNipple;
+            _trackRightNipple = trackRightNipple;
 #if USE_CONFIGURATOR
             _configurator = (IConfigurator) FindPluginOnAtom(_script.containingAtom, nameof(RelativePosMorphConfigurator));
             _configurator.InitMainUI();
@@ -108,45 +113,39 @@ namespace TittyMagic
         }
 
         public void Update(
-            float angleYLeft,
-            float angleYRight,
-            float depthDiffLeft,
-            float depthDiffRight,
-            float angleXLeft,
-            float angleXRight,
             float mass,
-            float mobility
+            float softness
         )
         {
             _mass = mass;
-            _mobility = mobility;
+            _softness = softness;
 
-            AdjustLeftRightMorphs(angleXLeft, angleXRight);
-            AdjustUpMorphs(angleYLeft, angleYRight);
-            AdjustDepthMorphs(depthDiffLeft, depthDiffRight);
+            AdjustLeftRightMorphs();
+            AdjustUpMorphs();
+            AdjustDepthMorphs();
 
             if(_configurator != null)
             {
                 _configurator.debugInfo.val =
-                    $"{NameValueString("depthDiffLeft", depthDiffLeft)} \n" +
-                    $"{NameValueString("depthDiffRight", depthDiffRight)} \n" +
-                    // $"{NameValueString("angleYLeft", angleYLeft)} \n" +
-                    // $"{NameValueString("angleYRight", angleYRight)} \n" +
-                    $"{NameValueString("angleXLeft", angleXLeft)} \n" +
-                    $"{NameValueString("angleXRight", angleXRight)} \n";
+                    $"{NameValueString("Left depthDiff", _trackLeftNipple.depthDiff)} \n" +
+                    $"{NameValueString("Right depthDiff", _trackRightNipple.depthDiff)} \n" +
+                    $"{NameValueString("Left angleY", _trackLeftNipple.angleY)} \n" +
+                    $"{NameValueString("Right angleY", _trackRightNipple.angleY)} \n" +
+                    $"{NameValueString("Left angleX", _trackLeftNipple.angleX)} \n" +
+                    $"{NameValueString("Right angleX", _trackRightNipple.angleX)} \n";
             }
         }
 
-        private void AdjustUpMorphs(float angleYLeft, float angleYRight)
+        private void AdjustUpMorphs()
         {
             float multiplier = yMultiplier.m.val * yMultiplier.extraMultiplier1 * (yMultiplier.extraMultiplier2 ?? 1);
-            float effectYLeft = CalculateYEffect(angleYLeft, multiplier);
-            float effectYRight = CalculateYEffect(angleYRight, multiplier);
-            float angleYCenter = (angleYRight + angleYLeft) / 2;
+            float effectYLeft = CalculateYEffect(_trackLeftNipple.angleY, multiplier);
+            float effectYRight = CalculateYEffect(_trackRightNipple.angleY, multiplier);
+            float angleYCenter = (_trackRightNipple.angleY + _trackLeftNipple.angleY) / 2;
             float effectYCenter = CalculateYEffect(angleYCenter, multiplier);
 
             // up force on left breast
-            if(angleYLeft >= 0)
+            if(_trackLeftNipple.angleY >= 0)
             {
                 UpdateMorphs(Direction.UP_L, effectYLeft);
             }
@@ -157,7 +156,7 @@ namespace TittyMagic
             }
 
             // up force on right breast
-            if(angleYRight >= 0)
+            if(_trackRightNipple.angleY >= 0)
             {
                 UpdateMorphs(Direction.UP_R, effectYRight);
             }
@@ -178,19 +177,19 @@ namespace TittyMagic
             }
         }
 
-        private void AdjustDepthMorphs(float depthDiffLeft, float depthDiffRight)
+        private void AdjustDepthMorphs()
         {
             float forwardMultiplier = zMultiplier.m.val * zMultiplier.extraMultiplier1 * (zMultiplier.extraMultiplier2 ?? 1);
             float backMultiplier = zMultiplier.m.val * zMultiplier.oppositeExtraMultiplier1 * (zMultiplier.oppositeExtraMultiplier2 ?? 1);
 
-            float effectZLeft = CalculateZEffect(depthDiffLeft, depthDiffLeft < 0 ? forwardMultiplier : backMultiplier);
-            float effectZRight = CalculateZEffect(depthDiffRight, depthDiffRight < 0 ? forwardMultiplier : backMultiplier);
+            float effectZLeft = CalculateZEffect(_trackLeftNipple.depthDiff, _trackLeftNipple.depthDiff < 0 ? forwardMultiplier : backMultiplier);
+            float effectZRight = CalculateZEffect(_trackRightNipple.depthDiff, _trackRightNipple.depthDiff < 0 ? forwardMultiplier : backMultiplier);
 
-            float depthDiffCenter = (depthDiffLeft + depthDiffRight) / 2;
+            float depthDiffCenter = (_trackLeftNipple.depthDiff + _trackRightNipple.depthDiff) / 2;
             float effectZCenter = CalculateZEffect(depthDiffCenter, depthDiffCenter < 0 ? forwardMultiplier : backMultiplier);
 
             // forward force on left breast
-            if(depthDiffLeft <= 0)
+            if(_trackLeftNipple.depthDiff <= 0)
             {
                 ResetMorphs(Direction.BACK_L);
                 UpdateMorphs(Direction.FORWARD_L, effectZLeft);
@@ -203,7 +202,7 @@ namespace TittyMagic
             }
 
             // forward force on right breast
-            if(depthDiffRight <= 0)
+            if(_trackRightNipple.depthDiff <= 0)
             {
                 ResetMorphs(Direction.BACK_R);
                 UpdateMorphs(Direction.FORWARD_R, effectZRight);
@@ -229,14 +228,14 @@ namespace TittyMagic
             }
         }
 
-        private void AdjustLeftRightMorphs(float angleXLeft, float angleXRight)
+        private void AdjustLeftRightMorphs()
         {
             float multiplier = xMultiplier.m.val * xMultiplier.extraMultiplier1 * (xMultiplier.extraMultiplier2 ?? 1);
-            float effectXLeft = CalculateXEffect(angleXLeft, multiplier);
-            float effectXRight = CalculateXEffect(angleXRight, multiplier);
+            float effectXLeft = CalculateXEffect(_trackLeftNipple.angleX, multiplier);
+            float effectXRight = CalculateXEffect(_trackRightNipple.angleX, multiplier);
 
             // left force on left breast
-            if(angleXLeft >= 0)
+            if(_trackLeftNipple.angleX >= 0)
             {
                 ResetMorphs(Direction.LEFT_L);
                 UpdateMorphs(Direction.RIGHT_L, effectXLeft);
@@ -249,7 +248,7 @@ namespace TittyMagic
             }
 
             // left force on right breast
-            if(angleXRight >= 0)
+            if(_trackRightNipple.angleX >= 0)
             {
                 ResetMorphs(Direction.LEFT_R);
                 UpdateMorphs(Direction.RIGHT_R, effectXRight);
@@ -293,7 +292,7 @@ namespace TittyMagic
         private void UpdateValue(MorphConfig config, float effect)
         {
             float value =
-                (_mobility * config.multiplier1 * effect / 2) +
+                (_softness * config.multiplier1 * effect / 2) +
                 (_mass * config.multiplier2 * effect / 2);
 
             bool inRange = config.isNegative ? value < 0 : value > 0;

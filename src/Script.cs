@@ -161,7 +161,7 @@ namespace TittyMagic
                 _settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
                 _settingsMonitor.Init(containingAtom);
 
-                _relativePosMorphHandler = new RelativePosMorphHandler(this);
+                _relativePosMorphHandler = new RelativePosMorphHandler(this, _trackLeftNipple, _trackRightNipple);
 
                 InitPluginUI();
                 SoftnessSliderListener();
@@ -601,12 +601,6 @@ namespace TittyMagic
                 if(_relativePosMorphHandler.IsEnabled())
                 {
                     _relativePosMorphHandler.Update(
-                        _trackLeftNipple.angleY,
-                        _trackRightNipple.angleY,
-                        _trackLeftNipple.depthDiff,
-                        _trackRightNipple.depthDiff,
-                        _trackLeftNipple.angleX,
-                        _trackRightNipple.angleX,
                         _massAmount,
                         0.75f * _softnessAmount
                     );
