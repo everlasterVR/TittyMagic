@@ -126,8 +126,8 @@ namespace TittyMagic
             AdjustLeftRightMorphs(CalculateRollExtraMultiplier(roll, xMultiplier.extraMultiplier2));
             AdjustUpMorphs(CalculateUpDownExtraMultiplier(roll, pitch, yMultiplier.extraMultiplier2));
             AdjustDepthMorphs(
-                CalculateDepthExtraMultiplier(roll, pitch, yMultiplier.extraMultiplier2),
-                CalculateDepthExtraMultiplier(roll, pitch, yMultiplier.oppositeExtraMultiplier2)
+                CalculateDepthExtraMultiplier(roll, pitch, zMultiplier.extraMultiplier2),
+                CalculateDepthExtraMultiplier(roll, pitch, zMultiplier.oppositeExtraMultiplier2)
             );
 
             if(_configurator != null)
@@ -190,11 +190,15 @@ namespace TittyMagic
             float forwardMultiplier = zMultiplier.mainMultiplier * zMultiplier.extraMultiplier1 * extraMultiplier2;
             float backMultiplier = zMultiplier.mainMultiplier * zMultiplier.oppositeExtraMultiplier1 * oppositeExtraMultiplier2;
 
-            float effectZLeft = CalculateZEffect(_trackLeftNipple.depthDiff, _trackLeftNipple.depthDiff < 0 ? forwardMultiplier : backMultiplier);
-            float effectZRight = CalculateZEffect(_trackRightNipple.depthDiff, _trackRightNipple.depthDiff < 0 ? forwardMultiplier : backMultiplier);
+            float leftMultiplier = _trackLeftNipple.depthDiff < 0 ? forwardMultiplier : backMultiplier;
+            float rightMultiplier = _trackRightNipple.depthDiff < 0 ? forwardMultiplier : backMultiplier;
+
+            float effectZLeft = CalculateZEffect(_trackLeftNipple.depthDiff, leftMultiplier);
+            float effectZRight = CalculateZEffect(_trackRightNipple.depthDiff, rightMultiplier);
 
             float depthDiffCenter = (_trackLeftNipple.depthDiff + _trackRightNipple.depthDiff) / 2;
-            float effectZCenter = CalculateZEffect(depthDiffCenter, depthDiffCenter < 0 ? forwardMultiplier : backMultiplier);
+            float centerMultiplier = depthDiffCenter < 0 ? forwardMultiplier : backMultiplier;
+            float effectZCenter = CalculateZEffect(depthDiffCenter, centerMultiplier);
 
             // forward force on left breast
             if(_trackLeftNipple.depthDiff <= 0)
