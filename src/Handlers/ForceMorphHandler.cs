@@ -5,7 +5,7 @@ using static TittyMagic.Utils;
 
 namespace TittyMagic
 {
-    internal class RelativePosMorphHandler
+    internal class ForceMorphHandler
     {
         private readonly MVRScript _script;
         private readonly IConfigurator _configurator;
@@ -22,13 +22,13 @@ namespace TittyMagic
         private float _mass;
         private float _softness;
 
-        public RelativePosMorphHandler(MVRScript script, TrackNipple trackLeftNipple, TrackNipple trackRightNipple)
+        public ForceMorphHandler(MVRScript script, TrackNipple trackLeftNipple, TrackNipple trackRightNipple)
         {
             _script = script;
             _trackLeftNipple = trackLeftNipple;
             _trackRightNipple = trackRightNipple;
 #if USE_CONFIGURATOR
-            _configurator = (IConfigurator) FindPluginOnAtom(_script.containingAtom, nameof(RelativePosMorphConfigurator));
+            _configurator = (IConfigurator) FindPluginOnAtom(_script.containingAtom, nameof(ForceMorphConfigurator));
             _configurator.InitMainUI();
             _configurator.enableAdjustment.toggle.onValueChanged.AddListener(
                 val =>

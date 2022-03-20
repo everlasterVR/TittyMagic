@@ -39,7 +39,7 @@ namespace TittyMagic
         private StaticPhysicsHandler _staticPhysicsH;
         private GravityPhysicsHandler _gravityPhysicsHandler;
         private GravityMorphHandler _gravityMorphHandler;
-        private RelativePosMorphHandler _relativePosMorphHandler;
+        private ForceMorphHandler _forceMorphHandler;
         private NippleErectionMorphHandler _nippleErectionMorphH;
 
         private JSONStorableString _titleUIText;
@@ -161,7 +161,7 @@ namespace TittyMagic
                 _settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
                 _settingsMonitor.Init(containingAtom);
 
-                _relativePosMorphHandler = new RelativePosMorphHandler(this, _trackLeftNipple, _trackRightNipple);
+                _forceMorphHandler = new ForceMorphHandler(this, _trackLeftNipple, _trackRightNipple);
 
                 InitPluginUI();
                 SoftnessSliderListener();
@@ -343,9 +343,9 @@ namespace TittyMagic
             var xMultiplier = new Multiplier(xStorable);
             var zMultiplier = new Multiplier(zStorable);
 
-            _relativePosMorphHandler.yMultiplier = yMultiplier;
-            _relativePosMorphHandler.xMultiplier = xMultiplier;
-            _relativePosMorphHandler.zMultiplier = zMultiplier;
+            _forceMorphHandler.yMultiplier = yMultiplier;
+            _forceMorphHandler.xMultiplier = xMultiplier;
+            _forceMorphHandler.zMultiplier = zMultiplier;
 
             _gravityMorphHandler.yMultiplier = yMultiplier;
             _gravityMorphHandler.xMultiplier = xMultiplier;
@@ -412,7 +412,7 @@ namespace TittyMagic
             _staticPhysicsH.LoadSettings(this, mode);
             if(mode == Mode.ANIM_OPTIMIZED || mode == Mode.TOUCH_OPTIMIZED)
             {
-                _relativePosMorphHandler.LoadSettings(mode);
+                _forceMorphHandler.LoadSettings(mode);
             }
             else
             {
@@ -598,9 +598,9 @@ namespace TittyMagic
         {
             if(_isFemale && (_modeChooser.val == Mode.ANIM_OPTIMIZED || _modeChooser.val == Mode.TOUCH_OPTIMIZED))
             {
-                if(_relativePosMorphHandler.IsEnabled())
+                if(_forceMorphHandler.IsEnabled())
                 {
-                    _relativePosMorphHandler.Update(
+                    _forceMorphHandler.Update(
                         _massAmount,
                         0.75f * _softnessAmount
                     );
@@ -743,17 +743,17 @@ namespace TittyMagic
         private void SetMorphingMultipliers()
         {
             // updates GravityMorphHandler's multipliers as well since it is referencing the same Multiplier objects.
-            _relativePosMorphHandler.yMultiplier.extraMultiplier1 = -Mathf.Pow(1.67f * _massAmount, 0.53f) + 2.5f;
-            _relativePosMorphHandler.xMultiplier.extraMultiplier1 = -Mathf.Pow(_massAmount, 1.75f) + 2.67f;
-            _relativePosMorphHandler.zMultiplier.extraMultiplier1 = (1 / Mathf.Pow(1 / 2f * _massAmount, 1 / 3f)) - 0.51f;
-            _relativePosMorphHandler.zMultiplier.oppositeExtraMultiplier1 = 17 / (12 * Mathf.Pow(0.9f * (_massAmount + 0.02f), 1 / 4f));
+            _forceMorphHandler.yMultiplier.extraMultiplier1 = -Mathf.Pow(1.67f * _massAmount, 0.53f) + 2.5f;
+            _forceMorphHandler.xMultiplier.extraMultiplier1 = -Mathf.Pow(_massAmount, 1.75f) + 2.67f;
+            _forceMorphHandler.zMultiplier.extraMultiplier1 = (1 / Mathf.Pow(1 / 2f * _massAmount, 1 / 3f)) - 0.51f;
+            _forceMorphHandler.zMultiplier.oppositeExtraMultiplier1 = 17 / (12 * Mathf.Pow(0.9f * (_massAmount + 0.02f), 1 / 4f));
 
             if(_modeChooser.val == Mode.TOUCH_OPTIMIZED)
             {
-                _relativePosMorphHandler.yMultiplier.extraMultiplier2 = Mathf.Lerp(1.03f, 1.36f, _massAmount);
-                _relativePosMorphHandler.xMultiplier.extraMultiplier2 = Mathf.Lerp(1.03f, 1.36f, _massAmount);
-                _relativePosMorphHandler.zMultiplier.extraMultiplier2 = Mathf.Lerp(1.25f, 1.6f, _massAmount);
-                _relativePosMorphHandler.zMultiplier.oppositeExtraMultiplier2 = Mathf.Lerp(1.25f, 1.6f, _massAmount);
+                _forceMorphHandler.yMultiplier.extraMultiplier2 = Mathf.Lerp(1.03f, 1.36f, _massAmount);
+                _forceMorphHandler.xMultiplier.extraMultiplier2 = Mathf.Lerp(1.03f, 1.36f, _massAmount);
+                _forceMorphHandler.zMultiplier.extraMultiplier2 = Mathf.Lerp(1.25f, 1.6f, _massAmount);
+                _forceMorphHandler.zMultiplier.oppositeExtraMultiplier2 = Mathf.Lerp(1.25f, 1.6f, _massAmount);
             }
         }
 
@@ -1013,7 +1013,7 @@ namespace TittyMagic
                 _gravityPhysicsHandler?.ResetAll();
                 BREAST_CONTROL.invertJoint2RotationY = true;
                 _gravityMorphHandler?.ResetAll();
-                _relativePosMorphHandler?.ResetAll();
+                _forceMorphHandler?.ResetAll();
                 _nippleErectionMorphH?.ResetAll();
             }
             catch(Exception e)

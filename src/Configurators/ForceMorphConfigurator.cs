@@ -5,7 +5,7 @@ using static TittyMagic.Globals;
 
 namespace TittyMagic
 {
-    internal class RelativePosMorphConfigurator : MVRScript, IConfigurator
+    internal class ForceMorphConfigurator : MVRScript, IConfigurator
     {
         private readonly Dictionary<string, string> _titles = new Dictionary<string, string>
         {
