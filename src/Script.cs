@@ -169,7 +169,7 @@ namespace TittyMagic
 
                 if(!_loadingFromJson)
                 {
-                    _modeChooser.val = Mode.ANIM_OPTIMIZED; // selection causes BeginRefresh;
+                    _modeChooser.val = Mode.TOUCH_OPTIMIZED; // selection causes BeginRefresh;
                 }
             }
             catch(Exception e)
@@ -249,8 +249,8 @@ namespace TittyMagic
                 val => _recalibrateButton.button.interactable = !val
             );
 
-            this.NewSpacer(20f, true);
-            _modeInfoText = this.NewTextField("Usage Info Area 2", "", 28, 210, true);
+            this.NewSpacer(65f);
+            // _modeInfoText = this.NewTextField("Usage Info Area 2", "", 28, 210, true);
 
             if(_isFemale)
             {
@@ -285,14 +285,14 @@ namespace TittyMagic
             CreateGravityPhysicsMultipliers();
             CreateAdditionalSettings();
 
-            _modeInfoText.val = "Futa mode";
+            // _modeInfoText.val = "Futa mode";
         }
 
         private void CreateModeChooser()
         {
-            var title = this.NewTextField("modeSelection", "", 32, 100);
-            title.SetVal("<size=28>\n\n</size><b>Mode selection</b>");
-            title.dynamicText.backgroundColor = Color.clear;
+            // var title = this.NewTextField("modeSelection", "", 32, 100);
+            // title.SetVal("<size=28>\n\n</size><b>Mode selection</b>");
+            // title.dynamicText.backgroundColor = Color.clear;
 
             _modeChooser = new JSONStorableStringChooser(
                 "Mode",
@@ -306,13 +306,13 @@ namespace TittyMagic
                 "Mode",
                 mode =>
                 {
-                    UI.UpdateButtonLabels(_modeButtonGroup, mode);
+                    // UI.UpdateButtonLabels(_modeButtonGroup, mode);
                     StartCoroutine(WaitToBeginRefresh(true, () => OnModeChosen(mode)));
                 }
             );
             _modeChooser.storeType = JSONStorableParam.StoreType.Full;
             RegisterStringChooser(_modeChooser);
-            _modeButtonGroup = this.CreateRadioButtonGroup(_modeChooser);
+            // _modeButtonGroup = this.CreateRadioButtonGroup(_modeChooser);
         }
 
         private void CreateSoftnessSlider()
@@ -419,8 +419,8 @@ namespace TittyMagic
                 _gravityMorphHandler.LoadSettings(mode);
             }
 
-            UpdateModeInfoText(mode);
-            StartCoroutine(TempDisableModeButtons());
+            // UpdateModeInfoText(mode);
+            // StartCoroutine(TempDisableModeButtons());
         }
 
         private void UpdateModeInfoText(string mode)
