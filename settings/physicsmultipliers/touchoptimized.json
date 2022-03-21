@@ -4,8 +4,8 @@
          "Category": "main",
          "Type": "direct",
          "IsNegative": "true",
-         "Multiplier1": "-18",
-         "Multiplier2": "-9"
+         "Multiplier1": "-16",
+         "Multiplier2": "-12"
       }
    },
    "UP": {
@@ -13,8 +13,8 @@
          "Category": "main",
          "Type": "direct",
          "IsNegative": "false",
-         "Multiplier1": "12.4",
-         "Multiplier2": "6.2"
+         "Multiplier1": "10.7",
+         "Multiplier2": "8"
       }
    },
    "BACK": {
@@ -22,30 +22,30 @@
          "Category": "main",
          "Type": "additive",
          "IsNegative": "true",
-         "Multiplier1": "-0.08",
-         "Multiplier2": "-0.04",
+         "Multiplier1": "-0.071",
+         "Multiplier2": "-0.053",
          "MultiplyInvertedMass": "true"
       },
       "spring": {
          "Category": "main",
          "Type": "additive",
          "IsNegative": "true",
-         "Multiplier1": "-8",
-         "Multiplier2": "-4"
+         "Multiplier1": "-7.0",
+         "Multiplier2": "-5.3"
       },
       "damper": {
          "Category": "main",
          "Type": "additive",
          "IsNegative": "true",
-         "Multiplier1": "-0.2",
-         "Multiplier2": "-0.4"
+         "Multiplier1": "-0.27",
+         "Multiplier2": "-0.36"
       },
       "positionSpringZ": {
          "Category": "main",
          "Type": "additive",
          "IsNegative": "true",
-         "Multiplier1": "-440",
-         "Multiplier2": "-220"
+         "Multiplier1": "-385",
+         "Multiplier2": "-290"
       },
       "positionDamperZ": {
          "Category": "main",
@@ -61,30 +61,30 @@
          "Category": "main",
          "Type": "additive",
          "IsNegative": "false",
-         "Multiplier1": "0.16",
-         "Multiplier2": "0.08",
+         "Multiplier1": "0.141",
+         "Multiplier2": "0.106",
          "MultiplyInvertedMass": "true"
       },
       "spring": {
          "Category": "main",
          "Type": "additive",
          "IsNegative": "true",
-         "Multiplier1": "-16",
-         "Multiplier2": "-8"
+         "Multiplier1": "-14.1",
+         "Multiplier2": "-10.6"
       },
       "damper": {
          "Category": "main",
          "Type": "additive",
          "IsNegative": "true",
-         "Multiplier1": "-0.2",
-         "Multiplier2": "-0.4"
+         "Multiplier1": "-0.27",
+         "Multiplier2": "-0.36"
       },
       "positionSpringZ": {
          "Category": "main",
          "Type": "additive",
          "IsNegative": "true",
-         "Multiplier1": "-440",
-         "Multiplier2": "-220"
+         "Multiplier1": "-385",
+         "Multiplier2": "-290"
       }
    },
    "LEFT": {
@@ -92,8 +92,8 @@
          "Category": "main",
          "Type": "direct",
          "IsNegative": "false",
-         "Multiplier1": "18",
-         "Multiplier2": "9"
+         "Multiplier1": "16",
+         "Multiplier2": "12"
       }
    },
    "RIGHT": {
@@ -101,8 +101,8 @@
          "Category": "main",
          "Type": "direct",
          "IsNegative": "true",
-         "Multiplier1": "-18",
-         "Multiplier2": "-9"
+         "Multiplier1": "-16",
+         "Multiplier2": "-12"
       }
    }
 }

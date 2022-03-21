@@ -21,7 +21,6 @@ namespace TittyMagic
         private Dictionary<string, List<Config>> _configSets;
 
         private float _mass;
-        private float _softness;
 
         public ForceMorphHandler(MVRScript script, TrackNipple trackLeftNipple, TrackNipple trackRightNipple)
         {
@@ -116,12 +115,10 @@ namespace TittyMagic
         public void Update(
             float roll,
             float pitch,
-            float mass,
-            float softness
+            float mass
         )
         {
             _mass = mass;
-            _softness = softness;
 
             AdjustLeftRightMorphs(CalculateRollExtraMultiplier(roll, xMultiplier.extraMultiplier2));
             AdjustUpMorphs(CalculateUpDownExtraMultiplier(roll, pitch, yMultiplier.extraMultiplier2));
@@ -304,7 +301,7 @@ namespace TittyMagic
         private void UpdateValue(MorphConfig config, float effect)
         {
             float value =
-                (_softness * config.multiplier1 * effect / 2) +
+                (0.62f * config.multiplier1 * effect / 2) +
                 (_mass * config.multiplier2 * effect / 2);
 
             bool inRange = config.isNegative ? value < 0 : value > 0;

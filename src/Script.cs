@@ -466,19 +466,18 @@ namespace TittyMagic
             _softness.slider.onValueChanged.AddListener(
                 val =>
                 {
-                    float newAmount = Mathf.Pow(val / 100f, 0.5f);
+                    float newAmount = Mathf.Pow(val / 100f, 0.67f);
                     if(Math.Abs(newAmount - _softnessAmount) < 0.001f)
                     {
                         return;
                     }
 
                     _softnessAmount = newAmount;
-
                     RefreshFromSliderChanged();
                 }
             );
 
-            _softnessAmount = Mathf.Pow(_softness.val / 100f, 0.5f);
+            _softnessAmount = Mathf.Pow(_softness.val / 100f, 0.67f);
         }
 
         private void GravityPhysicsSliderListeners()
@@ -603,8 +602,7 @@ namespace TittyMagic
                     _forceMorphHandler.Update(
                         _chestRoll,
                         _chestPitch,
-                        _massAmount,
-                        0.75f * _softnessAmount
+                        _massAmount
                     );
                 }
             }
@@ -753,10 +751,10 @@ namespace TittyMagic
 
             if(_modeChooser.val == Mode.TOUCH_OPTIMIZED)
             {
-                _forceMorphHandler.yMultiplier.extraMultiplier2 = Mathf.Lerp(1.15f, 1.36f, _massAmount);
-                _forceMorphHandler.xMultiplier.extraMultiplier2 = Mathf.Lerp(1.15f, 1.36f, _massAmount);
-                _forceMorphHandler.zMultiplier.extraMultiplier2 = Mathf.Lerp(1.25f, 1.6f, _massAmount);
-                _forceMorphHandler.zMultiplier.oppositeExtraMultiplier2 = Mathf.Lerp(1.25f, 1.6f, _massAmount);
+                _forceMorphHandler.yMultiplier.extraMultiplier2 = Mathf.Lerp(1.17f, 1.20f, _massAmount);
+                _forceMorphHandler.xMultiplier.extraMultiplier2 = Mathf.Lerp(1.17f, 1.23f, _massAmount);
+                _forceMorphHandler.zMultiplier.extraMultiplier2 = Mathf.Lerp(1.25f, 1.40f, _massAmount);
+                _forceMorphHandler.zMultiplier.oppositeExtraMultiplier2 = Mathf.Lerp(1.25f, 1.40f, _massAmount);
             }
             else
             {
