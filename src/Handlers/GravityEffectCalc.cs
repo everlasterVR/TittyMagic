@@ -86,35 +86,5 @@ namespace TittyMagic
         {
             return 1 - Mathf.Abs(roll);
         }
-
-        public static float CalculateRollExtraMultiplier(float roll, float? extraMultiplier)
-        {
-            if(extraMultiplier.HasValue)
-            {
-                return 1 + ((extraMultiplier.Value - 1) * Mathf.Abs(roll));
-            }
-
-            return 1;
-        }
-
-        public static float CalculateDepthExtraMultiplier(float pitch, float roll, float? extraMultiplier)
-        {
-            if(extraMultiplier.HasValue)
-            {
-                return 1 + ((extraMultiplier.Value - 1) * DepthAdjustByAngle(pitch) * RollMultiplier(roll));
-            }
-
-            return 1;
-        }
-
-        public static float CalculateUpDownExtraMultiplier(float pitch, float roll, float? extraMultiplier)
-        {
-            if(extraMultiplier.HasValue)
-            {
-                return 1 + ((extraMultiplier.Value - 1) * UpDownAdjustByAngle(pitch) * RollMultiplier(roll));
-            }
-
-            return 1;
-        }
     }
 }

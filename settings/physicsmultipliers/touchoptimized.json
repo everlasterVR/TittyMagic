@@ -44,8 +44,8 @@
          "Category": "main",
          "Type": "additive",
          "IsNegative": "true",
-         "Multiplier1": "-385",
-         "Multiplier2": "-290"
+         "Multiplier1": "-180",
+         "Multiplier2": "-140"
       },
       "positionDamperZ": {
          "Category": "main",
@@ -69,8 +69,8 @@
          "Category": "main",
          "Type": "additive",
          "IsNegative": "true",
-         "Multiplier1": "-14.1",
-         "Multiplier2": "-10.6"
+         "Multiplier1": "-7.0",
+         "Multiplier2": "-5.3"
       },
       "damper": {
          "Category": "main",
@@ -83,8 +83,8 @@
          "Category": "main",
          "Type": "additive",
          "IsNegative": "true",
-         "Multiplier1": "-385",
-         "Multiplier2": "-290"
+         "Multiplier1": "-180",
+         "Multiplier2": "-140"
       }
    },
    "LEFT": {
