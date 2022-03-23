@@ -12,7 +12,7 @@ namespace TittyMagic
 {
     internal class Script : MVRScript
     {
-        public static readonly Version VERSION = new Version("0.0.0");
+        public const string VERSION = "0.0.0";
 
         private Bindings _customBindings;
 
@@ -350,8 +350,7 @@ namespace TittyMagic
             this.NewSpacer(100f, true);
             var gravityInfoText = this.NewTextField("GravityInfoText", "", 28, 390, true);
             gravityInfoText.val = UI.Size("\n", 12) +
-                "Adjusts the amount of breast morphing due to forces (or chest angle in Balanced mode). " +
-                "Values much higher than 1.00 generally don't work well, but it might depend on breast shape.";
+                "Adjust the amount of breast morphing due to forces including gravity. Breasts morph up, left/right and forward/back.";
         }
 
         private void CreateGravityPhysicsMultipliers()
@@ -379,8 +378,9 @@ namespace TittyMagic
             this.NewSpacer(100f, true);
             var morphingInfoText = this.NewTextField("MorphingInfoText", "", 28, 390, true);
             morphingInfoText.val = UI.Size("\n", 12) +
-                "Adjusts breast physics target angles and center of gravity based on chest angle. " +
-                "Higher value means breasts drop more heavily up/down and left/right, and are more swingy when leaning forward/back.";
+                "Adjust the effect of chest angle on breast main physics settings. \n\n" +
+                "Higher values mean breasts drop more heavily up/down and left/right, " +
+                "are more swingy when leaning forward, and less springy when leaning back.";
         }
 
         private void CreateAdditionalSettings()
