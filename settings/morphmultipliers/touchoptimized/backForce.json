@@ -56,13 +56,13 @@
    }, 
    "BK Breasts Flatten" : { 
       "IsNegative" : "false", 
-      "Multiplier1" : "3", 
-      "Multiplier2" : "1.2"
+      "Multiplier1" : "3.3", 
+      "Multiplier2" : "1.5"
    }, 
    "BK Breasts Hang Forward" : { 
       "IsNegative" : "true", 
-      "Multiplier1" : "-0.1", 
-      "Multiplier2" : "-0.2"
+      "Multiplier1" : "-0.2", 
+      "Multiplier2" : "-0.4"
    }, 
    "BK Breasts Implants" : { 
       "IsNegative" : "true", 
@@ -75,9 +75,9 @@
       "Multiplier2" : "0.2"
    }, 
    "BK Breasts TogetherApart" : { 
-      "IsNegative" : "true", 
-      "Multiplier1" : "-0.4", 
-      "Multiplier2" : "-0.8"
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.4", 
+      "Multiplier2" : "0.8"
    }, 
    "BK Depth Squash" : {
       "IsNegative" : "false", 

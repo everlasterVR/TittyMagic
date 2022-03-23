@@ -11,19 +11,18 @@ namespace TittyMagic
     {
         private Script _script;
 
-        public Dictionary<string, string> Settings { get; set; }
-
-        public List<object> OnKeyDownActions { get; set; }
-        public JSONStorableAction OpenUIAction { get; set; }
+        public Dictionary<string, string> settings { get; set; }
+        public List<object> onKeyDownActions { get; set; }
+        public JSONStorableAction openUIAction { get; set; }
 
         public void Init(Script script)
         {
             _script = script;
-            Settings = new Dictionary<string, string>
+            settings = new Dictionary<string, string>
             {
-                { "Namespace", nameof(TittyMagic) }
+                { "Namespace", nameof(TittyMagic) },
             };
-            OnKeyDownActions = new List<object>()
+            onKeyDownActions = new List<object>
             {
                 OpenUI(),
             };
@@ -31,18 +30,18 @@ namespace TittyMagic
 
         private object OpenUI()
         {
-            OpenUIAction = new JSONStorableAction(nameof(OpenUI), () => ShowUI(() => StartCoroutine(SelectPluginUICo())));
-            return OpenUIAction;
+            openUIAction = new JSONStorableAction(nameof(OpenUI), () => ShowUI(() => StartCoroutine(SelectPluginUICo())));
+            return openUIAction;
         }
 
         private void ShowUI(Action callback = null)
         {
-            SuperController.singleton.SelectController(_script.containingAtom.freeControllers.First(), false, false, true);
+            SuperController.singleton.SelectController(_script.containingAtom.freeControllers.First(), false, false);
             SuperController.singleton.ShowMainHUDMonitor();
             callback?.Invoke();
         }
 
-        //adapted from Timeline v4.3.1 (c) acidbubbles
+        // adapted from Timeline v4.3.1 (c) acidbubbles
         private IEnumerator SelectPluginUICo()
         {
             if(SuperController.singleton.gameMode != SuperController.GameMode.Edit)
@@ -65,13 +64,14 @@ namespace TittyMagic
                 selector.SetActiveTab("Plugins");
                 if(_script.UITransform == null)
                 {
-                    LogError($"No UI", nameof(Bindings));
+                    LogError("No UI", nameof(Bindings));
                 }
 
                 if(_script.enabled)
                 {
                     _script.UITransform.gameObject.SetActive(true);
                 }
+
                 yield break;
             }
         }

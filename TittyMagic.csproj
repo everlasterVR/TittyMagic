@@ -85,6 +85,8 @@
     <Compile Include="src\AtomScaleListener.cs" />
     <Compile Include="src\BreastMassCalculator.cs" />
     <Compile Include="src\BreastMorphListener.cs" />
+    <Compile Include="src\Handlers\GravityEffectCalc.cs" />
+    <Compile Include="src\Handlers\Multiplier.cs" />
     <Compile Include="src\TrackNipple.cs" />
     <Compile Include="src\Components\Bindings.cs" />
     <Compile Include="src\Components\SettingsMonitor.cs" />
@@ -94,12 +96,11 @@
     <Compile Include="src\Configurators\GravityMorphConfigurator.cs" />
     <Compile Include="src\Configurators\GravityPhysicsConfigurator.cs" />
     <Compile Include="src\Configurators\IConfigurator.cs" />
-    <Compile Include="src\Configurators\PhysicsConfig.cs" />
-    <Compile Include="src\Configurators\RelativePosMorphConfigurator.cs" />
+    <Compile Include="src\Configurators\ForceMorphConfigurator.cs" />
     <Compile Include="src\Handlers\GravityMorphHandler.cs" />
     <Compile Include="src\Handlers\GravityPhysicsHandler.cs" />
     <Compile Include="src\Handlers\NippleErectionMorphHandler.cs" />
-    <Compile Include="src\Handlers\RelativePosMorphHandler.cs" />
+    <Compile Include="src\Handlers\ForceMorphHandler.cs" />
     <Compile Include="src\Handlers\StaticPhysicsHandler.cs" />
     <Compile Include="src\Persistence.cs" />
     <Compile Include="src\Script.cs" />
@@ -107,11 +108,21 @@
     <Compile Include="src\Variables.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="settings\gravityphysics\touchoptimized.json" />
-    <None Include="settings\gravityphysics\balanced.json" />
-    <None Include="settings\gravityphysics\animoptimized.json" />
+    <None Include="settings\morphmultipliers\touchoptimized\backForce.json" />
+    <None Include="settings\morphmultipliers\touchoptimized\backForceCenter.json" />
+    <None Include="settings\morphmultipliers\touchoptimized\forwardForce.json" />
+    <None Include="settings\morphmultipliers\touchoptimized\forwardForceCenter.json" />
+    <None Include="settings\morphmultipliers\touchoptimized\leftForceL.json" />
+    <None Include="settings\morphmultipliers\touchoptimized\leftForceR.json" />
+    <None Include="settings\morphmultipliers\touchoptimized\rightForceL.json" />
+    <None Include="settings\morphmultipliers\touchoptimized\rightForceR.json" />
+    <None Include="settings\morphmultipliers\touchoptimized\upForce.json" />
+    <None Include="settings\morphmultipliers\touchoptimized\upForceCenter.json" />
+    <None Include="settings\physicsmultipliers\pectoral.json" />
+    <None Include="settings\physicsmultipliers\touchoptimized.json" />
+    <None Include="settings\physicsmultipliers\balanced.json" />
+    <None Include="settings\physicsmultipliers\animoptimized.json" />
     <None Include="settings\morphmultipliers\animoptimized\backForceCenter.json" />
-    <None Include="settings\morphmultipliers\animoptimized\downForce.json" />
     <None Include="settings\morphmultipliers\animoptimized\backForce.json" />
     <None Include="settings\morphmultipliers\animoptimized\forwardForceCenter.json" />
     <None Include="settings\morphmultipliers\animoptimized\forwardForce.json" />
@@ -130,21 +141,13 @@
     <None Include="settings\morphmultipliers\balanced\upright.json" />
     <None Include="settings\morphmultipliers\balanced\upsideDownCenter.json" />
     <None Include="settings\morphmultipliers\nippleErection.json" />
-    <None Include="settings\morphmultipliers\touchoptimized\leanBackCenter.json" />
-    <None Include="settings\morphmultipliers\touchoptimized\leanForwardCenter.json" />
-    <None Include="settings\morphmultipliers\touchoptimized\leanBack.json" />
-    <None Include="settings\morphmultipliers\touchoptimized\leanForward.json" />
-    <None Include="settings\morphmultipliers\touchoptimized\rollRight.json" />
-    <None Include="settings\morphmultipliers\touchoptimized\rollLeft.json" />
-    <None Include="settings\morphmultipliers\touchoptimized\upright.json" />
-    <None Include="settings\morphmultipliers\touchoptimized\upsideDown.json" />
-    <None Include="settings\morphmultipliers\touchoptimized\upsideDownCenter.json" />
     <None Include="settings\staticphysics\animoptimized\mainPhysics.json" />
     <None Include="settings\staticphysics\animoptimized\nipplePhysics.json" />
     <None Include="settings\staticphysics\animoptimized\softPhysics.json" />
     <None Include="settings\staticphysics\balanced\mainPhysics.json" />
     <None Include="settings\staticphysics\balanced\nipplePhysics.json" />
     <None Include="settings\staticphysics\balanced\softPhysics.json" />
+    <None Include="settings\staticphysics\pectoralPhysics.json" />
     <None Include="settings\staticphysics\touchoptimized\mainPhysics.json" />
     <None Include="settings\staticphysics\touchoptimized\nipplePhysics.json" />
     <None Include="settings\staticphysics\touchoptimized\softPhysics.json" />
@@ -154,6 +157,5 @@
     <None Include="meta.json" />
     <None Include="README.md" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

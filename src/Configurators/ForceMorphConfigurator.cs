@@ -1,23 +1,27 @@
-﻿using SimpleJSON;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using SimpleJSON;
 using static TittyMagic.Globals;
 
 namespace TittyMagic
 {
-    internal class GravityMorphConfigurator : MVRScript, IConfigurator
+    internal class ForceMorphConfigurator : MVRScript, IConfigurator
     {
         private readonly Dictionary<string, string> _titles = new Dictionary<string, string>
         {
-            { Direction.DOWN, "Upright morphs" },
-            { Direction.UP, "Upside down morphs" },
-            { Direction.UP_C, "Upside down center morphs" },
-            { Direction.BACK, "Lean back morphs" },
-            { Direction.BACK_C, "Lean back center morphs" },
-            { Direction.FORWARD, "Lean forward morphs" },
-            { Direction.FORWARD_C, "Lean forward center morphs" },
-            { Direction.LEFT, "Roll left morphs" },
-            { Direction.RIGHT, "Roll right morphs" },
+            { Direction.UP_L, "Up force morphs L" },
+            { Direction.UP_R, "Up force morphs R" },
+            { Direction.UP_C, "Up force morphs center" },
+            { Direction.BACK_L, "Back force morphs L" },
+            { Direction.BACK_R, "Back force morphs R" },
+            { Direction.BACK_C, "Back force morphs center" },
+            { Direction.FORWARD_L, "Forward force morphs L" },
+            { Direction.FORWARD_R, "Forward force morphs R" },
+            { Direction.FORWARD_C, "Forward force morphs center" },
+            { Direction.LEFT_L, "Left force morphs L" },
+            { Direction.LEFT_R, "Left force morphs R" },
+            { Direction.RIGHT_L, "Right force morphs L" },
+            { Direction.RIGHT_R, "Right force morphs R" },
         };
 
         private string _lastBrowseDir;
@@ -91,19 +95,21 @@ namespace TittyMagic
         {
             _uiSectionGroups = new Dictionary<string, Dictionary<string, ConfiguratorUISection>>
             {
-                { Direction.DOWN, new Dictionary<string, ConfiguratorUISection>() },
-                { Direction.UP, new Dictionary<string, ConfiguratorUISection>() },
+                { Direction.UP_L, new Dictionary<string, ConfiguratorUISection>() },
+                { Direction.UP_R, new Dictionary<string, ConfiguratorUISection>() },
                 { Direction.UP_C, new Dictionary<string, ConfiguratorUISection>() },
-                { Direction.BACK, new Dictionary<string, ConfiguratorUISection>() },
-                { Direction.FORWARD, new Dictionary<string, ConfiguratorUISection>() },
-                { Direction.LEFT, new Dictionary<string, ConfiguratorUISection>() },
-                { Direction.RIGHT, new Dictionary<string, ConfiguratorUISection>() },
+                // { Direction.BACK, new Dictionary<string, ConfiguratorUISection>() },
+                // { Direction.FORWARD, new Dictionary<string, ConfiguratorUISection>() },
+                { Direction.LEFT_L, new Dictionary<string, ConfiguratorUISection>() },
+                { Direction.LEFT_R, new Dictionary<string, ConfiguratorUISection>() },
+                { Direction.RIGHT_L, new Dictionary<string, ConfiguratorUISection>() },
+                { Direction.RIGHT_R, new Dictionary<string, ConfiguratorUISection>() },
             };
         }
 
         public void InitUISectionGroup(string key, List<Config> configs)
         {
-            this.NewTextField(_titles[key], _titles[key], 40, 115);
+            this.NewTextField(_titles[key], $"{_titles[key]}", 40, 115);
             var saveButton = CreateButton("Save JSON", true);
             var loadButton = CreateButton("Load JSON", true);
 

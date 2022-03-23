@@ -4,13 +4,14 @@ namespace TittyMagic
 {
     internal interface IConfigurator
     {
-        JSONStorableBool EnableAdjustment { get; }
-        JSONStorableString DebugInfo { get; }
+        JSONStorableBool enableAdjustment { get; }
+        JSONStorableString debugInfo { get; }
 
         void InitMainUI();
 
         void ResetUISectionGroups();
 
+        // ReSharper disable once UnusedMemberInSuper.Global
         void InitUISectionGroup(string key, List<Config> configs);
 
         void AddButtonListeners();

@@ -1,0 +1,47 @@
+{ 
+   "LT Breasts Shift S2S Left L" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "2", 
+      "Multiplier2" : "-0.5"
+   }, 
+   "LT Breasts Hang Forward L" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-1", 
+      "Multiplier2" : "0.3"
+   }, 
+   "LT Breast Width L" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.2", 
+      "Multiplier2" : "-0.45"
+   }, 
+   "LT Breast Rotate X Out L" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.6", 
+      "Multiplier2" : "0.3"
+   }, 
+   "LT Breast Rotate X In L" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.3", 
+      "Multiplier2" : "0.15"
+   }, 
+   "LT Breast Move S2S Out L" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.2", 
+      "Multiplier2" : "-0.1"
+   }, 
+   "LT Breast Diameter L" : { 
+      "IsNegative" : "true", 
+      "Multiplier1" : "-0.2", 
+      "Multiplier2" : "-0.2"
+   }, 
+   "LT Breast Under Smoother2 L" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.1", 
+      "Multiplier2" : "0.4"
+   }, 
+   "LT Breast Under Smoother3 L" : { 
+      "IsNegative" : "false", 
+      "Multiplier1" : "0.4", 
+      "Multiplier2" : "0.4"
+   }
+}

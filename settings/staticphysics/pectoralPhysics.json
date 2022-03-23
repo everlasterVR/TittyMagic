@@ -1,0 +1,22 @@
+{
+   "centerOfGravityPercent": {
+      "minM": "0.160",
+      "maxM": "0.430"
+   },
+   "spring": {
+      "minM": "55",
+      "maxM": "35"
+   },
+   "damper": {
+      "minM": "0.3",
+      "maxM": "0.8"
+   },
+   "positionSpringZ": {
+      "minM": "170",
+      "maxM": "120"
+   },
+   "positionDamperZ": {
+      "minM": "25",
+      "maxM": "48"
+   }
+}

@@ -1,60 +1,58 @@
-﻿using System;
-using SimpleJSON;
+﻿// #define USE_CONFIGURATOR
 using System.Collections.Generic;
-using UnityEngine;
+using static TittyMagic.Utils;
+using static TittyMagic.GravityEffectCalc;
 
 namespace TittyMagic
 {
     internal class GravityPhysicsHandler
     {
-        private MVRScript _script;
-        private IConfigurator _configurator;
-
-        private bool _useConfigurator;
+        private readonly MVRScript _script;
+        private readonly IConfigurator _configurator;
 
         private float _mass;
         private float _amount;
+
+        public Multiplier xMultiplier { get; set; }
+        public Multiplier yMultiplier { get; set; }
+        public Multiplier zMultiplier { get; set; }
 
         private Dictionary<string, List<Config>> _configSets;
 
         public GravityPhysicsHandler(MVRScript script)
         {
-            SetInvertJoint2RotationY(false);
+            Globals.BREAST_CONTROL.invertJoint2RotationY = false;
 
             _script = script;
-            try
-            {
-                _configurator = (IConfigurator) _script;
-                _configurator.InitMainUI();
-                _configurator.EnableAdjustment.toggle.onValueChanged.AddListener((bool val) =>
+#if USE_CONFIGURATOR
+            _configurator = (IConfigurator) FindPluginOnAtom(_script.containingAtom, nameof(GravityPhysicsConfigurator));
+            _configurator.InitMainUI();
+            _configurator.enableAdjustment.toggle.onValueChanged.AddListener(
+                val =>
                 {
                     if(!val)
                     {
                         ResetAll();
                     }
-                });
-                _useConfigurator = true;
-            }
-            catch(Exception)
-            {
-                _useConfigurator = false;
-            }
+                }
+            );
+#endif
         }
 
         public void LoadSettings(string mode)
         {
             _configSets = LoadSettingsFromFile(mode);
 
-            //not working properly yet when changing mode on the fly
-            if(_useConfigurator)
+            // not working properly yet when changing mode on the fly
+            if(_configurator != null)
             {
                 _configurator.ResetUISectionGroups();
-                //_configurator.InitUISectionGroup(Direction.DOWN, _configSets[Direction.DOWN]);
-                //_configurator.InitUISectionGroup(Direction.UP, _configSets[Direction.UP]);
-                //_configurator.InitUISectionGroup(Direction.BACK, _configSets[Direction.BACK]);
-                //_configurator.InitUISectionGroup(Direction.FORWARD, _configSets[Direction.FORWARD]);
-                //_configurator.InitUISectionGroup(Direction.LEFT, _configSets[Direction.LEFT]);
-                //_configurator.InitUISectionGroup(Direction.RIGHT, _configSets[Direction.RIGHT]);
+                // _configurator.InitUISectionGroup(Direction.DOWN, _configSets[Direction.DOWN]);
+                // _configurator.InitUISectionGroup(Direction.UP, _configSets[Direction.UP]);
+                // _configurator.InitUISectionGroup(Direction.BACK, _configSets[Direction.BACK]);
+                // _configurator.InitUISectionGroup(Direction.FORWARD, _configSets[Direction.FORWARD]);
+                // _configurator.InitUISectionGroup(Direction.LEFT, _configSets[Direction.LEFT]);
+                // _configurator.InitUISectionGroup(Direction.RIGHT, _configSets[Direction.RIGHT]);
                 _configurator.AddButtonListeners();
             }
         }
@@ -62,25 +60,34 @@ namespace TittyMagic
         private Dictionary<string, List<Config>> LoadSettingsFromFile(string mode)
         {
             var configSets = new Dictionary<string, List<Config>>();
-            Persistence.LoadModeGravityPhysicsSettings(_script, mode, (dir, json) =>
-            {
-                foreach(string direction in json.Keys)
+            Persistence.LoadModePhysicsSettings(
+                _script,
+                mode,
+                (dir, json) =>
                 {
-                    var configs = new List<Config>();
-                    JSONClass groupJson = json[direction].AsObject;
-                    foreach(string name in groupJson.Keys)
+                    foreach(string direction in json.Keys)
                     {
-                        configs.Add(new GravityPhysicsConfig(
-                            name,
-                            groupJson[name]["Type"],
-                            groupJson[name]["IsNegative"].AsBool,
-                            groupJson[name]["Multiplier1"].AsFloat,
-                            groupJson[name]["Multiplier2"].AsFloat
-                        ));
+                        var configs = new List<Config>();
+                        var groupJson = json[direction].AsObject;
+                        foreach(string name in groupJson.Keys)
+                        {
+                            configs.Add(
+                                new PhysicsConfig(
+                                    name,
+                                    groupJson[name]["Category"],
+                                    groupJson[name]["Type"],
+                                    groupJson[name]["IsNegative"].AsBool,
+                                    groupJson[name]["Multiplier1"].AsFloat,
+                                    groupJson[name]["Multiplier2"].AsFloat,
+                                    groupJson[name]["MultiplyInvertedMass"].AsBool
+                                )
+                            );
+                        }
+
+                        configSets[direction] = configs;
                     }
-                    configSets[direction] = configs;
                 }
-            });
+            );
             return configSets;
         }
 
@@ -88,11 +95,12 @@ namespace TittyMagic
         {
             foreach(var kvp in _configSets)
             {
-                foreach(GravityPhysicsConfig config in kvp.Value)
+                foreach(var config in kvp.Value)
                 {
-                    if(config.Type == "additive")
+                    var gravityPhysicsConfig = (PhysicsConfig) config;
+                    if(gravityPhysicsConfig.type == "additive")
                     {
-                        config.BaseValue = config.Setting.val;
+                        gravityPhysicsConfig.baseValue = gravityPhysicsConfig.setting.val;
                     }
                 }
             }
@@ -100,11 +108,7 @@ namespace TittyMagic
 
         public bool IsEnabled()
         {
-            if(!_useConfigurator)
-            {
-                return true;
-            }
-            return _configurator.EnableAdjustment.val;
+            return _configurator == null || _configurator.enableAdjustment.val;
         }
 
         public void Update(
@@ -121,27 +125,67 @@ namespace TittyMagic
             float smoothPitch = 2 * Calc.SmoothStep(pitch);
 
             AdjustRollPhysics(smoothRoll);
-            AdjustPitchPhysics(smoothPitch, smoothRoll);
+            AdjustUpDownPhysics(smoothPitch, smoothRoll);
+            AdjustDepthPhysics(smoothPitch, smoothRoll);
         }
 
         private void AdjustRollPhysics(float roll)
         {
+            float effect = CalculateRollEffect(roll, xMultiplier);
             // left
             if(roll >= 0)
             {
                 ResetPhysics(Direction.RIGHT);
-                UpdateRollPhysics(Direction.LEFT, roll);
+                UpdatePhysics(Direction.LEFT, effect);
             }
             // right
             else
             {
                 ResetPhysics(Direction.LEFT);
-                UpdateRollPhysics(Direction.RIGHT, -roll);
+                UpdatePhysics(Direction.RIGHT, effect);
             }
         }
 
-        private void AdjustPitchPhysics(float pitch, float roll)
+        private void AdjustUpDownPhysics(float pitch, float roll)
         {
+            float effect = CalculateUpDownEffect(pitch, roll, yMultiplier);
+            // leaning forward
+            if(pitch >= 0)
+            {
+                // upright
+                if(pitch < 1)
+                {
+                    ResetPhysics(Direction.UP);
+                    UpdatePhysics(Direction.DOWN, effect);
+                }
+                // upside down
+                else
+                {
+                    ResetPhysics(Direction.DOWN);
+                    UpdatePhysics(Direction.UP, effect);
+                }
+            }
+            // leaning back
+            else
+            {
+                // upright
+                if(pitch >= -1)
+                {
+                    ResetPhysics(Direction.UP);
+                    UpdatePhysics(Direction.DOWN, effect);
+                }
+                // upside down
+                else
+                {
+                    ResetPhysics(Direction.DOWN);
+                    UpdatePhysics(Direction.UP, effect);
+                }
+            }
+        }
+
+        private void AdjustDepthPhysics(float pitch, float roll)
+        {
+            float effect = CalculateDepthEffect(pitch, roll, zMultiplier);
             // leaning forward
             if(pitch >= 0)
             {
@@ -149,16 +193,12 @@ namespace TittyMagic
                 // upright
                 if(pitch < 1)
                 {
-                    ResetPhysics(Direction.UP);
-                    UpdatePitchPhysics(Direction.DOWN, 1 - pitch, roll);
-                    UpdatePitchPhysics(Direction.FORWARD, pitch, roll);
+                    UpdatePhysics(Direction.FORWARD, effect);
                 }
                 // upside down
                 else
                 {
-                    ResetPhysics(Direction.DOWN);
-                    UpdatePitchPhysics(Direction.UP, pitch - 1, roll);
-                    UpdatePitchPhysics(Direction.FORWARD, 2 - pitch, roll);
+                    UpdatePhysics(Direction.FORWARD, effect);
                 }
             }
             // leaning back
@@ -168,106 +208,71 @@ namespace TittyMagic
                 // upright
                 if(pitch >= -1)
                 {
-                    ResetPhysics(Direction.UP);
-                    UpdatePitchPhysics(Direction.DOWN, 1 + pitch, roll);
-                    UpdatePitchPhysics(Direction.BACK, -pitch, roll);
+                    UpdatePhysics(Direction.BACK, effect);
                 }
                 // upside down
                 else
                 {
-                    ResetPhysics(Direction.DOWN);
-                    UpdatePitchPhysics(Direction.UP, -pitch - 1, roll);
-                    UpdatePitchPhysics(Direction.BACK, 2 + pitch, roll);
+                    UpdatePhysics(Direction.BACK, effect);
                 }
             }
         }
 
-        private void UpdateRollPhysics(string configSetName, float effect)
+        private void UpdatePhysics(string configSetName, float effect)
         {
-            foreach(GravityPhysicsConfig config in _configSets[configSetName])
+            foreach(var config in _configSets[configSetName])
             {
-                UpdateValue(config, effect);
-                if(_useConfigurator)
+                var gravityPhysicsConfig = (PhysicsConfig) config;
+                UpdateValue(gravityPhysicsConfig, effect);
+                if(_configurator != null)
                 {
-                    _configurator.UpdateValueSlider(configSetName, config.Name, config.Setting.val);
+                    _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.name, gravityPhysicsConfig.setting.val);
                 }
             }
         }
 
-        private void UpdatePitchPhysics(string configSetName, float effect, float roll)
+        private void UpdateValue(PhysicsConfig config, float effect)
         {
-            float adjusted = effect * (1 - Mathf.Abs(roll));
-            foreach(GravityPhysicsConfig config in _configSets[configSetName])
+            float value = CalculateValue(config, effect);
+            bool inRange = config.isNegative ? value < 0 : value > 0;
+
+            if(config.type == "direct")
             {
-                UpdateValue(config, adjusted);
-                if(_useConfigurator)
-                {
-                    _configurator.UpdateValueSlider(configSetName, config.Name, config.Setting.val);
-                }
+                config.setting.val = inRange ? value : 0;
+            }
+            else if(config.type == "additive")
+            {
+                config.setting.val = inRange ? config.baseValue + value : config.baseValue;
             }
         }
 
-        private void UpdateValue(GravityPhysicsConfig config, float effect)
+        private float CalculateValue(Config config, float effect)
         {
-            float value =
-                _amount * config.Multiplier1 * effect / 2 +
-                _mass * config.Multiplier2 * effect / 2;
-
-            bool inRange = config.IsNegative ? value < 0 : value > 0;
-
-            if(config.Type == "direct")
+            if(config.multiplyInvertedMass)
             {
-                config.Setting.val = inRange ? value : 0;
+                return (_amount * config.multiplier1 * effect) +
+                    ((1 - _mass) * config.multiplier2 * effect);
             }
-            else if(config.Type == "additive")
-            {
-                config.Setting.val = inRange ? config.BaseValue + value : config.BaseValue;
-            }
-        }
 
-        public void ZeroAll()
-        {
-            _configSets?.Keys.ToList().ForEach(key => ZeroPhysics(key));
+            return (_amount * config.multiplier1 * effect) +
+                (_mass * config.multiplier2 * effect);
         }
 
         public void ResetAll()
         {
-            _configSets?.Keys.ToList().ForEach(key => ResetPhysics(key));
-        }
-
-        public void SetInvertJoint2RotationY(bool value)
-        {
-            // false: Right/left angle target moves both breasts in the same direction
-            Globals.BREAST_CONTROL.invertJoint2RotationY = value;
-        }
-
-        private void ZeroPhysics(string configSetName)
-        {
-            foreach(GravityPhysicsConfig config in _configSets[configSetName])
-            {
-                if(config.Type == "additive")
-                {
-                    return;
-                }
-
-                float newValue = 0f;
-                config.Setting.val = newValue;
-                if(_useConfigurator)
-                {
-                    _configurator.UpdateValueSlider(configSetName, config.Name, newValue);
-                }
-            }
+            _configSets?.Keys.ToList().ForEach(ResetPhysics);
         }
 
         private void ResetPhysics(string configSetName)
         {
-            foreach(GravityPhysicsConfig config in _configSets[configSetName])
+            foreach(var config in _configSets[configSetName])
             {
-                float newValue = config.Type == "additive" ? config.BaseValue : config.OriginalValue;
-                config.Setting.val = newValue;
-                if(_useConfigurator)
+                var gravityPhysicsConfig = (PhysicsConfig) config;
+                float newValue = gravityPhysicsConfig.type == "additive" ? gravityPhysicsConfig.baseValue : gravityPhysicsConfig.originalValue;
+                gravityPhysicsConfig.setting.val = newValue;
+                if(_configurator != null)
                 {
-                    _configurator.UpdateValueSlider(configSetName, config.Name, newValue);
+                    _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.name, newValue);
                 }
             }
         }

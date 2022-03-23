@@ -4,46 +4,40 @@ using UnityEngine;
 
 namespace TittyMagic
 {
-    public class BreastMassCalculator
+    internal class BreastMassCalculator
     {
-        private List<DAZPhysicsMeshSoftVerticesSet> _rightBreastMainGroupSets;
-        private Rigidbody _chestRb;
-        private float _softVolume; // cm^3; spheroid volume estimation of right breast
+        private readonly DAZSkinV2 _skin;
 
-        public BreastMassCalculator(Rigidbody chestRb)
+        public BreastMassCalculator(DAZSkinV2 skin)
         {
-            _chestRb = chestRb;
-            _rightBreastMainGroupSets = Globals.BREAST_PHYSICS_MESH.softVerticesGroups
-                .Find(it => it.name == "right")
-                .softVerticesSets;
+            _skin = skin;
         }
 
         public float Calculate(float atomScale)
         {
-            _softVolume = EstimateVolume(BoundsSize(), atomScale);
-            return VolumeToMass(_softVolume);
+            var boundsLeft = BoundsSize(GetPositions(VertexIndexGroups.LEFT_BREAST));
+            var boundsRight = BoundsSize(GetPositions(VertexIndexGroups.RIGHT_BREAST));
+            float leftVolume = EstimateVolume(boundsLeft, atomScale);
+            float rightVolume = EstimateVolume(boundsRight, atomScale);
+            return VolumeToMass((leftVolume + rightVolume) / 2);
         }
 
-        public string GetStatus(float atomScale)
+        private List<Vector3> GetPositions(IEnumerable<int> vertexIndices)
         {
-            float currentSoftVolume = EstimateVolume(BoundsSize(), atomScale);
-            return $"volume: {_softVolume}\ncurrent volume: {currentSoftVolume}";
+            return vertexIndices.Select(i => _skin.rawSkinnedVerts[i]).ToList();
         }
 
-        private Vector3 BoundsSize()
+        private static Vector3 BoundsSize(List<Vector3> vertices)
         {
-            Vector3[] vertices = _rightBreastMainGroupSets
-                .Select(it => Calc.RelativePosition(_chestRb, it.jointRB.position))
-                .ToArray();
-
-            Vector3 min = Vector3.one * float.MaxValue;
-            Vector3 max = Vector3.one * float.MinValue;
-            for(int i = 0; i<vertices.Length; ++i)
+            var min = Vector3.one * float.MaxValue;
+            var max = Vector3.one * float.MinValue;
+            foreach(var vertex in vertices)
             {
-                min = Vector3.Min(min, vertices[i]);
-                max = Vector3.Max(max, vertices[i]);
+                min = Vector3.Min(min, vertex);
+                max = Vector3.Max(max, vertex);
             }
-            Bounds bounds = new Bounds();
+
+            var bounds = new Bounds();
             bounds.min = min;
             bounds.max = max;
 
@@ -51,21 +45,22 @@ namespace TittyMagic
         }
 
         // Ellipsoid volume
-        private float EstimateVolume(Vector3 size, float atomScale)
+        private static float EstimateVolume(Vector3 size, float atomScale)
         {
-            float toCM3 = Mathf.Pow(10, 6);
+            float toCm3 = Mathf.Pow(10, 6);
             float z = size.z * ResolveAtomScaleFactor(atomScale);
-            return toCM3 * (4 * Mathf.PI * size.x/2 * size.y/2 * z/2)/3;
+            float volume = toCm3 * (4 * Mathf.PI * size.x / 2 * size.y / 2 * z / 2) / 3;
+            // * 0.75f compensates for change in estimated volume compared to pre v3.2 bounds calculation 
+            return volume * 0.75f;
         }
 
-        // compensates for the increasing outer size and hard colliders of larger breasts
-        private float VolumeToMass(float volume)
+        private static float VolumeToMass(float volume)
         {
-            return Mathf.Pow((volume * 0.82f) / 1000, 1.2f);
+            return Mathf.Pow(0.78f * volume / 1000, 1.5f);
         }
 
         // This somewhat accurately scales breast volume to the apparent breast size when atom scale is adjusted.
-        private float ResolveAtomScaleFactor(float value)
+        private static float ResolveAtomScaleFactor(float value)
         {
             if(value > 1)
             {

@@ -1,0 +1,108 @@
+{
+   "DOWN": {
+      "targetRotationX": {
+         "Category": "main",
+         "Type": "direct",
+         "IsNegative": "true",
+         "Multiplier1": "-16",
+         "Multiplier2": "-12"
+      }
+   },
+   "UP": {
+      "targetRotationX": {
+         "Category": "main",
+         "Type": "direct",
+         "IsNegative": "false",
+         "Multiplier1": "10.7",
+         "Multiplier2": "8"
+      }
+   },
+   "BACK": {
+      "centerOfGravityPercent": {
+         "Category": "main",
+         "Type": "additive",
+         "IsNegative": "true",
+         "Multiplier1": "-0.071",
+         "Multiplier2": "-0.053",
+         "MultiplyInvertedMass": "true"
+      },
+      "spring": {
+         "Category": "main",
+         "Type": "additive",
+         "IsNegative": "true",
+         "Multiplier1": "-7.0",
+         "Multiplier2": "-5.3"
+      },
+      "damper": {
+         "Category": "main",
+         "Type": "additive",
+         "IsNegative": "true",
+         "Multiplier1": "-0.27",
+         "Multiplier2": "-0.36"
+      },
+      "positionSpringZ": {
+         "Category": "main",
+         "Type": "additive",
+         "IsNegative": "true",
+         "Multiplier1": "-180",
+         "Multiplier2": "-140"
+      },
+      "positionDamperZ": {
+         "Category": "main",
+         "Type": "additive",
+         "IsNegative": "true",
+         "Multiplier1": "-15",
+         "Multiplier2": "5",
+         "MultiplyInvertedMass": "true"
+      }
+   },
+   "FORWARD": {
+      "centerOfGravityPercent": {
+         "Category": "main",
+         "Type": "additive",
+         "IsNegative": "false",
+         "Multiplier1": "0.141",
+         "Multiplier2": "0.106",
+         "MultiplyInvertedMass": "true"
+      },
+      "spring": {
+         "Category": "main",
+         "Type": "additive",
+         "IsNegative": "true",
+         "Multiplier1": "-7.0",
+         "Multiplier2": "-5.3"
+      },
+      "damper": {
+         "Category": "main",
+         "Type": "additive",
+         "IsNegative": "true",
+         "Multiplier1": "-0.27",
+         "Multiplier2": "-0.36"
+      },
+      "positionSpringZ": {
+         "Category": "main",
+         "Type": "additive",
+         "IsNegative": "true",
+         "Multiplier1": "-180",
+         "Multiplier2": "-140"
+      }
+   },
+   "LEFT": {
+      "targetRotationY": {
+         "Category": "main",
+         "Type": "direct",
+         "IsNegative": "false",
+         "Multiplier1": "16",
+         "Multiplier2": "12"
+      }
+   },
+   "RIGHT": {
+      "targetRotationY": {
+         "Category": "main",
+         "Type": "direct",
+         "IsNegative": "true",
+         "Multiplier1": "-16",
+         "Multiplier2": "-12"
+      }
+   }
+}
