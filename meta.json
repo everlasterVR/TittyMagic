@@ -1,22 +1,21 @@
-{ 
-   "licenseType" : "PC EA", 
-   "secondaryLicenseType" : "CC BY-SA", 
-   "creatorName" : "everlaster", 
-   "packageName" : "TittyMagic",
-   "standardReferenceVersionOption" : "Latest", 
-   "scriptReferenceVersionOption" : "Exact", 
-   "description" : "v<Version>. Automatic adjustment of breast physics settings and breast morphs for improved realism.",
-   "credits" : "See https://github.com/everlasterVR/TittyMagic",
-   "instructions" : "Load onto a female Person atom.",
-   "promotionalLink" : "https://patreon.com/everlaster",
-   "programVersion" : "1.20.77.9",
-   "contentList" : [ 
-      "Custom/Scripts/everlaster/TittyMagic", 
+{
+   "licenseType": "PC",
+   "creatorName": "everlaster",
+   "packageName": "TittyMagic",
+   "standardReferenceVersionOption": "Latest",
+   "scriptReferenceVersionOption": "Exact",
+   "description": "v<Version>. Automatic adjustment of breast physics settings and breast morphs for improved realism.",
+   "credits": "See https://github.com/everlasterVR/TittyMagic",
+   "instructions": "Load onto a Person atom.",
+   "promotionalLink": "https://patreon.com/everlaster",
+   "programVersion": "1.20.77.9",
+   "contentList": [
+      "Custom/Scripts/everlaster/TittyMagic",
       "Custom/Atom/Person/Morphs/female/everlaster/TittyMagic"
-   ], 
-   "dependencies" : { 
+   ],
+   "dependencies": {
    },
-   "customOptions" : { 
-      "preloadMorphs" : "false"
+   "customOptions": {
+      "preloadMorphs": "false"
    }
 }
