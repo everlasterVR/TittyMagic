@@ -744,7 +744,7 @@ namespace TittyMagic
             _forceMorphHandler.yMultiplier.extraMultiplier = 1.36f * (2.5f - Mathf.Pow(1.67f * _massAmount, 0.53f));
             _forceMorphHandler.xMultiplier.extraMultiplier = 1.10f * (2.67f - Mathf.Pow(_massAmount, 1.75f));
             _forceMorphHandler.zMultiplier.extraMultiplier = (2 / Mathf.Pow((0.9f * _massAmount) + 0.1f, 1 / 4f)) + 0.3f;
-            _forceMorphHandler.zMultiplier.oppositeExtraMultiplier = (2 / Mathf.Pow((0.9f * _massAmount) + 0.15f, 0.33f)) + 0.25f;
+            _forceMorphHandler.zMultiplier.oppositeExtraMultiplier = 3.7f - (2.2f * _massAmount);
         }
 
         private IEnumerator RefreshMale()
