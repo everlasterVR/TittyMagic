@@ -339,9 +339,12 @@ namespace TittyMagic
             this.NewFloatSlider(xStorable, "F2");
             this.NewFloatSlider(zStorable, "F2");
 
-            _forceMorphHandler.yMultiplier = new Multiplier(yStorable.slider, true);
-            _forceMorphHandler.xMultiplier = new Multiplier(xStorable.slider, true);
-            _forceMorphHandler.zMultiplier = new Multiplier(zStorable.slider);
+            if(_isFemale)
+            {
+                _forceMorphHandler.yMultiplier = new Multiplier(yStorable.slider, true);
+                _forceMorphHandler.xMultiplier = new Multiplier(xStorable.slider, true);
+                _forceMorphHandler.zMultiplier = new Multiplier(zStorable.slider);
+            }
 
             _gravityMorphHandler.yMultiplier = new Multiplier(yStorable.slider, true);
             _gravityMorphHandler.xMultiplier = new Multiplier(xStorable.slider, true);
@@ -730,23 +733,18 @@ namespace TittyMagic
                 _staticPhysicsH.UpdateMainPhysics(_softnessAmount);
             }
 
-            SetMorphingExtraMultipliers();
+            SetFemaleMorphingExtraMultipliers();
             SetMassUIStatus(_atomScaleListener.scale);
             _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
             _gravityPhysicsHandler.SetBaseValues();
         }
 
-        private void SetMorphingExtraMultipliers()
+        private void SetFemaleMorphingExtraMultipliers()
         {
             _forceMorphHandler.yMultiplier.extraMultiplier = 1.36f * (2.5f - Mathf.Pow(1.67f * _massAmount, 0.53f));
             _forceMorphHandler.xMultiplier.extraMultiplier = 1.10f * (2.67f - Mathf.Pow(_massAmount, 1.75f));
             _forceMorphHandler.zMultiplier.extraMultiplier = (2 / Mathf.Pow((0.9f * _massAmount) + 0.1f, 1 / 4f)) + 0.3f;
             _forceMorphHandler.zMultiplier.oppositeExtraMultiplier = (2 / Mathf.Pow((0.9f * _massAmount) + 0.15f, 0.33f)) + 0.25f;
-
-            _gravityMorphHandler.yMultiplier.extraMultiplier = 1.05f * (2.5f - Mathf.Pow(1.67f * _massAmount, 0.53f));
-            _gravityMorphHandler.xMultiplier.extraMultiplier = 1.05f * (2.67f - Mathf.Pow(_massAmount, 1.75f));
-            _gravityMorphHandler.zMultiplier.extraMultiplier = (1 / Mathf.Pow(1 / 2f * _massAmount, 1 / 3f)) - 0.51f;
-            _gravityMorphHandler.zMultiplier.oppositeExtraMultiplier = 17 / (12 * Mathf.Pow(0.9f * (_massAmount + 0.02f), 1 / 4f));
         }
 
         private IEnumerator RefreshMale()
@@ -770,8 +768,17 @@ namespace TittyMagic
                 _staticPhysicsH.UpdatePectoralPhysics();
             }
 
+            SetMaleMorphingExtraMultipliers();
             SetMassUIStatus(_atomScaleListener.scale);
             _gravityPhysicsHandler.SetBaseValues();
+        }
+
+        private void SetMaleMorphingExtraMultipliers()
+        {
+            _gravityMorphHandler.yMultiplier.extraMultiplier = 1.05f * (2.5f - Mathf.Pow(1.67f * _massAmount, 0.53f));
+            _gravityMorphHandler.xMultiplier.extraMultiplier = 1.05f * (2.67f - Mathf.Pow(_massAmount, 1.75f));
+            _gravityMorphHandler.zMultiplier.extraMultiplier = (1 / Mathf.Pow(1 / 2f * _massAmount, 1 / 3f)) - 0.51f;
+            _gravityMorphHandler.zMultiplier.oppositeExtraMultiplier = 17 / (12 * Mathf.Pow(0.9f * (_massAmount + 0.02f), 1 / 4f));
         }
 
         private IEnumerator CalibrateNipplesTracking()
