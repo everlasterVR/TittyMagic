@@ -8,7 +8,7 @@ namespace TittyMagic
 {
     internal class BreastMorphListener
     {
-        private readonly List<string> _excludeMorphs = new List<string>
+        private readonly List<string> _excludeMorphsNames = new List<string>
         {
             "FBMFitnessDetails",
             "FBMHeight",
@@ -46,33 +46,43 @@ namespace TittyMagic
         };
 
         private const float FILTER_STRENGTH = 0.005f;
-        private readonly HashSet<DAZMorph> _listenedMorphs = new HashSet<DAZMorph>();
-        private readonly Dictionary<string, float> _status = new Dictionary<string, float>();
+        private readonly Dictionary<DAZMorph, float> _listenedFemaleMorphs;
+        private readonly Dictionary<DAZMorph, float> _listenedMaleMorphs;
 
         public BreastMorphListener(List<DAZMorph> femaleMorphs, List<DAZMorph> maleMorphs)
         {
-            ProcessMorphs(femaleMorphs);
-            ProcessMorphs(maleMorphs);
+            _listenedFemaleMorphs = ProcessMorphs(femaleMorphs);
+            _listenedMaleMorphs = ProcessMorphs(maleMorphs);
 #if DEBUG_ON
-            SuperController.LogMessage(GetStatus() + "- - - - - - - - - -\n");
+            SuperController.LogMessage($"Female morphs:");
+            foreach(var morph in _listenedFemaleMorphs)
+            {
+                SuperController.LogMessage($"{morph.Key.uid}");
+            }
+
+            SuperController.LogMessage($"Male morphs:");
+            foreach(var morph in _listenedMaleMorphs)
+            {
+                SuperController.LogMessage($"{morph.Key.uid}");
+            }
 #endif
         }
 
-        private void ProcessMorphs(List<DAZMorph> morphs)
+        private Dictionary<DAZMorph, float> ProcessMorphs(List<DAZMorph> morphs)
         {
+            var listenedMorphs = new Dictionary<DAZMorph, float>();
             foreach(var morph in morphs)
             {
                 try
                 {
-                    if(!morph.visible || morph.isPoseControl || morph.group.Contains("Pose/") || _excludeMorphs.Contains(morph.morphName))
+                    if(!morph.visible || morph.isPoseControl || morph.group.Contains("Pose/") || _excludeMorphsNames.Contains(morph.morphName))
                     {
                         continue;
                     }
 
-                    if(!_listenedMorphs.Contains(morph) && IsInSet(morph, VertexIndexGroups.BREASTS, FILTER_STRENGTH))
+                    if(!listenedMorphs.ContainsKey(morph) && IsInSet(morph, VertexIndexGroups.BREASTS, FILTER_STRENGTH))
                     {
-                        _listenedMorphs.Add(morph);
-                        _status.Add(morph.uid, morph.morphValue);
+                        listenedMorphs.Add(morph, morph.morphValue);
                     }
                 }
                 catch(Exception)
@@ -83,18 +93,26 @@ namespace TittyMagic
 #endif
                 }
             }
+
+            return listenedMorphs;
         }
 
         public bool Changed()
         {
-            foreach(var morph in _listenedMorphs)
+            return MorphsChanged(_listenedFemaleMorphs) || MorphsChanged(_listenedMaleMorphs);
+        }
+
+        private static bool MorphsChanged(Dictionary<DAZMorph, float> listenedMorphs)
+        {
+            foreach(var listenedMorph in listenedMorphs)
             {
-                float value = morph.morphValue;
-                if(Math.Abs(value - _status[morph.uid]) > 0.001f)
+                var dazMorph = listenedMorph.Key;
+                float value = dazMorph.morphValue;
+                if(Math.Abs(value - listenedMorph.Value) > 0.001f)
                 {
-                    _status[morph.uid] = value;
+                    listenedMorphs[dazMorph] = value;
 #if DEBUG_ON
-                    SuperController.LogMessage($"change detected! morph {MorphName(morph)}");
+                    SuperController.LogMessage($"change detected! morph {dazMorph.uid}");
 #endif
                     return true;
                 }
@@ -128,25 +146,5 @@ namespace TittyMagic
 
             return false;
         }
-
-#if DEBUG_ON
-        private string GetStatus()
-        {
-            string message = $"These {_listenedMorphs.Count} morphs are being monitored for changes:\n";
-            foreach(var morph in _listenedMorphs)
-            {
-                message += MorphName(morph) + "\n";
-            }
-
-            return message;
-        }
-
-        private static string MorphName(DAZMorph morph)
-        {
-            string text = morph.isInPackage ? morph.packageUid + "." : "";
-            text += string.IsNullOrEmpty(morph.overrideName) ? morph.displayName : morph.overrideName;
-            return text;
-        }
-#endif
     }
 }
