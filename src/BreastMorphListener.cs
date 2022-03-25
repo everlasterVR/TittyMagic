@@ -49,7 +49,7 @@ namespace TittyMagic
         private readonly Dictionary<DAZMorph, float> _listenedFemaleMorphs;
         private readonly Dictionary<DAZMorph, float> _listenedMaleMorphs;
 
-        public BreastMorphListener(List<DAZMorph> femaleMorphs, List<DAZMorph> maleMorphs)
+        public BreastMorphListener(List<DAZMorph> femaleMorphs, List<DAZMorph> maleMorphs = null)
         {
             _listenedFemaleMorphs = ProcessMorphs(femaleMorphs);
             _listenedMaleMorphs = ProcessMorphs(maleMorphs);
@@ -71,6 +71,11 @@ namespace TittyMagic
         private Dictionary<DAZMorph, float> ProcessMorphs(List<DAZMorph> morphs)
         {
             var listenedMorphs = new Dictionary<DAZMorph, float>();
+            if(morphs == null)
+            {
+                return listenedMorphs;
+            }
+
             foreach(var morph in morphs)
             {
                 try

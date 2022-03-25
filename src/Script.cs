@@ -151,7 +151,7 @@ namespace TittyMagic
         {
             try
             {
-                _breastMorphListener = new BreastMorphListener(GEOMETRY.morphBank1.morphs, GEOMETRY.morphBank1OtherGender.morphs);
+                _breastMorphListener = new BreastMorphListener(GEOMETRY.morphBank1.morphs);
 
                 var nippleRbLeft = _rigidbodies.Find(rb => rb.name == "lNipple");
                 var nippleRbRight = _rigidbodies.Find(rb => rb.name == "rNipple");
