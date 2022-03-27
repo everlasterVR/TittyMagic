@@ -11,7 +11,7 @@ namespace TittyMagic
         private HashSet<BreastStaticPhysicsConfig> _nipplePhysicsConfigs;
         private HashSet<PectoralStaticPhysicsConfig> _pectoralPhysicsConfigs;
 
-        private float _massVal;
+        public float massAmount { get; set; }
 
         public StaticPhysicsHandler(bool isFemale)
         {
@@ -141,22 +141,15 @@ namespace TittyMagic
             BREAST_PHYSICS_MESH.softVerticesColliderAdditionalNormalOffset = 0.001f;
         }
 
-        public float SetAndReturnMassAmount(float massEstimate)
-        {
-            BREAST_CONTROL.mass = massEstimate;
-            _massVal = Mathf.InverseLerp(0, Const.MASS_MAX, massEstimate);
-            return _massVal;
-        }
-
         public void UpdateMainPhysics(float softnessVal)
         {
             float physicsRateMultiplier = PhysicsRateMultiplier();
             foreach(var it in _mainPhysicsConfigs)
             {
                 if(it.dependOnPhysicsRate)
-                    it.UpdateVal(_massVal, softnessVal, physicsRateMultiplier);
+                    it.UpdateVal(massAmount, softnessVal, physicsRateMultiplier);
                 else
-                    it.UpdateVal(_massVal, softnessVal);
+                    it.UpdateVal(massAmount, softnessVal);
             }
         }
 
@@ -166,13 +159,13 @@ namespace TittyMagic
             foreach(var it in _mainPhysicsConfigs)
             {
                 if(it.dependOnPhysicsRate)
-                    it.UpdateVal(_massVal, softnessVal, physicsRateMultiplier);
+                    it.UpdateVal(massAmount, softnessVal, physicsRateMultiplier);
             }
 
             foreach(var it in _softPhysicsConfigs)
             {
                 if(it.dependOnPhysicsRate)
-                    it.UpdateVal(_massVal, softnessVal, physicsRateMultiplier);
+                    it.UpdateVal(massAmount, softnessVal, physicsRateMultiplier);
             }
         }
 
@@ -180,7 +173,7 @@ namespace TittyMagic
         {
             foreach(var it in _nipplePhysicsConfigs)
             {
-                it.UpdateVal(_massVal, softnessVal, 1, 1.25f * nippleErectionVal);
+                it.UpdateVal(massAmount, softnessVal, 1, 1.25f * nippleErectionVal);
             }
         }
 
@@ -190,22 +183,22 @@ namespace TittyMagic
             foreach(var it in _mainPhysicsConfigs)
             {
                 if(it.dependOnPhysicsRate)
-                    it.UpdateVal(_massVal, softnessVal, physicsRateMultiplier);
+                    it.UpdateVal(massAmount, softnessVal, physicsRateMultiplier);
                 else
-                    it.UpdateVal(_massVal, softnessVal);
+                    it.UpdateVal(massAmount, softnessVal);
             }
 
             foreach(var it in _softPhysicsConfigs)
             {
                 if(it.dependOnPhysicsRate)
-                    it.UpdateVal(_massVal, softnessVal, physicsRateMultiplier);
+                    it.UpdateVal(massAmount, softnessVal, physicsRateMultiplier);
                 else
-                    it.UpdateVal(_massVal, softnessVal);
+                    it.UpdateVal(massAmount, softnessVal);
             }
 
             foreach(var it in _nipplePhysicsConfigs)
             {
-                it.UpdateVal(_massVal, softnessVal, 1, 1.25f * nippleErectionVal);
+                it.UpdateVal(massAmount, softnessVal, 1, 1.25f * nippleErectionVal);
             }
         }
 
@@ -213,7 +206,7 @@ namespace TittyMagic
         {
             foreach(var it in _pectoralPhysicsConfigs)
             {
-                it.UpdateVal(_massVal);
+                it.UpdateVal(massAmount);
             }
         }
 

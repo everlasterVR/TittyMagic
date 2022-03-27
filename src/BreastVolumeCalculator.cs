@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace TittyMagic
 {
-    internal class BreastMassCalculator
+    internal class BreastVolumeCalculator
     {
         private readonly DAZSkinV2 _skin;
 
-        public BreastMassCalculator(DAZSkinV2 skin)
+        public BreastVolumeCalculator(DAZSkinV2 skin)
         {
             _skin = skin;
         }
@@ -19,7 +19,7 @@ namespace TittyMagic
             var boundsRight = BoundsSize(GetPositions(VertexIndexGroups.RIGHT_BREAST));
             float leftVolume = EstimateVolume(boundsLeft, atomScale);
             float rightVolume = EstimateVolume(boundsRight, atomScale);
-            return VolumeToMass((leftVolume + rightVolume) / 2);
+            return (leftVolume + rightVolume) / (2 * 1000);
         }
 
         private List<Vector3> GetPositions(IEnumerable<int> vertexIndices)
@@ -52,11 +52,6 @@ namespace TittyMagic
             float volume = toCm3 * (4 * Mathf.PI * size.x / 2 * size.y / 2 * z / 2) / 3;
             // * 0.75f compensates for change in estimated volume compared to pre v3.2 bounds calculation 
             return volume * 0.75f;
-        }
-
-        private static float VolumeToMass(float volume)
-        {
-            return Mathf.Pow(0.78f * volume / 1000, 1.5f);
         }
 
         // This somewhat accurately scales breast volume to the apparent breast size when atom scale is adjusted.

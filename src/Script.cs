@@ -20,6 +20,7 @@ namespace TittyMagic
         private Rigidbody _pectoralRbLeft;
         private Rigidbody _pectoralRbRight;
 
+        private float _realMassAmount;
         private float _massAmount;
         private float _softnessAmount;
 
@@ -32,7 +33,7 @@ namespace TittyMagic
 
         private AtomScaleListener _atomScaleListener;
         private BreastMorphListener _breastMorphListener;
-        private BreastMassCalculator _breastMassCalculator;
+        private BreastVolumeCalculator _breastVolumeCalculator;
 
         private StaticPhysicsHandler _staticPhysicsH;
         private GravityPhysicsHandler _gravityPhysicsHandler;
@@ -127,7 +128,7 @@ namespace TittyMagic
 
             _atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
             var dazCharacter = containingAtom.GetComponentInChildren<DAZCharacter>();
-            _breastMassCalculator = new BreastMassCalculator(dazCharacter.skin);
+            _breastVolumeCalculator = new BreastVolumeCalculator(dazCharacter.skin);
 
             _staticPhysicsH = new StaticPhysicsHandler(_isFemale);
             _gravityPhysicsHandler = new GravityPhysicsHandler(this);
@@ -255,7 +256,7 @@ namespace TittyMagic
                 {
                     _mass.slider.interactable = !val;
                     _autoRefresh.toggle.interactable = val;
-                    if(val && DeviatesAtLeast(_mass.val, EstimateMass(), 10))
+                    if(val && DeviatesAtLeast(_mass.val, CalculateMass(), 10))
                     {
                         StartCoroutine(WaitToBeginRefresh(true));
                     }
@@ -618,7 +619,7 @@ namespace TittyMagic
                     _forceMorphHandler.Update(
                         _chestRoll,
                         _chestPitch,
-                        _massAmount
+                        _realMassAmount
                     );
                 }
             }
@@ -627,7 +628,7 @@ namespace TittyMagic
                 _gravityMorphHandler.Update(
                     _chestRoll,
                     _chestPitch,
-                    _massAmount,
+                    _realMassAmount,
                     0.75f * _softnessAmount
                 );
             }
@@ -678,8 +679,7 @@ namespace TittyMagic
             _chestRoll = 0;
             _chestPitch = 0;
 
-            _mass.val = EstimateMass();
-            _massAmount = _staticPhysicsH.SetAndReturnMassAmount(_mass.val);
+            UpdateMassValueAndAmounts();
             if(_isFemale)
             {
                 _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
@@ -747,8 +747,7 @@ namespace TittyMagic
                 yield return new WaitForSeconds(interval);
                 duration += interval;
 
-                _mass.val = EstimateMass();
-                _massAmount = _staticPhysicsH.SetAndReturnMassAmount(_mass.val);
+                UpdateMassValueAndAmounts();
                 _staticPhysicsH.UpdateMainPhysics(_softnessAmount);
             }
 
@@ -760,10 +759,10 @@ namespace TittyMagic
 
         private void SetFemaleMorphingExtraMultipliers()
         {
-            _forceMorphHandler.yMultiplier.extraMultiplier = 1.36f * (2.5f - Mathf.Pow(1.67f * _massAmount, 0.53f));
-            _forceMorphHandler.xMultiplier.extraMultiplier = 1.10f * (2.67f - Mathf.Pow(_massAmount, 1.75f));
-            _forceMorphHandler.zMultiplier.extraMultiplier = (2 / Mathf.Pow((0.9f * _massAmount) + 0.1f, 1 / 4f)) + 0.3f;
-            _forceMorphHandler.zMultiplier.oppositeExtraMultiplier = 3.7f - (2.2f * _massAmount);
+            _forceMorphHandler.yMultiplier.extraMultiplier = 1.36f * (2.5f - Mathf.Pow(1.67f * _realMassAmount, 0.53f));
+            _forceMorphHandler.xMultiplier.extraMultiplier = 1.10f * (2.67f - Mathf.Pow(_realMassAmount, 1.75f));
+            _forceMorphHandler.zMultiplier.extraMultiplier = (2 / Mathf.Pow((0.9f * _realMassAmount) + 0.1f, 1 / 4f)) + 0.3f;
+            _forceMorphHandler.zMultiplier.oppositeExtraMultiplier = 3.7f - (2.2f * _realMassAmount);
         }
 
         private IEnumerator RefreshMale()
@@ -776,14 +775,13 @@ namespace TittyMagic
             const float interval = 0.1f;
             while(
                 duration < 1f &&
-                !EqualWithin(1000f, _mass.val, EstimateMass())
+                !EqualWithin(1000f, _mass.val, CalculateMass())
             )
             {
                 yield return new WaitForSeconds(interval);
                 duration += interval;
 
-                _mass.val = EstimateMass();
-                _massAmount = _staticPhysicsH.SetAndReturnMassAmount(_mass.val);
+                UpdateMassValueAndAmounts();
                 _staticPhysicsH.UpdatePectoralPhysics();
             }
 
@@ -794,10 +792,10 @@ namespace TittyMagic
 
         private void SetMaleMorphingExtraMultipliers()
         {
-            _gravityMorphHandler.yMultiplier.extraMultiplier = 1.05f * (2.5f - Mathf.Pow(1.67f * _massAmount, 0.53f));
-            _gravityMorphHandler.xMultiplier.extraMultiplier = 1.05f * (2.67f - Mathf.Pow(_massAmount, 1.75f));
-            _gravityMorphHandler.zMultiplier.extraMultiplier = (1 / Mathf.Pow(1 / 2f * _massAmount, 1 / 3f)) - 0.51f;
-            _gravityMorphHandler.zMultiplier.oppositeExtraMultiplier = 17 / (12 * Mathf.Pow(0.9f * (_massAmount + 0.02f), 1 / 4f));
+            _gravityMorphHandler.yMultiplier.extraMultiplier = 1.05f * (2.5f - Mathf.Pow(1.67f * _realMassAmount, 0.53f));
+            _gravityMorphHandler.xMultiplier.extraMultiplier = 1.05f * (2.67f - Mathf.Pow(_realMassAmount, 1.75f));
+            _gravityMorphHandler.zMultiplier.extraMultiplier = (1 / Mathf.Pow(1 / 2f * _realMassAmount, 1 / 3f)) - 0.51f;
+            _gravityMorphHandler.zMultiplier.oppositeExtraMultiplier = 17 / (12 * Mathf.Pow(0.9f * (_realMassAmount + 0.02f), 1 / 4f));
         }
 
         private IEnumerator CalibrateNipplesTracking()
@@ -892,7 +890,7 @@ namespace TittyMagic
                 _autoRefresh.val &&
                 _waitStatus != RefreshStatus.WAITING &&
                 (_breastMorphListener.Changed() || _atomScaleListener.Changed()) &&
-                DeviatesAtLeast(_mass.val, EstimateMass(), 10);
+                DeviatesAtLeast(_mass.val, CalculateMass(), 10);
         }
 
         public void UpdateRateDependentPhysics()
@@ -900,15 +898,28 @@ namespace TittyMagic
             _staticPhysicsH.UpdateRateDependentPhysics(_softnessAmount);
         }
 
-        private float EstimateMass()
+        private void UpdateMassValueAndAmounts()
         {
-            if(!_autoMass.val)
+            float mass = CalculateMass();
+            _realMassAmount = Mathf.InverseLerp(0, Const.MASS_MAX, mass);
+            if(_autoMass.val)
             {
-                return _mass.val;
+                _massAmount = _realMassAmount;
+                _mass.val = mass;
+            }
+            else
+            {
+                _massAmount = Mathf.InverseLerp(0, Const.MASS_MAX, _mass.val);
             }
 
+            BREAST_CONTROL.mass = _mass.val;
+            _staticPhysicsH.massAmount = _massAmount;
+        }
+
+        private float CalculateMass()
+        {
             return Mathf.Clamp(
-                _breastMassCalculator.Calculate(_atomScaleListener.scale),
+                Mathf.Pow(0.78f * _breastVolumeCalculator.Calculate(_atomScaleListener.scale), 1.5f),
                 _mass.min,
                 _mass.max
             );
