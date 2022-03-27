@@ -139,7 +139,6 @@ namespace TittyMagic
             }
 
             SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
-            _initDone = true;
             StartCoroutine(SetPluginVersion());
         }
 
@@ -170,6 +169,10 @@ namespace TittyMagic
                 {
                     StartCoroutine(WaitToBeginRefresh(true, false));
                 }
+                else
+                {
+                    _initDone = true;
+                }
             }
             catch(Exception e)
             {
@@ -193,6 +196,10 @@ namespace TittyMagic
                 if(!_loadingFromJson)
                 {
                     StartCoroutine(WaitToBeginRefresh(true, false));
+                }
+                else
+                {
+                    _initDone = true;
                 }
             }
             catch(Exception e)
@@ -460,14 +467,12 @@ namespace TittyMagic
 
         private void FixedUpdate()
         {
-            if(!_initDone)
-            {
-                return;
-            }
-
             try
             {
-                if(_refreshStatus == RefreshStatus.MASS_STARTED) return;
+                if(_refreshStatus == RefreshStatus.MASS_STARTED)
+                {
+                    return;
+                }
 
                 if(_refreshStatus > RefreshStatus.MASS_STARTED)
                 {
@@ -481,7 +486,10 @@ namespace TittyMagic
                     }
                 }
 
-                if(_waitStatus != RefreshStatus.DONE) return;
+                if(!_initDone || _waitStatus != RefreshStatus.DONE)
+                {
+                    return;
+                }
 
                 _timeSinceListenersChecked += Time.deltaTime;
                 if(_timeSinceListenersChecked >= LISTENERS_CHECK_INTERVAL)
@@ -787,6 +795,7 @@ namespace TittyMagic
 
             _waitStatus = RefreshStatus.DONE;
             _refreshStatus = RefreshStatus.DONE;
+            _initDone = true;
         }
 
         private bool CheckListeners()
