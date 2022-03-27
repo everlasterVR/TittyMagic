@@ -751,7 +751,11 @@ namespace TittyMagic
                 _staticPhysicsH.UpdateMainPhysics(_softnessAmount);
             }
 
-            _mass.defaultVal = _mass.val;
+            if(_autoMass.val)
+            {
+                _mass.defaultVal = _mass.val;
+            }
+
             SetFemaleMorphingExtraMultipliers();
             _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
             _gravityPhysicsHandler.SetBaseValues();
