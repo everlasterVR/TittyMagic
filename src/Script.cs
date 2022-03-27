@@ -621,9 +621,21 @@ namespace TittyMagic
                 yield return new WaitForSeconds(0.33f);
             }
 
+            if(_isFemale)
+            {
+                _settingsMonitor.enabled = false;
+            }
+
+            // simulate breasts zero G
+            _pectoralRbLeft.useGravity = false;
+            _pectoralRbRight.useGravity = false;
+
+            yield return new WaitForSeconds(0.33f);
+            RunHandlers();
+
+            _refreshStatus = RefreshStatus.MASS_STARTED;
             if(refreshMass)
             {
-                _refreshStatus = RefreshStatus.MASS_STARTED;
                 if(_isFemale)
                 {
                     yield return RefreshMassFemale(useNewMass);
@@ -639,16 +651,6 @@ namespace TittyMagic
 
         private IEnumerator RefreshMassFemale(bool useNewMass)
         {
-            _settingsMonitor.enabled = false;
-
-            // simulate breasts zero G
-            _pectoralRbLeft.useGravity = false;
-            _pectoralRbRight.useGravity = false;
-
-            yield return new WaitForSeconds(0.33f);
-
-            RunHandlers();
-
             float duration = 0;
             const float interval = 0.1f;
             while(duration < 0.5f)
@@ -680,16 +682,9 @@ namespace TittyMagic
 
         private IEnumerator RefreshMassMale(bool useNewMass)
         {
-            yield return new WaitForSeconds(0.33f);
-
-            RunHandlers();
-
             float duration = 0;
             const float interval = 0.1f;
-            while(
-                duration < 1f &&
-                !EqualWithin(1000f, _mass.val, CalculateMass())
-            )
+            while(duration < 0.5f)
             {
                 yield return new WaitForSeconds(interval);
                 duration += interval;
@@ -698,7 +693,11 @@ namespace TittyMagic
                 _staticPhysicsH.UpdatePectoralPhysics();
             }
 
-            _mass.defaultVal = _mass.val;
+            if(_autoRefresh.val)
+            {
+                _mass.defaultVal = _mass.val;
+            }
+
             SetMaleMorphingExtraMultipliers();
             _gravityPhysicsHandler.SetBaseValues();
         }
