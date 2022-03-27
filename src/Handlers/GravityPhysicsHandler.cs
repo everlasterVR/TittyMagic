@@ -39,11 +39,10 @@ namespace TittyMagic
 #endif
         }
 
-        public void LoadSettings(string mode)
+        public void LoadSettings(bool isFemale)
         {
-            _configSets = LoadSettingsFromFile(mode);
+            _configSets = LoadSettingsFromFile(isFemale ? "touchoptimized" : "pectoral");
 
-            // not working properly yet when changing mode on the fly
             if(_configurator != null)
             {
                 _configurator.ResetUISectionGroups();
@@ -57,12 +56,13 @@ namespace TittyMagic
             }
         }
 
-        private Dictionary<string, List<Config>> LoadSettingsFromFile(string mode)
+        private Dictionary<string, List<Config>> LoadSettingsFromFile(string fileName)
         {
             var configSets = new Dictionary<string, List<Config>>();
-            Persistence.LoadModePhysicsSettings(
+
+            Persistence.LoadFromPath(
                 _script,
-                mode,
+                $@"{Globals.PLUGIN_PATH}settings\physicsmultipliers\{fileName}.json",
                 (dir, json) =>
                 {
                     foreach(string direction in json.Keys)

@@ -21,29 +21,27 @@ namespace TittyMagic
             }
         }
 
-        public void LoadSettings(MVRScript script, string mode)
+        public void LoadSettings(MVRScript script, bool isFemale)
         {
-            GEOMETRY.useAuxBreastColliders = mode != Mode.TOUCH_OPTIMIZED && mode != Mode.FUTA;
-            if(mode == Mode.FUTA)
+            if(isFemale)
             {
-                LoadPectoralSettings(script);
+                LoadFemaleBreastSettings(script);
             }
             else
             {
-                LoadSettingsFromFiles(script, mode);
+                LoadPectoralSettings(script);
             }
         }
 
-        private void LoadSettingsFromFiles(MVRScript script, string mode)
+        private void LoadFemaleBreastSettings(MVRScript script)
         {
             _mainPhysicsConfigs = new HashSet<BreastStaticPhysicsConfig>();
             _softPhysicsConfigs = new HashSet<BreastStaticPhysicsConfig>();
             _nipplePhysicsConfigs = new HashSet<BreastStaticPhysicsConfig>();
 
-            Persistence.LoadModeStaticPhysicsSettings(
+            Persistence.LoadFromPath(
                 script,
-                mode,
-                @"mainPhysics.json",
+                $@"{PLUGIN_PATH}settings\staticphysics\touchoptimized\mainPhysics.json",
                 (path, json) =>
                 {
                     foreach(string param in json.Keys)
@@ -62,10 +60,9 @@ namespace TittyMagic
                 }
             );
 
-            Persistence.LoadModeStaticPhysicsSettings(
+            Persistence.LoadFromPath(
                 script,
-                mode,
-                @"softPhysics.json",
+                $@"{PLUGIN_PATH}settings\staticphysics\touchoptimized\softPhysics.json",
                 (path, json) =>
                 {
                     foreach(string param in json.Keys)
@@ -84,10 +81,9 @@ namespace TittyMagic
                 }
             );
 
-            Persistence.LoadModeStaticPhysicsSettings(
+            Persistence.LoadFromPath(
                 script,
-                mode,
-                @"nipplePhysics.json",
+                $@"{PLUGIN_PATH}settings\staticphysics\touchoptimized\nipplePhysics.json",
                 (path, json) =>
                 {
                     foreach(string param in json.Keys)
@@ -133,6 +129,8 @@ namespace TittyMagic
 
         private static void SetBreastPhysicsDefaults()
         {
+            // hard colliders off
+            GEOMETRY.useAuxBreastColliders = false;
             // Self colliders off
             BREAST_PHYSICS_MESH.allowSelfCollision = true;
             // Auto collider radius off

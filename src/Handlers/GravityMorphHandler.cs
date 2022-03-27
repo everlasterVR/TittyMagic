@@ -38,22 +38,21 @@ namespace TittyMagic
 #endif
         }
 
-        public void LoadSettings(string mode)
+        public void LoadSettings()
         {
             _configSets = new Dictionary<string, List<Config>>
             {
-                { Direction.DOWN, LoadSettingsFromFile(mode, "upright", true) },
-                { Direction.UP, LoadSettingsFromFile(mode, "upsideDown", true) },
-                { Direction.UP_C, LoadSettingsFromFile(mode, "upsideDownCenter") },
-                { Direction.LEFT, LoadSettingsFromFile(mode, "rollLeft") },
-                { Direction.RIGHT, LoadSettingsFromFile(mode, "rollRight") },
-                { Direction.BACK, LoadSettingsFromFile(mode, "leanBack", true) },
-                { Direction.BACK_C, LoadSettingsFromFile(mode, "leanBackCenter") },
-                { Direction.FORWARD, LoadSettingsFromFile(mode, "leanForward", true) },
-                { Direction.FORWARD_C, LoadSettingsFromFile(mode, "leanForwardCenter") },
+                { Direction.DOWN, LoadSettingsFromFile("upright", true) },
+                { Direction.UP, LoadSettingsFromFile("upsideDown", true) },
+                { Direction.UP_C, LoadSettingsFromFile("upsideDownCenter") },
+                { Direction.LEFT, LoadSettingsFromFile("rollLeft") },
+                { Direction.RIGHT, LoadSettingsFromFile("rollRight") },
+                { Direction.BACK, LoadSettingsFromFile("leanBack", true) },
+                { Direction.BACK_C, LoadSettingsFromFile("leanBackCenter") },
+                { Direction.FORWARD, LoadSettingsFromFile("leanForward", true) },
+                { Direction.FORWARD_C, LoadSettingsFromFile("leanForwardCenter") },
             };
 
-            // not working properly yet when changing mode on the fly
             if(_configurator != null)
             {
                 _configurator.ResetUISectionGroups();
@@ -71,13 +70,12 @@ namespace TittyMagic
             }
         }
 
-        private List<Config> LoadSettingsFromFile(string mode, string fileName, bool separateLeftRight = false)
+        private List<Config> LoadSettingsFromFile(string fileName, bool separateLeftRight = false)
         {
             var configs = new List<Config>();
-            Persistence.LoadModeMorphSettings(
+            Persistence.LoadFromPath(
                 _script,
-                mode,
-                $"{fileName}.json",
+                $@"{Globals.PLUGIN_PATH}settings\morphmultipliers\balanced\{fileName}.json",
                 (dir, json) =>
                 {
                     foreach(string name in json.Keys)

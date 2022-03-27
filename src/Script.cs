@@ -42,11 +42,7 @@ namespace TittyMagic
         private NippleErectionMorphHandler _nippleErectionMorphH;
 
         private JSONStorableString _titleUIText;
-        private JSONStorableString _modeInfoText;
 
-        private Dictionary<string, UIDynamicButton> _modeButtonGroup;
-
-        private JSONStorableStringChooser _modeChooser;
         private JSONStorableString _pluginVersionStorable;
         private JSONStorableBool _autoRefresh;
         private UIDynamicButton _refreshButton;
@@ -167,10 +163,10 @@ namespace TittyMagic
                 SoftnessSliderListener();
                 GravityPhysicsSliderListeners();
 
-                if(!_loadingFromJson)
-                {
-                    _modeChooser.val = Mode.TOUCH_OPTIMIZED; // selection causes BeginRefresh;
-                }
+                _forceMorphHandler.LoadSettings();
+                _gravityPhysicsHandler.LoadSettings(true);
+                _staticPhysicsH.LoadSettings(this, true);
+                StartCoroutine(WaitToBeginRefresh(true, false));
             }
             catch(Exception e)
             {
@@ -188,9 +184,9 @@ namespace TittyMagic
                 InitPluginUI();
                 GravityPhysicsSliderListeners();
 
-                _gravityMorphHandler.LoadSettings(Mode.BALANCED);
-                _gravityPhysicsHandler.LoadSettings(Mode.FUTA);
-                _staticPhysicsH.LoadSettings(this, Mode.FUTA);
+                _gravityMorphHandler.LoadSettings();
+                _gravityPhysicsHandler.LoadSettings(false);
+                _staticPhysicsH.LoadSettings(this, false);
                 StartCoroutine(WaitToBeginRefresh(true, false));
             }
             catch(Exception e)
@@ -264,8 +260,6 @@ namespace TittyMagic
             _mass.slider.interactable = !_autoRefresh.val;
             UI.ApplySliderStyle(_massSlider);
 
-            // _modeInfoText = this.NewTextField("Usage Info Area 2", "", 28, 210, true);
-
             if(_isFemale)
             {
                 InitPluginUIFemale();
@@ -278,7 +272,6 @@ namespace TittyMagic
 
         private void InitPluginUIFemale()
         {
-            CreateModeChooser();
             CreateSoftnessSlider();
             CreateMorphingMultipliers();
             CreateGravityPhysicsMultipliers();
@@ -290,35 +283,6 @@ namespace TittyMagic
             CreateMorphingMultipliers();
             CreateGravityPhysicsMultipliers();
             CreateAdditionalSettings();
-
-            // _modeInfoText.val = "Futa mode";
-        }
-
-        private void CreateModeChooser()
-        {
-            // var title = this.NewTextField("modeSelection", "", 32, 100);
-            // title.SetVal("<size=28>\n\n</size><b>Mode selection</b>");
-            // title.dynamicText.backgroundColor = Color.clear;
-
-            _modeChooser = new JSONStorableStringChooser(
-                "Mode",
-                new List<string>
-                {
-                    Mode.ANIM_OPTIMIZED,
-                    Mode.BALANCED,
-                    Mode.TOUCH_OPTIMIZED,
-                },
-                "",
-                "Mode",
-                mode =>
-                {
-                    // UI.UpdateButtonLabels(_modeButtonGroup, mode);
-                    StartCoroutine(WaitToBeginRefresh(true, false, null, () => OnModeChosen(mode)));
-                }
-            );
-            _modeChooser.storeType = JSONStorableParam.StoreType.Full;
-            RegisterStringChooser(_modeChooser);
-            // _modeButtonGroup = this.CreateRadioButtonGroup(_modeChooser);
         }
 
         private void CreateSoftnessSlider()
@@ -411,59 +375,6 @@ namespace TittyMagic
             );
         }
 
-        private void OnModeChosen(string mode)
-        {
-            _gravityPhysicsHandler.LoadSettings(mode);
-            _staticPhysicsH.LoadSettings(this, mode);
-            if(mode == Mode.ANIM_OPTIMIZED || mode == Mode.TOUCH_OPTIMIZED)
-            {
-                _forceMorphHandler.LoadSettings(mode);
-            }
-            else
-            {
-                _gravityMorphHandler.LoadSettings(mode);
-            }
-
-            // UpdateModeInfoText(mode);
-            // StartCoroutine(TempDisableModeButtons());
-        }
-
-        private void UpdateModeInfoText(string mode)
-        {
-            string text = UI.Size("\n", 12);
-            if(mode == Mode.ANIM_OPTIMIZED)
-                text += "Animation optimized mode morphs breasts in response to forces. Breast mobility is increased and more dynamic. Physics settings are similar to Balanced mode.";
-            else if(mode == Mode.BALANCED)
-                text += "In Balanced mode, breasts have realistic mass. There should be a sense of weight both in animations and when touched.";
-            else if(mode == Mode.TOUCH_OPTIMIZED)
-                text += "WIP";
-
-            _modeInfoText.SetVal(text);
-        }
-
-        private IEnumerator TempDisableModeButtons()
-        {
-            while(_waitStatus != RefreshStatus.WAITING)
-            {
-                yield return null;
-            }
-
-            foreach(var buttonKvp in _modeButtonGroup)
-            {
-                buttonKvp.Value.button.interactable = false;
-            }
-
-            while(_waitStatus != RefreshStatus.DONE)
-            {
-                yield return null;
-            }
-
-            foreach(var buttonKvp in _modeButtonGroup)
-            {
-                buttonKvp.Value.button.interactable = true;
-            }
-        }
-
         private void SoftnessSliderListener()
         {
             _softnessSCM = _softness.slider.gameObject.AddComponent<SliderClickMonitor>();
@@ -510,15 +421,9 @@ namespace TittyMagic
 
         private void RefreshFromSliderChanged(bool refreshMass = false)
         {
-            if(_loadingFromJson) return;
-
-            if((_modeChooser.val == Mode.ANIM_OPTIMIZED || _modeChooser.val == Mode.TOUCH_OPTIMIZED) && _waitStatus != RefreshStatus.WAITING)
+            if(!_loadingFromJson && _waitStatus != RefreshStatus.WAITING)
             {
                 StartCoroutine(WaitToBeginRefresh(refreshMass, true));
-            }
-            else
-            {
-                _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
             }
         }
 
@@ -531,7 +436,7 @@ namespace TittyMagic
 
             try
             {
-                if(_isFemale && (_modeChooser.val == Mode.ANIM_OPTIMIZED || _modeChooser.val == Mode.TOUCH_OPTIMIZED))
+                if(_isFemale)
                 {
                     _trackLeftNipple.UpdateAnglesAndDepthDiff();
                     _trackRightNipple.UpdateAnglesAndDepthDiff();
@@ -583,7 +488,7 @@ namespace TittyMagic
                     }
                 }
 
-                if(_isFemale && (_modeChooser.val == Mode.ANIM_OPTIMIZED || _modeChooser.val == Mode.TOUCH_OPTIMIZED))
+                if(_isFemale)
                 {
                     _trackLeftNipple.UpdateAnglesAndDepthDiff();
                     _trackRightNipple.UpdateAnglesAndDepthDiff();
@@ -600,7 +505,7 @@ namespace TittyMagic
 
         private void RunHandlers()
         {
-            if(_isFemale && (_modeChooser.val == Mode.ANIM_OPTIMIZED || _modeChooser.val == Mode.TOUCH_OPTIMIZED))
+            if(_isFemale)
             {
                 if(_forceMorphHandler.IsEnabled())
                 {
@@ -632,7 +537,7 @@ namespace TittyMagic
             }
         }
 
-        public IEnumerator WaitToBeginRefresh(bool refreshMass, bool userTriggered, bool? useNewMass = null, Action onModeChosen = null)
+        public IEnumerator WaitToBeginRefresh(bool refreshMass, bool userTriggered, bool? useNewMass = null)
         {
             if(useNewMass == null)
             {
@@ -645,8 +550,6 @@ namespace TittyMagic
             {
                 yield return null;
             }
-
-            onModeChosen?.Invoke();
 
             PreRefresh(refreshMass, useNewMass.Value);
             yield return BeginRefresh(refreshMass, useNewMass.Value, userTriggered);
@@ -663,7 +566,7 @@ namespace TittyMagic
             _animationWasSetFrozen = mainToggleFrozen || altToggleFrozen;
             SuperController.singleton.SetFreezeAnimation(true);
 
-            if(_isFemale && (_modeChooser.val == Mode.ANIM_OPTIMIZED || _modeChooser.val == Mode.TOUCH_OPTIMIZED))
+            if(_isFemale)
             {
                 _trackLeftNipple.ResetAnglesAndDepthDiff();
                 _trackRightNipple.ResetAnglesAndDepthDiff();
@@ -851,18 +754,11 @@ namespace TittyMagic
                 var force = _chestRb.transform.up * (0.75f * -Physics.gravity.magnitude);
                 _pectoralRbLeft.AddForce(force, ForceMode.Acceleration);
                 _pectoralRbRight.AddForce(force, ForceMode.Acceleration);
-                if(_modeChooser.val == Mode.ANIM_OPTIMIZED || _modeChooser.val == Mode.TOUCH_OPTIMIZED)
+                if(_refreshStatus == RefreshStatus.MASS_OK)
                 {
-                    if(_refreshStatus == RefreshStatus.MASS_OK)
-                    {
-                        StartCoroutine(CalibrateNipplesTracking());
-                    }
-                    else if(_refreshStatus == RefreshStatus.NEUTRALPOS_OK)
-                    {
-                        EndRefresh();
-                    }
+                    StartCoroutine(CalibrateNipplesTracking());
                 }
-                else
+                else if(_refreshStatus == RefreshStatus.NEUTRALPOS_OK)
                 {
                     EndRefresh();
                 }
@@ -947,29 +843,8 @@ namespace TittyMagic
                 yield return null;
             }
 
-            SetJsonMode(json);
-            // for some reason, base restore doesn't always trigger mode selection
-            _modeChooser.val = json["Mode"];
             base.RestoreFromJSON(json, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
-
             _loadingFromJson = false;
-        }
-
-        private void SetJsonMode(JSONClass json)
-        {
-            if(!json.HasKey("Mode"))
-            {
-                json["Mode"] = Mode.ANIM_OPTIMIZED;
-            }
-            else if(json["Mode"] == "TouchOptimized")
-            {
-                // compatibility with 2.1 saves
-                json["Mode"] = Mode.TOUCH_OPTIMIZED;
-            }
-            else if(!_modeChooser.choices.Contains(json["Mode"]))
-            {
-                json["Mode"] = Mode.ANIM_OPTIMIZED;
-            }
         }
 
         private string MorphsPath()

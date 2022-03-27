@@ -32,14 +32,6 @@ namespace TittyMagic
     }
     // ReSharper restore InconsistentNaming
 
-    public static class Mode
-    {
-        public const string ANIM_OPTIMIZED = "Animation optimized";
-        public const string BALANCED = "Balanced";
-        public const string TOUCH_OPTIMIZED = "Touch optimized";
-        public const string FUTA = "Futa";
-    }
-
     public static class Direction
     {
         public const string DOWN = "DOWN";

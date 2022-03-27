@@ -24,8 +24,9 @@ namespace TittyMagic
 
         private static void LoadSettings(MVRScript script, List<MorphConfig> configs)
         {
-            Persistence.LoadNippleMorphSettings(
+            Persistence.LoadFromPath(
                 script,
+                $@"{Globals.PLUGIN_PATH}settings\morphmultipliers\nippleErection.json",
                 (dir, json) =>
                 {
                     foreach(var config in configs)

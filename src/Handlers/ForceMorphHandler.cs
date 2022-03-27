@@ -41,26 +41,25 @@ namespace TittyMagic
 #endif
         }
 
-        public void LoadSettings(string mode)
+        public void LoadSettings()
         {
             _configSets = new Dictionary<string, List<Config>>
             {
-                { Direction.UP_L, LoadSettingsFromFile(mode, "upForce", " L") },
-                { Direction.UP_R, LoadSettingsFromFile(mode, "upForce", " R") },
-                { Direction.UP_C, LoadSettingsFromFile(mode, "upForceCenter") },
-                { Direction.BACK_L, LoadSettingsFromFile(mode, "backForce", " L") },
-                { Direction.BACK_R, LoadSettingsFromFile(mode, "backForce", " R") },
-                { Direction.BACK_C, LoadSettingsFromFile(mode, "backForceCenter") },
-                { Direction.FORWARD_L, LoadSettingsFromFile(mode, "forwardForce", " L") },
-                { Direction.FORWARD_R, LoadSettingsFromFile(mode, "forwardForce", " R") },
-                { Direction.FORWARD_C, LoadSettingsFromFile(mode, "forwardForceCenter") },
-                { Direction.LEFT_L, LoadSettingsFromFile(mode, "leftForceL") },
-                { Direction.LEFT_R, LoadSettingsFromFile(mode, "leftForceR") },
-                { Direction.RIGHT_L, LoadSettingsFromFile(mode, "rightForceL") },
-                { Direction.RIGHT_R, LoadSettingsFromFile(mode, "rightForceR") },
+                { Direction.UP_L, LoadSettingsFromFile("upForce", " L") },
+                { Direction.UP_R, LoadSettingsFromFile("upForce", " R") },
+                { Direction.UP_C, LoadSettingsFromFile("upForceCenter") },
+                { Direction.BACK_L, LoadSettingsFromFile("backForce", " L") },
+                { Direction.BACK_R, LoadSettingsFromFile("backForce", " R") },
+                { Direction.BACK_C, LoadSettingsFromFile("backForceCenter") },
+                { Direction.FORWARD_L, LoadSettingsFromFile("forwardForce", " L") },
+                { Direction.FORWARD_R, LoadSettingsFromFile("forwardForce", " R") },
+                { Direction.FORWARD_C, LoadSettingsFromFile("forwardForceCenter") },
+                { Direction.LEFT_L, LoadSettingsFromFile("leftForceL") },
+                { Direction.LEFT_R, LoadSettingsFromFile("leftForceR") },
+                { Direction.RIGHT_L, LoadSettingsFromFile("rightForceL") },
+                { Direction.RIGHT_R, LoadSettingsFromFile("rightForceR") },
             };
 
-            // not working properly yet when changing mode on the fly
             if(_configurator != null)
             {
                 _configurator.ResetUISectionGroups();
@@ -80,13 +79,12 @@ namespace TittyMagic
             }
         }
 
-        private List<Config> LoadSettingsFromFile(string mode, string fileName, string morphNameSuffix = null)
+        private List<Config> LoadSettingsFromFile(string fileName, string morphNameSuffix = null)
         {
             var configs = new List<Config>();
-            Persistence.LoadModeMorphSettings(
+            Persistence.LoadFromPath(
                 _script,
-                mode,
-                $"{fileName}.json",
+                $@"{Globals.PLUGIN_PATH}settings\morphmultipliers\touchoptimized\{fileName}.json",
                 (dir, json) =>
                 {
                     foreach(string name in json.Keys)
