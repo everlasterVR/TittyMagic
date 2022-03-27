@@ -184,10 +184,12 @@ namespace TittyMagic
     // ReSharper disable UnusedMember.Global MemberCanBePrivate.Global
     internal static class UI
     {
-        public static Color Black = UnityEngine.Color.black;
-        public static Color DarkOffGrayViolet = new Color(0.26f, 0.20f, 0.26f);
-        public static Color OffGrayViolet = new Color(0.80f, 0.75f, 0.80f);
-        public static Color White = UnityEngine.Color.white;
+        public static Color darkOffGrayViolet = new Color(0.26f, 0.20f, 0.26f);
+        public static Color gray = new Color(0.4f, 0.4f, 0.4f);
+        public static Color lightPink = new Color(1f, 0.925f, 0.925f);
+        public static Color offGrayRed = new Color(0.45f, 0.4f, 0.4f);
+        public static Color offGrayViolet = new Color(0.80f, 0.75f, 0.80f);
+        public static Color sliderGray = new Color(0, 0, 0, 0.498f);
 
         public static string LineBreak()
         {
@@ -348,7 +350,7 @@ namespace TittyMagic
                 {
                     var btn = script.CreateButton(RadioButtonLabel(choice, choice == jsc.defaultVal), rightSide);
                     btn.buttonText.alignment = TextAnchor.MiddleLeft;
-                    btn.buttonColor = DarkOffGrayViolet;
+                    btn.buttonColor = darkOffGrayViolet;
                     btn.height = 60f;
                     buttons.Add(choice, btn);
                 }
@@ -372,8 +374,20 @@ namespace TittyMagic
             string radio = $"{Size(selected ? "  ●" : "  ○", 36)}";
             return Color(
                 $"{radio}  {name}",
-                selected ? White : OffGrayViolet
+                selected ? UnityEngine.Color.white : offGrayViolet
             );
+        }
+
+        public static void ApplyToggleStyle(UIDynamicToggle uiToggle)
+        {
+            bool val = uiToggle.toggle.interactable;
+            uiToggle.textColor = val ? UnityEngine.Color.black : gray;
+        }
+
+        public static void ApplySliderStyle(UIDynamicSlider uiSlider)
+        {
+            bool val = uiSlider.slider.interactable;
+            uiSlider.labelText.color = val ? UnityEngine.Color.black : gray;
         }
     }
     // ReSharper restore UnusedMember.Global MemberCanBePrivate.Global

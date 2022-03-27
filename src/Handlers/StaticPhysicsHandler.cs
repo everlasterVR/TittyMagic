@@ -141,7 +141,7 @@ namespace TittyMagic
             BREAST_PHYSICS_MESH.softVerticesColliderAdditionalNormalOffset = 0.001f;
         }
 
-        public float SetAndReturnMassVal(float massEstimate)
+        public float SetAndReturnMassAmount(float massEstimate)
         {
             BREAST_CONTROL.mass = massEstimate;
             _massVal = Mathf.InverseLerp(0, Const.MASS_MAX, massEstimate);

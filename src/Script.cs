@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using SimpleJSON;
 using UnityEngine;
-using UnityEngine.UI;
 using static TittyMagic.Utils;
 using static TittyMagic.Calc;
 using static TittyMagic.Globals;
@@ -21,7 +20,6 @@ namespace TittyMagic
         private Rigidbody _pectoralRbLeft;
         private Rigidbody _pectoralRbRight;
 
-        private float _massEstimate;
         private float _massAmount;
         private float _softnessAmount;
 
@@ -43,17 +41,20 @@ namespace TittyMagic
         private NippleErectionMorphHandler _nippleErectionMorphH;
 
         private JSONStorableString _titleUIText;
-        private JSONStorableString _statusUIText;
-        private InputField _statusUIInputField;
         private JSONStorableString _modeInfoText;
 
         private Dictionary<string, UIDynamicButton> _modeButtonGroup;
 
         private JSONStorableStringChooser _modeChooser;
         private JSONStorableString _pluginVersionStorable;
-        private JSONStorableBool _autoRecalibrateOnSizeChange;
-        private UIDynamicButton _recalibrateButton;
+        private JSONStorableBool _autoRefresh;
+        private UIDynamicToggle _autoRefreshToggle;
+        private JSONStorableBool _autoMass;
+        private UIDynamicButton _refreshButton;
+        private JSONStorableFloat _mass;
+        private UIDynamicSlider _massSlider;
         private JSONStorableFloat _softness;
+        private SliderClickMonitor _massSCM;
         private SliderClickMonitor _softnessSCM;
         private SliderClickMonitor _xPhysicsSCM;
         private SliderClickMonitor _yPhysicsSCM;
@@ -235,21 +236,45 @@ namespace TittyMagic
         {
             _titleUIText = this.NewTextField("titleText", "", 36, 100);
             _titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{VERSION}</size>");
+            this.NewSpacer(35, true);
 
-            _statusUIText = this.NewTextField("statusText", "", 28, 50, true);
-            _statusUIInputField = UI.NewInputField(_statusUIText.dynamicText);
-            _statusUIInputField.interactable = false;
-            _autoRecalibrateOnSizeChange = this.NewToggle("Auto-recalibrate if size changed", true, true);
-            _autoRecalibrateOnSizeChange.storeType = JSONStorableParam.StoreType.Full;
+            _autoMass = this.NewToggle("Automatic mass", true, true);
+            _autoMass.storeType = JSONStorableParam.StoreType.Full;
 
-            _recalibrateButton = CreateButton("Recalibrate physics", true);
-            _recalibrateButton.button.interactable = !_autoRecalibrateOnSizeChange.val;
+            _mass = new JSONStorableFloat("Breast mass", Const.MASS_MIN, Const.MASS_MIN, Const.MASS_MAX);
+            _massSlider = this.NewFloatSlider(_mass, "F3");
+            _massSCM = _mass.slider.gameObject.AddComponent<SliderClickMonitor>();
+            _mass.slider.onValueChanged.AddListener(val => RefreshFromSliderChanged());
 
-            _autoRecalibrateOnSizeChange.toggle.onValueChanged.AddListener(
-                val => _recalibrateButton.button.interactable = !val
+            _autoRefresh = new JSONStorableBool("Auto-refresh if size changed", true);
+            _autoRefresh.storeType = JSONStorableParam.StoreType.Full;
+            _autoRefreshToggle = this.NewToggle(_autoRefresh, true);
+
+            _autoMass.toggle.onValueChanged.AddListener(
+                val =>
+                {
+                    _mass.slider.interactable = !val;
+                    _autoRefresh.toggle.interactable = val;
+                    if(val && DeviatesAtLeast(_mass.val, EstimateMass(), 10))
+                    {
+                        StartCoroutine(WaitToBeginRefresh(true));
+                    }
+
+                    UI.ApplyToggleStyle(_autoRefreshToggle);
+                    UI.ApplySliderStyle(_massSlider);
+                }
+            );
+            _mass.slider.interactable = !_autoMass.val;
+            _autoRefresh.toggle.interactable = _autoMass.val;
+            UI.ApplyToggleStyle(_autoRefreshToggle);
+            UI.ApplySliderStyle(_massSlider);
+
+            _refreshButton = CreateButton("Refresh physics", true);
+            _refreshButton.height = 55;
+            _refreshButton.button.onClick.AddListener(
+                () => StartCoroutine(WaitToBeginRefresh(true))
             );
 
-            this.NewSpacer(65f);
             // _modeInfoText = this.NewTextField("Usage Info Area 2", "", 28, 210, true);
 
             if(_isFemale)
@@ -264,10 +289,6 @@ namespace TittyMagic
 
         private void InitPluginUIFemale()
         {
-            _recalibrateButton.button.onClick.AddListener(
-                () => StartCoroutine(WaitToBeginRefresh(true))
-            );
-
             CreateModeChooser();
             CreateSoftnessSlider();
             CreateMorphingMultipliers();
@@ -277,10 +298,6 @@ namespace TittyMagic
 
         private void InitPluginUIMale()
         {
-            _recalibrateButton.button.onClick.AddListener(
-                () => StartCoroutine(WaitToBeginRefresh(true))
-            );
-
             CreateMorphingMultipliers();
             CreateGravityPhysicsMultipliers();
             CreateAdditionalSettings();
@@ -350,7 +367,7 @@ namespace TittyMagic
             _gravityMorphHandler.xMultiplier = new Multiplier(xStorable.slider, true);
             _gravityMorphHandler.zMultiplier = new Multiplier(zStorable.slider);
 
-            this.NewSpacer(100f, true);
+            this.NewSpacer(100, true);
             var gravityInfoText = this.NewTextField("GravityInfoText", "", 28, 390, true);
             gravityInfoText.val = UI.Size("\n", 12) +
                 "Adjust the amount of breast morphing due to forces including gravity. Breasts morph up, left/right and forward/back.";
@@ -378,7 +395,7 @@ namespace TittyMagic
             _gravityPhysicsHandler.xMultiplier = xMultiplier;
             _gravityPhysicsHandler.zMultiplier = zMultiplier;
 
-            this.NewSpacer(100f, true);
+            this.NewSpacer(100, true);
             var morphingInfoText = this.NewTextField("MorphingInfoText", "", 28, 390, true);
             morphingInfoText.val = UI.Size("\n", 12) +
                 "Adjust the effect of chest angle on breast main physics settings. \n\n" +
@@ -660,8 +677,9 @@ namespace TittyMagic
 
             _chestRoll = 0;
             _chestPitch = 0;
-            _massEstimate = EstimateMass();
-            _massAmount = _staticPhysicsH.SetAndReturnMassVal(_massEstimate);
+
+            _mass.val = EstimateMass();
+            _massAmount = _staticPhysicsH.SetAndReturnMassAmount(_mass.val);
             if(_isFemale)
             {
                 _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
@@ -684,6 +702,7 @@ namespace TittyMagic
                 while(
                     _breastMorphListener.Changed() ||
                     _atomScaleListener.Changed() ||
+                    (_massSCM != null && _massSCM.isDown) ||
                     (_softnessSCM != null && _softnessSCM.isDown) ||
                     (_xPhysicsSCM != null && _xPhysicsSCM.isDown) ||
                     (_yPhysicsSCM != null && _yPhysicsSCM.isDown) ||
@@ -728,13 +747,13 @@ namespace TittyMagic
                 yield return new WaitForSeconds(interval);
                 duration += interval;
 
-                _massEstimate = EstimateMass();
-                _massAmount = _staticPhysicsH.SetAndReturnMassVal(_massEstimate);
+                _mass.val = EstimateMass();
+                _massAmount = _staticPhysicsH.SetAndReturnMassAmount(_mass.val);
                 _staticPhysicsH.UpdateMainPhysics(_softnessAmount);
             }
 
+            _mass.defaultVal = _mass.val;
             SetFemaleMorphingExtraMultipliers();
-            SetMassUIStatus(_atomScaleListener.scale);
             _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
             _gravityPhysicsHandler.SetBaseValues();
         }
@@ -757,19 +776,19 @@ namespace TittyMagic
             const float interval = 0.1f;
             while(
                 duration < 1f &&
-                !EqualWithin(1000f, _massEstimate, EstimateMass())
+                !EqualWithin(1000f, _mass.val, EstimateMass())
             )
             {
                 yield return new WaitForSeconds(interval);
                 duration += interval;
 
-                _massEstimate = EstimateMass();
-                _massAmount = _staticPhysicsH.SetAndReturnMassVal(_massEstimate);
+                _mass.val = EstimateMass();
+                _massAmount = _staticPhysicsH.SetAndReturnMassAmount(_mass.val);
                 _staticPhysicsH.UpdatePectoralPhysics();
             }
 
+            _mass.defaultVal = _mass.val;
             SetMaleMorphingExtraMultipliers();
-            SetMassUIStatus(_atomScaleListener.scale);
             _gravityPhysicsHandler.SetBaseValues();
         }
 
@@ -869,10 +888,11 @@ namespace TittyMagic
 
         private bool CheckListeners()
         {
-            return _autoRecalibrateOnSizeChange.val &&
+            return _autoMass.val &&
+                _autoRefresh.val &&
                 _waitStatus != RefreshStatus.WAITING &&
                 (_breastMorphListener.Changed() || _atomScaleListener.Changed()) &&
-                DeviatesAtLeast(_massEstimate, EstimateMass(), 10);
+                DeviatesAtLeast(_mass.val, EstimateMass(), 10);
         }
 
         public void UpdateRateDependentPhysics()
@@ -882,30 +902,16 @@ namespace TittyMagic
 
         private float EstimateMass()
         {
+            if(!_autoMass.val)
+            {
+                return _mass.val;
+            }
+
             return Mathf.Clamp(
                 _breastMassCalculator.Calculate(_atomScaleListener.scale),
-                Const.MASS_MIN,
-                Const.MASS_MAX
+                _mass.min,
+                _mass.max
             );
-        }
-
-        private void SetMassUIStatus(float atomScale)
-        {
-            float mass = _breastMassCalculator.Calculate(atomScale);
-            string text = $"Mass is {RoundToDecimals(mass, 1000f)}kg";
-            if(mass > Const.MASS_MAX)
-            {
-                float value = RoundToDecimals(mass - Const.MASS_MAX, 1000f);
-                text = $"Mass is {value}kg over the 2kg max";
-            }
-            else if(mass < Const.MASS_MIN)
-            {
-                float value = RoundToDecimals(Const.MASS_MIN - mass, 1000f);
-                text = $"Mass is {value}kg below the 0.1kg min";
-            }
-
-            _statusUIText.SetVal(text);
-            _statusUIInputField.text = text;
         }
 
         public override void RestoreFromJSON(
@@ -968,6 +974,7 @@ namespace TittyMagic
         private void OnRemoveAtom(Atom atom)
         {
             Destroy(_settingsMonitor);
+            Destroy(_massSCM);
             Destroy(_softnessSCM);
             Destroy(_xPhysicsSCM);
             Destroy(_yPhysicsSCM);
@@ -979,6 +986,7 @@ namespace TittyMagic
             try
             {
                 Destroy(_settingsMonitor);
+                Destroy(_massSCM);
                 Destroy(_softnessSCM);
                 Destroy(_xPhysicsSCM);
                 Destroy(_yPhysicsSCM);
