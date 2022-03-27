@@ -50,7 +50,6 @@ namespace TittyMagic
         private JSONStorableString _pluginVersionStorable;
         private JSONStorableBool _autoRefresh;
         private UIDynamicToggle _autoRefreshToggle;
-        private JSONStorableBool _autoMass;
         private UIDynamicButton _refreshButton;
         private JSONStorableFloat _mass;
         private UIDynamicSlider _massSlider;
@@ -193,7 +192,7 @@ namespace TittyMagic
                 _gravityMorphHandler.LoadSettings(Mode.BALANCED);
                 _gravityPhysicsHandler.LoadSettings(Mode.FUTA);
                 _staticPhysicsH.LoadSettings(this, Mode.FUTA);
-                StartCoroutine(WaitToBeginRefresh());
+                StartCoroutine(WaitToBeginRefresh(true, false));
             }
             catch(Exception e)
             {
@@ -235,46 +234,38 @@ namespace TittyMagic
 
         private void InitPluginUI()
         {
-            _titleUIText = this.NewTextField("titleText", "", 36, 100);
+            _titleUIText = this.NewTextField("titleText", "", 36, 115);
             _titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{VERSION}</size>");
-            this.NewSpacer(35, true);
 
-            _autoMass = this.NewToggle("Automatic mass", true, true);
-            _autoMass.storeType = JSONStorableParam.StoreType.Full;
+            _autoRefresh = new JSONStorableBool("Auto-update mass", true);
+            _autoRefresh.storeType = JSONStorableParam.StoreType.Full;
+            _autoRefreshToggle = this.NewToggle(_autoRefresh, true);
+
+            _refreshButton = CreateButton("Calculate mass", true);
+            _refreshButton.button.onClick.AddListener(
+                () => StartCoroutine(WaitToBeginRefresh(true, true, true))
+            );
 
             _mass = new JSONStorableFloat("Breast mass", Const.MASS_MIN, Const.MASS_MIN, Const.MASS_MAX);
             _massSlider = this.NewFloatSlider(_mass, "F3");
             _massSCM = _mass.slider.gameObject.AddComponent<SliderClickMonitor>();
-            _mass.slider.onValueChanged.AddListener(val => RefreshFromSliderChanged());
+            _mass.slider.onValueChanged.AddListener(val => RefreshFromSliderChanged(true));
 
-            _autoRefresh = new JSONStorableBool("Auto-refresh if size changed", true);
-            _autoRefresh.storeType = JSONStorableParam.StoreType.Full;
-            _autoRefreshToggle = this.NewToggle(_autoRefresh, true);
+            var massInfoText = this.NewTextField("massInfoText", "", 28, 120, true);
+            massInfoText.SetVal(
+                UI.Size("\n", 12) +
+                "Affects main physics and some soft physics settings."
+            );
 
-            _autoMass.toggle.onValueChanged.AddListener(
+            _autoRefresh.toggle.onValueChanged.AddListener(
                 val =>
                 {
                     _mass.slider.interactable = !val;
-                    _autoRefresh.toggle.interactable = val;
-                    if(val && DeviatesAtLeast(_mass.val, CalculateMass(), 10))
-                    {
-                        StartCoroutine(WaitToBeginRefresh(true));
-                    }
-
-                    UI.ApplyToggleStyle(_autoRefreshToggle);
                     UI.ApplySliderStyle(_massSlider);
                 }
             );
-            _mass.slider.interactable = !_autoMass.val;
-            _autoRefresh.toggle.interactable = _autoMass.val;
-            UI.ApplyToggleStyle(_autoRefreshToggle);
+            _mass.slider.interactable = !_autoRefresh.val;
             UI.ApplySliderStyle(_massSlider);
-
-            _refreshButton = CreateButton("Refresh physics", true);
-            _refreshButton.height = 55;
-            _refreshButton.button.onClick.AddListener(
-                () => StartCoroutine(WaitToBeginRefresh(true))
-            );
 
             // _modeInfoText = this.NewTextField("Usage Info Area 2", "", 28, 210, true);
 
@@ -325,7 +316,7 @@ namespace TittyMagic
                 mode =>
                 {
                     // UI.UpdateButtonLabels(_modeButtonGroup, mode);
-                    StartCoroutine(WaitToBeginRefresh(true, () => OnModeChosen(mode)));
+                    StartCoroutine(WaitToBeginRefresh(true, false, null, () => OnModeChosen(mode)));
                 }
             );
             _modeChooser.storeType = JSONStorableParam.StoreType.Full;
@@ -336,10 +327,10 @@ namespace TittyMagic
         private void CreateSoftnessSlider()
         {
             _softness = this.NewIntSlider("Breast softness", 75f, 0f, 100f);
-            var softnessInfoText = this.NewTextField("Usage Info Area 1", "", 28, 120, true);
+            var softnessInfoText = this.NewTextField("softnessInfoText", "", 28, 120, true);
             softnessInfoText.SetVal(
                 UI.Size("\n", 12) +
-                "Adjusts soft physics settings from very firm to very soft."
+                "Adjust soft physics settings from very firm to very soft."
             );
         }
 
@@ -520,13 +511,13 @@ namespace TittyMagic
 
         #endregion User interface
 
-        private void RefreshFromSliderChanged()
+        private void RefreshFromSliderChanged(bool refreshMass = false)
         {
             if(_loadingFromJson) return;
 
             if((_modeChooser.val == Mode.ANIM_OPTIMIZED || _modeChooser.val == Mode.TOUCH_OPTIMIZED) && _waitStatus != RefreshStatus.WAITING)
             {
-                StartCoroutine(WaitToBeginRefresh());
+                StartCoroutine(WaitToBeginRefresh(refreshMass, true));
             }
             else
             {
@@ -590,7 +581,7 @@ namespace TittyMagic
                     _timeSinceListenersChecked -= LISTENERS_CHECK_INTERVAL;
                     if(CheckListeners())
                     {
-                        StartCoroutine(WaitToBeginRefresh());
+                        StartCoroutine(WaitToBeginRefresh(true, false));
                         return;
                     }
                 }
@@ -644,8 +635,13 @@ namespace TittyMagic
             }
         }
 
-        public IEnumerator WaitToBeginRefresh(bool triggeredManually = false, Action onModeChosen = null)
+        public IEnumerator WaitToBeginRefresh(bool refreshMass, bool userTriggered, bool? useNewMass = null, Action onModeChosen = null)
         {
+            if(useNewMass == null)
+            {
+                useNewMass = _autoRefresh.val;
+            }
+
             _waitStatus = RefreshStatus.WAITING;
 
             while(_refreshStatus != RefreshStatus.DONE && _refreshStatus != -1)
@@ -655,11 +651,11 @@ namespace TittyMagic
 
             onModeChosen?.Invoke();
 
-            PreRefresh();
-            yield return BeginRefresh(triggeredManually);
+            PreRefresh(refreshMass, useNewMass.Value);
+            yield return BeginRefresh(refreshMass, useNewMass.Value, userTriggered);
         }
 
-        private void PreRefresh()
+        private void PreRefresh(bool refreshMass, bool useNewMass)
         {
             bool mainToggleFrozen =
                 SuperController.singleton.freezeAnimationToggle != null &&
@@ -679,7 +675,11 @@ namespace TittyMagic
             _chestRoll = 0;
             _chestPitch = 0;
 
-            UpdateMassValueAndAmounts();
+            if(refreshMass)
+            {
+                UpdateMassValueAndAmounts(useNewMass);
+            }
+
             if(_isFemale)
             {
                 _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
@@ -692,9 +692,9 @@ namespace TittyMagic
             RunHandlers();
         }
 
-        private IEnumerator BeginRefresh(bool triggeredManually = false)
+        private IEnumerator BeginRefresh(bool refreshMass, bool useNewMass, bool userTriggered = false)
         {
-            if(!triggeredManually)
+            if(!userTriggered)
             {
                 // ensure refresh actually begins only once listeners report no change
                 yield return new WaitForSeconds(LISTENERS_CHECK_INTERVAL);
@@ -715,20 +715,23 @@ namespace TittyMagic
                 yield return new WaitForSeconds(0.33f);
             }
 
-            _refreshStatus = RefreshStatus.MASS_STARTED;
-            if(_isFemale)
+            if(refreshMass)
             {
-                yield return RefreshFemale();
-            }
-            else
-            {
-                yield return RefreshMale();
+                _refreshStatus = RefreshStatus.MASS_STARTED;
+                if(_isFemale)
+                {
+                    yield return RefreshMassFemale(useNewMass);
+                }
+                else
+                {
+                    yield return RefreshMassMale(useNewMass);
+                }
             }
 
             _refreshStatus = RefreshStatus.MASS_OK;
         }
 
-        private IEnumerator RefreshFemale()
+        private IEnumerator RefreshMassFemale(bool useNewMass)
         {
             _settingsMonitor.enabled = false;
 
@@ -747,11 +750,11 @@ namespace TittyMagic
                 yield return new WaitForSeconds(interval);
                 duration += interval;
 
-                UpdateMassValueAndAmounts();
+                UpdateMassValueAndAmounts(useNewMass);
                 _staticPhysicsH.UpdateMainPhysics(_softnessAmount);
             }
 
-            if(_autoMass.val)
+            if(_autoRefresh.val)
             {
                 _mass.defaultVal = _mass.val;
             }
@@ -769,7 +772,7 @@ namespace TittyMagic
             _forceMorphHandler.zMultiplier.oppositeExtraMultiplier = 3.7f - (2.2f * _realMassAmount);
         }
 
-        private IEnumerator RefreshMale()
+        private IEnumerator RefreshMassMale(bool useNewMass)
         {
             yield return new WaitForSeconds(0.33f);
 
@@ -785,7 +788,7 @@ namespace TittyMagic
                 yield return new WaitForSeconds(interval);
                 duration += interval;
 
-                UpdateMassValueAndAmounts();
+                UpdateMassValueAndAmounts(useNewMass);
                 _staticPhysicsH.UpdatePectoralPhysics();
             }
 
@@ -890,8 +893,7 @@ namespace TittyMagic
 
         private bool CheckListeners()
         {
-            return _autoMass.val &&
-                _autoRefresh.val &&
+            return _autoRefresh.val &&
                 _waitStatus != RefreshStatus.WAITING &&
                 (_breastMorphListener.Changed() || _atomScaleListener.Changed()) &&
                 DeviatesAtLeast(_mass.val, CalculateMass(), 10);
@@ -902,11 +904,11 @@ namespace TittyMagic
             _staticPhysicsH.UpdateRateDependentPhysics(_softnessAmount);
         }
 
-        private void UpdateMassValueAndAmounts()
+        private void UpdateMassValueAndAmounts(bool useNewMass)
         {
             float mass = CalculateMass();
             _realMassAmount = Mathf.InverseLerp(0, Const.MASS_MAX, mass);
-            if(_autoMass.val)
+            if(useNewMass)
             {
                 _massAmount = _realMassAmount;
                 _mass.val = mass;
@@ -1022,7 +1024,7 @@ namespace TittyMagic
 
             if(_initDone && CheckListeners())
             {
-                StartCoroutine(WaitToBeginRefresh());
+                StartCoroutine(WaitToBeginRefresh(true, false));
             }
         }
 
