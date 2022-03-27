@@ -7,10 +7,12 @@ namespace TittyMagic
     internal class BreastVolumeCalculator
     {
         private readonly DAZSkinV2 _skin;
+        private Rigidbody _chestRb;
 
-        public BreastVolumeCalculator(DAZSkinV2 skin)
+        public BreastVolumeCalculator(DAZSkinV2 skin, Rigidbody chestRb)
         {
             _skin = skin;
+            _chestRb = chestRb;
         }
 
         public float Calculate(float atomScale)
@@ -24,7 +26,9 @@ namespace TittyMagic
 
         private List<Vector3> GetPositions(IEnumerable<int> vertexIndices)
         {
-            return vertexIndices.Select(i => _skin.rawSkinnedVerts[i]).ToList();
+            return vertexIndices
+                .Select(i => Calc.RelativePosition(_chestRb, _skin.rawSkinnedVerts[i]))
+                .ToList();
         }
 
         private static Vector3 BoundsSize(List<Vector3> vertices)
