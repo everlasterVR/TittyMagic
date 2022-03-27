@@ -166,7 +166,10 @@ namespace TittyMagic
                 _forceMorphHandler.LoadSettings();
                 _gravityPhysicsHandler.LoadSettings(true);
                 _staticPhysicsH.LoadSettings(this, true);
-                StartCoroutine(WaitToBeginRefresh(true, false));
+                if(!_loadingFromJson)
+                {
+                    StartCoroutine(WaitToBeginRefresh(true, false));
+                }
             }
             catch(Exception e)
             {
@@ -187,7 +190,10 @@ namespace TittyMagic
                 _gravityMorphHandler.LoadSettings();
                 _gravityPhysicsHandler.LoadSettings(false);
                 _staticPhysicsH.LoadSettings(this, false);
-                StartCoroutine(WaitToBeginRefresh(true, false));
+                if(!_loadingFromJson)
+                {
+                    StartCoroutine(WaitToBeginRefresh(true, false));
+                }
             }
             catch(Exception e)
             {
@@ -844,6 +850,7 @@ namespace TittyMagic
             }
 
             base.RestoreFromJSON(json, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
+            StartCoroutine(WaitToBeginRefresh(true, false));
             _loadingFromJson = false;
         }
 
