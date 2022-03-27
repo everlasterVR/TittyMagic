@@ -246,6 +246,15 @@ namespace TittyMagic
             _titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{VERSION}</size>");
 
             _autoRefresh = this.NewToggle("Auto-update mass", true, true);
+            _autoRefresh.toggle.onValueChanged.AddListener(
+                val =>
+                {
+                    if(val && DeviatesAtLeast(_mass.val, CalculateMass(), 10))
+                    {
+                        StartCoroutine(WaitToBeginRefresh(true, true));
+                    }
+                }
+            );
 
             _refreshButton = CreateButton("Calculate mass", true);
             _refreshButton.button.onClick.AddListener(
