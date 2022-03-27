@@ -49,7 +49,6 @@ namespace TittyMagic
         private JSONStorableStringChooser _modeChooser;
         private JSONStorableString _pluginVersionStorable;
         private JSONStorableBool _autoRefresh;
-        private UIDynamicToggle _autoRefreshToggle;
         private UIDynamicButton _refreshButton;
         private JSONStorableFloat _mass;
         private UIDynamicSlider _massSlider;
@@ -237,9 +236,7 @@ namespace TittyMagic
             _titleUIText = this.NewTextField("titleText", "", 36, 115);
             _titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{VERSION}</size>");
 
-            _autoRefresh = new JSONStorableBool("Auto-update mass", true);
-            _autoRefresh.storeType = JSONStorableParam.StoreType.Full;
-            _autoRefreshToggle = this.NewToggle(_autoRefresh, true);
+            _autoRefresh = this.NewToggle("Auto-update mass", true, true);
 
             _refreshButton = CreateButton("Calculate mass", true);
             _refreshButton.button.onClick.AddListener(
