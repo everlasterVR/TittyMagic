@@ -43,6 +43,7 @@ namespace TittyMagic
                 new BreastStaticPhysicsConfig("positionSpringZ", 450f, 550f, 250f),
                 new BreastStaticPhysicsConfig("positionDamperZ", 16f, 22f, 9f, true),
             };
+
             _softPhysicsConfigs = new List<StaticPhysicsConfig>
             {
                 new BreastSoftStaticPhysicsConfig("softVerticesCombinedSpring", 240f, 240f, 62f),
@@ -59,8 +60,8 @@ namespace TittyMagic
                 new BreastSoftStaticPhysicsConfig("groupBDamperMultiplier", 1f, 1f, 1f),
                 new BreastSoftStaticPhysicsConfig("groupCSpringMultiplier", 2.29f, 1.30f, 2.29f),
                 new BreastSoftStaticPhysicsConfig("groupCDamperMultiplier", 1.81f, 1.22f, 1.81f),
-
             };
+
             _nipplePhysicsConfigs = new List<StaticPhysicsConfig>
             {
                 new BreastSoftStaticPhysicsConfig("groupDSpringMultiplier", 2.29f, 1.30f, 2.29f),
@@ -92,64 +93,64 @@ namespace TittyMagic
             BREAST_PHYSICS_MESH.softVerticesColliderAdditionalNormalOffset = 0.001f;
         }
 
-        public void UpdateMainPhysics(float softnessVal)
+        public void UpdateMainPhysics(float softnessAmount)
         {
             float physicsRateMultiplier = PhysicsRateMultiplier();
             foreach(var it in _mainPhysicsConfigs)
             {
                 if(it.dependOnPhysicsRate)
-                    it.UpdateVal(massAmount, softnessVal, physicsRateMultiplier);
+                    it.UpdateVal(massAmount, softnessAmount, physicsRateMultiplier);
                 else
-                    it.UpdateVal(massAmount, softnessVal);
+                    it.UpdateVal(massAmount, softnessAmount);
             }
         }
 
-        public void UpdateRateDependentPhysics(float softnessVal)
+        public void UpdateRateDependentPhysics(float softnessAmount)
         {
             float physicsRateMultiplier = PhysicsRateMultiplier();
             foreach(var it in _mainPhysicsConfigs)
             {
                 if(it.dependOnPhysicsRate)
-                    it.UpdateVal(massAmount, softnessVal, physicsRateMultiplier);
+                    it.UpdateVal(massAmount, softnessAmount, physicsRateMultiplier);
             }
 
             foreach(var it in _softPhysicsConfigs)
             {
                 if(it.dependOnPhysicsRate)
-                    it.UpdateVal(massAmount, softnessVal, physicsRateMultiplier);
+                    it.UpdateVal(massAmount, softnessAmount, physicsRateMultiplier);
             }
         }
 
-        public void UpdateNipplePhysics(float softnessVal, float nippleErectionVal)
+        public void UpdateNipplePhysics(float softnessAmount, float nippleErectionVal)
         {
             foreach(var it in _nipplePhysicsConfigs)
             {
-                it.UpdateVal(massAmount, softnessVal, 1, 1.25f * nippleErectionVal);
+                it.UpdateVal(massAmount, softnessAmount, 1, 1.25f * nippleErectionVal);
             }
         }
 
-        public void FullUpdate(float softnessVal, float nippleErectionVal)
+        public void FullUpdate(float softnessAmount, float nippleErectionVal)
         {
             float physicsRateMultiplier = PhysicsRateMultiplier();
             foreach(var it in _mainPhysicsConfigs)
             {
                 if(it.dependOnPhysicsRate)
-                    it.UpdateVal(massAmount, softnessVal, physicsRateMultiplier);
+                    it.UpdateVal(massAmount, softnessAmount, physicsRateMultiplier);
                 else
-                    it.UpdateVal(massAmount, softnessVal);
+                    it.UpdateVal(massAmount, softnessAmount);
             }
 
             foreach(var it in _softPhysicsConfigs)
             {
                 if(it.dependOnPhysicsRate)
-                    it.UpdateVal(massAmount, softnessVal, physicsRateMultiplier);
+                    it.UpdateVal(massAmount, softnessAmount, physicsRateMultiplier);
                 else
-                    it.UpdateVal(massAmount, softnessVal);
+                    it.UpdateVal(massAmount, softnessAmount);
             }
 
             foreach(var it in _nipplePhysicsConfigs)
             {
-                it.UpdateVal(massAmount, softnessVal, 1, 1.25f * nippleErectionVal);
+                it.UpdateVal(massAmount, softnessAmount, 1, 1.25f * nippleErectionVal);
             }
         }
 

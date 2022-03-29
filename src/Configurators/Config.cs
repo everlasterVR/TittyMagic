@@ -105,12 +105,27 @@ namespace TittyMagic
         }
     }
 
-    internal class StaticPhysicsConfig
+    internal class StaticPhysicsConfigBase
     {
         protected JSONStorableFloat setting;
         protected float valMinMS; // value at min mass and min softness
         protected float valMaxM; // value at max mass and min softness
         protected float valMaxS; // value at min mass and max softness
+
+        public StaticPhysicsConfigBase()
+        {
+        }
+
+        public StaticPhysicsConfigBase(float valMinMS, float valMaxM, float valMaxS)
+        {
+            this.valMinMS = valMinMS;
+            this.valMaxM = valMaxM;
+            this.valMaxS = valMaxS;
+        }
+    }
+
+    internal class StaticPhysicsConfig : StaticPhysicsConfigBase
+    {
         public bool dependOnPhysicsRate { get; protected set; }
 
         // input mass and softness normalized to (0,1) range
