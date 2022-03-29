@@ -387,12 +387,12 @@ namespace TittyMagic
             {
                 _forceMorphHandler.yMultiplier = new Multiplier(yStorable.slider, true);
                 _forceMorphHandler.xMultiplier = new Multiplier(xStorable.slider, true);
-                _forceMorphHandler.zMultiplier = new Multiplier(zStorable.slider, false);
+                _forceMorphHandler.zMultiplier = new Multiplier(zStorable.slider);
             }
 
             _gravityMorphHandler.yMultiplier = new Multiplier(yStorable.slider, true);
             _gravityMorphHandler.xMultiplier = new Multiplier(xStorable.slider, true);
-            _gravityMorphHandler.zMultiplier = new Multiplier(zStorable.slider, false);
+            _gravityMorphHandler.zMultiplier = new Multiplier(zStorable.slider);
 
             this.NewSpacer(100, true);
             var gravityInfoText = this.NewTextField("GravityInfoText", "", 28, 390, true);
@@ -536,7 +536,7 @@ namespace TittyMagic
             }
         }
 
-        private void RunHandlers()
+        private void RunHandlers(bool updateGravityPhysics = true)
         {
             if(_isFemale)
             {
@@ -559,7 +559,7 @@ namespace TittyMagic
                 );
             }
 
-            if(_gravityPhysicsHandler.IsEnabled())
+            if(updateGravityPhysics && _gravityPhysicsHandler.IsEnabled())
             {
                 _gravityPhysicsHandler.Update(
                     _chestRoll,
@@ -622,7 +622,7 @@ namespace TittyMagic
                 _staticPhysicsH.UpdatePectoralPhysics();
             }
 
-            RunHandlers();
+            RunHandlers(false);
         }
 
         private IEnumerator BeginRefresh(bool refreshMass, bool fromToggleOrButton, bool useNewMass)
@@ -659,7 +659,7 @@ namespace TittyMagic
             _pectoralRbRight.useGravity = false;
 
             yield return new WaitForSeconds(0.33f);
-            RunHandlers();
+            RunHandlers(false);
 
             _refreshStatus = RefreshStatus.MASS_STARTED;
             if(refreshMass)
@@ -674,6 +674,7 @@ namespace TittyMagic
                 }
             }
 
+            _gravityPhysicsHandler.SetBaseValues();
             _refreshStatus = RefreshStatus.MASS_OK;
         }
 
@@ -697,7 +698,6 @@ namespace TittyMagic
 
             SetFemaleMorphingExtraMultipliers();
             _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
-            _gravityPhysicsHandler.SetBaseValues();
         }
 
         private void SetFemaleMorphingExtraMultipliers()
@@ -727,7 +727,6 @@ namespace TittyMagic
             }
 
             SetMaleMorphingExtraMultipliers();
-            _gravityPhysicsHandler.SetBaseValues();
         }
 
         private void SetMaleMorphingExtraMultipliers()

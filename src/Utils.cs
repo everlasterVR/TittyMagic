@@ -142,7 +142,7 @@ namespace TittyMagic
             return sum / positions.Count;
         }
 
-        public static bool EqualWithin(float roundFactor, float v1, float v2)
+        private static bool EqualWithin(float roundFactor, float v1, float v2)
         {
             return Mathf.Abs(v1 - v2) < 1 / roundFactor;
         }

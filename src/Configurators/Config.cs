@@ -112,7 +112,7 @@ namespace TittyMagic
         protected float valMaxM; // value at max mass and min softness
         protected float valMaxS; // value at min mass and max softness
 
-        public StaticPhysicsConfigBase()
+        protected StaticPhysicsConfigBase()
         {
         }
 

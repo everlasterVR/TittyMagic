@@ -7,7 +7,7 @@ namespace TittyMagic
     internal class BreastVolumeCalculator
     {
         private readonly DAZSkinV2 _skin;
-        private Rigidbody _chestRb;
+        private readonly Rigidbody _chestRb;
 
         public BreastVolumeCalculator(DAZSkinV2 skin, Rigidbody chestRb)
         {

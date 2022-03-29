@@ -50,7 +50,7 @@ namespace TittyMagic
 
                     if(CheckAdvancedColliders())
                     {
-                        StartCoroutine(gameObject.GetComponent<Script>().WaitToBeginRefresh(true, false));
+                        StartCoroutine(gameObject.GetComponent<Script>().WaitToBeginRefresh(true));
                     }
 
                     float fixedDeltaTime = Time.fixedDeltaTime;
