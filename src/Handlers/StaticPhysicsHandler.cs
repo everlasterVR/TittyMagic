@@ -6,9 +6,9 @@ namespace TittyMagic
 {
     internal class StaticPhysicsHandler
     {
-        private List<BreastStaticPhysicsConfig> _mainPhysicsConfigs;
-        private List<BreastSoftStaticPhysicsConfig> _softPhysicsConfigs;
-        private List<BreastSoftStaticPhysicsConfig> _nipplePhysicsConfigs;
+        private List<StaticPhysicsConfig> _mainPhysicsConfigs;
+        private List<StaticPhysicsConfig> _softPhysicsConfigs;
+        private List<StaticPhysicsConfig> _nipplePhysicsConfigs;
         private List<PectoralStaticPhysicsConfig> _pectoralPhysicsConfigs;
 
         public float massAmount { get; set; }
@@ -35,7 +35,7 @@ namespace TittyMagic
 
         private void LoadFemaleBreastSettings()
         {
-            _mainPhysicsConfigs = new List<BreastStaticPhysicsConfig>()
+            _mainPhysicsConfigs = new List<StaticPhysicsConfig>()
             {
                 new BreastStaticPhysicsConfig("centerOfGravityPercent", 0.350f, 0.480f, 0.560f),
                 new BreastStaticPhysicsConfig("spring", 50f, 64f, 45f),
@@ -43,7 +43,7 @@ namespace TittyMagic
                 new BreastStaticPhysicsConfig("positionSpringZ", 450f, 550f, 250f),
                 new BreastStaticPhysicsConfig("positionDamperZ", 16f, 22f, 9f, true),
             };
-            _softPhysicsConfigs = new List<BreastSoftStaticPhysicsConfig>
+            _softPhysicsConfigs = new List<StaticPhysicsConfig>
             {
                 new BreastSoftStaticPhysicsConfig("softVerticesCombinedSpring", 240f, 240f, 62f),
                 new BreastSoftStaticPhysicsConfig("softVerticesCombinedDamper", 1.50f, 1.80f, 0.90f, true),
@@ -61,7 +61,7 @@ namespace TittyMagic
                 new BreastSoftStaticPhysicsConfig("groupCDamperMultiplier", 1.81f, 1.22f, 1.81f),
 
             };
-            _nipplePhysicsConfigs = new List<BreastSoftStaticPhysicsConfig>
+            _nipplePhysicsConfigs = new List<StaticPhysicsConfig>
             {
                 new BreastSoftStaticPhysicsConfig("groupDSpringMultiplier", 2.29f, 1.30f, 2.29f),
                 new BreastSoftStaticPhysicsConfig("groupDDamperMultiplier", 1.81f, 1.22f, 1.81f),

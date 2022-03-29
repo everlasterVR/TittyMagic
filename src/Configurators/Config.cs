@@ -105,61 +105,47 @@ namespace TittyMagic
         }
     }
 
-    internal class BreastStaticPhysicsConfig
+    internal class StaticPhysicsConfig
     {
-        private readonly JSONStorableFloat _setting;
-        private readonly float _valMinMS; // value at min mass and min softness
-        private readonly float _valMaxM; // value at max mass and min softness
-        private readonly float _valMaxS; // value at min mass and max softness
-        public bool dependOnPhysicsRate { get; }
-
-        public BreastStaticPhysicsConfig(string storableName, float valMinMS, float valMaxM, float valMaxS, bool dependOnPhysicsRate = false)
-        {
-            _setting = BREAST_CONTROL.GetFloatJSONParam(storableName);
-            _valMinMS = valMinMS;
-            _valMaxM = valMaxM;
-            _valMaxS = valMaxS;
-            this.dependOnPhysicsRate = dependOnPhysicsRate;
-        }
+        protected JSONStorableFloat setting;
+        protected float valMinMS; // value at min mass and min softness
+        protected float valMaxM; // value at max mass and min softness
+        protected float valMaxS; // value at min mass and max softness
+        public bool dependOnPhysicsRate { get; protected set; }
 
         // input mass and softness normalized to (0,1) range
         public void UpdateVal(float mass, float softness, float multiplier = 1, float addend = 0)
         {
-            _setting.val = (multiplier * Calculate(mass, softness)) + addend;
+            setting.val = (multiplier * Calculate(mass, softness)) + addend;
         }
 
         private float Calculate(float mass, float softness)
         {
-            return Mathf.Lerp(_valMinMS, _valMaxM, mass) + Mathf.Lerp(_valMinMS, _valMaxS, softness) - _valMinMS;
+            return Mathf.Lerp(valMinMS, valMaxM, mass) + Mathf.Lerp(valMinMS, valMaxS, softness) - valMinMS;
         }
     }
 
-    internal class BreastSoftStaticPhysicsConfig
+    internal class BreastStaticPhysicsConfig : StaticPhysicsConfig
     {
-        private readonly JSONStorableFloat _setting;
-        private readonly float _valMinMS; // value at min mass and min softness
-        private readonly float _valMaxM; // value at max mass and min softness
-        private readonly float _valMaxS; // value at min mass and max softness
-        public bool dependOnPhysicsRate { get; }
-
-        public BreastSoftStaticPhysicsConfig(string storableName, float valMinMS, float valMaxM, float valMaxS, bool dependOnPhysicsRate = false)
+        public BreastStaticPhysicsConfig(string storableName, float valMinMS, float valMaxM, float valMaxS, bool dependOnPhysicsRate = false)
         {
-            _setting = BREAST_PHYSICS_MESH.GetFloatJSONParam(storableName);
-            _valMinMS = valMinMS;
-            _valMaxM = valMaxM;
-            _valMaxS = valMaxS;
+            setting = BREAST_CONTROL.GetFloatJSONParam(storableName);
+            this.valMinMS = valMinMS;
+            this.valMaxM = valMaxM;
+            this.valMaxS = valMaxS;
             this.dependOnPhysicsRate = dependOnPhysicsRate;
         }
+    }
 
-        // input mass and softness normalized to (0,1) range
-        public void UpdateVal(float mass, float softness, float multiplier = 1, float addend = 0)
+    internal class BreastSoftStaticPhysicsConfig : StaticPhysicsConfig
+    {
+        public BreastSoftStaticPhysicsConfig(string storableName, float valMinMS, float valMaxM, float valMaxS, bool dependOnPhysicsRate = false)
         {
-            _setting.val = (multiplier * Calculate(mass, softness)) + addend;
-        }
-
-        private float Calculate(float mass, float softness)
-        {
-            return Mathf.Lerp(_valMinMS, _valMaxM, mass) + Mathf.Lerp(_valMinMS, _valMaxS, softness) - _valMinMS;
+            setting = BREAST_PHYSICS_MESH.GetFloatJSONParam(storableName);
+            this.valMinMS = valMinMS;
+            this.valMaxM = valMaxM;
+            this.valMaxS = valMaxS;
+            this.dependOnPhysicsRate = dependOnPhysicsRate;
         }
     }
 
