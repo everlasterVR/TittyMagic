@@ -615,7 +615,7 @@ namespace TittyMagic
 
             if(_isFemale)
             {
-                _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
+                _staticPhysicsH.FullUpdate(_softnessAmount, _quicknessAmount, _nippleErection.val);
             }
             else
             {
@@ -688,7 +688,7 @@ namespace TittyMagic
                 duration += interval;
 
                 UpdateMassValueAndAmounts(useNewMass);
-                _staticPhysicsH.UpdateMainPhysics(_softnessAmount);
+                _staticPhysicsH.UpdateMainPhysics(_softnessAmount, _quicknessAmount);
             }
 
             if(_autoRefresh.val)
@@ -697,7 +697,7 @@ namespace TittyMagic
             }
 
             SetFemaleMorphingExtraMultipliers();
-            _staticPhysicsH.FullUpdate(_softnessAmount, _nippleErection.val);
+            _staticPhysicsH.FullUpdate(_softnessAmount, _quicknessAmount, _nippleErection.val);
         }
 
         private void SetFemaleMorphingExtraMultipliers()
@@ -827,7 +827,7 @@ namespace TittyMagic
 
         public void UpdateRateDependentPhysics()
         {
-            _staticPhysicsH.UpdateRateDependentPhysics(_softnessAmount);
+            _staticPhysicsH.UpdateRateDependentPhysics(_softnessAmount, _quicknessAmount);
         }
 
         private void UpdateMassValueAndAmounts(bool useNewMass)

@@ -122,19 +122,49 @@ namespace TittyMagic
             this.valMaxM = valMaxM;
             this.valMaxS = valMaxS;
         }
+
+        public float Calculate(float mass, float softness)
+        {
+            return Mathf.Lerp(valMinMS, valMaxM, mass) + Mathf.Lerp(valMinMS, valMaxS, softness) - valMinMS;
+        }
     }
 
     internal class StaticPhysicsConfig : StaticPhysicsConfigBase
     {
         public bool dependOnPhysicsRate { get; protected set; }
+        public StaticPhysicsConfigBase quicknessOffsetConfig { get; set; }
 
-        // input mass and softness normalized to (0,1) range
-        public void UpdateVal(float mass, float softness, float multiplier = 1, float addend = 0)
+        // input mass, softness and quickness normalized to (0,1) range
+        public void UpdateVal(float mass, float softness, float quickness, float multiplier)
         {
-            setting.val = (multiplier * Calculate(mass, softness)) + addend;
+            if(dependOnPhysicsRate)
+            {
+                setting.val = multiplier * Calculate(mass, softness, quickness);
+            }
+            else
+            {
+                setting.val = Calculate(mass, softness, quickness);
+            }
         }
 
-        private float Calculate(float mass, float softness)
+        private float Calculate(float mass, float softness, float quickness)
+        {
+            float baseValue = base.Calculate(mass, softness);
+            if(quicknessOffsetConfig != null)
+            {
+                float maxQuicknessOffset = quicknessOffsetConfig.Calculate(mass, softness);
+                return baseValue + Mathf.Lerp(0, maxQuicknessOffset, quickness);
+            }
+
+            return baseValue;
+        }
+
+        public void UpdateNippleVal(float mass, float softness, float addend = 0)
+        {
+            setting.val = CalculateNippleVal(mass, softness) + addend;
+        }
+
+        private float CalculateNippleVal(float mass, float softness)
         {
             return Mathf.Lerp(valMinMS, valMaxM, mass) + Mathf.Lerp(valMinMS, valMaxS, softness) - valMinMS;
         }
