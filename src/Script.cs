@@ -165,7 +165,7 @@ namespace TittyMagic
                 _staticPhysicsH.LoadSettings(this, true);
                 if(!_loadingFromJson)
                 {
-                    StartCoroutine(WaitToBeginRefresh(true, false));
+                    StartCoroutine(WaitToBeginRefresh(true));
                 }
                 else
                 {
@@ -192,7 +192,7 @@ namespace TittyMagic
                 _staticPhysicsH.LoadSettings(this, false);
                 if(!_loadingFromJson)
                 {
-                    StartCoroutine(WaitToBeginRefresh(true, false));
+                    StartCoroutine(WaitToBeginRefresh(true));
                 }
                 else
                 {
@@ -423,7 +423,7 @@ namespace TittyMagic
         {
             if(!_loadingFromJson && _waitStatus != RefreshStatus.WAITING)
             {
-                StartCoroutine(WaitToBeginRefresh(refreshMass, true));
+                StartCoroutine(WaitToBeginRefresh(refreshMass));
             }
         }
 
@@ -484,7 +484,7 @@ namespace TittyMagic
                     _timeSinceListenersChecked -= LISTENERS_CHECK_INTERVAL;
                     if(CheckListeners())
                     {
-                        StartCoroutine(WaitToBeginRefresh(true, false));
+                        StartCoroutine(WaitToBeginRefresh(true));
                         return;
                     }
                 }
@@ -538,7 +538,7 @@ namespace TittyMagic
             }
         }
 
-        public IEnumerator WaitToBeginRefresh(bool refreshMass, bool userTriggered, bool? useNewMass = null)
+        public IEnumerator WaitToBeginRefresh(bool refreshMass, bool fromToggleOrButton = false, bool? useNewMass = null)
         {
             if(useNewMass == null)
             {
@@ -553,7 +553,7 @@ namespace TittyMagic
             }
 
             PreRefresh(refreshMass, useNewMass.Value);
-            yield return BeginRefresh(refreshMass, useNewMass.Value, userTriggered);
+            yield return BeginRefresh(refreshMass, fromToggleOrButton, useNewMass.Value);
         }
 
         private void PreRefresh(bool refreshMass, bool useNewMass)
@@ -593,9 +593,9 @@ namespace TittyMagic
             RunHandlers();
         }
 
-        private IEnumerator BeginRefresh(bool refreshMass, bool useNewMass, bool userTriggered = false)
+        private IEnumerator BeginRefresh(bool refreshMass, bool fromToggleOrButton, bool useNewMass)
         {
-            if(!userTriggered)
+            if(!fromToggleOrButton)
             {
                 // ensure refresh actually begins only once listeners report no change
                 yield return new WaitForSeconds(LISTENERS_CHECK_INTERVAL);
@@ -845,7 +845,7 @@ namespace TittyMagic
             }
 
             base.RestoreFromJSON(json, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
-            StartCoroutine(WaitToBeginRefresh(true, false));
+            StartCoroutine(WaitToBeginRefresh(true));
             _loadingFromJson = false;
         }
 
@@ -898,7 +898,7 @@ namespace TittyMagic
 
             if(_initDone && CheckListeners())
             {
-                StartCoroutine(WaitToBeginRefresh(true, false));
+                StartCoroutine(WaitToBeginRefresh(true));
             }
         }
 
