@@ -159,8 +159,6 @@ namespace TittyMagic
                 _forceMorphHandler = new ForceMorphHandler(this, _trackLeftNipple, _trackRightNipple);
 
                 InitPluginUI();
-                SoftnessSliderListener();
-                GravityPhysicsSliderListeners();
 
                 _forceMorphHandler.LoadSettings();
                 _gravityPhysicsHandler.LoadSettings(true);
@@ -188,7 +186,6 @@ namespace TittyMagic
                 _breastMorphListener = new BreastMorphListener(GEOMETRY.morphBank1OtherGender.morphs, GEOMETRY.morphBank1.morphs);
 
                 InitPluginUI();
-                GravityPhysicsSliderListeners();
 
                 _gravityMorphHandler.LoadSettings();
                 _gravityPhysicsHandler.LoadSettings(false);
@@ -261,16 +258,7 @@ namespace TittyMagic
                 () => StartCoroutine(WaitToBeginRefresh(true, true, true))
             );
 
-            _mass = new JSONStorableFloat("Breast mass", Const.MASS_MIN, Const.MASS_MIN, Const.MASS_MAX);
-            _massSlider = this.NewFloatSlider(_mass, "F3");
-            _massSCM = _mass.slider.gameObject.AddComponent<SliderClickMonitor>();
-            _mass.slider.onValueChanged.AddListener(val => RefreshFromSliderChanged(true));
-
-            var massInfoText = this.NewTextField("massInfoText", "", 28, 120, true);
-            massInfoText.SetVal(
-                UI.Size("\n", 12) +
-                "Affects main physics and some soft physics settings."
-            );
+            CreateMassSlider();
 
             _autoRefresh.toggle.onValueChanged.AddListener(
                 val =>
@@ -307,14 +295,46 @@ namespace TittyMagic
             CreateAdditionalSettings();
         }
 
+        private void CreateMassSlider()
+        {
+            _mass = new JSONStorableFloat("Breast mass", Const.MASS_MIN, Const.MASS_MIN, Const.MASS_MAX);
+            _massSlider = this.NewFloatSlider(_mass, "F3");
+            _massSCM = _mass.slider.gameObject.AddComponent<SliderClickMonitor>();
+            _mass.slider.onValueChanged.AddListener(val => RefreshFromSliderChanged(true));
+
+            var massInfoText = this.NewTextField("massInfoText", "", 28, 120, true);
+            massInfoText.SetVal(
+                UI.Size("\n", 12) +
+                "Affects main physics and some soft physics settings."
+            );
+        }
+
         private void CreateSoftnessSlider()
         {
             _softness = this.NewIntSlider("Breast softness", 75f, 0f, 100f);
+            _softnessSCM = _softness.slider.gameObject.AddComponent<SliderClickMonitor>();
+
             var softnessInfoText = this.NewTextField("softnessInfoText", "", 28, 120, true);
             softnessInfoText.SetVal(
                 UI.Size("\n", 12) +
                 "Adjust soft physics settings from very firm to very soft."
             );
+
+            _softness.slider.onValueChanged.AddListener(
+                val =>
+                {
+                    float newAmount = Mathf.Pow(val / 100f, 0.67f);
+                    if(Math.Abs(newAmount - _softnessAmount) < 0.001f)
+                    {
+                        return;
+                    }
+
+                    _softnessAmount = newAmount;
+                    RefreshFromSliderChanged();
+                }
+            );
+
+            _softnessAmount = Mathf.Pow(_softness.val / 100f, 0.67f);
         }
 
         private void CreateMorphingMultipliers()
@@ -335,12 +355,12 @@ namespace TittyMagic
             {
                 _forceMorphHandler.yMultiplier = new Multiplier(yStorable.slider, true);
                 _forceMorphHandler.xMultiplier = new Multiplier(xStorable.slider, true);
-                _forceMorphHandler.zMultiplier = new Multiplier(zStorable.slider);
+                _forceMorphHandler.zMultiplier = new Multiplier(zStorable.slider, false);
             }
 
             _gravityMorphHandler.yMultiplier = new Multiplier(yStorable.slider, true);
             _gravityMorphHandler.xMultiplier = new Multiplier(xStorable.slider, true);
-            _gravityMorphHandler.zMultiplier = new Multiplier(zStorable.slider);
+            _gravityMorphHandler.zMultiplier = new Multiplier(zStorable.slider, false);
 
             this.NewSpacer(100, true);
             var gravityInfoText = this.NewTextField("GravityInfoText", "", 28, 390, true);
@@ -354,21 +374,13 @@ namespace TittyMagic
             title.SetVal("<size=28>\n\n</size><b>Gravity physics multipliers</b>");
             title.dynamicText.backgroundColor = Color.clear;
 
-            var yStorable = new JSONStorableFloat("Physics Up/down", 1.00f, 0.00f, 2.00f);
-            var xStorable = new JSONStorableFloat("Physics Left/right", 1.00f, 0.00f, 2.00f);
-            var zStorable = new JSONStorableFloat("Physics Forward/back", 1.00f, 0.00f, 2.00f);
+            _gravityPhysicsHandler.yMultiplier = CreateGravityPhysicsMultiplier("Physics Up/down");
+            _gravityPhysicsHandler.xMultiplier = CreateGravityPhysicsMultiplier("Physics Left/right");
+            _gravityPhysicsHandler.zMultiplier = CreateGravityPhysicsMultiplier("Physics Forward/back");
 
-            this.NewFloatSlider(yStorable, "F2");
-            this.NewFloatSlider(xStorable, "F2");
-            this.NewFloatSlider(zStorable, "F2");
-
-            var yMultiplier = new Multiplier(yStorable.slider);
-            var xMultiplier = new Multiplier(xStorable.slider);
-            var zMultiplier = new Multiplier(zStorable.slider);
-
-            _gravityPhysicsHandler.yMultiplier = yMultiplier;
-            _gravityPhysicsHandler.xMultiplier = xMultiplier;
-            _gravityPhysicsHandler.zMultiplier = zMultiplier;
+            _xPhysicsSCM = _gravityPhysicsHandler.yMultiplier.slider.gameObject.AddComponent<SliderClickMonitor>();
+            _yPhysicsSCM = _gravityPhysicsHandler.xMultiplier.slider.gameObject.AddComponent<SliderClickMonitor>();
+            _zPhysicsSCM = _gravityPhysicsHandler.zMultiplier.slider.gameObject.AddComponent<SliderClickMonitor>();
 
             this.NewSpacer(100, true);
             var morphingInfoText = this.NewTextField("MorphingInfoText", "", 28, 390, true);
@@ -376,6 +388,14 @@ namespace TittyMagic
                 "Adjust the effect of chest angle on breast main physics settings. \n\n" +
                 "Higher values mean breasts drop more heavily up/down and left/right, " +
                 "are more swingy when leaning forward, and less springy when leaning back.";
+        }
+
+        private Multiplier CreateGravityPhysicsMultiplier(string storableName)
+        {
+            var storable = new JSONStorableFloat(storableName, 1.00f, 0.00f, 2.00f);
+            this.NewFloatSlider(storable, "F2");
+            storable.slider.onValueChanged.AddListener(val => { RefreshFromSliderChanged(); });
+            return new Multiplier(storable.slider);
         }
 
         private void CreateAdditionalSettings()
@@ -394,48 +414,6 @@ namespace TittyMagic
                         _staticPhysicsH.UpdateNipplePhysics(_softnessAmount, val);
                     }
                 }
-            );
-        }
-
-        private void SoftnessSliderListener()
-        {
-            _softnessSCM = _softness.slider.gameObject.AddComponent<SliderClickMonitor>();
-
-            _softness.slider.onValueChanged.AddListener(
-                val =>
-                {
-                    float newAmount = Mathf.Pow(val / 100f, 0.67f);
-                    if(Math.Abs(newAmount - _softnessAmount) < 0.001f)
-                    {
-                        return;
-                    }
-
-                    _softnessAmount = newAmount;
-                    RefreshFromSliderChanged();
-                }
-            );
-
-            _softnessAmount = Mathf.Pow(_softness.val / 100f, 0.67f);
-        }
-
-        private void GravityPhysicsSliderListeners()
-        {
-            var xSlider = _gravityPhysicsHandler.xMultiplier.slider;
-            var ySlider = _gravityPhysicsHandler.yMultiplier.slider;
-            var zSlider = _gravityPhysicsHandler.zMultiplier.slider;
-
-            _xPhysicsSCM = xSlider.gameObject.AddComponent<SliderClickMonitor>();
-            _yPhysicsSCM = ySlider.gameObject.AddComponent<SliderClickMonitor>();
-            _zPhysicsSCM = zSlider.gameObject.AddComponent<SliderClickMonitor>();
-
-            xSlider.onValueChanged.AddListener(
-                val => { RefreshFromSliderChanged(); }
-            );
-            ySlider.onValueChanged.AddListener(
-                val => { RefreshFromSliderChanged(); }
-            );
-            zSlider.onValueChanged.AddListener(
-                val => { RefreshFromSliderChanged(); }
             );
         }
 
