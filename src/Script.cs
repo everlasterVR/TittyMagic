@@ -23,6 +23,7 @@ namespace TittyMagic
         private float _realMassAmount;
         private float _massAmount;
         private float _softnessAmount;
+        private float _quicknessAmount;
 
         private TrackNipple _trackLeftNipple;
         private TrackNipple _trackRightNipple;
@@ -49,8 +50,10 @@ namespace TittyMagic
         private JSONStorableFloat _mass;
         private UIDynamicSlider _massSlider;
         private JSONStorableFloat _softness;
+        private JSONStorableFloat _quickness;
         private SliderClickMonitor _massSCM;
         private SliderClickMonitor _softnessSCM;
+        private SliderClickMonitor _quicknessSCM;
         private SliderClickMonitor _xPhysicsSCM;
         private SliderClickMonitor _yPhysicsSCM;
         private SliderClickMonitor _zPhysicsSCM;
@@ -283,6 +286,7 @@ namespace TittyMagic
         private void InitPluginUIFemale()
         {
             CreateSoftnessSlider();
+            CreateQuicknessSlider();
             CreateMorphingMultipliers();
             CreateGravityPhysicsMultipliers();
             CreateAdditionalSettings();
@@ -335,6 +339,34 @@ namespace TittyMagic
             );
 
             _softnessAmount = Mathf.Pow(_softness.val / 100f, 0.67f);
+        }
+
+        private void CreateQuicknessSlider()
+        {
+            _quickness = this.NewIntSlider("Breast quickness", 0f, 0f, 100f);
+            _quicknessSCM = _quickness.slider.gameObject.AddComponent<SliderClickMonitor>();
+
+            var softnessInfoText = this.NewTextField("quicknessInfoText", "", 28, 120, true);
+            softnessInfoText.SetVal(
+                UI.Size("\n", 12) +
+                "Adjust breast quickness WIP."
+            );
+
+            _quickness.slider.onValueChanged.AddListener(
+                val =>
+                {
+                    float newAmount = Mathf.Pow(val / 100f, 0.67f);
+                    if(Math.Abs(newAmount - _quicknessAmount) < 0.001f)
+                    {
+                        return;
+                    }
+
+                    _quicknessAmount = newAmount;
+                    RefreshFromSliderChanged();
+                }
+            );
+
+            _quicknessAmount = Mathf.Pow(_quickness.val / 100f, 0.67f);
         }
 
         private void CreateMorphingMultipliers()
@@ -605,6 +637,7 @@ namespace TittyMagic
                     _atomScaleListener.Changed() ||
                     (_massSCM != null && _massSCM.isDown) ||
                     (_softnessSCM != null && _softnessSCM.isDown) ||
+                    (_quicknessSCM != null && _quicknessSCM.isDown) ||
                     (_xPhysicsSCM != null && _xPhysicsSCM.isDown) ||
                     (_yPhysicsSCM != null && _yPhysicsSCM.isDown) ||
                     (_zPhysicsSCM != null && _zPhysicsSCM.isDown)
@@ -867,6 +900,7 @@ namespace TittyMagic
             Destroy(_settingsMonitor);
             Destroy(_massSCM);
             Destroy(_softnessSCM);
+            Destroy(_quicknessSCM);
             Destroy(_xPhysicsSCM);
             Destroy(_yPhysicsSCM);
             Destroy(_zPhysicsSCM);
@@ -879,6 +913,7 @@ namespace TittyMagic
                 Destroy(_settingsMonitor);
                 Destroy(_massSCM);
                 Destroy(_softnessSCM);
+                Destroy(_quicknessSCM);
                 Destroy(_xPhysicsSCM);
                 Destroy(_yPhysicsSCM);
                 Destroy(_zPhysicsSCM);
