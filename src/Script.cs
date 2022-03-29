@@ -165,7 +165,7 @@ namespace TittyMagic
 
                 _forceMorphHandler.LoadSettings();
                 _gravityPhysicsHandler.LoadSettings(true);
-                _staticPhysicsH.LoadSettings(this, true);
+                _staticPhysicsH.LoadSettings(true);
                 if(!_loadingFromJson)
                 {
                     StartCoroutine(WaitToBeginRefresh(true));
@@ -192,7 +192,7 @@ namespace TittyMagic
 
                 _gravityMorphHandler.LoadSettings();
                 _gravityPhysicsHandler.LoadSettings(false);
-                _staticPhysicsH.LoadSettings(this, false);
+                _staticPhysicsH.LoadSettings(false);
                 if(!_loadingFromJson)
                 {
                     StartCoroutine(WaitToBeginRefresh(true));

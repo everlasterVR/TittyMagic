@@ -41,7 +41,7 @@ namespace TittyMagic
 
         public void LoadSettings(bool isFemale)
         {
-            _configSets = LoadSettingsFromFile(isFemale ? "touchoptimized" : "pectoral");
+            _configSets = LoadSettingsFromFile(isFemale ? "female" : "futa");
 
             if(_configurator != null)
             {

@@ -84,7 +84,7 @@ namespace TittyMagic
             var configs = new List<Config>();
             Persistence.LoadFromPath(
                 _script,
-                $@"{Globals.PLUGIN_PATH}settings\morphmultipliers\touchoptimized\{fileName}.json",
+                $@"{Globals.PLUGIN_PATH}settings\morphmultipliers\female\{fileName}.json",
                 (dir, json) =>
                 {
                     foreach(string name in json.Keys)
