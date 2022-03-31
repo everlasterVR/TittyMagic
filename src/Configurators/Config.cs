@@ -133,6 +133,7 @@ namespace TittyMagic
     {
         public bool dependOnPhysicsRate { get; protected set; }
         public StaticPhysicsConfigBase quicknessOffsetConfig { get; set; }
+        public StaticPhysicsConfigBase slownessOffsetConfig { get; set; }
 
         // input mass, softness and quickness normalized to (0,1) range
         public void UpdateVal(float mass, float softness, float quickness, float multiplier)
@@ -150,10 +151,16 @@ namespace TittyMagic
         private float Calculate(float mass, float softness, float quickness)
         {
             float baseValue = base.Calculate(mass, softness);
-            if(quicknessOffsetConfig != null)
+            if(quicknessOffsetConfig != null && quickness > 0)
             {
                 float maxQuicknessOffset = quicknessOffsetConfig.Calculate(mass, softness);
                 return baseValue + Mathf.Lerp(0, maxQuicknessOffset, quickness);
+            }
+
+            if(slownessOffsetConfig != null && quickness < 0)
+            {
+                float maxSlownessOffset = slownessOffsetConfig.Calculate(mass, softness);
+                return baseValue + Mathf.Lerp(0, maxSlownessOffset, -quickness);
             }
 
             return baseValue;

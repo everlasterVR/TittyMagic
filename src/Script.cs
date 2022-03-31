@@ -343,7 +343,7 @@ namespace TittyMagic
 
         private void CreateQuicknessSlider()
         {
-            _quickness = this.NewIntSlider("Breast quickness", 0f, 0f, 100f);
+            _quickness = this.NewIntSlider("Breast quickness", 50f, 0f, 100f);
             _quicknessSCM = _quickness.slider.gameObject.AddComponent<SliderClickMonitor>();
 
             var softnessInfoText = this.NewTextField("quicknessInfoText", "", 28, 120, true);
@@ -355,7 +355,7 @@ namespace TittyMagic
             _quickness.slider.onValueChanged.AddListener(
                 val =>
                 {
-                    float newAmount = Mathf.Pow(val / 100f, 0.67f);
+                    float newAmount = (2 * val / 100f) - 1;
                     if(Math.Abs(newAmount - _quicknessAmount) < 0.001f)
                     {
                         return;
@@ -366,7 +366,7 @@ namespace TittyMagic
                 }
             );
 
-            _quicknessAmount = Mathf.Pow(_quickness.val / 100f, 0.67f);
+            _quicknessAmount = (2 * _quickness.val / 100) - 1;
         }
 
         private void CreateMorphingMultipliers()
