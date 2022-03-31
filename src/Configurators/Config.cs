@@ -131,7 +131,8 @@ namespace TittyMagic
 
     internal class StaticPhysicsConfig : StaticPhysicsConfigBase
     {
-        public bool dependOnPhysicsRate { get; protected set; }
+        public bool dependOnPhysicsRate { get; set; }
+        public bool useRealMass { get; set; }
         public StaticPhysicsConfigBase quicknessOffsetConfig { get; set; }
         public StaticPhysicsConfigBase slownessOffsetConfig { get; set; }
 
@@ -179,25 +180,23 @@ namespace TittyMagic
 
     internal class BreastStaticPhysicsConfig : StaticPhysicsConfig
     {
-        public BreastStaticPhysicsConfig(string storableName, float valMinMS, float valMaxM, float valMaxS, bool dependOnPhysicsRate = false)
+        public BreastStaticPhysicsConfig(string storableName, float valMinMS, float valMaxM, float valMaxS)
         {
             setting = BREAST_CONTROL.GetFloatJSONParam(storableName);
             this.valMinMS = valMinMS;
             this.valMaxM = valMaxM;
             this.valMaxS = valMaxS;
-            this.dependOnPhysicsRate = dependOnPhysicsRate;
         }
     }
 
     internal class BreastSoftStaticPhysicsConfig : StaticPhysicsConfig
     {
-        public BreastSoftStaticPhysicsConfig(string storableName, float valMinMS, float valMaxM, float valMaxS, bool dependOnPhysicsRate = false)
+        public BreastSoftStaticPhysicsConfig(string storableName, float valMinMS, float valMaxM, float valMaxS)
         {
             setting = BREAST_PHYSICS_MESH.GetFloatJSONParam(storableName);
             this.valMinMS = valMinMS;
             this.valMaxM = valMaxM;
             this.valMaxS = valMaxS;
-            this.dependOnPhysicsRate = dependOnPhysicsRate;
         }
     }
 
