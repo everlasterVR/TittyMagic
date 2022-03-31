@@ -8,9 +8,11 @@ namespace TittyMagic
     {
         private List<StaticPhysicsConfig> _mainPhysicsConfigs;
         private List<StaticPhysicsConfig> _softPhysicsConfigs;
+        private List<StaticPhysicsConfig> _realMassSoftPhysicsConfigs;
         private List<StaticPhysicsConfig> _nipplePhysicsConfigs;
         private List<PectoralStaticPhysicsConfig> _pectoralPhysicsConfigs;
 
+        public float realMassAmount { get; set; }
         public float massAmount { get; set; }
 
         public StaticPhysicsHandler(bool isFemale)
@@ -78,18 +80,22 @@ namespace TittyMagic
                 },
                 new BreastSoftStaticPhysicsConfig("softVerticesBackForceThresholdDistance", 0.001f, -0.0005f, 0.001f),
                 new BreastSoftStaticPhysicsConfig("softVerticesBackForceMaxForce", 50f, 50f, 50f),
-                new BreastSoftStaticPhysicsConfig("softVerticesColliderRadius", 0.024f, 0.034f, 0.024f),
-                new BreastSoftStaticPhysicsConfig("softVerticesDistanceLimit", 0.020f, 0.068f, 0.028f)
-                {
-                    quicknessOffsetConfig = new StaticPhysicsConfigBase(0.000f, 0.000f, 0.024f),
-                    slownessOffsetConfig = new StaticPhysicsConfigBase(0.000f, 0.000f, -0.008f),
-                },
                 new BreastSoftStaticPhysicsConfig("groupASpringMultiplier", 1f, 1f, 1f),
                 new BreastSoftStaticPhysicsConfig("groupADamperMultiplier", 1f, 1f, 1f),
                 new BreastSoftStaticPhysicsConfig("groupBSpringMultiplier", 1f, 1f, 1f),
                 new BreastSoftStaticPhysicsConfig("groupBDamperMultiplier", 1f, 1f, 1f),
                 new BreastSoftStaticPhysicsConfig("groupCSpringMultiplier", 2.29f, 1.30f, 2.29f),
                 new BreastSoftStaticPhysicsConfig("groupCDamperMultiplier", 1.81f, 1.22f, 1.81f),
+            };
+
+            _realMassSoftPhysicsConfigs = new List<StaticPhysicsConfig>
+            {
+                new BreastSoftStaticPhysicsConfig("softVerticesColliderRadius", 0.024f, 0.034f, 0.024f),
+                new BreastSoftStaticPhysicsConfig("softVerticesDistanceLimit", 0.020f, 0.068f, 0.028f)
+                {
+                    quicknessOffsetConfig = new StaticPhysicsConfigBase(0.000f, 0.000f, 0.024f),
+                    slownessOffsetConfig = new StaticPhysicsConfigBase(0.000f, 0.000f, -0.008f),
+                },
             };
 
             _nipplePhysicsConfigs = new List<StaticPhysicsConfig>
@@ -171,6 +177,11 @@ namespace TittyMagic
             foreach(var it in _softPhysicsConfigs)
             {
                 it.UpdateVal(massAmount, softnessAmount, quicknessAmount, multiplier);
+            }
+
+            foreach(var it in _realMassSoftPhysicsConfigs)
+            {
+                it.UpdateVal(realMassAmount, softnessAmount, quicknessAmount, multiplier);
             }
 
             foreach(var it in _nipplePhysicsConfigs)

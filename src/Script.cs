@@ -845,6 +845,7 @@ namespace TittyMagic
             }
 
             BREAST_CONTROL.mass = _mass.val;
+            _staticPhysicsH.realMassAmount = _realMassAmount;
             _staticPhysicsH.massAmount = _massAmount;
         }
 
