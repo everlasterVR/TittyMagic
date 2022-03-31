@@ -242,8 +242,11 @@ namespace TittyMagic
 
         private void InitPluginUI()
         {
-            _titleUIText = this.NewTextField("titleText", "", 36, 115);
-            _titleUIText.SetVal($"{nameof(TittyMagic)}\n<size=28>v{VERSION}</size>");
+            _titleUIText = this.NewTextField("titleText", "", 46, 100);
+            _titleUIText.SetVal($"<b>{nameof(TittyMagic)}</b><size=36>    v{VERSION}</size>");
+            _titleUIText.dynamicText.backgroundColor = Color.clear;
+
+            this.NewSpacer(35, true);
 
             _autoRefresh = this.NewToggle("Auto-update mass", true, true);
             _autoRefresh.toggle.onValueChanged.AddListener(
@@ -256,7 +259,8 @@ namespace TittyMagic
                 }
             );
 
-            _refreshButton = CreateButton("Calculate mass", true);
+            _refreshButton = CreateButton("Calculate breast mass", true);
+            _refreshButton.height = 60;
             _refreshButton.button.onClick.AddListener(
                 () => StartCoroutine(WaitToBeginRefresh(true, true, true))
             );
@@ -286,6 +290,7 @@ namespace TittyMagic
         private void InitPluginUIFemale()
         {
             CreateSoftnessSlider();
+            this.NewSpacer(45, true);
             CreateQuicknessSlider();
             CreateMorphingMultipliers();
             CreateGravityPhysicsMultipliers();
@@ -305,24 +310,12 @@ namespace TittyMagic
             _massSlider = this.NewFloatSlider(_mass, "F3");
             _massSCM = _mass.slider.gameObject.AddComponent<SliderClickMonitor>();
             _mass.slider.onValueChanged.AddListener(val => RefreshFromSliderChanged(true));
-
-            var massInfoText = this.NewTextField("massInfoText", "", 28, 120, true);
-            massInfoText.SetVal(
-                UI.Size("\n", 12) +
-                "Affects main physics and some soft physics settings."
-            );
         }
 
         private void CreateSoftnessSlider()
         {
             _softness = this.NewIntSlider("Breast softness", 75f, 0f, 100f);
             _softnessSCM = _softness.slider.gameObject.AddComponent<SliderClickMonitor>();
-
-            var softnessInfoText = this.NewTextField("softnessInfoText", "", 28, 120, true);
-            softnessInfoText.SetVal(
-                UI.Size("\n", 12) +
-                "Adjust soft physics settings from very firm to very soft."
-            );
 
             _softness.slider.onValueChanged.AddListener(
                 val =>
@@ -343,14 +336,8 @@ namespace TittyMagic
 
         private void CreateQuicknessSlider()
         {
-            _quickness = this.NewIntSlider("Breast quickness", 50f, 0f, 100f);
+            _quickness = this.NewIntSlider("Breast quickness", 50f, 0f, 100f, true);
             _quicknessSCM = _quickness.slider.gameObject.AddComponent<SliderClickMonitor>();
-
-            var softnessInfoText = this.NewTextField("quicknessInfoText", "", 28, 120, true);
-            softnessInfoText.SetVal(
-                UI.Size("\n", 12) +
-                "Adjust breast quickness WIP."
-            );
 
             _quickness.slider.onValueChanged.AddListener(
                 val =>
@@ -397,7 +384,8 @@ namespace TittyMagic
             this.NewSpacer(100, true);
             var gravityInfoText = this.NewTextField("GravityInfoText", "", 28, 390, true);
             gravityInfoText.val = UI.Size("\n", 12) +
-                "Adjust the amount of breast morphing due to forces including gravity. Breasts morph up, left/right and forward/back.";
+                "Adjust the amount of breast morphing due to forces including gravity.\n\n" +
+                "Breasts morph up/down, left/right and forward/back.";
         }
 
         private void CreateGravityPhysicsMultipliers()
@@ -417,7 +405,7 @@ namespace TittyMagic
             this.NewSpacer(100, true);
             var morphingInfoText = this.NewTextField("MorphingInfoText", "", 28, 390, true);
             morphingInfoText.val = UI.Size("\n", 12) +
-                "Adjust the effect of chest angle on breast main physics settings. \n\n" +
+                "Adjust the effect of chest angle on breast main physics settings.\n\n" +
                 "Higher values mean breasts drop more heavily up/down and left/right, " +
                 "are more swingy when leaning forward, and less springy when leaning back.";
         }
