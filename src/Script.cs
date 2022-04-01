@@ -695,7 +695,7 @@ namespace TittyMagic
         private void SetFemaleMorphingExtraMultipliers()
         {
             _forceMorphHandler.yMultiplier.extraMultiplier = 1.36f * (2.5f - Mathf.Pow(1.67f * _realMassAmount, 0.53f));
-            _forceMorphHandler.xMultiplier.extraMultiplier = 1.10f * (2.67f - Mathf.Pow(_realMassAmount, 1.75f));
+            _forceMorphHandler.xMultiplier.extraMultiplier = 1.20f * (2.67f - Mathf.Pow(_realMassAmount, 1.75f));
             _forceMorphHandler.zMultiplier.extraMultiplier = (2 / Mathf.Pow((0.9f * _realMassAmount) + 0.1f, 1 / 4f)) + 0.3f;
             _forceMorphHandler.zMultiplier.oppositeExtraMultiplier = 3.7f - (2.2f * _realMassAmount);
         }

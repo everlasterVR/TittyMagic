@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using static TittyMagic.Utils;
+using static TittyMagic.GravityEffectCalc;
 
 namespace TittyMagic
 {
@@ -20,6 +21,7 @@ namespace TittyMagic
         private Dictionary<string, List<Config>> _configSets;
 
         private float _mass;
+        private float _pitchMultiplier;
 
         public ForceMorphHandler(MVRScript script, TrackNipple trackLeftNipple, TrackNipple trackRightNipple)
         {
@@ -116,6 +118,7 @@ namespace TittyMagic
         )
         {
             _mass = mass;
+            _pitchMultiplier = CalculatePitchMultiplier(pitch, roll);
 
             AdjustLeftRightMorphs();
             AdjustUpMorphs();
@@ -264,9 +267,22 @@ namespace TittyMagic
             }
         }
 
-        private static float CalculateYEffect(float angle, float multiplier)
+        private float CalculatePitchMultiplier(float pitch, float roll)
         {
-            return multiplier * Mathf.Abs(angle) / 75;
+            float effect = CalculateDiffFromHorizontal(pitch, roll);
+            // upright
+            if(effect >= 0)
+            {
+                return Mathf.Lerp(0.8f, 1.16f, effect);
+            }
+
+            // upside down
+            return Mathf.Lerp(0.8f, 1f, effect);
+        }
+
+        private float CalculateYEffect(float angle, float multiplier)
+        {
+            return multiplier * _pitchMultiplier * Mathf.Abs(angle) / 75;
         }
 
         private static float CalculateZEffect(float distance, float multiplier)

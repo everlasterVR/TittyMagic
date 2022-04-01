@@ -59,6 +59,7 @@ namespace TittyMagic
 
         private static float UpDownAdjustByAngle(float pitch)
         {
+            // leaning forward
             if(pitch >= 0)
             {
                 // upright
@@ -80,6 +81,12 @@ namespace TittyMagic
 
             // upside down
             return -pitch - 1;
+        }
+
+        public static float CalculateDiffFromHorizontal(float pitch, float roll)
+        {
+            float diff = pitch >= 0 ? 0.5f - pitch : 0.5f + pitch;
+            return 2 * diff * RollMultiplier(roll);
         }
 
         private static float RollMultiplier(float roll)

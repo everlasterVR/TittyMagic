@@ -76,7 +76,7 @@ namespace TittyMagic
                     quicknessOffsetConfig = new StaticPhysicsConfigBase(0.000f, -0.048f, -0.028f),
                     slownessOffsetConfig = new StaticPhysicsConfigBase(0.012f, 0.060f, 0.040f),
                 },
-                new BreastSoftStaticPhysicsConfig("softVerticesColliderRadius", 0.024f, 0.034f, 0.024f)
+                new BreastSoftStaticPhysicsConfig("softVerticesColliderRadius", 0.023f, 0.034f, 0.027f)
                 {
                     useRealMass = true,
                 },
