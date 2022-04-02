@@ -22,6 +22,7 @@ namespace TittyMagic
 
         private float _mass;
         private float _pitchMultiplier;
+        private float _rollMultiplier;
 
         public ForceMorphHandler(MVRScript script, TrackNipple trackLeftNipple, TrackNipple trackRightNipple)
         {
@@ -119,6 +120,7 @@ namespace TittyMagic
         {
             _mass = mass;
             _pitchMultiplier = CalculatePitchMultiplier(pitch, roll);
+            _rollMultiplier = CalculateRollMultiplier(roll);
 
             AdjustLeftRightMorphs();
             AdjustUpMorphs();
@@ -273,11 +275,16 @@ namespace TittyMagic
             // upright
             if(effect >= 0)
             {
-                return Mathf.Lerp(0.8f, 1.16f, effect);
+                return Mathf.Lerp(0.72f, 1.16f, effect);
             }
 
             // upside down
-            return Mathf.Lerp(0.8f, 1f, effect);
+            return Mathf.Lerp(0.72f, 1f, effect);
+        }
+
+        private float CalculateRollMultiplier(float roll)
+        {
+            return Mathf.Lerp(1.25f, 1f, Mathf.Abs(roll));
         }
 
         private float CalculateYEffect(float angle, float multiplier)
@@ -290,9 +297,9 @@ namespace TittyMagic
             return multiplier * Mathf.Abs(distance) * 12;
         }
 
-        private static float CalculateXEffect(float angle, float multiplier)
+        private float CalculateXEffect(float angle, float multiplier)
         {
-            return multiplier * Mathf.Abs(angle) / 60;
+            return multiplier * _rollMultiplier * Mathf.Abs(angle) / 60;
         }
 
         private void UpdateMorphs(string configSetName, float effect)
