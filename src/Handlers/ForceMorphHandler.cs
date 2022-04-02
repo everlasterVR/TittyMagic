@@ -269,7 +269,7 @@ namespace TittyMagic
             }
         }
 
-        private float CalculatePitchMultiplier(float pitch, float roll)
+        private static float CalculatePitchMultiplier(float pitch, float roll)
         {
             float effect = CalculateDiffFromHorizontal(pitch, roll);
             // upright
@@ -282,24 +282,45 @@ namespace TittyMagic
             return Mathf.Lerp(0.72f, 1f, effect);
         }
 
-        private float CalculateRollMultiplier(float roll)
+        private static float CalculateRollMultiplier(float roll)
         {
             return Mathf.Lerp(1.25f, 1f, Mathf.Abs(roll));
         }
 
         private float CalculateYEffect(float angle, float multiplier)
         {
-            return multiplier * _pitchMultiplier * Mathf.Abs(angle) / 75;
+            float effect = _pitchMultiplier * Mathf.Abs(angle) / 75;
+            if(effect >= 0.5f)
+            {
+                // smoothed out upper limit on morphing
+                effect = Mathf.SmoothStep(0, 1f, effect);
+            }
+
+            return multiplier * effect;
         }
 
         private static float CalculateZEffect(float distance, float multiplier)
         {
-            return multiplier * Mathf.Abs(distance) * 12;
+            float effect = Mathf.Abs(distance) * 12;
+            if(effect >= 0.5f)
+            {
+                // smoothed out upper limit on morphing
+                effect = Mathf.SmoothStep(0, 1f, effect);
+            }
+
+            return multiplier * effect;
         }
 
         private float CalculateXEffect(float angle, float multiplier)
         {
-            return multiplier * _rollMultiplier * Mathf.Abs(angle) / 60;
+            float effect = _rollMultiplier * Mathf.Abs(angle) / 60;
+            if(effect >= 0.5f)
+            {
+                // smoothed out upper limit on morphing
+                effect = Mathf.SmoothStep(0, 1f, effect);
+            }
+
+            return multiplier * effect;
         }
 
         private void UpdateMorphs(string configSetName, float effect)
