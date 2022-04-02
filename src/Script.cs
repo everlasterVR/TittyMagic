@@ -299,6 +299,7 @@ namespace TittyMagic
 
         private void InitPluginUIMale()
         {
+            this.NewSpacer(45, true);
             CreateMorphingMultipliers();
             CreateGravityPhysicsMultipliers();
             CreateAdditionalSettings();
