@@ -119,14 +119,13 @@ namespace TittyMagic
             return Mathf.Round(value * roundFactor) / roundFactor;
         }
 
-        public static Vector3 RelativePosition(Rigidbody origin, Vector3 position)
+        public static Vector3 RelativePosition(Transform origin, Vector3 position)
         {
             var difference = position - origin.position;
-            var transform = origin.transform;
             return new Vector3(
-                Vector3.Dot(difference, transform.right),
-                Vector3.Dot(difference, transform.up),
-                Vector3.Dot(difference, transform.forward)
+                Vector3.Dot(difference, origin.right),
+                Vector3.Dot(difference, origin.up),
+                Vector3.Dot(difference, origin.forward)
             );
         }
 

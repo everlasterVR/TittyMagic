@@ -118,9 +118,9 @@ namespace TittyMagic
             float mass
         )
         {
-            _mass = mass;
-            _pitchMultiplier = CalculatePitchMultiplier(pitch, roll);
             _rollMultiplier = CalculateRollMultiplier(roll);
+            _pitchMultiplier = CalculatePitchMultiplier(pitch, roll);
+            _mass = mass;
 
             AdjustLeftRightMorphs();
             AdjustUpMorphs();

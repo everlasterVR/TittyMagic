@@ -16,7 +16,7 @@ namespace TittyMagic
         private Bindings _customBindings;
 
         private List<Rigidbody> _rigidbodies;
-        private Rigidbody _chestRb;
+        private Transform _chestTransform;
         private Rigidbody _pectoralRbLeft;
         private Rigidbody _pectoralRbRight;
 
@@ -119,13 +119,13 @@ namespace TittyMagic
             }
 
             _rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
-            _chestRb = _rigidbodies.Find(rb => rb.name == "chest");
+            _chestTransform = _rigidbodies.Find(rb => rb.name == "chest").transform;
             _pectoralRbLeft = _rigidbodies.Find(rb => rb.name == "lPectoral");
             _pectoralRbRight = _rigidbodies.Find(rb => rb.name == "rPectoral");
 
             _atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
             var dazCharacter = containingAtom.GetComponentInChildren<DAZCharacter>();
-            _breastVolumeCalculator = new BreastVolumeCalculator(dazCharacter.skin, _chestRb);
+            _breastVolumeCalculator = new BreastVolumeCalculator(dazCharacter.skin, _chestTransform);
 
             _staticPhysicsH = new StaticPhysicsHandler(_isFemale);
             _gravityPhysicsHandler = new GravityPhysicsHandler(this);
@@ -153,8 +153,8 @@ namespace TittyMagic
 
                 var nippleRbLeft = _rigidbodies.Find(rb => rb.name == "lNipple");
                 var nippleRbRight = _rigidbodies.Find(rb => rb.name == "rNipple");
-                _trackLeftNipple = new TrackNipple(_chestRb, _pectoralRbLeft, nippleRbLeft);
-                _trackRightNipple = new TrackNipple(_chestRb, _pectoralRbRight, nippleRbRight);
+                _trackLeftNipple = new TrackNipple(_chestTransform, _pectoralRbLeft.transform, nippleRbLeft.transform);
+                _trackRightNipple = new TrackNipple(_chestTransform, _pectoralRbRight.transform, nippleRbRight.transform);
 
                 _settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
                 _settingsMonitor.Init(containingAtom);
@@ -449,31 +449,6 @@ namespace TittyMagic
             }
         }
 
-        private void Update()
-        {
-            if(!_initDone || _waitStatus != RefreshStatus.DONE)
-            {
-                return;
-            }
-
-            try
-            {
-                if(_isFemale)
-                {
-                    _trackLeftNipple.UpdateAnglesAndDepthDiff();
-                    _trackRightNipple.UpdateAnglesAndDepthDiff();
-                }
-
-                _chestRoll = Roll(_chestRb.rotation);
-                _chestPitch = Pitch(_chestRb.rotation);
-            }
-            catch(Exception e)
-            {
-                LogError($"Update: {e}");
-                enabled = false;
-            }
-        }
-
         private void FixedUpdate()
         {
             try
@@ -511,6 +486,10 @@ namespace TittyMagic
                     }
                 }
 
+                var rotation = _chestTransform.rotation;
+                _chestRoll = Roll(rotation);
+                _chestPitch = Pitch(rotation);
+
                 if(_isFemale)
                 {
                     _trackLeftNipple.UpdateAnglesAndDepthDiff();
@@ -528,18 +507,15 @@ namespace TittyMagic
 
         private void RunHandlers(bool updateGravityPhysics = true)
         {
-            if(_isFemale)
+            if(_isFemale && _forceMorphHandler.IsEnabled())
             {
-                if(_forceMorphHandler.IsEnabled())
-                {
-                    _forceMorphHandler.Update(
-                        _chestRoll,
-                        _chestPitch,
-                        _realMassAmount
-                    );
-                }
+                _forceMorphHandler.Update(
+                    _chestRoll,
+                    _chestPitch,
+                    _realMassAmount
+                );
             }
-            else if(_gravityMorphHandler.IsEnabled())
+            else if(!_isFemale && _gravityMorphHandler.IsEnabled())
             {
                 _gravityMorphHandler.Update(
                     _chestRoll,
@@ -734,19 +710,6 @@ namespace TittyMagic
         {
             _refreshStatus = RefreshStatus.NEUTRALPOS_STARTED;
 
-            if(!_trackLeftNipple.HasTransform() || !_trackRightNipple.HasTransform())
-            {
-                var rigidbodiesList = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
-                _trackLeftNipple.nippleRb = rigidbodiesList.Find(rb => rb.name == "lNipple");
-                _trackRightNipple.nippleRb = rigidbodiesList.Find(rb => rb.name == "rNipple");
-                if(!_trackLeftNipple.HasTransform() || !_trackRightNipple.HasTransform())
-                {
-                    _refreshStatus = RefreshStatus.NEUTRALPOS_OK;
-
-                    yield break;
-                }
-            }
-
             yield return new WaitForSeconds(0.67f);
 
             float duration = 0;
@@ -776,7 +739,7 @@ namespace TittyMagic
                 // simulate force of gravity when upright
                 // 0.75f is a hack, for some reason a normal gravity force pushes breasts too much down,
                 // causing the neutral position to be off by a little
-                var force = _chestRb.transform.up * (0.75f * -Physics.gravity.magnitude);
+                var force = _chestTransform.up * (0.75f * -Physics.gravity.magnitude);
                 _pectoralRbLeft.AddForce(force, ForceMode.Acceleration);
                 _pectoralRbRight.AddForce(force, ForceMode.Acceleration);
                 if(_refreshStatus == RefreshStatus.MASS_OK)

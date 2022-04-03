@@ -5,9 +5,9 @@ namespace TittyMagic
 {
     internal class TrackNipple
     {
-        private readonly Rigidbody _chestRb;
-        private readonly Rigidbody _pectoralRb;
-        public Rigidbody nippleRb { get; set; }
+        private readonly Transform _chestTransform;
+        private readonly Transform _pectoralTransform;
+        private readonly Transform _nippleTransform;
 
         private Vector3 _neutralRelativePosition;
         private Vector3 _neutralRelativePectoralPosition;
@@ -19,11 +19,11 @@ namespace TittyMagic
         private const int SMOOTH_UPDATES_COUNT = 4;
         private readonly float[] _zDiffs = new float[SMOOTH_UPDATES_COUNT];
 
-        public TrackNipple(Rigidbody chestRb, Rigidbody pectoralRb, Rigidbody nippleRb)
+        public TrackNipple(Transform chestTransform, Transform pectoralTransform, Transform nippleTransform)
         {
-            _chestRb = chestRb;
-            _pectoralRb = pectoralRb;
-            this.nippleRb = nippleRb;
+            _chestTransform = chestTransform;
+            _pectoralTransform = pectoralTransform;
+            _nippleTransform = nippleTransform;
         }
 
         public bool CalibrationDone()
@@ -31,30 +31,25 @@ namespace TittyMagic
             bool positionCalibrated = Calc.VectorEqualWithin(
                 1000000f,
                 _neutralRelativePosition,
-                Calc.RelativePosition(_chestRb, nippleRb.position)
+                Calc.RelativePosition(_chestTransform, _nippleTransform.position)
             );
             bool pectoralPositionCalibrated = Calc.VectorEqualWithin(
                 1000000f,
                 _neutralRelativePectoralPosition,
-                Calc.RelativePosition(_chestRb, _pectoralRb.position)
+                Calc.RelativePosition(_chestTransform, _pectoralTransform.position)
             );
             return positionCalibrated && pectoralPositionCalibrated;
         }
 
         public void Calibrate()
         {
-            _neutralRelativePosition = Calc.RelativePosition(_chestRb, nippleRb.position);
-            _neutralRelativePectoralPosition = Calc.RelativePosition(_chestRb, _pectoralRb.position);
+            _neutralRelativePosition = Calc.RelativePosition(_chestTransform, _nippleTransform.position);
+            _neutralRelativePectoralPosition = Calc.RelativePosition(_chestTransform, _pectoralTransform.position);
         }
 
         public void UpdateAnglesAndDepthDiff()
         {
-            if(!HasTransform())
-            {
-                return;
-            }
-
-            var relativePos = Calc.RelativePosition(_chestRb, nippleRb.position);
+            var relativePos = Calc.RelativePosition(_chestTransform, _nippleTransform.position);
             angleY = Vector2.SignedAngle(
                 new Vector2(_neutralRelativePosition.z, _neutralRelativePosition.y),
                 new Vector2(relativePos.z, relativePos.y)
@@ -70,7 +65,7 @@ namespace TittyMagic
         private float ExpAverageDepthDiff()
         {
             Array.Copy(_zDiffs, 0, _zDiffs, 1, _zDiffs.Length - 1);
-            var relativePectoralPos = Calc.RelativePosition(_chestRb, _pectoralRb.position);
+            var relativePectoralPos = Calc.RelativePosition(_chestTransform, _pectoralTransform.position);
             _zDiffs[0] = (_neutralRelativePectoralPosition - relativePectoralPos).z;
             return Calc.ExponentialMovingAverage(_zDiffs, 0.75f)[0];
         }
@@ -80,11 +75,6 @@ namespace TittyMagic
             angleY = 0;
             angleX = 0;
             depthDiff = 0;
-        }
-
-        public bool HasTransform()
-        {
-            return nippleRb != null && nippleRb.transform != null;
         }
     }
 }
