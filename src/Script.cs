@@ -671,10 +671,11 @@ namespace TittyMagic
 
         private void SetFemaleMorphingExtraMultipliers()
         {
-            _forceMorphHandler.yMultiplier.extraMultiplier = 1.36f * (2.5f - Mathf.Pow(1.67f * _realMassAmount, 0.53f));
-            _forceMorphHandler.xMultiplier.extraMultiplier = 1.10f * (2.67f - Mathf.Pow(_realMassAmount, 1.75f));
-            _forceMorphHandler.zMultiplier.extraMultiplier = (2 / Mathf.Pow((0.9f * _realMassAmount) + 0.1f, 1 / 4f)) + 0.3f;
-            _forceMorphHandler.zMultiplier.oppositeExtraMultiplier = 3.7f - (2.2f * _realMassAmount);
+            // this is unnecessarily complicated - but only needs to be calculated during refresh
+            _forceMorphHandler.yMultiplier.extraMultiplier = 1.54f * (2.5f - Mathf.Pow(1.67f * _realMassAmount, 0.53f));
+            _forceMorphHandler.xMultiplier.extraMultiplier = 1.24f * (2.67f - Mathf.Pow(_realMassAmount, 1.75f));
+            _forceMorphHandler.zMultiplier.extraMultiplier = 1.13f * ((2 / Mathf.Pow((0.9f * _realMassAmount) + 0.1f, 1 / 4f)) + 0.3f);
+            _forceMorphHandler.zMultiplier.oppositeExtraMultiplier = 1.13f * (3.7f - (2.2f * _realMassAmount));
         }
 
         private IEnumerator RefreshMassMale(bool useNewMass)

@@ -289,38 +289,23 @@ namespace TittyMagic
 
         private float CalculateYEffect(float angle, float multiplier)
         {
-            float effect = _pitchMultiplier * Mathf.Abs(angle) / 75;
-            if(effect >= 0.5f)
-            {
-                // smoothed out upper limit on morphing
-                effect = Mathf.SmoothStep(0, 1f, effect);
-            }
-
-            return multiplier * effect;
+            return multiplier * Curve(_pitchMultiplier * Mathf.Abs(angle) / 75);
         }
 
         private static float CalculateZEffect(float distance, float multiplier)
         {
-            float effect = Mathf.Abs(distance) * 12;
-            if(effect >= 0.5f)
-            {
-                // smoothed out upper limit on morphing
-                effect = Mathf.SmoothStep(0, 1f, effect);
-            }
-
-            return multiplier * effect;
+            return multiplier * Curve(Mathf.Abs(distance) * 12);
         }
 
         private float CalculateXEffect(float angle, float multiplier)
         {
-            float effect = _rollMultiplier * Mathf.Abs(angle) / 60;
-            if(effect >= 0.5f)
-            {
-                // smoothed out upper limit on morphing
-                effect = Mathf.SmoothStep(0, 1f, effect);
-            }
+            return multiplier * Curve(_rollMultiplier * Mathf.Abs(angle) / 60);
+        }
 
-            return multiplier * effect;
+        // https://www.desmos.com/calculator/ykxswso5ie
+        private static float Curve(float effect)
+        {
+            return Calc.InverseSmoothStep(10, effect, 0.8f, 0f);
         }
 
         private void UpdateMorphs(string configSetName, float effect)
