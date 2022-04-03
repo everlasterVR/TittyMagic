@@ -1,70 +1,108 @@
 {
    "DOWN": {
       "targetRotationX": {
-         "Category": "main",
+         "Category": "pectoral",
          "Type": "direct",
          "IsNegative": "true",
-         "Multiplier1": "-10",
-         "Multiplier2": "-16"
+         "Multiplier1": "-16",
+         "Multiplier2": "-12"
       }
    },
    "UP": {
       "targetRotationX": {
-         "Category": "main",
+         "Category": "pectoral",
          "Type": "direct",
          "IsNegative": "false",
-         "Multiplier1": "6.9",
-         "Multiplier2": "11"
+         "Multiplier1": "10.7",
+         "Multiplier2": "8"
       }
    },
    "BACK": {
       "centerOfGravityPercent": {
-         "Category": "main",
-         "Type": "additive",
-         "IsNegative": "false",
-         "Multiplier1": "0.084",
-         "Multiplier2": "0.06"
-      },
-      "spring": {
-         "Category": "main",
+         "Category": "pectoral",
          "Type": "additive",
          "IsNegative": "true",
-         "Multiplier1": "-12.5",
-         "Multiplier2": "-5"
+         "Multiplier1": "-0.071",
+         "Multiplier2": "-0.053",
+         "MultiplyInvertedMass": "true"
+      },
+      "spring": {
+         "Category": "pectoral",
+         "Type": "additive",
+         "IsNegative": "true",
+         "Multiplier1": "-7.0",
+         "Multiplier2": "-5.3"
+      },
+      "damper": {
+         "Category": "pectoral",
+         "Type": "additive",
+         "IsNegative": "true",
+         "Multiplier1": "-0.27",
+         "Multiplier2": "-0.36"
+      },
+      "positionSpringZ": {
+         "Category": "pectoral",
+         "Type": "additive",
+         "IsNegative": "true",
+         "Multiplier1": "-180",
+         "Multiplier2": "-140"
+      },
+      "positionDamperZ": {
+         "Category": "pectoral",
+         "Type": "additive",
+         "IsNegative": "true",
+         "Multiplier1": "-15",
+         "Multiplier2": "5",
+         "MultiplyInvertedMass": "true"
       }
    },
    "FORWARD": {
       "centerOfGravityPercent": {
-         "Category": "main",
+         "Category": "pectoral",
          "Type": "additive",
          "IsNegative": "false",
-         "Multiplier1": "0.084",
-         "Multiplier2": "0.06"
+         "Multiplier1": "0.141",
+         "Multiplier2": "0.106",
+         "MultiplyInvertedMass": "true"
       },
       "spring": {
-         "Category": "main",
+         "Category": "pectoral",
          "Type": "additive",
          "IsNegative": "true",
-         "Multiplier1": "-12.5",
-         "Multiplier2": "-5"
+         "Multiplier1": "-7.0",
+         "Multiplier2": "-5.3"
+      },
+      "damper": {
+         "Category": "pectoral",
+         "Type": "additive",
+         "IsNegative": "true",
+         "Multiplier1": "-0.27",
+         "Multiplier2": "-0.36"
+      },
+      "positionSpringZ": {
+         "Category": "pectoral",
+         "Type": "additive",
+         "IsNegative": "true",
+         "Multiplier1": "-180",
+         "Multiplier2": "-140"
       }
    },
    "LEFT": {
       "targetRotationY": {
-         "Category": "main",
+         "Category": "pectoral",
          "Type": "direct",
          "IsNegative": "false",
-         "Multiplier1": "10",
-         "Multiplier2": "16"
+         "Multiplier1": "16",
+         "Multiplier2": "12"
       }
    },
    "RIGHT": {
       "targetRotationY": {
-         "Category": "main",
+         "Category": "pectoral",
          "Type": "direct",
          "IsNegative": "true",
-         "Multiplier1": "-10",
-         "Multiplier2": "-16"
+         "Multiplier1": "-16",
+         "Multiplier2": "-12"
       }
    }
 }

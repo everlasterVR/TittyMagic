@@ -112,11 +112,11 @@ namespace TittyMagic
         {
             _pectoralPhysicsConfigs = new List<PectoralStaticPhysicsConfig>
             {
-                new PectoralStaticPhysicsConfig("centerOfGravityPercent", 0.160f, 0.430f),
-                new PectoralStaticPhysicsConfig("spring", 55f, 35f),
-                new PectoralStaticPhysicsConfig("damper", 0.3f, 0.8f),
-                new PectoralStaticPhysicsConfig("positionSpringZ", 170f, 120f),
-                new PectoralStaticPhysicsConfig("positionDamperZ", 25f, 48f),
+                new PectoralStaticPhysicsConfig("centerOfGravityPercent", 0.460f, 0.590f),
+                new PectoralStaticPhysicsConfig("spring", 48f, 62f),
+                new PectoralStaticPhysicsConfig("damper", 1.0f, 1.3f),
+                new PectoralStaticPhysicsConfig("positionSpringZ", 350f, 450f),
+                new PectoralStaticPhysicsConfig("positionDamperZ", 13f, 19f),
             };
         }
 

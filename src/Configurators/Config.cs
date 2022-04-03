@@ -17,16 +17,15 @@ namespace TittyMagic
     internal class PhysicsConfig : Config
     {
         public JSONStorableFloat setting { get; }
-
-        public float originalValue { get; }
-
-        public float baseValue { get; set; }
-
+        public string category { get; }
         public string type { get; }
+        public float originalValue { get; }
+        public float baseValue { get; set; }
 
         public PhysicsConfig(string name, string category, string type, bool isNegative, float multiplier1, float multiplier2, bool multiplyInvertedMass)
         {
             this.name = name;
+            this.category = category;
             this.type = type;
             this.isNegative = isNegative;
             this.multiplier1 = multiplier1;
@@ -39,7 +38,7 @@ namespace TittyMagic
         private JSONStorableFloat GetSetting(string category)
         {
             JSONStorableFloat storable = null;
-            if(category == "main")
+            if(category == "main" || category == "pectoral")
             {
                 storable = BREAST_CONTROL.GetFloatJSONParam(name);
                 if(storable == null)

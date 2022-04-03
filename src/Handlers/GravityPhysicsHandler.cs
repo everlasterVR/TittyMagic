@@ -11,7 +11,7 @@ namespace TittyMagic
         private readonly IConfigurator _configurator;
 
         private float _mass;
-        private float _amount;
+        private float _softness;
 
         public Multiplier xMultiplier { get; set; }
         public Multiplier yMultiplier { get; set; }
@@ -119,7 +119,7 @@ namespace TittyMagic
         )
         {
             _mass = mass;
-            _amount = amount;
+            _softness = amount;
 
             float smoothRoll = Calc.SmoothStep(roll);
             float smoothPitch = 2 * Calc.SmoothStep(pitch);
@@ -127,6 +127,13 @@ namespace TittyMagic
             AdjustRollPhysics(smoothRoll);
             AdjustUpDownPhysics(smoothPitch, smoothRoll);
             AdjustDepthPhysics(smoothPitch, smoothRoll);
+
+            if(_configurator != null)
+            {
+                _configurator.debugInfo.val =
+                    $"{NameValueString("Pitch", pitch, 100f)} {Calc.RoundToDecimals(smoothPitch, 100f)}\n" +
+                    $"{NameValueString("Roll", roll, 100f)} {Calc.RoundToDecimals(smoothRoll, 100f)}\n";
+            }
         }
 
         private void AdjustRollPhysics(float roll)
@@ -246,16 +253,18 @@ namespace TittyMagic
             }
         }
 
-        private float CalculateValue(Config config, float effect)
+        private float CalculateValue(PhysicsConfig config, float effect)
         {
-            if(config.multiplyInvertedMass)
+            float mass = config.multiplyInvertedMass ? 1 - _mass : _mass;
+
+            if(config.category == "pectoral")
             {
-                return (_amount * config.multiplier1 * effect) +
-                    ((1 - _mass) * config.multiplier2 * effect);
+                return 2 * mass * config.multiplier2 * effect;
             }
 
-            return (_amount * config.multiplier1 * effect) +
-                (_mass * config.multiplier2 * effect);
+            return
+                (_softness * config.multiplier1 * effect) +
+                (mass * config.multiplier2 * effect);
         }
 
         public void ResetAll()

@@ -1,4 +1,4 @@
-﻿//#define USE_CONFIGURATOR
+﻿// #define USE_CONFIGURATOR
 using System.Collections.Generic;
 using UnityEngine;
 using static TittyMagic.Utils;
@@ -12,7 +12,6 @@ namespace TittyMagic
         private readonly IConfigurator _configurator;
 
         private float _mass;
-        private float _amount;
 
         public Multiplier xMultiplier { get; set; }
         public Multiplier yMultiplier { get; set; }
@@ -124,19 +123,16 @@ namespace TittyMagic
         public void Update(
             float roll,
             float pitch,
-            float mass,
-            float amount
+            float mass
         )
         {
             _mass = mass;
-            _amount = amount;
 
             float smoothRoll = Calc.SmoothStep(roll);
             float smoothPitch = 2 * Calc.SmoothStep(pitch);
-            float additionalRollEffect = 0.4f * Mathf.Abs(smoothRoll);
 
             AdjustRollMorphs(smoothRoll);
-            AdjustUpDownMorphs(smoothPitch, smoothRoll, additionalRollEffect);
+            AdjustUpDownMorphs(smoothPitch, smoothRoll);
             AdjustDepthMorphs(smoothPitch, smoothRoll);
 
             if(_configurator != null)
@@ -164,8 +160,9 @@ namespace TittyMagic
             }
         }
 
-        private void AdjustUpDownMorphs(float pitch, float roll, float additionalRollEffect)
+        private void AdjustUpDownMorphs(float pitch, float roll)
         {
+            float additionalRollEffect = 0.4f * Mathf.Abs(roll);
             float upEffect = CalculateUpEffect(pitch, roll, yMultiplier, additionalRollEffect);
             float downEffect = CalculateDownEffect(pitch, roll, yMultiplier);
 
@@ -241,10 +238,7 @@ namespace TittyMagic
 
         private void UpdateValue(MorphConfig config, float effect)
         {
-            float value =
-                (_amount * config.multiplier1 * effect) +
-                (_mass * config.multiplier2 * effect);
-
+            float value = _mass * config.multiplier2 * effect * 2;
             bool inRange = config.isNegative ? value < 0 : value > 0;
             config.morph.morphValue = inRange ? Calc.RoundToDecimals(value, 1000f) : 0;
         }

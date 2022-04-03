@@ -363,6 +363,7 @@ namespace TittyMagic
             title.SetVal("<size=28>\n\n</size><b>Dynamic morphing multipliers</b>");
             title.dynamicText.backgroundColor = Color.clear;
 
+            // values above above 2.4 would actually lower the multiplier due to quadratic regression when nonlinear=true
             var yStorable = new JSONStorableFloat("Morphing Up/down", 1.00f, 0.00f, 2.00f);
             var xStorable = new JSONStorableFloat("Morphing Left/right", 1.00f, 0.00f, 2.00f);
             var zStorable = new JSONStorableFloat("Morphing Forward/back", 1.00f, 0.00f, 2.00f);
@@ -543,8 +544,7 @@ namespace TittyMagic
                 _gravityMorphHandler.Update(
                     _chestRoll,
                     _chestPitch,
-                    _realMassAmount,
-                    0.75f * _softnessAmount
+                    _realMassAmount
                 );
             }
 

@@ -24,8 +24,7 @@ namespace TittyMagic
 
         public JSONStorableBool enableAdjustment { get; private set; }
 
-        // dummy
-        public JSONStorableString debugInfo => null;
+        public JSONStorableString debugInfo { get; private set; }
 
         private Dictionary<string, Dictionary<string, ConfiguratorUISection>> _uiSectionGroups;
 
@@ -48,7 +47,7 @@ namespace TittyMagic
         {
             ResetUISectionGroups();
             enableAdjustment = this.NewToggle("Enable", true);
-            this.NewSpacer(50f);
+            debugInfo = this.NewTextField("positionDiffInfo", "", 20, 115, true);
             _saveButton = CreateButton("Save JSON", true);
             _loadButton = CreateButton("Load JSON", true);
         }
