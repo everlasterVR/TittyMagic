@@ -12,6 +12,7 @@ namespace TittyMagic
         private readonly IConfigurator _configurator;
 
         private float _mass;
+        private float _softness;
 
         public Multiplier xMultiplier { get; set; }
         public Multiplier yMultiplier { get; set; }
@@ -123,10 +124,12 @@ namespace TittyMagic
         public void Update(
             float roll,
             float pitch,
-            float mass
+            float mass,
+            float softness
         )
         {
             _mass = mass;
+            _softness = softness;
 
             float smoothRoll = Calc.SmoothStep(roll);
             float smoothPitch = 2 * Calc.SmoothStep(pitch);
@@ -238,7 +241,9 @@ namespace TittyMagic
 
         private void UpdateValue(MorphConfig config, float effect)
         {
-            float value = _mass * config.multiplier2 * effect * 2;
+            float value =
+                (_softness * config.multiplier1 * effect) +
+                (_mass * config.multiplier2 * effect);
             bool inRange = config.isNegative ? value < 0 : value > 0;
             config.morph.morphValue = inRange ? Calc.RoundToDecimals(value, 1000f) : 0;
         }

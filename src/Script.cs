@@ -304,6 +304,7 @@ namespace TittyMagic
 
         private void InitPluginUIMale()
         {
+            _softnessAmount = 0.75f;
             this.NewSpacer(45, true);
             CreateMorphingMultipliers();
             CreateGravityPhysicsMultipliers();
@@ -547,7 +548,8 @@ namespace TittyMagic
                 _gravityMorphHandler.Update(
                     _chestRoll,
                     _chestPitch,
-                    _realMassAmount
+                    _realMassAmount,
+                    _softnessAmount
                 );
             }
 
