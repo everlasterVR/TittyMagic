@@ -54,7 +54,7 @@ namespace TittyMagic
 
         public static float CalculateUpDownEffect(float pitch, float roll, Multiplier multiplier)
         {
-            return UpDownAdjustByAngle(pitch) * RollMultiplier(roll) * multiplier.mainMultiplier / 2;
+            return UpDownAdjustByAngle(pitch) * RollMultiplier(roll) * multiplier.mainMultiplier * (multiplier.extraMultiplier ?? 1) / 2;
         }
 
         private static float UpDownAdjustByAngle(float pitch)

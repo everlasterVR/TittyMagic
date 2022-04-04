@@ -142,7 +142,7 @@ namespace TittyMagic
 
         private void AdjustUpMorphs()
         {
-            float multiplier = yMultiplier.mainMultiplier * yMultiplier.extraMultiplier;
+            float multiplier = yMultiplier.mainMultiplier * (yMultiplier.extraMultiplier ?? 1);
             float effectYLeft = CalculateYEffect(_trackLeftNipple.angleY, multiplier);
             float effectYRight = CalculateYEffect(_trackRightNipple.angleY, multiplier);
             float angleYCenter = (_trackRightNipple.angleY + _trackLeftNipple.angleY) / 2;
@@ -183,8 +183,8 @@ namespace TittyMagic
 
         private void AdjustDepthMorphs()
         {
-            float forwardMultiplier = zMultiplier.mainMultiplier * zMultiplier.extraMultiplier;
-            float backMultiplier = zMultiplier.mainMultiplier * zMultiplier.oppositeExtraMultiplier;
+            float forwardMultiplier = zMultiplier.mainMultiplier * (zMultiplier.extraMultiplier ?? 1);
+            float backMultiplier = zMultiplier.mainMultiplier * (zMultiplier.oppositeExtraMultiplier ?? 1);
 
             float leftMultiplier = _trackLeftNipple.depthDiff < 0 ? forwardMultiplier : backMultiplier;
             float rightMultiplier = _trackRightNipple.depthDiff < 0 ? forwardMultiplier : backMultiplier;
@@ -238,7 +238,7 @@ namespace TittyMagic
 
         private void AdjustLeftRightMorphs()
         {
-            float multiplier = xMultiplier.mainMultiplier * xMultiplier.extraMultiplier;
+            float multiplier = xMultiplier.mainMultiplier * (xMultiplier.extraMultiplier ?? 1);
             float effectXLeft = CalculateXEffect(_trackLeftNipple.angleX, multiplier);
             float effectXRight = CalculateXEffect(_trackRightNipple.angleX, multiplier);
 
@@ -275,7 +275,7 @@ namespace TittyMagic
             // upright
             if(effect >= 0)
             {
-                return Mathf.Lerp(0.72f, 1.16f, effect);
+                return Mathf.Lerp(0.72f, 1f, effect);
             }
 
             // upside down

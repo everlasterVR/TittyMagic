@@ -86,6 +86,7 @@
     <Compile Include="src\BreastVolumeCalculator.cs" />
     <Compile Include="src\BreastMorphListener.cs" />
     <Compile Include="src\Handlers\GravityEffectCalc.cs" />
+    <Compile Include="src\Handlers\GravityOffsetMorphHandler.cs" />
     <Compile Include="src\Handlers\Multiplier.cs" />
     <Compile Include="src\TrackNipple.cs" />
     <Compile Include="src\Components\Bindings.cs" />
@@ -118,6 +119,7 @@
     <None Include="settings\morphmultipliers\female\rightForceR.json" />
     <None Include="settings\morphmultipliers\female\upForce.json" />
     <None Include="settings\morphmultipliers\female\upForceCenter.json" />
+    <None Include="settings\morphmultipliers\offset\upright.json" />
     <None Include="settings\physicsmultipliers\futa.json" />
     <None Include="settings\physicsmultipliers\female.json" />
     <None Include="settings\morphmultipliers\futa\leanBackCenter.json" />

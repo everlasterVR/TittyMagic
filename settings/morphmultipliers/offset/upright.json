@@ -1,0 +1,12 @@
+{
+   "DN Breast Rotate Up": {
+      "IsNegative": "false",
+      "Multiplier1": "0.76",
+      "Multiplier2": "0.57"
+   },
+   "DN Breasts Natural": {
+      "IsNegative": "true",
+      "Multiplier1": "-0.36",
+      "Multiplier2": "-0.27"
+   }
+}

@@ -40,6 +40,7 @@ namespace TittyMagic
         private GravityPhysicsHandler _gravityPhysicsHandler;
         private GravityMorphHandler _gravityMorphHandler;
         private ForceMorphHandler _forceMorphHandler;
+        private GravityOffsetMorphHandler _gravityOffsetMorphHandler;
         private NippleErectionMorphHandler _nippleErectionMorphH;
 
         private JSONStorableString _titleUIText;
@@ -57,6 +58,8 @@ namespace TittyMagic
         private SliderClickMonitor _xPhysicsSCM;
         private SliderClickMonitor _yPhysicsSCM;
         private SliderClickMonitor _zPhysicsSCM;
+        private JSONStorableFloat _gravityOffsetMorphing;
+        private SliderClickMonitor _offsetMorphingSCM;
         private JSONStorableFloat _nippleErection;
 
         private bool _isFemale;
@@ -129,7 +132,6 @@ namespace TittyMagic
 
             _staticPhysicsH = new StaticPhysicsHandler(_isFemale);
             _gravityPhysicsHandler = new GravityPhysicsHandler(this);
-            _gravityMorphHandler = new GravityMorphHandler(this);
             _nippleErectionMorphH = new NippleErectionMorphHandler(this);
 
             if(_isFemale)
@@ -160,11 +162,13 @@ namespace TittyMagic
                 _settingsMonitor.Init(containingAtom);
 
                 _forceMorphHandler = new ForceMorphHandler(this, _trackLeftNipple, _trackRightNipple);
+                _gravityOffsetMorphHandler = new GravityOffsetMorphHandler(this);
 
                 InitPluginUI();
 
                 _forceMorphHandler.LoadSettings();
                 _gravityPhysicsHandler.LoadSettings(true);
+                _gravityOffsetMorphHandler.LoadSettings();
                 _staticPhysicsH.LoadSettings(true);
                 if(!_loadingFromJson)
                 {
@@ -187,6 +191,7 @@ namespace TittyMagic
             try
             {
                 _breastMorphListener = new BreastMorphListener(GEOMETRY.morphBank1OtherGender.morphs, GEOMETRY.morphBank1.morphs);
+                _gravityMorphHandler = new GravityMorphHandler(this);
 
                 InitPluginUI();
 
@@ -364,13 +369,9 @@ namespace TittyMagic
             title.dynamicText.backgroundColor = Color.clear;
 
             // values above above 2.4 would actually lower the multiplier due to quadratic regression when nonlinear=true
-            var yStorable = new JSONStorableFloat("Morphing Up/down", 1.00f, 0.00f, 2.00f);
-            var xStorable = new JSONStorableFloat("Morphing Left/right", 1.00f, 0.00f, 2.00f);
-            var zStorable = new JSONStorableFloat("Morphing Forward/back", 1.00f, 0.00f, 2.00f);
-
-            this.NewFloatSlider(yStorable, "F2");
-            this.NewFloatSlider(xStorable, "F2");
-            this.NewFloatSlider(zStorable, "F2");
+            var yStorable = this.NewFloatSlider("Morphing Up/down", 1.00f, 0.00f, 2.00f, "F2");
+            var xStorable = this.NewFloatSlider("Morphing Left/right", 1.00f, 0.00f, 2.00f, "F2");
+            var zStorable = this.NewFloatSlider("Morphing Forward/back", 1.00f, 0.00f, 2.00f, "F2");
 
             if(_isFemale)
             {
@@ -378,15 +379,18 @@ namespace TittyMagic
                 _forceMorphHandler.xMultiplier = new Multiplier(xStorable.slider, true);
                 _forceMorphHandler.zMultiplier = new Multiplier(zStorable.slider);
             }
-
-            _gravityMorphHandler.yMultiplier = new Multiplier(yStorable.slider, true);
-            _gravityMorphHandler.xMultiplier = new Multiplier(xStorable.slider, true);
-            _gravityMorphHandler.zMultiplier = new Multiplier(zStorable.slider);
+            else
+            {
+                _gravityMorphHandler.yMultiplier = new Multiplier(yStorable.slider, true);
+                _gravityMorphHandler.xMultiplier = new Multiplier(xStorable.slider, true);
+                _gravityMorphHandler.zMultiplier = new Multiplier(zStorable.slider);
+            }
 
             this.NewSpacer(100, true);
-            var gravityInfoText = this.NewTextField("GravityInfoText", "", 28, 390, true);
+            var gravityInfoText = this.NewTextField("DynamicMorphingInfoText", "", 28, 390, true);
             gravityInfoText.val = UI.Size("\n", 12) +
-                "Adjust the amount of breast morphing due to forces including gravity.\n\n" +
+                "Adjust the amount of breast morphing due to forces including gravity.\n" +
+                "\n" +
                 "Breasts morph up/down, left/right and forward/back.";
         }
 
@@ -396,28 +400,37 @@ namespace TittyMagic
             title.SetVal("<size=28>\n\n</size><b>Gravity physics multipliers</b>");
             title.dynamicText.backgroundColor = Color.clear;
 
-            _gravityPhysicsHandler.yMultiplier = CreateGravityPhysicsMultiplier("Physics Up/down");
-            _gravityPhysicsHandler.xMultiplier = CreateGravityPhysicsMultiplier("Physics Left/right");
-            _gravityPhysicsHandler.zMultiplier = CreateGravityPhysicsMultiplier("Physics Forward/back");
+            var yStorable = CreateGravityPhysicsMultiplier("Physics Up/down");
+            var xStorable = CreateGravityPhysicsMultiplier("Physics Left/right");
+            var zStorable = CreateGravityPhysicsMultiplier("Physics Forward/back");
+
+            _gravityPhysicsHandler.yMultiplier = new Multiplier(yStorable.slider);
+            _gravityPhysicsHandler.xMultiplier = new Multiplier(xStorable.slider);
+            _gravityPhysicsHandler.zMultiplier = new Multiplier(zStorable.slider);
+
+            if(_isFemale)
+            {
+                _gravityOffsetMorphHandler.yMultiplier = new Multiplier(yStorable.slider);
+            }
 
             _xPhysicsSCM = _gravityPhysicsHandler.yMultiplier.slider.gameObject.AddComponent<SliderClickMonitor>();
             _yPhysicsSCM = _gravityPhysicsHandler.xMultiplier.slider.gameObject.AddComponent<SliderClickMonitor>();
             _zPhysicsSCM = _gravityPhysicsHandler.zMultiplier.slider.gameObject.AddComponent<SliderClickMonitor>();
 
             this.NewSpacer(100, true);
-            var morphingInfoText = this.NewTextField("MorphingInfoText", "", 28, 390, true);
-            morphingInfoText.val = UI.Size("\n", 12) +
-                "Adjust the effect of chest angle on breast main physics settings.\n\n" +
+            var infoText = this.NewTextField("GravityPhysicsInfoText", "", 28, 390, true);
+            infoText.val = UI.Size("\n", 12) +
+                "Adjust the effect of chest angle on breast main physics settings.\n" +
+                "\n" +
                 "Higher values mean breasts drop more heavily up/down and left/right, " +
                 "are more swingy when leaning forward, and less springy when leaning back.";
         }
 
-        private Multiplier CreateGravityPhysicsMultiplier(string storableName)
+        private JSONStorableFloat CreateGravityPhysicsMultiplier(string storableName)
         {
-            var storable = new JSONStorableFloat(storableName, 1.00f, 0.00f, 2.00f);
-            this.NewFloatSlider(storable, "F2");
+            var storable = this.NewFloatSlider(storableName, 1.00f, 0.00f, 2.00f, "F2");
             storable.slider.onValueChanged.AddListener(val => { RefreshFromSliderChanged(); });
-            return new Multiplier(storable.slider);
+            return storable;
         }
 
         private void CreateAdditionalSettings()
@@ -425,6 +438,20 @@ namespace TittyMagic
             var title = this.NewTextField("additionalSettings", "", 32, 100);
             title.SetVal("<size=28>\n\n</size><b>Additional settings</b>");
             title.dynamicText.backgroundColor = Color.clear;
+
+            if(_isFemale)
+            {
+                _gravityOffsetMorphing = this.NewFloatSlider("Gravity offset morphing", 1.00f, 0.00f, 2.00f, "F2");
+                _offsetMorphingSCM = _gravityOffsetMorphing.slider.gameObject.AddComponent<SliderClickMonitor>();
+                _gravityOffsetMorphing.slider.onValueChanged.AddListener(
+                    val => { RefreshFromSliderChanged(); }
+                );
+            }
+
+            this.NewSpacer(100, true);
+            var infoText = this.NewTextField("GravityOffsetMorphingInfoText", "", 28, 115, true);
+            infoText.val = UI.Size("\n", 12) +
+                "Rotate breasts up when upright to compensate for negative Up/Down Angle Target.";
 
             _nippleErection = this.NewFloatSlider("Nipple erection", 0.00f, 0.00f, 1.00f, "F2");
             _nippleErection.slider.onValueChanged.AddListener(
@@ -526,6 +553,17 @@ namespace TittyMagic
 
             if(updateGravityPhysics && _gravityPhysicsHandler.IsEnabled())
             {
+                if(_isFemale)
+                {
+                    _gravityOffsetMorphHandler.Update(
+                        _chestRoll,
+                        _chestPitch,
+                        _realMassAmount,
+                        _softnessAmount,
+                        _gravityOffsetMorphing.val
+                    );
+                }
+
                 _gravityPhysicsHandler.Update(
                     _chestRoll,
                     _chestPitch,
@@ -607,7 +645,8 @@ namespace TittyMagic
                     (_quicknessSCM != null && _quicknessSCM.isDown) ||
                     (_xPhysicsSCM != null && _xPhysicsSCM.isDown) ||
                     (_yPhysicsSCM != null && _yPhysicsSCM.isDown) ||
-                    (_zPhysicsSCM != null && _zPhysicsSCM.isDown)
+                    (_zPhysicsSCM != null && _zPhysicsSCM.isDown) ||
+                    (_offsetMorphingSCM != null && _offsetMorphingSCM.isDown)
                 )
                 {
                     yield return new WaitForSeconds(0.1f);
@@ -676,6 +715,7 @@ namespace TittyMagic
             _forceMorphHandler.xMultiplier.extraMultiplier = 1.24f * (2.67f - Mathf.Pow(_realMassAmount, 1.75f));
             _forceMorphHandler.zMultiplier.extraMultiplier = 1.13f * ((2 / Mathf.Pow((0.9f * _realMassAmount) + 0.1f, 1 / 4f)) + 0.3f);
             _forceMorphHandler.zMultiplier.oppositeExtraMultiplier = 1.13f * (3.7f - (2.2f * _realMassAmount));
+            _gravityOffsetMorphHandler.yMultiplier.extraMultiplier = 1.16f - _realMassAmount;
         }
 
         private IEnumerator RefreshMassMale(bool useNewMass)
@@ -736,6 +776,7 @@ namespace TittyMagic
             {
                 // simulate gravityPhysics when upright
                 _gravityPhysicsHandler.Update(0, 0, _massAmount, _softnessAmount);
+                _gravityOffsetMorphHandler.Update(0, 0, _massAmount, _softnessAmount, _gravityOffsetMorphing.val);
 
                 // simulate force of gravity when upright
                 // 0.75f is a hack, for some reason a normal gravity force pushes breasts too much down,
@@ -861,6 +902,7 @@ namespace TittyMagic
             Destroy(_xPhysicsSCM);
             Destroy(_yPhysicsSCM);
             Destroy(_zPhysicsSCM);
+            Destroy(_offsetMorphingSCM);
         }
 
         private void OnDestroy()
@@ -874,6 +916,7 @@ namespace TittyMagic
                 Destroy(_xPhysicsSCM);
                 Destroy(_yPhysicsSCM);
                 Destroy(_zPhysicsSCM);
+                Destroy(_offsetMorphingSCM);
                 SuperController.singleton.onAtomRemovedHandlers -= OnRemoveAtom;
                 SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
             }
@@ -901,6 +944,7 @@ namespace TittyMagic
                 if(_settingsMonitor != null) _settingsMonitor.enabled = false;
 
                 _gravityPhysicsHandler?.ResetAll();
+                _gravityOffsetMorphHandler?.ResetAll();
                 BREAST_CONTROL.invertJoint2RotationY = true;
                 _gravityMorphHandler?.ResetAll();
                 _forceMorphHandler?.ResetAll();

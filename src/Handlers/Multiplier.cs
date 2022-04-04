@@ -6,8 +6,8 @@ namespace TittyMagic
     {
         public readonly Slider slider;
         public float mainMultiplier { get; private set; }
-        public float extraMultiplier { get; set; }
-        public float oppositeExtraMultiplier { get; set; }
+        public float? extraMultiplier { get; set; }
+        public float? oppositeExtraMultiplier { get; set; }
 
         public Multiplier(Slider slider, bool nonlinear = false)
         {
