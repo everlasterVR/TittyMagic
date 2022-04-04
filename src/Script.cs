@@ -734,16 +734,6 @@ namespace TittyMagic
             {
                 _mass.defaultVal = _mass.val;
             }
-
-            SetMaleMorphingExtraMultipliers();
-        }
-
-        private void SetMaleMorphingExtraMultipliers()
-        {
-            _gravityMorphHandler.yMultiplier.extraMultiplier = 1.05f * (2.5f - Mathf.Pow(1.67f * _realMassAmount, 0.53f));
-            _gravityMorphHandler.xMultiplier.extraMultiplier = 1.05f * (2.67f - Mathf.Pow(_realMassAmount, 1.75f));
-            _gravityMorphHandler.zMultiplier.extraMultiplier = (1 / Mathf.Pow(1 / 2f * _realMassAmount, 1 / 3f)) - 0.51f;
-            _gravityMorphHandler.zMultiplier.oppositeExtraMultiplier = 17 / (12 * Mathf.Pow(0.9f * (_realMassAmount + 0.02f), 1 / 4f));
         }
 
         private IEnumerator CalibrateNipplesTracking()
