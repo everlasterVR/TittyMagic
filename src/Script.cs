@@ -132,6 +132,7 @@ namespace TittyMagic
 
             _staticPhysicsH = new StaticPhysicsHandler(_isFemale);
             _gravityPhysicsHandler = new GravityPhysicsHandler(this);
+            _gravityOffsetMorphHandler = new GravityOffsetMorphHandler(this);
             _nippleErectionMorphH = new NippleErectionMorphHandler(this);
 
             if(_isFemale)
@@ -162,7 +163,6 @@ namespace TittyMagic
                 _settingsMonitor.Init(containingAtom);
 
                 _forceMorphHandler = new ForceMorphHandler(this, _trackLeftNipple, _trackRightNipple);
-                _gravityOffsetMorphHandler = new GravityOffsetMorphHandler(this);
 
                 InitPluginUI();
 
@@ -197,6 +197,7 @@ namespace TittyMagic
 
                 _gravityMorphHandler.LoadSettings();
                 _gravityPhysicsHandler.LoadSettings(false);
+                _gravityOffsetMorphHandler.LoadSettings();
                 _staticPhysicsH.LoadSettings(false);
                 if(!_loadingFromJson)
                 {
@@ -409,10 +410,7 @@ namespace TittyMagic
             _gravityPhysicsHandler.xMultiplier = new Multiplier(xStorable.slider);
             _gravityPhysicsHandler.zMultiplier = new Multiplier(zStorable.slider);
 
-            if(_isFemale)
-            {
-                _gravityOffsetMorphHandler.yMultiplier = new Multiplier(yStorable.slider);
-            }
+            _gravityOffsetMorphHandler.yMultiplier = new Multiplier(yStorable.slider);
 
             _xPhysicsSCM = _gravityPhysicsHandler.yMultiplier.slider.gameObject.AddComponent<SliderClickMonitor>();
             _yPhysicsSCM = _gravityPhysicsHandler.xMultiplier.slider.gameObject.AddComponent<SliderClickMonitor>();
@@ -440,14 +438,12 @@ namespace TittyMagic
             title.SetVal("<size=28>\n\n</size><b>Additional settings</b>");
             title.dynamicText.backgroundColor = Color.clear;
 
-            if(_isFemale)
-            {
-                _gravityOffsetMorphing = this.NewFloatSlider("Gravity offset morphing", 1.00f, 0.00f, 2.00f, "F2");
-                _offsetMorphingSCM = _gravityOffsetMorphing.slider.gameObject.AddComponent<SliderClickMonitor>();
-                _gravityOffsetMorphing.slider.onValueChanged.AddListener(
-                    val => { RefreshFromSliderChanged(); }
-                );
-            }
+            _gravityOffsetMorphing = this.NewFloatSlider("Gravity offset morphing", 1.00f, 0.00f, 2.00f, "F2");
+            _offsetMorphingSCM = _gravityOffsetMorphing.slider.gameObject.AddComponent<SliderClickMonitor>();
+
+            _gravityOffsetMorphing.slider.onValueChanged.AddListener(
+                val => { RefreshFromSliderChanged(); }
+            );
 
             this.NewSpacer(100, true);
             var infoText = this.NewTextField("GravityOffsetMorphingInfoText", "", 28, 115, true);
@@ -555,22 +551,19 @@ namespace TittyMagic
 
             if(updateGravityPhysics && _gravityPhysicsHandler.IsEnabled())
             {
-                if(_isFemale)
-                {
-                    _gravityOffsetMorphHandler.Update(
-                        _chestRoll,
-                        _chestPitch,
-                        _realMassAmount,
-                        _softnessAmount,
-                        _gravityOffsetMorphing.val
-                    );
-                }
-
                 _gravityPhysicsHandler.Update(
                     _chestRoll,
                     _chestPitch,
                     _massAmount,
                     _softnessAmount
+                );
+
+                _gravityOffsetMorphHandler.Update(
+                    _chestRoll,
+                    _chestPitch,
+                    _realMassAmount,
+                    _softnessAmount,
+                    _gravityOffsetMorphing.val
                 );
             }
         }
