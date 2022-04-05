@@ -144,6 +144,15 @@ namespace TittyMagic
                 InitMale();
             }
 
+            if(!_loadingFromJson)
+            {
+                StartCoroutine(WaitToBeginRefresh(true));
+            }
+            else
+            {
+                _initDone = true;
+            }
+
             SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
             StartCoroutine(SetPluginVersion());
         }
@@ -170,14 +179,6 @@ namespace TittyMagic
                 _gravityPhysicsHandler.LoadSettings(true);
                 _gravityOffsetMorphHandler.LoadSettings();
                 _staticPhysicsH.LoadSettings(true);
-                if(!_loadingFromJson)
-                {
-                    StartCoroutine(WaitToBeginRefresh(true));
-                }
-                else
-                {
-                    _initDone = true;
-                }
             }
             catch(Exception e)
             {
@@ -199,14 +200,6 @@ namespace TittyMagic
                 _gravityPhysicsHandler.LoadSettings(false);
                 _gravityOffsetMorphHandler.LoadSettings();
                 _staticPhysicsH.LoadSettings(false);
-                if(!_loadingFromJson)
-                {
-                    StartCoroutine(WaitToBeginRefresh(true));
-                }
-                else
-                {
-                    _initDone = true;
-                }
             }
             catch(Exception e)
             {
@@ -597,14 +590,14 @@ namespace TittyMagic
             _animationWasSetFrozen = mainToggleFrozen || altToggleFrozen;
             SuperController.singleton.SetFreezeAnimation(true);
 
+            _chestRoll = 0;
+            _chestPitch = 0;
+
             if(_isFemale)
             {
                 _trackLeftNipple.ResetAnglesAndDepthDiff();
                 _trackRightNipple.ResetAnglesAndDepthDiff();
             }
-
-            _chestRoll = 0;
-            _chestPitch = 0;
 
             if(refreshMass)
             {
@@ -758,9 +751,12 @@ namespace TittyMagic
         {
             try
             {
-                // simulate gravityPhysics when upright
-                _gravityPhysicsHandler.Update(0, 0, _massAmount, _softnessAmount);
-                _gravityOffsetMorphHandler.Update(0, 0, _massAmount, _softnessAmount, _gravityOffsetMorphing.val);
+                if(_gravityPhysicsHandler.IsEnabled())
+                {
+                    // simulate gravityPhysics when upright
+                    _gravityPhysicsHandler.Update(0, 0, _massAmount, _softnessAmount);
+                    _gravityOffsetMorphHandler.Update(0, 0, _massAmount, _softnessAmount, _gravityOffsetMorphing.val);
+                }
 
                 // simulate force of gravity when upright
                 // 0.75f is a hack, for some reason a normal gravity force pushes breasts too much down,
@@ -915,9 +911,9 @@ namespace TittyMagic
             if(_settingsMonitor != null) _settingsMonitor.enabled = true;
             BREAST_CONTROL.invertJoint2RotationY = false;
 
-            if(_initDone && CheckListeners())
+            if(_initDone)
             {
-                StartCoroutine(WaitToBeginRefresh(true));
+                StartCoroutine(WaitToBeginRefresh(false));
             }
         }
 
