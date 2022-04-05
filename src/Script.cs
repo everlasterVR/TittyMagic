@@ -542,14 +542,17 @@ namespace TittyMagic
                 );
             }
 
-            if(updateGravityPhysics && _gravityPhysicsHandler.IsEnabled())
+            if(_gravityPhysicsHandler.IsEnabled())
             {
-                _gravityPhysicsHandler.Update(
-                    _chestRoll,
-                    _chestPitch,
-                    _massAmount,
-                    _softnessAmount
-                );
+                if(updateGravityPhysics)
+                {
+                    _gravityPhysicsHandler.Update(
+                        _chestRoll,
+                        _chestPitch,
+                        _massAmount,
+                        _softnessAmount
+                    );
+                }
 
                 _gravityOffsetMorphHandler.Update(
                     _chestRoll,
@@ -602,6 +605,10 @@ namespace TittyMagic
             if(refreshMass)
             {
                 UpdateMassValueAndAmounts(useNewMass);
+                if(_isFemale)
+                {
+                    SetFemaleMorphingExtraMultipliers();
+                }
             }
 
             if(_isFemale)
