@@ -315,7 +315,7 @@ namespace TittyMagic
 
         private void CreateSoftnessSlider()
         {
-            _softness = this.NewIntSlider("Breast softness", 75f, 0f, 100f);
+            _softness = this.NewIntSlider("Breast softness", 70f, 0f, 100f);
             _softnessSCM = _softness.slider.gameObject.AddComponent<SliderClickMonitor>();
 
             _softness.slider.onValueChanged.AddListener(
@@ -337,7 +337,7 @@ namespace TittyMagic
 
         private void CreateQuicknessSlider()
         {
-            _quickness = this.NewIntSlider("Breast quickness", 50f, 0f, 100f, true);
+            _quickness = this.NewIntSlider("Breast quickness", 70f, 0f, 100f, true);
             _quicknessSCM = _quickness.slider.gameObject.AddComponent<SliderClickMonitor>();
 
             _quickness.slider.onValueChanged.AddListener(
