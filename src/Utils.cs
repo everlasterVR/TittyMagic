@@ -189,6 +189,7 @@ namespace TittyMagic
         public static Color offGrayRed = new Color(0.45f, 0.4f, 0.4f);
         public static Color offGrayViolet = new Color(0.80f, 0.75f, 0.80f);
         public static Color sliderGray = new Color(0, 0, 0, 0.498f);
+        public static Color funkyCyan = new Color(0.596f, 1.000f, 0.780f);
 
         public static string LineBreak()
         {

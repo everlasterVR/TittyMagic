@@ -244,6 +244,7 @@ namespace TittyMagic
             _titleUIText = this.NewTextField("titleText", "", 46, 100);
             _titleUIText.SetVal($"<b>{nameof(TittyMagic)}</b><size=36>    v{VERSION}</size>");
             _titleUIText.dynamicText.backgroundColor = Color.clear;
+            _titleUIText.dynamicText.textColor = UI.funkyCyan;
 
             this.NewSpacer(35, true);
 
