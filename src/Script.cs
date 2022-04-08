@@ -16,6 +16,7 @@ namespace TittyMagic
         private Bindings _customBindings;
 
         private List<Rigidbody> _rigidbodies;
+        private Rigidbody _chestRb;
         private Transform _chestTransform;
         private Rigidbody _pectoralRbLeft;
         private Rigidbody _pectoralRbRight;
@@ -122,13 +123,14 @@ namespace TittyMagic
             }
 
             _rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
-            _chestTransform = _rigidbodies.Find(rb => rb.name == "chest").transform;
+            _chestRb = _rigidbodies.Find(rb => rb.name == "chest");
+            _chestTransform = _chestRb.transform;
             _pectoralRbLeft = _rigidbodies.Find(rb => rb.name == "lPectoral");
             _pectoralRbRight = _rigidbodies.Find(rb => rb.name == "rPectoral");
 
             _atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
             var dazCharacter = containingAtom.GetComponentInChildren<DAZCharacter>();
-            _breastVolumeCalculator = new BreastVolumeCalculator(dazCharacter.skin, _chestTransform);
+            _breastVolumeCalculator = new BreastVolumeCalculator(dazCharacter.skin, _chestRb);
 
             _staticPhysicsH = new StaticPhysicsHandler(_isFemale);
             _gravityPhysicsHandler = new GravityPhysicsHandler(this);
@@ -165,8 +167,8 @@ namespace TittyMagic
 
                 var nippleRbLeft = _rigidbodies.Find(rb => rb.name == "lNipple");
                 var nippleRbRight = _rigidbodies.Find(rb => rb.name == "rNipple");
-                _trackLeftNipple = new TrackNipple(_chestTransform, _pectoralRbLeft.transform, nippleRbLeft.transform);
-                _trackRightNipple = new TrackNipple(_chestTransform, _pectoralRbRight.transform, nippleRbRight.transform);
+                _trackLeftNipple = new TrackNipple(_chestRb, _pectoralRbLeft, nippleRbLeft);
+                _trackRightNipple = new TrackNipple(_chestRb, _pectoralRbRight, nippleRbRight);
 
                 _settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
                 _settingsMonitor.Init(containingAtom);
