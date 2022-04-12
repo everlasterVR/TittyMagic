@@ -75,7 +75,7 @@ namespace TittyMagic
             bool value = Globals.GEOMETRY.useAdvancedColliders;
             if(!value && _prevUseAdvancedColliders)
             {
-                LogMessage("Advanced Colliders are not enabled in Control & Physics 1 tab. Enable them to allow Animation optimized mode to work correctly.");
+                LogMessage("Advanced Colliders are not enabled in Control & Physics 1 tab. Enable them to allow dynamic breast morphing to work correctly.");
             }
             else if(value && !_prevUseAdvancedColliders)
             {
