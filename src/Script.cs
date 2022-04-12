@@ -127,6 +127,8 @@ namespace TittyMagic
             _chestTransform = _chestRb.transform;
             _pectoralRbLeft = _rigidbodies.Find(rb => rb.name == "lPectoral");
             _pectoralRbRight = _rigidbodies.Find(rb => rb.name == "rPectoral");
+            _pectoralRbLeft.detectCollisions = false;
+            _pectoralRbRight.detectCollisions = false;
 
             _atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
             var dazCharacter = containingAtom.GetComponentInChildren<DAZCharacter>();
@@ -939,6 +941,8 @@ namespace TittyMagic
                 _gravityMorphHandler?.ResetAll();
                 _forceMorphHandler?.ResetAll();
                 _nippleErectionMorphH?.ResetAll();
+                _pectoralRbLeft.detectCollisions = true;
+                _pectoralRbRight.detectCollisions = true;
             }
             catch(Exception e)
             {
