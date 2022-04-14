@@ -21,6 +21,9 @@ namespace TittyMagic
         private Rigidbody _pectoralRbLeft;
         private Rigidbody _pectoralRbRight;
 
+        private BoolSetting _pectoralRbLeftDetectCollisions;
+        private BoolSetting _pectoralRbRightDetectCollisions;
+
         private float _realMassAmount;
         private float _massAmount;
         private float _softnessAmount;
@@ -127,6 +130,9 @@ namespace TittyMagic
             _chestTransform = _chestRb.transform;
             _pectoralRbLeft = _rigidbodies.Find(rb => rb.name == "lPectoral");
             _pectoralRbRight = _rigidbodies.Find(rb => rb.name == "rPectoral");
+
+            _pectoralRbLeftDetectCollisions = new BoolSetting(_pectoralRbLeft.detectCollisions);
+            _pectoralRbRightDetectCollisions = new BoolSetting(_pectoralRbRight.detectCollisions);
             _pectoralRbLeft.detectCollisions = false;
             _pectoralRbRight.detectCollisions = false;
 
@@ -134,6 +140,7 @@ namespace TittyMagic
             var dazCharacter = containingAtom.GetComponentInChildren<DAZCharacter>();
             _breastVolumeCalculator = new BreastVolumeCalculator(dazCharacter.skin, _chestRb);
 
+            BREAST_CONTROL.invertJoint2RotationY = false;
             _staticPhysicsH = new StaticPhysicsHandler(_isFemale);
             _gravityPhysicsHandler = new GravityPhysicsHandler(this);
             _gravityOffsetMorphHandler = new GravityOffsetMorphHandler(this);
@@ -941,8 +948,8 @@ namespace TittyMagic
                 _gravityMorphHandler?.ResetAll();
                 _forceMorphHandler?.ResetAll();
                 _nippleErectionMorphH?.ResetAll();
-                _pectoralRbLeft.detectCollisions = true;
-                _pectoralRbRight.detectCollisions = true;
+                _pectoralRbLeft.detectCollisions = _pectoralRbLeftDetectCollisions.prevValue;
+                _pectoralRbRight.detectCollisions = _pectoralRbRightDetectCollisions.prevValue;
             }
             catch(Exception e)
             {

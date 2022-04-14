@@ -85,6 +85,7 @@
     <Compile Include="src\AtomScaleListener.cs" />
     <Compile Include="src\BreastVolumeCalculator.cs" />
     <Compile Include="src\BreastMorphListener.cs" />
+    <Compile Include="src\Components\BoolSetting.cs" />
     <Compile Include="src\Handlers\GravityEffectCalc.cs" />
     <Compile Include="src\Handlers\GravityOffsetMorphHandler.cs" />
     <Compile Include="src\Handlers\Multiplier.cs" />

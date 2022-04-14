@@ -1,4 +1,5 @@
 src\Components\Bindings.cs
+src\Components\BoolSetting.cs
 src\Components\SliderClickMonitor.cs
 src\Components\SettingsMonitor.cs
 src\Configurators\Config.cs

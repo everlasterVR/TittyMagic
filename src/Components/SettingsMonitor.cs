@@ -12,6 +12,8 @@ namespace TittyMagic
 
         private JSONStorable _breastInOut;
 
+        private BoolSetting _useAdvancedColliders;
+
         private bool _prevUseAdvancedColliders;
         private float _prevFixedDeltaTime;
 
@@ -19,7 +21,10 @@ namespace TittyMagic
         {
             enabled = false; // will be enabled during main refresh cycle
             _breastInOut = atom.GetStorableByID("BreastInOut");
-            _prevUseAdvancedColliders = Globals.GEOMETRY.useAdvancedColliders;
+            _useAdvancedColliders = new BoolSetting(
+                Globals.GEOMETRY.useAdvancedColliders,
+                "Advanced Colliders are not enabled in Control & Physics 1 tab. Enable them to allow dynamic breast morphing to work correctly."
+            );
             _prevFixedDeltaTime = Time.fixedDeltaTime;
             StartCoroutine(FixInOut());
         }
@@ -48,7 +53,7 @@ namespace TittyMagic
                         LogMessage("Auto Breast In/Out Morphs disabled - TittyMagic adjusts breast morphs better without them.");
                     }
 
-                    if(CheckAdvancedColliders())
+                    if(_useAdvancedColliders.CheckIfUpdateNeeded(Globals.GEOMETRY.useAdvancedColliders))
                     {
                         StartCoroutine(gameObject.GetComponent<Script>().WaitToBeginRefresh(true));
                     }
@@ -67,23 +72,6 @@ namespace TittyMagic
                 LogError($"{e}", nameof(SettingsMonitor));
                 enabled = false;
             }
-        }
-
-        private bool CheckAdvancedColliders()
-        {
-            bool updateNeeded = false;
-            bool value = Globals.GEOMETRY.useAdvancedColliders;
-            if(!value && _prevUseAdvancedColliders)
-            {
-                LogMessage("Advanced Colliders are not enabled in Control & Physics 1 tab. Enable them to allow dynamic breast morphing to work correctly.");
-            }
-            else if(value && !_prevUseAdvancedColliders)
-            {
-                updateNeeded = true;
-            }
-
-            _prevUseAdvancedColliders = value;
-            return updateNeeded;
         }
     }
 }
