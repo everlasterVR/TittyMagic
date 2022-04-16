@@ -376,21 +376,21 @@ namespace TittyMagic
             title.dynamicText.backgroundColor = Color.clear;
 
             // values above above 2.4 would actually lower the multiplier due to quadratic regression when nonlinear=true
-            var yStorable = this.NewFloatSlider("Morphing Up/down", 1.00f, 0.00f, 2.00f, "F2");
-            var xStorable = this.NewFloatSlider("Morphing Left/right", 1.00f, 0.00f, 2.00f, "F2");
-            var zStorable = this.NewFloatSlider("Morphing Forward/back", 1.00f, 0.00f, 2.00f, "F2");
+            var yStorable = this.NewFloatSlider("Morphing Up/down", 1.00f, 0.00f, 3.00f, "F2");
+            var xStorable = this.NewFloatSlider("Morphing Left/right", 1.00f, 0.00f, 3.00f, "F2");
+            var zStorable = this.NewFloatSlider("Morphing Forward/back", 1.00f, 0.00f, 3.00f, "F2");
 
             if(_isFemale)
             {
-                _forceMorphHandler.yMultiplier = new Multiplier(yStorable.slider, true);
-                _forceMorphHandler.xMultiplier = new Multiplier(xStorable.slider, true);
-                _forceMorphHandler.zMultiplier = new Multiplier(zStorable.slider);
+                _forceMorphHandler.yMultiplier = new Multiplier(yStorable.slider, QuadraticRegression);
+                _forceMorphHandler.xMultiplier = new Multiplier(xStorable.slider, QuadraticRegression);
+                _forceMorphHandler.zMultiplier = new Multiplier(zStorable.slider, QuadraticRegressionLesser);
             }
             else
             {
-                _gravityMorphHandler.yMultiplier = new Multiplier(yStorable.slider, true);
-                _gravityMorphHandler.xMultiplier = new Multiplier(xStorable.slider, true);
-                _gravityMorphHandler.zMultiplier = new Multiplier(zStorable.slider);
+                _gravityMorphHandler.yMultiplier = new Multiplier(yStorable.slider, QuadraticRegression);
+                _gravityMorphHandler.xMultiplier = new Multiplier(xStorable.slider, QuadraticRegression);
+                _gravityMorphHandler.zMultiplier = new Multiplier(zStorable.slider, QuadraticRegressionLesser);
             }
 
             this.NewSpacer(100, true);

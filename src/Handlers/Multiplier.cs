@@ -1,3 +1,4 @@
+using System;
 using UnityEngine.UI;
 
 namespace TittyMagic
@@ -9,27 +10,23 @@ namespace TittyMagic
         public float? extraMultiplier { get; set; }
         public float? oppositeExtraMultiplier { get; set; }
 
-        public Multiplier(Slider slider, bool nonlinear = false)
+        public Multiplier(Slider slider, Func<float, float> curve = null)
         {
             this.slider = slider;
-            SetValueChangedCallback(nonlinear);
-        }
 
-        private void SetValueChangedCallback(bool nonlinear)
-        {
-            if(nonlinear)
-            {
-                slider.onValueChanged.AddListener(
-                    value => { mainMultiplier = Calc.QuadraticRegression(value); }
-                );
-                mainMultiplier = Calc.QuadraticRegression(slider.value);
-            }
-            else
+            if(curve == null)
             {
                 slider.onValueChanged.AddListener(
                     value => { mainMultiplier = value; }
                 );
                 mainMultiplier = slider.value;
+            }
+            else
+            {
+                slider.onValueChanged.AddListener(
+                    value => { mainMultiplier = curve(value); }
+                );
+                mainMultiplier = curve(slider.value);
             }
         }
     }

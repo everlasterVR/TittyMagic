@@ -173,10 +173,14 @@ namespace TittyMagic
             return result;
         }
 
-        // https://www.desmos.com/calculator/8dtzezrgm7
         public static float QuadraticRegression(float value)
         {
-            return (-0.25f * value * value) + (1.2f * value);
+            return (-0.173f * value * value) + (1.142f * value);
+        }
+
+        public static float QuadraticRegressionLesser(float value)
+        {
+            return (-0.115f * value * value) + (1.12f * value);
         }
     }
 
