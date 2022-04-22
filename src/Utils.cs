@@ -56,6 +56,19 @@ namespace TittyMagic
         }
     }
 
+    internal static class Curves
+    {
+        public static float QuadraticRegression(float f)
+        {
+            return (-0.173f * f * f) + (1.142f * f);
+        }
+
+        public static float QuadraticRegressionLesser(float f)
+        {
+            return (-0.115f * f * f) + (1.12f * f);
+        }
+    }
+
     internal static class Calc
     {
         public static float Roll(Quaternion q)
@@ -171,16 +184,6 @@ namespace TittyMagic
             }
 
             return result;
-        }
-
-        public static float QuadraticRegression(float value)
-        {
-            return (-0.173f * value * value) + (1.142f * value);
-        }
-
-        public static float QuadraticRegressionLesser(float value)
-        {
-            return (-0.115f * value * value) + (1.12f * value);
         }
     }
 

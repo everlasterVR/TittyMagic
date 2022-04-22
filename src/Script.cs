@@ -382,15 +382,15 @@ namespace TittyMagic
 
             if(_isFemale)
             {
-                _forceMorphHandler.yMultiplier = new Multiplier(yStorable.slider, QuadraticRegression);
-                _forceMorphHandler.xMultiplier = new Multiplier(xStorable.slider, QuadraticRegression);
-                _forceMorphHandler.zMultiplier = new Multiplier(zStorable.slider, QuadraticRegressionLesser);
+                _forceMorphHandler.yMultiplier = new Multiplier(yStorable.slider, Curves.QuadraticRegression);
+                _forceMorphHandler.xMultiplier = new Multiplier(xStorable.slider, Curves.QuadraticRegression);
+                _forceMorphHandler.zMultiplier = new Multiplier(zStorable.slider, Curves.QuadraticRegressionLesser);
             }
             else
             {
-                _gravityMorphHandler.yMultiplier = new Multiplier(yStorable.slider, QuadraticRegression);
-                _gravityMorphHandler.xMultiplier = new Multiplier(xStorable.slider, QuadraticRegression);
-                _gravityMorphHandler.zMultiplier = new Multiplier(zStorable.slider, QuadraticRegressionLesser);
+                _gravityMorphHandler.yMultiplier = new Multiplier(yStorable.slider, Curves.QuadraticRegression);
+                _gravityMorphHandler.xMultiplier = new Multiplier(xStorable.slider, Curves.QuadraticRegression);
+                _gravityMorphHandler.zMultiplier = new Multiplier(zStorable.slider, Curves.QuadraticRegressionLesser);
             }
 
             this.NewSpacer(100, true);
