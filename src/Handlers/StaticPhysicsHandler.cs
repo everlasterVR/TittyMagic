@@ -37,86 +37,129 @@ namespace TittyMagic
 
         private void LoadFemaleBreastSettings()
         {
+            LoadMainPhysicsSettings();
+            LoadSoftPhysicsSettings();
+            LoadNipplePhysicsSettings();
+        }
+
+        private void LoadMainPhysicsSettings()
+        {
+            var centerOfGravityPercent = new BreastStaticPhysicsConfig("centerOfGravityPercent", 0.350f, 0.480f, 0.560f);
+            var spring = new BreastStaticPhysicsConfig("spring", 50f, 64f, 45f)
+            {
+                quicknessOffsetConfig = new StaticPhysicsConfigBase(20f, 24f, 18f),
+                slownessOffsetConfig = new StaticPhysicsConfigBase(-13f, -16f, -12f),
+            };
+            var damper = new BreastStaticPhysicsConfig("damper", 1.2f, 1.5f, 0.8f)
+            {
+                dependOnPhysicsRate = true,
+                quicknessOffsetConfig = new StaticPhysicsConfigBase(-0.6f, -0.75f, -0.4f),
+                slownessOffsetConfig = new StaticPhysicsConfigBase(0.4f, 0.5f, 0.27f),
+            };
+            var positionSpringZ = new BreastStaticPhysicsConfig("positionSpringZ", 450f, 550f, 250f)
+            {
+                quicknessOffsetConfig = new StaticPhysicsConfigBase(90, 110, 50f),
+                slownessOffsetConfig = new StaticPhysicsConfigBase(-60, -70, -33f),
+            };
+            var positionDamperZ = new BreastStaticPhysicsConfig("positionDamperZ", 16f, 22f, 9f)
+            {
+                dependOnPhysicsRate = true,
+            };
+
             _mainPhysicsConfigs = new List<StaticPhysicsConfig>
             {
-                new BreastStaticPhysicsConfig("centerOfGravityPercent", 0.350f, 0.480f, 0.560f),
-                new BreastStaticPhysicsConfig("spring", 50f, 64f, 45f)
-                {
-                    quicknessOffsetConfig = new StaticPhysicsConfigBase(20f, 24f, 18f),
-                    slownessOffsetConfig = new StaticPhysicsConfigBase(-13f, -16f, -12f),
-                },
-                new BreastStaticPhysicsConfig("damper", 1.2f, 1.5f, 0.8f)
-                {
-                    dependOnPhysicsRate = true,
-                    quicknessOffsetConfig = new StaticPhysicsConfigBase(-0.6f, -0.75f, -0.4f),
-                    slownessOffsetConfig = new StaticPhysicsConfigBase(0.4f, 0.5f, 0.27f),
-                },
-                new BreastStaticPhysicsConfig("positionSpringZ", 450f, 550f, 250f)
-                {
-                    quicknessOffsetConfig = new StaticPhysicsConfigBase(90, 110, 50f),
-                    slownessOffsetConfig = new StaticPhysicsConfigBase(-60, -70, -33f),
-                },
-                new BreastStaticPhysicsConfig("positionDamperZ", 16f, 22f, 9f)
-                {
-                    dependOnPhysicsRate = true,
-                },
+                centerOfGravityPercent,
+                spring,
+                damper,
+                positionSpringZ,
+                positionDamperZ,
             };
+        }
+
+        private void LoadSoftPhysicsSettings()
+        {
+            var softVerticesCombinedSpring = new BreastSoftStaticPhysicsConfig("softVerticesCombinedSpring", 240f, 240f, 62f);
+            var softVerticesCombinedDamper = new BreastSoftStaticPhysicsConfig("softVerticesCombinedDamper", 1.50f, 1.80f, 0.90f)
+            {
+                dependOnPhysicsRate = true,
+                quicknessOffsetConfig = new StaticPhysicsConfigBase(-0.75f, -0.90f, -0.45f),
+                slownessOffsetConfig = new StaticPhysicsConfigBase(1.125f, 1.35f, 0.675f),
+            };
+            var softVerticesMass = new BreastSoftStaticPhysicsConfig("softVerticesMass", 0.050f, 0.120f, 0.070f)
+            {
+                quicknessOffsetConfig = new StaticPhysicsConfigBase(0.000f, -0.048f, -0.028f),
+                slownessOffsetConfig = new StaticPhysicsConfigBase(0.012f, 0.060f, 0.040f),
+            };
+            var softVerticesColliderRadius = new BreastSoftStaticPhysicsConfig("softVerticesColliderRadius", 0.024f, 0.037f, 0.028f)
+            {
+                useRealMass = true,
+            };
+            var softVerticesDistanceLimit = new BreastSoftStaticPhysicsConfig("softVerticesDistanceLimit", 0.020f, 0.068f, 0.028f)
+            {
+                useRealMass = true,
+                quicknessOffsetConfig = new StaticPhysicsConfigBase(0.000f, 0.000f, 0.024f),
+                slownessOffsetConfig = new StaticPhysicsConfigBase(0.000f, 0.000f, -0.008f),
+            };
+            var softVerticesBackForce = new BreastSoftStaticPhysicsConfig("softVerticesBackForce", 10.4f, 22.0f, 7.0f)
+            {
+                quicknessOffsetConfig = new StaticPhysicsConfigBase(-3.4f, -6.6f, -3.1f),
+                slownessOffsetConfig = new StaticPhysicsConfigBase(1.13f, 2.2f, 1.03f),
+            };
+            var softVerticesBackForceThresholdDistance = new BreastSoftStaticPhysicsConfig("softVerticesBackForceThresholdDistance", 0.001f, -0.0005f, 0.001f);
+            var softVerticesBackForceMaxForce = new BreastSoftStaticPhysicsConfig("softVerticesBackForceMaxForce", 50f, 50f, 50f);
+            var groupASpringMultiplier = new BreastSoftStaticPhysicsConfig("groupASpringMultiplier", 1f, 1f, 1f);
+            var groupADamperMultiplier = new BreastSoftStaticPhysicsConfig("groupADamperMultiplier", 1f, 1f, 1f);
+            var groupBSpringMultiplier = new BreastSoftStaticPhysicsConfig("groupBSpringMultiplier", 1f, 1f, 1f);
+            var groupBDamperMultiplier = new BreastSoftStaticPhysicsConfig("groupBDamperMultiplier", 1f, 1f, 1f);
+            var groupCSpringMultiplier = new BreastSoftStaticPhysicsConfig("groupCSpringMultiplier", 2.29f, 1.30f, 2.29f);
+            var groupCDamperMultiplier = new BreastSoftStaticPhysicsConfig("groupCDamperMultiplier", 1.81f, 1.22f, 1.81f);
 
             _softPhysicsConfigs = new List<StaticPhysicsConfig>
             {
-                new BreastSoftStaticPhysicsConfig("softVerticesCombinedSpring", 240f, 240f, 62f),
-                new BreastSoftStaticPhysicsConfig("softVerticesCombinedDamper", 1.50f, 1.80f, 0.90f)
-                {
-                    dependOnPhysicsRate = true,
-                    quicknessOffsetConfig = new StaticPhysicsConfigBase(-0.75f, -0.90f, -0.45f),
-                    slownessOffsetConfig = new StaticPhysicsConfigBase(1.125f, 1.35f, 0.675f),
-                },
-                new BreastSoftStaticPhysicsConfig("softVerticesMass", 0.050f, 0.120f, 0.070f)
-                {
-                    quicknessOffsetConfig = new StaticPhysicsConfigBase(0.000f, -0.048f, -0.028f),
-                    slownessOffsetConfig = new StaticPhysicsConfigBase(0.012f, 0.060f, 0.040f),
-                },
-                new BreastSoftStaticPhysicsConfig("softVerticesColliderRadius", 0.024f, 0.037f, 0.028f)
-                {
-                    useRealMass = true,
-                },
-                new BreastSoftStaticPhysicsConfig("softVerticesDistanceLimit", 0.020f, 0.068f, 0.028f)
-                {
-                    useRealMass = true,
-                    quicknessOffsetConfig = new StaticPhysicsConfigBase(0.000f, 0.000f, 0.024f),
-                    slownessOffsetConfig = new StaticPhysicsConfigBase(0.000f, 0.000f, -0.008f),
-                },
-                new BreastSoftStaticPhysicsConfig("softVerticesBackForce", 10.4f, 22.0f, 7.0f)
-                {
-                    quicknessOffsetConfig = new StaticPhysicsConfigBase(-5.2f, -11.0f, -3.5f),
-                    slownessOffsetConfig = new StaticPhysicsConfigBase(2.6f, 5.5f, 1.75f),
-                },
-                new BreastSoftStaticPhysicsConfig("softVerticesBackForceThresholdDistance", 0.001f, -0.0005f, 0.001f),
-                new BreastSoftStaticPhysicsConfig("softVerticesBackForceMaxForce", 50f, 50f, 50f),
-                new BreastSoftStaticPhysicsConfig("groupASpringMultiplier", 1f, 1f, 1f),
-                new BreastSoftStaticPhysicsConfig("groupADamperMultiplier", 1f, 1f, 1f),
-                new BreastSoftStaticPhysicsConfig("groupBSpringMultiplier", 1f, 1f, 1f),
-                new BreastSoftStaticPhysicsConfig("groupBDamperMultiplier", 1f, 1f, 1f),
-                new BreastSoftStaticPhysicsConfig("groupCSpringMultiplier", 2.29f, 1.30f, 2.29f),
-                new BreastSoftStaticPhysicsConfig("groupCDamperMultiplier", 1.81f, 1.22f, 1.81f),
+                softVerticesCombinedSpring,
+                softVerticesCombinedDamper,
+                softVerticesMass,
+                softVerticesColliderRadius,
+                softVerticesDistanceLimit,
+                softVerticesBackForce,
+                softVerticesBackForceThresholdDistance,
+                softVerticesBackForceMaxForce,
+                groupASpringMultiplier,
+                groupADamperMultiplier,
+                groupBSpringMultiplier,
+                groupBDamperMultiplier,
+                groupCSpringMultiplier,
+                groupCDamperMultiplier,
             };
+        }
+
+        private void LoadNipplePhysicsSettings()
+        {
+            var groupDSpringMultiplier = new BreastSoftStaticPhysicsConfig("groupDSpringMultiplier", 2.29f, 1.30f, 2.29f);
+            var groupDDamperMultiplier = new BreastSoftStaticPhysicsConfig("groupDDamperMultiplier", 1.81f, 1.22f, 1.81f);
 
             _nipplePhysicsConfigs = new List<StaticPhysicsConfig>
             {
-                new BreastSoftStaticPhysicsConfig("groupDSpringMultiplier", 2.29f, 1.30f, 2.29f),
-                new BreastSoftStaticPhysicsConfig("groupDDamperMultiplier", 1.81f, 1.22f, 1.81f),
+                groupDSpringMultiplier,
+                groupDDamperMultiplier,
             };
         }
 
         private void LoadPectoralSettings()
         {
+            var centerOfGravityPercent = new PectoralStaticPhysicsConfig("centerOfGravityPercent", 0.460f, 0.590f);
+            var spring = new PectoralStaticPhysicsConfig("spring", 48f, 62f);
+            var damper = new PectoralStaticPhysicsConfig("damper", 1.0f, 1.3f);
+            var positionSpringZ = new PectoralStaticPhysicsConfig("positionSpringZ", 350f, 450f);
+            var positionDamperZ = new PectoralStaticPhysicsConfig("positionDamperZ", 13f, 19f);
+
             _pectoralPhysicsConfigs = new List<PectoralStaticPhysicsConfig>
             {
-                new PectoralStaticPhysicsConfig("centerOfGravityPercent", 0.460f, 0.590f),
-                new PectoralStaticPhysicsConfig("spring", 48f, 62f),
-                new PectoralStaticPhysicsConfig("damper", 1.0f, 1.3f),
-                new PectoralStaticPhysicsConfig("positionSpringZ", 350f, 450f),
-                new PectoralStaticPhysicsConfig("positionDamperZ", 13f, 19f),
+                centerOfGravityPercent,
+                spring,
+                damper,
+                positionSpringZ,
+                positionDamperZ,
             };
         }
 
