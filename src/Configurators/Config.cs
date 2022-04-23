@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using static TittyMagic.Utils;
 using static TittyMagic.Globals;
 
@@ -31,11 +32,11 @@ namespace TittyMagic
             this.multiplier1 = multiplier1;
             this.multiplier2 = multiplier2;
             this.multiplyInvertedMass = multiplyInvertedMass;
-            setting = GetSetting(category);
+            setting = GetSetting();
             originalValue = setting.val;
         }
 
-        private JSONStorableFloat GetSetting(string category)
+        private JSONStorableFloat GetSetting()
         {
             JSONStorableFloat storable = null;
             if(category == "main" || category == "pectoral")
@@ -107,24 +108,34 @@ namespace TittyMagic
     internal class StaticPhysicsConfigBase
     {
         protected JSONStorableFloat setting;
-        protected float valMinMS; // value at min mass and min softness
-        protected float valMaxM; // value at max mass and min softness
-        protected float valMaxS; // value at min mass and max softness
+        protected float minMminS; // value at min mass and min softness
+        protected float maxMminS; // value at max mass and min softness
+        protected float minMmaxS; // value at min mass and max softness
+
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
+        // ReSharper disable once MemberCanBePrivate.Global
+        public Func<float, float> massCurve { private get; set; }
+
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
+        // ReSharper disable once MemberCanBePrivate.Global
+        public Func<float, float> softnessCurve { private get; set; }
 
         protected StaticPhysicsConfigBase()
         {
         }
 
-        public StaticPhysicsConfigBase(float valMinMS, float valMaxM, float valMaxS)
+        public StaticPhysicsConfigBase(float minMminS, float maxMminS, float minMmaxS)
         {
-            this.valMinMS = valMinMS;
-            this.valMaxM = valMaxM;
-            this.valMaxS = valMaxS;
+            this.minMminS = minMminS;
+            this.maxMminS = maxMminS;
+            this.minMmaxS = minMmaxS;
         }
 
         public float Calculate(float mass, float softness)
         {
-            return Mathf.Lerp(valMinMS, valMaxM, mass) + Mathf.Lerp(valMinMS, valMaxS, softness) - valMinMS;
+            float massComponent = (massCurve?.Invoke(mass) ?? mass) * (maxMminS - minMminS);
+            float softnessComponent = (softnessCurve?.Invoke(softness) ?? softness) * (minMmaxS - minMminS);
+            return minMminS + massComponent + softnessComponent;
         }
     }
 
@@ -150,66 +161,65 @@ namespace TittyMagic
 
         private float Calculate(float mass, float softness, float quickness)
         {
-            float baseValue = base.Calculate(mass, softness);
+            float value = base.Calculate(mass, softness);
             if(quicknessOffsetConfig != null && quickness > 0)
             {
                 float maxQuicknessOffset = quicknessOffsetConfig.Calculate(mass, softness);
-                return baseValue + Mathf.Lerp(0, maxQuicknessOffset, quickness);
+                value += Mathf.Lerp(0, maxQuicknessOffset, quickness);
             }
 
             if(slownessOffsetConfig != null && quickness < 0)
             {
                 float maxSlownessOffset = slownessOffsetConfig.Calculate(mass, softness);
-                return baseValue + Mathf.Lerp(0, maxSlownessOffset, -quickness);
+                value += Mathf.Lerp(0, maxSlownessOffset, -quickness);
             }
 
-            return baseValue;
+            return value;
         }
 
         public void UpdateNippleVal(float mass, float softness, float addend = 0)
         {
-            setting.val = CalculateNippleVal(mass, softness) + addend;
-        }
-
-        private float CalculateNippleVal(float mass, float softness)
-        {
-            return Mathf.Lerp(valMinMS, valMaxM, mass) + Mathf.Lerp(valMinMS, valMaxS, softness) - valMinMS;
+            setting.val = base.Calculate(mass, softness) + addend;
         }
     }
 
     internal class BreastStaticPhysicsConfig : StaticPhysicsConfig
     {
-        public BreastStaticPhysicsConfig(string storableName, float valMinMS, float valMaxM, float valMaxS)
+        public BreastStaticPhysicsConfig(string storableName, float minMminS, float maxMminS, float minMmaxS)
         {
             setting = BREAST_CONTROL.GetFloatJSONParam(storableName);
-            this.valMinMS = valMinMS;
-            this.valMaxM = valMaxM;
-            this.valMaxS = valMaxS;
+            this.minMminS = minMminS;
+            this.maxMminS = maxMminS;
+            this.minMmaxS = minMmaxS;
         }
     }
 
     internal class BreastSoftStaticPhysicsConfig : StaticPhysicsConfig
     {
-        public BreastSoftStaticPhysicsConfig(string storableName, float valMinMS, float valMaxM, float valMaxS)
+        public BreastSoftStaticPhysicsConfig(string storableName, float minMminS, float maxMminS, float minMmaxS)
         {
             setting = BREAST_PHYSICS_MESH.GetFloatJSONParam(storableName);
-            this.valMinMS = valMinMS;
-            this.valMaxM = valMaxM;
-            this.valMaxS = valMaxS;
+            this.minMminS = minMminS;
+            this.maxMminS = maxMminS;
+            this.minMmaxS = minMmaxS;
         }
     }
 
     internal class PectoralStaticPhysicsConfig
     {
         private readonly JSONStorableFloat _setting;
-        private readonly float _valMinM; // value at min mass
-        private readonly float _valMaxM; // value at max mass
+        private readonly float _minM; // value at min mass
+        private readonly float _maxM; // value at max mass
 
-        public PectoralStaticPhysicsConfig(string storableName, float valMinM, float valMaxM)
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
+        // ReSharper disable once MemberCanBePrivate.Global
+        public Func<float, float> massCurve { private get; set; }
+
+        public PectoralStaticPhysicsConfig(string storableName, float minM, float maxM)
         {
             _setting = BREAST_CONTROL.GetFloatJSONParam(storableName);
-            _valMinM = valMinM;
-            _valMaxM = valMaxM;
+            _minM = minM;
+            _maxM = maxM;
         }
 
         // input mass normalized to (0,1) range
@@ -220,7 +230,8 @@ namespace TittyMagic
 
         private float Calculate(float mass)
         {
-            return Mathf.Lerp(_valMinM, _valMaxM, mass);
+            float massComponent = (massCurve?.Invoke(mass) ?? mass) * (_maxM - _minM);
+            return _minM + massComponent;
         }
     }
 }
