@@ -333,18 +333,21 @@ namespace TittyMagic
             _softness.slider.onValueChanged.AddListener(
                 val =>
                 {
-                    float newAmount = Mathf.Pow(val / 100f, 0.67f);
-                    if(Math.Abs(newAmount - _softnessAmount) < 0.001f)
+                    if(Math.Abs(CalculateSoftnessAmount(val) - _softnessAmount) < 0.001f)
                     {
                         return;
                     }
 
-                    _softnessAmount = newAmount;
                     RefreshFromSliderChanged();
                 }
             );
 
-            _softnessAmount = Mathf.Pow(_softness.val / 100f, 0.67f);
+            _softnessAmount = CalculateSoftnessAmount(_softness.val);
+        }
+
+        private static float CalculateSoftnessAmount(float val)
+        {
+            return Mathf.Pow(val / 100f, 0.67f);
         }
 
         private void CreateQuicknessSlider()
@@ -355,18 +358,21 @@ namespace TittyMagic
             _quickness.slider.onValueChanged.AddListener(
                 val =>
                 {
-                    float newAmount = (2 * val / 100f) - 1;
-                    if(Math.Abs(newAmount - _quicknessAmount) < 0.001f)
+                    if(Math.Abs(CalculateQuicknessAmount(val) - _quicknessAmount) < 0.001f)
                     {
                         return;
                     }
 
-                    _quicknessAmount = newAmount;
                     RefreshFromSliderChanged();
                 }
             );
 
-            _quicknessAmount = (2 * _quickness.val / 100) - 1;
+            _quicknessAmount = CalculateQuicknessAmount(_quickness.val);
+        }
+
+        private static float CalculateQuicknessAmount(float val)
+        {
+            return (2 * val / 100f) - 1;
         }
 
         private void CreateMorphingMultipliers()
@@ -590,12 +596,49 @@ namespace TittyMagic
                 yield return null;
             }
 
-            PreRefresh(refreshMass, useNewMass.Value);
-            yield return BeginRefresh(refreshMass, fromToggleOrButton, useNewMass.Value);
+            if(_refreshStatus != RefreshStatus.PRE_REFRESH_STARTED && _refreshStatus != RefreshStatus.PRE_REFRESH_OK)
+            {
+                PreRefresh(refreshMass, useNewMass.Value);
+            }
+
+            if(!fromToggleOrButton)
+            {
+                // ensure refresh actually begins only once listeners report no change
+                yield return new WaitForSeconds(LISTENERS_CHECK_INTERVAL);
+
+                while(
+                    _breastMorphListener.Changed() ||
+                    _atomScaleListener.Changed() ||
+                    (_massSCM != null && _massSCM.isDown) ||
+                    (_softnessSCM != null && _softnessSCM.isDown) ||
+                    (_quicknessSCM != null && _quicknessSCM.isDown) ||
+                    (_xPhysicsSCM != null && _xPhysicsSCM.isDown) ||
+                    (_yPhysicsSCM != null && _yPhysicsSCM.isDown) ||
+                    (_zPhysicsSCM != null && _zPhysicsSCM.isDown) ||
+                    (_offsetMorphingSCM != null && _offsetMorphingSCM.isDown)
+                )
+                {
+
+                    yield return new WaitForSeconds(0.1f);
+                }
+
+                yield return new WaitForSeconds(0.33f);
+            }
+
+            while(_refreshStatus != RefreshStatus.PRE_REFRESH_OK)
+            {
+                yield return null;
+            }
+
+            _softnessAmount = CalculateSoftnessAmount(_softness.val);
+            _quicknessAmount = CalculateQuicknessAmount(_quickness.val);
+
+            yield return RefreshMass(refreshMass, useNewMass.Value);
         }
 
         private void PreRefresh(bool refreshMass, bool useNewMass)
         {
+            _refreshStatus = RefreshStatus.PRE_REFRESH_STARTED;
             bool mainToggleFrozen =
                 SuperController.singleton.freezeAnimationToggle != null &&
                 SuperController.singleton.freezeAnimationToggle.isOn;
@@ -625,6 +668,8 @@ namespace TittyMagic
 
             if(_isFemale)
             {
+                _softnessAmount = CalculateSoftnessAmount(_softness.val);
+                _quicknessAmount = CalculateQuicknessAmount(_quickness.val);
                 _staticPhysicsH.UpdateMainPhysics(_softnessAmount, _quicknessAmount);
                 _staticPhysicsH.UpdateSoftPhysics(_softnessAmount, _quicknessAmount);
                 _staticPhysicsH.UpdateNipplePhysics(_softnessAmount, _nippleErection.val);
@@ -635,33 +680,12 @@ namespace TittyMagic
             }
 
             RunHandlers(false);
+            _refreshStatus = RefreshStatus.PRE_REFRESH_OK;
         }
 
-        private IEnumerator BeginRefresh(bool refreshMass, bool fromToggleOrButton, bool useNewMass)
+        private IEnumerator RefreshMass(bool refreshMass, bool useNewMass)
         {
-            if(!fromToggleOrButton)
-            {
-                // ensure refresh actually begins only once listeners report no change
-                yield return new WaitForSeconds(LISTENERS_CHECK_INTERVAL);
-
-                while(
-                    _breastMorphListener.Changed() ||
-                    _atomScaleListener.Changed() ||
-                    (_massSCM != null && _massSCM.isDown) ||
-                    (_softnessSCM != null && _softnessSCM.isDown) ||
-                    (_quicknessSCM != null && _quicknessSCM.isDown) ||
-                    (_xPhysicsSCM != null && _xPhysicsSCM.isDown) ||
-                    (_yPhysicsSCM != null && _yPhysicsSCM.isDown) ||
-                    (_zPhysicsSCM != null && _zPhysicsSCM.isDown) ||
-                    (_offsetMorphingSCM != null && _offsetMorphingSCM.isDown)
-                )
-                {
-                    yield return new WaitForSeconds(0.1f);
-                }
-
-                yield return new WaitForSeconds(0.33f);
-            }
-
+            _refreshStatus = RefreshStatus.MASS_STARTED;
             if(_isFemale)
             {
                 _settingsMonitor.enabled = false;
@@ -674,17 +698,23 @@ namespace TittyMagic
             yield return new WaitForSeconds(0.33f);
             RunHandlers(false);
 
-            _refreshStatus = RefreshStatus.MASS_STARTED;
-            if(refreshMass)
+            if(_isFemale)
             {
-                if(_isFemale)
+                _softnessAmount = CalculateSoftnessAmount(_softness.val);
+                _quicknessAmount = CalculateQuicknessAmount(_quickness.val);
+
+                if(refreshMass)
                 {
                     yield return RefreshMassFemale(useNewMass);
                 }
-                else
-                {
-                    yield return RefreshMassMale(useNewMass);
-                }
+
+                _staticPhysicsH.UpdateMainPhysics(_softnessAmount, _quicknessAmount);
+                _staticPhysicsH.UpdateSoftPhysics(_softnessAmount, _quicknessAmount);
+                _staticPhysicsH.UpdateNipplePhysics(_softnessAmount, _nippleErection.val);
+            }
+            else if(refreshMass)
+            {
+                yield return RefreshMassMale(useNewMass);
             }
 
             _gravityPhysicsHandler.SetBaseValues();
@@ -710,9 +740,6 @@ namespace TittyMagic
             }
 
             SetFemaleMorphingExtraMultipliers();
-            _staticPhysicsH.UpdateMainPhysics(_softnessAmount, _quicknessAmount);
-            _staticPhysicsH.UpdateSoftPhysics(_softnessAmount, _quicknessAmount);
-            _staticPhysicsH.UpdateNipplePhysics(_softnessAmount, _nippleErection.val);
         }
 
         private void SetFemaleMorphingExtraMultipliers()
