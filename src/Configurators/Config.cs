@@ -112,6 +112,9 @@ namespace TittyMagic
         protected float maxMminS; // value at max mass and min softness
         protected float minMmaxS; // value at min mass and max softness
 
+        // ReSharper disable once MemberCanBePrivate.Global
+        public Func<float, float, float> calculationFunction { private get; set; }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
         // ReSharper disable once MemberCanBePrivate.Global
         public Func<float, float> massCurve { private get; set; }
@@ -129,13 +132,33 @@ namespace TittyMagic
             this.minMminS = minMminS;
             this.maxMminS = maxMminS;
             this.minMmaxS = minMmaxS;
+            calculationFunction = CalculateByProportionalSum;
         }
 
         public float Calculate(float mass, float softness)
         {
-            float massComponent = (massCurve?.Invoke(mass) ?? mass) * (maxMminS - minMminS);
-            float softnessComponent = (softnessCurve?.Invoke(softness) ?? softness) * (minMmaxS - minMminS);
+            return calculationFunction(
+                massCurve?.Invoke(mass) ?? mass,
+                softnessCurve?.Invoke(softness) ?? softness
+            );
+        }
+
+        protected float CalculateByProportionalSum(float mass, float softness)
+        {
+            float massComponent = mass * (maxMminS - minMminS);
+            float softnessComponent = softness * (minMmaxS - minMminS);
             return minMminS + massComponent + softnessComponent;
+        }
+
+        private float CalculateByProductOfMassAndSoftness(float mass, float softness)
+        {
+            float max = CalculateByProportionalSum(1, 1);
+            return minMminS + (mass * softness * (max - minMminS));
+        }
+
+        public void UseCalculateByProductOfMassAndSoftness()
+        {
+            calculationFunction = CalculateByProductOfMassAndSoftness;
         }
     }
 
@@ -191,6 +214,7 @@ namespace TittyMagic
             this.minMminS = minMminS;
             this.maxMminS = maxMminS;
             this.minMmaxS = minMmaxS;
+            calculationFunction = CalculateByProportionalSum;
         }
     }
 
@@ -202,6 +226,7 @@ namespace TittyMagic
             this.minMminS = minMminS;
             this.maxMminS = maxMminS;
             this.minMmaxS = minMmaxS;
+            calculationFunction = CalculateByProportionalSum;
         }
     }
 
