@@ -50,7 +50,7 @@ namespace TittyMagic
                 quicknessOffsetConfig = new StaticPhysicsConfigBase(20f, 24f, 18f),
                 slownessOffsetConfig = new StaticPhysicsConfigBase(-13f, -16f, -12f),
             };
-            var damper = new BreastStaticPhysicsConfig("damper", 1.2f, 1.5f, 0.8f)
+            var damper = new BreastStaticPhysicsConfig("damper", 1.2f, 1.6f, 0.9f)
             {
                 dependOnPhysicsRate = true,
                 quicknessOffsetConfig = new StaticPhysicsConfigBase(-0.6f, -0.75f, -0.4f),
@@ -85,7 +85,7 @@ namespace TittyMagic
                 quicknessOffsetConfig = new StaticPhysicsConfigBase(-0.75f, -0.90f, -0.45f),
                 slownessOffsetConfig = new StaticPhysicsConfigBase(1.125f, 1.35f, 0.675f),
             };
-            var softVerticesMass = new BreastSoftStaticPhysicsConfig("softVerticesMass", 0.050f, 0.120f, 0.070f)
+            var softVerticesMass = new BreastSoftStaticPhysicsConfig("softVerticesMass", 0.050f, 0.130f, 0.085f)
             {
                 quicknessOffsetConfig = new StaticPhysicsConfigBase(0.000f, -0.048f, -0.028f),
                 slownessOffsetConfig = new StaticPhysicsConfigBase(0.012f, 0.060f, 0.040f),
@@ -100,10 +100,10 @@ namespace TittyMagic
                 quicknessOffsetConfig = new StaticPhysicsConfigBase(0.000f, 0.000f, 0.024f),
                 slownessOffsetConfig = new StaticPhysicsConfigBase(0.000f, 0.000f, -0.008f),
             };
-            var softVerticesBackForce = new BreastSoftStaticPhysicsConfig("softVerticesBackForce", 10.4f, 22.0f, 7.0f)
+            var softVerticesBackForce = new BreastSoftStaticPhysicsConfig("softVerticesBackForce", 10.4f, 16.0f, 9.3f)
             {
-                quicknessOffsetConfig = new StaticPhysicsConfigBase(-3.4f, -6.6f, -3.1f),
-                slownessOffsetConfig = new StaticPhysicsConfigBase(1.13f, 2.2f, 1.03f),
+                quicknessOffsetConfig = new StaticPhysicsConfigBase(-2.6f, -4f, -2.33f),
+                slownessOffsetConfig = new StaticPhysicsConfigBase(0.8f, 1.33f, 0.77f),
             };
             var softVerticesBackForceThresholdDistance = new BreastSoftStaticPhysicsConfig("softVerticesBackForceThresholdDistance", 0.001f, -0.0005f, 0.001f);
             var softVerticesBackForceMaxForce = new BreastSoftStaticPhysicsConfig("softVerticesBackForceMaxForce", 50f, 50f, 50f);
