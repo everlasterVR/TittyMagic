@@ -105,7 +105,7 @@ namespace TittyMagic
                 quicknessOffsetConfig = new StaticPhysicsConfigBase(-2.6f, -4f, -2.33f),
                 slownessOffsetConfig = new StaticPhysicsConfigBase(0.8f, 1.33f, 0.77f),
             };
-            var softVerticesBackForceThresholdDistance = new BreastSoftStaticPhysicsConfig("softVerticesBackForceThresholdDistance", 0.001f, -0.0005f, 0.001f);
+            var softVerticesBackForceThresholdDistance = new BreastSoftStaticPhysicsConfig("softVerticesBackForceThresholdDistance", 0f, 0f, 0f);
             var softVerticesBackForceMaxForce = new BreastSoftStaticPhysicsConfig("softVerticesBackForceMaxForce", 50f, 50f, 50f);
             var groupASpringMultiplier = new BreastSoftStaticPhysicsConfig("groupASpringMultiplier", 1f, 1f, 1f);
             var groupADamperMultiplier = new BreastSoftStaticPhysicsConfig("groupADamperMultiplier", 1f, 1f, 1f);
