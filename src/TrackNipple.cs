@@ -7,7 +7,8 @@ namespace TittyMagic
     {
         private readonly Rigidbody _chestRb;
         private readonly Rigidbody _pectoralRb;
-        private readonly Rigidbody _nippleRb;
+
+        private readonly Func<Vector3> _getNipplePosition;
 
         private Vector3 _neutralRelativePosition;
         private Vector3 _neutralRelativePectoralPosition;
@@ -19,11 +20,11 @@ namespace TittyMagic
         private const int SMOOTH_UPDATES_COUNT = 4;
         private readonly float[] _zDiffs = new float[SMOOTH_UPDATES_COUNT];
 
-        public TrackNipple(Rigidbody chestRb, Rigidbody pectoralRb, Rigidbody nippleRb)
+        public TrackNipple(Rigidbody chestRb, Rigidbody pectoralRb, Func<Vector3> getNipplePosition)
         {
             _chestRb = chestRb;
             _pectoralRb = pectoralRb;
-            _nippleRb = nippleRb;
+            _getNipplePosition = getNipplePosition;
         }
 
         public bool CalibrationDone()
@@ -31,7 +32,7 @@ namespace TittyMagic
             bool positionCalibrated = Calc.VectorEqualWithin(
                 1000000f,
                 _neutralRelativePosition,
-                Calc.RelativePosition(_chestRb, _nippleRb.position)
+                Calc.RelativePosition(_chestRb, _getNipplePosition())
             );
             bool pectoralPositionCalibrated = Calc.VectorEqualWithin(
                 1000000f,
@@ -43,13 +44,13 @@ namespace TittyMagic
 
         public void Calibrate()
         {
-            _neutralRelativePosition = Calc.RelativePosition(_chestRb, _nippleRb.position);
+            _neutralRelativePosition = Calc.RelativePosition(_chestRb, _getNipplePosition());
             _neutralRelativePectoralPosition = Calc.RelativePosition(_chestRb, _pectoralRb.position);
         }
 
         public void UpdateAnglesAndDepthDiff()
         {
-            var relativePos = Calc.RelativePosition(_chestRb, _nippleRb.position);
+            var relativePos = Calc.RelativePosition(_chestRb, _getNipplePosition());
             angleY = Vector2.SignedAngle(
                 new Vector2(_neutralRelativePosition.z, _neutralRelativePosition.y),
                 new Vector2(relativePos.z, relativePos.y)
