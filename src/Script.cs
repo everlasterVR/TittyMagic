@@ -630,8 +630,11 @@ namespace TittyMagic
                 yield return null;
             }
 
-            _softnessAmount = CalculateSoftnessAmount(_softness.val);
-            _quicknessAmount = CalculateQuicknessAmount(_quickness.val);
+            if(_isFemale)
+            {
+                _softnessAmount = CalculateSoftnessAmount(_softness.val);
+                _quicknessAmount = CalculateQuicknessAmount(_quickness.val);
+            }
 
             yield return RefreshMass(refreshMass, useNewMass.Value);
         }
