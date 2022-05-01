@@ -9,59 +9,34 @@ namespace TittyMagic
     {
         public string name { get; protected set; }
         public bool isNegative { get; protected set; }
-        public float baseMultiplier { get; set; }
         public float multiplier1 { get; set; }
         public float multiplier2 { get; set; }
-        public bool multiplyInvertedMass { get; protected set; }
     }
 
-    internal class PhysicsConfig : Config
+    internal class GravityPhysicsConfig : Config
     {
         public JSONStorableFloat setting { get; }
-        public string category { get; }
         public string type { get; }
         public float originalValue { get; }
         public float baseValue { get; set; }
+        public bool multiplyInvertedMass { get; }
 
-        public PhysicsConfig(string name, string category, string type, bool isNegative, float multiplier1, float multiplier2, bool multiplyInvertedMass)
+        public GravityPhysicsConfig(string name, string type, bool isNegative, float multiplier1, float multiplier2, bool multiplyInvertedMass)
         {
+            setting = BREAST_CONTROL.GetFloatJSONParam(name);
             this.name = name;
-            this.category = category;
             this.type = type;
             this.isNegative = isNegative;
             this.multiplier1 = multiplier1;
             this.multiplier2 = multiplier2;
             this.multiplyInvertedMass = multiplyInvertedMass;
-            setting = GetSetting();
             originalValue = setting.val;
-        }
-
-        private JSONStorableFloat GetSetting()
-        {
-            JSONStorableFloat storable = null;
-            if(category == "main" || category == "pectoral")
-            {
-                storable = BREAST_CONTROL.GetFloatJSONParam(name);
-                if(storable == null)
-                {
-                    LogError($"BreastControl float param with name {name} not found!");
-                }
-            }
-            else if(category == "soft")
-            {
-                storable = BREAST_PHYSICS_MESH.GetFloatJSONParam(name);
-                if(storable == null)
-                {
-                    LogError($"BreastPhysicsMesh float param with name {name} not found!");
-                }
-            }
-
-            return storable;
         }
     }
 
     internal class MorphConfig : Config
     {
+        public float baseMultiplier { get; set; }
         public DAZMorph morph { get; }
 
         public MorphConfig(string name)
@@ -227,36 +202,6 @@ namespace TittyMagic
             this.maxMminS = maxMminS;
             this.minMmaxS = minMmaxS;
             calculationFunction = CalculateByProportionalSum;
-        }
-    }
-
-    internal class PectoralStaticPhysicsConfig
-    {
-        private readonly JSONStorableFloat _setting;
-        private readonly float _minM; // value at min mass
-        private readonly float _maxM; // value at max mass
-
-        // ReSharper disable once UnusedAutoPropertyAccessor.Global
-        // ReSharper disable once MemberCanBePrivate.Global
-        public Func<float, float> massCurve { private get; set; }
-
-        public PectoralStaticPhysicsConfig(string storableName, float minM, float maxM)
-        {
-            _setting = BREAST_CONTROL.GetFloatJSONParam(storableName);
-            _minM = minM;
-            _maxM = maxM;
-        }
-
-        // input mass normalized to (0,1) range
-        public void UpdateVal(float mass, float multiplier = 1, float addend = 0)
-        {
-            _setting.val = (multiplier * Calculate(mass)) + addend;
-        }
-
-        private float Calculate(float mass)
-        {
-            float massComponent = (massCurve?.Invoke(mass) ?? mass) * (_maxM - _minM);
-            return _minM + massComponent;
         }
     }
 }

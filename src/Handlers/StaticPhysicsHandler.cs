@@ -10,7 +10,6 @@ namespace TittyMagic
         private List<StaticPhysicsConfig> _mainPhysicsConfigs;
         private List<StaticPhysicsConfig> _softPhysicsConfigs;
         private List<StaticPhysicsConfig> _nipplePhysicsConfigs;
-        private List<PectoralStaticPhysicsConfig> _pectoralPhysicsConfigs;
 
         public float realMassAmount { get; set; }
         public float massAmount { get; set; }
@@ -19,27 +18,26 @@ namespace TittyMagic
         {
             if(isFemale)
             {
-                SetBreastPhysicsDefaults();
+                // hard colliders off
+                GEOMETRY.useAuxBreastColliders = false;
+                // Self colliders off
+                BREAST_PHYSICS_MESH.allowSelfCollision = true;
+                // Auto collider radius off
+                BREAST_PHYSICS_MESH.softVerticesUseAutoColliderRadius = false;
+                // Collider depth
+                BREAST_PHYSICS_MESH.softVerticesColliderAdditionalNormalOffset = 0.001f;
             }
         }
 
         public void LoadSettings(bool isFemale)
         {
+            LoadMainPhysicsSettings();
+
             if(isFemale)
             {
-                LoadFemaleBreastSettings();
+                LoadSoftPhysicsSettings();
+                LoadNipplePhysicsSettings();
             }
-            else
-            {
-                LoadPectoralSettings();
-            }
-        }
-
-        private void LoadFemaleBreastSettings()
-        {
-            LoadMainPhysicsSettings();
-            LoadSoftPhysicsSettings();
-            LoadNipplePhysicsSettings();
         }
 
         private void LoadMainPhysicsSettings()
@@ -145,36 +143,6 @@ namespace TittyMagic
             };
         }
 
-        private void LoadPectoralSettings()
-        {
-            var centerOfGravityPercent = new PectoralStaticPhysicsConfig("centerOfGravityPercent", 0.460f, 0.590f);
-            var spring = new PectoralStaticPhysicsConfig("spring", 48f, 62f);
-            var damper = new PectoralStaticPhysicsConfig("damper", 1.0f, 1.3f);
-            var positionSpringZ = new PectoralStaticPhysicsConfig("positionSpringZ", 350f, 450f);
-            var positionDamperZ = new PectoralStaticPhysicsConfig("positionDamperZ", 13f, 19f);
-
-            _pectoralPhysicsConfigs = new List<PectoralStaticPhysicsConfig>
-            {
-                centerOfGravityPercent,
-                spring,
-                damper,
-                positionSpringZ,
-                positionDamperZ,
-            };
-        }
-
-        private static void SetBreastPhysicsDefaults()
-        {
-            // hard colliders off
-            GEOMETRY.useAuxBreastColliders = false;
-            // Self colliders off
-            BREAST_PHYSICS_MESH.allowSelfCollision = true;
-            // Auto collider radius off
-            BREAST_PHYSICS_MESH.softVerticesUseAutoColliderRadius = false;
-            // Collider depth
-            BREAST_PHYSICS_MESH.softVerticesColliderAdditionalNormalOffset = 0.001f;
-        }
-
         public void UpdateMainPhysics(float softnessAmount, float quicknessAmount)
         {
             float multiplier = PhysicsRateMultiplier();
@@ -228,13 +196,6 @@ namespace TittyMagic
                         multiplier
                     )
                 );
-        }
-
-        public void UpdatePectoralPhysics()
-        {
-            _pectoralPhysicsConfigs.ForEach(
-                config => config.UpdateVal(massAmount)
-            );
         }
 
         // see UserPreferences.cs methods SetPhysics45, 60, 72 etc.

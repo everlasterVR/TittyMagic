@@ -26,7 +26,7 @@
             multiplier2Storable.slider.onValueChanged.AddListener(val => { config.multiplier2 = val; });
         }
 
-        public ConfiguratorUISection(MVRScript script, PhysicsConfig config)
+        public ConfiguratorUISection(MVRScript script, GravityPhysicsConfig config)
         {
             name = config.name;
             script.NewTextField(name, $"\n{name}", 32);

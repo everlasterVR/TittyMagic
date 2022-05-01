@@ -39,9 +39,9 @@ namespace TittyMagic
 #endif
         }
 
-        public void LoadSettings(bool isFemale)
+        public void LoadSettings()
         {
-            _configSets = LoadSettingsFromFile(isFemale ? "female" : "futa");
+            _configSets = LoadSettingsFromFile();
 
             if(_configurator != null)
             {
@@ -56,13 +56,13 @@ namespace TittyMagic
             }
         }
 
-        private Dictionary<string, List<Config>> LoadSettingsFromFile(string fileName)
+        private Dictionary<string, List<Config>> LoadSettingsFromFile()
         {
             var configSets = new Dictionary<string, List<Config>>();
 
             Persistence.LoadFromPath(
                 _script,
-                $@"{Globals.PLUGIN_PATH}settings\physicsmultipliers\{fileName}.json",
+                $@"{Globals.PLUGIN_PATH}settings\physicsmultipliers\female.json",
                 (dir, json) =>
                 {
                     foreach(string direction in json.Keys)
@@ -72,9 +72,8 @@ namespace TittyMagic
                         foreach(string name in groupJson.Keys)
                         {
                             configs.Add(
-                                new PhysicsConfig(
+                                new GravityPhysicsConfig(
                                     name,
-                                    groupJson[name]["Category"],
                                     groupJson[name]["Type"],
                                     groupJson[name]["IsNegative"].AsBool,
                                     groupJson[name]["Multiplier1"].AsFloat,
@@ -97,7 +96,7 @@ namespace TittyMagic
             {
                 foreach(var config in kvp.Value)
                 {
-                    var gravityPhysicsConfig = (PhysicsConfig) config;
+                    var gravityPhysicsConfig = (GravityPhysicsConfig) config;
                     if(gravityPhysicsConfig.type == "additive")
                     {
                         gravityPhysicsConfig.baseValue = gravityPhysicsConfig.setting.val;
@@ -229,7 +228,7 @@ namespace TittyMagic
         {
             foreach(var config in _configSets[configSetName])
             {
-                var gravityPhysicsConfig = (PhysicsConfig) config;
+                var gravityPhysicsConfig = (GravityPhysicsConfig) config;
                 UpdateValue(gravityPhysicsConfig, effect);
                 if(_configurator != null)
                 {
@@ -238,7 +237,7 @@ namespace TittyMagic
             }
         }
 
-        private void UpdateValue(PhysicsConfig config, float effect)
+        private void UpdateValue(GravityPhysicsConfig config, float effect)
         {
             float value = CalculateValue(config, effect);
             bool inRange = config.isNegative ? value < 0 : value > 0;
@@ -253,15 +252,9 @@ namespace TittyMagic
             }
         }
 
-        private float CalculateValue(PhysicsConfig config, float effect)
+        private float CalculateValue(GravityPhysicsConfig config, float effect)
         {
             float mass = config.multiplyInvertedMass ? 1 - _mass : _mass;
-
-            if(config.category == "pectoral")
-            {
-                return 2 * mass * config.multiplier2 * effect;
-            }
-
             return
                 (_softness * config.multiplier1 * effect) +
                 (mass * config.multiplier2 * effect);
@@ -276,7 +269,7 @@ namespace TittyMagic
         {
             foreach(var config in _configSets[configSetName])
             {
-                var gravityPhysicsConfig = (PhysicsConfig) config;
+                var gravityPhysicsConfig = (GravityPhysicsConfig) config;
                 float newValue = gravityPhysicsConfig.type == "additive" ? gravityPhysicsConfig.baseValue : gravityPhysicsConfig.originalValue;
                 gravityPhysicsConfig.setting.val = newValue;
                 if(_configurator != null)
