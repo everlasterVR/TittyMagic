@@ -209,12 +209,12 @@ namespace TittyMagic
                 _trackLeftNipple = new TrackNipple(
                     _chestRb,
                     _pectoralRbLeft,
-                    () => AveragePosition(VertexIndexGroups.LEFT_BREAST_CENTER.Select(i => _skin.rawSkinnedVerts[i]).ToList())
+                    () => AveragePosition(VertexIndexGroups.LEFT_BREAST_CENTER.Select(i => _skin.rawSkinnedWorkingVerts[i]).ToList())
                 );
                 _trackRightNipple = new TrackNipple(
                     _chestRb,
                     _pectoralRbRight,
-                    () => AveragePosition(VertexIndexGroups.RIGHT_BREAST_CENTER.Select(i => _skin.rawSkinnedVerts[i]).ToList())
+                    () => AveragePosition(VertexIndexGroups.RIGHT_BREAST_CENTER.Select(i => _skin.rawSkinnedWorkingVerts[i]).ToList())
                 );
 
                 _forceMorphHandler = new ForceMorphHandler(this, _trackLeftNipple, _trackRightNipple);
