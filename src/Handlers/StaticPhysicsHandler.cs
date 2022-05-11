@@ -10,7 +10,6 @@ namespace TittyMagic
         private List<StaticPhysicsConfig> _mainPhysicsConfigs;
         private List<StaticPhysicsConfig> _softPhysicsConfigs;
         private List<StaticPhysicsConfig> _nipplePhysicsConfigs;
-        private List<PectoralStaticPhysicsConfig> _pectoralPhysicsConfigs;
 
         public float realMassAmount { get; set; }
         public float massAmount { get; set; }
@@ -19,27 +18,29 @@ namespace TittyMagic
         {
             if(isFemale)
             {
-                SetBreastPhysicsDefaults();
+                // hard colliders off
+                GEOMETRY.useAuxBreastColliders = false;
+                // Self colliders off
+                BREAST_PHYSICS_MESH.allowSelfCollision = true;
+                // Auto collider radius off
+                BREAST_PHYSICS_MESH.softVerticesUseAutoColliderRadius = false;
+                // Collider depth
+                BREAST_PHYSICS_MESH.softVerticesColliderAdditionalNormalOffset = 0.001f;
             }
         }
 
-        public void LoadSettings(bool isFemale)
+        public void LoadSettings(bool softPhysicsEnabled)
         {
-            if(isFemale)
+            if(softPhysicsEnabled)
             {
-                LoadFemaleBreastSettings();
+                LoadMainPhysicsSettings();
+                LoadSoftPhysicsSettings();
+                LoadNipplePhysicsSettings();
             }
             else
             {
-                LoadPectoralSettings();
+                LoadAltMainPhysicsSettings();
             }
-        }
-
-        private void LoadFemaleBreastSettings()
-        {
-            LoadMainPhysicsSettings();
-            LoadSoftPhysicsSettings();
-            LoadNipplePhysicsSettings();
         }
 
         private void LoadMainPhysicsSettings()
@@ -55,6 +56,40 @@ namespace TittyMagic
                 dependOnPhysicsRate = true,
                 quicknessOffsetConfig = new StaticPhysicsConfigBase(-0.6f, -0.75f, -0.4f),
                 slownessOffsetConfig = new StaticPhysicsConfigBase(0.4f, 0.5f, 0.27f),
+            };
+            var positionSpringZ = new BreastStaticPhysicsConfig("positionSpringZ", 450f, 550f, 250f)
+            {
+                quicknessOffsetConfig = new StaticPhysicsConfigBase(90, 110, 50f),
+                slownessOffsetConfig = new StaticPhysicsConfigBase(-60, -70, -33f),
+            };
+            var positionDamperZ = new BreastStaticPhysicsConfig("positionDamperZ", 16f, 22f, 9f)
+            {
+                dependOnPhysicsRate = true,
+            };
+
+            _mainPhysicsConfigs = new List<StaticPhysicsConfig>
+            {
+                centerOfGravityPercent,
+                spring,
+                damper,
+                positionSpringZ,
+                positionDamperZ,
+            };
+        }
+
+        private void LoadAltMainPhysicsSettings()
+        {
+            var centerOfGravityPercent = new BreastStaticPhysicsConfig("centerOfGravityPercent", 0.525f, 0.750f, 0.900f);
+            var spring = new BreastStaticPhysicsConfig("spring", 50f, 64f, 45f)
+            {
+                quicknessOffsetConfig = new StaticPhysicsConfigBase(20f, 24f, 18f),
+                slownessOffsetConfig = new StaticPhysicsConfigBase(-13f, -16f, -12f),
+            };
+            var damper = new BreastStaticPhysicsConfig("damper", 0.9f, 1.2f, 0.675f)
+            {
+                dependOnPhysicsRate = true,
+                quicknessOffsetConfig = new StaticPhysicsConfigBase(-0.45f, -0.56f, -0.3f),
+                slownessOffsetConfig = new StaticPhysicsConfigBase(0.3f, 0.38f, 0.2f),
             };
             var positionSpringZ = new BreastStaticPhysicsConfig("positionSpringZ", 450f, 550f, 250f)
             {
@@ -145,36 +180,6 @@ namespace TittyMagic
             };
         }
 
-        private void LoadPectoralSettings()
-        {
-            var centerOfGravityPercent = new PectoralStaticPhysicsConfig("centerOfGravityPercent", 0.460f, 0.590f);
-            var spring = new PectoralStaticPhysicsConfig("spring", 48f, 62f);
-            var damper = new PectoralStaticPhysicsConfig("damper", 1.0f, 1.3f);
-            var positionSpringZ = new PectoralStaticPhysicsConfig("positionSpringZ", 350f, 450f);
-            var positionDamperZ = new PectoralStaticPhysicsConfig("positionDamperZ", 13f, 19f);
-
-            _pectoralPhysicsConfigs = new List<PectoralStaticPhysicsConfig>
-            {
-                centerOfGravityPercent,
-                spring,
-                damper,
-                positionSpringZ,
-                positionDamperZ,
-            };
-        }
-
-        private static void SetBreastPhysicsDefaults()
-        {
-            // hard colliders off
-            GEOMETRY.useAuxBreastColliders = false;
-            // Self colliders off
-            BREAST_PHYSICS_MESH.allowSelfCollision = true;
-            // Auto collider radius off
-            BREAST_PHYSICS_MESH.softVerticesUseAutoColliderRadius = false;
-            // Collider depth
-            BREAST_PHYSICS_MESH.softVerticesColliderAdditionalNormalOffset = 0.001f;
-        }
-
         public void UpdateMainPhysics(float softnessAmount, float quicknessAmount)
         {
             float multiplier = PhysicsRateMultiplier();
@@ -228,13 +233,6 @@ namespace TittyMagic
                         multiplier
                     )
                 );
-        }
-
-        public void UpdatePectoralPhysics()
-        {
-            _pectoralPhysicsConfigs.ForEach(
-                config => config.UpdateVal(massAmount)
-            );
         }
 
         // see UserPreferences.cs methods SetPhysics45, 60, 72 etc.

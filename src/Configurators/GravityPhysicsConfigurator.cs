@@ -6,6 +6,8 @@ namespace TittyMagic
 {
     internal class GravityPhysicsConfigurator : MVRScript, IConfigurator
     {
+        private Script _script;
+
         private readonly Dictionary<string, string> _titles = new Dictionary<string, string>
         {
             { Direction.DOWN, "Upright physics" },
@@ -43,13 +45,16 @@ namespace TittyMagic
             }
         }
 
-        public void InitMainUI()
+        public void Init(Script script)
         {
+            _script = script;
             ResetUISectionGroups();
             enableAdjustment = this.NewToggle("Enable", true);
-            debugInfo = this.NewTextField("positionDiffInfo", "", 20, 115, true);
+            // debugInfo = this.NewTextField("positionDiffInfo", "", 20, 115, true);
             _saveButton = CreateButton("Save JSON", true);
             _loadButton = CreateButton("Load JSON", true);
+            this.NewSpacer(50f);
+
         }
 
         public void ResetUISectionGroups()
@@ -73,8 +78,8 @@ namespace TittyMagic
             var group = _uiSectionGroups[key];
             foreach(var config in configs)
             {
-                var gravityPhysicsConfig = (PhysicsConfig) config;
-                group.Add(gravityPhysicsConfig.name, new ConfiguratorUISection(this, gravityPhysicsConfig));
+                var gravityPhysicsConfig = (GravityPhysicsConfig) config;
+                group.Add(gravityPhysicsConfig.name, new ConfiguratorUISection(this, gravityPhysicsConfig, _script.StartRefreshCoroutine));
             }
         }
 
