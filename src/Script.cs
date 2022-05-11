@@ -515,7 +515,17 @@ namespace TittyMagic
             }
         }
 
-        public IEnumerator WaitToBeginRefresh(bool refreshMass, bool fromToggleOrButton = false, bool? useNewMass = null)
+        public void StartRefreshCoroutine()
+        {
+            StartRefreshCoroutine(true, false);
+        }
+
+        public void StartRefreshCoroutine(bool refreshMass, bool fromToggleOrButton)
+        {
+            StartCoroutine(WaitToBeginRefresh(refreshMass, fromToggleOrButton));
+        }
+
+        private IEnumerator WaitToBeginRefresh(bool refreshMass, bool fromToggleOrButton = false, bool? useNewMass = null)
         {
             if(useNewMass == null)
             {

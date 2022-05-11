@@ -7,7 +7,7 @@ namespace TittyMagic
         JSONStorableBool enableAdjustment { get; }
         JSONStorableString debugInfo { get; }
 
-        void InitMainUI();
+        void Init(Script script);
 
         void ResetUISectionGroups();
 

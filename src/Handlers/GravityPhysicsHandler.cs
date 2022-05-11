@@ -7,7 +7,7 @@ namespace TittyMagic
 {
     internal class GravityPhysicsHandler
     {
-        private readonly MVRScript _script;
+        private readonly Script _script;
         private readonly IConfigurator _configurator;
 
         private float _mass;
@@ -19,14 +19,14 @@ namespace TittyMagic
 
         private Dictionary<string, List<Config>> _configSets;
 
-        public GravityPhysicsHandler(MVRScript script)
+        public GravityPhysicsHandler(Script script)
         {
             Globals.BREAST_CONTROL.invertJoint2RotationY = false;
 
             _script = script;
 #if USE_CONFIGURATOR
             _configurator = (IConfigurator) FindPluginOnAtom(_script.containingAtom, nameof(GravityPhysicsConfigurator));
-            _configurator.InitMainUI();
+            _configurator.Init(_script);
             _configurator.enableAdjustment.toggle.onValueChanged.AddListener(
                 val =>
                 {
@@ -127,12 +127,12 @@ namespace TittyMagic
             AdjustUpDownPhysics(smoothPitch, smoothRoll);
             AdjustDepthPhysics(smoothPitch, smoothRoll);
 
-            if(_configurator != null)
-            {
-                _configurator.debugInfo.val =
-                    $"{NameValueString("Pitch", pitch, 100f)} {Calc.RoundToDecimals(smoothPitch, 100f)}\n" +
-                    $"{NameValueString("Roll", roll, 100f)} {Calc.RoundToDecimals(smoothRoll, 100f)}\n";
-            }
+            // if(_configurator != null)
+            // {
+            //     _configurator.debugInfo.val =
+            //         $"{NameValueString("Pitch", pitch, 100f)} {Calc.RoundToDecimals(smoothPitch, 100f)}\n" +
+            //         $"{NameValueString("Roll", roll, 100f)} {Calc.RoundToDecimals(smoothRoll, 100f)}\n";
+            // }
         }
 
         private void AdjustRollPhysics(float roll)

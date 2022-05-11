@@ -8,7 +8,7 @@ namespace TittyMagic
 {
     internal class ForceMorphHandler
     {
-        private readonly MVRScript _script;
+        private readonly Script _script;
         private readonly IConfigurator _configurator;
 
         private readonly TrackNipple _trackLeftNipple;
@@ -24,14 +24,14 @@ namespace TittyMagic
         private float _pitchMultiplier;
         private float _rollMultiplier;
 
-        public ForceMorphHandler(MVRScript script, TrackNipple trackLeftNipple, TrackNipple trackRightNipple)
+        public ForceMorphHandler(Script script, TrackNipple trackLeftNipple, TrackNipple trackRightNipple)
         {
             _script = script;
             _trackLeftNipple = trackLeftNipple;
             _trackRightNipple = trackRightNipple;
 #if USE_CONFIGURATOR
             _configurator = (IConfigurator) FindPluginOnAtom(_script.containingAtom, nameof(ForceMorphConfigurator));
-            _configurator.InitMainUI();
+            _configurator.Init(script);
             _configurator.enableAdjustment.toggle.onValueChanged.AddListener(
                 val =>
                 {

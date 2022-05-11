@@ -7,6 +7,8 @@ namespace TittyMagic
 {
     internal class ForceMorphConfigurator : MVRScript, IConfigurator
     {
+        private Script _script;
+
         private readonly Dictionary<string, string> _titles = new Dictionary<string, string>
         {
             { Direction.UP_L, "Up force morphs L" },
@@ -48,8 +50,9 @@ namespace TittyMagic
             }
         }
 
-        public void InitMainUI()
+        public void Init(Script script)
         {
+            _script = script;
             ResetUISectionGroups();
             enableAdjustment = this.NewToggle("Enable", true);
             debugInfo = this.NewTextField("positionDiffInfo", "", 20, 115, true);
