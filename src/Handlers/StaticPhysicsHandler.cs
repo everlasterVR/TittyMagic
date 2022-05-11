@@ -29,14 +29,17 @@ namespace TittyMagic
             }
         }
 
-        public void LoadSettings(bool isFemale)
+        public void LoadSettings(bool softPhysicsEnabled)
         {
-            LoadMainPhysicsSettings();
-
-            if(isFemale)
+            if(softPhysicsEnabled)
             {
+                LoadMainPhysicsSettings();
                 LoadSoftPhysicsSettings();
                 LoadNipplePhysicsSettings();
+            }
+            else
+            {
+                LoadAltMainPhysicsSettings();
             }
         }
 
@@ -53,6 +56,40 @@ namespace TittyMagic
                 dependOnPhysicsRate = true,
                 quicknessOffsetConfig = new StaticPhysicsConfigBase(-0.6f, -0.75f, -0.4f),
                 slownessOffsetConfig = new StaticPhysicsConfigBase(0.4f, 0.5f, 0.27f),
+            };
+            var positionSpringZ = new BreastStaticPhysicsConfig("positionSpringZ", 450f, 550f, 250f)
+            {
+                quicknessOffsetConfig = new StaticPhysicsConfigBase(90, 110, 50f),
+                slownessOffsetConfig = new StaticPhysicsConfigBase(-60, -70, -33f),
+            };
+            var positionDamperZ = new BreastStaticPhysicsConfig("positionDamperZ", 16f, 22f, 9f)
+            {
+                dependOnPhysicsRate = true,
+            };
+
+            _mainPhysicsConfigs = new List<StaticPhysicsConfig>
+            {
+                centerOfGravityPercent,
+                spring,
+                damper,
+                positionSpringZ,
+                positionDamperZ,
+            };
+        }
+
+        private void LoadAltMainPhysicsSettings()
+        {
+            var centerOfGravityPercent = new BreastStaticPhysicsConfig("centerOfGravityPercent", 0.525f, 0.750f, 0.900f);
+            var spring = new BreastStaticPhysicsConfig("spring", 50f, 64f, 45f)
+            {
+                quicknessOffsetConfig = new StaticPhysicsConfigBase(20f, 24f, 18f),
+                slownessOffsetConfig = new StaticPhysicsConfigBase(-13f, -16f, -12f),
+            };
+            var damper = new BreastStaticPhysicsConfig("damper", 0.9f, 1.2f, 0.675f)
+            {
+                dependOnPhysicsRate = true,
+                quicknessOffsetConfig = new StaticPhysicsConfigBase(-0.45f, -0.56f, -0.3f),
+                slownessOffsetConfig = new StaticPhysicsConfigBase(0.3f, 0.38f, 0.2f),
             };
             var positionSpringZ = new BreastStaticPhysicsConfig("positionSpringZ", 450f, 550f, 250f)
             {

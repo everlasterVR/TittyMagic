@@ -69,6 +69,7 @@ namespace TittyMagic
         private JSONStorableFloat _nippleErection;
 
         private bool _isFemale;
+        public bool softPhysicsEnabled;
         private bool _initDone;
         private bool _loadingFromJson;
         private float _timeSinceListenersChecked;
@@ -182,11 +183,7 @@ namespace TittyMagic
             _forceMorphHandler = new ForceMorphHandler(this, _trackLeftNipple, _trackRightNipple);
 
             InitPluginUI();
-
-            _forceMorphHandler.LoadSettings();
-            _gravityPhysicsHandler.LoadSettings();
-            _gravityOffsetMorphHandler.LoadSettings();
-            _staticPhysicsH.LoadSettings(_isFemale);
+            LoadSettings();
 
             if(!_loadingFromJson)
             {
@@ -199,6 +196,14 @@ namespace TittyMagic
 
             SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
             StartCoroutine(SetPluginVersion());
+        }
+
+        public void LoadSettings()
+        {
+            _forceMorphHandler.LoadSettings();
+            _gravityPhysicsHandler.LoadSettings();
+            _gravityOffsetMorphHandler.LoadSettings();
+            _staticPhysicsH.LoadSettings(_isFemale && softPhysicsEnabled);
         }
 
         // https://github.com/vam-community/vam-plugins-interop-specs/blob/main/keybindings.md
@@ -607,7 +612,7 @@ namespace TittyMagic
             _quicknessAmount = CalculateQuicknessAmount(_quickness.val);
 
             _staticPhysicsH.UpdateMainPhysics(_softnessAmount, _quicknessAmount);
-            if(_isFemale)
+            if(_isFemale && softPhysicsEnabled)
             {
                 _staticPhysicsH.UpdateSoftPhysics(_softnessAmount, _quicknessAmount);
                 _staticPhysicsH.UpdateNipplePhysics(_softnessAmount, _nippleErection.val);
@@ -641,7 +646,7 @@ namespace TittyMagic
             }
 
             _staticPhysicsH.UpdateMainPhysics(_softnessAmount, _quicknessAmount);
-            if(_isFemale)
+            if(_isFemale && softPhysicsEnabled)
             {
                 _staticPhysicsH.UpdateSoftPhysics(_softnessAmount, _quicknessAmount);
                 _staticPhysicsH.UpdateNipplePhysics(_softnessAmount, _nippleErection.val);

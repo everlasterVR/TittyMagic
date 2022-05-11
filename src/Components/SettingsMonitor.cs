@@ -11,21 +11,32 @@ namespace TittyMagic
         private const float CHECK_FREQUENCY = 1f; // check for changes to settings every 1 second
 
         private JSONStorable _breastInOut;
+        private JSONStorable _softBodyPhysicsEnabler;
 
         private BoolSetting _useAdvancedColliders;
 
-        private bool _prevUseAdvancedColliders;
-        private float _prevFixedDeltaTime;
+        private float _fixedDeltaTime;
+        public bool softPhysicsEnabled;
+
+        private Script _script;
 
         public void Init(Atom atom)
         {
             enabled = false; // will be enabled during main refresh cycle
+            _script = gameObject.GetComponent<Script>();
             _breastInOut = atom.GetStorableByID("BreastInOut");
+
+            _softBodyPhysicsEnabler = atom.GetStorableByID("SoftBodyPhysicsEnabler");
+            _softBodyPhysicsEnabler.SetBoolParamValue("enabled", true); // Atom soft physics on
+
             _useAdvancedColliders = new BoolSetting(
                 Globals.GEOMETRY.useAdvancedColliders,
                 "Advanced Colliders are not enabled in Control & Physics 1 tab. Enable them to allow dynamic breast morphing to work correctly."
             );
-            _prevFixedDeltaTime = Time.fixedDeltaTime;
+
+            _fixedDeltaTime = Time.fixedDeltaTime;
+            softPhysicsEnabled = CheckSoftPhysicsEnabled();
+
             StartCoroutine(FixInOut());
         }
 
@@ -55,16 +66,11 @@ namespace TittyMagic
 
                     if(_useAdvancedColliders.CheckIfUpdateNeeded(Globals.GEOMETRY.useAdvancedColliders))
                     {
-                        StartCoroutine(gameObject.GetComponent<Script>().WaitToBeginRefresh(true));
+                        gameObject.GetComponent<Script>().StartRefreshCoroutine();
                     }
 
-                    float fixedDeltaTime = Time.fixedDeltaTime;
-                    if(Math.Abs(fixedDeltaTime - _prevFixedDeltaTime) > 0.001f)
-                    {
-                        gameObject.GetComponent<Script>().UpdateRateDependentPhysics();
-                    }
-
-                    _prevFixedDeltaTime = fixedDeltaTime;
+                    CheckFixedDeltaTimeChanged();
+                    CheckSoftPhysicsEnabledChanged();
                 }
             }
             catch(Exception e)
@@ -72,6 +78,37 @@ namespace TittyMagic
                 LogError($"{e}", nameof(SettingsMonitor));
                 enabled = false;
             }
+        }
+
+        private void CheckFixedDeltaTimeChanged()
+        {
+            float value = Time.fixedDeltaTime;
+            if(Math.Abs(value - _fixedDeltaTime) > 0.001f)
+            {
+                _script.UpdateRateDependentPhysics();
+            }
+
+            _fixedDeltaTime = value;
+        }
+
+        private void CheckSoftPhysicsEnabledChanged()
+        {
+            bool value = CheckSoftPhysicsEnabled();
+            if(value != softPhysicsEnabled)
+            {
+                softPhysicsEnabled = value;
+                _script.LoadSettings();
+                _script.StartRefreshCoroutine(false, true);
+            }
+
+            softPhysicsEnabled = value;
+        }
+
+        private bool CheckSoftPhysicsEnabled()
+        {
+            bool value = UserPreferences.singleton.softPhysics && _softBodyPhysicsEnabler.GetBoolParamValue("enabled") && Globals.BREAST_PHYSICS_MESH.on;
+            _script.softPhysicsEnabled = value;
+            return value;
         }
     }
 }
