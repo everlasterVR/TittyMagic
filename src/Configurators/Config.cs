@@ -88,7 +88,7 @@ namespace TittyMagic
         protected float minMmaxS; // value at min mass and max softness
 
         // ReSharper disable once MemberCanBePrivate.Global
-        public Func<float, float, float> calculationFunction { private get; set; }
+        protected Func<float, float, float> calculationFunction { private get; set; }
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
         // ReSharper disable once MemberCanBePrivate.Global
@@ -100,14 +100,8 @@ namespace TittyMagic
         // ReSharper disable once MemberCanBePrivate.Global
         public float? massCurveCutoff { private get; set; }
 
-        // ReSharper disable once UnusedAutoPropertyAccessor.Global
-        // ReSharper disable once MemberCanBePrivate.Global
         public Func<float, float> softnessCurveA { private get; set; }
-        // ReSharper disable once UnusedAutoPropertyAccessor.Global
-        // ReSharper disable once MemberCanBePrivate.Global
         public Func<float, float> softnessCurveB { private get; set; }
-        // ReSharper disable once UnusedAutoPropertyAccessor.Global
-        // ReSharper disable once MemberCanBePrivate.Global
         public float? softnessCurveCutoff { private get; set; }
 
         protected StaticPhysicsConfigBase()
@@ -120,6 +114,16 @@ namespace TittyMagic
             this.maxMminS = maxMminS;
             this.minMmaxS = minMmaxS;
             calculationFunction = CalculateByProportionalSum;
+        }
+
+        // Transition between two linear functions at mid point. 0.6285f is softnessAmount at slider 50
+        // https://www.desmos.com/calculator/traqqeb88h
+        // slope is decided such that after mid point, the value behaves as before minMminS and maxMminS were increased
+        public void SetLinearCurvesAroundMidpoint(float slope, float cutoff = 0.6285f)
+        {
+            softnessCurveCutoff = cutoff;
+            softnessCurveB = x => slope * x + (1 - slope);
+            softnessCurveA = x => softnessCurveB(cutoff) / cutoff * x;
         }
 
         public float Calculate(float mass, float softness)
