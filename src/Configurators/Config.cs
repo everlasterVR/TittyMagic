@@ -92,11 +92,23 @@ namespace TittyMagic
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
         // ReSharper disable once MemberCanBePrivate.Global
-        public Func<float, float> massCurve { private get; set; }
+        public Func<float, float> massCurveA { private get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
+        // ReSharper disable once MemberCanBePrivate.Global
+        public Func<float, float> massCurveB { private get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
+        // ReSharper disable once MemberCanBePrivate.Global
+        public float? massCurveCutoff { private get; set; }
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
         // ReSharper disable once MemberCanBePrivate.Global
-        public Func<float, float> softnessCurve { private get; set; }
+        public Func<float, float> softnessCurveA { private get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
+        // ReSharper disable once MemberCanBePrivate.Global
+        public Func<float, float> softnessCurveB { private get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
+        // ReSharper disable once MemberCanBePrivate.Global
+        public float? softnessCurveCutoff { private get; set; }
 
         protected StaticPhysicsConfigBase()
         {
@@ -112,10 +124,13 @@ namespace TittyMagic
 
         public float Calculate(float mass, float softness)
         {
-            return calculationFunction(
-                massCurve?.Invoke(mass) ?? mass,
-                softnessCurve?.Invoke(softness) ?? softness
-            );
+            float effectiveMass = mass > massCurveCutoff
+                ? massCurveB(mass)
+                : massCurveA?.Invoke(mass) ?? mass;
+            float effectiveSoftness = softness > softnessCurveCutoff
+                ? softnessCurveB(softness)
+                : softnessCurveA?.Invoke(softness) ?? softness;
+            return calculationFunction(effectiveMass, effectiveSoftness);
         }
 
         protected float CalculateByProportionalSum(float mass, float softness)

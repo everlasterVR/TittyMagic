@@ -185,6 +185,18 @@ namespace TittyMagic
 
             return result;
         }
+
+        private static float Polynomial(
+            float x,
+            float a = 1,
+            float b = 1,
+            float c = 1,
+            float p = 1,
+            float q = 1
+        )
+        {
+            return (a * Mathf.Pow(x, p)) + (b * Mathf.Pow(x, q)) + (c * x);
+        }
     }
 
     // ReSharper disable UnusedMember.Global MemberCanBePrivate.Global
