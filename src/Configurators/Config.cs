@@ -120,20 +120,17 @@ namespace TittyMagic
 
         protected float CalculateByProportionalSum(float mass, float softness)
         {
-            float massComponent = mass * (maxMminS - minMminS);
-            float softnessComponent = softness * (minMmaxS - minMminS);
-            return minMminS + massComponent + softnessComponent;
+            return minMminS + MassComponent(mass) + SoftnessComponent(softness);
         }
 
-        private float CalculateByProductOfMassAndSoftness(float mass, float softness)
+        private float MassComponent(float mass)
         {
-            float max = CalculateByProportionalSum(1, 1);
-            return minMminS + (mass * softness * (max - minMminS));
+            return mass * (maxMminS - minMminS);
         }
 
-        public void UseCalculateByProductOfMassAndSoftness()
+        private float SoftnessComponent(float softness)
         {
-            calculationFunction = CalculateByProductOfMassAndSoftness;
+            return softness * (minMmaxS - minMminS);
         }
     }
 

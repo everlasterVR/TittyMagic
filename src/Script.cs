@@ -316,6 +316,11 @@ namespace TittyMagic
             return Mathf.Pow(val / 100f, 0.67f);
         }
 
+        private static float CalculateQuicknessAmount(float val)
+        {
+            return (2 * val / 100) - 1;
+        }
+
         private void CreateQuicknessSlider()
         {
             _quickness = this.NewIntSlider("Breast quickness", 70f, 0f, 100f, true);
@@ -334,11 +339,6 @@ namespace TittyMagic
             );
 
             _quicknessAmount = CalculateQuicknessAmount(_quickness.val);
-        }
-
-        private static float CalculateQuicknessAmount(float val)
-        {
-            return (2 * val / 100f) - 1;
         }
 
         private void CreateMorphingMultipliers()

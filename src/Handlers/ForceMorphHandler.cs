@@ -305,7 +305,7 @@ namespace TittyMagic
         // https://www.desmos.com/calculator/ykxswso5ie
         private static float Curve(float effect)
         {
-            return Calc.InverseSmoothStep(10, effect, 0.8f, 0f);
+            return Calc.InverseSmoothStep(effect, 10, 0.8f, 0f);
         }
 
         private void UpdateMorphs(string configSetName, float effect)
