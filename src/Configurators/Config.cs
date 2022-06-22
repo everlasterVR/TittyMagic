@@ -82,12 +82,12 @@ namespace TittyMagic
 
     internal class StaticPhysicsConfigBase
     {
-        protected JSONStorableFloat setting;
         protected float minMminS; // value at min mass and min softness
         protected float maxMminS; // value at max mass and min softness
         protected float minMmaxS; // value at min mass and max softness
 
-        // ReSharper disable once MemberCanBePrivate.Global
+        public Action<float> updateFunction { get; set; }
+
         protected Func<float, float, float> calculationFunction { private get; set; }
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
@@ -160,20 +160,7 @@ namespace TittyMagic
         public StaticPhysicsConfigBase quicknessOffsetConfig { get; set; }
         public StaticPhysicsConfigBase slownessOffsetConfig { get; set; }
 
-        // input mass, softness and quickness normalized to (0,1) range
-        public void UpdateVal(float mass, float softness, float quickness, float multiplier)
-        {
-            if(dependOnPhysicsRate)
-            {
-                setting.val = multiplier * Calculate(mass, softness, quickness);
-            }
-            else
-            {
-                setting.val = Calculate(mass, softness, quickness);
-            }
-        }
-
-        private float Calculate(float mass, float softness, float quickness)
+        public float Calculate(float mass, float softness, float quickness)
         {
             float value = base.Calculate(mass, softness);
             if(quicknessOffsetConfig != null && quickness > 0)
@@ -190,30 +177,12 @@ namespace TittyMagic
 
             return value;
         }
-
-        public void UpdateNippleVal(float mass, float softness, float addend = 0)
-        {
-            setting.val = base.Calculate(mass, softness) + addend;
-        }
     }
 
     internal class BreastStaticPhysicsConfig : StaticPhysicsConfig
     {
-        public BreastStaticPhysicsConfig(string storableName, float minMminS, float maxMminS, float minMmaxS)
+        public BreastStaticPhysicsConfig(float minMminS, float maxMminS, float minMmaxS)
         {
-            setting = BREAST_CONTROL.GetFloatJSONParam(storableName);
-            this.minMminS = minMminS;
-            this.maxMminS = maxMminS;
-            this.minMmaxS = minMmaxS;
-            calculationFunction = CalculateByProportionalSum;
-        }
-    }
-
-    internal class BreastSoftStaticPhysicsConfig : StaticPhysicsConfig
-    {
-        public BreastSoftStaticPhysicsConfig(string storableName, float minMminS, float maxMminS, float minMmaxS)
-        {
-            setting = BREAST_PHYSICS_MESH.GetFloatJSONParam(storableName);
             this.minMminS = minMminS;
             this.maxMminS = maxMminS;
             this.minMmaxS = minMmaxS;
