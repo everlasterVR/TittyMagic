@@ -7,8 +7,6 @@ namespace TittyMagic
         JSONStorableBool enableAdjustment { get; }
         JSONStorableString debugInfo { get; }
 
-        void Init(Script script);
-
         void ResetUISectionGroups();
 
         // ReSharper disable once UnusedMemberInSuper.Global

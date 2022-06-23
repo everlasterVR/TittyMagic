@@ -100,9 +100,9 @@ namespace TittyMagic
         // ReSharper disable once MemberCanBePrivate.Global
         public float? massCurveCutoff { private get; set; }
 
-        public Func<float, float> softnessCurveA { private get; set; }
-        public Func<float, float> softnessCurveB { private get; set; }
-        public float? softnessCurveCutoff { private get; set; }
+        private Func<float, float> softnessCurveA { get; set; }
+        private Func<float, float> softnessCurveB { get; set; }
+        private float? softnessCurveCutoff { get; set; }
 
         protected StaticPhysicsConfigBase()
         {

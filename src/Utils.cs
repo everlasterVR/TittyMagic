@@ -186,6 +186,7 @@ namespace TittyMagic
             return result;
         }
 
+        // ReSharper disable once UnusedMember.Local
         private static float Polynomial(
             float x,
             float a = 1,
@@ -375,7 +376,9 @@ namespace TittyMagic
                 }
             );
 
-            buttons.Keys.ToList().ForEach(name => { buttons[name].button.onClick.AddListener(() => { jsc.val = name; }); });
+            buttons.Keys.ToList().ForEach(name =>
+                buttons[name].button.onClick.AddListener(() => { jsc.val = name; })
+            );
 
             return buttons;
         }

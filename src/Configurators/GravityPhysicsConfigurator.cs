@@ -91,8 +91,7 @@ namespace TittyMagic
 
         private void AddSaveButtonListener(UIDynamicButton button)
         {
-            button.button.onClick.AddListener(
-                () =>
+            button.button.onClick.AddListener(() =>
                 {
                     SuperController.singleton.NormalizeMediaPath(_lastBrowseDir ?? Persistence.MakeDefaultDir()); // Sets dir if path exists
                     SuperController.singleton.GetMediaPathDialog(HandleSave, SAVE_EXT);
@@ -108,8 +107,7 @@ namespace TittyMagic
 
         private void AddLoadButtonListener(UIDynamicButton button)
         {
-            button.button.onClick.AddListener(
-                () =>
+            button.button.onClick.AddListener(() =>
                 {
                     SuperController.singleton.NormalizeMediaPath(_lastBrowseDir ?? Persistence.MakeDefaultDir()); // Sets dir if path exists
                     SuperController.singleton.GetMediaPathDialog(HandleLoad, SAVE_EXT);

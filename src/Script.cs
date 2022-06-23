@@ -259,9 +259,7 @@ namespace TittyMagic
 
             _refreshButton = CreateButton("Calculate breast mass", true);
             _refreshButton.height = 60;
-            _refreshButton.button.onClick.AddListener(
-                () => StartCoroutine(WaitToBeginRefresh(true, true, true))
-            );
+            _refreshButton.button.onClick.AddListener(() => StartCoroutine(WaitToBeginRefresh(true, true, true)));
 
             CreateMassSlider();
 
@@ -296,8 +294,7 @@ namespace TittyMagic
             _softness = this.NewIntSlider("Breast softness", 70f, 0f, 100f);
             _softnessSCM = _softness.slider.gameObject.AddComponent<SliderClickMonitor>();
 
-            _softness.slider.onValueChanged.AddListener(
-                val =>
+            _softness.slider.onValueChanged.AddListener(val =>
                 {
                     if(Math.Abs(CalculateSoftnessAmount(val) - _softnessAmount) < 0.001f)
                     {
@@ -326,8 +323,7 @@ namespace TittyMagic
             _quickness = this.NewIntSlider("Breast quickness", 70f, 0f, 100f, true);
             _quicknessSCM = _quickness.slider.gameObject.AddComponent<SliderClickMonitor>();
 
-            _quickness.slider.onValueChanged.AddListener(
-                val =>
+            _quickness.slider.onValueChanged.AddListener(val =>
                 {
                     if(Math.Abs(CalculateQuicknessAmount(val) - _quicknessAmount) < 0.001f)
                     {

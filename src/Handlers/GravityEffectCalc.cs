@@ -10,12 +10,14 @@ namespace TittyMagic
             return Mathf.Abs(roll) * multiplier.mainMultiplier / 2;
         }
 
+        // ReSharper disable once UnusedMember.Global
         public static float CalculateUpEffect(float pitch, float roll, Multiplier multiplier, float additionalRollEffect)
         {
             float effect = Mathf.Abs(pitch) * RollMultiplier(roll) / 2;
             return (effect + additionalRollEffect) * multiplier.mainMultiplier / 2;
         }
 
+        // ReSharper disable once UnusedMember.Global
         public static float CalculateDownEffect(float pitch, float roll, Multiplier multiplier)
         {
             return (2 - (Mathf.Abs(pitch) / 2)) * RollMultiplier(roll) * multiplier.mainMultiplier / 2;

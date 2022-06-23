@@ -54,7 +54,7 @@ namespace TittyMagic
             float toCm3 = Mathf.Pow(10, 6);
             float z = size.z * ResolveAtomScaleFactor(atomScale);
             float volume = toCm3 * (4 * Mathf.PI * size.x / 2 * size.y / 2 * z / 2) / 3;
-            // * 0.75f compensates for change in estimated volume compared to pre v3.2 bounds calculation 
+            // * 0.75f compensates for change in estimated volume compared to pre v3.2 bounds calculation
             return volume * 0.75f;
         }
 

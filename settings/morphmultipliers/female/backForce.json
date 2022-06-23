@@ -88,15 +88,5 @@
       "IsNegative": "false",
       "Multiplier1": "-0.1",
       "Multiplier2": "1"
-   },
-   "BK Depth Squash": {
-      "IsNegative": "false",
-      "Multiplier1": "1.2",
-      "Multiplier2": "0.2"
-   },
-   "BK Rotate X Out": {
-      "IsNegative": "false",
-      "Multiplier1": "-0.1",
-      "Multiplier2": "1"
    }
 }

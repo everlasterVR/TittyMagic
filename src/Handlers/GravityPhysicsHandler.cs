@@ -1,4 +1,5 @@
-﻿// #define USE_CONFIGURATOR
+﻿// ReSharper disable RedundantUsingDirective
+// #define USE_CONFIGURATOR
 using System.Collections.Generic;
 using static TittyMagic.Utils;
 using static TittyMagic.GravityEffectCalc;
