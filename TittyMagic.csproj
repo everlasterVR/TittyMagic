@@ -86,24 +86,22 @@
     <Compile Include="src\BreastVolumeCalculator.cs" />
     <Compile Include="src\BreastMorphListener.cs" />
     <Compile Include="src\Components\BoolSetting.cs" />
+    <Compile Include="src\Handlers\Config.cs" />
     <Compile Include="src\Handlers\GravityEffectCalc.cs" />
     <Compile Include="src\Handlers\GravityOffsetMorphHandler.cs" />
     <Compile Include="src\Handlers\Multiplier.cs" />
     <Compile Include="src\TrackNipple.cs" />
     <Compile Include="src\Components\Bindings.cs" />
     <Compile Include="src\Components\SettingsMonitor.cs" />
-    <Compile Include="src\Components\SliderClickMonitor.cs" />
-    <Compile Include="src\Configurators\Config.cs" />
-    <Compile Include="src\Configurators\ConfiguratorUISection.cs" />
-    <Compile Include="src\Configurators\GravityPhysicsConfigurator.cs" />
-    <Compile Include="src\Configurators\IConfigurator.cs" />
-    <Compile Include="src\Configurators\ForceMorphConfigurator.cs" />
     <Compile Include="src\Handlers\GravityPhysicsHandler.cs" />
     <Compile Include="src\Handlers\NippleErectionMorphHandler.cs" />
     <Compile Include="src\Handlers\ForceMorphHandler.cs" />
     <Compile Include="src\Handlers\StaticPhysicsHandler.cs" />
     <Compile Include="src\Persistence.cs" />
     <Compile Include="src\Script.cs" />
+    <Compile Include="src\UI\MainWindow.cs" />
+    <Compile Include="src\UI\SliderClickMonitor.cs" />
+    <Compile Include="src\UI\UIHelpers.cs" />
     <Compile Include="src\Utils.cs" />
     <Compile Include="src\Variables.cs" />
   </ItemGroup>
@@ -121,10 +119,10 @@
     <None Include="settings\morphmultipliers\offset\upright.json" />
     <None Include="settings\physicsmultipliers\female.json" />
     <None Include="settings\morphmultipliers\nippleErection.json" />
-    <None Include="TittyMagic.cslist" />
     <None Include=".gitignore" />
     <None Include="meta.json" />
     <None Include="README.md" />
+    <None Include="TittyMagic.cslist" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

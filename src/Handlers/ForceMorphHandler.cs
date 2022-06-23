@@ -1,5 +1,4 @@
-﻿// #define USE_CONFIGURATOR
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using static TittyMagic.Utils;
 using static TittyMagic.GravityEffectCalc;
@@ -9,7 +8,6 @@ namespace TittyMagic
     internal class ForceMorphHandler
     {
         private readonly Script _script;
-        private readonly IConfigurator _configurator;
 
         private readonly TrackNipple _trackLeftNipple;
         private readonly TrackNipple _trackRightNipple;
@@ -62,24 +60,6 @@ namespace TittyMagic
                 { Direction.RIGHT_L, LoadSettingsFromFile("rightForceL") },
                 { Direction.RIGHT_R, LoadSettingsFromFile("rightForceR") },
             };
-
-            if(_configurator != null)
-            {
-                _configurator.ResetUISectionGroups();
-                // _configurator.InitUISectionGroup(Direction.UP_L, _configSets[Direction.UP_L]);
-                // _configurator.InitUISectionGroup(Direction.UP_R, _configSets[Direction.UP_R]);
-                // _configurator.InitUISectionGroup(Direction.UP_C, _configSets[Direction.UP_C]);
-                // _configurator.InitUISectionGroup(Direction.BACK_L, _configSets[Direction.BACK_L]);
-                // _configurator.InitUISectionGroup(Direction.BACK_R, _configSets[Direction.BACK_R]);
-                // _configurator.InitUISectionGroup(Direction.BACK_C, _configSets[Direction.BACK_C]);
-                // _configurator.InitUISectionGroup(Direction.FORWARD_L, _configSets[Direction.FORWARD_L]);
-                // _configurator.InitUISectionGroup(Direction.FORWARD_R, _configSets[Direction.FORWARD_R]);
-                // _configurator.InitUISectionGroup(Direction.FORWARD_C, _configSets[Direction.FORWARD_C]);
-                // _configurator.InitUISectionGroup(Direction.LEFT_L, _configSets[Direction.LEFT_L]);
-                // _configurator.InitUISectionGroup(Direction.LEFT_R, _configSets[Direction.LEFT_R]);
-                // _configurator.InitUISectionGroup(Direction.RIGHT_L, _configSets[Direction.RIGHT_L]);
-                // _configurator.InitUISectionGroup(Direction.RIGHT_R, _configSets[Direction.RIGHT_R]);
-            }
         }
 
         private List<Config> LoadSettingsFromFile(string fileName, string morphNameSuffix = null)
@@ -107,11 +87,6 @@ namespace TittyMagic
             return configs;
         }
 
-        public bool IsEnabled()
-        {
-            return _configurator == null || _configurator.enableAdjustment.val;
-        }
-
         public void Update(
             float roll,
             float pitch,
@@ -125,19 +100,6 @@ namespace TittyMagic
             AdjustLeftRightMorphs();
             AdjustUpMorphs();
             AdjustDepthMorphs();
-
-            if(_configurator != null)
-            {
-                _configurator.debugInfo.val =
-                    $"{NameValueString("Left depthDiff", _trackLeftNipple.depthDiff)} \n" +
-                    $"{NameValueString("Right depthDiff", _trackRightNipple.depthDiff)} \n" +
-                    $"{NameValueString("Left angleY", _trackLeftNipple.angleY)} \n" +
-                    $"{NameValueString("Right angleY", _trackRightNipple.angleY)} \n" +
-                    $"{NameValueString("Left angleX", _trackLeftNipple.angleX)} \n" +
-                    $"{NameValueString("Right angleX", _trackRightNipple.angleX)} \n" +
-                    $"{NameValueString("Roll", roll)} \n" +
-                    $"{NameValueString("Pitch", pitch)}";
-            }
         }
 
         private void AdjustUpMorphs()
@@ -315,10 +277,6 @@ namespace TittyMagic
             {
                 var morphConfig = (MorphConfig) config;
                 UpdateValue(morphConfig, effect);
-                if(_configurator != null)
-                {
-                    _configurator.UpdateValueSlider(configSetName, morphConfig.name, morphConfig.morph.morphValue);
-                }
             }
         }
 
@@ -343,10 +301,6 @@ namespace TittyMagic
             {
                 var morphConfig = (MorphConfig) config;
                 morphConfig.morph.morphValue = 0;
-                if(_configurator != null)
-                {
-                    _configurator.UpdateValueSlider(configSetName, morphConfig.name, 0);
-                }
             }
         }
     }

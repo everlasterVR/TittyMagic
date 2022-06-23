@@ -1,5 +1,4 @@
 ﻿// ReSharper disable RedundantUsingDirective
-// #define USE_CONFIGURATOR
 using System.Collections.Generic;
 using static TittyMagic.Utils;
 using static TittyMagic.GravityEffectCalc;
@@ -9,7 +8,6 @@ namespace TittyMagic
     internal class GravityPhysicsHandler
     {
         private readonly Script _script;
-        private readonly IConfigurator _configurator;
 
         private float _mass;
         private float _softness;
@@ -25,36 +23,11 @@ namespace TittyMagic
             Globals.BREAST_CONTROL.invertJoint2RotationY = false;
 
             _script = script;
-#if USE_CONFIGURATOR
-            _configurator = (IConfigurator) FindPluginOnAtom(_script.containingAtom, nameof(GravityPhysicsConfigurator));
-            _configurator.Init(_script);
-            _configurator.enableAdjustment.toggle.onValueChanged.AddListener(
-                val =>
-                {
-                    if(!val)
-                    {
-                        ResetAll();
-                    }
-                }
-            );
-#endif
         }
 
         public void LoadSettings()
         {
             _configSets = LoadSettingsFromFile();
-
-            if(_configurator != null)
-            {
-                _configurator.ResetUISectionGroups();
-                // _configurator.InitUISectionGroup(Direction.DOWN, _configSets[Direction.DOWN]);
-                // _configurator.InitUISectionGroup(Direction.UP, _configSets[Direction.UP]);
-                // _configurator.InitUISectionGroup(Direction.BACK, _configSets[Direction.BACK]);
-                // _configurator.InitUISectionGroup(Direction.FORWARD, _configSets[Direction.FORWARD]);
-                // _configurator.InitUISectionGroup(Direction.LEFT, _configSets[Direction.LEFT]);
-                // _configurator.InitUISectionGroup(Direction.RIGHT, _configSets[Direction.RIGHT]);
-                _configurator.AddButtonListeners();
-            }
         }
 
         private Dictionary<string, List<Config>> LoadSettingsFromFile()
@@ -104,11 +77,6 @@ namespace TittyMagic
                     }
                 }
             }
-        }
-
-        public bool IsEnabled()
-        {
-            return _configurator == null || _configurator.enableAdjustment.val;
         }
 
         public void Update(
@@ -231,10 +199,6 @@ namespace TittyMagic
             {
                 var gravityPhysicsConfig = (GravityPhysicsConfig) config;
                 UpdateValue(gravityPhysicsConfig, effect);
-                if(_configurator != null)
-                {
-                    _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.name, gravityPhysicsConfig.setting.val);
-                }
             }
         }
 
@@ -273,10 +237,6 @@ namespace TittyMagic
                 var gravityPhysicsConfig = (GravityPhysicsConfig) config;
                 float newValue = gravityPhysicsConfig.type == "additive" ? gravityPhysicsConfig.baseValue : gravityPhysicsConfig.originalValue;
                 gravityPhysicsConfig.setting.val = newValue;
-                if(_configurator != null)
-                {
-                    _configurator.UpdateValueSlider(configSetName, gravityPhysicsConfig.name, newValue);
-                }
             }
         }
     }

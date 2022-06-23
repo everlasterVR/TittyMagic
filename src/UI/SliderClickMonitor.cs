@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace TittyMagic
+namespace TittyMagic.UI
 {
     internal class SliderClickMonitor : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
