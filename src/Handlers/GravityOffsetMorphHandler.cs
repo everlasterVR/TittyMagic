@@ -141,8 +141,8 @@ namespace TittyMagic
         private void UpdateValue(MorphConfig config, float effect)
         {
             float value =
-                _softness * config.multiplier1 * effect +
-                _mass * config.multiplier2 * effect;
+                _softness * config.softnessMultiplier * effect +
+                _mass * config.massMultiplier * effect;
             bool inRange = config.isNegative ? value < 0 : value > 0;
             config.morph.morphValue = inRange ? Calc.RoundToDecimals(value, 1000f) : 0;
         }

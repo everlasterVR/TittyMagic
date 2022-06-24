@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static TittyMagic.Globals;
@@ -7,6 +8,12 @@ namespace TittyMagic
 {
     internal class StaticPhysicsHandler
     {
+        private readonly Rigidbody _leftRb;
+        private readonly Rigidbody _rightRb;
+
+        // AdjustJoints.joint1.slerpDrive.maximumForce value logged on plugin Init
+        private const float DEFAULT_SLERP_MAX_FORCE = 500;
+
         private List<StaticPhysicsConfig> _mainPhysicsConfigs;
         private List<StaticPhysicsConfig> _softPhysicsConfigs;
         private List<StaticPhysicsConfig> _nipplePhysicsConfigs;
@@ -14,123 +21,306 @@ namespace TittyMagic
         public float realMassAmount { get; set; }
         public float massAmount { get; set; }
 
+        private float _centerOfGravityLeft;
+        private float _centerOfGravityRight;
+        private float _springLeft;
+        private float _springRight;
+        private float _damperLeft;
+        private float _damperRight;
+        private float _positionSpringLeft;
+        private float _positionSpringRight;
+        private float _positionDamperLeft;
+        private float _positionDamperRight;
+
         public StaticPhysicsHandler(bool isFemale)
         {
+            _leftRb = BREAST_CONTROL.joint1.GetComponent<Rigidbody>();
+            _rightRb = BREAST_CONTROL.joint2.GetComponent<Rigidbody>();
+
             if(isFemale)
             {
                 // hard colliders off
                 GEOMETRY.useAuxBreastColliders = false;
                 // Self colliders off
                 BREAST_PHYSICS_MESH.allowSelfCollision = true;
-                // Auto collider radius off
-                BREAST_PHYSICS_MESH.softVerticesUseAutoColliderRadius = false;
                 // Collider depth
                 BREAST_PHYSICS_MESH.softVerticesColliderAdditionalNormalOffset = 0.001f;
+                // Disable settings in F Breast Physics 2 from having effect
+                foreach(var group in BREAST_PHYSICS_MESH.softVerticesGroups)
+                {
+                    group.useParentSettings = false;
+                }
             }
+        }
+
+        public void AddToLeftCenterOfGravity(float value)
+        {
+            SyncCenterOfGravity(_leftRb, _centerOfGravityLeft + value);
+        }
+
+        public void AddToRightCenterOfGravity(float value)
+        {
+            SyncCenterOfGravity(_rightRb, _centerOfGravityRight + value);
+        }
+
+        public void AddToLeftJointSpring(float value)
+        {
+            SyncJoint(BREAST_CONTROL.joint1, _leftRb, _springLeft + value, _damperLeft);
+        }
+
+        public void AddToRightJointSpring(float value)
+        {
+            SyncJoint(BREAST_CONTROL.joint2, _rightRb, _springRight + value, _damperLeft);
+        }
+
+        public void AddToLeftJointDamper(float value)
+        {
+            SyncJoint(BREAST_CONTROL.joint1, _leftRb, _springLeft, _damperLeft + value);
+        }
+
+        public void AddToRightJointDamper(float value)
+        {
+            SyncJoint(BREAST_CONTROL.joint2, _rightRb, _springRight, _damperLeft + value);
+        }
+
+        public void AddToLeftJointPositionSpringZ(float value)
+        {
+            SyncJointPositionZDrive(BREAST_CONTROL.joint1, _leftRb, _positionSpringLeft + value, _positionDamperLeft);
+        }
+
+        public void AddToRightJointPositionSpringZ(float value)
+        {
+            SyncJointPositionZDrive(BREAST_CONTROL.joint2, _rightRb, _positionSpringRight + value, _positionDamperRight);
+        }
+
+        public void AddToLeftJointPositionDamperZ(float value)
+        {
+            SyncJointPositionZDrive(BREAST_CONTROL.joint1, _leftRb, _positionSpringLeft, _positionDamperLeft + value);
+        }
+
+        public void AddToRightJointPositionDamperZ(float value)
+        {
+            SyncJointPositionZDrive(BREAST_CONTROL.joint2, _rightRb, _positionSpringRight, _positionDamperRight + value);
         }
 
         public void LoadSettings(bool softPhysicsEnabled)
         {
+            LoadMainPhysicsSettings(softPhysicsEnabled);
+
             if(softPhysicsEnabled)
             {
-                LoadMainPhysicsSettings();
                 LoadSoftPhysicsSettings();
                 LoadNipplePhysicsSettings();
             }
+        }
+
+        private void LoadMainPhysicsSettings(bool softPhysicsEnabled)
+        {
+            BreastStaticPhysicsConfig centerOfGravityPercent;
+            BreastStaticPhysicsConfig damper;
+            if(softPhysicsEnabled)
+            {
+                centerOfGravityPercent = new BreastStaticPhysicsConfig(0.350f, 0.480f, 0.560f);
+
+                damper = new BreastStaticPhysicsConfig(2.4f, 2.8f, 0.9f)
+                {
+                    dependOnPhysicsRate = true,
+                    quicknessOffsetConfig = new StaticPhysicsConfigBase(-0.6f, -0.75f, -0.4f),
+                    slownessOffsetConfig = new StaticPhysicsConfigBase(0.4f, 0.5f, 0.27f),
+                };
+                damper.SetLinearCurvesAroundMidpoint(slope: 0.2f);
+            }
             else
             {
-                LoadAltMainPhysicsSettings();
+                centerOfGravityPercent = new BreastStaticPhysicsConfig(0.525f, 0.750f, 0.900f);
+
+                damper = new BreastStaticPhysicsConfig(1.8f, 2.1f, 0.675f)
+                {
+                    dependOnPhysicsRate = true,
+                    quicknessOffsetConfig = new StaticPhysicsConfigBase(-0.45f, -0.56f, -0.3f),
+                    slownessOffsetConfig = new StaticPhysicsConfigBase(0.3f, 0.38f, 0.2f),
+                };
+                damper.SetLinearCurvesAroundMidpoint(slope: 0.2f);
+            }
+
+            var spring = new BreastStaticPhysicsConfig(82f, 96f, 45f)
+            {
+                quicknessOffsetConfig = new StaticPhysicsConfigBase(20f, 24f, 18f),
+                slownessOffsetConfig = new StaticPhysicsConfigBase(-13f, -16f, -12f),
+            };
+            spring.SetLinearCurvesAroundMidpoint(slope: 0.135f);
+
+            var positionSpringZ = new BreastStaticPhysicsConfig(850f, 950f, 250f)
+            {
+                quicknessOffsetConfig = new StaticPhysicsConfigBase(90, 110, 50f),
+                slownessOffsetConfig = new StaticPhysicsConfigBase(-60, -70, -33f),
+            };
+            positionSpringZ.SetLinearCurvesAroundMidpoint(slope: 0.33f);
+
+            var positionDamperZ = new BreastStaticPhysicsConfig(16f, 22f, 9f)
+            {
+                dependOnPhysicsRate = true,
+            };
+
+            centerOfGravityPercent.updateFunction = value =>
+            {
+                _centerOfGravityLeft = value;
+                _centerOfGravityRight = value;
+                SyncCenterOfGravity(_leftRb, _centerOfGravityLeft);
+                SyncCenterOfGravity(_rightRb, _centerOfGravityRight);
+            };
+            spring.updateFunction = value =>
+            {
+                _springLeft = value;
+                _springRight = value;
+                SyncJoint(BREAST_CONTROL.joint1, _leftRb, _springLeft, _damperLeft);
+                SyncJoint(BREAST_CONTROL.joint2, _rightRb, _springRight, _damperRight);
+            };
+            damper.updateFunction = value =>
+            {
+                _damperLeft = value;
+                _damperRight = value;
+                SyncJoint(BREAST_CONTROL.joint1, _leftRb, _springLeft, _damperLeft);
+                SyncJoint(BREAST_CONTROL.joint2, _rightRb, _springRight, _damperRight);
+            };
+            positionSpringZ.updateFunction = value =>
+            {
+                _positionSpringLeft = value;
+                _positionSpringRight = value;
+                SyncJointPositionZDrive(BREAST_CONTROL.joint1, _leftRb, _positionSpringLeft, _positionDamperLeft);
+                SyncJointPositionZDrive(BREAST_CONTROL.joint2, _rightRb, _positionSpringRight, _positionDamperRight);
+            };
+            positionDamperZ.updateFunction = value =>
+            {
+                _positionDamperLeft = value;
+                _positionDamperRight = value;
+                SyncJointPositionZDrive(BREAST_CONTROL.joint1, _leftRb, _positionSpringLeft, _positionDamperLeft);
+                SyncJointPositionZDrive(BREAST_CONTROL.joint2, _rightRb, _positionSpringRight, _positionDamperRight);
+            };
+
+            _mainPhysicsConfigs = new List<StaticPhysicsConfig>
+            {
+                centerOfGravityPercent,
+                spring,
+                damper,
+                positionSpringZ,
+                positionDamperZ,
+            };
+        }
+
+        // ReSharper disable once UnusedMember.Local
+        private static void SyncJointMass(Rigidbody rb, float value)
+        {
+            if(Math.Abs(rb.mass - value) > 0.001f)
+            {
+                rb.mass = value;
+                rb.WakeUp();
             }
         }
 
-        private void LoadMainPhysicsSettings()
+        // Reimplements AdjustJoints.cs method SyncCenterOfGravity
+        private static void SyncCenterOfGravity(Rigidbody rb, float value)
         {
-            var centerOfGravityPercent = new BreastStaticPhysicsConfig(0.350f, 0.480f, 0.560f);
-            var spring = new BreastStaticPhysicsConfig(82f, 96f, 45f)
+            var newCenterOfMass = Vector3.Lerp(BREAST_CONTROL.lowCenterOfGravity, BREAST_CONTROL.highCenterOfGravity, value);
+            if(rb.centerOfMass != newCenterOfMass)
             {
-                quicknessOffsetConfig = new StaticPhysicsConfigBase(20f, 24f, 18f),
-                slownessOffsetConfig = new StaticPhysicsConfigBase(-13f, -16f, -12f),
-            };
-            spring.SetLinearCurvesAroundMidpoint(slope: 0.135f);
-
-            var damper = new BreastStaticPhysicsConfig(2.4f, 2.8f, 0.9f)
-            {
-                dependOnPhysicsRate = true,
-                quicknessOffsetConfig = new StaticPhysicsConfigBase(-0.6f, -0.75f, -0.4f),
-                slownessOffsetConfig = new StaticPhysicsConfigBase(0.4f, 0.5f, 0.27f),
-            };
-            damper.SetLinearCurvesAroundMidpoint(slope: 0.2f);
-
-            var positionSpringZ = new BreastStaticPhysicsConfig(850f, 950f, 250f)
-            {
-                quicknessOffsetConfig = new StaticPhysicsConfigBase(90, 110, 50f),
-                slownessOffsetConfig = new StaticPhysicsConfigBase(-60, -70, -33f),
-            };
-            positionSpringZ.SetLinearCurvesAroundMidpoint(slope: 0.33f);
-
-            var positionDamperZ = new BreastStaticPhysicsConfig(16f, 22f, 9f)
-            {
-                dependOnPhysicsRate = true,
-            };
-
-            centerOfGravityPercent.updateFunction = value => BREAST_CONTROL.centerOfGravityPercent = value;
-            spring.updateFunction = value => BREAST_CONTROL.spring = value;
-            damper.updateFunction = value => BREAST_CONTROL.damper = value;
-            positionSpringZ.updateFunction = value => BREAST_CONTROL.positionSpringZ = value;
-            positionDamperZ.updateFunction = value => BREAST_CONTROL.positionDamperZ = value;
-
-            _mainPhysicsConfigs = new List<StaticPhysicsConfig>
-            {
-                centerOfGravityPercent,
-                spring,
-                damper,
-                positionSpringZ,
-                positionDamperZ,
-            };
+                rb.centerOfMass = newCenterOfMass;
+                rb.WakeUp();
+            }
         }
 
-        private void LoadAltMainPhysicsSettings()
+        // Reimplements AdjustJoints.cs method SyncJoint
+        private static void SyncJoint(ConfigurableJoint joint, Rigidbody rb, float spring, float damper)
         {
-            var centerOfGravityPercent = new BreastStaticPhysicsConfig(0.525f, 0.750f, 0.900f);
-            var spring = new BreastStaticPhysicsConfig(82f, 96f, 45f)
-            {
-                quicknessOffsetConfig = new StaticPhysicsConfigBase(20f, 24f, 18f),
-                slownessOffsetConfig = new StaticPhysicsConfigBase(-13f, -16f, -12f),
-            };
-            spring.SetLinearCurvesAroundMidpoint(slope: 0.135f);
-            var damper = new BreastStaticPhysicsConfig(1.8f, 2.1f, 0.675f)
-            {
-                dependOnPhysicsRate = true,
-                quicknessOffsetConfig = new StaticPhysicsConfigBase(-0.45f, -0.56f, -0.3f),
-                slownessOffsetConfig = new StaticPhysicsConfigBase(0.3f, 0.38f, 0.2f),
-            };
-            damper.SetLinearCurvesAroundMidpoint(slope: 0.2f);
-            var positionSpringZ = new BreastStaticPhysicsConfig(850f, 950f, 250f)
-            {
-                quicknessOffsetConfig = new StaticPhysicsConfigBase(90, 110, 50f),
-                slownessOffsetConfig = new StaticPhysicsConfigBase(-60, -70, -33f),
-            };
-            positionSpringZ.SetLinearCurvesAroundMidpoint(slope: 0.33f);
+            // see AdjustJoints.cs method ScaleChanged
+            float scalePow = Mathf.Pow(1.7f, BREAST_CONTROL.scale - 1f);
 
-            var positionDamperZ = new BreastStaticPhysicsConfig(16f, 22f, 9f)
-            {
-                dependOnPhysicsRate = true,
-            };
+            float scaledSpring = spring * scalePow;
+            float scaledDamper = damper * scalePow;
 
-            centerOfGravityPercent.updateFunction = value => BREAST_CONTROL.centerOfGravityPercent = value;
-            spring.updateFunction = value => BREAST_CONTROL.spring = value;
-            damper.updateFunction = value => BREAST_CONTROL.damper = value;
-            positionSpringZ.updateFunction = value => BREAST_CONTROL.positionSpringZ = value;
-            positionDamperZ.updateFunction = value => BREAST_CONTROL.positionDamperZ = value;
+            var slerpDrive = joint.slerpDrive;
+            slerpDrive.positionSpring = scaledSpring;
+            slerpDrive.positionDamper = scaledDamper;
 
-            _mainPhysicsConfigs = new List<StaticPhysicsConfig>
-            {
-                centerOfGravityPercent,
-                spring,
-                damper,
-                positionSpringZ,
-                positionDamperZ,
-            };
+            slerpDrive.maximumForce = DEFAULT_SLERP_MAX_FORCE * scalePow;
+            joint.slerpDrive = slerpDrive;
+
+            var angularXDrive = joint.angularXDrive;
+            angularXDrive.positionSpring = scaledSpring;
+            angularXDrive.positionDamper = scaledDamper;
+            joint.angularXDrive = angularXDrive;
+
+            var angularYZDrive = joint.angularYZDrive;
+            angularYZDrive.positionSpring = scaledSpring;
+            angularYZDrive.positionDamper = scaledDamper;
+            joint.angularYZDrive = angularYZDrive;
+
+            var angularXLimitSpring = joint.angularXLimitSpring;
+            angularXLimitSpring.spring = scaledSpring * BREAST_CONTROL.limitSpringMultiplier;
+            angularXLimitSpring.damper = scaledDamper * BREAST_CONTROL.limitDamperMultiplier;
+            joint.angularXLimitSpring = angularXLimitSpring;
+
+            var angularYZLimitSpring = joint.angularYZLimitSpring;
+            angularYZLimitSpring.spring = scaledSpring * BREAST_CONTROL.limitSpringMultiplier;
+            angularYZLimitSpring.damper = scaledDamper * BREAST_CONTROL.limitDamperMultiplier;
+            joint.angularYZLimitSpring = angularYZLimitSpring;
+
+            rb.WakeUp();
+        }
+
+        // Reimplements AdjustJoints.cs method SyncJointPositionZDrive
+        private static void SyncJointPositionZDrive(ConfigurableJoint joint, Rigidbody rb, float spring, float damper)
+        {
+            var zDrive = joint.zDrive;
+            zDrive.positionSpring = spring;
+            zDrive.positionDamper = damper;
+            joint.zDrive = zDrive;
+            rb.WakeUp();
+        }
+
+        // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
+        public static void SyncTargetRotationYLeft(float targetRotationY)
+        {
+            BREAST_CONTROL.setJoint1TargetRotation.y = targetRotationY + BREAST_CONTROL.additionalJoint1RotationY;
+            BREAST_CONTROL.smoothedJoint1TargetRotation = BREAST_CONTROL.setJoint1TargetRotation;
+
+            var dazBone = BREAST_CONTROL.joint1.GetComponent<DAZBone>();
+            dazBone.baseJointRotation = BREAST_CONTROL.smoothedJoint1TargetRotation;
+        }
+
+        // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
+        // Circumvents default invertJoint2RotationY = true
+        public static void SyncTargetRotationYRight(float targetRotationY)
+        {
+            BREAST_CONTROL.setJoint2TargetRotation.y = targetRotationY + BREAST_CONTROL.additionalJoint2RotationY;
+            BREAST_CONTROL.smoothedJoint2TargetRotation = BREAST_CONTROL.setJoint2TargetRotation;
+
+            var dazBone = BREAST_CONTROL.joint2.GetComponent<DAZBone>();
+            dazBone.baseJointRotation = BREAST_CONTROL.smoothedJoint2TargetRotation;
+        }
+
+        // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
+        public static void SyncTargetRotationXLeft(float targetRotationX)
+        {
+            BREAST_CONTROL.setJoint1TargetRotation.x = targetRotationX + BREAST_CONTROL.additionalJoint1RotationX;
+            BREAST_CONTROL.smoothedJoint1TargetRotation = BREAST_CONTROL.setJoint1TargetRotation;
+
+            var dazBone = BREAST_CONTROL.joint1.GetComponent<DAZBone>();
+            Vector3 rotation = BREAST_CONTROL.smoothedJoint1TargetRotation;
+            rotation.x = -rotation.x;
+            dazBone.baseJointRotation = rotation;
+        }
+
+        // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
+        public static void SyncTargetRotationXRight(float targetRotationX)
+        {
+            BREAST_CONTROL.setJoint2TargetRotation.x = targetRotationX + BREAST_CONTROL.additionalJoint2RotationX;
+            BREAST_CONTROL.smoothedJoint2TargetRotation = BREAST_CONTROL.setJoint2TargetRotation;
+
+            var dazBone = BREAST_CONTROL.joint2.GetComponent<DAZBone>();
+            Vector3 rotation = BREAST_CONTROL.smoothedJoint2TargetRotation;
+            rotation.x = -rotation.x;
+            dazBone.baseJointRotation = rotation;
         }
 
         private void LoadSoftPhysicsSettings()
@@ -189,51 +379,88 @@ namespace TittyMagic
             };
             softVerticesMass.updateFunction = value =>
             {
-                BREAST_PHYSICS_MESH.softVerticesMass = value;
+                BREAST_PHYSICS_MESH.softVerticesGroups
+                    .ForEach(group => group.jointMass = value);
             };
             softVerticesColliderRadius.updateFunction = value =>
             {
-                BREAST_PHYSICS_MESH.softVerticesColliderRadius = value;
+                BREAST_PHYSICS_MESH.softVerticesGroups.ForEach(group =>
+                {
+                    if(group.useParentColliderSettings)
+                    {
+                        group.colliderRadiusNoSync = value;
+                        group.colliderNormalOffsetNoSync = value;
+                    }
+                    if(group.useParentColliderSettingsForSecondCollider)
+                    {
+                        group.secondColliderRadiusNoSync = value;
+                        group.secondColliderNormalOffsetNoSync = value;
+                    }
+                    if(group.colliderSyncDirty)
+                        group.SyncColliders();
+                });
             };
             softVerticesNormalLimit.updateFunction = value =>
             {
-                BREAST_PHYSICS_MESH.softVerticesNormalLimit = value;
+                BREAST_PHYSICS_MESH.softVerticesGroups
+                    .ForEach(group => group.normalDistanceLimit = value);
             };
             softVerticesBackForce.updateFunction = value =>
             {
-                BREAST_PHYSICS_MESH.softVerticesBackForce = value;
+                BREAST_PHYSICS_MESH.softVerticesGroups
+                    .ForEach(group => group.jointBackForce = value);
             };
             softVerticesBackForceThresholdDistance.updateFunction = value =>
             {
-                BREAST_PHYSICS_MESH.softVerticesBackForceThresholdDistance = value;
+                BREAST_PHYSICS_MESH.softVerticesGroups
+                    .ForEach(group => group.jointBackForceThresholdDistance = value);
             };
             softVerticesBackForceMaxForce.updateFunction = value =>
             {
-                BREAST_PHYSICS_MESH.softVerticesBackForceMaxForce = value;
+                BREAST_PHYSICS_MESH.softVerticesGroups
+                    .ForEach(group => group.jointBackForceMaxForce = value);
             };
             groupASpringMultiplier.updateFunction = value =>
             {
-                SyncGroupSpringMultiplier(BREAST_PHYSICS_MESH.groupASlots, value);
+                foreach(int slot in BREAST_PHYSICS_MESH.groupASlots)
+                {
+                    SyncGroupSpringMultiplier(slot, value);
+                }
             };
             groupADamperMultiplier.updateFunction = value =>
             {
-                SyncGroupDamperMultiplier(BREAST_PHYSICS_MESH.groupASlots, value);
+                foreach(int slot in BREAST_PHYSICS_MESH.groupASlots)
+                {
+                    SyncGroupDamperMultiplier(slot, value);
+                }
             };
             groupBSpringMultiplier.updateFunction = value =>
             {
-                SyncGroupSpringMultiplier(BREAST_PHYSICS_MESH.groupBSlots, value);
+                foreach(int slot in BREAST_PHYSICS_MESH.groupBSlots)
+                {
+                    SyncGroupSpringMultiplier(slot, value);
+                }
             };
             groupBDamperMultiplier.updateFunction = value =>
             {
-                SyncGroupDamperMultiplier(BREAST_PHYSICS_MESH.groupBSlots, value);
+                foreach(int slot in BREAST_PHYSICS_MESH.groupBSlots)
+                {
+                    SyncGroupDamperMultiplier(slot, value);
+                }
             };
             groupCSpringMultiplier.updateFunction = value =>
             {
-                SyncGroupSpringMultiplier(BREAST_PHYSICS_MESH.groupCSlots, value);
+                foreach(int slot in BREAST_PHYSICS_MESH.groupCSlots)
+                {
+                    SyncGroupSpringMultiplier(slot, value);
+                }
             };
             groupCDamperMultiplier.updateFunction = value =>
             {
-                SyncGroupDamperMultiplier(BREAST_PHYSICS_MESH.groupCSlots, value);
+                foreach(int slot in BREAST_PHYSICS_MESH.groupCSlots)
+                {
+                    SyncGroupDamperMultiplier(slot, value);
+                }
             };
 
             _softPhysicsConfigs = new List<StaticPhysicsConfig>
@@ -262,11 +489,17 @@ namespace TittyMagic
 
             groupDSpringMultiplier.updateFunction = value =>
             {
-                SyncGroupSpringMultiplier(BREAST_PHYSICS_MESH.groupDSlots, value);
+                foreach(int slot in BREAST_PHYSICS_MESH.groupDSlots)
+                {
+                    SyncGroupSpringMultiplier(slot, value);
+                }
             };
             groupDDamperMultiplier.updateFunction = value =>
             {
-                SyncGroupDamperMultiplier(BREAST_PHYSICS_MESH.groupDSlots, value);
+                foreach(int slot in BREAST_PHYSICS_MESH.groupDSlots)
+                {
+                    SyncGroupDamperMultiplier(slot, value);
+                }
             };
 
             _nipplePhysicsConfigs = new List<StaticPhysicsConfig>
@@ -276,61 +509,31 @@ namespace TittyMagic
             };
         }
 
-        // combines protected SyncGroupASpringMultiplier, B etc. with SyncSoftVerticesCombinedSpring from DAZPhysicsMesh.cs
-        private static void SyncGroupSpringMultiplier(IEnumerable<int> slots, float f)
+        private static void SyncGroupSpringMultiplier(int slot, float value)
         {
-            foreach(int slot in slots)
+            var group = BREAST_PHYSICS_MESH.softVerticesGroups[slot];
+            group.parentSettingSpringMultiplier = value;
+            float combinedValue = BREAST_PHYSICS_MESH.softVerticesCombinedSpring * value;
+            group.jointSpringNormal = combinedValue;
+            group.jointSpringTangent = combinedValue;
+            group.jointSpringTangent2 = combinedValue;
+            if(group.tieLinkJointSpringAndDamperToNormalSpringAndDamper)
             {
-                if(slot >= BREAST_PHYSICS_MESH.softVerticesGroups.Count)
-                {
-                    continue;
-                }
-                DAZPhysicsMeshSoftVerticesGroup group = BREAST_PHYSICS_MESH.softVerticesGroups[slot];
-                if(group == null)
-                {
-                    continue;
-                }
-                group.parentSettingSpringMultiplier = f;
-                if(group.useParentSettings)
-                {
-                    float num = BREAST_PHYSICS_MESH.softVerticesCombinedSpring * f;
-                    group.jointSpringNormal = num;
-                    group.jointSpringTangent = num;
-                    group.jointSpringTangent2 = num;
-                    if(group.tieLinkJointSpringAndDamperToNormalSpringAndDamper)
-                    {
-                        group.linkSpring = num;
-                    }
-                }
+                group.linkSpring = combinedValue;
             }
         }
 
-        // combines protected SyncGroupADamperMultiplier, B etc. with SyncSoftVerticesCombinedDamper from DAZPhysicsMesh.cs
-        private static void SyncGroupDamperMultiplier(IEnumerable<int> slots, float f)
+        private static void SyncGroupDamperMultiplier(int slot, float value)
         {
-            foreach(int slot in slots)
+            var group = BREAST_PHYSICS_MESH.softVerticesGroups[slot];
+            group.parentSettingDamperMultiplier = value;
+            float combinedValue = BREAST_PHYSICS_MESH.softVerticesCombinedDamper * value;
+            group.jointDamperNormal = combinedValue;
+            group.jointDamperTangent = combinedValue;
+            group.jointDamperTangent2 = combinedValue;
+            if(group.tieLinkJointSpringAndDamperToNormalSpringAndDamper)
             {
-                if(slot >= BREAST_PHYSICS_MESH.softVerticesGroups.Count)
-                {
-                    continue;
-                }
-                DAZPhysicsMeshSoftVerticesGroup group = BREAST_PHYSICS_MESH.softVerticesGroups[slot];
-                if(group == null)
-                {
-                    continue;
-                }
-                group.parentSettingDamperMultiplier = f;
-                if(group.useParentSettings)
-                {
-                    float num = BREAST_PHYSICS_MESH.softVerticesCombinedDamper * f;
-                    group.jointDamperNormal = num;
-                    group.jointDamperTangent = num;
-                    group.jointDamperTangent2 = num;
-                    if(group.tieLinkJointSpringAndDamperToNormalSpringAndDamper)
-                    {
-                        group.linkDamper = num;
-                    }
-                }
+                group.linkDamper = combinedValue;
             }
         }
 
@@ -383,6 +586,14 @@ namespace TittyMagic
         private static float PhysicsRateMultiplier()
         {
             return 0.01666667f / Time.fixedDeltaTime;
+        }
+
+        public void Reset()
+        {
+            foreach(var group in BREAST_PHYSICS_MESH.softVerticesGroups)
+            {
+                group.useParentSettings = true;
+            }
         }
     }
 }

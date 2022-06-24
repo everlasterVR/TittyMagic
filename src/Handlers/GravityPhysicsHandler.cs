@@ -7,7 +7,7 @@ namespace TittyMagic
 {
     internal class GravityPhysicsHandler
     {
-        private readonly Script _script;
+        private readonly StaticPhysicsHandler _physicsHandler;
 
         private float _mass;
         private float _softness;
@@ -18,68 +18,183 @@ namespace TittyMagic
 
         private Dictionary<string, List<Config>> _configSets;
 
-        public GravityPhysicsHandler(Script script)
+        public GravityPhysicsHandler(StaticPhysicsHandler physicsHandler)
         {
-            _script = script;
+            _physicsHandler = physicsHandler;
             xMultiplier = new Multiplier();
             yMultiplier = new Multiplier();
             zMultiplier = new Multiplier();
-
-            Globals.BREAST_CONTROL.invertJoint2RotationY = false;
         }
 
         public void LoadSettings()
         {
-            _configSets = LoadSettingsFromFile();
-        }
-
-        private Dictionary<string, List<Config>> LoadSettingsFromFile()
-        {
-            var configSets = new Dictionary<string, List<Config>>();
-
-            Persistence.LoadFromPath(
-                _script,
-                $@"{Globals.PLUGIN_PATH}settings\physicsmultipliers\female.json",
-                (dir, json) =>
-                {
-                    foreach(string direction in json.Keys)
-                    {
-                        var configs = new List<Config>();
-                        var groupJson = json[direction].AsObject;
-                        foreach(string name in groupJson.Keys)
-                        {
-                            configs.Add(
-                                new GravityPhysicsConfig(
-                                    name,
-                                    groupJson[name]["Type"],
-                                    groupJson[name]["IsNegative"].AsBool,
-                                    groupJson[name]["Multiplier1"].AsFloat,
-                                    groupJson[name]["Multiplier2"].AsFloat,
-                                    groupJson[name]["MultiplyInvertedMass"].AsBool
-                                )
-                            );
-                        }
-
-                        configSets[direction] = configs;
-                    }
-                }
-            );
-            return configSets;
-        }
-
-        public void SetBaseValues()
-        {
-            foreach(var kvp in _configSets)
+            _configSets = new Dictionary<string, List<Config>>
             {
-                foreach(var config in kvp.Value)
-                {
-                    var gravityPhysicsConfig = (GravityPhysicsConfig) config;
-                    if(gravityPhysicsConfig.type == "additive")
-                    {
-                        gravityPhysicsConfig.baseValue = gravityPhysicsConfig.setting.val;
-                    }
-                }
-            }
+                { Direction.DOWN, DownConfigs() },
+                { Direction.UP, UpConfigs() },
+                { Direction.BACK, BackConfigs() },
+                { Direction.FORWARD, ForwardConfigs() },
+                { Direction.LEFT, LeftConfigs() },
+                { Direction.RIGHT, RightConfigs() },
+            };
+        }
+
+        private List<Config> DownConfigs()
+        {
+            var targetRotationX = new GravityPhysicsConfig(-16f, -12f, isNegative: true);
+
+            targetRotationX.updateFunction = value =>
+            {
+                float newValue = NewValue(targetRotationX, value);
+                StaticPhysicsHandler.SyncTargetRotationXLeft(newValue);
+                StaticPhysicsHandler.SyncTargetRotationXRight(newValue);
+            };
+
+            return new List<Config>
+            {
+                targetRotationX,
+            };
+        }
+
+        private List<Config> UpConfigs()
+        {
+            var targetRotationX = new GravityPhysicsConfig(10.7f, 8f);
+
+            targetRotationX.updateFunction = value =>
+            {
+                float newValue = NewValue(targetRotationX, value);
+                StaticPhysicsHandler.SyncTargetRotationXLeft(newValue);
+                StaticPhysicsHandler.SyncTargetRotationXRight(newValue);
+            };
+
+            return new List<Config>
+            {
+                targetRotationX,
+            };
+        }
+
+        private List<Config> BackConfigs()
+        {
+            var centerOfGravityPercent = new GravityPhysicsConfig(-0.071f, -0.053f, isNegative: true, multiplyInvertedMass: true);
+            var spring = new GravityPhysicsConfig(-7.0f, -5.3f, isNegative: true);
+            var damper = new GravityPhysicsConfig(-0.27f, -0.36f, isNegative: true);
+            var positionSpringZ = new GravityPhysicsConfig(-180f, -140f, isNegative: true);
+            var positionDamperZ = new GravityPhysicsConfig(-15f, 5f, isNegative: true, multiplyInvertedMass: true);
+
+            centerOfGravityPercent.updateFunction = value =>
+            {
+                float newValue = NewValue(centerOfGravityPercent, value);
+                _physicsHandler.AddToLeftCenterOfGravity(newValue);
+                _physicsHandler.AddToRightCenterOfGravity(newValue);
+            };
+            spring.updateFunction = value =>
+            {
+                float newValue = NewValue(spring, value);
+                _physicsHandler.AddToLeftJointSpring(newValue);
+                _physicsHandler.AddToRightJointSpring(newValue);
+            };
+            damper.updateFunction = value =>
+            {
+                float newValue = NewValue(damper, value);
+                _physicsHandler.AddToLeftJointDamper(newValue);
+                _physicsHandler.AddToRightJointDamper(newValue);
+            };
+            positionSpringZ.updateFunction = value =>
+            {
+                float newValue = NewValue(positionSpringZ, value);
+                _physicsHandler.AddToLeftJointPositionSpringZ(newValue);
+                _physicsHandler.AddToRightJointPositionSpringZ(newValue);
+            };
+            positionDamperZ.updateFunction = value =>
+            {
+                float newValue = NewValue(positionDamperZ, value);
+                _physicsHandler.AddToLeftJointPositionDamperZ(newValue);
+                _physicsHandler.AddToRightJointPositionDamperZ(newValue);
+            };
+
+            return new List<Config>
+            {
+                centerOfGravityPercent,
+                spring,
+                damper,
+                positionSpringZ,
+                positionDamperZ,
+            };
+        }
+
+        private List<Config> ForwardConfigs()
+        {
+            var centerOfGravityPercent = new GravityPhysicsConfig(0.141f, 0.106f, isNegative: false, multiplyInvertedMass: true);
+            var spring = new GravityPhysicsConfig(-7.0f, -5.3f, isNegative: true);
+            var damper = new GravityPhysicsConfig(-0.27f, -0.36f, isNegative: true);
+            var positionSpringZ = new GravityPhysicsConfig(-180f, -140f, isNegative: true);
+
+            centerOfGravityPercent.updateFunction = value =>
+            {
+                float newValue = NewValue(centerOfGravityPercent, value);
+                _physicsHandler.AddToLeftCenterOfGravity(newValue);
+                _physicsHandler.AddToRightCenterOfGravity(newValue);
+            };
+            spring.updateFunction = value =>
+            {
+                float newValue = NewValue(spring, value);
+                _physicsHandler.AddToLeftJointSpring(newValue);
+                _physicsHandler.AddToRightJointSpring(newValue);
+            };
+            damper.updateFunction = value =>
+            {
+                float newValue = NewValue(damper, value);
+                _physicsHandler.AddToLeftJointDamper(newValue);
+                _physicsHandler.AddToRightJointDamper(newValue);
+            };
+            positionSpringZ.updateFunction = value =>
+            {
+                float newValue = NewValue(positionSpringZ, value);
+                _physicsHandler.AddToLeftJointPositionSpringZ(newValue);
+                _physicsHandler.AddToRightJointPositionSpringZ(newValue);
+            };
+
+            return new List<Config>
+            {
+                centerOfGravityPercent,
+                spring,
+                damper,
+                positionSpringZ,
+            };
+        }
+
+        private List<Config> LeftConfigs()
+        {
+            var targetRotationY = new GravityPhysicsConfig(16f, 12f);
+
+            targetRotationY.updateFunction = value =>
+            {
+                float newValue = NewValue(targetRotationY, value);
+                StaticPhysicsHandler.SyncTargetRotationYLeft(newValue);
+                StaticPhysicsHandler.SyncTargetRotationYRight(newValue);
+            };
+
+            return new List<Config>
+            {
+                targetRotationY,
+            };
+        }
+
+        private List<Config> RightConfigs()
+        {
+            var targetRotationY = new GravityPhysicsConfig(-16f, -12f, isNegative: true);
+
+            targetRotationY.updateFunction = value =>
+            {
+                float newValue = NewValue(targetRotationY, value);
+                StaticPhysicsHandler.SyncTargetRotationYLeft(newValue);
+                StaticPhysicsHandler.SyncTargetRotationYRight(newValue);
+            };
+
+            return new List<Config>
+            {
+                targetRotationY,
+            };
         }
 
         public void Update(
@@ -106,13 +221,11 @@ namespace TittyMagic
             // left
             if(roll >= 0)
             {
-                ResetPhysics(Direction.RIGHT);
                 UpdatePhysics(Direction.LEFT, effect);
             }
             // right
             else
             {
-                ResetPhysics(Direction.LEFT);
                 UpdatePhysics(Direction.RIGHT, effect);
             }
         }
@@ -126,13 +239,11 @@ namespace TittyMagic
                 // upright
                 if(pitch < 1)
                 {
-                    ResetPhysics(Direction.UP);
                     UpdatePhysics(Direction.DOWN, effect);
                 }
                 // upside down
                 else
                 {
-                    ResetPhysics(Direction.DOWN);
                     UpdatePhysics(Direction.UP, effect);
                 }
             }
@@ -142,13 +253,11 @@ namespace TittyMagic
                 // upright
                 if(pitch >= -1)
                 {
-                    ResetPhysics(Direction.UP);
                     UpdatePhysics(Direction.DOWN, effect);
                 }
                 // upside down
                 else
                 {
-                    ResetPhysics(Direction.DOWN);
                     UpdatePhysics(Direction.UP, effect);
                 }
             }
@@ -160,7 +269,6 @@ namespace TittyMagic
             // leaning forward
             if(pitch >= 0)
             {
-                ResetPhysics(Direction.BACK);
                 // upright
                 if(pitch < 1)
                 {
@@ -175,7 +283,6 @@ namespace TittyMagic
             // leaning back
             else
             {
-                ResetPhysics(Direction.FORWARD);
                 // upright
                 if(pitch >= -1)
                 {
@@ -194,46 +301,23 @@ namespace TittyMagic
             foreach(var config in _configSets[configSetName])
             {
                 var gravityPhysicsConfig = (GravityPhysicsConfig) config;
-                UpdateValue(gravityPhysicsConfig, effect);
+                gravityPhysicsConfig.updateFunction(effect);
             }
         }
 
-        private void UpdateValue(GravityPhysicsConfig config, float effect)
+        private float NewValue(GravityPhysicsConfig config, float effect)
         {
             float value = CalculateValue(config, effect);
             bool inRange = config.isNegative ? value < 0 : value > 0;
-
-            if(config.type == "direct")
-            {
-                config.setting.val = inRange ? value : 0;
-            }
-            else if(config.type == "additive")
-            {
-                config.setting.val = inRange ? config.baseValue + value : config.baseValue;
-            }
+            return inRange ? value : 0;
         }
 
         private float CalculateValue(GravityPhysicsConfig config, float effect)
         {
             float mass = config.multiplyInvertedMass ? 1 - _mass : _mass;
             return
-                _softness * config.multiplier1 * effect +
-                mass * config.multiplier2 * effect;
-        }
-
-        public void ResetAll()
-        {
-            _configSets?.Keys.ToList().ForEach(ResetPhysics);
-        }
-
-        private void ResetPhysics(string configSetName)
-        {
-            foreach(var config in _configSets[configSetName])
-            {
-                var gravityPhysicsConfig = (GravityPhysicsConfig) config;
-                float newValue = gravityPhysicsConfig.type == "additive" ? gravityPhysicsConfig.baseValue : gravityPhysicsConfig.originalValue;
-                gravityPhysicsConfig.setting.val = newValue;
-            }
+                _softness * config.softnessMultiplier * effect +
+                mass * config.massMultiplier * effect;
         }
     }
 }

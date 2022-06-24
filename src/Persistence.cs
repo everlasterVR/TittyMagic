@@ -7,6 +7,7 @@ namespace TittyMagic
 {
     internal static class Persistence
     {
+        // ReSharper disable once UnusedMember.Global
         public static void SaveToPath(MVRScript script, JSONClass json, string path, string saveExt, Action<string> callback = null)
         {
             string browseDir = path.Substring(0, path.LastIndexOfAny(new[] { '/', '\\' })) + @"\";
@@ -27,6 +28,7 @@ namespace TittyMagic
             callback?.Invoke(browseDir, json);
         }
 
+        // ReSharper disable once UnusedMember.Global
         public static string MakeDefaultDir()
         {
             FileManagerSecure.CreateDirectory(SAVES_DIR);

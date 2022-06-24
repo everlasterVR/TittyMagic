@@ -9,28 +9,22 @@ namespace TittyMagic
     {
         public string name { get; protected set; }
         public bool isNegative { get; protected set; }
-        public float multiplier1 { get; protected set; }
-        public float multiplier2 { get; protected set; }
+        public float softnessMultiplier { get; protected set; }
+        public float massMultiplier { get; protected set; }
     }
 
     internal class GravityPhysicsConfig : Config
     {
-        public JSONStorableFloat setting { get; }
-        public string type { get; }
-        public float originalValue { get; }
-        public float baseValue { get; set; }
         public bool multiplyInvertedMass { get; }
 
-        public GravityPhysicsConfig(string name, string type, bool isNegative, float multiplier1, float multiplier2, bool multiplyInvertedMass)
+        public Action<float> updateFunction { get; set; }
+
+        public GravityPhysicsConfig(float softnessMultiplier, float massMultiplier, bool isNegative = false, bool multiplyInvertedMass = false)
         {
-            setting = BREAST_CONTROL.GetFloatJSONParam(name);
-            this.name = name;
-            this.type = type;
+            this.softnessMultiplier = softnessMultiplier;
+            this.massMultiplier = massMultiplier;
             this.isNegative = isNegative;
-            this.multiplier1 = multiplier1;
-            this.multiplier2 = multiplier2;
             this.multiplyInvertedMass = multiplyInvertedMass;
-            originalValue = setting.val;
         }
     }
 
@@ -45,12 +39,12 @@ namespace TittyMagic
             morph = GetMorph();
         }
 
-        public MorphConfig(string name, bool isNegative, float multiplier1, float multiplier2)
+        public MorphConfig(string name, bool isNegative, float softnessMultiplier, float massMultiplier)
         {
             this.name = name;
             this.isNegative = isNegative;
-            this.multiplier1 = multiplier1;
-            this.multiplier2 = multiplier2;
+            this.softnessMultiplier = softnessMultiplier;
+            this.massMultiplier = massMultiplier;
             morph = GetMorphFromSubDir();
         }
 
