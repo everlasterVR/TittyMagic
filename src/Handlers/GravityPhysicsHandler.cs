@@ -95,13 +95,6 @@ namespace TittyMagic
             AdjustRollPhysics(smoothRoll);
             AdjustUpDownPhysics(smoothPitch, smoothRoll);
             AdjustDepthPhysics(smoothPitch, smoothRoll);
-
-            // if(_configurator != null)
-            // {
-            //     _configurator.debugInfo.val =
-            //         $"{NameValueString("Pitch", pitch, 100f)} {Calc.RoundToDecimals(smoothPitch, 100f)}\n" +
-            //         $"{NameValueString("Roll", roll, 100f)} {Calc.RoundToDecimals(smoothRoll, 100f)}\n";
-            // }
         }
 
         private void AdjustRollPhysics(float roll)
