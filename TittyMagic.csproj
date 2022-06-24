@@ -86,6 +86,7 @@
     <Compile Include="src\BreastVolumeCalculator.cs" />
     <Compile Include="src\BreastMorphListener.cs" />
     <Compile Include="src\Components\BoolSetting.cs" />
+    <Compile Include="src\Extensions\UIDynamicSliderExtension.cs" />
     <Compile Include="src\Handlers\Config.cs" />
     <Compile Include="src\Handlers\GravityEffectCalc.cs" />
     <Compile Include="src\Handlers\GravityOffsetMorphHandler.cs" />

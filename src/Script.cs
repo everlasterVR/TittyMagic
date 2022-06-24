@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using SimpleJSON;
+using TittyMagic.Extensions;
 using UnityEngine;
 using TittyMagic.UI;
 using static TittyMagic.Utils;
@@ -798,13 +799,13 @@ namespace TittyMagic
         private void OnRemoveAtom(Atom atom)
         {
             Destroy(_settingsMonitor);
-            Destroy(_mainWindow.massSCM);
-            Destroy(_mainWindow.softnessSCM);
-            Destroy(_mainWindow.quicknessSCM);
-            Destroy(_mainWindow.xGravitySCM);
-            Destroy(_mainWindow.yGravitySCM);
-            Destroy(_mainWindow.zGravitySCM);
-            Destroy(_mainWindow.offsetMorphingSCM);
+            Destroy(_mainWindow.massSlider.GetSliderClickMonitor());
+            Destroy(_mainWindow.softnessSlider.GetSliderClickMonitor());
+            Destroy(_mainWindow.quicknessSlider.GetSliderClickMonitor());
+            Destroy(_mainWindow.gravityXSlider.GetSliderClickMonitor());
+            Destroy(_mainWindow.gravityYSlider.GetSliderClickMonitor());
+            Destroy(_mainWindow.gravityZSlider.GetSliderClickMonitor());
+            Destroy(_mainWindow.offsetMorphingSlider.GetSliderClickMonitor());
         }
 
         private void OnDestroy()
@@ -812,13 +813,13 @@ namespace TittyMagic
             try
             {
                 Destroy(_settingsMonitor);
-                Destroy(_mainWindow.massSCM);
-                Destroy(_mainWindow.softnessSCM);
-                Destroy(_mainWindow.quicknessSCM);
-                Destroy(_mainWindow.xGravitySCM);
-                Destroy(_mainWindow.yGravitySCM);
-                Destroy(_mainWindow.zGravitySCM);
-                Destroy(_mainWindow.offsetMorphingSCM);
+                Destroy(_mainWindow.massSlider.GetSliderClickMonitor());
+                Destroy(_mainWindow.softnessSlider.GetSliderClickMonitor());
+                Destroy(_mainWindow.quicknessSlider.GetSliderClickMonitor());
+                Destroy(_mainWindow.gravityXSlider.GetSliderClickMonitor());
+                Destroy(_mainWindow.gravityYSlider.GetSliderClickMonitor());
+                Destroy(_mainWindow.gravityZSlider.GetSliderClickMonitor());
+                Destroy(_mainWindow.offsetMorphingSlider.GetSliderClickMonitor());
                 SuperController.singleton.onAtomRemovedHandlers -= OnRemoveAtom;
                 SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
             }

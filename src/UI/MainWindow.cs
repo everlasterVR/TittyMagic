@@ -1,4 +1,5 @@
 using System;
+using TittyMagic.Extensions;
 using UnityEngine;
 using static TittyMagic.UI.UIHelpers;
 
@@ -21,14 +22,6 @@ namespace TittyMagic.UI
         public UIDynamicSlider gravityZSlider;
         public UIDynamicSlider offsetMorphingSlider;
         public UIDynamicSlider nippleErectionSlider;
-
-        public SliderClickMonitor massSCM;
-        public SliderClickMonitor softnessSCM;
-        public SliderClickMonitor quicknessSCM;
-        public SliderClickMonitor yGravitySCM;
-        public SliderClickMonitor xGravitySCM;
-        public SliderClickMonitor zGravitySCM;
-        public SliderClickMonitor offsetMorphingSCM;
 
         public MainWindow(MVRScript script)
         {
@@ -87,7 +80,7 @@ namespace TittyMagic.UI
             _script.NewSpacer(spacing, rightSide);
             massSlider = _script.CreateSlider(storable, rightSide);
             massSlider.valueFormat = "F3";
-            massSCM = massSlider.slider.gameObject.AddComponent<SliderClickMonitor>();
+            massSlider.AddSliderClickMonitor();
         }
 
         public void CreateSoftnessSlider(JSONStorableFloat storable, bool rightSide, float spacing = 0)
@@ -96,7 +89,7 @@ namespace TittyMagic.UI
             softnessSlider = _script.CreateSlider(storable, rightSide);
             softnessSlider.valueFormat = "0f";
             softnessSlider.slider.wholeNumbers = true;
-            softnessSCM = softnessSlider.slider.gameObject.AddComponent<SliderClickMonitor>();
+            softnessSlider.AddSliderClickMonitor();
         }
 
         public void CreateQuicknessSlider(JSONStorableFloat storable, bool rightSide, float spacing = 0)
@@ -105,7 +98,7 @@ namespace TittyMagic.UI
             quicknessSlider = _script.CreateSlider(storable, rightSide);
             quicknessSlider.valueFormat = "0f";
             quicknessSlider.slider.wholeNumbers = true;
-            quicknessSCM = quicknessSlider.slider.gameObject.AddComponent<SliderClickMonitor>();
+            quicknessSlider.AddSliderClickMonitor();
         }
 
         public void CreateMorphingYSlider(JSONStorableFloat storable, bool rightSide, float spacing = 0)
@@ -134,7 +127,7 @@ namespace TittyMagic.UI
             _script.NewSpacer(spacing, rightSide);
             gravityYSlider = _script.CreateSlider(storable, rightSide);
             gravityYSlider.valueFormat = "F2";
-            yGravitySCM = gravityYSlider.slider.gameObject.AddComponent<SliderClickMonitor>();
+            gravityYSlider.AddSliderClickMonitor();
         }
 
         public void CreateGravityPhysicsXSlider(JSONStorableFloat storable, bool rightSide, float spacing = 0)
@@ -142,7 +135,7 @@ namespace TittyMagic.UI
             _script.NewSpacer(spacing, rightSide);
             gravityXSlider = _script.CreateSlider(storable, rightSide);
             gravityXSlider.valueFormat = "F2";
-            xGravitySCM = gravityXSlider.slider.gameObject.AddComponent<SliderClickMonitor>();
+            gravityXSlider.AddSliderClickMonitor();
         }
 
         public void CreateGravityPhysicsZSlider(JSONStorableFloat storable, bool rightSide, float spacing = 0)
@@ -150,7 +143,7 @@ namespace TittyMagic.UI
             _script.NewSpacer(spacing, rightSide);
             gravityZSlider = _script.CreateSlider(storable, rightSide);
             gravityZSlider.valueFormat = "F2";
-            zGravitySCM = gravityZSlider.slider.gameObject.AddComponent<SliderClickMonitor>();
+            gravityZSlider.AddSliderClickMonitor();
         }
 
         public void CreateOffsetMorphingSlider(JSONStorableFloat storable, bool rightSide, float spacing = 0)
@@ -158,7 +151,7 @@ namespace TittyMagic.UI
             _script.NewSpacer(spacing, rightSide);
             offsetMorphingSlider = _script.CreateSlider(storable, rightSide);
             offsetMorphingSlider.valueFormat = "F2";
-            offsetMorphingSCM = offsetMorphingSlider.slider.gameObject.AddComponent<SliderClickMonitor>();
+            offsetMorphingSlider.AddSliderClickMonitor();
         }
 
         public void CreateNippleErectionSlider(JSONStorableFloat storable, bool rightSide, float spacing = 0)
@@ -170,13 +163,19 @@ namespace TittyMagic.UI
 
         public bool SliderClickIsDown()
         {
-            return (massSCM != null && massSCM.isDown) ||
-                (softnessSCM != null && softnessSCM.isDown) ||
-                (quicknessSCM != null && quicknessSCM.isDown) ||
-                (xGravitySCM != null && xGravitySCM.isDown) ||
-                (yGravitySCM != null && yGravitySCM.isDown) ||
-                (zGravitySCM != null && zGravitySCM.isDown) ||
-                (offsetMorphingSCM != null && offsetMorphingSCM.isDown);
+            return SliderClickIsDown(massSlider) ||
+                SliderClickIsDown(softnessSlider) ||
+                SliderClickIsDown(quicknessSlider) ||
+                SliderClickIsDown(gravityXSlider) ||
+                SliderClickIsDown(gravityYSlider) ||
+                SliderClickIsDown(gravityZSlider) ||
+                SliderClickIsDown(offsetMorphingSlider);
+        }
+
+        private bool SliderClickIsDown(UIDynamicSlider slider)
+        {
+            var sliderClickMonitor = slider.GetSliderClickMonitor();
+            return sliderClickMonitor != null && sliderClickMonitor.isDown;
         }
     }
 }

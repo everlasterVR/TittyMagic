@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 
 namespace TittyMagic.UI
 {
-    internal class SliderClickMonitor : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+    public class SliderClickMonitor : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         public bool isDown;
 
