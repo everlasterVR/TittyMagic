@@ -47,7 +47,6 @@ namespace TittyMagic.UI
             return inputField;
         }
 
-        // ReSharper disable once UnusedMethodReturnValue.Global
         public static UIDynamic NewSpacer(
             this MVRScript script,
             float height,
@@ -74,6 +73,24 @@ namespace TittyMagic.UI
         {
             bool val = uiSlider.slider.interactable;
             uiSlider.labelText.color = val ? Color.black : gray;
+        }
+
+        public static HorizontalLayoutGroup CreateHorizontalLayoutGroup(RectTransform uiContent)
+        {
+            var verticalLayoutGroup = uiContent.GetComponent<VerticalLayoutGroup>();
+
+            var gameObj = new GameObject();
+            gameObj.transform.SetParent(verticalLayoutGroup.transform, false);
+
+            var horizontalLayoutGroup = gameObj.AddComponent<HorizontalLayoutGroup>();
+            horizontalLayoutGroup.spacing = 16f;
+            horizontalLayoutGroup.childForceExpandWidth = true;
+            horizontalLayoutGroup.childControlHeight = false;
+            // var groupTransform = horizontalLayoutGroup.transform;
+            // groupTransform.SetParent(leftUIContent, false);
+            // leftUIElements.Add(groupTransform);
+
+            return horizontalLayoutGroup;
         }
     }
     // ReSharper restore MemberCanBePrivate.Global

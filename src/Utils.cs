@@ -81,12 +81,12 @@ namespace TittyMagic
     {
         public static float QuadraticRegression(float f)
         {
-            return (-0.173f * f * f) + (1.142f * f);
+            return -0.173f * f * f + 1.142f * f;
         }
 
         public static float QuadraticRegressionLesser(float f)
         {
-            return (-0.115f * f * f) + (1.12f * f);
+            return -0.115f * f * f + 1.12f * f;
         }
 
         // ReSharper disable once UnusedMember.Local
@@ -99,7 +99,7 @@ namespace TittyMagic
             float q = 1
         )
         {
-            return (a * Mathf.Pow(x, p)) + (b * Mathf.Pow(x, q)) + (c * x);
+            return a * Mathf.Pow(x, p) + b * Mathf.Pow(x, q) + c * x;
         }
     }
 
@@ -107,12 +107,12 @@ namespace TittyMagic
     {
         public static float Roll(Quaternion q)
         {
-            return 2 * InverseLerpToPi(Mathf.Asin((2 * q.x * q.y) + (2 * q.z * q.w)));
+            return 2 * InverseLerpToPi(Mathf.Asin(2 * q.x * q.y + 2 * q.z * q.w));
         }
 
         public static float Pitch(Quaternion q)
         {
-            return InverseLerpToPi(Mathf.Atan2((2 * q.x * q.w) - (2 * q.y * q.z), 1 - (2 * q.x * q.x) - (2 * q.z * q.z)));
+            return InverseLerpToPi(Mathf.Atan2(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * q.x * q.x - 2 * q.z * q.z));
         }
 
         private static float InverseLerpToPi(float val)
@@ -148,7 +148,7 @@ namespace TittyMagic
             float s = curvature < -2.99f ? -2.99f : curvature > 0.99f ? 0.99f : curvature;
             float p = midpoint * b;
             p = p < 0 ? 0 : p > b ? b : p;
-            float c = (2 / (1 - s)) - (p / b);
+            float c = 2 / (1 - s) - p / b;
 
             if(value < p)
                 return F1(value, b, p, c);
@@ -214,7 +214,7 @@ namespace TittyMagic
             result[source.Length - 1] = source[source.Length - 1];
             for(int i = source.Length - 2; i >= 0; i--)
             {
-                result[i] = (k * source[i]) + ((1 - k) * result[i + 1]);
+                result[i] = k * source[i] + (1 - k) * result[i + 1];
             }
 
             return result;

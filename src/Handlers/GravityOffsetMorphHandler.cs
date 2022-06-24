@@ -14,13 +14,14 @@ namespace TittyMagic
         private float _softness;
         private float _morphing;
 
-        public Multiplier yMultiplier { get; set; }
+        public Multiplier yMultiplier { get; }
 
         private Dictionary<string, List<Config>> _configSets;
 
         public GravityOffsetMorphHandler(MVRScript script)
         {
             _script = script;
+            yMultiplier = new Multiplier();
         }
 
         public void LoadSettings()
@@ -140,8 +141,8 @@ namespace TittyMagic
         private void UpdateValue(MorphConfig config, float effect)
         {
             float value =
-                (_softness * config.multiplier1 * effect) +
-                (_mass * config.multiplier2 * effect);
+                _softness * config.multiplier1 * effect +
+                _mass * config.multiplier2 * effect;
             bool inRange = config.isNegative ? value < 0 : value > 0;
             config.morph.morphValue = inRange ? Calc.RoundToDecimals(value, 1000f) : 0;
         }

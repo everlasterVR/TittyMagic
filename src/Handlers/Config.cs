@@ -9,8 +9,8 @@ namespace TittyMagic
     {
         public string name { get; protected set; }
         public bool isNegative { get; protected set; }
-        public float multiplier1 { get; set; }
-        public float multiplier2 { get; set; }
+        public float multiplier1 { get; protected set; }
+        public float multiplier2 { get; protected set; }
     }
 
     internal class GravityPhysicsConfig : Config

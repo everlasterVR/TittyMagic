@@ -12,17 +12,20 @@ namespace TittyMagic
         private float _mass;
         private float _softness;
 
-        public Multiplier xMultiplier { get; set; }
-        public Multiplier yMultiplier { get; set; }
-        public Multiplier zMultiplier { get; set; }
+        public Multiplier xMultiplier { get; }
+        public Multiplier yMultiplier { get; }
+        public Multiplier zMultiplier { get; }
 
         private Dictionary<string, List<Config>> _configSets;
 
         public GravityPhysicsHandler(Script script)
         {
-            Globals.BREAST_CONTROL.invertJoint2RotationY = false;
-
             _script = script;
+            xMultiplier = new Multiplier();
+            yMultiplier = new Multiplier();
+            zMultiplier = new Multiplier();
+
+            Globals.BREAST_CONTROL.invertJoint2RotationY = false;
         }
 
         public void LoadSettings()
@@ -214,8 +217,8 @@ namespace TittyMagic
         {
             float mass = config.multiplyInvertedMass ? 1 - _mass : _mass;
             return
-                (_softness * config.multiplier1 * effect) +
-                (mass * config.multiplier2 * effect);
+                _softness * config.multiplier1 * effect +
+                mass * config.multiplier2 * effect;
         }
 
         public void ResetAll()

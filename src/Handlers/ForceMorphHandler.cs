@@ -12,9 +12,9 @@ namespace TittyMagic
         private readonly TrackNipple _trackLeftNipple;
         private readonly TrackNipple _trackRightNipple;
 
-        public Multiplier xMultiplier { get; set; }
-        public Multiplier yMultiplier { get; set; }
-        public Multiplier zMultiplier { get; set; }
+        public Multiplier xMultiplier { get; }
+        public Multiplier yMultiplier { get; }
+        public Multiplier zMultiplier { get; }
 
         private Dictionary<string, List<Config>> _configSets;
 
@@ -27,19 +27,9 @@ namespace TittyMagic
             _script = script;
             _trackLeftNipple = trackLeftNipple;
             _trackRightNipple = trackRightNipple;
-#if USE_CONFIGURATOR
-            _configurator = (IConfigurator) FindPluginOnAtom(_script.containingAtom, nameof(ForceMorphConfigurator));
-            _configurator.Init(script);
-            _configurator.enableAdjustment.toggle.onValueChanged.AddListener(
-                val =>
-                {
-                    if(!val)
-                    {
-                        ResetAll();
-                    }
-                }
-            );
-#endif
+            xMultiplier = new Multiplier();
+            yMultiplier = new Multiplier();
+            zMultiplier = new Multiplier();
         }
 
         public void LoadSettings()
@@ -283,8 +273,8 @@ namespace TittyMagic
         private void UpdateValue(MorphConfig config, float effect)
         {
             float value =
-                (0.62f * config.multiplier1 * effect / 2) +
-                (_mass * config.multiplier2 * effect / 2);
+                0.62f * config.multiplier1 * effect / 2 +
+                _mass * config.multiplier2 * effect / 2;
 
             bool inRange = config.isNegative ? value < 0 : value > 0;
             config.morph.morphValue = inRange ? Calc.RoundToDecimals(value, 1000f) : 0;

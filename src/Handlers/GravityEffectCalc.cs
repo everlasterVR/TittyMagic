@@ -20,7 +20,7 @@ namespace TittyMagic
         // ReSharper disable once UnusedMember.Global
         public static float CalculateDownEffect(float pitch, float roll, Multiplier multiplier)
         {
-            return (2 - (Mathf.Abs(pitch) / 2)) * RollMultiplier(roll) * multiplier.mainMultiplier / 2;
+            return (2 - Mathf.Abs(pitch) / 2) * RollMultiplier(roll) * multiplier.mainMultiplier / 2;
         }
 
         public static float CalculateDepthEffect(float pitch, float roll, Multiplier multiplier)

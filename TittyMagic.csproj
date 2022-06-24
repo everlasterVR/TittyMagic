@@ -100,7 +100,12 @@
     <Compile Include="src\Handlers\StaticPhysicsHandler.cs" />
     <Compile Include="src\Persistence.cs" />
     <Compile Include="src\Script.cs" />
+    <Compile Include="src\UI\GravityWindow.cs" />
+    <Compile Include="src\UI\IWindow.cs" />
     <Compile Include="src\UI\MainWindow.cs" />
+    <Compile Include="src\UI\MorphingWindow.cs" />
+    <Compile Include="src\UI\Navigation.cs" />
+    <Compile Include="src\UI\AdvancedWindow.cs" />
     <Compile Include="src\UI\SliderClickMonitor.cs" />
     <Compile Include="src\UI\UIHelpers.cs" />
     <Compile Include="src\Utils.cs" />
