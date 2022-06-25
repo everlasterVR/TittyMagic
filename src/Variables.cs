@@ -2,12 +2,6 @@
 
 namespace TittyMagic
 {
-    internal static class Const
-    {
-        public const float MASS_MIN = 0.1f;
-        public const float MASS_MAX = 2.0f;
-    }
-
     internal static class VertexIndexGroups
     {
         // excludes areola and nipple vertices

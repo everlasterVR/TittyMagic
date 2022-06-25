@@ -84,7 +84,7 @@ namespace TittyMagic
                 mass.min,
                 mass.max
             );
-            realMassAmount = Mathf.InverseLerp(0, Const.MASS_MAX, newMass);
+            realMassAmount = newMass / 2;
             if(useNewMass)
             {
                 massAmount = realMassAmount;
@@ -92,10 +92,11 @@ namespace TittyMagic
             }
             else
             {
-                massAmount = Mathf.InverseLerp(0, Const.MASS_MAX, mass.val);
+                massAmount = mass.val / 2;
             }
 
-            BREAST_CONTROL.mass = mass.val;
+            SyncMass(_pectoralRbLeft, mass.val);
+            SyncMass(_pectoralRbRight, mass.val);
         }
 
         public void AddToLeftCenterOfGravity(float value)
@@ -277,8 +278,8 @@ namespace TittyMagic
             };
         }
 
-        // ReSharper disable once UnusedMember.Local
-        private static void SyncJointMass(Rigidbody rb, float value)
+        // Reimplements AdjustJoints.cs method SyncMass
+        private static void SyncMass(Rigidbody rb, float value)
         {
             if(Math.Abs(rb.mass - value) > 0.001f)
             {

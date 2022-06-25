@@ -261,7 +261,7 @@ namespace TittyMagic
         {
             titleText = new JSONStorableString("titleText", "");
             autoRefresh = this.NewJsonStorableBool("Auto-update mass", true);
-            mass = this.NewJsonStorableFloat("Breast mass", Const.MASS_MIN, Const.MASS_MIN, Const.MASS_MAX);
+            mass = this.NewJsonStorableFloat("Breast mass", 0.1f, 0.1f, 3f);
             _physicsHandler.mass = mass;
             softness = this.NewJsonStorableFloat("Breast softness", 70f, 0f, 100f);
             quickness = this.NewJsonStorableFloat("Breast quickness", 70f, 0f, 100f);
