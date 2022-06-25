@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine;
 using static TittyMagic.Utils;
+using static TittyMagic.Globals;
 
 namespace TittyMagic
 {
@@ -49,13 +50,11 @@ namespace TittyMagic
             enabled = false; // will be enabled during main refresh cycle
             _script = gameObject.GetComponent<Script>();
             _breastInOut = atom.GetStorableByID("BreastInOut");
-
             _softBodyPhysicsEnabler = atom.GetStorableByID("SoftBodyPhysicsEnabler");
-            _softBodyPhysicsEnabler.SetBoolParamValue("enabled", true); // Atom soft physics on
 
             _useAdvancedColliders = new BoolSetting(
                 Globals.GEOMETRY.useAdvancedColliders,
-                "Advanced Colliders are not enabled in Control & Physics 1 tab. Enable them to allow dynamic breast morphing to work correctly."
+                "Advanced Colliders are not enabled in Control & Physics 1 tab. Enable them to allow dynamic breast morphing to work correctly!"
             );
 
             _fixedDeltaTime = Time.fixedDeltaTime;
@@ -93,6 +92,12 @@ namespace TittyMagic
                         gameObject.GetComponent<Script>().StartRefreshCoroutine();
                     }
 
+                    if(softPhysicsEnabled && GEOMETRY.useAuxBreastColliders)
+                    {
+                        GEOMETRY.useAuxBreastColliders = false;
+                        LogMessage("Breast Hard Colliders disabled. To enable them, disable soft physics first!");
+                    }
+
                     CheckFixedDeltaTimeChanged();
                     CheckSoftPhysicsEnabledChanged();
                 }
@@ -120,6 +125,10 @@ namespace TittyMagic
             bool value = CheckSoftPhysicsEnabled();
             if(value != softPhysicsEnabled)
             {
+                if(!value && !GEOMETRY.useAuxBreastColliders)
+                {
+                    LogMessage("Recalibrating due to soft physics being enabled. You might also want to enable Breast Hard Colliders!");
+                }
                 softPhysicsEnabled = value;
                 _script.LoadSettings();
                 _script.StartRefreshCoroutine(false, true);
@@ -130,7 +139,7 @@ namespace TittyMagic
 
         private bool CheckSoftPhysicsEnabled()
         {
-            bool value = UserPreferences.singleton.softPhysics && _softBodyPhysicsEnabler.GetBoolParamValue("enabled") && Globals.BREAST_PHYSICS_MESH.on;
+            bool value = UserPreferences.singleton.softPhysics && _softBodyPhysicsEnabler.GetBoolParamValue("enabled") && BREAST_PHYSICS_MESH.on;
             _script.softPhysicsEnabled = value;
             return value;
         }

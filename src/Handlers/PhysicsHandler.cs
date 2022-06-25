@@ -690,10 +690,6 @@ namespace TittyMagic
         public void Reset()
         {
             RestoreOriginalPhysics();
-            foreach(var group in BREAST_PHYSICS_MESH.softVerticesGroups)
-            {
-                group.useParentSettings = true;
-            }
         }
     }
 }
