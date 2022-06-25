@@ -3,7 +3,6 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using SimpleJSON;
-using TittyMagic.Extensions;
 using UnityEngine;
 using TittyMagic.UI;
 using static TittyMagic.Utils;
@@ -286,15 +285,15 @@ namespace TittyMagic
 
             titleText.val = $"<size=18>\n</size><b>{nameof(TittyMagic)}</b><size=36>    v{VERSION}</size>";
             morphingTitleText.val = "<size=28>\n\n</size><b>Dynamic morphing multipliers</b>";
-            morphingInfoText.val = UIHelpers.SizeTag("\n", 12) +
+            morphingInfoText.val = "\n".Size(12) +
                 "Adjust the amount of breast morphing due to forces including gravity.\n" +
                 "\n" +
                 "Breasts morph up/down, left/right and forward/back.";
             additionalSettingsTitleText.val = "<size=28>\n\n</size><b>Additional settings</b>";
-            additionalSettingsInfoText.val = UIHelpers.SizeTag("\n", 12) +
+            additionalSettingsInfoText.val = "\n".Size(12) +
                 "Rotate breasts up when upright to compensate for negative Up/Down Angle Target.";
             gravityTitleText.val = "<size=28>\n\n</size><b>Gravity physics multipliers</b>";
-            gravityInfoText.val = UIHelpers.SizeTag("\n", 12) +
+            gravityInfoText.val = "\n".Size(12) +
                 "Adjust the effect of chest angle on breast main physics settings.\n" +
                 "\n" +
                 "Higher values mean breasts drop more heavily up/down and left/right, " +
@@ -307,10 +306,10 @@ namespace TittyMagic
             _navigation.instantiateButton = () => Instantiate(manager.configurableButtonPrefab).GetComponent<UIDynamicButton>();
 
             _navigation.CreateUINavigationButtons();
-            _navigation.mainSettingsButton.button.onClick.AddListener(NavigateToMainWindow);
-            _navigation.morphingButton.button.onClick.AddListener(NavigateToMorphingWindow);
-            _navigation.gravityButton.button.onClick.AddListener(NavigateToGravityWindow);
-            _navigation.physicsButton.button.onClick.AddListener(NavigateToAdvancedWindow);
+            _navigation.mainSettingsButton.AddClickListener(NavigateToMainWindow);
+            _navigation.morphingButton.AddClickListener(NavigateToMorphingWindow);
+            _navigation.gravityButton.AddClickListener(NavigateToGravityWindow);
+            _navigation.advancedButton.AddClickListener(NavigateToAdvancedWindow);
         }
 
         private void NavigateToMainWindow()
@@ -323,6 +322,7 @@ namespace TittyMagic
             _navigation.activeWindow?.Clear();
             _navigation.activeWindow = _mainWindow;
             _navigation.activeWindow.Rebuild();
+            _navigation.ActivateMainSettingsTab();
 
             _mainWindow.autoRefreshToggle.toggle.onValueChanged.AddListener(val =>
             {
@@ -384,6 +384,7 @@ namespace TittyMagic
             _navigation.activeWindow?.Clear();
             _navigation.activeWindow = _morphingWindow;
             _navigation.activeWindow.Rebuild();
+            _navigation.ActivateMorphingTab();
 
             _morphingWindow.morphingYSlider.slider.onValueChanged.AddListener(val =>
             {
@@ -425,6 +426,7 @@ namespace TittyMagic
             _navigation.activeWindow?.Clear();
             _navigation.activeWindow = _gravityWindow;
             _navigation.activeWindow.Rebuild();
+            _navigation.ActivateGravityPhysicsTab();
 
             _gravityWindow.gravityYSlider.slider.onValueChanged.AddListener(val =>
             {
@@ -456,6 +458,7 @@ namespace TittyMagic
             _navigation.activeWindow?.Clear();
             _navigation.activeWindow = _advancedWindow;
             _navigation.activeWindow.Rebuild();
+            _navigation.ActivateAdvancedTab();
         }
 
         private static float CalculateSoftnessAmount(float val)

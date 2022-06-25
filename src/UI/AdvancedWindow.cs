@@ -1,6 +1,5 @@
 // ReSharper disable MemberCanBePrivate.Global
 using System;
-using TittyMagic.Extensions;
 using UnityEngine;
 using static TittyMagic.UI.UIHelpers;
 

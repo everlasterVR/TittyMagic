@@ -8,14 +8,15 @@ namespace TittyMagic.UI
     {
         private readonly RectTransform _leftUIContent;
         private readonly RectTransform _rightUIContent;
-        public Func<UIDynamicButton> instantiateButton;
 
-        public IWindow activeWindow;
+        public Func<UIDynamicButton> instantiateButton { private get; set; }
 
-        public UIDynamicButton mainSettingsButton;
-        public UIDynamicButton morphingButton;
-        public UIDynamicButton gravityButton;
-        public UIDynamicButton physicsButton;
+        public IWindow activeWindow { get; set; }
+
+        public NavigationButton mainSettingsButton { get; private set; }
+        public NavigationButton morphingButton { get; private set; }
+        public NavigationButton gravityButton { get; private set; }
+        public NavigationButton advancedButton { get; private set; }
 
         public Navigation(RectTransform leftUIContent, RectTransform rightUIContent)
         {
@@ -25,24 +26,45 @@ namespace TittyMagic.UI
 
         public void CreateUINavigationButtons()
         {
-            var leftGroup = CreateHorizontalLayoutGroup(_leftUIContent);
-            var rightGroup = CreateHorizontalLayoutGroup(_rightUIContent);
+            var leftGroupTransform = CreateHorizontalLayoutGroup(_leftUIContent).transform;
+            var rightGroupTransform = CreateHorizontalLayoutGroup(_rightUIContent).transform;
 
-            mainSettingsButton = instantiateButton();
-            mainSettingsButton.gameObject.transform.SetParent(leftGroup.transform, false);
-            mainSettingsButton.label = "Main";
+            mainSettingsButton = new NavigationButton(instantiateButton(), "Main", leftGroupTransform);
+            morphingButton = new NavigationButton(instantiateButton(), "Morphing", leftGroupTransform);
+            gravityButton = new NavigationButton(instantiateButton(), "Gravity physics", rightGroupTransform);
+            advancedButton = new NavigationButton(instantiateButton(), "Advanced", rightGroupTransform);
+        }
 
-            morphingButton = instantiateButton();
-            morphingButton.gameObject.transform.SetParent(leftGroup.transform, false);
-            morphingButton.label = "Morphing";
+        public void ActivateMainSettingsTab()
+        {
+            mainSettingsButton.SetActive();
+            morphingButton.SetInactive();
+            gravityButton.SetInactive();
+            advancedButton.SetInactive();
+        }
 
-            gravityButton = instantiateButton();
-            gravityButton.gameObject.transform.SetParent(rightGroup.transform, false);
-            gravityButton.label = "Gravity physics";
+        public void ActivateMorphingTab()
+        {
+            mainSettingsButton.SetInactive();
+            morphingButton.SetActive();
+            gravityButton.SetInactive();
+            advancedButton.SetInactive();
+        }
 
-            physicsButton = instantiateButton();
-            physicsButton.gameObject.transform.SetParent(rightGroup.transform, false);
-            physicsButton.label = "Advanced";
+        public void ActivateGravityPhysicsTab()
+        {
+            mainSettingsButton.SetInactive();
+            morphingButton.SetInactive();
+            gravityButton.SetActive();
+            advancedButton.SetInactive();
+        }
+
+        public void ActivateAdvancedTab()
+        {
+            mainSettingsButton.SetInactive();
+            morphingButton.SetInactive();
+            gravityButton.SetInactive();
+            advancedButton.SetActive();
         }
     }
 }

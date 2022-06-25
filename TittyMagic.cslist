@@ -1,5 +1,6 @@
 src\Components\Bindings.cs
 src\Components\SettingsMonitor.cs
+src\Extensions\StringExtension.cs
 src\Extensions\UIDynamicSliderExtension.cs
 src\Handlers\Config.cs
 src\Handlers\ForceMorphHandler.cs
@@ -16,6 +17,7 @@ src\UI\IWindow.cs
 src\UI\MainWindow.cs
 src\UI\MorphingWindow.cs
 src\UI\Navigation.cs
+src\UI\NavigationButton.cs
 src\UI\SliderClickMonitor.cs
 src\UI\UIHelpers.cs
 src\AtomScaleListener.cs

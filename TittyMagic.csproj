@@ -85,6 +85,7 @@
     <Compile Include="src\AtomScaleListener.cs" />
     <Compile Include="src\BreastVolumeCalculator.cs" />
     <Compile Include="src\BreastMorphListener.cs" />
+    <Compile Include="src\Extensions\StringExtension.cs" />
     <Compile Include="src\Extensions\UIDynamicSliderExtension.cs" />
     <Compile Include="src\Handlers\Config.cs" />
     <Compile Include="src\Handlers\ForcePhysicsHandler.cs" />
@@ -104,6 +105,7 @@
     <Compile Include="src\UI\IWindow.cs" />
     <Compile Include="src\UI\MainWindow.cs" />
     <Compile Include="src\UI\MorphingWindow.cs" />
+    <Compile Include="src\UI\NavigationButton.cs" />
     <Compile Include="src\UI\Navigation.cs" />
     <Compile Include="src\UI\AdvancedWindow.cs" />
     <Compile Include="src\UI\SliderClickMonitor.cs" />

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,27 +9,19 @@ namespace TittyMagic.UI
     public static class UIHelpers
     {
         public static Color darkOffGrayViolet = new Color(0.26f, 0.20f, 0.26f);
-        public static Color gray = new Color(0.4f, 0.4f, 0.4f);
+        public static Color darkerGray = new Color(0.4f, 0.4f, 0.4f);
         public static Color lightPink = new Color(1f, 0.925f, 0.925f);
         public static Color offGrayRed = new Color(0.45f, 0.4f, 0.4f);
         public static Color offGrayViolet = new Color(0.80f, 0.75f, 0.80f);
         public static Color sliderGray = new Color(0, 0, 0, 0.498f);
         public static Color funkyCyan = new Color(0.596f, 1.000f, 0.780f);
+        public static Color paleCyan = new Color32(195, 231, 212, 255);
+        public static Color evenPalerCyan = new Color32(206, 228, 216, 255);
 
-        public static string LineBreak()
-        {
-            return "\n" + SizeTag("\n", 12);
-        }
-
-        public static string ColorTag(string text, Color color)
-        {
-            return $"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{text}</color>";
-        }
-
-        public static string SizeTag(string text, int size)
-        {
-            return $"<size={size}>{text}</size>";
-        }
+        public static Color defaultBtnNormalColor = new Color(0.8392157f, 0.8392157f, 0.8392157f);
+        public static Color defaultBtnHighlightedColor = new Color(0.7f, 0.7f, 0.7f);
+        public static Color defaultBtnPressedColor = Color.gray;
+        public static Color defaultBtnDisabledColor = Color.gray;
 
         // ReSharper disable once UnusedMember.Global
         public static InputField NewInputField(UIDynamicTextField textField)
@@ -62,17 +53,16 @@ namespace TittyMagic.UI
             return spacer;
         }
 
-        // ReSharper disable once UnusedMember.Global
         public static void ApplyToggleStyle(UIDynamicToggle uiToggle)
         {
             bool val = uiToggle.toggle.interactable;
-            uiToggle.textColor = val ? Color.black : gray;
+            uiToggle.textColor = val ? Color.black : darkerGray;
         }
 
         public static void ApplySliderStyle(UIDynamicSlider uiSlider)
         {
             bool val = uiSlider.slider.interactable;
-            uiSlider.labelText.color = val ? Color.black : gray;
+            uiSlider.labelText.color = val ? Color.black : darkerGray;
         }
 
         public static HorizontalLayoutGroup CreateHorizontalLayoutGroup(RectTransform uiContent)
