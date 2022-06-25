@@ -120,6 +120,8 @@ namespace TittyMagic.UI
             _script.RemoveToggle(autoRefreshToggle);
             _script.RemoveSpacer(calculateMassButtonSpacer);
             _script.RemoveButton(calculateMassButton);
+            _script.RemoveSpacer(recalibrateButtonSpacer);
+            _script.RemoveButton(recalibrateButton);
             _script.RemoveSpacer(massSliderSpacer);
             _script.RemoveSlider(massSlider);
             _script.RemoveSpacer(softnessSliderSpacer);
