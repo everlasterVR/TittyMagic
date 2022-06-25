@@ -85,6 +85,7 @@ namespace TittyMagic
         private int _waitStatus = -1;
         private int _refreshStatus = -1;
         private bool _animationWasSetFrozen;
+        private bool _removingAtom;
 
         public override void Init()
         {
@@ -835,6 +836,7 @@ namespace TittyMagic
 
         private void OnRemoveAtom(Atom atom)
         {
+            _removingAtom = true;
             Destroy(_settingsMonitor);
             Destroy(_mainWindow.massSlider.GetSliderClickMonitor());
             Destroy(_mainWindow.softnessSlider.GetSliderClickMonitor());
@@ -879,6 +881,11 @@ namespace TittyMagic
 
         private void OnDisable()
         {
+            if(_removingAtom)
+            {
+                return;
+            }
+
             try
             {
                 if(_settingsMonitor != null) _settingsMonitor.enabled = false;
