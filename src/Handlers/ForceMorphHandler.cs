@@ -18,6 +18,7 @@ namespace TittyMagic
 
         private Dictionary<string, List<Config>> _configSets;
 
+        private const float SOFTNESS = 0.62f;
         private float _mass;
         private float _pitchMultiplier;
         private float _rollMultiplier;
@@ -87,9 +88,9 @@ namespace TittyMagic
             _pitchMultiplier = CalculatePitchMultiplier(pitch, roll);
             _mass = mass;
 
-            AdjustLeftRightMorphs();
             AdjustUpMorphs();
             AdjustDepthMorphs();
+            AdjustLeftRightMorphs();
         }
 
         private void AdjustUpMorphs()
@@ -272,7 +273,7 @@ namespace TittyMagic
         private void UpdateValue(MorphConfig config, float effect)
         {
             float value =
-                0.62f * config.softnessMultiplier * effect / 2 +
+                SOFTNESS * config.softnessMultiplier * effect / 2 +
                 _mass * config.massMultiplier * effect / 2;
 
             bool inRange = config.isNegative ? value < 0 : value > 0;

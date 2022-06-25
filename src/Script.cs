@@ -48,9 +48,10 @@ namespace TittyMagic
 
         private PhysicsHandler _physicsHandler;
         private GravityPhysicsHandler _gravityPhysicsHandler;
-        private ForceMorphHandler _forceMorphHandler;
         private GravityOffsetMorphHandler _gravityOffsetMorphHandler;
         private NippleErectionMorphHandler _nippleErectionMorphHandler;
+        private ForcePhysicsHandler _forcePhysicsHandler;
+        private ForceMorphHandler _forceMorphHandler;
 
         private JSONStorableString _pluginVersionStorable;
 
@@ -186,6 +187,7 @@ namespace TittyMagic
                 _breastMorphListener = new BreastMorphListener(GEOMETRY.morphBank1OtherGender.morphs, GEOMETRY.morphBank1.morphs);
             }
 
+            _forcePhysicsHandler = new ForcePhysicsHandler(_physicsHandler, _trackLeftNipple, _trackRightNipple);
             _forceMorphHandler = new ForceMorphHandler(this, _trackLeftNipple, _trackRightNipple);
 
             _mainWindow = new MainWindow(this);
@@ -230,6 +232,7 @@ namespace TittyMagic
         public void LoadSettings()
         {
             _forceMorphHandler.LoadSettings();
+            _forcePhysicsHandler.LoadSettings();
             _gravityPhysicsHandler.LoadSettings();
             _gravityOffsetMorphHandler.LoadSettings();
             _physicsHandler.LoadSettings(_isFemale && softPhysicsEnabled);
@@ -530,7 +533,7 @@ namespace TittyMagic
             }
         }
 
-        private void RunHandlers(bool updateGravityPhysics = true)
+        private void RunHandlers(bool updateDynamicPhysics = true)
         {
             _forceMorphHandler.Update(
                 _chestRoll,
@@ -538,8 +541,14 @@ namespace TittyMagic
                 _realMassAmount
             );
 
-            if(updateGravityPhysics)
+            if(updateDynamicPhysics)
             {
+                _forcePhysicsHandler.Update(
+                    _chestRoll,
+                    _chestPitch,
+                    _realMassAmount
+                );
+
                 _gravityPhysicsHandler.Update(
                     _chestRoll,
                     _chestPitch,
@@ -751,6 +760,7 @@ namespace TittyMagic
             {
                 // simulate gravityPhysics when upright
                 _gravityPhysicsHandler.Update(0, 0, _massAmount, _softnessAmount);
+                _forcePhysicsHandler.Update(0, 0, _massAmount);
                 _gravityOffsetMorphHandler.Update(0, 0, _massAmount, _softnessAmount, offsetMorphing.val);
 
                 // simulate force of gravity when upright
