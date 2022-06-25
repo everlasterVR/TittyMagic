@@ -628,8 +628,11 @@ namespace TittyMagic
         // input mass, softness and quickness normalized to (0,1) range
         private float NewValue(StaticPhysicsConfig config, float softness, float quickness)
         {
-            float mass = config.useRealMass ? realMassAmount : massAmount;
-            float result = config.Calculate(mass, softness, quickness);
+            float result = config.Calculate(
+                config.useRealMass ? realMassAmount : massAmount,
+                softness,
+                quickness
+            );
             return config.dependOnPhysicsRate ? PhysicsRateMultiplier() * result : result;
         }
 

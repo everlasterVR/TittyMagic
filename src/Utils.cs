@@ -193,6 +193,7 @@ namespace TittyMagic
             return Mathf.Abs(v1 - v2) < 1 / roundFactor;
         }
 
+        // ReSharper disable once UnusedMember.Global
         public static bool DeviatesAtLeast(float v1, float v2, int percent)
         {
             if(v1 > v2)

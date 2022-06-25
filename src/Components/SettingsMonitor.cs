@@ -53,7 +53,7 @@ namespace TittyMagic
             _softBodyPhysicsEnabler = atom.GetStorableByID("SoftBodyPhysicsEnabler");
 
             _useAdvancedColliders = new BoolSetting(
-                Globals.GEOMETRY.useAdvancedColliders,
+                GEOMETRY.useAdvancedColliders,
                 "Advanced Colliders are not enabled in Control & Physics 1 tab. Enable them to allow dynamic breast morphing to work correctly!"
             );
 
@@ -87,7 +87,7 @@ namespace TittyMagic
                         LogMessage("Auto Breast In/Out Morphs disabled - TittyMagic adjusts breast morphs better without them.");
                     }
 
-                    if(_useAdvancedColliders.CheckIfUpdateNeeded(Globals.GEOMETRY.useAdvancedColliders))
+                    if(_useAdvancedColliders.CheckIfUpdateNeeded(GEOMETRY.useAdvancedColliders))
                     {
                         gameObject.GetComponent<Script>().StartRefreshCoroutine();
                     }
