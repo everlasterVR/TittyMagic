@@ -9,7 +9,7 @@ src\Handlers\GravityOffsetMorphHandler.cs
 src\Handlers\GravityPhysicsHandler.cs
 src\Handlers\Multiplier.cs
 src\Handlers\NippleErectionMorphHandler.cs
-src\Handlers\StaticPhysicsHandler.cs
+src\Handlers\PhysicsHandler.cs
 src\UI\AdvancedWindow.cs
 src\UI\GravityWindow.cs
 src\UI\IWindow.cs

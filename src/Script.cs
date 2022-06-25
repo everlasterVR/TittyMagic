@@ -6,7 +6,6 @@ using SimpleJSON;
 using TittyMagic.Extensions;
 using UnityEngine;
 using TittyMagic.UI;
-using UnityEngine.UI;
 using static TittyMagic.Utils;
 using static TittyMagic.Calc;
 using static TittyMagic.Globals;
@@ -47,7 +46,7 @@ namespace TittyMagic
         private BreastMorphListener _breastMorphListener;
         private BreastVolumeCalculator _breastVolumeCalculator;
 
-        private StaticPhysicsHandler _physicsHandler;
+        private PhysicsHandler _physicsHandler;
         private GravityPhysicsHandler _gravityPhysicsHandler;
         private ForceMorphHandler _forceMorphHandler;
         private GravityOffsetMorphHandler _gravityOffsetMorphHandler;
@@ -156,7 +155,7 @@ namespace TittyMagic
             _skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
             _breastVolumeCalculator = new BreastVolumeCalculator(_skin, _chestRb);
 
-            _physicsHandler = new StaticPhysicsHandler(_isFemale);
+            _physicsHandler = new PhysicsHandler(_isFemale);
             _gravityPhysicsHandler = new GravityPhysicsHandler(_physicsHandler);
             _gravityOffsetMorphHandler = new GravityOffsetMorphHandler(this);
             _nippleErectionMorphHandler = new NippleErectionMorphHandler(this);
@@ -316,7 +315,7 @@ namespace TittyMagic
             _navigation.mainSettingsButton.button.onClick.AddListener(NavigateToMainWindow);
             _navigation.morphingButton.button.onClick.AddListener(NavigateToMorphingWindow);
             _navigation.gravityButton.button.onClick.AddListener(NavigateToGravityWindow);
-            _navigation.physicsButton.button.onClick.AddListener(NavigateToPhysicsWindow);
+            _navigation.physicsButton.button.onClick.AddListener(NavigateToAdvancedWindow);
         }
 
         private void NavigateToMainWindow()
@@ -447,7 +446,7 @@ namespace TittyMagic
             });
         }
 
-        private void NavigateToPhysicsWindow()
+        private void NavigateToAdvancedWindow()
         {
             if(_navigation.activeWindow?.Id() == 4)
             {

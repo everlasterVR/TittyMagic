@@ -7,7 +7,7 @@ namespace TittyMagic
 {
     internal class GravityPhysicsHandler
     {
-        private readonly StaticPhysicsHandler _physicsHandler;
+        private readonly PhysicsHandler _physicsHandler;
 
         private float _mass;
         private float _softness;
@@ -18,7 +18,7 @@ namespace TittyMagic
 
         private Dictionary<string, List<Config>> _configSets;
 
-        public GravityPhysicsHandler(StaticPhysicsHandler physicsHandler)
+        public GravityPhysicsHandler(PhysicsHandler physicsHandler)
         {
             _physicsHandler = physicsHandler;
             xMultiplier = new Multiplier();
@@ -46,8 +46,8 @@ namespace TittyMagic
             targetRotationX.updateFunction = value =>
             {
                 float newValue = NewValue(targetRotationX, value);
-                StaticPhysicsHandler.SyncTargetRotationXLeft(newValue);
-                StaticPhysicsHandler.SyncTargetRotationXRight(newValue);
+                _physicsHandler.SyncTargetRotationXLeft(newValue);
+                _physicsHandler.SyncTargetRotationXRight(newValue);
             };
 
             return new List<Config>
@@ -63,8 +63,8 @@ namespace TittyMagic
             targetRotationX.updateFunction = value =>
             {
                 float newValue = NewValue(targetRotationX, value);
-                StaticPhysicsHandler.SyncTargetRotationXLeft(newValue);
-                StaticPhysicsHandler.SyncTargetRotationXRight(newValue);
+                _physicsHandler.SyncTargetRotationXLeft(newValue);
+                _physicsHandler.SyncTargetRotationXRight(newValue);
             };
 
             return new List<Config>
@@ -170,8 +170,8 @@ namespace TittyMagic
             targetRotationY.updateFunction = value =>
             {
                 float newValue = NewValue(targetRotationY, value);
-                StaticPhysicsHandler.SyncTargetRotationYLeft(newValue);
-                StaticPhysicsHandler.SyncTargetRotationYRight(newValue);
+                _physicsHandler.SyncTargetRotationYLeft(newValue);
+                _physicsHandler.SyncTargetRotationYRight(newValue);
             };
 
             return new List<Config>
@@ -187,8 +187,8 @@ namespace TittyMagic
             targetRotationY.updateFunction = value =>
             {
                 float newValue = NewValue(targetRotationY, value);
-                StaticPhysicsHandler.SyncTargetRotationYLeft(newValue);
-                StaticPhysicsHandler.SyncTargetRotationYRight(newValue);
+                _physicsHandler.SyncTargetRotationYLeft(newValue);
+                _physicsHandler.SyncTargetRotationYRight(newValue);
             };
 
             return new List<Config>

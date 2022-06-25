@@ -225,7 +225,6 @@ namespace TittyMagic
         {
             float effect = CalculateDiffFromHorizontal(pitch, roll);
             // upright
-            // ReSharper disable once ConvertIfStatementToReturnStatement
             if(effect >= 0)
             {
                 return Mathf.Lerp(0.72f, 1f, effect);

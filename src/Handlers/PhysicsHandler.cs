@@ -6,7 +6,7 @@ using static TittyMagic.Globals;
 
 namespace TittyMagic
 {
-    internal class StaticPhysicsHandler
+    internal class PhysicsHandler
     {
         private readonly Rigidbody _leftRb;
         private readonly Rigidbody _rightRb;
@@ -32,10 +32,10 @@ namespace TittyMagic
         private float _positionDamperLeft;
         private float _positionDamperRight;
 
-        public StaticPhysicsHandler(bool isFemale)
+        public PhysicsHandler(bool isFemale)
         {
-            _leftRb = BREAST_CONTROL.joint1.GetComponent<Rigidbody>();
-            _rightRb = BREAST_CONTROL.joint2.GetComponent<Rigidbody>();
+            _leftRb = BREAST_CONTROL.joint2.GetComponent<Rigidbody>();
+            _rightRb = BREAST_CONTROL.joint1.GetComponent<Rigidbody>();
 
             if(isFemale)
             {
@@ -65,42 +65,42 @@ namespace TittyMagic
 
         public void AddToLeftJointSpring(float value)
         {
-            SyncJoint(BREAST_CONTROL.joint1, _leftRb, _springLeft + value, _damperLeft);
+            SyncJoint(BREAST_CONTROL.joint2, _leftRb, _springLeft + value, _damperLeft);
         }
 
         public void AddToRightJointSpring(float value)
         {
-            SyncJoint(BREAST_CONTROL.joint2, _rightRb, _springRight + value, _damperLeft);
+            SyncJoint(BREAST_CONTROL.joint1, _rightRb, _springRight + value, _damperLeft);
         }
 
         public void AddToLeftJointDamper(float value)
         {
-            SyncJoint(BREAST_CONTROL.joint1, _leftRb, _springLeft, _damperLeft + value);
+            SyncJoint(BREAST_CONTROL.joint2, _leftRb, _springLeft, _damperLeft + value);
         }
 
         public void AddToRightJointDamper(float value)
         {
-            SyncJoint(BREAST_CONTROL.joint2, _rightRb, _springRight, _damperLeft + value);
+            SyncJoint(BREAST_CONTROL.joint1, _rightRb, _springRight, _damperLeft + value);
         }
 
         public void AddToLeftJointPositionSpringZ(float value)
         {
-            SyncJointPositionZDrive(BREAST_CONTROL.joint1, _leftRb, _positionSpringLeft + value, _positionDamperLeft);
+            SyncJointPositionZDrive(BREAST_CONTROL.joint2, _leftRb, _positionSpringLeft + value, _positionDamperLeft);
         }
 
         public void AddToRightJointPositionSpringZ(float value)
         {
-            SyncJointPositionZDrive(BREAST_CONTROL.joint2, _rightRb, _positionSpringRight + value, _positionDamperRight);
+            SyncJointPositionZDrive(BREAST_CONTROL.joint1, _rightRb, _positionSpringRight + value, _positionDamperRight);
         }
 
         public void AddToLeftJointPositionDamperZ(float value)
         {
-            SyncJointPositionZDrive(BREAST_CONTROL.joint1, _leftRb, _positionSpringLeft, _positionDamperLeft + value);
+            SyncJointPositionZDrive(BREAST_CONTROL.joint2, _leftRb, _positionSpringLeft, _positionDamperLeft + value);
         }
 
         public void AddToRightJointPositionDamperZ(float value)
         {
-            SyncJointPositionZDrive(BREAST_CONTROL.joint2, _rightRb, _positionSpringRight, _positionDamperRight + value);
+            SyncJointPositionZDrive(BREAST_CONTROL.joint1, _rightRb, _positionSpringRight, _positionDamperRight + value);
         }
 
         public void LoadSettings(bool softPhysicsEnabled)
@@ -173,29 +173,29 @@ namespace TittyMagic
             {
                 _springLeft = value;
                 _springRight = value;
-                SyncJoint(BREAST_CONTROL.joint1, _leftRb, _springLeft, _damperLeft);
-                SyncJoint(BREAST_CONTROL.joint2, _rightRb, _springRight, _damperRight);
+                SyncJoint(BREAST_CONTROL.joint2, _leftRb, _springLeft, _damperLeft);
+                SyncJoint(BREAST_CONTROL.joint1, _rightRb, _springRight, _damperRight);
             };
             damper.updateFunction = value =>
             {
                 _damperLeft = value;
                 _damperRight = value;
-                SyncJoint(BREAST_CONTROL.joint1, _leftRb, _springLeft, _damperLeft);
-                SyncJoint(BREAST_CONTROL.joint2, _rightRb, _springRight, _damperRight);
+                SyncJoint(BREAST_CONTROL.joint2, _leftRb, _springLeft, _damperLeft);
+                SyncJoint(BREAST_CONTROL.joint1, _rightRb, _springRight, _damperRight);
             };
             positionSpringZ.updateFunction = value =>
             {
                 _positionSpringLeft = value;
                 _positionSpringRight = value;
-                SyncJointPositionZDrive(BREAST_CONTROL.joint1, _leftRb, _positionSpringLeft, _positionDamperLeft);
-                SyncJointPositionZDrive(BREAST_CONTROL.joint2, _rightRb, _positionSpringRight, _positionDamperRight);
+                SyncJointPositionZDrive(BREAST_CONTROL.joint2, _leftRb, _positionSpringLeft, _positionDamperLeft);
+                SyncJointPositionZDrive(BREAST_CONTROL.joint1, _rightRb, _positionSpringRight, _positionDamperRight);
             };
             positionDamperZ.updateFunction = value =>
             {
                 _positionDamperLeft = value;
                 _positionDamperRight = value;
-                SyncJointPositionZDrive(BREAST_CONTROL.joint1, _leftRb, _positionSpringLeft, _positionDamperLeft);
-                SyncJointPositionZDrive(BREAST_CONTROL.joint2, _rightRb, _positionSpringRight, _positionDamperRight);
+                SyncJointPositionZDrive(BREAST_CONTROL.joint2, _leftRb, _positionSpringLeft, _positionDamperLeft);
+                SyncJointPositionZDrive(BREAST_CONTROL.joint1, _rightRb, _positionSpringRight, _positionDamperRight);
             };
 
             _mainPhysicsConfigs = new List<StaticPhysicsConfig>
@@ -279,18 +279,7 @@ namespace TittyMagic
         }
 
         // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
-        public static void SyncTargetRotationYLeft(float targetRotationY)
-        {
-            BREAST_CONTROL.setJoint1TargetRotation.y = targetRotationY + BREAST_CONTROL.additionalJoint1RotationY;
-            BREAST_CONTROL.smoothedJoint1TargetRotation = BREAST_CONTROL.setJoint1TargetRotation;
-
-            var dazBone = BREAST_CONTROL.joint1.GetComponent<DAZBone>();
-            dazBone.baseJointRotation = BREAST_CONTROL.smoothedJoint1TargetRotation;
-        }
-
-        // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
-        // Circumvents default invertJoint2RotationY = true
-        public static void SyncTargetRotationYRight(float targetRotationY)
+        public void SyncTargetRotationYLeft(float targetRotationY)
         {
             BREAST_CONTROL.setJoint2TargetRotation.y = targetRotationY + BREAST_CONTROL.additionalJoint2RotationY;
             BREAST_CONTROL.smoothedJoint2TargetRotation = BREAST_CONTROL.setJoint2TargetRotation;
@@ -300,25 +289,36 @@ namespace TittyMagic
         }
 
         // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
-        public static void SyncTargetRotationXLeft(float targetRotationX)
+        // Circumvents default invertJoint2RotationY = true
+        public void SyncTargetRotationYRight(float targetRotationY)
         {
-            BREAST_CONTROL.setJoint1TargetRotation.x = targetRotationX + BREAST_CONTROL.additionalJoint1RotationX;
+            BREAST_CONTROL.setJoint1TargetRotation.y = targetRotationY + BREAST_CONTROL.additionalJoint1RotationY;
             BREAST_CONTROL.smoothedJoint1TargetRotation = BREAST_CONTROL.setJoint1TargetRotation;
 
             var dazBone = BREAST_CONTROL.joint1.GetComponent<DAZBone>();
-            Vector3 rotation = BREAST_CONTROL.smoothedJoint1TargetRotation;
-            rotation.x = -rotation.x;
-            dazBone.baseJointRotation = rotation;
+            dazBone.baseJointRotation = BREAST_CONTROL.smoothedJoint1TargetRotation;
         }
 
         // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
-        public static void SyncTargetRotationXRight(float targetRotationX)
+        public void SyncTargetRotationXLeft(float targetRotationX)
         {
             BREAST_CONTROL.setJoint2TargetRotation.x = targetRotationX + BREAST_CONTROL.additionalJoint2RotationX;
             BREAST_CONTROL.smoothedJoint2TargetRotation = BREAST_CONTROL.setJoint2TargetRotation;
 
             var dazBone = BREAST_CONTROL.joint2.GetComponent<DAZBone>();
             Vector3 rotation = BREAST_CONTROL.smoothedJoint2TargetRotation;
+            rotation.x = -rotation.x;
+            dazBone.baseJointRotation = rotation;
+        }
+
+        // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
+        public void SyncTargetRotationXRight(float targetRotationX)
+        {
+            BREAST_CONTROL.setJoint1TargetRotation.x = targetRotationX + BREAST_CONTROL.additionalJoint1RotationX;
+            BREAST_CONTROL.smoothedJoint1TargetRotation = BREAST_CONTROL.setJoint1TargetRotation;
+
+            var dazBone = BREAST_CONTROL.joint1.GetComponent<DAZBone>();
+            Vector3 rotation = BREAST_CONTROL.smoothedJoint1TargetRotation;
             rotation.x = -rotation.x;
             dazBone.baseJointRotation = rotation;
         }

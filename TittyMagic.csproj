@@ -97,7 +97,7 @@
     <Compile Include="src\Handlers\GravityPhysicsHandler.cs" />
     <Compile Include="src\Handlers\NippleErectionMorphHandler.cs" />
     <Compile Include="src\Handlers\ForceMorphHandler.cs" />
-    <Compile Include="src\Handlers\StaticPhysicsHandler.cs" />
+    <Compile Include="src\Handlers\PhysicsHandler.cs" />
     <Compile Include="src\Persistence.cs" />
     <Compile Include="src\Script.cs" />
     <Compile Include="src\UI\GravityWindow.cs" />
