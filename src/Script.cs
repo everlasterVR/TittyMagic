@@ -27,9 +27,6 @@ namespace TittyMagic
 
         private DAZSkinV2 _skin;
 
-        private BoolSetting _pectoralRbLeftDetectCollisions;
-        private BoolSetting _pectoralRbRightDetectCollisions;
-
         private float _realMassAmount;
         private float _massAmount;
         private float _softnessAmount;
@@ -144,19 +141,14 @@ namespace TittyMagic
             _rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
             _chestRb = _rigidbodies.Find(rb => rb.name == "chest");
             _chestTransform = _chestRb.transform;
-            _pectoralRbLeft = _rigidbodies.Find(rb => rb.name == "lPectoral");
-            _pectoralRbRight = _rigidbodies.Find(rb => rb.name == "rPectoral");
-
-            _pectoralRbLeftDetectCollisions = new BoolSetting(_pectoralRbLeft.detectCollisions);
-            _pectoralRbRightDetectCollisions = new BoolSetting(_pectoralRbRight.detectCollisions);
-            _pectoralRbLeft.detectCollisions = false;
-            _pectoralRbRight.detectCollisions = false;
+            _pectoralRbLeft = BREAST_CONTROL.joint2.GetComponent<Rigidbody>();
+            _pectoralRbRight = BREAST_CONTROL.joint1.GetComponent<Rigidbody>();
 
             _atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
             _skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
             _breastVolumeCalculator = new BreastVolumeCalculator(_skin, _chestRb);
 
-            _physicsHandler = new PhysicsHandler(_isFemale);
+            _physicsHandler = new PhysicsHandler(_isFemale, _pectoralRbLeft, _pectoralRbRight);
             _gravityPhysicsHandler = new GravityPhysicsHandler(_physicsHandler);
             _gravityOffsetMorphHandler = new GravityOffsetMorphHandler(this);
             _nippleErectionMorphHandler = new NippleErectionMorphHandler(this);
@@ -909,10 +901,11 @@ namespace TittyMagic
         public void OnEnable()
         {
             if(_settingsMonitor != null) _settingsMonitor.enabled = true;
+            _physicsHandler?.SaveOriginalPhysicsAndSetPluginDefaults();
 
             if(_initDone)
             {
-                StartCoroutine(WaitToBeginRefresh(false));
+                StartCoroutine(WaitToBeginRefresh(true));
             }
         }
 
@@ -926,8 +919,6 @@ namespace TittyMagic
                 _gravityOffsetMorphHandler?.ResetAll();
                 _forceMorphHandler?.ResetAll();
                 _nippleErectionMorphHandler?.ResetAll();
-                _pectoralRbLeft.detectCollisions = _pectoralRbLeftDetectCollisions.prevValue;
-                _pectoralRbRight.detectCollisions = _pectoralRbRightDetectCollisions.prevValue;
             }
             catch(Exception e)
             {

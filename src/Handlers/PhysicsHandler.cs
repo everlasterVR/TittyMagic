@@ -8,10 +8,22 @@ namespace TittyMagic
 {
     internal class PhysicsHandler
     {
+        private readonly bool _isFemale;
         private readonly ConfigurableJoint _jointLeft;
         private readonly ConfigurableJoint _jointRight;
         private readonly Rigidbody _pectoralRbLeft;
         private readonly Rigidbody _pectoralRbRight;
+
+        private readonly List<string> _adjustJointsFloatParamNames;
+        private readonly List<string> _breastPhysicsMeshFloatParamNames;
+        private Dictionary<string, float> _originalAdjustJointsFloatValues;
+        private Dictionary<string, float> _originalBreastPhysicsMeshFloatValues;
+        private bool _originalPectoralRbLeftDetectCollisions;
+        private bool _originalPectoralRbRightDetectCollisions;
+        private bool _originalAutoFatColliderRadius;
+        private bool _originalHardColliders;
+        private bool _originalSelfCollision;
+        private Dictionary<string, bool> _originalGroupsUseParentSettings;
 
         // AdjustJoints.joint1.slerpDrive.maximumForce value logged on plugin Init
         private const float DEFAULT_SLERP_MAX_FORCE = 500;
@@ -39,27 +51,27 @@ namespace TittyMagic
         private float _targetRotationXRight;
 
 
-        public PhysicsHandler(bool isFemale)
+        public PhysicsHandler(bool isFemale, Rigidbody pectoralRbLeft, Rigidbody pectoralRbRight)
         {
+            _isFemale = isFemale;
             _jointLeft = BREAST_CONTROL.joint2;
             _jointRight = BREAST_CONTROL.joint1;
-            _pectoralRbLeft = _jointLeft.GetComponent<Rigidbody>();
-            _pectoralRbRight = _jointRight.GetComponent<Rigidbody>();
+            _pectoralRbLeft = pectoralRbLeft;
+            _pectoralRbRight = pectoralRbRight;
 
-            if(isFemale)
+            _adjustJointsFloatParamNames = new List<string>
             {
-                // hard colliders off
-                GEOMETRY.useAuxBreastColliders = false;
-                // Self colliders off
-                BREAST_PHYSICS_MESH.allowSelfCollision = true;
-                // Collider depth
-                BREAST_PHYSICS_MESH.softVerticesColliderAdditionalNormalOffset = 0.001f;
-                // Disable settings in F Breast Physics 2 from having effect
-                foreach(var group in BREAST_PHYSICS_MESH.softVerticesGroups)
-                {
-                    group.useParentSettings = false;
-                }
-            }
+                "mass",
+                "centerOfGravityPercent",
+                "spring",
+                "damper",
+                "positionSpringZ",
+                "positionDamperZ",
+                "targetRotationX",
+                "targetRotationY",
+            };
+            _breastPhysicsMeshFloatParamNames = BREAST_PHYSICS_MESH.GetFloatParamNames();
+            SaveOriginalPhysicsAndSetPluginDefaults();
         }
 
         public void AddToLeftCenterOfGravity(float value)
@@ -602,8 +614,82 @@ namespace TittyMagic
             return 0.01666667f / Time.fixedDeltaTime;
         }
 
+        public void SaveOriginalPhysicsAndSetPluginDefaults()
+        {
+            if(_isFemale)
+            {
+                // auto fat collider radius off (no effect)
+                _originalAutoFatColliderRadius = BREAST_PHYSICS_MESH.softVerticesUseAutoColliderRadius;
+                BREAST_PHYSICS_MESH.softVerticesUseAutoColliderRadius = false;
+                // hard colliders off
+                _originalHardColliders = GEOMETRY.useAuxBreastColliders;
+                GEOMETRY.useAuxBreastColliders = false;
+                // self colliders off
+                _originalSelfCollision = BREAST_PHYSICS_MESH.allowSelfCollision;
+                BREAST_PHYSICS_MESH.allowSelfCollision = true;
+                // TODO configurable
+                BREAST_PHYSICS_MESH.softVerticesColliderAdditionalNormalOffset = 0.001f;
+                // prevent settings in F Breast Physics 2 from having effect
+                _originalGroupsUseParentSettings = new Dictionary<string, bool>();
+                foreach(var group in BREAST_PHYSICS_MESH.softVerticesGroups)
+                {
+                    _originalGroupsUseParentSettings[group.name] = group.useParentSettings;
+                    group.useParentSettings = false;
+                }
+            }
+
+            // disable pectoral collisions, they cause breasts to "jump" when touched
+            _originalPectoralRbLeftDetectCollisions = _pectoralRbLeft.detectCollisions;
+            _originalPectoralRbRightDetectCollisions = _pectoralRbRight.detectCollisions;
+            _pectoralRbLeft.detectCollisions = false;
+            _pectoralRbRight.detectCollisions = false;
+
+            _originalAdjustJointsFloatValues = new Dictionary<string, float>();
+            foreach(string name in _adjustJointsFloatParamNames)
+            {
+                var param = BREAST_CONTROL.GetFloatJSONParam(name);
+                _originalAdjustJointsFloatValues[name] = param.val;
+                param.val = 0;
+            }
+
+            _originalBreastPhysicsMeshFloatValues = new Dictionary<string, float>();
+            foreach(string name in _breastPhysicsMeshFloatParamNames)
+            {
+                var param = BREAST_PHYSICS_MESH.GetFloatJSONParam(name);
+                _originalBreastPhysicsMeshFloatValues[name] = param.val;
+                param.val = 0;
+            }
+        }
+
+        private void RestoreOriginalPhysics()
+        {
+            if(_isFemale)
+            {
+                BREAST_PHYSICS_MESH.softVerticesUseAutoColliderRadius = _originalAutoFatColliderRadius;
+                GEOMETRY.useAuxBreastColliders = _originalHardColliders;
+                BREAST_PHYSICS_MESH.allowSelfCollision = _originalSelfCollision;
+                foreach(var group in BREAST_PHYSICS_MESH.softVerticesGroups)
+                {
+                    group.useParentSettings = _originalGroupsUseParentSettings[group.name];
+                }
+            }
+
+            _pectoralRbLeft.detectCollisions = _originalPectoralRbLeftDetectCollisions;
+            _pectoralRbRight.detectCollisions = _originalPectoralRbRightDetectCollisions;
+
+            foreach(string name in _adjustJointsFloatParamNames)
+            {
+                BREAST_CONTROL.GetFloatJSONParam(name).val = _originalAdjustJointsFloatValues[name];
+            }
+            foreach(string name in _breastPhysicsMeshFloatParamNames)
+            {
+                BREAST_PHYSICS_MESH.GetFloatJSONParam(name).val = _originalBreastPhysicsMeshFloatValues[name];
+            }
+        }
+
         public void Reset()
         {
+            RestoreOriginalPhysics();
             foreach(var group in BREAST_PHYSICS_MESH.softVerticesGroups)
             {
                 group.useParentSettings = true;

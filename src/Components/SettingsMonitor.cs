@@ -5,6 +5,30 @@ using static TittyMagic.Utils;
 
 namespace TittyMagic
 {
+    internal class BoolSetting
+    {
+        private bool prevValue { get; set; }
+        private readonly string _notification;
+
+        public BoolSetting(bool prevValue, string notification = "")
+        {
+            this.prevValue = prevValue;
+            _notification = notification;
+        }
+
+        public bool CheckIfUpdateNeeded(bool value)
+        {
+            bool result = value && !prevValue;
+            if(!value && prevValue && !string.IsNullOrEmpty(_notification))
+            {
+                LogMessage(_notification);
+            }
+
+            prevValue = value;
+            return result;
+        }
+    }
+
     internal class SettingsMonitor : MonoBehaviour
     {
         private float _timeSinceLastCheck;
