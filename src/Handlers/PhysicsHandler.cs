@@ -32,9 +32,10 @@ namespace TittyMagic
         private List<StaticPhysicsConfig> _softPhysicsConfigs;
         private List<StaticPhysicsConfig> _nipplePhysicsConfigs;
 
-        public float realMassAmount { get; set; }
-        public float massAmount { get; set; }
+        public float realMassAmount { get; private set; }
+        public float massAmount { get; private set; }
 
+        public JSONStorableFloat mass { get; set; }
         private float _centerOfGravityLeft;
         private float _centerOfGravityRight;
         private float _springLeft;
@@ -74,6 +75,27 @@ namespace TittyMagic
                 _breastPhysicsMeshFloatParamNames = BREAST_PHYSICS_MESH.GetFloatParamNames();
             }
             SaveOriginalPhysicsAndSetPluginDefaults();
+        }
+
+        public void UpdateMassValueAndAmounts(bool useNewMass, float volume)
+        {
+            float newMass = Mathf.Clamp(
+                Mathf.Pow(0.78f * volume, 1.5f),
+                mass.min,
+                mass.max
+            );
+            realMassAmount = Mathf.InverseLerp(0, Const.MASS_MAX, newMass);
+            if(useNewMass)
+            {
+                massAmount = realMassAmount;
+                mass.val = newMass;
+            }
+            else
+            {
+                massAmount = Mathf.InverseLerp(0, Const.MASS_MAX, mass.val);
+            }
+
+            BREAST_CONTROL.mass = mass.val;
         }
 
         public void AddToLeftCenterOfGravity(float value)

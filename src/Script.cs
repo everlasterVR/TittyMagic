@@ -27,8 +27,6 @@ namespace TittyMagic
 
         private DAZSkinV2 _skin;
 
-        private float _realMassAmount;
-        private float _massAmount;
         private float _softnessAmount;
         private float _quicknessAmount;
 
@@ -264,6 +262,7 @@ namespace TittyMagic
             titleText = new JSONStorableString("titleText", "");
             autoRefresh = this.NewJsonStorableBool("Auto-update mass", true);
             mass = this.NewJsonStorableFloat("Breast mass", Const.MASS_MIN, Const.MASS_MIN, Const.MASS_MAX);
+            _physicsHandler.mass = mass;
             softness = this.NewJsonStorableFloat("Breast softness", 70f, 0f, 100f);
             quickness = this.NewJsonStorableFloat("Breast quickness", 70f, 0f, 100f);
 
@@ -332,7 +331,7 @@ namespace TittyMagic
 
             _mainWindow.autoRefreshToggle.toggle.onValueChanged.AddListener(val =>
             {
-                if(val && DeviatesAtLeast(mass.val, CalculateMass(), 10))
+                if(val)
                 {
                     StartCoroutine(WaitToBeginRefresh(refreshMass: true, fromToggleOrButton: true));
                 }
@@ -453,14 +452,6 @@ namespace TittyMagic
             _navigation.activeWindow.Rebuild();
         }
 
-        public void OnAutoRefreshToggled(bool val)
-        {
-            if(val && DeviatesAtLeast(mass.val, CalculateMass(), 10))
-            {
-                StartCoroutine(WaitToBeginRefresh(refreshMass: true, fromToggleOrButton: true));
-            }
-        }
-
         private static float CalculateSoftnessAmount(float val)
         {
             return Mathf.Pow(val / 100f, 0.67f);
@@ -530,7 +521,7 @@ namespace TittyMagic
             _forceMorphHandler.Update(
                 _chestRoll,
                 _chestPitch,
-                _realMassAmount
+                _physicsHandler.realMassAmount
             );
 
             if(updateDynamicPhysics)
@@ -538,13 +529,13 @@ namespace TittyMagic
                 _forcePhysicsHandler.Update(
                     _chestRoll,
                     _chestPitch,
-                    _realMassAmount
+                    _physicsHandler.realMassAmount
                 );
 
                 _gravityPhysicsHandler.Update(
                     _chestRoll,
                     _chestPitch,
-                    _massAmount,
+                    _physicsHandler.massAmount,
                     _softnessAmount
                 );
             }
@@ -552,7 +543,7 @@ namespace TittyMagic
             _gravityOffsetMorphHandler.Update(
                 _chestRoll,
                 _chestPitch,
-                _realMassAmount,
+                _physicsHandler.realMassAmount,
                 _softnessAmount,
                 offsetMorphing.val
             );
@@ -641,7 +632,7 @@ namespace TittyMagic
 
             if(refreshMass)
             {
-                UpdateMassValueAndAmounts(useNewMass);
+                _physicsHandler.UpdateMassValueAndAmounts(useNewMass, _breastVolumeCalculator.Calculate(_atomScaleListener.scale));
                 SetMorphingExtraMultipliers();
             }
 
@@ -701,7 +692,7 @@ namespace TittyMagic
                 yield return new WaitForSeconds(interval);
                 duration += interval;
 
-                UpdateMassValueAndAmounts(useNewMass);
+                _physicsHandler.UpdateMassValueAndAmounts(useNewMass, _breastVolumeCalculator.Calculate(_atomScaleListener.scale));
                 _physicsHandler.UpdateMainPhysics(_softnessAmount, _quicknessAmount);
             }
 
@@ -716,11 +707,12 @@ namespace TittyMagic
         private void SetMorphingExtraMultipliers()
         {
             float softnessMultiplier = Mathf.Lerp(0.5f, 1.14f, _softnessAmount);
-            _forceMorphHandler.yMultiplier.extraMultiplier = softnessMultiplier * (3.15f - 1.40f * _realMassAmount);
-            _forceMorphHandler.xMultiplier.extraMultiplier = softnessMultiplier * (3.55f - 1.40f * _realMassAmount);
-            _forceMorphHandler.zMultiplier.extraMultiplier = softnessMultiplier * (3.8f - 1.5f * _realMassAmount);
-            _forceMorphHandler.zMultiplier.oppositeExtraMultiplier = softnessMultiplier * (3.8f - 1.5f * _realMassAmount);
-            _gravityOffsetMorphHandler.yMultiplier.extraMultiplier = 1.16f - _realMassAmount;
+            float m = _physicsHandler.realMassAmount;
+            _forceMorphHandler.yMultiplier.extraMultiplier = softnessMultiplier * (3.15f - 1.40f * m);
+            _forceMorphHandler.xMultiplier.extraMultiplier = softnessMultiplier * (3.55f - 1.40f * m);
+            _forceMorphHandler.zMultiplier.extraMultiplier = softnessMultiplier * (3.8f - 1.5f * m);
+            _forceMorphHandler.zMultiplier.oppositeExtraMultiplier = softnessMultiplier * (3.8f - 1.5f * m);
+            _gravityOffsetMorphHandler.yMultiplier.extraMultiplier = 1.16f - m;
         }
 
         private IEnumerator CalibrateNipplesTracking()
@@ -751,9 +743,9 @@ namespace TittyMagic
             try
             {
                 // simulate gravityPhysics when upright
-                _gravityPhysicsHandler.Update(0, 0, _massAmount, _softnessAmount);
-                _forcePhysicsHandler.Update(0, 0, _massAmount);
-                _gravityOffsetMorphHandler.Update(0, 0, _massAmount, _softnessAmount, offsetMorphing.val);
+                _gravityPhysicsHandler.Update(0, 0, _physicsHandler.massAmount, _softnessAmount);
+                _forcePhysicsHandler.Update(0, 0, _physicsHandler.massAmount);
+                _gravityOffsetMorphHandler.Update(0, 0, _physicsHandler.massAmount, _softnessAmount, offsetMorphing.val);
 
                 // simulate force of gravity when upright
                 // 0.75f is a hack, for some reason a normal gravity force pushes breasts too much down,
@@ -791,41 +783,12 @@ namespace TittyMagic
         {
             return autoRefresh.val &&
                 _waitStatus != RefreshStatus.WAITING &&
-                (_breastMorphListener.Changed() || _atomScaleListener.Changed()) &&
-                DeviatesAtLeast(mass.val, CalculateMass(), 10);
+                (_breastMorphListener.Changed() || _atomScaleListener.Changed());
         }
 
         public void UpdateRateDependentPhysics()
         {
             _physicsHandler.UpdateRateDependentPhysics(_softnessAmount, _quicknessAmount);
-        }
-
-        private void UpdateMassValueAndAmounts(bool useNewMass)
-        {
-            float calculatedMass = CalculateMass();
-            _realMassAmount = Mathf.InverseLerp(0, Const.MASS_MAX, calculatedMass);
-            if(useNewMass)
-            {
-                _massAmount = _realMassAmount;
-                mass.val = calculatedMass;
-            }
-            else
-            {
-                _massAmount = Mathf.InverseLerp(0, Const.MASS_MAX, mass.val);
-            }
-
-            BREAST_CONTROL.mass = mass.val;
-            _physicsHandler.realMassAmount = _realMassAmount;
-            _physicsHandler.massAmount = _massAmount;
-        }
-
-        private float CalculateMass()
-        {
-            return Mathf.Clamp(
-                Mathf.Pow(0.78f * _breastVolumeCalculator.Calculate(_atomScaleListener.scale), 1.5f),
-                mass.min,
-                mass.max
-            );
         }
 
         public override void RestoreFromJSON(
