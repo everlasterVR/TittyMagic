@@ -50,7 +50,6 @@ namespace TittyMagic
         private float _targetRotationXLeft;
         private float _targetRotationXRight;
 
-
         public PhysicsHandler(bool isFemale, Rigidbody pectoralRbLeft, Rigidbody pectoralRbRight)
         {
             _isFemale = isFemale;
@@ -70,7 +69,10 @@ namespace TittyMagic
                 "targetRotationX",
                 "targetRotationY",
             };
-            _breastPhysicsMeshFloatParamNames = BREAST_PHYSICS_MESH.GetFloatParamNames();
+            if(_isFemale)
+            {
+                _breastPhysicsMeshFloatParamNames = BREAST_PHYSICS_MESH.GetFloatParamNames();
+            }
             SaveOriginalPhysicsAndSetPluginDefaults();
         }
 
@@ -636,6 +638,14 @@ namespace TittyMagic
                     _originalGroupsUseParentSettings[group.name] = group.useParentSettings;
                     group.useParentSettings = false;
                 }
+
+                _originalBreastPhysicsMeshFloatValues = new Dictionary<string, float>();
+                foreach(string name in _breastPhysicsMeshFloatParamNames)
+                {
+                    var param = BREAST_PHYSICS_MESH.GetFloatJSONParam(name);
+                    _originalBreastPhysicsMeshFloatValues[name] = param.val;
+                    param.val = 0;
+                }
             }
 
             // disable pectoral collisions, they cause breasts to "jump" when touched
@@ -649,14 +659,6 @@ namespace TittyMagic
             {
                 var param = BREAST_CONTROL.GetFloatJSONParam(name);
                 _originalAdjustJointsFloatValues[name] = param.val;
-                param.val = 0;
-            }
-
-            _originalBreastPhysicsMeshFloatValues = new Dictionary<string, float>();
-            foreach(string name in _breastPhysicsMeshFloatParamNames)
-            {
-                var param = BREAST_PHYSICS_MESH.GetFloatJSONParam(name);
-                _originalBreastPhysicsMeshFloatValues[name] = param.val;
                 param.val = 0;
             }
         }
