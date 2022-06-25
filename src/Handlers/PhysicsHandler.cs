@@ -51,6 +51,9 @@ namespace TittyMagic
         private float _targetRotationXLeft;
         private float _targetRotationXRight;
 
+        private float _combinedSpringNew;
+        private float _combinedDamperNew;
+
         public PhysicsHandler(bool isFemale, Rigidbody pectoralRbLeft, Rigidbody pectoralRbRight)
         {
             _isFemale = isFemale;
@@ -422,11 +425,11 @@ namespace TittyMagic
 
             softVerticesCombinedSpring.updateFunction = value =>
             {
-                BREAST_PHYSICS_MESH.softVerticesCombinedSpring = value;
+                _combinedSpringNew = value;
             };
             softVerticesCombinedDamper.updateFunction = value =>
             {
-                BREAST_PHYSICS_MESH.softVerticesCombinedDamper = value;
+                _combinedDamperNew = value;
             };
             softVerticesMass.updateFunction = value =>
             {
@@ -560,11 +563,12 @@ namespace TittyMagic
             };
         }
 
-        private static void SyncGroupSpringMultiplier(int slot, float value)
+        // Reimplements DAZPhysicsMesh.cs methods SyncGroup[A|B|C|D]SpringMultiplier and SyncSoftVerticesCombinedSpring
+        // Circumvents use of softVerticesCombinedSpring value as multiplier on the group specific value, using custom multiplier instead
+        private void SyncGroupSpringMultiplier(int slot, float value)
         {
             var group = BREAST_PHYSICS_MESH.softVerticesGroups[slot];
-            group.parentSettingSpringMultiplier = value;
-            float combinedValue = BREAST_PHYSICS_MESH.softVerticesCombinedSpring * value;
+            float combinedValue = _combinedSpringNew * value;
             group.jointSpringNormal = combinedValue;
             group.jointSpringTangent = combinedValue;
             group.jointSpringTangent2 = combinedValue;
@@ -574,11 +578,12 @@ namespace TittyMagic
             }
         }
 
-        private static void SyncGroupDamperMultiplier(int slot, float value)
+        // Reimplements DAZPhysicsMesh.cs methods SyncGroup[A|B|C|D]DamperMultiplier and SyncSoftVerticesCombinedDamper
+        // Circumvents use of softVerticesCombinedDamper value as multiplier on the group specific value, using custom multiplier instead
+        private void SyncGroupDamperMultiplier(int slot, float value)
         {
             var group = BREAST_PHYSICS_MESH.softVerticesGroups[slot];
-            group.parentSettingDamperMultiplier = value;
-            float combinedValue = BREAST_PHYSICS_MESH.softVerticesCombinedDamper * value;
+            float combinedValue = _combinedDamperNew * value;
             group.jointDamperNormal = combinedValue;
             group.jointDamperTangent = combinedValue;
             group.jointDamperTangent2 = combinedValue;
