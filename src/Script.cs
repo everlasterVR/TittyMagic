@@ -337,9 +337,14 @@ namespace TittyMagic
                 }
             });
 
-            _mainWindow.refreshButton.button.onClick.AddListener(() =>
+            _mainWindow.calculateMassButton.button.onClick.AddListener(() =>
             {
                 StartCoroutine(WaitToBeginRefresh(refreshMass: true, fromToggleOrButton: true, useNewMass: true));
+            });
+
+            _mainWindow.recalibrateButton.button.onClick.AddListener(() =>
+            {
+                StartCoroutine(WaitToBeginRefresh(refreshMass: true, fromToggleOrButton: true));
             });
 
             _mainWindow.massSlider.slider.onValueChanged.AddListener(val =>

@@ -13,8 +13,10 @@ namespace TittyMagic.UI
         public UIDynamicTextField titleTextField;
         public UIDynamic autoRefreshToggleSpacer;
         public UIDynamicToggle autoRefreshToggle;
-        public UIDynamic refreshButtonSpacer;
-        public UIDynamicButton refreshButton;
+        public UIDynamic calculateMassButtonSpacer;
+        public UIDynamicButton calculateMassButton;
+        public UIDynamic recalibrateButtonSpacer;
+        public UIDynamicButton recalibrateButton;
         public UIDynamic massSliderSpacer;
         public UIDynamicSlider massSlider;
         public UIDynamic softnessSliderSpacer;
@@ -33,10 +35,11 @@ namespace TittyMagic.UI
         {
             CreateTitleTextField(_script.titleText, false);
             CreateAutoRefreshToggle(_script.autoRefresh, true, spacing: 35);
-            CreateRefreshButton(true);
+            CreateCalculateMassButton(true);
+            CreateRecalibrateButton(true);
             CreateMassSlider(_script.mass, false);
             CreateSoftnessSlider(_script.softness, false);
-            CreateQuicknessSlider(_script.quickness, true, spacing: 45);
+            CreateQuicknessSlider(_script.quickness, true);
         }
 
         private void CreateTitleTextField(JSONStorableString storable, bool rightSide)
@@ -70,11 +73,18 @@ namespace TittyMagic.UI
             autoRefreshToggle = _script.CreateToggle(storable, rightSide);
         }
 
-        private void CreateRefreshButton(bool rightSide, float spacing = 0)
+        private void CreateCalculateMassButton(bool rightSide, float spacing = 0)
         {
-            refreshButtonSpacer = _script.NewSpacer(spacing, rightSide);
-            refreshButton = _script.CreateButton("Calculate breast mass", rightSide);
-            refreshButton.height = 60;
+            calculateMassButtonSpacer = _script.NewSpacer(spacing, rightSide);
+            calculateMassButton = _script.CreateButton("Calculate breast mass", rightSide);
+            calculateMassButton.height = 52;
+        }
+
+        private void CreateRecalibrateButton(bool rightSide, float spacing = 0)
+        {
+            recalibrateButtonSpacer = _script.NewSpacer(spacing, rightSide);
+            recalibrateButton = _script.CreateButton("Recalibrate physics", rightSide);
+            recalibrateButton.height = 52;
         }
 
         private void CreateMassSlider(JSONStorableFloat storable, bool rightSide, float spacing = 0)
@@ -108,8 +118,8 @@ namespace TittyMagic.UI
             _script.RemoveTextField(titleTextField);
             _script.RemoveSpacer(autoRefreshToggleSpacer);
             _script.RemoveToggle(autoRefreshToggle);
-            _script.RemoveSpacer(refreshButtonSpacer);
-            _script.RemoveButton(refreshButton);
+            _script.RemoveSpacer(calculateMassButtonSpacer);
+            _script.RemoveButton(calculateMassButton);
             _script.RemoveSpacer(massSliderSpacer);
             _script.RemoveSlider(massSlider);
             _script.RemoveSpacer(softnessSliderSpacer);
