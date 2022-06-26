@@ -226,8 +226,6 @@ namespace TittyMagic
 
         private void InitializeValuesAppliedByListeners()
         {
-            UIHelpers.ApplySliderStyle(_mainWindow.massSlider);
-            _mainWindow.massSlider.slider.interactable = !autoRefresh.val;
             _softnessAmount = CalculateSoftnessAmount(softness.val);
             _quicknessAmount = CalculateQuicknessAmount(quickness.val);
             _forceMorphHandler.yMultiplier.mainMultiplier = Curves.QuadraticRegression(morphingYStorable.val);
@@ -334,11 +332,11 @@ namespace TittyMagic
             _tabs.activeWindow = _mainWindow;
             _tabs.activeWindow.Rebuild();
             _tabs.ActivateMainSettingsTab();
+            UpdateSlider(_mainWindow.massSlider, autoRefresh.val);
 
             _mainWindow.autoRefreshToggle.toggle.onValueChanged.AddListener(val =>
             {
-                _mainWindow.massSlider.slider.interactable = !val;
-                UIHelpers.ApplySliderStyle(_mainWindow.massSlider);
+                UpdateSlider(_mainWindow.massSlider, val);
             });
 
             _mainWindow.autoRefreshToggle.toggle.onValueChanged.AddListener(val =>
@@ -474,6 +472,14 @@ namespace TittyMagic
             _tabs.activeWindow = _advancedWindow;
             _tabs.activeWindow.Rebuild();
             _tabs.ActivateAdvancedTab();
+        }
+
+        private static void UpdateSlider(UIDynamicSlider uiDynamicSlider, bool autoRefreshOn)
+        {
+            uiDynamicSlider.slider.interactable = !autoRefreshOn;
+            uiDynamicSlider.labelText.color = uiDynamicSlider.slider.interactable
+                ? Color.black
+                : UIHelpers.darkerGray;
         }
 
         private static float CalculateSoftnessAmount(float val)

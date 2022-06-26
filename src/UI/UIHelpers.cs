@@ -53,18 +53,6 @@ namespace TittyMagic.UI
             return spacer;
         }
 
-        public static void ApplyToggleStyle(UIDynamicToggle uiToggle)
-        {
-            bool val = uiToggle.toggle.interactable;
-            uiToggle.textColor = val ? Color.black : darkerGray;
-        }
-
-        public static void ApplySliderStyle(UIDynamicSlider uiSlider)
-        {
-            bool val = uiSlider.slider.interactable;
-            uiSlider.labelText.color = val ? Color.black : darkerGray;
-        }
-
         public static HorizontalLayoutGroup CreateHorizontalLayoutGroup(RectTransform uiContent)
         {
             var verticalLayoutGroup = uiContent.GetComponent<VerticalLayoutGroup>();
