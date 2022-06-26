@@ -38,5 +38,52 @@ namespace TittyMagic.Extensions
             int idx = filename.IndexOf(":/", StringComparison.Ordinal);
             return idx >= 0 ? filename.Substring(0, idx) : "";
         }
+
+        public static void RemoveElement(this MVRScript script, UIDynamic element)
+        {
+            var textField = element as UIDynamicTextField;
+            if(textField != null)
+            {
+                script.RemoveTextField(textField);
+                return;
+            }
+
+            var button = element as UIDynamicButton;
+            if(button != null)
+            {
+                script.RemoveButton(button);
+                return;
+            }
+
+            var slider = element as UIDynamicSlider;
+            if(slider != null)
+            {
+                script.RemoveSlider(slider);
+                return;
+            }
+
+            var toggle = element as UIDynamicToggle;
+            if(toggle != null)
+            {
+                script.RemoveToggle(toggle);
+                return;
+            }
+
+            var popup = element as UIDynamicPopup;
+            if(popup != null)
+            {
+                script.RemovePopup(popup);
+                return;
+            }
+
+            var colorPicker = element as UIDynamicColorPicker;
+            if(colorPicker != null)
+            {
+                script.RemoveColorPicker(colorPicker);
+                return;
+            }
+
+            script.RemoveSpacer(element);
+        }
     }
 }
