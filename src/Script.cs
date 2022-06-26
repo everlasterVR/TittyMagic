@@ -8,7 +8,6 @@ using UnityEngine;
 using TittyMagic.UI;
 using static TittyMagic.Utils;
 using static TittyMagic.Calc;
-using Navigation = TittyMagic.UI.Navigation;
 
 namespace TittyMagic
 {
@@ -49,7 +48,7 @@ namespace TittyMagic
 
         private JSONStorableString _pluginVersionStorable;
 
-        private Navigation _navigation;
+        private Tabs _tabs;
         private MainWindow _mainWindow;
         private MorphingWindow _morphingWindow;
         private GravityWindow _gravityWindow;
@@ -306,27 +305,27 @@ namespace TittyMagic
 
         private void CreateNavigation()
         {
-            _navigation = new Navigation(leftUIContent, rightUIContent);
-            _navigation.instantiateButton = () => Instantiate(manager.configurableButtonPrefab).GetComponent<UIDynamicButton>();
+            _tabs = new Tabs(leftUIContent, rightUIContent);
+            _tabs.instantiateButton = () => Instantiate(manager.configurableButtonPrefab).GetComponent<UIDynamicButton>();
 
-            _navigation.CreateUINavigationButtons();
-            _navigation.mainSettingsButton.AddClickListener(NavigateToMainWindow);
-            _navigation.morphingButton.AddClickListener(NavigateToMorphingWindow);
-            _navigation.gravityButton.AddClickListener(NavigateToGravityWindow);
-            _navigation.advancedButton.AddClickListener(NavigateToAdvancedWindow);
+            _tabs.CreateUINavigationButtons();
+            _tabs.mainSettingsButton.AddClickListener(NavigateToMainWindow);
+            _tabs.morphingButton.AddClickListener(NavigateToMorphingWindow);
+            _tabs.gravityButton.AddClickListener(NavigateToGravityWindow);
+            _tabs.advancedButton.AddClickListener(NavigateToAdvancedWindow);
         }
 
         private void NavigateToMainWindow()
         {
-            if(_navigation.activeWindow?.Id() == 1)
+            if(_tabs.activeWindow?.Id() == 1)
             {
                 return;
             }
 
-            _navigation.activeWindow?.Clear();
-            _navigation.activeWindow = _mainWindow;
-            _navigation.activeWindow.Rebuild();
-            _navigation.ActivateMainSettingsTab();
+            _tabs.activeWindow?.Clear();
+            _tabs.activeWindow = _mainWindow;
+            _tabs.activeWindow.Rebuild();
+            _tabs.ActivateMainSettingsTab();
 
             _mainWindow.autoRefreshToggle.toggle.onValueChanged.AddListener(val =>
             {
@@ -380,15 +379,15 @@ namespace TittyMagic
 
         private void NavigateToMorphingWindow()
         {
-            if(_navigation.activeWindow?.Id() == 2)
+            if(_tabs.activeWindow?.Id() == 2)
             {
                 return;
             }
 
-            _navigation.activeWindow?.Clear();
-            _navigation.activeWindow = _morphingWindow;
-            _navigation.activeWindow.Rebuild();
-            _navigation.ActivateMorphingTab();
+            _tabs.activeWindow?.Clear();
+            _tabs.activeWindow = _morphingWindow;
+            _tabs.activeWindow.Rebuild();
+            _tabs.ActivateMorphingTab();
 
             _morphingWindow.morphingYSlider.slider.onValueChanged.AddListener(val =>
             {
@@ -422,15 +421,15 @@ namespace TittyMagic
 
         private void NavigateToGravityWindow()
         {
-            if(_navigation.activeWindow?.Id() == 3)
+            if(_tabs.activeWindow?.Id() == 3)
             {
                 return;
             }
 
-            _navigation.activeWindow?.Clear();
-            _navigation.activeWindow = _gravityWindow;
-            _navigation.activeWindow.Rebuild();
-            _navigation.ActivateGravityPhysicsTab();
+            _tabs.activeWindow?.Clear();
+            _tabs.activeWindow = _gravityWindow;
+            _tabs.activeWindow.Rebuild();
+            _tabs.ActivateGravityPhysicsTab();
 
             _gravityWindow.gravityYSlider.slider.onValueChanged.AddListener(val =>
             {
@@ -454,15 +453,15 @@ namespace TittyMagic
 
         private void NavigateToAdvancedWindow()
         {
-            if(_navigation.activeWindow?.Id() == 4)
+            if(_tabs.activeWindow?.Id() == 4)
             {
                 return;
             }
 
-            _navigation.activeWindow?.Clear();
-            _navigation.activeWindow = _advancedWindow;
-            _navigation.activeWindow.Rebuild();
-            _navigation.ActivateAdvancedTab();
+            _tabs.activeWindow?.Clear();
+            _tabs.activeWindow = _advancedWindow;
+            _tabs.activeWindow.Rebuild();
+            _tabs.ActivateAdvancedTab();
         }
 
         private static float CalculateSoftnessAmount(float val)

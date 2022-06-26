@@ -109,7 +109,7 @@
     <Compile Include="src\UI\MainWindow.cs" />
     <Compile Include="src\UI\MorphingWindow.cs" />
     <Compile Include="src\UI\NavigationButton.cs" />
-    <Compile Include="src\UI\Navigation.cs" />
+    <Compile Include="src\UI\Tabs.cs" />
     <Compile Include="src\UI\AdvancedWindow.cs" />
     <Compile Include="src\UI\SliderClickMonitor.cs" />
     <Compile Include="src\UI\UIHelpers.cs" />

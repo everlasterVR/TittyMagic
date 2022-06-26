@@ -4,7 +4,7 @@ using static TittyMagic.UI.UIHelpers;
 
 namespace TittyMagic.UI
 {
-    internal class Navigation
+    internal class Tabs
     {
         private readonly RectTransform _leftUIContent;
         private readonly RectTransform _rightUIContent;
@@ -18,7 +18,7 @@ namespace TittyMagic.UI
         public NavigationButton gravityButton { get; private set; }
         public NavigationButton advancedButton { get; private set; }
 
-        public Navigation(RectTransform leftUIContent, RectTransform rightUIContent)
+        public Tabs(RectTransform leftUIContent, RectTransform rightUIContent)
         {
             _leftUIContent = leftUIContent;
             _rightUIContent = rightUIContent;
