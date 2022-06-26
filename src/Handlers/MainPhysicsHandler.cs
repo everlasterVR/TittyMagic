@@ -22,7 +22,7 @@ namespace TittyMagic
         // AdjustJoints.joint1.slerpDrive.maximumForce value logged on plugin Init
         private const float DEFAULT_SLERP_MAX_FORCE = 500;
 
-        private List<StaticPhysicsConfig> _mainPhysicsConfigs;
+        private List<StaticPhysicsConfig> _configs;
 
         public float realMassAmount { get; private set; }
         public float massAmount { get; private set; }
@@ -257,7 +257,7 @@ namespace TittyMagic
                 SyncJointPositionZDrive(_jointRight, _pectoralRbRight, _positionSpringRight, _positionDamperRight);
             };
 
-            _mainPhysicsConfigs = new List<StaticPhysicsConfig>
+            _configs = new List<StaticPhysicsConfig>
             {
                 centerOfGravityPercent,
                 spring,
@@ -365,7 +365,7 @@ namespace TittyMagic
 
         public void UpdatePhysics(float softnessAmount, float quicknessAmount)
         {
-            foreach(var config in _mainPhysicsConfigs)
+            foreach(var config in _configs)
             {
                 config.updateFunction(NewValue(config, softnessAmount, quicknessAmount));
             }
@@ -373,7 +373,7 @@ namespace TittyMagic
 
         public void UpdateRateDependentPhysics(float softnessAmount, float quicknessAmount)
         {
-            foreach(var config in _mainPhysicsConfigs)
+            foreach(var config in _configs)
             {
                 if(config.dependOnPhysicsRate)
                 {

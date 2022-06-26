@@ -15,16 +15,16 @@ namespace TittyMagic.Configs
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
         // ReSharper disable once MemberCanBePrivate.Global
-        public Func<float, float> massCurveA { private get; set; }
+        public Func<float, float> massCurveLower { private get; set; }
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
         // ReSharper disable once MemberCanBePrivate.Global
-        public Func<float, float> massCurveB { private get; set; }
+        public Func<float, float> massCurveUpper { private get; set; }
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
         // ReSharper disable once MemberCanBePrivate.Global
         public float? massCurveCutoff { private get; set; }
 
-        private Func<float, float> softnessCurveA { get; set; }
-        private Func<float, float> softnessCurveB { get; set; }
+        private Func<float, float> softnessCurveLower { get; set; }
+        private Func<float, float> softnessCurveUpper { get; set; }
         private float? softnessCurveCutoff { get; set; }
 
         protected StaticPhysicsConfigBase()
@@ -45,34 +45,36 @@ namespace TittyMagic.Configs
         public void SetLinearCurvesAroundMidpoint(float slope, float cutoff = 0.6285f)
         {
             softnessCurveCutoff = cutoff;
-            softnessCurveB = x => slope * x + (1 - slope);
-            softnessCurveA = x => softnessCurveB(cutoff) / cutoff * x;
+            softnessCurveUpper = x => slope * x + (1 - slope);
+            softnessCurveLower = x => softnessCurveUpper(cutoff) / cutoff * x;
         }
 
         public float Calculate(float mass, float softness)
         {
-            float effectiveMass = mass > massCurveCutoff
-                ? massCurveB(mass)
-                : massCurveA?.Invoke(mass) ?? mass;
-            float effectiveSoftness = softness > softnessCurveCutoff
-                ? softnessCurveB(softness)
-                : softnessCurveA?.Invoke(softness) ?? softness;
+            float effectiveMass = mass;
+            if(massCurveCutoff.HasValue)
+            {
+                effectiveMass = mass > massCurveCutoff
+                    ? massCurveUpper(mass)
+                    : massCurveLower(mass);
+            }
+
+            float effectiveSoftness = softness;
+            if(softnessCurveCutoff.HasValue)
+            {
+                effectiveSoftness = softness > softnessCurveCutoff
+                    ? softnessCurveUpper(softness)
+                    : softnessCurveLower(softness);
+            }
+
             return calculationFunction(effectiveMass, effectiveSoftness);
         }
 
         protected float CalculateByProportionalSum(float mass, float softness)
         {
-            return minMminS + MassComponent(mass) + SoftnessComponent(softness);
-        }
-
-        private float MassComponent(float mass)
-        {
-            return mass * (maxMminS - minMminS);
-        }
-
-        private float SoftnessComponent(float softness)
-        {
-            return softness * (minMmaxS - minMminS);
+            return minMminS +
+                mass * (maxMminS - minMminS) +
+                softness * (minMmaxS - minMminS);
         }
     }
 

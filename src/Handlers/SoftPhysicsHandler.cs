@@ -17,8 +17,8 @@ namespace TittyMagic
         private bool _originalSelfCollision;
         private Dictionary<string, bool> _originalGroupsUseParentSettings;
 
-        private List<StaticPhysicsConfig> _softPhysicsConfigs;
-        private List<StaticPhysicsConfig> _nipplePhysicsConfigs;
+        private List<StaticPhysicsConfig> _configs;
+        private List<StaticPhysicsConfig> _nippleConfigs;
 
         private float _softVerticesCombinedSpringLeft;
         private float _softVerticesCombinedSpringRight;
@@ -236,7 +236,7 @@ namespace TittyMagic
                 }
             };
 
-            _softPhysicsConfigs = new List<StaticPhysicsConfig>
+            _configs = new List<StaticPhysicsConfig>
             {
                 softVerticesCombinedSpring,
                 softVerticesCombinedDamper,
@@ -279,7 +279,7 @@ namespace TittyMagic
                 }
             };
 
-            _nipplePhysicsConfigs = new List<StaticPhysicsConfig>
+            _nippleConfigs = new List<StaticPhysicsConfig>
             {
                 groupDSpringMultiplier,
                 groupDDamperMultiplier,
@@ -333,7 +333,7 @@ namespace TittyMagic
             float quicknessAmount
         )
         {
-            foreach(var config in _softPhysicsConfigs)
+            foreach(var config in _configs)
             {
                 float mass = config.useRealMass ? realMassAmount : massAmount;
                 config.updateFunction(NewValue(config, mass, softnessAmount, quicknessAmount));
@@ -342,7 +342,7 @@ namespace TittyMagic
 
         public void UpdateNipplePhysics(float softnessAmount, float nippleErectionVal)
         {
-            foreach(var config in _nipplePhysicsConfigs)
+            foreach(var config in _nippleConfigs)
             {
                 config.updateFunction(NewNippleValue(config, softnessAmount, 1.25f * nippleErectionVal));
             }
@@ -355,7 +355,7 @@ namespace TittyMagic
             float quicknessAmount
         )
         {
-            foreach(var config in _softPhysicsConfigs)
+            foreach(var config in _configs)
             {
                 if(config.dependOnPhysicsRate)
                 {
