@@ -18,7 +18,7 @@ namespace TittyMagic
             var json = script.LoadJSON($@"{script.PluginPath()}\settings\morphmultipliers\nippleErection.json").AsObject;
             return json.Keys.Select(name => new SimpleMorphConfig(
                 name,
-                json[name]["Multplier"].AsFloat
+                json[name]["Multiplier"].AsFloat
             )).ToList();
         }
 
