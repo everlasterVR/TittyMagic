@@ -1,5 +1,6 @@
 src\Components\Bindings.cs
 src\Components\SettingsMonitor.cs
+src\Extensions\MVRScriptExtensions.cs
 src\Extensions\StringExtension.cs
 src\Extensions\UIDynamicSliderExtension.cs
 src\Handlers\Config.cs
@@ -20,11 +21,12 @@ src\UI\Navigation.cs
 src\UI\NavigationButton.cs
 src\UI\SliderClickMonitor.cs
 src\UI\UIHelpers.cs
+src\Static\Direction.cs
+src\Static\RefreshStatus.cs
+src\Static\VertexIndexGroup.cs
 src\AtomScaleListener.cs
 src\BreastVolumeCalculator.cs
 src\BreastMorphListener.cs
-src\Persistence.cs
 src\Script.cs
 src\TrackNipple.cs
 src\Utils.cs
-src\Variables.cs

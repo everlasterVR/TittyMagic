@@ -1,51 +1,32 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using TittyMagic.Extensions;
 
 namespace TittyMagic
 {
     public class NippleErectionMorphHandler
     {
-        private readonly List<MorphConfig> _configs = new List<MorphConfig>
-        {
-            new MorphConfig("TM_NippleErection"),
-            // new MorphConfig("Nipples Depth"), // Spacedog.Import_Reloaded_Lite.2
-            // new MorphConfig("Natural Nipples"), // Spacedog.Import_Reloaded_Lite.2
-            // new MorphConfig("Nipple"), // Spacedog.Import_Reloaded_Lite.2
-            // new MorphConfig("Nipple Length"),
-            // new MorphConfig("Nipples Apply"),
-            // new MorphConfig("Nipples Bulbous"), // kemenate.Morphs.10
-            // new MorphConfig("Nipples Sag"), // kemenate.Morphs.10
-            // new MorphConfig("Nipples Tilt") // kemenate.Morphs.10
-        };
+        private readonly List<SimpleMorphConfig> _configs;
 
         public NippleErectionMorphHandler(MVRScript script)
         {
-            LoadSettings(script, _configs);
+            _configs = LoadSettings(script);
         }
 
-        private static void LoadSettings(MVRScript script, List<MorphConfig> configs)
+        private static List<SimpleMorphConfig> LoadSettings(MVRScript script)
         {
-            Persistence.LoadFromPath(
-                script,
-                $@"{Globals.PLUGIN_PATH}settings\morphmultipliers\nippleErection.json",
-                (dir, json) =>
-                {
-                    foreach(var config in configs)
-                    {
-                        if(json.HasKey(config.name))
-                        {
-                            float value = json[config.name].AsFloat;
-                            config.baseMultiplier = value;
-                        }
-                    }
-                }
-            );
+            var json = script.LoadJSON($@"{script.PluginPath()}\settings\morphmultipliers\nippleErection.json").AsObject;
+            return json.Keys.Select(name => new SimpleMorphConfig(
+                name,
+                json[name]["Multplier"].AsFloat
+            )).ToList();
         }
 
         public void Update(float nippleErection)
         {
             foreach(var config in _configs)
             {
-                config.morph.morphValue = nippleErection * config.baseMultiplier;
+                config.morph.morphValue = nippleErection * config.multiplier;
             }
         }
 
@@ -55,6 +36,18 @@ namespace TittyMagic
             {
                 config.morph.morphValue = 0;
             }
+        }
+    }
+
+    internal class SimpleMorphConfig
+    {
+        public float multiplier { get; }
+        public DAZMorph morph { get; }
+
+        public SimpleMorphConfig(string name, float multiplier)
+        {
+            this.multiplier = multiplier;
+            morph = Utils.GetMorph(name);
         }
     }
 }

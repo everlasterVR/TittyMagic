@@ -85,7 +85,7 @@ namespace TittyMagic
                         continue;
                     }
 
-                    if(!listenedMorphs.ContainsKey(morph) && IsInSet(morph, VertexIndexGroups.BREASTS, FILTER_STRENGTH))
+                    if(!listenedMorphs.ContainsKey(morph) && IsInSet(morph, VertexIndexGroup.BREASTS, FILTER_STRENGTH))
                     {
                         listenedMorphs.Add(morph, morph.morphValue);
                     }

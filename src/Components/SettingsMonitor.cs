@@ -2,7 +2,6 @@
 using System.Collections;
 using UnityEngine;
 using static TittyMagic.Utils;
-using static TittyMagic.Globals;
 
 namespace TittyMagic
 {
@@ -37,11 +36,13 @@ namespace TittyMagic
 
         private JSONStorable _breastInOut;
         private JSONStorable _softBodyPhysicsEnabler;
+        private DAZPhysicsMesh _breastPhysicsMesh;
+        private DAZCharacterSelector _geometry;
 
         private BoolSetting _useAdvancedColliders;
 
         private float _fixedDeltaTime;
-        public bool softPhysicsEnabled;
+        public bool softPhysicsEnabled { get; set; }
 
         private Script _script;
 
@@ -51,9 +52,10 @@ namespace TittyMagic
             _script = gameObject.GetComponent<Script>();
             _breastInOut = atom.GetStorableByID("BreastInOut");
             _softBodyPhysicsEnabler = atom.GetStorableByID("SoftBodyPhysicsEnabler");
-
+            _breastPhysicsMesh = (DAZPhysicsMesh) atom.GetStorableByID("BreastPhysicsMesh");
+            _geometry = (DAZCharacterSelector) atom.GetStorableByID("geometry");
             _useAdvancedColliders = new BoolSetting(
-                GEOMETRY.useAdvancedColliders,
+                _geometry.useAdvancedColliders,
                 "Advanced Colliders are not enabled in Control & Physics 1 tab. Enable them to allow dynamic breast morphing to work correctly!"
             );
 
@@ -87,14 +89,14 @@ namespace TittyMagic
                         LogMessage("Auto Breast In/Out Morphs disabled - TittyMagic adjusts breast morphs better without them.");
                     }
 
-                    if(_useAdvancedColliders.CheckIfUpdateNeeded(GEOMETRY.useAdvancedColliders))
+                    if(_useAdvancedColliders.CheckIfUpdateNeeded(_geometry.useAdvancedColliders))
                     {
-                        gameObject.GetComponent<Script>().StartRefreshCoroutine();
+                        _script.StartRefreshCoroutine();
                     }
 
-                    if(softPhysicsEnabled && GEOMETRY.useAuxBreastColliders)
+                    if(softPhysicsEnabled && _geometry.useAuxBreastColliders)
                     {
-                        GEOMETRY.useAuxBreastColliders = false;
+                        _geometry.useAuxBreastColliders = false;
                         LogMessage("Breast Hard Colliders disabled. To enable them, disable soft physics first!");
                     }
 
@@ -125,7 +127,7 @@ namespace TittyMagic
             bool value = CheckSoftPhysicsEnabled();
             if(value != softPhysicsEnabled)
             {
-                if(!value && !GEOMETRY.useAuxBreastColliders)
+                if(!value && !_geometry.useAuxBreastColliders)
                 {
                     LogMessage("Recalibrating due to soft physics being enabled. You might also want to enable Breast Hard Colliders!");
                 }
@@ -139,9 +141,9 @@ namespace TittyMagic
 
         private bool CheckSoftPhysicsEnabled()
         {
-            bool value = UserPreferences.singleton.softPhysics && _softBodyPhysicsEnabler.GetBoolParamValue("enabled") && BREAST_PHYSICS_MESH.on;
-            _script.softPhysicsEnabled = value;
-            return value;
+            return UserPreferences.singleton.softPhysics &&
+                _softBodyPhysicsEnabler.GetBoolParamValue("enabled") &&
+                _breastPhysicsMesh.on;
         }
     }
 }

@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static TittyMagic.Globals;
 
 namespace TittyMagic
 {
     internal class PhysicsHandler
     {
         private readonly bool _isFemale;
+        private readonly AdjustJoints _breastControl;
+        private readonly DAZPhysicsMesh _breastPhysicsMesh;
+        private readonly DAZCharacterSelector _geometry;
         private readonly ConfigurableJoint _jointLeft;
         private readonly ConfigurableJoint _jointRight;
         private readonly Rigidbody _pectoralRbLeft;
@@ -54,11 +56,21 @@ namespace TittyMagic
         private float _combinedSpringNew;
         private float _combinedDamperNew;
 
-        public PhysicsHandler(bool isFemale, Rigidbody pectoralRbLeft, Rigidbody pectoralRbRight)
+        public PhysicsHandler(
+            bool isFemale,
+            AdjustJoints breastControl,
+            DAZPhysicsMesh breastPhysicsMesh,
+            DAZCharacterSelector geometry,
+            Rigidbody pectoralRbLeft,
+            Rigidbody pectoralRbRight
+        )
         {
             _isFemale = isFemale;
-            _jointLeft = BREAST_CONTROL.joint2;
-            _jointRight = BREAST_CONTROL.joint1;
+            _breastControl = breastControl;
+            _breastPhysicsMesh = breastPhysicsMesh;
+            _geometry = geometry;
+            _jointLeft = _breastControl.joint2;
+            _jointRight = _breastControl.joint1;
             _pectoralRbLeft = pectoralRbLeft;
             _pectoralRbRight = pectoralRbRight;
 
@@ -75,7 +87,7 @@ namespace TittyMagic
             };
             if(_isFemale)
             {
-                _breastPhysicsMeshFloatParamNames = BREAST_PHYSICS_MESH.GetFloatParamNames();
+                _breastPhysicsMeshFloatParamNames = _breastPhysicsMesh.GetFloatParamNames();
             }
             SaveOriginalPhysicsAndSetPluginDefaults();
         }
@@ -292,9 +304,9 @@ namespace TittyMagic
         }
 
         // Reimplements AdjustJoints.cs method SyncCenterOfGravity
-        private static void SyncCenterOfGravity(Rigidbody rb, float value)
+        private void SyncCenterOfGravity(Rigidbody rb, float value)
         {
-            var newCenterOfMass = Vector3.Lerp(BREAST_CONTROL.lowCenterOfGravity, BREAST_CONTROL.highCenterOfGravity, value);
+            var newCenterOfMass = Vector3.Lerp(_breastControl.lowCenterOfGravity, _breastControl.highCenterOfGravity, value);
             if(rb.centerOfMass != newCenterOfMass)
             {
                 rb.centerOfMass = newCenterOfMass;
@@ -303,10 +315,10 @@ namespace TittyMagic
         }
 
         // Reimplements AdjustJoints.cs method SyncJoint
-        private static void SyncJoint(ConfigurableJoint joint, Rigidbody rb, float spring, float damper)
+        private void SyncJoint(ConfigurableJoint joint, Rigidbody rb, float spring, float damper)
         {
             // see AdjustJoints.cs method ScaleChanged
-            float scalePow = Mathf.Pow(1.7f, BREAST_CONTROL.scale - 1f);
+            float scalePow = Mathf.Pow(1.7f, _breastControl.scale - 1f);
 
             float scaledSpring = spring * scalePow;
             float scaledDamper = damper * scalePow;
@@ -329,13 +341,13 @@ namespace TittyMagic
             joint.angularYZDrive = angularYZDrive;
 
             var angularXLimitSpring = joint.angularXLimitSpring;
-            angularXLimitSpring.spring = scaledSpring * BREAST_CONTROL.limitSpringMultiplier;
-            angularXLimitSpring.damper = scaledDamper * BREAST_CONTROL.limitDamperMultiplier;
+            angularXLimitSpring.spring = scaledSpring * _breastControl.limitSpringMultiplier;
+            angularXLimitSpring.damper = scaledDamper * _breastControl.limitDamperMultiplier;
             joint.angularXLimitSpring = angularXLimitSpring;
 
             var angularYZLimitSpring = joint.angularYZLimitSpring;
-            angularYZLimitSpring.spring = scaledSpring * BREAST_CONTROL.limitSpringMultiplier;
-            angularYZLimitSpring.damper = scaledDamper * BREAST_CONTROL.limitDamperMultiplier;
+            angularYZLimitSpring.spring = scaledSpring * _breastControl.limitSpringMultiplier;
+            angularYZLimitSpring.damper = scaledDamper * _breastControl.limitDamperMultiplier;
             joint.angularYZLimitSpring = angularYZLimitSpring;
 
             rb.WakeUp();
@@ -355,11 +367,11 @@ namespace TittyMagic
         // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
         private void SyncTargetRotationLeft(float targetRotationX, float targetRotationY)
         {
-            BREAST_CONTROL.smoothedJoint2TargetRotation.x = targetRotationX;
-            BREAST_CONTROL.smoothedJoint2TargetRotation.y = targetRotationY;
+            _breastControl.smoothedJoint2TargetRotation.x = targetRotationX;
+            _breastControl.smoothedJoint2TargetRotation.y = targetRotationY;
 
             var dazBone = _jointLeft.GetComponent<DAZBone>();
-            Vector3 rotation = BREAST_CONTROL.smoothedJoint2TargetRotation;
+            Vector3 rotation = _breastControl.smoothedJoint2TargetRotation;
             rotation.x = -rotation.x;
             dazBone.baseJointRotation = rotation;
         }
@@ -368,11 +380,11 @@ namespace TittyMagic
         // Circumvents default invertJoint2RotationX = true
         private void SyncTargetRotationRight(float targetRotationX, float targetRotationY)
         {
-            BREAST_CONTROL.smoothedJoint1TargetRotation.x = targetRotationX;
-            BREAST_CONTROL.smoothedJoint1TargetRotation.y = targetRotationY;
+            _breastControl.smoothedJoint1TargetRotation.x = targetRotationX;
+            _breastControl.smoothedJoint1TargetRotation.y = targetRotationY;
 
             var dazBone = _jointRight.GetComponent<DAZBone>();
-            Vector3 rotation = BREAST_CONTROL.smoothedJoint1TargetRotation;
+            Vector3 rotation = _breastControl.smoothedJoint1TargetRotation;
             rotation.x = -rotation.x;
             dazBone.baseJointRotation = rotation;
         }
@@ -433,12 +445,12 @@ namespace TittyMagic
             };
             softVerticesMass.updateFunction = value =>
             {
-                BREAST_PHYSICS_MESH.softVerticesGroups
+                _breastPhysicsMesh.softVerticesGroups
                     .ForEach(group => group.jointMass = value);
             };
             softVerticesColliderRadius.updateFunction = value =>
             {
-                BREAST_PHYSICS_MESH.softVerticesGroups.ForEach(group =>
+                _breastPhysicsMesh.softVerticesGroups.ForEach(group =>
                 {
                     if(group.useParentColliderSettings)
                     {
@@ -456,62 +468,62 @@ namespace TittyMagic
             };
             softVerticesNormalLimit.updateFunction = value =>
             {
-                BREAST_PHYSICS_MESH.softVerticesGroups
+                _breastPhysicsMesh.softVerticesGroups
                     .ForEach(group => group.normalDistanceLimit = value);
             };
             softVerticesBackForce.updateFunction = value =>
             {
-                BREAST_PHYSICS_MESH.softVerticesGroups
+                _breastPhysicsMesh.softVerticesGroups
                     .ForEach(group => group.jointBackForce = value);
             };
             softVerticesBackForceThresholdDistance.updateFunction = value =>
             {
-                BREAST_PHYSICS_MESH.softVerticesGroups
+                _breastPhysicsMesh.softVerticesGroups
                     .ForEach(group => group.jointBackForceThresholdDistance = value);
             };
             softVerticesBackForceMaxForce.updateFunction = value =>
             {
-                BREAST_PHYSICS_MESH.softVerticesGroups
+                _breastPhysicsMesh.softVerticesGroups
                     .ForEach(group => group.jointBackForceMaxForce = value);
             };
             groupASpringMultiplier.updateFunction = value =>
             {
-                foreach(int slot in BREAST_PHYSICS_MESH.groupASlots)
+                foreach(int slot in _breastPhysicsMesh.groupASlots)
                 {
                     SyncGroupSpringMultiplier(slot, value);
                 }
             };
             groupADamperMultiplier.updateFunction = value =>
             {
-                foreach(int slot in BREAST_PHYSICS_MESH.groupASlots)
+                foreach(int slot in _breastPhysicsMesh.groupASlots)
                 {
                     SyncGroupDamperMultiplier(slot, value);
                 }
             };
             groupBSpringMultiplier.updateFunction = value =>
             {
-                foreach(int slot in BREAST_PHYSICS_MESH.groupBSlots)
+                foreach(int slot in _breastPhysicsMesh.groupBSlots)
                 {
                     SyncGroupSpringMultiplier(slot, value);
                 }
             };
             groupBDamperMultiplier.updateFunction = value =>
             {
-                foreach(int slot in BREAST_PHYSICS_MESH.groupBSlots)
+                foreach(int slot in _breastPhysicsMesh.groupBSlots)
                 {
                     SyncGroupDamperMultiplier(slot, value);
                 }
             };
             groupCSpringMultiplier.updateFunction = value =>
             {
-                foreach(int slot in BREAST_PHYSICS_MESH.groupCSlots)
+                foreach(int slot in _breastPhysicsMesh.groupCSlots)
                 {
                     SyncGroupSpringMultiplier(slot, value);
                 }
             };
             groupCDamperMultiplier.updateFunction = value =>
             {
-                foreach(int slot in BREAST_PHYSICS_MESH.groupCSlots)
+                foreach(int slot in _breastPhysicsMesh.groupCSlots)
                 {
                     SyncGroupDamperMultiplier(slot, value);
                 }
@@ -543,14 +555,14 @@ namespace TittyMagic
 
             groupDSpringMultiplier.updateFunction = value =>
             {
-                foreach(int slot in BREAST_PHYSICS_MESH.groupDSlots)
+                foreach(int slot in _breastPhysicsMesh.groupDSlots)
                 {
                     SyncGroupSpringMultiplier(slot, value);
                 }
             };
             groupDDamperMultiplier.updateFunction = value =>
             {
-                foreach(int slot in BREAST_PHYSICS_MESH.groupDSlots)
+                foreach(int slot in _breastPhysicsMesh.groupDSlots)
                 {
                     SyncGroupDamperMultiplier(slot, value);
                 }
@@ -567,7 +579,7 @@ namespace TittyMagic
         // Circumvents use of softVerticesCombinedSpring value as multiplier on the group specific value, using custom multiplier instead
         private void SyncGroupSpringMultiplier(int slot, float value)
         {
-            var group = BREAST_PHYSICS_MESH.softVerticesGroups[slot];
+            var group = _breastPhysicsMesh.softVerticesGroups[slot];
             float combinedValue = _combinedSpringNew * value;
             group.jointSpringNormal = combinedValue;
             group.jointSpringTangent = combinedValue;
@@ -582,7 +594,7 @@ namespace TittyMagic
         // Circumvents use of softVerticesCombinedDamper value as multiplier on the group specific value, using custom multiplier instead
         private void SyncGroupDamperMultiplier(int slot, float value)
         {
-            var group = BREAST_PHYSICS_MESH.softVerticesGroups[slot];
+            var group = _breastPhysicsMesh.softVerticesGroups[slot];
             float combinedValue = _combinedDamperNew * value;
             group.jointDamperNormal = combinedValue;
             group.jointDamperTangent = combinedValue;
@@ -652,19 +664,19 @@ namespace TittyMagic
             if(_isFemale)
             {
                 // auto fat collider radius off (no effect)
-                _originalAutoFatColliderRadius = BREAST_PHYSICS_MESH.softVerticesUseAutoColliderRadius;
-                BREAST_PHYSICS_MESH.softVerticesUseAutoColliderRadius = false;
+                _originalAutoFatColliderRadius = _breastPhysicsMesh.softVerticesUseAutoColliderRadius;
+                _breastPhysicsMesh.softVerticesUseAutoColliderRadius = false;
                 // hard colliders off
-                _originalHardColliders = GEOMETRY.useAuxBreastColliders;
-                GEOMETRY.useAuxBreastColliders = false;
+                _originalHardColliders = _geometry.useAuxBreastColliders;
+                _geometry.useAuxBreastColliders = false;
                 // self colliders off
-                _originalSelfCollision = BREAST_PHYSICS_MESH.allowSelfCollision;
-                BREAST_PHYSICS_MESH.allowSelfCollision = true;
+                _originalSelfCollision = _breastPhysicsMesh.allowSelfCollision;
+                _breastPhysicsMesh.allowSelfCollision = true;
                 // TODO configurable
-                BREAST_PHYSICS_MESH.softVerticesColliderAdditionalNormalOffset = 0.001f;
+                _breastPhysicsMesh.softVerticesColliderAdditionalNormalOffset = 0.001f;
                 // prevent settings in F Breast Physics 2 from having effect
                 _originalGroupsUseParentSettings = new Dictionary<string, bool>();
-                foreach(var group in BREAST_PHYSICS_MESH.softVerticesGroups)
+                foreach(var group in _breastPhysicsMesh.softVerticesGroups)
                 {
                     _originalGroupsUseParentSettings[group.name] = group.useParentSettings;
                     group.useParentSettings = false;
@@ -673,7 +685,7 @@ namespace TittyMagic
                 _originalBreastPhysicsMeshFloatValues = new Dictionary<string, float>();
                 foreach(string name in _breastPhysicsMeshFloatParamNames)
                 {
-                    var param = BREAST_PHYSICS_MESH.GetFloatJSONParam(name);
+                    var param = _breastPhysicsMesh.GetFloatJSONParam(name);
                     _originalBreastPhysicsMeshFloatValues[name] = param.val;
                     param.val = 0;
                 }
@@ -688,7 +700,7 @@ namespace TittyMagic
             _originalAdjustJointsFloatValues = new Dictionary<string, float>();
             foreach(string name in _adjustJointsFloatParamNames)
             {
-                var param = BREAST_CONTROL.GetFloatJSONParam(name);
+                var param = _breastControl.GetFloatJSONParam(name);
                 _originalAdjustJointsFloatValues[name] = param.val;
                 param.val = 0;
             }
@@ -698,10 +710,10 @@ namespace TittyMagic
         {
             if(_isFemale)
             {
-                BREAST_PHYSICS_MESH.softVerticesUseAutoColliderRadius = _originalAutoFatColliderRadius;
-                GEOMETRY.useAuxBreastColliders = _originalHardColliders;
-                BREAST_PHYSICS_MESH.allowSelfCollision = _originalSelfCollision;
-                foreach(var group in BREAST_PHYSICS_MESH.softVerticesGroups)
+                _breastPhysicsMesh.softVerticesUseAutoColliderRadius = _originalAutoFatColliderRadius;
+                _geometry.useAuxBreastColliders = _originalHardColliders;
+                _breastPhysicsMesh.allowSelfCollision = _originalSelfCollision;
+                foreach(var group in _breastPhysicsMesh.softVerticesGroups)
                 {
                     group.useParentSettings = _originalGroupsUseParentSettings[group.name];
                 }
@@ -712,11 +724,11 @@ namespace TittyMagic
 
             foreach(string name in _adjustJointsFloatParamNames)
             {
-                BREAST_CONTROL.GetFloatJSONParam(name).val = _originalAdjustJointsFloatValues[name];
+                _breastControl.GetFloatJSONParam(name).val = _originalAdjustJointsFloatValues[name];
             }
             foreach(string name in _breastPhysicsMeshFloatParamNames)
             {
-                BREAST_PHYSICS_MESH.GetFloatJSONParam(name).val = _originalBreastPhysicsMeshFloatValues[name];
+                _breastPhysicsMesh.GetFloatJSONParam(name).val = _originalBreastPhysicsMeshFloatValues[name];
             }
         }
 

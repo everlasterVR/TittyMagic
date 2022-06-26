@@ -1,3 +1,5 @@
 {
-   "TM_NippleErection" : "1.00"
+   "TM_NippleErection": {
+      "Multiplier": "1.0"
+   }
 }

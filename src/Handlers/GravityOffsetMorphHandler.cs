@@ -1,5 +1,6 @@
 // ReSharper disable RedundantUsingDirective
 using System.Collections.Generic;
+using TittyMagic.Extensions;
 using UnityEngine;
 using static TittyMagic.Utils;
 using static TittyMagic.GravityEffectCalc;
@@ -28,53 +29,50 @@ namespace TittyMagic
         {
             _configSets = new Dictionary<string, List<Config>>
             {
-                { Direction.DOWN, LoadSettingsFromFile("upright", true) },
+                { Direction.DOWN, LoadSettingsFromFile(Direction.DOWN, "upright", true) },
             };
         }
 
-        private List<Config> LoadSettingsFromFile(string fileName, bool separateLeftRight = false)
+        private List<Config> LoadSettingsFromFile(string subDir, string fileName, bool separateLeftRight = false)
         {
+            string path = $@"{_script.PluginPath()}\settings\morphmultipliers\offset\{fileName}.json";
+            var json = _script.LoadJSON(path).AsObject;
+
             var configs = new List<Config>();
-            Persistence.LoadFromPath(
-                _script,
-                $@"{Globals.PLUGIN_PATH}settings\morphmultipliers\offset\{fileName}.json",
-                (dir, json) =>
+            foreach(string name in json.Keys)
+            {
+                if(separateLeftRight)
                 {
-                    foreach(string name in json.Keys)
-                    {
-                        if(separateLeftRight)
-                        {
-                            configs.Add(
-                                new MorphConfig(
-                                    $"{name} L",
-                                    json[name]["IsNegative"].AsBool,
-                                    json[name]["Multiplier1"].AsFloat,
-                                    json[name]["Multiplier2"].AsFloat
-                                )
-                            );
-                            configs.Add(
-                                new MorphConfig(
-                                    $"{name} R",
-                                    json[name]["IsNegative"].AsBool,
-                                    json[name]["Multiplier1"].AsFloat,
-                                    json[name]["Multiplier2"].AsFloat
-                                )
-                            );
-                        }
-                        else
-                        {
-                            configs.Add(
-                                new MorphConfig(
-                                    name,
-                                    json[name]["IsNegative"].AsBool,
-                                    json[name]["Multiplier1"].AsFloat,
-                                    json[name]["Multiplier2"].AsFloat
-                                )
-                            );
-                        }
-                    }
+                    configs.Add(
+                        new MorphConfig(
+                            $"{subDir}/{name} L",
+                            json[name]["IsNegative"].AsBool,
+                            json[name]["Multiplier1"].AsFloat,
+                            json[name]["Multiplier2"].AsFloat
+                        )
+                    );
+                    configs.Add(
+                        new MorphConfig(
+                            $"{subDir}/{name} R",
+                            json[name]["IsNegative"].AsBool,
+                            json[name]["Multiplier1"].AsFloat,
+                            json[name]["Multiplier2"].AsFloat
+                        )
+                    );
                 }
-            );
+                else
+                {
+                    configs.Add(
+                        new MorphConfig(
+                            $"{subDir}/{name}",
+                            json[name]["IsNegative"].AsBool,
+                            json[name]["Multiplier1"].AsFloat,
+                            json[name]["Multiplier2"].AsFloat
+                        )
+                    );
+                }
+            }
+
             return configs;
         }
 

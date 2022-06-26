@@ -1,4 +1,5 @@
-﻿using System;
+﻿// ReSharper disable MemberCanBePrivate.Global
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -7,6 +8,9 @@ namespace TittyMagic
 {
     internal static class Utils
     {
+        public static string morphsPath { get; set; }
+        public static GenerateDAZMorphsControlUI morphsControlUI { get; set; }
+
         public static void LogError(string message, string name = "")
         {
             SuperController.LogError(Format(message, name));
@@ -29,20 +33,16 @@ namespace TittyMagic
             return match == null ? null : atom.GetStorableByID(match) as MVRScript;
         }
 
-        //MacGruber / Discord 20.10.2020
-        //Get path prefix of the package that contains this plugin
-        public static string GetPackageId(MVRScript script)
+        public static DAZMorph GetMorph(string file)
         {
-            string id = script.name.Substring(0, script.name.IndexOf('_'));
-            string filename = script.manager.GetJSON()["plugins"][id].Value;
-            int idx = filename.IndexOf(":/", StringComparison.Ordinal);
-            return idx >= 0 ? filename.Substring(0, idx) : "";
-        }
+            string uid = $"{morphsPath}/{file}.vmi";
+            var dazMorph = morphsControlUI.GetMorphByUid(uid);
+            if(dazMorph == null)
+            {
+                LogError($"Morph with uid '{uid}' not found!");
+            }
 
-        public static string GetPackagePath(MVRScript script)
-        {
-            string packageId = GetPackageId(script);
-            return packageId == "" ? "" : $"{packageId}:/";
+            return dazMorph;
         }
 
         public static string NameValueString(

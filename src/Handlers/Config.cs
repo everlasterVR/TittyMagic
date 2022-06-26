@@ -1,13 +1,11 @@
 ﻿using System;
 using UnityEngine;
 using static TittyMagic.Utils;
-using static TittyMagic.Globals;
 
 namespace TittyMagic
 {
     public class Config
     {
-        public string name { get; protected set; }
         public bool isNegative { get; protected set; }
         public float softnessMultiplier { get; protected set; }
         public float massMultiplier { get; protected set; }
@@ -30,47 +28,14 @@ namespace TittyMagic
 
     internal class MorphConfig : Config
     {
-        public float baseMultiplier { get; set; }
         public DAZMorph morph { get; }
-
-        public MorphConfig(string name)
-        {
-            this.name = name;
-            morph = GetMorph();
-        }
 
         public MorphConfig(string name, bool isNegative, float softnessMultiplier, float massMultiplier)
         {
-            this.name = name;
             this.isNegative = isNegative;
             this.softnessMultiplier = softnessMultiplier;
             this.massMultiplier = massMultiplier;
-            morph = GetMorphFromSubDir();
-        }
-
-        private DAZMorph GetMorph()
-        {
-            string uid = MORPHS_PATH + $"{name}.vmi";
-            var dazMorph = MORPHS_CONTROL_UI.GetMorphByUid(uid);
-            if(dazMorph == null)
-            {
-                LogError($"Morph with uid '{uid}' not found!");
-            }
-
-            return dazMorph;
-        }
-
-        private DAZMorph GetMorphFromSubDir()
-        {
-            string dir = name.Substring(0, 2); // e.g. UP morphs are in UP/ dir
-            string uid = MORPHS_PATH + $"{dir}/{name}.vmi";
-            var dazMorph = MORPHS_CONTROL_UI.GetMorphByUid(uid);
-            if(dazMorph == null)
-            {
-                LogError($"Morph with uid '{uid}' not found!");
-            }
-
-            return dazMorph;
+            morph = GetMorph(name);
         }
     }
 

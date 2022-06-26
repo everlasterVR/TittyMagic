@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using TittyMagic.Extensions;
 using UnityEngine;
 using static TittyMagic.Utils;
 using static TittyMagic.GravityEffectCalc;
@@ -37,45 +39,37 @@ namespace TittyMagic
         {
             _configSets = new Dictionary<string, List<Config>>
             {
-                { Direction.UP_L, LoadSettingsFromFile("upForce", " L") },
-                { Direction.UP_R, LoadSettingsFromFile("upForce", " R") },
-                { Direction.UP_C, LoadSettingsFromFile("upForceCenter") },
-                { Direction.BACK_L, LoadSettingsFromFile("backForce", " L") },
-                { Direction.BACK_R, LoadSettingsFromFile("backForce", " R") },
-                { Direction.BACK_C, LoadSettingsFromFile("backForceCenter") },
-                { Direction.FORWARD_L, LoadSettingsFromFile("forwardForce", " L") },
-                { Direction.FORWARD_R, LoadSettingsFromFile("forwardForce", " R") },
-                { Direction.FORWARD_C, LoadSettingsFromFile("forwardForceCenter") },
-                { Direction.LEFT_L, LoadSettingsFromFile("leftForceL") },
-                { Direction.LEFT_R, LoadSettingsFromFile("leftForceR") },
-                { Direction.RIGHT_L, LoadSettingsFromFile("rightForceL") },
-                { Direction.RIGHT_R, LoadSettingsFromFile("rightForceR") },
+                { Direction.UP_L, LoadSettingsFromFile(Direction.UP, "upForce", " L") },
+                { Direction.UP_R, LoadSettingsFromFile(Direction.UP, "upForce", " R") },
+                { Direction.UP_C, LoadSettingsFromFile(Direction.UP, "upForceCenter") },
+                { Direction.BACK_L, LoadSettingsFromFile(Direction.BACK, "backForce", " L") },
+                { Direction.BACK_R, LoadSettingsFromFile(Direction.BACK, "backForce", " R") },
+                { Direction.BACK_C, LoadSettingsFromFile(Direction.BACK, "backForceCenter") },
+                { Direction.FORWARD_L, LoadSettingsFromFile(Direction.FORWARD, "forwardForce", " L") },
+                { Direction.FORWARD_R, LoadSettingsFromFile(Direction.FORWARD, "forwardForce", " R") },
+                { Direction.FORWARD_C, LoadSettingsFromFile(Direction.FORWARD, "forwardForceCenter") },
+                { Direction.LEFT_L, LoadSettingsFromFile(Direction.LEFT, "leftForceL") },
+                { Direction.LEFT_R, LoadSettingsFromFile(Direction.LEFT, "leftForceR") },
+                { Direction.RIGHT_L, LoadSettingsFromFile(Direction.RIGHT, "rightForceL") },
+                { Direction.RIGHT_R, LoadSettingsFromFile(Direction.RIGHT, "rightForceR") },
             };
         }
 
-        private List<Config> LoadSettingsFromFile(string fileName, string morphNameSuffix = null)
+        private List<Config> LoadSettingsFromFile(string subDir, string fileName, string morphNameSuffix = null)
         {
-            var configs = new List<Config>();
-            Persistence.LoadFromPath(
-                _script,
-                $@"{Globals.PLUGIN_PATH}settings\morphmultipliers\female\{fileName}.json",
-                (dir, json) =>
-                {
-                    foreach(string name in json.Keys)
-                    {
-                        string morphName = string.IsNullOrEmpty(morphNameSuffix) ? name : name + $"{morphNameSuffix}";
-                        configs.Add(
-                            new MorphConfig(
-                                morphName,
-                                json[name]["IsNegative"].AsBool,
-                                json[name]["Multiplier1"].AsFloat,
-                                json[name]["Multiplier2"].AsFloat
-                            )
-                        );
-                    }
-                }
-            );
-            return configs;
+            string path = $@"{_script.PluginPath()}\settings\morphmultipliers\female\{fileName}.json";
+            var json = _script.LoadJSON(path).AsObject;
+
+            return json.Keys.Select(name =>
+            {
+                string morphName = string.IsNullOrEmpty(morphNameSuffix) ? name : name + $"{morphNameSuffix}";
+                return new MorphConfig(
+                    $"{subDir}/{morphName}",
+                    json[name]["IsNegative"].AsBool,
+                    json[name]["Multiplier1"].AsFloat,
+                    json[name]["Multiplier2"].AsFloat
+                ) as Config;
+            }).ToList();
         }
 
         public void Update(

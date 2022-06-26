@@ -17,8 +17,8 @@ namespace TittyMagic
 
         public float Calculate(float atomScale)
         {
-            var boundsLeft = BoundsSize(GetPositions(VertexIndexGroups.LEFT_BREAST));
-            var boundsRight = BoundsSize(GetPositions(VertexIndexGroups.RIGHT_BREAST));
+            var boundsLeft = BoundsSize(GetPositions(VertexIndexGroup.LEFT_BREAST));
+            var boundsRight = BoundsSize(GetPositions(VertexIndexGroup.RIGHT_BREAST));
             float leftVolume = EstimateVolume(boundsLeft, atomScale);
             float rightVolume = EstimateVolume(boundsRight, atomScale);
             return (leftVolume + rightVolume) / (2 * 1000);
