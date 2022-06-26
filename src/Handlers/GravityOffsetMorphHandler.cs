@@ -1,5 +1,6 @@
 // ReSharper disable RedundantUsingDirective
 using System.Collections.Generic;
+using TittyMagic.Configs;
 using TittyMagic.Extensions;
 using UnityEngine;
 using static TittyMagic.Utils;
@@ -17,7 +18,7 @@ namespace TittyMagic
 
         public Multiplier yMultiplier { get; }
 
-        private Dictionary<string, List<Config>> _configSets;
+        private Dictionary<string, List<MorphConfig>> _configSets;
 
         public GravityOffsetMorphHandler(MVRScript script)
         {
@@ -27,18 +28,18 @@ namespace TittyMagic
 
         public void LoadSettings()
         {
-            _configSets = new Dictionary<string, List<Config>>
+            _configSets = new Dictionary<string, List<MorphConfig>>
             {
                 { Direction.DOWN, LoadSettingsFromFile(Direction.DOWN, "upright", true) },
             };
         }
 
-        private List<Config> LoadSettingsFromFile(string subDir, string fileName, bool separateLeftRight = false)
+        private List<MorphConfig> LoadSettingsFromFile(string subDir, string fileName, bool separateLeftRight = false)
         {
             string path = $@"{_script.PluginPath()}\settings\morphmultipliers\offset\{fileName}.json";
             var json = _script.LoadJSON(path).AsObject;
 
-            var configs = new List<Config>();
+            var configs = new List<MorphConfig>();
             foreach(string name in json.Keys)
             {
                 if(separateLeftRight)
@@ -131,8 +132,7 @@ namespace TittyMagic
         {
             foreach(var config in _configSets[configSetName])
             {
-                var morphConfig = (MorphConfig) config;
-                UpdateValue(morphConfig, effect);
+                UpdateValue(config, effect);
             }
         }
 
@@ -154,8 +154,7 @@ namespace TittyMagic
         {
             foreach(var config in _configSets[configSetName])
             {
-                var morphConfig = (MorphConfig) config;
-                morphConfig.morph.morphValue = 0;
+                config.morph.morphValue = 0;
             }
         }
     }

@@ -88,7 +88,9 @@
     <Compile Include="src\Extensions\MVRScriptExtensions.cs" />
     <Compile Include="src\Extensions\StringExtension.cs" />
     <Compile Include="src\Extensions\UIDynamicSliderExtension.cs" />
-    <Compile Include="src\Handlers\Config.cs" />
+    <Compile Include="src\Handlers\Configs\GravityPhysicsConfig.cs" />
+    <Compile Include="src\Handlers\Configs\MorphConfig.cs" />
+    <Compile Include="src\Handlers\Configs\StaticPhysicsConfig.cs" />
     <Compile Include="src\Handlers\ForcePhysicsHandler.cs" />
     <Compile Include="src\Handlers\GravityEffectCalc.cs" />
     <Compile Include="src\Handlers\GravityOffsetMorphHandler.cs" />

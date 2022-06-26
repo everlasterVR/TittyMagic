@@ -1,44 +1,8 @@
-﻿using System;
+using System;
 using UnityEngine;
-using static TittyMagic.Utils;
 
-namespace TittyMagic
+namespace TittyMagic.Configs
 {
-    public class Config
-    {
-        public bool isNegative { get; protected set; }
-        public float softnessMultiplier { get; protected set; }
-        public float massMultiplier { get; protected set; }
-    }
-
-    internal class GravityPhysicsConfig : Config
-    {
-        public bool multiplyInvertedMass { get; }
-
-        public Action<float> updateFunction { get; set; }
-
-        public GravityPhysicsConfig(float softnessMultiplier, float massMultiplier, bool isNegative = false, bool multiplyInvertedMass = false)
-        {
-            this.softnessMultiplier = softnessMultiplier;
-            this.massMultiplier = massMultiplier;
-            this.isNegative = isNegative;
-            this.multiplyInvertedMass = multiplyInvertedMass;
-        }
-    }
-
-    internal class MorphConfig : Config
-    {
-        public DAZMorph morph { get; }
-
-        public MorphConfig(string name, bool isNegative, float softnessMultiplier, float massMultiplier)
-        {
-            this.isNegative = isNegative;
-            this.softnessMultiplier = softnessMultiplier;
-            this.massMultiplier = massMultiplier;
-            morph = GetMorph(name);
-        }
-    }
-
     internal class StaticPhysicsConfigBase
     {
         protected float minMminS; // value at min mass and min softness

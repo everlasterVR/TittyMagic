@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using TittyMagic.Configs;
 using TittyMagic.Extensions;
 using UnityEngine;
 using static TittyMagic.Utils;
@@ -18,7 +19,7 @@ namespace TittyMagic
         public Multiplier yMultiplier { get; }
         public Multiplier zMultiplier { get; }
 
-        private Dictionary<string, List<Config>> _configSets;
+        private Dictionary<string, List<MorphConfig>> _configSets;
 
         private const float SOFTNESS = 0.62f;
         private float _mass;
@@ -37,7 +38,7 @@ namespace TittyMagic
 
         public void LoadSettings()
         {
-            _configSets = new Dictionary<string, List<Config>>
+            _configSets = new Dictionary<string, List<MorphConfig>>
             {
                 { Direction.UP_L, LoadSettingsFromFile(Direction.UP, "upForce", " L") },
                 { Direction.UP_R, LoadSettingsFromFile(Direction.UP, "upForce", " R") },
@@ -55,7 +56,7 @@ namespace TittyMagic
             };
         }
 
-        private List<Config> LoadSettingsFromFile(string subDir, string fileName, string morphNameSuffix = null)
+        private List<MorphConfig> LoadSettingsFromFile(string subDir, string fileName, string morphNameSuffix = null)
         {
             string path = $@"{_script.PluginPath()}\settings\morphmultipliers\female\{fileName}.json";
             var json = _script.LoadJSON(path).AsObject;
@@ -68,7 +69,7 @@ namespace TittyMagic
                     json[name]["IsNegative"].AsBool,
                     json[name]["Multiplier1"].AsFloat,
                     json[name]["Multiplier2"].AsFloat
-                ) as Config;
+                );
             }).ToList();
         }
 
@@ -259,8 +260,7 @@ namespace TittyMagic
         {
             foreach(var config in _configSets[configSetName])
             {
-                var morphConfig = (MorphConfig) config;
-                UpdateValue(morphConfig, effect);
+                UpdateValue(config, effect);
             }
         }
 

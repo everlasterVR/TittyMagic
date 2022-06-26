@@ -3,7 +3,9 @@ src\Components\SettingsMonitor.cs
 src\Extensions\MVRScriptExtensions.cs
 src\Extensions\StringExtension.cs
 src\Extensions\UIDynamicSliderExtension.cs
-src\Handlers\Config.cs
+src\Handlers\Configs\GravityPhysicsConfig.cs
+src\Handlers\Configs\MorphConfig.cs
+src\Handlers\Configs\StaticPhysicsConfig.cs
 src\Handlers\ForceMorphHandler.cs
 src\Handlers\ForcePhysicsHandler.cs
 src\Handlers\GravityEffectCalc.cs

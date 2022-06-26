@@ -1,5 +1,6 @@
 ﻿// ReSharper disable RedundantUsingDirective
 using System.Collections.Generic;
+using TittyMagic.Configs;
 using UnityEngine;
 using static TittyMagic.Utils;
 using static TittyMagic.GravityEffectCalc;
@@ -23,7 +24,7 @@ namespace TittyMagic
         public Multiplier yMultiplier { get; }
         public Multiplier zMultiplier { get; }
 
-        private Dictionary<string, List<Config>> _configSets;
+        private Dictionary<string, List<GravityPhysicsConfig>> _configSets;
 
         public ForcePhysicsHandler(
             MainPhysicsHandler mainPhysicsHandler,
@@ -43,7 +44,7 @@ namespace TittyMagic
 
         public void LoadSettings()
         {
-            _configSets = new Dictionary<string, List<Config>>
+            _configSets = new Dictionary<string, List<GravityPhysicsConfig>>
             {
                 { Direction.DOWN_L, DownLConfigs() },
                 { Direction.DOWN_R, DownRConfigs() },
@@ -60,86 +61,86 @@ namespace TittyMagic
             };
         }
 
-        private List<Config> DownLConfigs()
+        private List<GravityPhysicsConfig> DownLConfigs()
         {
-            return new List<Config>
+            return new List<GravityPhysicsConfig>
             {
             };
         }
 
-        private List<Config> DownRConfigs()
+        private List<GravityPhysicsConfig> DownRConfigs()
         {
-            return new List<Config>
+            return new List<GravityPhysicsConfig>
             {
             };
         }
 
-        private List<Config> UpLConfigs()
+        private List<GravityPhysicsConfig> UpLConfigs()
         {
-            return new List<Config>
+            return new List<GravityPhysicsConfig>
             {
             };
         }
 
-        private List<Config> UpRConfigs()
+        private List<GravityPhysicsConfig> UpRConfigs()
         {
-            return new List<Config>
+            return new List<GravityPhysicsConfig>
             {
             };
         }
 
-        private List<Config> BackLConfigs()
+        private List<GravityPhysicsConfig> BackLConfigs()
         {
-            return new List<Config>
+            return new List<GravityPhysicsConfig>
             {
             };
         }
 
-        private List<Config> BackRConfigs()
+        private List<GravityPhysicsConfig> BackRConfigs()
         {
-            return new List<Config>
+            return new List<GravityPhysicsConfig>
             {
             };
         }
 
-        private List<Config> ForwardLConfigs()
+        private List<GravityPhysicsConfig> ForwardLConfigs()
         {
-            return new List<Config>
+            return new List<GravityPhysicsConfig>
             {
             };
         }
 
-        private List<Config> ForwardRConfigs()
+        private List<GravityPhysicsConfig> ForwardRConfigs()
         {
-            return new List<Config>
+            return new List<GravityPhysicsConfig>
             {
             };
         }
 
-        private List<Config> LeftLConfigs()
+        private List<GravityPhysicsConfig> LeftLConfigs()
         {
-            return new List<Config>
+            return new List<GravityPhysicsConfig>
             {
             };
         }
 
-        private List<Config> LeftRConfigs()
+        private List<GravityPhysicsConfig> LeftRConfigs()
         {
-            return new List<Config>
+            return new List<GravityPhysicsConfig>
             {
             };
         }
 
-        private List<Config> RightLConfigs()
+        private List<GravityPhysicsConfig> RightLConfigs()
         {
-            return new List<Config>
+            return new List<GravityPhysicsConfig>
             {
             };
         }
 
-        private List<Config> RightRConfigs()
+        private List<GravityPhysicsConfig> RightRConfigs()
         {
-            return new List<Config>
+            return new List<GravityPhysicsConfig>
             {
             };
         }
@@ -293,8 +294,7 @@ namespace TittyMagic
         {
             foreach(var config in _configSets[configSetName])
             {
-                var gravityPhysicsConfig = (GravityPhysicsConfig) config;
-                gravityPhysicsConfig.updateFunction(effect);
+                config.updateFunction(effect);
             }
         }
 

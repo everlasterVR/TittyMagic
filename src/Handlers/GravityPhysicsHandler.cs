@@ -1,5 +1,6 @@
 ﻿// ReSharper disable RedundantUsingDirective
 using System.Collections.Generic;
+using TittyMagic.Configs;
 using static TittyMagic.Utils;
 using static TittyMagic.GravityEffectCalc;
 
@@ -16,7 +17,7 @@ namespace TittyMagic
         public Multiplier yMultiplier { get; }
         public Multiplier zMultiplier { get; }
 
-        private Dictionary<string, List<Config>> _configSets;
+        private Dictionary<string, List<GravityPhysicsConfig>> _configSets;
 
         public GravityPhysicsHandler(MainPhysicsHandler mainPhysicsHandler)
         {
@@ -28,7 +29,7 @@ namespace TittyMagic
 
         public void LoadSettings()
         {
-            _configSets = new Dictionary<string, List<Config>>
+            _configSets = new Dictionary<string, List<GravityPhysicsConfig>>
             {
                 { Direction.DOWN, DownConfigs() },
                 { Direction.UP, UpConfigs() },
@@ -39,7 +40,7 @@ namespace TittyMagic
             };
         }
 
-        private List<Config> DownConfigs()
+        private List<GravityPhysicsConfig> DownConfigs()
         {
             var targetRotationX = new GravityPhysicsConfig(-16f, -12f, isNegative: true);
 
@@ -50,13 +51,13 @@ namespace TittyMagic
                 _mainPhysicsHandler.SetTargetRotationXRight(newValue);
             };
 
-            return new List<Config>
+            return new List<GravityPhysicsConfig>
             {
                 targetRotationX,
             };
         }
 
-        private List<Config> UpConfigs()
+        private List<GravityPhysicsConfig> UpConfigs()
         {
             var targetRotationX = new GravityPhysicsConfig(10.7f, 8f);
 
@@ -67,13 +68,13 @@ namespace TittyMagic
                 _mainPhysicsHandler.SetTargetRotationXRight(newValue);
             };
 
-            return new List<Config>
+            return new List<GravityPhysicsConfig>
             {
                 targetRotationX,
             };
         }
 
-        private List<Config> BackConfigs()
+        private List<GravityPhysicsConfig> BackConfigs()
         {
             var centerOfGravityPercent = new GravityPhysicsConfig(-0.071f, -0.053f, isNegative: true, multiplyInvertedMass: true);
             var spring = new GravityPhysicsConfig(-7.0f, -5.3f, isNegative: true);
@@ -112,7 +113,7 @@ namespace TittyMagic
                 _mainPhysicsHandler.AddToRightJointPositionDamperZ(newValue);
             };
 
-            return new List<Config>
+            return new List<GravityPhysicsConfig>
             {
                 centerOfGravityPercent,
                 spring,
@@ -122,7 +123,7 @@ namespace TittyMagic
             };
         }
 
-        private List<Config> ForwardConfigs()
+        private List<GravityPhysicsConfig> ForwardConfigs()
         {
             var centerOfGravityPercent = new GravityPhysicsConfig(0.141f, 0.106f, isNegative: false, multiplyInvertedMass: true);
             var spring = new GravityPhysicsConfig(-7.0f, -5.3f, isNegative: true);
@@ -154,7 +155,7 @@ namespace TittyMagic
                 _mainPhysicsHandler.AddToRightJointPositionSpringZ(newValue);
             };
 
-            return new List<Config>
+            return new List<GravityPhysicsConfig>
             {
                 centerOfGravityPercent,
                 spring,
@@ -163,7 +164,7 @@ namespace TittyMagic
             };
         }
 
-        private List<Config> LeftConfigs()
+        private List<GravityPhysicsConfig> LeftConfigs()
         {
             var targetRotationY = new GravityPhysicsConfig(16f, 12f);
 
@@ -174,13 +175,13 @@ namespace TittyMagic
                 _mainPhysicsHandler.SetTargetRotationYRight(newValue);
             };
 
-            return new List<Config>
+            return new List<GravityPhysicsConfig>
             {
                 targetRotationY,
             };
         }
 
-        private List<Config> RightConfigs()
+        private List<GravityPhysicsConfig> RightConfigs()
         {
             var targetRotationY = new GravityPhysicsConfig(-16f, -12f, isNegative: true);
 
@@ -191,7 +192,7 @@ namespace TittyMagic
                 _mainPhysicsHandler.SetTargetRotationYRight(newValue);
             };
 
-            return new List<Config>
+            return new List<GravityPhysicsConfig>
             {
                 targetRotationY,
             };
@@ -300,8 +301,7 @@ namespace TittyMagic
         {
             foreach(var config in _configSets[configSetName])
             {
-                var gravityPhysicsConfig = (GravityPhysicsConfig) config;
-                gravityPhysicsConfig.updateFunction(effect);
+                config.updateFunction(effect);
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SimpleJSON;
+using TittyMagic.Configs;
 using UnityEngine;
 
 namespace TittyMagic
