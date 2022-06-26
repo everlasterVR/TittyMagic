@@ -2,7 +2,7 @@ using System;
 
 namespace TittyMagic.Configs
 {
-    internal class GravityPhysicsConfig
+    internal class DynamicPhysicsConfig
     {
         public bool isNegative { get; }
         public float softnessMultiplier { get; }
@@ -10,14 +10,15 @@ namespace TittyMagic.Configs
 
         public bool multiplyInvertedMass { get; }
 
-        public Action<float> updateFunction { get; set; }
+        public bool additive { get; }
 
-        public GravityPhysicsConfig(float softnessMultiplier, float massMultiplier, bool isNegative = false, bool multiplyInvertedMass = false)
+        public DynamicPhysicsConfig(float softnessMultiplier, float massMultiplier, bool isNegative = false, bool multiplyInvertedMass = false, bool additive = true)
         {
             this.softnessMultiplier = softnessMultiplier;
             this.massMultiplier = massMultiplier;
             this.isNegative = isNegative;
             this.multiplyInvertedMass = multiplyInvertedMass;
+            this.additive = additive;
         }
     }
 }

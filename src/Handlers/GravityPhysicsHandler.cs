@@ -1,7 +1,6 @@
-﻿// ReSharper disable RedundantUsingDirective
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TittyMagic.Configs;
-using static TittyMagic.Utils;
+using static TittyMagic.MVRParamName;
 using static TittyMagic.GravityEffectCalc;
 
 namespace TittyMagic
@@ -9,6 +8,8 @@ namespace TittyMagic
     internal class GravityPhysicsHandler
     {
         private readonly MainPhysicsHandler _mainPhysicsHandler;
+        private List<PhysicsParameter> _leftBreastParams;
+        private List<PhysicsParameter> _rightBreastParams;
 
         private float _mass;
         private float _softness;
@@ -16,8 +17,6 @@ namespace TittyMagic
         public Multiplier xMultiplier { get; }
         public Multiplier yMultiplier { get; }
         public Multiplier zMultiplier { get; }
-
-        private Dictionary<string, List<GravityPhysicsConfig>> _configSets;
 
         public GravityPhysicsHandler(MainPhysicsHandler mainPhysicsHandler)
         {
@@ -29,172 +28,82 @@ namespace TittyMagic
 
         public void LoadSettings()
         {
-            _configSets = new Dictionary<string, List<GravityPhysicsConfig>>
-            {
-                { Direction.DOWN, DownConfigs() },
-                { Direction.UP, UpConfigs() },
-                { Direction.BACK, BackConfigs() },
-                { Direction.FORWARD, ForwardConfigs() },
-                { Direction.LEFT, LeftConfigs() },
-                { Direction.RIGHT, RightConfigs() },
-            };
+            SetupGravityPhysicsConfigs(_mainPhysicsHandler.leftBreastParameters);
+            SetupGravityPhysicsConfigs(_mainPhysicsHandler.rightBreastParameters);
+            _leftBreastParams = _mainPhysicsHandler.leftBreastParameters.Values.ToList();
+            _rightBreastParams = _mainPhysicsHandler.rightBreastParameters.Values.ToList();
         }
 
-        private List<GravityPhysicsConfig> DownConfigs()
+        private static void SetupGravityPhysicsConfigs(Dictionary<string, PhysicsParameter> parameters)
         {
-            var targetRotationX = new GravityPhysicsConfig(-16f, -12f, isNegative: true);
-
-            targetRotationX.updateFunction = value =>
+            parameters[CENTER_OF_GRAVITY_PERCENT].gravityPhysicsConfigs = new Dictionary<string, DynamicPhysicsConfig>
             {
-                float newValue = NewValue(targetRotationX, value);
-                _mainPhysicsHandler.SetTargetRotationXLeft(newValue);
-                _mainPhysicsHandler.SetTargetRotationXRight(newValue);
+                { Direction.DOWN, null },
+                { Direction.UP, null },
+                { Direction.BACK, new DynamicPhysicsConfig(-0.071f, -0.053f, isNegative: true, multiplyInvertedMass: true) },
+                { Direction.FORWARD, new DynamicPhysicsConfig(0.141f, 0.106f, isNegative: false, multiplyInvertedMass: true) },
+                { Direction.LEFT, null },
+                { Direction.RIGHT, null },
             };
 
-            return new List<GravityPhysicsConfig>
+            parameters[SPRING].gravityPhysicsConfigs = new Dictionary<string, DynamicPhysicsConfig>
             {
-                targetRotationX,
-            };
-        }
-
-        private List<GravityPhysicsConfig> UpConfigs()
-        {
-            var targetRotationX = new GravityPhysicsConfig(10.7f, 8f);
-
-            targetRotationX.updateFunction = value =>
-            {
-                float newValue = NewValue(targetRotationX, value);
-                _mainPhysicsHandler.SetTargetRotationXLeft(newValue);
-                _mainPhysicsHandler.SetTargetRotationXRight(newValue);
+                { Direction.DOWN, null },
+                { Direction.UP, null },
+                { Direction.BACK, new DynamicPhysicsConfig(-7.0f, -5.3f, isNegative: true) },
+                { Direction.FORWARD, new DynamicPhysicsConfig(-7.0f, -5.3f, isNegative: true) },
+                { Direction.LEFT, null },
+                { Direction.RIGHT, null },
             };
 
-            return new List<GravityPhysicsConfig>
+            parameters[DAMPER].gravityPhysicsConfigs = new Dictionary<string, DynamicPhysicsConfig>
             {
-                targetRotationX,
-            };
-        }
-
-        private List<GravityPhysicsConfig> BackConfigs()
-        {
-            var centerOfGravityPercent = new GravityPhysicsConfig(-0.071f, -0.053f, isNegative: true, multiplyInvertedMass: true);
-            var spring = new GravityPhysicsConfig(-7.0f, -5.3f, isNegative: true);
-            var damper = new GravityPhysicsConfig(-0.27f, -0.36f, isNegative: true);
-            var positionSpringZ = new GravityPhysicsConfig(-180f, -140f, isNegative: true);
-            var positionDamperZ = new GravityPhysicsConfig(-15f, 5f, isNegative: true, multiplyInvertedMass: true);
-
-            centerOfGravityPercent.updateFunction = value =>
-            {
-                float newValue = NewValue(centerOfGravityPercent, value);
-                _mainPhysicsHandler.AddToLeftCenterOfGravity(newValue);
-                _mainPhysicsHandler.AddToRightCenterOfGravity(newValue);
-            };
-            spring.updateFunction = value =>
-            {
-                float newValue = NewValue(spring, value);
-                _mainPhysicsHandler.AddToLeftJointSpring(newValue);
-                _mainPhysicsHandler.AddToRightJointSpring(newValue);
-            };
-            damper.updateFunction = value =>
-            {
-                float newValue = NewValue(damper, value);
-                _mainPhysicsHandler.AddToLeftJointDamper(newValue);
-                _mainPhysicsHandler.AddToRightJointDamper(newValue);
-            };
-            positionSpringZ.updateFunction = value =>
-            {
-                float newValue = NewValue(positionSpringZ, value);
-                _mainPhysicsHandler.AddToLeftJointPositionSpringZ(newValue);
-                _mainPhysicsHandler.AddToRightJointPositionSpringZ(newValue);
-            };
-            positionDamperZ.updateFunction = value =>
-            {
-                float newValue = NewValue(positionDamperZ, value);
-                _mainPhysicsHandler.AddToLeftJointPositionDamperZ(newValue);
-                _mainPhysicsHandler.AddToRightJointPositionDamperZ(newValue);
+                { Direction.DOWN, null },
+                { Direction.UP, null },
+                { Direction.BACK, new DynamicPhysicsConfig(-0.27f, -0.36f, isNegative: true) },
+                { Direction.FORWARD, new DynamicPhysicsConfig(-0.27f, -0.36f, isNegative: true) },
+                { Direction.LEFT, null },
+                { Direction.RIGHT, null },
             };
 
-            return new List<GravityPhysicsConfig>
+            parameters[POSITION_SPRING_Z].gravityPhysicsConfigs = new Dictionary<string, DynamicPhysicsConfig>
             {
-                centerOfGravityPercent,
-                spring,
-                damper,
-                positionSpringZ,
-                positionDamperZ,
-            };
-        }
-
-        private List<GravityPhysicsConfig> ForwardConfigs()
-        {
-            var centerOfGravityPercent = new GravityPhysicsConfig(0.141f, 0.106f, isNegative: false, multiplyInvertedMass: true);
-            var spring = new GravityPhysicsConfig(-7.0f, -5.3f, isNegative: true);
-            var damper = new GravityPhysicsConfig(-0.27f, -0.36f, isNegative: true);
-            var positionSpringZ = new GravityPhysicsConfig(-180f, -140f, isNegative: true);
-
-            centerOfGravityPercent.updateFunction = value =>
-            {
-                float newValue = NewValue(centerOfGravityPercent, value);
-                _mainPhysicsHandler.AddToLeftCenterOfGravity(newValue);
-                _mainPhysicsHandler.AddToRightCenterOfGravity(newValue);
-            };
-            spring.updateFunction = value =>
-            {
-                float newValue = NewValue(spring, value);
-                _mainPhysicsHandler.AddToLeftJointSpring(newValue);
-                _mainPhysicsHandler.AddToRightJointSpring(newValue);
-            };
-            damper.updateFunction = value =>
-            {
-                float newValue = NewValue(damper, value);
-                _mainPhysicsHandler.AddToLeftJointDamper(newValue);
-                _mainPhysicsHandler.AddToRightJointDamper(newValue);
-            };
-            positionSpringZ.updateFunction = value =>
-            {
-                float newValue = NewValue(positionSpringZ, value);
-                _mainPhysicsHandler.AddToLeftJointPositionSpringZ(newValue);
-                _mainPhysicsHandler.AddToRightJointPositionSpringZ(newValue);
+                { Direction.DOWN, null },
+                { Direction.UP, null },
+                { Direction.BACK, new DynamicPhysicsConfig(-180f, -140f, isNegative: true) },
+                { Direction.FORWARD, new DynamicPhysicsConfig(-180f, -140f, isNegative: true) },
+                { Direction.LEFT, null },
+                { Direction.RIGHT, null },
             };
 
-            return new List<GravityPhysicsConfig>
+            parameters[POSITION_DAMPER_Z].gravityPhysicsConfigs = new Dictionary<string, DynamicPhysicsConfig>
             {
-                centerOfGravityPercent,
-                spring,
-                damper,
-                positionSpringZ,
-            };
-        }
-
-        private List<GravityPhysicsConfig> LeftConfigs()
-        {
-            var targetRotationY = new GravityPhysicsConfig(16f, 12f);
-
-            targetRotationY.updateFunction = value =>
-            {
-                float newValue = NewValue(targetRotationY, value);
-                _mainPhysicsHandler.SetTargetRotationYLeft(newValue);
-                _mainPhysicsHandler.SetTargetRotationYRight(newValue);
+                { Direction.DOWN, null },
+                { Direction.UP, null },
+                { Direction.BACK, new DynamicPhysicsConfig(-15f, 5f, isNegative: true, multiplyInvertedMass: true) },
+                { Direction.FORWARD, new DynamicPhysicsConfig(0f, 0f) },
+                { Direction.LEFT, null },
+                { Direction.RIGHT, null },
             };
 
-            return new List<GravityPhysicsConfig>
+            parameters[TARGET_ROTATION_X].gravityPhysicsConfigs = new Dictionary<string, DynamicPhysicsConfig>
             {
-                targetRotationY,
-            };
-        }
-
-        private List<GravityPhysicsConfig> RightConfigs()
-        {
-            var targetRotationY = new GravityPhysicsConfig(-16f, -12f, isNegative: true);
-
-            targetRotationY.updateFunction = value =>
-            {
-                float newValue = NewValue(targetRotationY, value);
-                _mainPhysicsHandler.SetTargetRotationYLeft(newValue);
-                _mainPhysicsHandler.SetTargetRotationYRight(newValue);
+                { Direction.DOWN, new DynamicPhysicsConfig(-16f, -12f, isNegative: true, additive: false) },
+                { Direction.UP, new DynamicPhysicsConfig(10.7f, 8f, additive: false) },
+                { Direction.BACK, null },
+                { Direction.FORWARD, null },
+                { Direction.LEFT, null },
+                { Direction.RIGHT, null },
             };
 
-            return new List<GravityPhysicsConfig>
+            parameters[TARGET_ROTATION_Y].gravityPhysicsConfigs = new Dictionary<string, DynamicPhysicsConfig>
             {
-                targetRotationY,
+                { Direction.DOWN, null },
+                { Direction.UP, null },
+                { Direction.BACK, null },
+                { Direction.FORWARD, null },
+                { Direction.LEFT, new DynamicPhysicsConfig(16f, 12f, additive: false) },
+                { Direction.RIGHT, new DynamicPhysicsConfig(-16f, -12f, isNegative: true, additive: false) },
             };
         }
 
@@ -297,27 +206,41 @@ namespace TittyMagic
             }
         }
 
-        private void UpdatePhysics(string configSetName, float effect)
+        private void UpdatePhysics(string direction, float effect)
         {
-            foreach(var config in _configSets[configSetName])
+            _leftBreastParams.ForEach(param => UpdateParam(param, direction, effect));
+            _rightBreastParams.ForEach(param => UpdateParam(param, direction, effect));
+        }
+
+        private void UpdateParam(PhysicsParameter param, string direction, float effect)
+        {
+            if(param.gravityPhysicsConfigs == null || !param.gravityPhysicsConfigs.ContainsKey(direction))
+                return;
+
+            var config = param.gravityPhysicsConfigs[direction];
+            if(config != null)
             {
-                config.updateFunction(effect);
+                float value = NewValue(config, effect);
+                if(config.additive)
+                {
+                    param.AddValue(value);
+                }
+                else
+                {
+                    param.SetValue(value);
+                }
             }
         }
 
-        private float NewValue(GravityPhysicsConfig config, float effect)
-        {
-            float value = CalculateValue(config, effect);
-            bool inRange = config.isNegative ? value < 0 : value > 0;
-            return inRange ? value : 0;
-        }
-
-        private float CalculateValue(GravityPhysicsConfig config, float effect)
+        private float NewValue(DynamicPhysicsConfig config, float effect)
         {
             float mass = config.multiplyInvertedMass ? 1 - _mass : _mass;
-            return
+            float value =
                 _softness * config.softnessMultiplier * effect +
                 mass * config.massMultiplier * effect;
+
+            bool inRange = config.isNegative ? value < 0 : value > 0;
+            return inRange ? value : 0;
         }
     }
 }

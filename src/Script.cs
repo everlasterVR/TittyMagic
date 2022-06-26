@@ -193,7 +193,7 @@ namespace TittyMagic
             _mainWindow = new MainWindow(this);
             _morphingWindow = new MorphingWindow(this);
             _gravityWindow = new GravityWindow(this);
-            _advancedWindow = new AdvancedWindow(this, _mainPhysicsHandler);
+            _advancedWindow = new AdvancedWindow(this);
 
             SetupStorables();
             CreateNavigation();
@@ -216,12 +216,12 @@ namespace TittyMagic
 
         public void LoadSettings()
         {
-            _forceMorphHandler.LoadSettings();
-            _forcePhysicsHandler.LoadSettings();
-            _gravityPhysicsHandler.LoadSettings();
-            _gravityOffsetMorphHandler.LoadSettings();
             _mainPhysicsHandler.LoadSettings(_isFemale && _settingsMonitor.softPhysicsEnabled);
             _softPhysicsHandler?.LoadSettings();
+            _gravityPhysicsHandler.LoadSettings();
+            _forcePhysicsHandler.LoadSettings();
+            _forceMorphHandler.LoadSettings();
+            _gravityOffsetMorphHandler.LoadSettings();
         }
 
         private void InitializeValuesAppliedByListeners()
@@ -422,7 +422,11 @@ namespace TittyMagic
                 _nippleErectionMorphHandler.Update(val);
                 if(_isFemale && _settingsMonitor.softPhysicsEnabled)
                 {
-                    _softPhysicsHandler.UpdateNipplePhysics(_softnessAmount, val);
+                    _softPhysicsHandler.UpdateNipplePhysics(
+                        _mainPhysicsHandler.massAmount,
+                        _softnessAmount,
+                        val
+                    );
                 }
             });
         }
@@ -668,7 +672,11 @@ namespace TittyMagic
                     _softnessAmount,
                     _quicknessAmount
                 );
-                _softPhysicsHandler.UpdateNipplePhysics(_softnessAmount, nippleErection.val);
+                _softPhysicsHandler.UpdateNipplePhysics(
+                    _mainPhysicsHandler.massAmount,
+                    _softnessAmount,
+                    nippleErection.val
+                );
             }
 
             RunHandlers(false);
@@ -707,7 +715,11 @@ namespace TittyMagic
                     _softnessAmount,
                     _quicknessAmount
                 );
-                _softPhysicsHandler.UpdateNipplePhysics(_softnessAmount, nippleErection.val);
+                _softPhysicsHandler.UpdateNipplePhysics(
+                    _mainPhysicsHandler.massAmount,
+                    _softnessAmount,
+                    nippleErection.val
+                );
             }
 
             _refreshStatus = RefreshStatus.MASS_OK;

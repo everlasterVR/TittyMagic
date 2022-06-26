@@ -82,8 +82,6 @@ namespace TittyMagic.Configs
     {
         public bool dependOnPhysicsRate { get; set; }
         public bool useRealMass { get; set; }
-        public StaticPhysicsConfigBase quicknessOffsetConfig { get; set; }
-        public StaticPhysicsConfigBase slownessOffsetConfig { get; set; }
 
         public StaticPhysicsConfig(float minMminS, float maxMminS, float minMmaxS)
         {
@@ -91,24 +89,6 @@ namespace TittyMagic.Configs
             this.maxMminS = maxMminS;
             this.minMmaxS = minMmaxS;
             calculationFunction = CalculateByProportionalSum;
-        }
-
-        public float Calculate(float mass, float softness, float quickness)
-        {
-            float value = base.Calculate(mass, softness);
-            if(quicknessOffsetConfig != null && quickness > 0)
-            {
-                float maxQuicknessOffset = quicknessOffsetConfig.Calculate(mass, softness);
-                value += Mathf.Lerp(0, maxQuicknessOffset, quickness);
-            }
-
-            if(slownessOffsetConfig != null && quickness < 0)
-            {
-                float maxSlownessOffset = slownessOffsetConfig.Calculate(mass, softness);
-                value += Mathf.Lerp(0, maxSlownessOffset, -quickness);
-            }
-
-            return value;
         }
     }
 }

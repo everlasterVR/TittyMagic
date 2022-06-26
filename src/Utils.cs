@@ -75,6 +75,11 @@ namespace TittyMagic
             script.RegisterFloat(storable);
             return storable;
         }
+
+        public static float PhysicsRateMultiplier()
+        {
+            return 0.01666667f / Time.fixedDeltaTime;
+        }
     }
 
     internal static class Curves
