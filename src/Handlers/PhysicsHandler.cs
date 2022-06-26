@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using SimpleJSON;
 using UnityEngine;
 
 namespace TittyMagic
@@ -18,8 +19,8 @@ namespace TittyMagic
 
         private readonly List<string> _adjustJointsFloatParamNames;
         private readonly List<string> _breastPhysicsMeshFloatParamNames;
-        private Dictionary<string, float> _originalAdjustJointsFloatValues;
-        private Dictionary<string, float> _originalBreastPhysicsMeshFloatValues;
+        private Dictionary<string, float> _originalBreastControlFloats;
+        private Dictionary<string, float> _originalBreastPhysicsMeshFloats;
         private bool _originalPectoralRbLeftDetectCollisions;
         private bool _originalPectoralRbRightDetectCollisions;
         private bool _originalAutoFatColliderRadius;
@@ -682,11 +683,11 @@ namespace TittyMagic
                     group.useParentSettings = false;
                 }
 
-                _originalBreastPhysicsMeshFloatValues = new Dictionary<string, float>();
+                _originalBreastPhysicsMeshFloats = new Dictionary<string, float>();
                 foreach(string name in _breastPhysicsMeshFloatParamNames)
                 {
                     var param = _breastPhysicsMesh.GetFloatJSONParam(name);
-                    _originalBreastPhysicsMeshFloatValues[name] = param.val;
+                    _originalBreastPhysicsMeshFloats[name] = param.val;
                     param.val = 0;
                 }
             }
@@ -697,11 +698,11 @@ namespace TittyMagic
             _pectoralRbLeft.detectCollisions = false;
             _pectoralRbRight.detectCollisions = false;
 
-            _originalAdjustJointsFloatValues = new Dictionary<string, float>();
+            _originalBreastControlFloats = new Dictionary<string, float>();
             foreach(string name in _adjustJointsFloatParamNames)
             {
                 var param = _breastControl.GetFloatJSONParam(name);
-                _originalAdjustJointsFloatValues[name] = param.val;
+                _originalBreastControlFloats[name] = param.val;
                 param.val = 0;
             }
         }
@@ -724,17 +725,84 @@ namespace TittyMagic
 
             foreach(string name in _adjustJointsFloatParamNames)
             {
-                _breastControl.GetFloatJSONParam(name).val = _originalAdjustJointsFloatValues[name];
+                _breastControl.GetFloatJSONParam(name).val = _originalBreastControlFloats[name];
             }
             foreach(string name in _breastPhysicsMeshFloatParamNames)
             {
-                _breastPhysicsMesh.GetFloatJSONParam(name).val = _originalBreastPhysicsMeshFloatValues[name];
+                _breastPhysicsMesh.GetFloatJSONParam(name).val = _originalBreastPhysicsMeshFloats[name];
             }
         }
 
         public void Reset()
         {
             RestoreOriginalPhysics();
+        }
+
+        public JSONClass Serialize()
+        {
+            var json = new JSONClass();
+            json["breastControlFloats"] = JSONArrayFromDictionary(_originalBreastControlFloats);
+            json["breastPhysicsMeshFloats"] = JSONArrayFromDictionary(_originalBreastPhysicsMeshFloats);
+            json["pectoralRbLeftDetectCollisions"].AsBool = _originalPectoralRbLeftDetectCollisions;
+            json["pectoralRbRightDetectCollisions"].AsBool = _originalPectoralRbRightDetectCollisions;
+            json["autoFatColliderRadius"].AsBool = _originalAutoFatColliderRadius;
+            json["hardColliders"].AsBool = _originalHardColliders;
+            json["selfCollision"].AsBool = _originalSelfCollision;
+            json["groupsUseParentSettings"] = JSONArrayFromDictionary(_originalGroupsUseParentSettings);
+            return json;
+        }
+
+        private static JSONArray JSONArrayFromDictionary(Dictionary<string, float> dictionary)
+        {
+            var jsonArray = new JSONArray();
+            foreach(var kvp in dictionary)
+            {
+                var entry = new JSONClass();
+                entry["paramName"] = kvp.Key;
+                entry["value"].AsFloat = kvp.Value;
+                jsonArray.Add(entry);
+            }
+            return jsonArray;
+        }
+
+        private static JSONArray JSONArrayFromDictionary(Dictionary<string, bool> dictionary)
+        {
+            var jsonArray = new JSONArray();
+            foreach(var kvp in dictionary)
+            {
+                var entry = new JSONClass();
+                entry["paramName"] = kvp.Key;
+                entry["value"].AsBool = kvp.Value;
+                jsonArray.Add(entry);
+            }
+            return jsonArray;
+        }
+
+        public void RestoreFromJSON(JSONClass originalPhysicsJSON)
+        {
+            var breastControlFloats = originalPhysicsJSON["breastControlFloats"].AsArray;
+            foreach(JSONClass json in breastControlFloats)
+            {
+                _originalBreastControlFloats[json["paramName"].Value] = json["value"].AsFloat;
+            }
+
+            var breastPhysicsMeshFloats = originalPhysicsJSON["breastPhysicsMeshFloats"].AsArray;
+            foreach(JSONClass json in breastPhysicsMeshFloats)
+            {
+                _originalBreastPhysicsMeshFloats[json["paramName"].Value] = json["value"].AsFloat;
+            }
+
+            _originalPectoralRbLeftDetectCollisions = originalPhysicsJSON["pectoralRbLeftDetectCollisions"].AsBool;
+            _originalPectoralRbRightDetectCollisions = originalPhysicsJSON["pectoralRbRightDetectCollisions"].AsBool;
+            _originalAutoFatColliderRadius = originalPhysicsJSON["autoFatColliderRadius"].AsBool;
+            _originalHardColliders = originalPhysicsJSON["hardColliders"].AsBool;
+            _originalSelfCollision = originalPhysicsJSON["selfCollision"].AsBool;
+
+            var groupsUseParentSettings = originalPhysicsJSON["groupsUseParentSettings"].AsArray;
+            foreach(JSONClass json in groupsUseParentSettings)
+            {
+                _originalGroupsUseParentSettings[json["paramName"].Value] = json["value"].AsBool;
+            }
         }
     }
 }

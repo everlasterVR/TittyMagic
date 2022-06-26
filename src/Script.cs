@@ -196,7 +196,7 @@ namespace TittyMagic
 
             if(!_loadingFromJson)
             {
-                StartCoroutine(WaitToBeginRefresh(true));
+                StartCoroutine(WaitToBeginRefresh(refreshMass: true));
             }
             else
             {
@@ -205,6 +205,15 @@ namespace TittyMagic
 
             SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
             StartCoroutine(SetPluginVersion());
+        }
+
+        public void LoadSettings()
+        {
+            _forceMorphHandler.LoadSettings();
+            _forcePhysicsHandler.LoadSettings();
+            _gravityPhysicsHandler.LoadSettings();
+            _gravityOffsetMorphHandler.LoadSettings();
+            _physicsHandler.LoadSettings(_isFemale && _settingsMonitor.softPhysicsEnabled);
         }
 
         private void InitializeValuesAppliedByListeners()
@@ -220,15 +229,6 @@ namespace TittyMagic
             _gravityPhysicsHandler.xMultiplier.mainMultiplier = gravityXStorable.val;
             _gravityPhysicsHandler.zMultiplier.mainMultiplier = gravityZStorable.val;
             _gravityOffsetMorphHandler.yMultiplier.mainMultiplier = gravityYStorable.val;
-        }
-
-        public void LoadSettings()
-        {
-            _forceMorphHandler.LoadSettings();
-            _forcePhysicsHandler.LoadSettings();
-            _gravityPhysicsHandler.LoadSettings();
-            _gravityOffsetMorphHandler.LoadSettings();
-            _physicsHandler.LoadSettings(_isFemale && _settingsMonitor.softPhysicsEnabled);
         }
 
         // https://github.com/vam-community/vam-plugins-interop-specs/blob/main/keybindings.md
@@ -507,7 +507,7 @@ namespace TittyMagic
                     _timeSinceListenersChecked -= LISTENERS_CHECK_INTERVAL;
                     if(CheckListeners())
                     {
-                        StartCoroutine(WaitToBeginRefresh(true));
+                        StartCoroutine(WaitToBeginRefresh(refreshMass: true));
                         return;
                     }
                 }
@@ -803,6 +803,14 @@ namespace TittyMagic
             _physicsHandler.UpdateRateDependentPhysics(_softnessAmount, _quicknessAmount);
         }
 
+        public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
+        {
+            JSONClass json = base.GetJSON(includePhysical, includeAppearance, forceStore);
+            json["originalPhysics"] = _physicsHandler.Serialize();
+            needsStore = true;
+            return json;
+        }
+
         public override void RestoreFromJSON(
             JSONClass json,
             bool restorePhysical = true,
@@ -823,7 +831,13 @@ namespace TittyMagic
             }
 
             base.RestoreFromJSON(json, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
-            StartCoroutine(WaitToBeginRefresh(true));
+            StartCoroutine(WaitToBeginRefresh(refreshMass: true));
+
+            if(json.HasKey("originalPhysics"))
+            {
+                _physicsHandler.RestoreFromJSON(json["originalPhysics"].AsObject);
+            }
+
             _loadingFromJson = false;
         }
 
