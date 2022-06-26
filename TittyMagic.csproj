@@ -93,6 +93,7 @@
     <Compile Include="src\Handlers\GravityEffectCalc.cs" />
     <Compile Include="src\Handlers\GravityOffsetMorphHandler.cs" />
     <Compile Include="src\Handlers\Multiplier.cs" />
+    <Compile Include="src\Handlers\SoftPhysicsHandler.cs" />
     <Compile Include="src\Static\Direction.cs" />
     <Compile Include="src\Static\RefreshStatus.cs" />
     <Compile Include="src\Static\VertexIndexGroup.cs" />
@@ -102,7 +103,7 @@
     <Compile Include="src\Handlers\GravityPhysicsHandler.cs" />
     <Compile Include="src\Handlers\NippleErectionMorphHandler.cs" />
     <Compile Include="src\Handlers\ForceMorphHandler.cs" />
-    <Compile Include="src\Handlers\PhysicsHandler.cs" />
+    <Compile Include="src\Handlers\MainPhysicsHandler.cs" />
     <Compile Include="src\Script.cs" />
     <Compile Include="src\UI\GravityWindow.cs" />
     <Compile Include="src\UI\IWindow.cs" />

@@ -119,6 +119,14 @@ namespace TittyMagic
         public StaticPhysicsConfigBase quicknessOffsetConfig { get; set; }
         public StaticPhysicsConfigBase slownessOffsetConfig { get; set; }
 
+        public StaticPhysicsConfig(float minMminS, float maxMminS, float minMmaxS)
+        {
+            this.minMminS = minMminS;
+            this.maxMminS = maxMminS;
+            this.minMmaxS = minMmaxS;
+            calculationFunction = CalculateByProportionalSum;
+        }
+
         public float Calculate(float mass, float softness, float quickness)
         {
             float value = base.Calculate(mass, softness);
@@ -135,17 +143,6 @@ namespace TittyMagic
             }
 
             return value;
-        }
-    }
-
-    internal class BreastStaticPhysicsConfig : StaticPhysicsConfig
-    {
-        public BreastStaticPhysicsConfig(float minMminS, float maxMminS, float minMmaxS)
-        {
-            this.minMminS = minMminS;
-            this.maxMminS = maxMminS;
-            this.minMmaxS = minMmaxS;
-            calculationFunction = CalculateByProportionalSum;
         }
     }
 }

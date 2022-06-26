@@ -8,7 +8,8 @@ namespace TittyMagic
 {
     internal class ForcePhysicsHandler
     {
-        private readonly PhysicsHandler _physicsHandler;
+        private readonly MainPhysicsHandler _mainPhysicsHandler;
+        private readonly SoftPhysicsHandler _softPhysicsHandler;
 
         private readonly TrackNipple _trackLeftNipple;
         private readonly TrackNipple _trackRightNipple;
@@ -24,9 +25,15 @@ namespace TittyMagic
 
         private Dictionary<string, List<Config>> _configSets;
 
-        public ForcePhysicsHandler(PhysicsHandler physicsHandler, TrackNipple trackLeftNipple, TrackNipple trackRightNipple)
+        public ForcePhysicsHandler(
+            MainPhysicsHandler mainPhysicsHandler,
+            SoftPhysicsHandler softPhysicsHandler,
+            TrackNipple trackLeftNipple,
+            TrackNipple trackRightNipple
+        )
         {
-            _physicsHandler = physicsHandler;
+            _mainPhysicsHandler = mainPhysicsHandler;
+            _softPhysicsHandler = softPhysicsHandler;
             _trackLeftNipple = trackLeftNipple;
             _trackRightNipple = trackRightNipple;
             xMultiplier = new Multiplier();

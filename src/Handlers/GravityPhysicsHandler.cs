@@ -7,7 +7,7 @@ namespace TittyMagic
 {
     internal class GravityPhysicsHandler
     {
-        private readonly PhysicsHandler _physicsHandler;
+        private readonly MainPhysicsHandler _mainPhysicsHandler;
 
         private float _mass;
         private float _softness;
@@ -18,9 +18,9 @@ namespace TittyMagic
 
         private Dictionary<string, List<Config>> _configSets;
 
-        public GravityPhysicsHandler(PhysicsHandler physicsHandler)
+        public GravityPhysicsHandler(MainPhysicsHandler mainPhysicsHandler)
         {
-            _physicsHandler = physicsHandler;
+            _mainPhysicsHandler = mainPhysicsHandler;
             xMultiplier = new Multiplier();
             yMultiplier = new Multiplier();
             zMultiplier = new Multiplier();
@@ -46,8 +46,8 @@ namespace TittyMagic
             targetRotationX.updateFunction = value =>
             {
                 float newValue = NewValue(targetRotationX, value);
-                _physicsHandler.SetTargetRotationXLeft(newValue);
-                _physicsHandler.SetTargetRotationXRight(newValue);
+                _mainPhysicsHandler.SetTargetRotationXLeft(newValue);
+                _mainPhysicsHandler.SetTargetRotationXRight(newValue);
             };
 
             return new List<Config>
@@ -63,8 +63,8 @@ namespace TittyMagic
             targetRotationX.updateFunction = value =>
             {
                 float newValue = NewValue(targetRotationX, value);
-                _physicsHandler.SetTargetRotationXLeft(newValue);
-                _physicsHandler.SetTargetRotationXRight(newValue);
+                _mainPhysicsHandler.SetTargetRotationXLeft(newValue);
+                _mainPhysicsHandler.SetTargetRotationXRight(newValue);
             };
 
             return new List<Config>
@@ -84,32 +84,32 @@ namespace TittyMagic
             centerOfGravityPercent.updateFunction = value =>
             {
                 float newValue = NewValue(centerOfGravityPercent, value);
-                _physicsHandler.AddToLeftCenterOfGravity(newValue);
-                _physicsHandler.AddToRightCenterOfGravity(newValue);
+                _mainPhysicsHandler.AddToLeftCenterOfGravity(newValue);
+                _mainPhysicsHandler.AddToRightCenterOfGravity(newValue);
             };
             spring.updateFunction = value =>
             {
                 float newValue = NewValue(spring, value);
-                _physicsHandler.AddToLeftJointSpring(newValue);
-                _physicsHandler.AddToRightJointSpring(newValue);
+                _mainPhysicsHandler.AddToLeftJointSpring(newValue);
+                _mainPhysicsHandler.AddToRightJointSpring(newValue);
             };
             damper.updateFunction = value =>
             {
                 float newValue = NewValue(damper, value);
-                _physicsHandler.AddToLeftJointDamper(newValue);
-                _physicsHandler.AddToRightJointDamper(newValue);
+                _mainPhysicsHandler.AddToLeftJointDamper(newValue);
+                _mainPhysicsHandler.AddToRightJointDamper(newValue);
             };
             positionSpringZ.updateFunction = value =>
             {
                 float newValue = NewValue(positionSpringZ, value);
-                _physicsHandler.AddToLeftJointPositionSpringZ(newValue);
-                _physicsHandler.AddToRightJointPositionSpringZ(newValue);
+                _mainPhysicsHandler.AddToLeftJointPositionSpringZ(newValue);
+                _mainPhysicsHandler.AddToRightJointPositionSpringZ(newValue);
             };
             positionDamperZ.updateFunction = value =>
             {
                 float newValue = NewValue(positionDamperZ, value);
-                _physicsHandler.AddToLeftJointPositionDamperZ(newValue);
-                _physicsHandler.AddToRightJointPositionDamperZ(newValue);
+                _mainPhysicsHandler.AddToLeftJointPositionDamperZ(newValue);
+                _mainPhysicsHandler.AddToRightJointPositionDamperZ(newValue);
             };
 
             return new List<Config>
@@ -132,26 +132,26 @@ namespace TittyMagic
             centerOfGravityPercent.updateFunction = value =>
             {
                 float newValue = NewValue(centerOfGravityPercent, value);
-                _physicsHandler.AddToLeftCenterOfGravity(newValue);
-                _physicsHandler.AddToRightCenterOfGravity(newValue);
+                _mainPhysicsHandler.AddToLeftCenterOfGravity(newValue);
+                _mainPhysicsHandler.AddToRightCenterOfGravity(newValue);
             };
             spring.updateFunction = value =>
             {
                 float newValue = NewValue(spring, value);
-                _physicsHandler.AddToLeftJointSpring(newValue);
-                _physicsHandler.AddToRightJointSpring(newValue);
+                _mainPhysicsHandler.AddToLeftJointSpring(newValue);
+                _mainPhysicsHandler.AddToRightJointSpring(newValue);
             };
             damper.updateFunction = value =>
             {
                 float newValue = NewValue(damper, value);
-                _physicsHandler.AddToLeftJointDamper(newValue);
-                _physicsHandler.AddToRightJointDamper(newValue);
+                _mainPhysicsHandler.AddToLeftJointDamper(newValue);
+                _mainPhysicsHandler.AddToRightJointDamper(newValue);
             };
             positionSpringZ.updateFunction = value =>
             {
                 float newValue = NewValue(positionSpringZ, value);
-                _physicsHandler.AddToLeftJointPositionSpringZ(newValue);
-                _physicsHandler.AddToRightJointPositionSpringZ(newValue);
+                _mainPhysicsHandler.AddToLeftJointPositionSpringZ(newValue);
+                _mainPhysicsHandler.AddToRightJointPositionSpringZ(newValue);
             };
 
             return new List<Config>
@@ -170,8 +170,8 @@ namespace TittyMagic
             targetRotationY.updateFunction = value =>
             {
                 float newValue = NewValue(targetRotationY, value);
-                _physicsHandler.SetTargetRotationYLeft(newValue);
-                _physicsHandler.SetTargetRotationYRight(newValue);
+                _mainPhysicsHandler.SetTargetRotationYLeft(newValue);
+                _mainPhysicsHandler.SetTargetRotationYRight(newValue);
             };
 
             return new List<Config>
@@ -187,8 +187,8 @@ namespace TittyMagic
             targetRotationY.updateFunction = value =>
             {
                 float newValue = NewValue(targetRotationY, value);
-                _physicsHandler.SetTargetRotationYLeft(newValue);
-                _physicsHandler.SetTargetRotationYRight(newValue);
+                _mainPhysicsHandler.SetTargetRotationYLeft(newValue);
+                _mainPhysicsHandler.SetTargetRotationYRight(newValue);
             };
 
             return new List<Config>
