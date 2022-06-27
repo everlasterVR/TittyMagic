@@ -33,7 +33,6 @@ namespace TittyMagic
         public JSONStorableFloat mass { get; set; }
 
         public MainPhysicsHandler(
-            bool isFemale,
             AdjustJoints breastControl,
             Rigidbody pectoralRbLeft,
             Rigidbody pectoralRbRight

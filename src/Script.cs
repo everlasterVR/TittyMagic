@@ -136,12 +136,7 @@ namespace TittyMagic
             _skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
             _breastVolumeCalculator = new BreastVolumeCalculator(_skin, _chestRb);
 
-            _mainPhysicsHandler = new MainPhysicsHandler(
-                _isFemale,
-                breastControl,
-                _pectoralRbLeft,
-                _pectoralRbRight
-            );
+            _mainPhysicsHandler = new MainPhysicsHandler(breastControl, _pectoralRbLeft, _pectoralRbRight);
             if(_isFemale)
             {
                 _softPhysicsHandler = new SoftPhysicsHandler(this);
