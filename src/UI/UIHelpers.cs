@@ -68,5 +68,20 @@ namespace TittyMagic.UI
 
             return horizontalLayoutGroup;
         }
+
+        public static UIDynamicTextField HeaderTextField(MVRScript script, JSONStorableString storable, string text, bool rightSide)
+        {
+            storable.val = "\n".Size(20) + text.Bold();
+            var textField = script.CreateTextField(storable, rightSide);
+            textField.UItext.fontSize = 30;
+            textField.UItext.alignment = TextAnchor.LowerCenter;
+            textField.backgroundColor = Color.clear;
+
+            var layout = textField.GetComponent<LayoutElement>();
+            layout.preferredHeight = 62;
+            layout.minHeight = 62;
+
+            return textField;
+        }
     }
 }

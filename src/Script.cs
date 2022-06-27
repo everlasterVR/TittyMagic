@@ -193,7 +193,7 @@ namespace TittyMagic
             _mainWindow = new MainWindow(this);
             _morphingWindow = new MorphingWindow(this);
             _gravityWindow = new GravityWindow(this);
-            _advancedWindow = new AdvancedWindow(this);
+            _advancedWindow = new AdvancedWindow(this, _mainPhysicsHandler, _softPhysicsHandler);
 
             SetupStorables();
             CreateNavigation();
