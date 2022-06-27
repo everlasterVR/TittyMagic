@@ -45,15 +45,6 @@ namespace TittyMagic
             return dazMorph;
         }
 
-        public static string NameValueString(
-            string name,
-            float value,
-            float roundFactor = 1000f
-        )
-        {
-            return $"{name} {Calc.RoundToDecimals(value, roundFactor)}";
-        }
-
         public static JSONStorableBool NewJsonStorableBool(this MVRScript script, string paramName, bool startingValue)
         {
             var storable = new JSONStorableBool(paramName, startingValue);
@@ -74,6 +65,16 @@ namespace TittyMagic
             storable.storeType = JSONStorableParam.StoreType.Full;
             script.RegisterFloat(storable);
             return storable;
+        }
+
+        public static JSONStorableFloat NewBaseValueStorable(float min, float max)
+        {
+            return new JSONStorableFloat("Base value", 0, min, max);
+        }
+
+        public static JSONStorableFloat NewCurrentValueStorable(float min, float max)
+        {
+            return new JSONStorableFloat("Current value", 0, min, max);
         }
 
         public static float PhysicsRateMultiplier()

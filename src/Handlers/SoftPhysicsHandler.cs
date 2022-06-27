@@ -3,6 +3,7 @@ using System.Linq;
 using SimpleJSON;
 using TittyMagic.Configs;
 using static TittyMagic.MVRParamName;
+using static TittyMagic.Utils;
 
 namespace TittyMagic
 {
@@ -79,23 +80,108 @@ namespace TittyMagic
 
         private void SetupPhysicsParameters(bool leftBreast)
         {
-            var softVerticesCombinedSpring = new PhysicsParameter("Fat Spring");
-            var softVerticesCombinedDamper = new PhysicsParameter("Fat Damper");
-            var softVerticesMass = new PhysicsParameter("Fat Mass");
-            var softVerticesColliderRadius = new PhysicsParameter("Fat Collider Radius");
-            var softVerticesColliderAdditionalNormalOffset = new PhysicsParameter("Fat Collider Depth");
-            var softVerticesDistanceLimit = new PhysicsParameter("Fat Distance Limit");
-            var softVerticesBackForce = new PhysicsParameter("Fat Back Force");
-            var softVerticesBackForceThresholdDistance = new PhysicsParameter("Fat Bk Force Threshold");
-            var softVerticesBackForceMaxForce = new PhysicsParameter("Fat Bk Force Max Force");
-            var groupASpringMultiplier = new PhysicsParameter("Main Spring Multiplier");
-            var groupADamperMultiplier = new PhysicsParameter("Main Damper Multiplier");
-            var groupBSpringMultiplier = new PhysicsParameter("Outer Spring Multiplier");
-            var groupBDamperMultiplier = new PhysicsParameter("Outer Damper Multiplier");
-            var groupCSpringMultiplier = new PhysicsParameter("Areola Spring Multiplier");
-            var groupCDamperMultiplier = new PhysicsParameter("Areola Damper Multiplier");
-            var groupDSpringMultiplier = new PhysicsParameter("Nipple Spring Multiplier");
-            var groupDDamperMultiplier = new PhysicsParameter("Nipple Damper Multiplier");
+            var softVerticesCombinedSpring = new PhysicsParameter(
+                "Fat Spring",
+                NewBaseValueStorable(0, 500),
+                null,
+                "F2"
+            );
+            var softVerticesCombinedDamper = new PhysicsParameter(
+                "Fat Damper",
+                NewBaseValueStorable(0, 10),
+                null,
+                "F3"
+            );
+            var softVerticesMass = new PhysicsParameter(
+                "Fat Mass",
+                NewBaseValueStorable(0.05f, 0.5f),
+                null,
+                "F3"
+            );
+            var softVerticesColliderRadius = new PhysicsParameter(
+                "Fat Collider Radius",
+                NewBaseValueStorable(0, 0.07f),
+                null,
+                "F3"
+            );
+            var softVerticesColliderAdditionalNormalOffset = new PhysicsParameter(
+                "Fat Collider Depth",
+                NewBaseValueStorable(-0.01f, 0.01f),
+                null,
+                "F3"
+            );
+            var softVerticesDistanceLimit = new PhysicsParameter(
+                "Fat Distance Limit",
+                NewBaseValueStorable(0, 0.1f),
+                null,
+                "F3"
+            );
+            var softVerticesBackForce = new PhysicsParameter(
+                "Fat Back Force",
+                NewBaseValueStorable(0, 50),
+                null,
+                "F2"
+            );
+            var softVerticesBackForceMaxForce = new PhysicsParameter(
+                "Fat Bk Force Max Force",
+                NewBaseValueStorable(0, 50),
+                null,
+                "F2"
+            );
+            var softVerticesBackForceThresholdDistance = new PhysicsParameter(
+                "Fat Bk Force Threshold",
+                NewBaseValueStorable(0, 0.030f),
+                null,
+                "F3"
+            );
+            var groupASpringMultiplier = new PhysicsParameter(
+                "Main Spring Multiplier",
+                NewBaseValueStorable(0, 5),
+                null,
+                "F3"
+            );
+            var groupADamperMultiplier = new PhysicsParameter(
+                "Main Damper Multiplier",
+                NewBaseValueStorable(0, 5),
+                null,
+                "F3"
+            );
+            var groupBSpringMultiplier = new PhysicsParameter(
+                "Outer Spring Multiplier",
+                NewBaseValueStorable(0, 5),
+                null,
+                "F3"
+            );
+            var groupBDamperMultiplier = new PhysicsParameter(
+                "Outer Damper Multiplier",
+                NewBaseValueStorable(0, 5),
+                null,
+                "F3"
+            );
+            var groupCSpringMultiplier = new PhysicsParameter(
+                "Areola Spring Multiplier",
+                NewBaseValueStorable(0, 5),
+                null,
+                "F3"
+            );
+            var groupCDamperMultiplier = new PhysicsParameter(
+                "Areola Damper Multiplier",
+                NewBaseValueStorable(0, 5),
+                null,
+                "F3"
+            );
+            var groupDSpringMultiplier = new PhysicsParameter(
+                "Nipple Spring Multiplier",
+                NewBaseValueStorable(0, 5),
+                null,
+                "F3"
+            );
+            var groupDDamperMultiplier = new PhysicsParameter(
+                "Nipple Damper Multiplier",
+                NewBaseValueStorable(0, 5),
+                null,
+                "F3"
+            );
 
             softVerticesCombinedSpring.config = new StaticPhysicsConfig(500f, 500f, 62f);
             softVerticesCombinedSpring.config.SetLinearCurvesAroundMidpoint(slope: 0.41f);
@@ -148,8 +234,8 @@ namespace TittyMagic
                 softVerticesCombinedDamper.sync = value => { _combinedDamperLeft = value; };
                 softVerticesMass.sync = SyncMassLeft;
                 softVerticesBackForce.sync = SyncBackForceLeft;
-                softVerticesBackForceThresholdDistance.sync = SyncBackForceThresholdDistanceLeft;
                 softVerticesBackForceMaxForce.sync = SyncBackForceMaxForceLeft;
+                softVerticesBackForceThresholdDistance.sync = SyncBackForceThresholdDistanceLeft;
                 softVerticesColliderRadius.sync = SyncColliderRadiusLeft;
                 softVerticesColliderAdditionalNormalOffset.sync = SyncAdditionalNormalOffsetLeft;
                 softVerticesDistanceLimit.sync = SyncDistanceLimitLeft;
@@ -168,8 +254,8 @@ namespace TittyMagic
                 softVerticesCombinedDamper.sync = value => { _combinedDamperRight = value; };
                 softVerticesMass.sync = SyncMassRight;
                 softVerticesBackForce.sync = SyncBackForceRight;
-                softVerticesBackForceThresholdDistance.sync = SyncBackForceThresholdDistanceRight;
                 softVerticesBackForceMaxForce.sync = SyncBackForceMaxForceRight;
+                softVerticesBackForceThresholdDistance.sync = SyncBackForceThresholdDistanceRight;
                 softVerticesColliderRadius.sync = SyncColliderRadiusRight;
                 softVerticesColliderAdditionalNormalOffset.sync = SyncAdditionalNormalOffsetRight;
                 softVerticesDistanceLimit.sync = SyncDistanceLimitRight;
@@ -189,8 +275,8 @@ namespace TittyMagic
                 { SOFT_VERTICES_COMBINED_DAMPER, softVerticesCombinedDamper },
                 { SOFT_VERTICES_MASS, softVerticesMass },
                 { SOFT_VERTICES_BACK_FORCE, softVerticesBackForce },
-                { SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE, softVerticesBackForceThresholdDistance },
                 { SOFT_VERTICES_BACK_FORCE_MAX_FORCE, softVerticesBackForceMaxForce },
+                { SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE, softVerticesBackForceThresholdDistance },
                 { SOFT_VERTICES_COLLIDER_RADIUS, softVerticesColliderRadius },
                 { SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, softVerticesColliderAdditionalNormalOffset },
                 { SOFT_VERTICES_DISTANCE_LIMIT, softVerticesDistanceLimit },
@@ -209,6 +295,12 @@ namespace TittyMagic
                 { GROUP_D_SPRING_MULTIPLIER, groupDSpringMultiplier },
                 { GROUP_D_DAMPER_MULTIPLIER, groupDDamperMultiplier },
             };
+
+            var texts = CreateInfoTexts();
+            foreach(var param in breastParameters)
+            {
+                param.Value.infoText = texts[param.Key];
+            }
 
             if(leftBreast)
             {
@@ -567,6 +659,40 @@ namespace TittyMagic
             {
                 _originalGroupsUseParentSettings[json["paramName"].Value] = json["value"].AsBool;
             }
+        }
+
+        private static Dictionary<string, string> CreateInfoTexts()
+        {
+            var texts = new Dictionary<string, string>();
+
+            texts[SOFT_VERTICES_COMBINED_SPRING] =
+                $"TODO info";
+
+            texts[SOFT_VERTICES_COMBINED_DAMPER] =
+                $"TODO info";
+
+            texts[SOFT_VERTICES_MASS] =
+                $"TODO info";
+
+            texts[SOFT_VERTICES_BACK_FORCE] =
+                $"TODO info";
+
+            texts[SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE] =
+                $"TODO info";
+
+            texts[SOFT_VERTICES_BACK_FORCE_MAX_FORCE] =
+                $"TODO info";
+
+            texts[SOFT_VERTICES_COLLIDER_RADIUS] =
+                $"TODO info";
+
+            texts[SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET] =
+                $"TODO info";
+
+            texts[SOFT_VERTICES_DISTANCE_LIMIT] =
+                $"TODO info";
+
+            return texts;
         }
     }
 }

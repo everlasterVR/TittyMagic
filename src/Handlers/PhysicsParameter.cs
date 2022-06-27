@@ -6,9 +6,11 @@ namespace TittyMagic
 {
     internal class PhysicsParameter
     {
-        public string displayName { get; private set; }
-        public float baseValue { get; private set; }
-        public float currentValue { get; private set; }
+        public string displayName { get; }
+        public JSONStorableFloat baseValue { get; }
+        public JSONStorableFloat currentValue { get; }
+        public string valueFormat { get; }
+        public string infoText { get; set; }
 
         public StaticPhysicsConfig config { get; set; }
         public StaticPhysicsConfigBase quicknessOffsetConfig { get; set; }
@@ -17,22 +19,42 @@ namespace TittyMagic
         public Dictionary<string, DynamicPhysicsConfig> forcePhysicsConfigs { get; set; }
         public Action<float> sync { private get; set; }
 
-        public PhysicsParameter(string displayName)
+        public PhysicsParameter(string displayName, JSONStorableFloat baseValue, JSONStorableFloat currentValue, string valueFormat)
         {
             this.displayName = displayName;
+            this.baseValue = baseValue;
+            this.currentValue = currentValue;
+            this.valueFormat = valueFormat;
+        }
+
+        public PhysicsParameter(string displayName, JSONStorableFloat baseValue, string valueFormat)
+        {
+            this.displayName = displayName;
+            this.baseValue = baseValue;
+            currentValue = Utils.NewCurrentValueStorable(baseValue.min, baseValue.max);
+            this.valueFormat = valueFormat;
         }
 
         public void SetValue(float value)
         {
-            baseValue = value;
-            currentValue = value;
-            sync(currentValue);
+            baseValue?.SetVal(value);
+            currentValue?.SetVal(value);
+            sync(value);
         }
 
         public void AddValue(float value)
         {
-            currentValue = baseValue + value;
-            sync(currentValue);
+            if(currentValue == null)
+            {
+                throw new ArgumentNullException($"currentValue must not be null in for a PhysicsParameter updated with AddValue");
+            }
+
+            currentValue.val = value;
+            if(baseValue != null)
+            {
+                currentValue.val += baseValue.val;
+            }
+            sync(currentValue.val);
         }
     }
 }

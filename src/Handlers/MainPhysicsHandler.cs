@@ -5,6 +5,7 @@ using SimpleJSON;
 using TittyMagic.Configs;
 using UnityEngine;
 using static TittyMagic.MVRParamName;
+using static TittyMagic.Utils;
 
 namespace TittyMagic
 {
@@ -89,13 +90,43 @@ namespace TittyMagic
 
         private void SetupPhysicsParameters(bool leftBreast, bool softPhysicsEnabled)
         {
-            var centerOfGravityPercent = new PhysicsParameter("Center Of Gravity");
-            var spring = new PhysicsParameter("Spring");
-            var damper = new PhysicsParameter("Damper");
-            var positionSpringZ = new PhysicsParameter("In/Out Spring");
-            var positionDamperZ = new PhysicsParameter("In/Out Damper");
-            var targetRotationY = new PhysicsParameter("Right/Left Angle Target");
-            var targetRotationX = new PhysicsParameter("Up/Down Angle Target");
+            var centerOfGravityPercent = new PhysicsParameter(
+                "Center Of Gravity",
+                NewBaseValueStorable(0, 1),
+                "F3"
+            );
+            var spring = new PhysicsParameter(
+                "Spring",
+                NewBaseValueStorable(0, 100),
+                "F2"
+            );
+            var damper = new PhysicsParameter(
+                "Damper",
+                NewBaseValueStorable(0, 5),
+                "F2"
+            );
+            var positionSpringZ = new PhysicsParameter(
+                "In/Out Spring",
+                NewBaseValueStorable(0, 1000),
+                "F2"
+            );
+            var positionDamperZ = new PhysicsParameter(
+                "In/Out Damper",
+                NewBaseValueStorable(0, 1000),
+                "F3"
+            );
+            var targetRotationY = new PhysicsParameter(
+                "Right/Left Angle Target",
+                null,
+                NewCurrentValueStorable(-20, 20),
+                "F2"
+            );
+            var targetRotationX = new PhysicsParameter(
+                "Up/Down Angle Target",
+                null,
+                NewCurrentValueStorable(-20, 20),
+                "F2"
+            );
 
             if(softPhysicsEnabled)
             {
@@ -162,6 +193,13 @@ namespace TittyMagic
                 { TARGET_ROTATION_X, targetRotationX },
                 { TARGET_ROTATION_Y, targetRotationY },
             };
+
+            var texts = CreateInfoTexts();
+            foreach(var param in parameters)
+            {
+                param.Value.infoText = texts[param.Key];
+            }
+
             if(leftBreast)
                 leftBreastParameters = parameters;
             else
@@ -408,6 +446,34 @@ namespace TittyMagic
 
             _originalPectoralRbLeftDetectCollisions = originalPhysicsJSON["pectoralRbLeftDetectCollisions"].AsBool;
             _originalPectoralRbRightDetectCollisions = originalPhysicsJSON["pectoralRbRightDetectCollisions"].AsBool;
+        }
+
+        private static Dictionary<string, string> CreateInfoTexts()
+        {
+            var texts = new Dictionary<string, string>();
+
+            texts[CENTER_OF_GRAVITY_PERCENT] =
+                $"TODO info";
+
+            texts[SPRING] =
+                $"TODO info";
+
+            texts[DAMPER] =
+                $"TODO info";
+
+            texts[POSITION_SPRING_Z] =
+                $"TODO info";
+
+            texts[POSITION_DAMPER_Z] =
+                $"TODO info";
+
+            texts[TARGET_ROTATION_X] =
+                $"TODO info";
+
+            texts[TARGET_ROTATION_Y] =
+                $"TODO info";
+
+            return texts;
         }
     }
 }

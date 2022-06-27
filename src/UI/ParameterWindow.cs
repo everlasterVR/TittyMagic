@@ -13,6 +13,7 @@ namespace TittyMagic.UI
         public Dictionary<string, UIDynamic> elements { get; private set; }
 
         private readonly JSONStorableString _title;
+        private readonly JSONStorableString _infoText;
 
         public ParameterWindow(Script script, PhysicsParameter leftParam, PhysicsParameter rightParam)
         {
@@ -20,7 +21,10 @@ namespace TittyMagic.UI
             _leftParam = leftParam;
             _rightParam = rightParam;
 
-            _title = new JSONStorableString("leftHeader", "");
+            _title = new JSONStorableString($"title", "");
+            _infoText = new JSONStorableString("infoText", "");
+
+            _infoText.val = "\n".Size(12) + leftParam.infoText;
         }
 
         public void Rebuild(UnityAction backButtonListener)
@@ -28,9 +32,39 @@ namespace TittyMagic.UI
             elements = new Dictionary<string, UIDynamic>();
 
             CreateBackButton(backButtonListener, false);
-            elements["leftSpacer"] = _script.NewSpacer(10, true);
-
+            CreateInfoTextArea(_infoText, false);
             CreateHeader(true);
+            elements["headerMargin"] = _script.NewSpacer(20, true);
+
+            if(_leftParam.currentValue != null)
+            {
+                CreateCurrentValueSlider(_leftParam, true);
+            }
+
+            if(_leftParam.baseValue != null)
+            {
+                CreateBaseValueSlider(_leftParam, true);
+            }
+        }
+
+        private void CreateCurrentValueSlider(PhysicsParameter param, bool rightSide)
+        {
+            var slider = _script.CreateSlider(param.currentValue, rightSide);
+            slider.valueFormat = param.valueFormat;
+            slider.slider.interactable = false;
+            slider.quickButtonsEnabled = false;
+            slider.defaultButtonEnabled = false;
+            elements[param.currentValue.name] = slider;
+        }
+
+        private void CreateBaseValueSlider(PhysicsParameter param, bool rightSide)
+        {
+            var slider = _script.CreateSlider(param.baseValue, rightSide);
+            slider.valueFormat = param.valueFormat;
+            slider.slider.interactable = false;
+            slider.quickButtonsEnabled = false;
+            slider.defaultButtonEnabled = false;
+            elements[param.baseValue.name] = slider;
         }
 
         private void CreateBackButton(UnityAction backButtonListener, bool rightSide)
@@ -40,6 +74,14 @@ namespace TittyMagic.UI
             button.buttonColor = UIHelpers.sliderGray;
             button.AddListener(backButtonListener);
             elements["backButton"] = button;
+        }
+
+        private void CreateInfoTextArea(JSONStorableString storable, bool rightSide)
+        {
+            var textField = _script.CreateTextField(storable, rightSide);
+            textField.UItext.fontSize = 28;
+            textField.height = 390;
+            elements[storable.name] = textField;
         }
 
         private void CreateHeader(bool rightSide)

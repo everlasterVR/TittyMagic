@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Events;
 
 namespace TittyMagic.UI
@@ -112,8 +113,9 @@ namespace TittyMagic.UI
 
         private void CreateParamButton(string key, PhysicsParameter param, bool rightSide)
         {
-            var button = _script.CreateButton(param.displayName, rightSide);
+            var button = _script.CreateButton("  " + param.displayName, rightSide);
             button.height = 52;
+            button.buttonText.alignment = TextAnchor.MiddleLeft;
 
             UnityAction backButtonListener = () =>
             {
