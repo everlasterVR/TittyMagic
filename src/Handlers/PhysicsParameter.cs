@@ -49,12 +49,14 @@ namespace TittyMagic
                 throw new ArgumentNullException($"currentValue must not be null in for a PhysicsParameter updated with AddValue");
             }
 
-            currentValue.val = value;
+            float newCurrentValue = value;
             if(baseValue != null)
             {
-                currentValue.val += baseValue.val;
+                newCurrentValue += baseValue.val;
             }
-            sync(currentValue.val);
+
+            currentValue.val = newCurrentValue;
+            sync(newCurrentValue);
         }
     }
 }
