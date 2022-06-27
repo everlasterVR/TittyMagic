@@ -42,15 +42,6 @@ namespace TittyMagic.UI
                         _softPhysicsHandler.rightBreastParameters[key]
                     );
                 });
-            _softPhysicsHandler.leftNippleParameters.Keys.ToList()
-                .ForEach(key =>
-                {
-                    _parameterWindows[key] = new ParameterWindow(
-                        _script,
-                        _softPhysicsHandler.leftNippleParameters[key],
-                        _softPhysicsHandler.rightNippleParameters[key]
-                    );
-                });
             _mainPhysicsHandler.leftBreastParameters.Keys.ToList()
                 .ForEach(key =>
                 {
@@ -66,23 +57,18 @@ namespace TittyMagic.UI
         {
             elements = new Dictionary<string, UIDynamic>();
 
-            CreateSoftPhysicsOnToggle(false, 62);
+            CreateSoftPhysicsOnToggle(false, 35);
             CreateAllowSelfCollisionToggle(false);
             CreateUseAuxBreastCollidersToggle(false);
 
-            CreateHeader(_jointPhysicsParamsHeader, "Joint physics parameters", false, spacing: 310);
+            CreateHeader(_jointPhysicsParamsHeader, "Joint physics parameters", false);
             foreach(var kvp in _mainPhysicsHandler.leftBreastParameters)
             {
                 CreateParamButton(kvp.Key, kvp.Value, false);
             }
 
-            CreateHeader(_softPhysicsParamsHeader, "Soft physics parameters", true);
+            CreateHeader(_softPhysicsParamsHeader, "Soft physics parameters", true, spacing: 236);
             foreach(var kvp in _softPhysicsHandler.leftBreastParameters)
-            {
-                CreateParamButton(kvp.Key, kvp.Value, true);
-            }
-
-            foreach(var kvp in _softPhysicsHandler.leftNippleParameters)
             {
                 CreateParamButton(kvp.Key, kvp.Value, true);
             }

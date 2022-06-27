@@ -29,8 +29,10 @@ namespace TittyMagic
 
         public Dictionary<string, PhysicsParameter> leftBreastParameters { get; private set; }
         public Dictionary<string, PhysicsParameter> rightBreastParameters { get; private set; }
-        public Dictionary<string, PhysicsParameter> leftNippleParameters { get; private set; }
-        public Dictionary<string, PhysicsParameter> rightNippleParameters { get; private set; }
+        public Dictionary<string, PhysicsParameter> leftBreastGroupParameters { get; private set; }
+        public Dictionary<string, PhysicsParameter> rightBreastGroupParameters { get; private set; }
+        public Dictionary<string, PhysicsParameter> leftNippleGroupParameters { get; private set; }
+        public Dictionary<string, PhysicsParameter> rightNippleGroupParameters { get; private set; }
 
         public JSONStorableBool softPhysicsOn { get; }
         public JSONStorableBool allowSelfCollision { get; }
@@ -81,6 +83,7 @@ namespace TittyMagic
             var softVerticesCombinedDamper = new PhysicsParameter("Fat Damper");
             var softVerticesMass = new PhysicsParameter("Fat Mass");
             var softVerticesColliderRadius = new PhysicsParameter("Fat Collider Radius");
+            var softVerticesColliderAdditionalNormalOffset = new PhysicsParameter("Fat Collider Depth");
             var softVerticesDistanceLimit = new PhysicsParameter("Fat Distance Limit");
             var softVerticesBackForce = new PhysicsParameter("Fat Back Force");
             var softVerticesBackForceThresholdDistance = new PhysicsParameter("Fat Bk Force Threshold");
@@ -109,6 +112,8 @@ namespace TittyMagic
 
             softVerticesColliderRadius.config = new StaticPhysicsConfig(0.024f, 0.037f, 0.028f);
             softVerticesColliderRadius.config.useRealMass = true;
+
+            softVerticesColliderAdditionalNormalOffset.config = new StaticPhysicsConfig(0.001f, 0.001f, 0.001f);
 
             softVerticesDistanceLimit.config = new StaticPhysicsConfig(0.020f, 0.068f, 0.028f);
             softVerticesDistanceLimit.config.useRealMass = true;
@@ -146,7 +151,7 @@ namespace TittyMagic
                 softVerticesBackForceThresholdDistance.sync = SyncBackForceThresholdDistanceLeft;
                 softVerticesBackForceMaxForce.sync = SyncBackForceMaxForceLeft;
                 softVerticesColliderRadius.sync = SyncColliderRadiusLeft;
-                // softVerticesColliderAdditionalNormalOffset.sync = SyncAdditionalNormalOffsetLeft;
+                softVerticesColliderAdditionalNormalOffset.sync = SyncAdditionalNormalOffsetLeft;
                 softVerticesDistanceLimit.sync = SyncDistanceLimitLeft;
                 groupASpringMultiplier.sync = value => SyncGroupSpringMultiplier(value, _combinedSpringLeft, _mainLeft);
                 groupADamperMultiplier.sync = value => SyncGroupDamperMultiplier(value, _combinedDamperLeft, _mainLeft);
@@ -166,7 +171,7 @@ namespace TittyMagic
                 softVerticesBackForceThresholdDistance.sync = SyncBackForceThresholdDistanceRight;
                 softVerticesBackForceMaxForce.sync = SyncBackForceMaxForceRight;
                 softVerticesColliderRadius.sync = SyncColliderRadiusRight;
-                // softVerticesColliderAdditionalNormalOffset.sync = SyncAdditionalNormalOffsetRight;
+                softVerticesColliderAdditionalNormalOffset.sync = SyncAdditionalNormalOffsetRight;
                 softVerticesDistanceLimit.sync = SyncDistanceLimitRight;
                 groupASpringMultiplier.sync = value => SyncGroupSpringMultiplier(value, _combinedSpringRight, _mainRight);
                 groupADamperMultiplier.sync = value => SyncGroupDamperMultiplier(value, _combinedDamperRight, _mainRight);
@@ -187,8 +192,11 @@ namespace TittyMagic
                 { SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE, softVerticesBackForceThresholdDistance },
                 { SOFT_VERTICES_BACK_FORCE_MAX_FORCE, softVerticesBackForceMaxForce },
                 { SOFT_VERTICES_COLLIDER_RADIUS, softVerticesColliderRadius },
-                // { SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, softVerticesColliderAdditionalNormalOffset },
+                { SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, softVerticesColliderAdditionalNormalOffset },
                 { SOFT_VERTICES_DISTANCE_LIMIT, softVerticesDistanceLimit },
+            };
+            var groupParameters = new Dictionary<string, PhysicsParameter>
+            {
                 { GROUP_A_SPRING_MULTIPLIER, groupASpringMultiplier },
                 { GROUP_A_DAMPER_MULTIPLIER, groupADamperMultiplier },
                 { GROUP_B_SPRING_MULTIPLIER, groupBSpringMultiplier },
@@ -196,7 +204,7 @@ namespace TittyMagic
                 { GROUP_C_SPRING_MULTIPLIER, groupCSpringMultiplier },
                 { GROUP_C_DAMPER_MULTIPLIER, groupCDamperMultiplier },
             };
-            var nippleParameters = new Dictionary<string, PhysicsParameter>
+            var nippleGroupParameters = new Dictionary<string, PhysicsParameter>
             {
                 { GROUP_D_SPRING_MULTIPLIER, groupDSpringMultiplier },
                 { GROUP_D_DAMPER_MULTIPLIER, groupDDamperMultiplier },
@@ -205,12 +213,14 @@ namespace TittyMagic
             if(leftBreast)
             {
                 leftBreastParameters = breastParameters;
-                leftNippleParameters = nippleParameters;
+                leftBreastGroupParameters = groupParameters;
+                leftNippleGroupParameters = nippleGroupParameters;
             }
             else
             {
                 rightBreastParameters = breastParameters;
-                rightNippleParameters = nippleParameters;
+                rightBreastGroupParameters = groupParameters;
+                rightNippleGroupParameters = nippleGroupParameters;
             }
         }
 
@@ -310,6 +320,22 @@ namespace TittyMagic
             SyncColliderRadius(value, _nippleRight);
         }
 
+        private void SyncAdditionalNormalOffsetLeft(float value)
+        {
+            _mainLeft.colliderAdditionalNormalOffset = value;
+            _outerLeft.colliderAdditionalNormalOffset = value;
+            _areolaLeft.colliderAdditionalNormalOffset = value;
+            _nippleLeft.colliderAdditionalNormalOffset = value;
+        }
+
+        private void SyncAdditionalNormalOffsetRight(float value)
+        {
+            _mainRight.colliderAdditionalNormalOffset = value;
+            _outerRight.colliderAdditionalNormalOffset = value;
+            _areolaRight.colliderAdditionalNormalOffset = value;
+            _nippleRight.colliderAdditionalNormalOffset = value;
+        }
+
         private static void SyncColliderRadius(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
             if(group.useParentColliderSettings)
@@ -393,7 +419,9 @@ namespace TittyMagic
         )
         {
             leftBreastParameters.Values
+                .Concat(leftBreastGroupParameters.Values)
                 .Concat(rightBreastParameters.Values)
+                .Concat(rightBreastGroupParameters.Values)
                 .Where(param => param.config != null).ToList()
                 .ForEach(param => UpdateParam(param, massAmount, realMassAmount, softnessAmount, quicknessAmount));
         }
@@ -405,16 +433,18 @@ namespace TittyMagic
             float quicknessAmount
         )
         {
-            leftBreastParameters.Values.ToList()
+            leftBreastParameters.Values
+                .Concat(leftBreastGroupParameters.Values)
                 .Concat(rightBreastParameters.Values)
+                .Concat(rightBreastGroupParameters.Values)
                 .Where(param => param.config != null && param.config.dependOnPhysicsRate).ToList()
                 .ForEach(param => UpdateParam(param, massAmount, realMassAmount, softnessAmount, quicknessAmount));
         }
 
         public void UpdateNipplePhysics(float massAmount, float softnessAmount, float nippleErection)
         {
-            leftNippleParameters.Values
-                .Concat(rightNippleParameters.Values)
+            leftNippleGroupParameters.Values
+                .Concat(rightNippleGroupParameters.Values)
                 .Where(param => param.config != null).ToList()
                 .ForEach(param => UpdateNippleParam(param, massAmount, softnessAmount, nippleErection));
         }

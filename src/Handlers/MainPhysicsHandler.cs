@@ -319,7 +319,7 @@ namespace TittyMagic
 
         public void UpdateRateDependentPhysics(float softnessAmount, float quicknessAmount)
         {
-            leftBreastParameters.Values.ToList()
+            leftBreastParameters.Values
                 .Concat(rightBreastParameters.Values)
                 .Where(param => param.config != null && param.config.dependOnPhysicsRate).ToList()
                 .ForEach(param => UpdateParam(param, softnessAmount, quicknessAmount));
