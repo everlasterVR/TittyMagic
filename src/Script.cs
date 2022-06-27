@@ -182,6 +182,8 @@ namespace TittyMagic
             _forcePhysicsHandler = new ForcePhysicsHandler(_mainPhysicsHandler, _softPhysicsHandler, _trackLeftNipple, _trackRightNipple);
             _forceMorphHandler = new ForceMorphHandler(this, _trackLeftNipple, _trackRightNipple);
 
+            LoadSettings();
+
             _mainWindow = new MainWindow(this);
             _morphingWindow = new MorphingWindow(this);
             _gravityWindow = new GravityWindow(this);
@@ -190,7 +192,6 @@ namespace TittyMagic
             SetupStorables();
             CreateNavigation();
             NavigateToMainWindow();
-            LoadSettings();
             InitializeValuesAppliedByListeners();
 
             if(!_loadingFromJson)
@@ -282,10 +283,10 @@ namespace TittyMagic
         {
             _tabs = new Tabs(this, leftUIContent, rightUIContent);
             _tabs.CreateUINavigationButtons();
-            _tabs.mainSettingsButton.AddClickListener(NavigateToMainWindow);
-            _tabs.morphingButton.AddClickListener(NavigateToMorphingWindow);
-            _tabs.gravityButton.AddClickListener(NavigateToGravityWindow);
-            _tabs.advancedButton.AddClickListener(NavigateToAdvancedWindow);
+            _tabs.mainSettingsButton.AddListener(NavigateToMainWindow);
+            _tabs.morphingButton.AddListener(NavigateToMorphingWindow);
+            _tabs.gravityButton.AddListener(NavigateToGravityWindow);
+            _tabs.advancedButton.AddListener(NavigateToAdvancedWindow);
         }
 
         private void NavigateToMainWindow()

@@ -38,9 +38,9 @@ namespace TittyMagic.UI
             _uiDynamicButton.button.colors = colors;
         }
 
-        public void AddClickListener(UnityAction call)
+        public void AddListener(UnityAction call)
         {
-            _uiDynamicButton.button.onClick.AddListener(call);
+            _uiDynamicButton.AddListener(call);
         }
     }
 }
