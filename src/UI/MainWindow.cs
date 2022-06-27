@@ -33,13 +33,13 @@ namespace TittyMagic.UI
 
         private void CreateTitleTextField(JSONStorableString storable, bool rightSide)
         {
-            storable.val = $"<size=18>\n</size><b>{nameof(TittyMagic)}</b><size=36>    v{Script.VERSION}</size>";
-            var textField = _script.CreateTextField(storable, rightSide);
-            textField.UItext.fontSize = 46;
-            textField.height = 100;
-            textField.backgroundColor = Color.clear;
-            textField.textColor = UIHelpers.funkyCyan;
-            elements[storable.name] = textField;
+            elements[storable.name] = UIHelpers.TitleTextField(
+                _script,
+                storable,
+                $"{"\n".Size(12)}{nameof(TittyMagic)}    v{Script.VERSION}",
+                100,
+                rightSide
+            );
         }
 
         private void CreateAutoRefreshToggle(JSONStorableBool storable, bool rightSide, float spacing)

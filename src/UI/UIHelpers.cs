@@ -62,9 +62,6 @@ namespace TittyMagic.UI
             horizontalLayoutGroup.spacing = 16f;
             horizontalLayoutGroup.childForceExpandWidth = true;
             horizontalLayoutGroup.childControlHeight = false;
-            // var groupTransform = horizontalLayoutGroup.transform;
-            // groupTransform.SetParent(leftUIContent, false);
-            // leftUIElements.Add(groupTransform);
 
             return horizontalLayoutGroup;
         }
@@ -80,6 +77,22 @@ namespace TittyMagic.UI
             var layout = textField.GetComponent<LayoutElement>();
             layout.preferredHeight = 62;
             layout.minHeight = 62;
+
+            return textField;
+        }
+
+        public static UIDynamicTextField TitleTextField(MVRScript script, JSONStorableString storable, string displayName, int height, bool rightSide)
+        {
+            storable.val = "\n".Size(12) + displayName.Bold();
+            var textField = script.CreateTextField(storable, rightSide);
+            textField.UItext.fontSize = 40;
+            textField.UItext.color = funkyCyan;
+            textField.UItext.alignment = TextAnchor.MiddleCenter;
+            textField.backgroundColor = Color.clear;
+
+            var layout = textField.GetComponent<LayoutElement>();
+            layout.preferredHeight = height;
+            layout.minHeight = height;
 
             return textField;
         }
