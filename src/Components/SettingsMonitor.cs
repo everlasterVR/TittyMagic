@@ -103,12 +103,6 @@ namespace TittyMagic
                         _script.StartRefreshCoroutine();
                     }
 
-                    if(softPhysicsEnabled && _geometry.useAuxBreastColliders)
-                    {
-                        _geometry.useAuxBreastColliders = false;
-                        LogMessage("Breast Hard Colliders disabled. To enable them, disable soft physics first!");
-                    }
-
                     CheckFixedDeltaTimeChanged();
                     CheckSoftPhysicsEnabledChanged();
                 }
