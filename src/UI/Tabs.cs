@@ -6,9 +6,7 @@ namespace TittyMagic.UI
 {
     internal class Tabs
     {
-        private readonly MVRScript _script;
-        private readonly RectTransform _leftUIContent;
-        private readonly RectTransform _rightUIContent;
+        private readonly Script _script;
 
         public IWindow activeWindow { get; set; }
 
@@ -17,17 +15,15 @@ namespace TittyMagic.UI
         public NavigationButton gravityButton { get; private set; }
         public NavigationButton advancedButton { get; private set; }
 
-        public Tabs(MVRScript script, RectTransform leftUIContent, RectTransform rightUIContent)
+        public Tabs(Script script)
         {
             _script = script;
-            _leftUIContent = leftUIContent;
-            _rightUIContent = rightUIContent;
         }
 
         public void CreateUINavigationButtons()
         {
-            var leftGroupTransform = CreateHorizontalLayoutGroup(_leftUIContent).transform;
-            var rightGroupTransform = CreateHorizontalLayoutGroup(_rightUIContent).transform;
+            var leftGroupTransform = CreateHorizontalLayoutGroup(_script.GetLeftUIContent()).transform;
+            var rightGroupTransform = CreateHorizontalLayoutGroup(_script.GetRightUIContent()).transform;
 
             mainSettingsButton = new NavigationButton(_script.InstantiateButton(), "Main", leftGroupTransform);
             morphingButton = new NavigationButton(_script.InstantiateButton(), "Morphing", leftGroupTransform);

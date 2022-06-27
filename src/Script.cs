@@ -281,7 +281,7 @@ namespace TittyMagic
 
         private void CreateNavigation()
         {
-            _tabs = new Tabs(this, leftUIContent, rightUIContent);
+            _tabs = new Tabs(this);
             _tabs.CreateUINavigationButtons();
             _tabs.mainSettingsButton.AddListener(NavigateToMainWindow);
             _tabs.morphingButton.AddListener(NavigateToMorphingWindow);
@@ -816,6 +816,16 @@ namespace TittyMagic
                     _quicknessAmount
                 );
             }
+        }
+
+        public RectTransform GetLeftUIContent()
+        {
+            return leftUIContent;
+        }
+
+        public RectTransform GetRightUIContent()
+        {
+            return rightUIContent;
         }
 
         public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
