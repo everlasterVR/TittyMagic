@@ -53,8 +53,8 @@ namespace TittyMagic
 
             SetupSoftForcePhysicsConfigs(_softPhysicsHandler.leftBreastParameters);
             SetupSoftForcePhysicsConfigs(_softPhysicsHandler.rightBreastParameters);
-            _leftBreastMainParams = _softPhysicsHandler.leftBreastParameters.Values.ToList();
-            _rightBreastMainParams = _softPhysicsHandler.rightBreastParameters.Values.ToList();
+            _leftBreastSoftParams = _softPhysicsHandler.leftBreastParameters.Values.ToList();
+            _rightBreastSoftParams = _softPhysicsHandler.rightBreastParameters.Values.ToList();
         }
 
         private static void SetupMainForcePhysicsConfigs(Dictionary<string, PhysicsParameter> parameters)
