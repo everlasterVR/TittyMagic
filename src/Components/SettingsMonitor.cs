@@ -42,9 +42,15 @@ namespace TittyMagic
         private BoolSetting _useAdvancedColliders;
 
         private float _fixedDeltaTime;
-        public bool softPhysicsEnabled { get; set; }
+
+        public bool softPhysicsEnabled => _globalSoftPhysicsOn && _atomSoftPhysicsOn && _breastSoftPhysicsOn;
+
+        private bool _globalSoftPhysicsOn;
+        private bool _atomSoftPhysicsOn;
+        private bool _breastSoftPhysicsOn;
 
         private Script _script;
+        [SerializeField] private bool _softPhysicsEnabled;
 
         public void Init(Atom atom)
         {
@@ -60,7 +66,10 @@ namespace TittyMagic
             );
 
             _fixedDeltaTime = Time.fixedDeltaTime;
-            softPhysicsEnabled = CheckSoftPhysicsEnabled();
+
+            _breastSoftPhysicsOn = _breastPhysicsMesh.on;
+            _atomSoftPhysicsOn = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
+            _globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
 
             StartCoroutine(FixInOut());
         }
@@ -124,26 +133,61 @@ namespace TittyMagic
 
         private void CheckSoftPhysicsEnabledChanged()
         {
-            bool value = CheckSoftPhysicsEnabled();
+            bool breastSoftPhysicsOn = _breastPhysicsMesh.on;
+            bool atomSoftPhysicsOn = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
+            bool globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
+
+
+            if(breastSoftPhysicsOn && !_breastSoftPhysicsOn)
+            {
+                CheckIfStillDisabled(atomSoftPhysicsOn, globalSoftPhysicsOn);
+            }
+
+            bool refreshNeeded = false;
+            bool value = globalSoftPhysicsOn && atomSoftPhysicsOn && breastSoftPhysicsOn;
             if(value != softPhysicsEnabled)
             {
                 if(!value && !_geometry.useAuxBreastColliders)
                 {
                     LogMessage("Recalibrating due to soft physics being enabled. You might also want to enable Breast Hard Colliders!");
                 }
-                softPhysicsEnabled = value;
+
+                refreshNeeded = true;
+            }
+
+            _breastSoftPhysicsOn = breastSoftPhysicsOn;
+            _atomSoftPhysicsOn = atomSoftPhysicsOn;
+            _globalSoftPhysicsOn = globalSoftPhysicsOn;
+
+            if(refreshNeeded)
+            {
                 _script.LoadSettings();
                 _script.StartRefreshCoroutine(false, true);
             }
-
-            softPhysicsEnabled = value;
         }
 
-        private bool CheckSoftPhysicsEnabled()
+        private static void CheckIfStillDisabled(bool atomSoftPhysicsOn, bool globalSoftPhysicsOn)
         {
-            return UserPreferences.singleton.softPhysics &&
-                _softBodyPhysicsEnabler.GetBoolParamValue("enabled") &&
-                _breastPhysicsMesh.on;
+            string message = "";
+            const string partOne = "You enabled soft physics for breasts.";
+
+            if(!atomSoftPhysicsOn && !globalSoftPhysicsOn)
+            {
+                message = $"{partOne} Soft Body Physics is still disabled in the Control & Physics 1 tab and in User Preferences!";
+            }
+            else if(!atomSoftPhysicsOn)
+            {
+                message = $"{partOne} Soft Body Physics is still disabled in the Control & Physics 1 tab!";
+            }
+            else if(!globalSoftPhysicsOn)
+            {
+                message = $"{partOne} Soft Body Physics is still disabled in User Preferences!";
+            }
+
+            if(message != "")
+            {
+                LogMessage(message);
+            }
         }
     }
 }
