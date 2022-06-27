@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using TittyMagic.Configs;
-using UnityEngine;
 
 namespace TittyMagic
 {

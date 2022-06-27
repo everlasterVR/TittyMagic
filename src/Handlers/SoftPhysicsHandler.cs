@@ -394,14 +394,18 @@ namespace TittyMagic
             // auto fat collider radius off (no effect)
             _originalAutoFatColliderRadius = _breastPhysicsMesh.softVerticesUseAutoColliderRadius;
             _breastPhysicsMesh.softVerticesUseAutoColliderRadius = false;
+
             // hard colliders off
             _originalHardColliders = _geometry.useAuxBreastColliders;
             _geometry.useAuxBreastColliders = false;
-            // self colliders off
+
+            // TODO soft physics on
+
             _originalSelfCollision = _breastPhysicsMesh.allowSelfCollision;
             _breastPhysicsMesh.allowSelfCollision = true;
             // TODO configurable
             _breastPhysicsMesh.softVerticesColliderAdditionalNormalOffset = 0.001f;
+
             // prevent settings in F Breast Physics 2 from having effect
             _originalGroupsUseParentSettings = new Dictionary<string, bool>();
             foreach(var group in _breastPhysicsMesh.softVerticesGroups)

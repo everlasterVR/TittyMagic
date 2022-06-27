@@ -353,12 +353,12 @@ namespace TittyMagic
 
         private void NavigateToMorphingWindow()
         {
-            if(_tabs.activeWindow.Id() == 2)
+            if(_tabs.activeWindow?.Id() == 2)
             {
                 return;
             }
 
-            _tabs.activeWindow.Clear();
+            _tabs.activeWindow?.Clear();
             _tabs.activeWindow = _morphingWindow;
             _tabs.activeWindow.Rebuild();
             _tabs.ActivateMorphingTab();
@@ -399,12 +399,12 @@ namespace TittyMagic
 
         private void NavigateToGravityWindow()
         {
-            if(_tabs.activeWindow.Id() == 3)
+            if(_tabs.activeWindow?.Id() == 3)
             {
                 return;
             }
 
-            _tabs.activeWindow.Clear();
+            _tabs.activeWindow?.Clear();
             _tabs.activeWindow = _gravityWindow;
             _tabs.activeWindow.Rebuild();
             _tabs.ActivateGravityPhysicsTab();
@@ -431,12 +431,12 @@ namespace TittyMagic
 
         private void NavigateToAdvancedWindow()
         {
-            if(_tabs.activeWindow.Id() == 4)
+            if(_tabs.activeWindow?.Id() == 4)
             {
                 return;
             }
 
-            _tabs.activeWindow.Clear();
+            _tabs.activeWindow?.Clear();
             _tabs.activeWindow = _advancedWindow;
             _tabs.activeWindow.Rebuild();
             _tabs.ActivateAdvancedTab();

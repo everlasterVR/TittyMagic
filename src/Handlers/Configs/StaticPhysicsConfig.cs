@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 
 namespace TittyMagic.Configs
 {
@@ -8,10 +7,6 @@ namespace TittyMagic.Configs
         protected float minMminS; // value at min mass and min softness
         protected float maxMminS; // value at max mass and min softness
         protected float minMmaxS; // value at min mass and max softness
-
-        public Action<float> updateFunction { get; set; }
-
-        protected Func<float, float, float> calculationFunction { private get; set; }
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
         // ReSharper disable once MemberCanBePrivate.Global
@@ -36,7 +31,6 @@ namespace TittyMagic.Configs
             this.minMminS = minMminS;
             this.maxMminS = maxMminS;
             this.minMmaxS = minMmaxS;
-            calculationFunction = CalculateByProportionalSum;
         }
 
         // Transition between two linear functions at mid point. 0.6285f is softnessAmount at slider 50
@@ -67,10 +61,10 @@ namespace TittyMagic.Configs
                     : softnessCurveLower(softness);
             }
 
-            return calculationFunction(effectiveMass, effectiveSoftness);
+            return ProportionalSum(effectiveMass, effectiveSoftness);
         }
 
-        protected float CalculateByProportionalSum(float mass, float softness)
+        private float ProportionalSum(float mass, float softness)
         {
             return minMminS +
                 mass * (maxMminS - minMminS) +
@@ -88,7 +82,6 @@ namespace TittyMagic.Configs
             this.minMminS = minMminS;
             this.maxMminS = maxMminS;
             this.minMmaxS = minMmaxS;
-            calculationFunction = CalculateByProportionalSum;
         }
     }
 }
