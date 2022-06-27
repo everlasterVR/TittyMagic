@@ -11,6 +11,10 @@ namespace TittyMagic
         public const string TARGET_ROTATION_Y = "targetRotationY";
         public const string TARGET_ROTATION_X = "targetRotationX";
 
+        public const string USE_AUX_BREAST_COLLIDERS = "useAuxBreastColliders";
+
+        public const string SOFT_PHYSICS_ON = "on";
+        public const string ALLOW_SELF_COLLISION = "allowSelfCollision";
         public const string SOFT_VERTICES_COMBINED_SPRING = "softVerticesCombinedSpring";
         public const string SOFT_VERTICES_COMBINED_DAMPER = "softVerticesCombinedDamper";
         public const string SOFT_VERTICES_MASS = "softVerticesMass";
@@ -20,6 +24,7 @@ namespace TittyMagic
         public const string SOFT_VERTICES_COLLIDER_RADIUS = "softVerticesColliderRadius";
         public const string SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET = "softVerticesColliderAdditionalNormalOffset";
         public const string SOFT_VERTICES_DISTANCE_LIMIT = "softVerticesDistanceLimit";
+        public const string SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS = "softVerticesUseAutoColliderRadius";
         public const string GROUP_A_SPRING_MULTIPLIER = "groupASpringMultiplier";
         public const string GROUP_A_DAMPER_MULTIPLIER = "groupADamperMultiplier";
         public const string GROUP_B_SPRING_MULTIPLIER = "groupBSpringMultiplier";

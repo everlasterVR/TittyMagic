@@ -66,26 +66,61 @@ namespace TittyMagic.UI
         {
             elements = new Dictionary<string, UIDynamic>();
 
-            CreateHeader(_softPhysicsParamsHeader, "Soft physics parameters", false);
-            foreach(var kvp in _softPhysicsHandler.leftBreastParameters)
+            CreateSoftPhysicsOnToggle(false, 62);
+            CreateAllowSelfCollisionToggle(false);
+            CreateUseAuxBreastCollidersToggle(false);
+
+            CreateHeader(_jointPhysicsParamsHeader, "Joint physics parameters", false, spacing: 310);
+            foreach(var kvp in _mainPhysicsHandler.leftBreastParameters)
             {
                 CreateParamButton(kvp.Key, kvp.Value, false);
+            }
+
+            CreateHeader(_softPhysicsParamsHeader, "Soft physics parameters", true);
+            foreach(var kvp in _softPhysicsHandler.leftBreastParameters)
+            {
+                CreateParamButton(kvp.Key, kvp.Value, true);
             }
 
             foreach(var kvp in _softPhysicsHandler.leftNippleParameters)
-            {
-                CreateParamButton(kvp.Key, kvp.Value, false);
-            }
-
-            CreateHeader(_jointPhysicsParamsHeader, "Joint physics parameters", true);
-            foreach(var kvp in _mainPhysicsHandler.leftBreastParameters)
             {
                 CreateParamButton(kvp.Key, kvp.Value, true);
             }
         }
 
-        private void CreateHeader(JSONStorableString storable, string text, bool rightSide)
+        private void CreateSoftPhysicsOnToggle(bool rightSide, float spacing)
         {
+            var storable = _softPhysicsHandler.softPhysicsOn;
+
+            elements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
+
+            var toggle = _script.CreateToggle(storable, rightSide);
+            toggle.height = 52;
+            toggle.label = "Soft Physics Enabled";
+            elements[storable.name] = toggle;
+        }
+
+        private void CreateAllowSelfCollisionToggle(bool rightSide)
+        {
+            var storable = _softPhysicsHandler.allowSelfCollision;
+            var toggle = _script.CreateToggle(storable, rightSide);
+            toggle.height = 52;
+            toggle.label = "Breast Soft Physics Self Collide";
+            elements[storable.name] = toggle;
+        }
+
+        private void CreateUseAuxBreastCollidersToggle(bool rightSide)
+        {
+            var storable = _softPhysicsHandler.useAuxBreastColliders;
+            var toggle = _script.CreateToggle(storable, rightSide);
+            toggle.height = 52;
+            toggle.label = "Breast Hard Colliders";
+            elements[storable.name] = toggle;
+        }
+
+        private void CreateHeader(JSONStorableString storable, string text, bool rightSide, int spacing = 0)
+        {
+            elements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
             elements[storable.name] = UIHelpers.HeaderTextField(_script, storable, text, rightSide);
         }
 

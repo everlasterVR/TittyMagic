@@ -76,6 +76,7 @@ namespace TittyMagic
         private int _refreshStatus = -1;
         private bool _animationWasSetFrozen;
         private bool _removingAtom;
+        private bool _uiOpenPrevFrame;
 
         public override void Init()
         {
@@ -143,10 +144,7 @@ namespace TittyMagic
             );
             if(_isFemale)
             {
-                _softPhysicsHandler = new SoftPhysicsHandler(
-                    (DAZPhysicsMesh) containingAtom.GetStorableByID("BreastPhysicsMesh"),
-                    geometry
-                );
+                _softPhysicsHandler = new SoftPhysicsHandler(this);
             }
 
             _gravityPhysicsHandler = new GravityPhysicsHandler(_mainPhysicsHandler);
@@ -164,7 +162,7 @@ namespace TittyMagic
                 _trackRightNipple.getNipplePosition = () => nippleRbRight.position;
 
                 _settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
-                _settingsMonitor.Init(containingAtom);
+                _settingsMonitor.Init();
                 _breastMorphListener = new BreastMorphListener(geometry.morphBank1.morphs);
             }
             else
@@ -472,6 +470,31 @@ namespace TittyMagic
             {
                 StartCoroutine(WaitToBeginRefresh(refreshMass));
             }
+        }
+
+        private void Update()
+        {
+            try
+            {
+                CheckOutsideParametersChanged();
+            }
+            catch(Exception e)
+            {
+                LogError($"Update: {e}");
+                enabled = false;
+            }
+        }
+
+        private void CheckOutsideParametersChanged()
+        {
+            bool uiOpen = UITransform.gameObject.activeInHierarchy;
+            if(uiOpen && !_uiOpenPrevFrame)
+            {
+                _softPhysicsHandler.ReverseSyncSoftPhysicsOn();
+                _softPhysicsHandler.ReverseSyncSyncAllowSelfCollision();
+                _softPhysicsHandler.ReverseUseAuxBreastColliders();
+            }
+            _uiOpenPrevFrame = uiOpen;
         }
 
         private void FixedUpdate()

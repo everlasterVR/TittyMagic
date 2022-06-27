@@ -50,16 +50,15 @@ namespace TittyMagic
         private bool _breastSoftPhysicsOn;
 
         private Script _script;
-        [SerializeField] private bool _softPhysicsEnabled;
 
-        public void Init(Atom atom)
+        public void Init()
         {
             enabled = false; // will be enabled during main refresh cycle
             _script = gameObject.GetComponent<Script>();
-            _breastInOut = atom.GetStorableByID("BreastInOut");
-            _softBodyPhysicsEnabler = atom.GetStorableByID("SoftBodyPhysicsEnabler");
-            _breastPhysicsMesh = (DAZPhysicsMesh) atom.GetStorableByID("BreastPhysicsMesh");
-            _geometry = (DAZCharacterSelector) atom.GetStorableByID("geometry");
+            _breastInOut = _script.containingAtom.GetStorableByID("BreastInOut");
+            _softBodyPhysicsEnabler = _script.containingAtom.GetStorableByID("SoftBodyPhysicsEnabler");
+            _breastPhysicsMesh = (DAZPhysicsMesh) _script.containingAtom.GetStorableByID("BreastPhysicsMesh");
+            _geometry = (DAZCharacterSelector) _script.containingAtom.GetStorableByID("geometry");
             _useAdvancedColliders = new BoolSetting(
                 _geometry.useAdvancedColliders,
                 "Advanced Colliders are not enabled in Control & Physics 1 tab. Enable them to allow dynamic breast morphing to work correctly!"
@@ -143,7 +142,7 @@ namespace TittyMagic
             {
                 if(!value && !_geometry.useAuxBreastColliders)
                 {
-                    LogMessage("Recalibrating due to soft physics being enabled. You might also want to enable Breast Hard Colliders!");
+                    LogMessage("Recalibrating due to soft physics being disabled. You might also want to enable Breast Hard Colliders!");
                 }
 
                 refreshNeeded = true;
