@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using static TittyMagic.UI.UIHelpers;
 
 namespace TittyMagic.UI
 {
@@ -39,7 +38,7 @@ namespace TittyMagic.UI
             textField.UItext.fontSize = 46;
             textField.height = 100;
             textField.backgroundColor = Color.clear;
-            textField.textColor = funkyCyan;
+            textField.textColor = UIHelpers.funkyCyan;
             elements[storable.name] = textField;
         }
 

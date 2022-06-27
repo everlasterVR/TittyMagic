@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using static TittyMagic.UI.UIHelpers;
 
 namespace TittyMagic.UI
 {
@@ -22,8 +21,8 @@ namespace TittyMagic.UI
 
         public void CreateUINavigationButtons()
         {
-            var leftGroupTransform = CreateHorizontalLayoutGroup(_script.GetLeftUIContent()).transform;
-            var rightGroupTransform = CreateHorizontalLayoutGroup(_script.GetRightUIContent()).transform;
+            var leftGroupTransform = UIHelpers.CreateHorizontalLayoutGroup(_script.GetLeftUIContent()).transform;
+            var rightGroupTransform = UIHelpers.CreateHorizontalLayoutGroup(_script.GetRightUIContent()).transform;
 
             mainSettingsButton = new NavigationButton(_script.InstantiateButton(), "Main", leftGroupTransform);
             morphingButton = new NavigationButton(_script.InstantiateButton(), "Morphing", leftGroupTransform);

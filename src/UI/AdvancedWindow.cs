@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine.Events;
-using static TittyMagic.UI.UIHelpers;
 
 namespace TittyMagic.UI
 {
@@ -87,7 +86,7 @@ namespace TittyMagic.UI
 
         private void CreateHeader(JSONStorableString storable, string text, bool rightSide)
         {
-            elements[storable.name] = HeaderTextField(_script, storable, text, rightSide);
+            elements[storable.name] = UIHelpers.HeaderTextField(_script, storable, text, rightSide);
         }
 
         private void CreateParamButton(string key, PhysicsParameter param, bool rightSide)

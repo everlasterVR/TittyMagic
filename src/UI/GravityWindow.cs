@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using static TittyMagic.UI.UIHelpers;
 
 namespace TittyMagic.UI
 {
@@ -40,7 +39,7 @@ namespace TittyMagic.UI
 
         private void CreateHeader(JSONStorableString storable, string text, bool rightSide)
         {
-            elements[storable.name] = HeaderTextField(_script, storable, text, rightSide);
+            elements[storable.name] = UIHelpers.HeaderTextField(_script, storable, text, rightSide);
         }
 
         private void CreateMultiplierSlider(JSONStorableFloat storable, bool rightSide)
