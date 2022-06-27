@@ -1,8 +1,4 @@
-// ReSharper disable MemberCanBePrivate.Global
-using System;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
 using static TittyMagic.UI.UIHelpers;
 
 namespace TittyMagic.UI
@@ -12,7 +8,8 @@ namespace TittyMagic.UI
         private readonly Script _script;
         private readonly MainPhysicsHandler _mainPhysicsHandler;
         private readonly SoftPhysicsHandler _softPhysicsHandler;
-        public Dictionary<string, UIDynamic> elements;
+        // ReSharper disable once MemberCanBePrivate.Global
+        public Dictionary<string, UIDynamic> elements { get; private set; }
 
         private readonly JSONStorableString _mainPhysicsParamsHeader;
         private readonly JSONStorableString _softPhysicsParamsHeader;

@@ -1,9 +1,4 @@
-// ReSharper disable MemberCanBePrivate.Global
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
 using static TittyMagic.UI.UIHelpers;
 
 namespace TittyMagic.UI
@@ -11,7 +6,7 @@ namespace TittyMagic.UI
     internal class GravityWindow : IWindow
     {
         private readonly Script _script;
-        public Dictionary<string, UIDynamic> elements;
+        public Dictionary<string, UIDynamic> elements { get; private set; }
 
         private readonly JSONStorableString _gravityPhysicsMultipliersHeader;
         private readonly JSONStorableString _gravityPhysicsMultipliersInfoText;

@@ -1,7 +1,5 @@
 // ReSharper disable MemberCanBePrivate.Global
-using System;
 using System.Collections.Generic;
-using UnityEngine;
 using static TittyMagic.UI.UIHelpers;
 
 namespace TittyMagic.UI
@@ -9,7 +7,7 @@ namespace TittyMagic.UI
     internal class MorphingWindow : IWindow
     {
         private readonly Script _script;
-        public Dictionary<string, UIDynamic> elements;
+        public Dictionary<string, UIDynamic> elements { get; private set; }
 
         private readonly JSONStorableString _dynamicMorphingMultipliersHeader;
         private readonly JSONStorableString _dynamicMorphingMultipliersInfoText;
