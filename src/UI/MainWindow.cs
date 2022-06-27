@@ -1,5 +1,6 @@
 // ReSharper disable MemberCanBePrivate.Global
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using static TittyMagic.UI.UIHelpers;
 
@@ -8,31 +9,23 @@ namespace TittyMagic.UI
     internal class MainWindow : IWindow
     {
         private readonly Script _script;
+        public Dictionary<string, UIDynamic> elements;
 
-        public UIDynamicTextField titleTextField;
-        public UIDynamic autoRefreshToggleSpacer;
-        public UIDynamicToggle autoRefreshToggle;
-        public UIDynamic calculateMassButtonSpacer;
-        public UIDynamicButton calculateMassButton;
-        public UIDynamic recalibrateButtonSpacer;
-        public UIDynamicButton recalibrateButton;
-        public UIDynamic massSliderSpacer;
-        public UIDynamicSlider massSlider;
-        public UIDynamic softnessSliderSpacer;
-        public UIDynamicSlider softnessSlider;
-        public UIDynamic quicknessSliderSpacer;
-        public UIDynamicSlider quicknessSlider;
+        private readonly JSONStorableString _title;
 
         public int Id() => 1;
 
         public MainWindow(Script script)
         {
             _script = script;
+            _title = new JSONStorableString("title", "");
         }
 
         public void Rebuild()
         {
-            CreateTitleTextField(_script.titleText, false);
+            elements = new Dictionary<string, UIDynamic>();
+
+            CreateTitleTextField(_title, false);
             CreateAutoRefreshToggle(_script.autoRefresh, true, spacing: 35);
             CreateCalculateMassButton(true);
             CreateRecalibrateButton(true);
@@ -43,90 +36,90 @@ namespace TittyMagic.UI
 
         private void CreateTitleTextField(JSONStorableString storable, bool rightSide)
         {
-            titleTextField = _script.CreateTextField(storable, rightSide);
-            titleTextField.UItext.fontSize = 46;
-            titleTextField.height = 100;
-            titleTextField.backgroundColor = Color.clear;
-            titleTextField.textColor = funkyCyan;
-        }
-
-        private void CreateInfoTextArea(JSONStorableString storable, bool rightSide, float spacing = 0)
-        {
-            _script.NewSpacer(spacing, rightSide);
+            storable.val = $"<size=18>\n</size><b>{nameof(TittyMagic)}</b><size=36>    v{Script.VERSION}</size>";
             var textField = _script.CreateTextField(storable, rightSide);
-            textField.UItext.fontSize = 28;
-            textField.height = 390;
+            textField.UItext.fontSize = 46;
+            textField.height = 100;
+            textField.backgroundColor = Color.clear;
+            textField.textColor = funkyCyan;
+            elements[storable.name] = textField;
         }
 
-        private void CreateSmallInfoTextArea(JSONStorableString storable, bool rightSide, float spacing = 0)
+        private void CreateAutoRefreshToggle(JSONStorableBool storable, bool rightSide, float spacing)
         {
-            _script.NewSpacer(spacing, rightSide);
-            var textField = _script.CreateTextField(storable, rightSide);
-            textField.UItext.fontSize = 28;
-            textField.height = 115;
+            elements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
+            elements[storable.name] = _script.CreateToggle(storable, rightSide);
         }
 
-        private void CreateAutoRefreshToggle(JSONStorableBool storable, bool rightSide, float spacing = 0)
+        private void CreateCalculateMassButton(bool rightSide)
         {
-            autoRefreshToggleSpacer = _script.NewSpacer(spacing, rightSide);
-            autoRefreshToggle = _script.CreateToggle(storable, rightSide);
+            var button = _script.CreateButton("Calculate breast mass", rightSide);
+            button.height = 52;
+            elements["calculateBreastMass"] = button;
         }
 
-        private void CreateCalculateMassButton(bool rightSide, float spacing = 0)
+        private void CreateRecalibrateButton(bool rightSide)
         {
-            calculateMassButtonSpacer = _script.NewSpacer(spacing, rightSide);
-            calculateMassButton = _script.CreateButton("Calculate breast mass", rightSide);
-            calculateMassButton.height = 52;
+            var button = _script.CreateButton("Recalibrate physics", rightSide);
+            button.height = 52;
+            elements["recalibratePhysics"] = button;
         }
 
-        private void CreateRecalibrateButton(bool rightSide, float spacing = 0)
+        private void CreateMassSlider(JSONStorableFloat storable, bool rightSide)
         {
-            recalibrateButtonSpacer = _script.NewSpacer(spacing, rightSide);
-            recalibrateButton = _script.CreateButton("Recalibrate physics", rightSide);
-            recalibrateButton.height = 52;
+            var slider = _script.CreateSlider(storable, rightSide);
+            slider.valueFormat = "F3";
+            slider.AddSliderClickMonitor();
+            elements[storable.name] = slider;
         }
 
-        private void CreateMassSlider(JSONStorableFloat storable, bool rightSide, float spacing = 0)
+        private void CreateSoftnessSlider(JSONStorableFloat storable, bool rightSide)
         {
-            massSliderSpacer = _script.NewSpacer(spacing, rightSide);
-            massSlider = _script.CreateSlider(storable, rightSide);
-            massSlider.valueFormat = "F3";
-            massSlider.AddSliderClickMonitor();
+            var slider = _script.CreateSlider(storable, rightSide);
+            slider.valueFormat = "0f";
+            slider.slider.wholeNumbers = true;
+            slider.AddSliderClickMonitor();
+            elements[storable.name] = slider;
         }
 
-        private void CreateSoftnessSlider(JSONStorableFloat storable, bool rightSide, float spacing = 0)
+        private void CreateQuicknessSlider(JSONStorableFloat storable, bool rightSide)
         {
-            softnessSliderSpacer = _script.NewSpacer(spacing, rightSide);
-            softnessSlider = _script.CreateSlider(storable, rightSide);
-            softnessSlider.valueFormat = "0f";
-            softnessSlider.slider.wholeNumbers = true;
-            softnessSlider.AddSliderClickMonitor();
+            var slider = _script.CreateSlider(storable, rightSide);
+            slider.valueFormat = "0f";
+            slider.slider.wholeNumbers = true;
+            slider.AddSliderClickMonitor();
+            elements[storable.name] = slider;
         }
 
-        private void CreateQuicknessSlider(JSONStorableFloat storable, bool rightSide, float spacing = 0)
+        public UIDynamic GetCalculateMassButton()
         {
-            quicknessSliderSpacer = _script.NewSpacer(spacing, rightSide);
-            quicknessSlider = _script.CreateSlider(storable, rightSide);
-            quicknessSlider.valueFormat = "0f";
-            quicknessSlider.slider.wholeNumbers = true;
-            quicknessSlider.AddSliderClickMonitor();
+            return elements["calculateBreastMass"];
+        }
+
+        public UIDynamic GetRecalibrateButton()
+        {
+            return elements["recalibratePhysics"];
+        }
+
+        public List<UIDynamicSlider> GetSliders()
+        {
+            var sliders = new List<UIDynamicSlider>();
+            if(elements != null)
+            {
+                sliders.Add(elements[_script.mass.name] as UIDynamicSlider);
+                sliders.Add(elements[_script.softness.name] as UIDynamicSlider);
+                sliders.Add(elements[_script.quickness.name] as UIDynamicSlider);
+            }
+
+            return sliders;
         }
 
         public void Clear()
         {
-            _script.RemoveTextField(titleTextField);
-            _script.RemoveSpacer(autoRefreshToggleSpacer);
-            _script.RemoveToggle(autoRefreshToggle);
-            _script.RemoveSpacer(calculateMassButtonSpacer);
-            _script.RemoveButton(calculateMassButton);
-            _script.RemoveSpacer(recalibrateButtonSpacer);
-            _script.RemoveButton(recalibrateButton);
-            _script.RemoveSpacer(massSliderSpacer);
-            _script.RemoveSlider(massSlider);
-            _script.RemoveSpacer(softnessSliderSpacer);
-            _script.RemoveSlider(softnessSlider);
-            _script.RemoveSpacer(quicknessSliderSpacer);
-            _script.RemoveSlider(quicknessSlider);
+            foreach(var element in elements)
+            {
+                _script.RemoveElement(element.Value);
+            }
         }
     }
 }

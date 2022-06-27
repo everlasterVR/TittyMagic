@@ -1,7 +1,6 @@
 // ReSharper disable RedundantUsingDirective
 using System.Collections.Generic;
 using TittyMagic.Configs;
-using TittyMagic.Extensions;
 using UnityEngine;
 using static TittyMagic.Utils;
 using static TittyMagic.GravityEffectCalc;

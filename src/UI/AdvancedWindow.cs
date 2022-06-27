@@ -1,7 +1,6 @@
 // ReSharper disable MemberCanBePrivate.Global
 using System;
 using System.Collections.Generic;
-using TittyMagic.Extensions;
 using UnityEngine;
 using UnityEngine.UI;
 using static TittyMagic.UI.UIHelpers;
@@ -13,11 +12,10 @@ namespace TittyMagic.UI
         private readonly Script _script;
         private readonly MainPhysicsHandler _mainPhysicsHandler;
         private readonly SoftPhysicsHandler _softPhysicsHandler;
-
         public Dictionary<string, UIDynamic> elements;
 
-        private readonly JSONStorableString _mainPhysicsParamsTitle;
-        private readonly JSONStorableString _softPhysicsParamsTitle;
+        private readonly JSONStorableString _mainPhysicsParamsHeader;
+        private readonly JSONStorableString _softPhysicsParamsHeader;
 
         public int Id() => 4;
 
@@ -27,15 +25,15 @@ namespace TittyMagic.UI
             _mainPhysicsHandler = mainPhysicsHandler;
             _softPhysicsHandler = softPhysicsHandler;
 
-            _mainPhysicsParamsTitle = new JSONStorableString("mainPhysicsParamsTitleText", "");
-            _softPhysicsParamsTitle = new JSONStorableString("softPhysicsParamsTitleText", "");
+            _mainPhysicsParamsHeader = new JSONStorableString("mainPhysicsParamsHeader", "");
+            _softPhysicsParamsHeader = new JSONStorableString("softPhysicsParamsHeader", "");
         }
 
         public void Rebuild()
         {
             elements = new Dictionary<string, UIDynamic>();
 
-            CreateParamsHeader(_mainPhysicsParamsTitle, "Main physics parameters", false);
+            CreateHeader(_mainPhysicsParamsHeader, "Main physics parameters", false);
             foreach(var kvp in _softPhysicsHandler.leftBreastParameters)
             {
                 PhysicsParameter param = kvp.Value;
@@ -48,7 +46,7 @@ namespace TittyMagic.UI
                 elements[kvp.Key] = CreateParamButton(param.displayName, false);
             }
 
-            CreateParamsHeader(_softPhysicsParamsTitle, "Soft physics parameters", true);
+            CreateHeader(_softPhysicsParamsHeader, "Soft physics parameters", true);
             foreach(var kvp in _mainPhysicsHandler.leftBreastParameters)
             {
                 PhysicsParameter param = kvp.Value;
@@ -56,7 +54,7 @@ namespace TittyMagic.UI
             }
         }
 
-        private void CreateParamsHeader(JSONStorableString storable, string text, bool rightSide)
+        private void CreateHeader(JSONStorableString storable, string text, bool rightSide)
         {
             elements[storable.name] = HeaderTextField(_script, storable, text, rightSide);
         }

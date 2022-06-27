@@ -1,7 +1,8 @@
 src\Components\Bindings.cs
 src\Components\SettingsMonitor.cs
-src\Extensions\MVRScriptExtensions.cs
+src\Extensions\MVRScriptExtension.cs
 src\Extensions\StringExtension.cs
+src\Extensions\UIDynamicExtension.cs
 src\Extensions\UIDynamicSliderExtension.cs
 src\Handlers\Configs\DynamicPhysicsConfig.cs
 src\Handlers\Configs\MorphConfig.cs

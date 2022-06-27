@@ -1,5 +1,6 @@
 // ReSharper disable MemberCanBePrivate.Global
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using static TittyMagic.UI.UIHelpers;
 
@@ -8,138 +9,116 @@ namespace TittyMagic.UI
     internal class MorphingWindow : IWindow
     {
         private readonly Script _script;
+        public Dictionary<string, UIDynamic> elements;
 
-        public UIDynamic dynamicMorphingTitleTextFieldSpacer;
-        public UIDynamicTextField dynamicMorphingTitleTextField;
-        public UIDynamic morphingYSliderSpacer;
-        public UIDynamicSlider morphingYSlider;
-        public UIDynamic morphingXSliderSpacer;
-        public UIDynamicSlider morphingXSlider;
-        public UIDynamic morphingZSliderSpacer;
-        public UIDynamicSlider morphingZSlider;
-        public UIDynamic dynamicMorphingInfoTextFieldSpacer;
-        public UIDynamicTextField dynamicMorphingInfoTextField;
-
-        public UIDynamic additionalSettingsTitleTextFieldSpacer;
-        public UIDynamicTextField additionalSettingsTitleTextField;
-        public UIDynamic offsetMorphingSliderSpacer;
-        public UIDynamicSlider offsetMorphingSlider;
-        public UIDynamic nippleErectionSliderSpacer;
-        public UIDynamicSlider nippleErectionSlider;
-        public UIDynamic additionalSettingsInfoTextFieldSpacer;
-        public UIDynamicTextField additionalSettingsInfoTextField;
+        private readonly JSONStorableString _dynamicMorphingMultipliersHeader;
+        private readonly JSONStorableString _dynamicMorphingMultipliersInfoText;
+        private readonly JSONStorableString _additionalSettingsHeader;
+        private readonly JSONStorableString _offsetMorphingInfoText;
 
         public int Id() => 2;
 
         public MorphingWindow(Script script)
         {
             _script = script;
-        }
 
+            _dynamicMorphingMultipliersHeader = new JSONStorableString("dynamicMorphingMultipliersHeader", "");
+            _dynamicMorphingMultipliersInfoText = new JSONStorableString("dynamicMorphingMultipliersInfoText", "");
+            _additionalSettingsHeader = new JSONStorableString("additionalSettingsHeader", "");
+            _offsetMorphingInfoText = new JSONStorableString("offsetMorphingInfoText", "");
+
+            _dynamicMorphingMultipliersInfoText.val = "\n".Size(12) +
+                "Adjust the amount of breast morphing due to forces including gravity.\n" +
+                "\n" +
+                "Breasts morph up/down, left/right and forward/back.";
+
+            _offsetMorphingInfoText.val = "\n".Size(12) +
+                "Rotate breasts up when upright to compensate for negative Up/Down Angle Target.";
+        }
 
         public void Rebuild()
         {
-            CreateDynamicMorphingTitle(_script.morphingTitleText, false);
-            CreateMorphingYSlider(_script.morphingYStorable, false);
-            CreateMorphingXSlider(_script.morphingXStorable, false);
-            CreateMorphingZSlider(_script.morphingZStorable, false);
-            CreateDynamicMorphingInfoTextArea(_script.morphingInfoText, true, spacing: 100);
-            CreateAdditionalSettingsTitle(_script.additionalSettingsTitleText, false);
+            elements = new Dictionary<string, UIDynamic>();
+
+            CreateHeader(_dynamicMorphingMultipliersHeader, "Dynamic morphing multipliers", false);
+            CreateMultiplierSlider(_script.morphingYStorable, false);
+            CreateMultiplierSlider(_script.morphingXStorable, false);
+            CreateMultiplierSlider(_script.morphingZStorable, false);
+            CreateDynamicMorphingInfoTextArea(_dynamicMorphingMultipliersInfoText, true, spacing: 62);
+
+            CreateHeader(_additionalSettingsHeader, "Additional settings", false);
             CreateOffsetMorphingSlider(_script.offsetMorphing, false);
             CreateNippleErectionSlider(_script.nippleErection, false);
-            CreateAdditionalSettingsInfoTextArea(_script.additionalSettingsInfoText, true, spacing: 100);
+            CreateAdditionalSettingsInfoTextArea(_offsetMorphingInfoText, true, spacing: 62);
         }
 
-        private void CreateDynamicMorphingTitle(JSONStorableString storable, bool rightSide, float spacing = 0)
+        private void CreateHeader(JSONStorableString storable, string text, bool rightSide)
         {
-            dynamicMorphingTitleTextFieldSpacer = _script.NewSpacer(spacing, rightSide);
-            dynamicMorphingTitleTextField = _script.CreateTextField(storable, rightSide);
-            dynamicMorphingTitleTextField.UItext.fontSize = 32;
-            dynamicMorphingTitleTextField.height = 100;
-            dynamicMorphingTitleTextField.backgroundColor = Color.clear;
+            elements[storable.name] = HeaderTextField(_script, storable, text, rightSide);
         }
 
-        private void CreateAdditionalSettingsTitle(JSONStorableString storable, bool rightSide, float spacing = 0)
+        private void CreateMultiplierSlider(JSONStorableFloat storable, bool rightSide)
         {
-            additionalSettingsTitleTextFieldSpacer = _script.NewSpacer(spacing, rightSide);
-            additionalSettingsTitleTextField = _script.CreateTextField(storable, rightSide);
-            additionalSettingsTitleTextField.UItext.fontSize = 32;
-            additionalSettingsTitleTextField.height = 100;
-            additionalSettingsTitleTextField.backgroundColor = Color.clear;
+            var slider = _script.CreateSlider(storable, rightSide);
+            slider.valueFormat = "F2";
+            slider.AddSliderClickMonitor();
+            elements[storable.name] = slider;
         }
 
-        private void CreateDynamicMorphingInfoTextArea(JSONStorableString storable, bool rightSide, float spacing = 0)
+        private void CreateOffsetMorphingSlider(JSONStorableFloat storable, bool rightSide)
         {
-            dynamicMorphingInfoTextFieldSpacer = _script.NewSpacer(spacing, rightSide);
-            dynamicMorphingInfoTextField = _script.CreateTextField(storable, rightSide);
-            dynamicMorphingInfoTextField.UItext.fontSize = 28;
-            dynamicMorphingInfoTextField.height = 390;
+            var slider = _script.CreateSlider(storable, rightSide);
+            slider.valueFormat = "F2";
+            slider.AddSliderClickMonitor();
+            elements[storable.name] = slider;
         }
 
-        private void CreateAdditionalSettingsInfoTextArea(JSONStorableString storable, bool rightSide, float spacing = 0)
+        private void CreateNippleErectionSlider(JSONStorableFloat storable, bool rightSide)
         {
-            additionalSettingsInfoTextFieldSpacer = _script.NewSpacer(spacing, rightSide);
-            additionalSettingsInfoTextField = _script.CreateTextField(storable, rightSide);
-            additionalSettingsInfoTextField.UItext.fontSize = 28;
-            additionalSettingsInfoTextField.height = 115;
+            var slider = _script.CreateSlider(storable, rightSide);
+            slider.valueFormat = "F2";
+            elements[storable.name] = slider;
         }
 
-        private void CreateMorphingYSlider(JSONStorableFloat storable, bool rightSide, float spacing = 0)
+        private void CreateDynamicMorphingInfoTextArea(JSONStorableString storable, bool rightSide, float spacing)
         {
-            morphingYSliderSpacer =_script.NewSpacer(spacing, rightSide);
-            morphingYSlider = _script.CreateSlider(storable, rightSide);
-            morphingYSlider.valueFormat = "F2";
+            elements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
+            var textField = _script.CreateTextField(storable, rightSide);
+            textField.UItext.fontSize = 28;
+            textField.height = 390;
+            elements[storable.name] = textField;
         }
 
-        private void CreateMorphingXSlider(JSONStorableFloat storable, bool rightSide, float spacing = 0)
+        private void CreateAdditionalSettingsInfoTextArea(JSONStorableString storable, bool rightSide, float spacing)
         {
-            morphingXSliderSpacer =_script.NewSpacer(spacing, rightSide);
-            morphingXSlider = _script.CreateSlider(storable, rightSide);
-            morphingXSlider.valueFormat = "F2";
+            elements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
+            var textField = _script.CreateTextField(storable, rightSide);
+            textField.UItext.fontSize = 28;
+            textField.height = 115;
+            elements[storable.name] = textField;
         }
 
-        private void CreateMorphingZSlider(JSONStorableFloat storable, bool rightSide, float spacing = 0)
+        public List<UIDynamicSlider> GetSliders()
         {
-            morphingZSliderSpacer = _script.NewSpacer(spacing, rightSide);
-            morphingZSlider = _script.CreateSlider(storable, rightSide);
-            morphingZSlider.valueFormat = "F2";
-        }
+            var sliders = new List<UIDynamicSlider>();
+            if(elements != null)
+            {
+                sliders.Add(elements[_script.morphingXStorable.name] as UIDynamicSlider);
+                sliders.Add(elements[_script.morphingYStorable.name] as UIDynamicSlider);
+                sliders.Add(elements[_script.morphingZStorable.name] as UIDynamicSlider);
+                sliders.Add(elements[_script.offsetMorphing.name] as UIDynamicSlider);
+                sliders.Add(elements[_script.nippleErection.name] as UIDynamicSlider);
+            }
 
-        private void CreateOffsetMorphingSlider(JSONStorableFloat storable, bool rightSide, float spacing = 0)
-        {
-            offsetMorphingSliderSpacer =_script.NewSpacer(spacing, rightSide);
-            offsetMorphingSlider = _script.CreateSlider(storable, rightSide);
-            offsetMorphingSlider.valueFormat = "F2";
-            offsetMorphingSlider.AddSliderClickMonitor();
-        }
-
-        private void CreateNippleErectionSlider(JSONStorableFloat storable, bool rightSide, float spacing = 0)
-        {
-            nippleErectionSliderSpacer =_script.NewSpacer(spacing, rightSide);
-            nippleErectionSlider = _script.CreateSlider(storable, rightSide);
-            nippleErectionSlider.valueFormat = "F2";
+            return sliders;
         }
 
         public void Clear()
         {
-            _script.RemoveSpacer(dynamicMorphingTitleTextFieldSpacer);
-            _script.RemoveTextField(dynamicMorphingTitleTextField);
-            _script.RemoveSpacer(morphingYSliderSpacer);
-            _script.RemoveSlider(morphingYSlider);
-            _script.RemoveSpacer(morphingXSliderSpacer);
-            _script.RemoveSlider(morphingXSlider);
-            _script.RemoveSpacer(morphingZSliderSpacer);
-            _script.RemoveSlider(morphingZSlider);
-            _script.RemoveSpacer(dynamicMorphingInfoTextFieldSpacer);
-            _script.RemoveTextField(dynamicMorphingInfoTextField);
-            _script.RemoveSpacer(additionalSettingsTitleTextFieldSpacer);
-            _script.RemoveTextField(additionalSettingsTitleTextField);
-            _script.RemoveSpacer(offsetMorphingSliderSpacer);
-            _script.RemoveSlider(offsetMorphingSlider);
-            _script.RemoveSpacer(nippleErectionSliderSpacer);
-            _script.RemoveSlider(nippleErectionSlider);
-            _script.RemoveSpacer(additionalSettingsInfoTextFieldSpacer);
-            _script.RemoveTextField(additionalSettingsInfoTextField);
+            foreach(var element in elements)
+            {
+                _script.RemoveElement(element.Value);
+            }
         }
     }
 }

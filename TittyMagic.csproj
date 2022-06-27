@@ -85,8 +85,9 @@
     <Compile Include="src\AtomScaleListener.cs" />
     <Compile Include="src\BreastVolumeCalculator.cs" />
     <Compile Include="src\BreastMorphListener.cs" />
-    <Compile Include="src\Extensions\MVRScriptExtensions.cs" />
+    <Compile Include="src\Extensions\MVRScriptExtension.cs" />
     <Compile Include="src\Extensions\StringExtension.cs" />
+    <Compile Include="src\Extensions\UIDynamicExtension.cs" />
     <Compile Include="src\Extensions\UIDynamicSliderExtension.cs" />
     <Compile Include="src\Handlers\Configs\DynamicPhysicsConfig.cs" />
     <Compile Include="src\Handlers\Configs\MorphConfig.cs" />

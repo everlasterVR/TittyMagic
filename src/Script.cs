@@ -3,7 +3,6 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using SimpleJSON;
-using TittyMagic.Extensions;
 using UnityEngine;
 using TittyMagic.UI;
 using static TittyMagic.Utils;
@@ -55,23 +54,16 @@ namespace TittyMagic
         private GravityWindow _gravityWindow;
         private AdvancedWindow _advancedWindow;
 
-        public JSONStorableString titleText;
         public JSONStorableBool autoRefresh;
         public JSONStorableFloat mass;
         public JSONStorableFloat softness;
         public JSONStorableFloat quickness;
-        public JSONStorableString morphingTitleText;
         public JSONStorableFloat morphingYStorable;
         public JSONStorableFloat morphingXStorable;
         public JSONStorableFloat morphingZStorable;
-        public JSONStorableString morphingInfoText;
-        public JSONStorableString gravityTitleText;
         public JSONStorableFloat gravityYStorable;
         public JSONStorableFloat gravityXStorable;
         public JSONStorableFloat gravityZStorable;
-        public JSONStorableString gravityInfoText;
-        public JSONStorableString additionalSettingsTitleText;
-        public JSONStorableString additionalSettingsInfoText;
         public JSONStorableFloat offsetMorphing;
         public JSONStorableFloat nippleErection;
 
@@ -228,11 +220,11 @@ namespace TittyMagic
         {
             _softnessAmount = CalculateSoftnessAmount(softness.val);
             _quicknessAmount = CalculateQuicknessAmount(quickness.val);
-            _forceMorphHandler.yMultiplier.mainMultiplier = Curves.QuadraticRegression(morphingYStorable.val);
             _forceMorphHandler.xMultiplier.mainMultiplier = Curves.QuadraticRegression(morphingXStorable.val);
+            _forceMorphHandler.yMultiplier.mainMultiplier = Curves.QuadraticRegression(morphingYStorable.val);
             _forceMorphHandler.zMultiplier.mainMultiplier = Curves.QuadraticRegressionLesser(morphingZStorable.val);
-            _gravityPhysicsHandler.yMultiplier.mainMultiplier = gravityYStorable.val;
             _gravityPhysicsHandler.xMultiplier.mainMultiplier = gravityXStorable.val;
+            _gravityPhysicsHandler.yMultiplier.mainMultiplier = gravityYStorable.val;
             _gravityPhysicsHandler.zMultiplier.mainMultiplier = gravityZStorable.val;
             _gravityOffsetMorphHandler.yMultiplier.mainMultiplier = gravityYStorable.val;
         }
@@ -268,45 +260,22 @@ namespace TittyMagic
 
         private void SetupStorables()
         {
-            titleText = new JSONStorableString("titleText", "");
             autoRefresh = this.NewJsonStorableBool("Auto-update mass", true);
             mass = this.NewJsonStorableFloat("Breast mass", 0.1f, 0.1f, 3f);
             _mainPhysicsHandler.mass = mass;
             softness = this.NewJsonStorableFloat("Breast softness", 70f, 0f, 100f);
             quickness = this.NewJsonStorableFloat("Breast quickness", 70f, 0f, 100f);
 
-            morphingTitleText = new JSONStorableString("morphingMultipliers", "");
             morphingYStorable = this.NewJsonStorableFloat("Morphing Up/down", 1.00f, 0.00f, 3.00f);
             morphingXStorable = this.NewJsonStorableFloat("Morphing Left/right", 1.00f, 0.00f, 3.00f);
             morphingZStorable = this.NewJsonStorableFloat("Morphing Forward/back", 1.00f, 0.00f, 3.00f);
-            morphingInfoText = new JSONStorableString("morphingInfoText", "");
 
-            gravityTitleText = new JSONStorableString("gravityPhysicsMultipliers", "");
             gravityYStorable = this.NewJsonStorableFloat("Physics Up/down", 1.00f, 0.00f, 2.00f);
             gravityXStorable = this.NewJsonStorableFloat("Physics Left/right", 1.00f, 0.00f, 2.00f);
             gravityZStorable = this.NewJsonStorableFloat("Physics Forward/back", 1.00f, 0.00f, 2.00f);
-            gravityInfoText = new JSONStorableString("gravityInfoText", "");
 
-            additionalSettingsTitleText = new JSONStorableString("additionalSettings", "");
-            additionalSettingsInfoText = new JSONStorableString("additionalSettingsInfoText", "");
             offsetMorphing = this.NewJsonStorableFloat("Gravity offset morphing", 1.00f, 0.00f, 2.00f);
             nippleErection = this.NewJsonStorableFloat("Nipple erection", 0.00f, 0.00f, 1.00f);
-
-            titleText.val = $"<size=18>\n</size><b>{nameof(TittyMagic)}</b><size=36>    v{VERSION}</size>";
-            morphingTitleText.val = "<size=28>\n\n</size><b>Dynamic morphing multipliers</b>";
-            morphingInfoText.val = "\n".Size(12) +
-                "Adjust the amount of breast morphing due to forces including gravity.\n" +
-                "\n" +
-                "Breasts morph up/down, left/right and forward/back.";
-            additionalSettingsTitleText.val = "<size=28>\n\n</size><b>Additional settings</b>";
-            additionalSettingsInfoText.val = "\n".Size(12) +
-                "Rotate breasts up when upright to compensate for negative Up/Down Angle Target.";
-            gravityTitleText.val = "<size=28>\n\n</size><b>Gravity physics multipliers</b>";
-            gravityInfoText.val = "\n".Size(12) +
-                "Adjust the effect of chest angle on breast main physics settings.\n" +
-                "\n" +
-                "Higher values mean breasts drop more heavily up/down and left/right, " +
-                "are more swingy when leaning forward, and less springy when leaning back.";
         }
 
         private void CreateNavigation()
@@ -330,14 +299,14 @@ namespace TittyMagic
             _tabs.activeWindow = _mainWindow;
             _tabs.activeWindow.Rebuild();
             _tabs.ActivateMainSettingsTab();
-            UpdateSlider(_mainWindow.massSlider, autoRefresh.val);
+            UpdateSlider(_mainWindow.elements[mass.name], autoRefresh.val);
 
-            _mainWindow.autoRefreshToggle.toggle.onValueChanged.AddListener(val =>
+            _mainWindow.elements[autoRefresh.name].AddListener(val =>
             {
-                UpdateSlider(_mainWindow.massSlider, val);
+                UpdateSlider(_mainWindow.elements[mass.name], val);
             });
 
-            _mainWindow.autoRefreshToggle.toggle.onValueChanged.AddListener(val =>
+            _mainWindow.elements[autoRefresh.name].AddListener(val =>
             {
                 if(val)
                 {
@@ -345,22 +314,22 @@ namespace TittyMagic
                 }
             });
 
-            _mainWindow.calculateMassButton.button.onClick.AddListener(() =>
+            _mainWindow.GetCalculateMassButton().AddListener(() =>
             {
                 StartCoroutine(WaitToBeginRefresh(refreshMass: true, fromToggleOrButton: true, useNewMass: true));
             });
 
-            _mainWindow.recalibrateButton.button.onClick.AddListener(() =>
+            _mainWindow.GetRecalibrateButton().AddListener(() =>
             {
                 StartCoroutine(WaitToBeginRefresh(refreshMass: true, fromToggleOrButton: true));
             });
 
-            _mainWindow.massSlider.slider.onValueChanged.AddListener(val =>
+            _mainWindow.elements[mass.name].AddListener((float val) =>
             {
                 RefreshFromSliderChanged(refreshMass: true);
             });
 
-            _mainWindow.softnessSlider.slider.onValueChanged.AddListener(val =>
+            _mainWindow.elements[softness.name].AddListener(val =>
             {
                 if(Math.Abs(CalculateSoftnessAmount(val) - _softnessAmount) < 0.001f)
                 {
@@ -370,7 +339,7 @@ namespace TittyMagic
                 RefreshFromSliderChanged();
             });
 
-            _mainWindow.quicknessSlider.slider.onValueChanged.AddListener(val =>
+            _mainWindow.elements[quickness.name].AddListener(val =>
             {
                 if(Math.Abs(CalculateQuicknessAmount(val) - _quicknessAmount) < 0.001f)
                 {
@@ -383,37 +352,37 @@ namespace TittyMagic
 
         private void NavigateToMorphingWindow()
         {
-            if(_tabs.activeWindow?.Id() == 2)
+            if(_tabs.activeWindow.Id() == 2)
             {
                 return;
             }
 
-            _tabs.activeWindow?.Clear();
+            _tabs.activeWindow.Clear();
             _tabs.activeWindow = _morphingWindow;
             _tabs.activeWindow.Rebuild();
             _tabs.ActivateMorphingTab();
 
-            _morphingWindow.morphingYSlider.slider.onValueChanged.AddListener(val =>
-            {
-                _forceMorphHandler.yMultiplier.mainMultiplier = Curves.QuadraticRegression(val);
-            });
-
-            _morphingWindow.morphingXSlider.slider.onValueChanged.AddListener(val =>
+            _morphingWindow.elements[morphingXStorable.name].AddListener(val =>
             {
                 _forceMorphHandler.xMultiplier.mainMultiplier = Curves.QuadraticRegression(val);
             });
 
-            _morphingWindow.morphingZSlider.slider.onValueChanged.AddListener(val =>
+            _morphingWindow.elements[morphingYStorable.name].AddListener(val =>
+            {
+                _forceMorphHandler.yMultiplier.mainMultiplier = Curves.QuadraticRegression(val);
+            });
+
+            _morphingWindow.elements[morphingZStorable.name].AddListener(val =>
             {
                 _forceMorphHandler.zMultiplier.mainMultiplier = Curves.QuadraticRegressionLesser(val);
             });
 
-            _morphingWindow.offsetMorphingSlider.slider.onValueChanged.AddListener(val =>
+            _morphingWindow.elements[offsetMorphing.name].AddListener((float val) =>
             {
                 RefreshFromSliderChanged();
             });
 
-            _morphingWindow.nippleErectionSlider.slider.onValueChanged.AddListener(val =>
+            _morphingWindow.elements[nippleErection.name].AddListener(val =>
             {
                 _nippleErectionMorphHandler.Update(val);
                 if(_isFemale && _settingsMonitor.softPhysicsEnabled)
@@ -429,30 +398,30 @@ namespace TittyMagic
 
         private void NavigateToGravityWindow()
         {
-            if(_tabs.activeWindow?.Id() == 3)
+            if(_tabs.activeWindow.Id() == 3)
             {
                 return;
             }
 
-            _tabs.activeWindow?.Clear();
+            _tabs.activeWindow.Clear();
             _tabs.activeWindow = _gravityWindow;
             _tabs.activeWindow.Rebuild();
             _tabs.ActivateGravityPhysicsTab();
 
-            _gravityWindow.gravityYSlider.slider.onValueChanged.AddListener(val =>
+            _gravityWindow.elements[gravityXStorable.name].AddListener(val =>
+            {
+                _gravityPhysicsHandler.xMultiplier.mainMultiplier = val;
+                RefreshFromSliderChanged();
+            });
+
+            _gravityWindow.elements[gravityYStorable.name].AddListener(val =>
             {
                 _gravityPhysicsHandler.yMultiplier.mainMultiplier = val;
                 _gravityOffsetMorphHandler.yMultiplier.mainMultiplier = val;
                 RefreshFromSliderChanged();
             });
 
-            _gravityWindow.gravityXSlider.slider.onValueChanged.AddListener(val =>
-            {
-                _gravityPhysicsHandler.xMultiplier.mainMultiplier = val;
-                RefreshFromSliderChanged();
-            });
-
-            _gravityWindow.gravityZSlider.slider.onValueChanged.AddListener(val =>
+            _gravityWindow.elements[gravityZStorable.name].AddListener(val =>
             {
                 _gravityPhysicsHandler.zMultiplier.mainMultiplier = val;
                 RefreshFromSliderChanged();
@@ -461,19 +430,25 @@ namespace TittyMagic
 
         private void NavigateToAdvancedWindow()
         {
-            if(_tabs.activeWindow?.Id() == 4)
+            if(_tabs.activeWindow.Id() == 4)
             {
                 return;
             }
 
-            _tabs.activeWindow?.Clear();
+            _tabs.activeWindow.Clear();
             _tabs.activeWindow = _advancedWindow;
             _tabs.activeWindow.Rebuild();
             _tabs.ActivateAdvancedTab();
         }
 
-        private static void UpdateSlider(UIDynamicSlider uiDynamicSlider, bool autoRefreshOn)
+        private static void UpdateSlider(UIDynamic element, bool autoRefreshOn)
         {
+            var uiDynamicSlider = element as UIDynamicSlider;
+            if(uiDynamicSlider == null)
+            {
+                throw new ArgumentException($"UIDynamic {element.name} was null or not an UIDynamicSlider");
+            }
+
             uiDynamicSlider.slider.interactable = !autoRefreshOn;
             uiDynamicSlider.labelText.color = uiDynamicSlider.slider.interactable
                 ? Color.black
@@ -614,13 +589,9 @@ namespace TittyMagic
                 while(
                     _breastMorphListener.Changed() ||
                     _atomScaleListener.Changed() ||
-                    _mainWindow.massSlider.IsClickDown() ||
-                    _mainWindow.softnessSlider.IsClickDown() ||
-                    _mainWindow.quicknessSlider.IsClickDown() ||
-                    _morphingWindow.offsetMorphingSlider.IsClickDown() ||
-                    _gravityWindow.gravityXSlider.IsClickDown() ||
-                    _gravityWindow.gravityYSlider.IsClickDown() ||
-                    _gravityWindow.gravityZSlider.IsClickDown()
+                    _mainWindow.GetSliders().Any(slider => slider.IsClickDown()) ||
+                    _morphingWindow.GetSliders().Any(slider => slider.IsClickDown()) ||
+                    _gravityWindow.GetSliders().Any(slider => slider.IsClickDown())
                 )
                 {
                     yield return new WaitForSeconds(0.1f);
@@ -896,13 +867,9 @@ namespace TittyMagic
         {
             _removingAtom = true;
             Destroy(_settingsMonitor);
-            Destroy(_mainWindow.massSlider.GetSliderClickMonitor());
-            Destroy(_mainWindow.softnessSlider.GetSliderClickMonitor());
-            Destroy(_mainWindow.quicknessSlider.GetSliderClickMonitor());
-            Destroy(_gravityWindow.gravityXSlider.GetSliderClickMonitor());
-            Destroy(_gravityWindow.gravityYSlider.GetSliderClickMonitor());
-            Destroy(_gravityWindow.gravityZSlider.GetSliderClickMonitor());
-            Destroy(_morphingWindow.offsetMorphingSlider.GetSliderClickMonitor());
+            _mainWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
+            _morphingWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
+            _gravityWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
         }
 
         private void OnDestroy()
@@ -910,13 +877,9 @@ namespace TittyMagic
             try
             {
                 Destroy(_settingsMonitor);
-                Destroy(_mainWindow.massSlider.GetSliderClickMonitor());
-                Destroy(_mainWindow.softnessSlider.GetSliderClickMonitor());
-                Destroy(_mainWindow.quicknessSlider.GetSliderClickMonitor());
-                Destroy(_gravityWindow.gravityXSlider.GetSliderClickMonitor());
-                Destroy(_gravityWindow.gravityYSlider.GetSliderClickMonitor());
-                Destroy(_gravityWindow.gravityZSlider.GetSliderClickMonitor());
-                Destroy(_morphingWindow.offsetMorphingSlider.GetSliderClickMonitor());
+                _mainWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
+                _morphingWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
+                _gravityWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
                 SuperController.singleton.onAtomRemovedHandlers -= OnRemoveAtom;
                 SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
             }

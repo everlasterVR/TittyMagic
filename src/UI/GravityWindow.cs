@@ -1,5 +1,8 @@
 // ReSharper disable MemberCanBePrivate.Global
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static TittyMagic.UI.UIHelpers;
 
@@ -8,87 +11,79 @@ namespace TittyMagic.UI
     internal class GravityWindow : IWindow
     {
         private readonly Script _script;
+        public Dictionary<string, UIDynamic> elements;
 
-        public UIDynamic gravityPhysicsTitleTextFieldSpacer;
-        public UIDynamicTextField gravityPhysicsTitleTextField;
-        public UIDynamic gravityYSliderSpacer;
-        public UIDynamicSlider gravityYSlider;
-        public UIDynamic gravityXSliderSpacer;
-        public UIDynamicSlider gravityXSlider;
-        public UIDynamic gravityZSliderSpacer;
-        public UIDynamicSlider gravityZSlider;
-        public UIDynamic gravityPhysicsInfoTextFieldSpacer;
-        public UIDynamicTextField gravityPhysicsInfoTextField;
+        private readonly JSONStorableString _gravityPhysicsMultipliersHeader;
+        private readonly JSONStorableString _gravityPhysicsMultipliersInfoText;
 
         public int Id() => 3;
 
         public GravityWindow(Script script)
         {
             _script = script;
+
+            _gravityPhysicsMultipliersHeader = new JSONStorableString("gravityPhysicsMultipliersHeader", "");
+            _gravityPhysicsMultipliersInfoText = new JSONStorableString("gravityPhysicsMultipliersInfoText", "");
+
+            _gravityPhysicsMultipliersInfoText.val = "\n".Size(12) +
+                "Adjust the effect of chest angle on breast main physics settings." +
+                "\n\n" +
+                "Higher values mean breasts drop more heavily up/down and left/right, " +
+                "are more swingy when leaning forward, and less springy when leaning back.";
         }
 
         public void Rebuild()
         {
-            CreateGravityPhysicsTitle(_script.gravityTitleText, false);
-            CreateGravityPhysicsYSlider(_script.gravityYStorable, false);
-            CreateGravityPhysicsXSlider(_script.gravityXStorable, false);
-            CreateGravityPhysicsZSlider(_script.gravityZStorable, false);
-            CreateGravityPhysicsMorphingInfoTextArea(_script.gravityInfoText, true, spacing: 100);
+            elements = new Dictionary<string, UIDynamic>();
+
+            CreateHeader(_gravityPhysicsMultipliersHeader, "Gravity physics multipliers", false);
+            CreateMultiplierSlider(_script.gravityYStorable, false);
+            CreateMultiplierSlider(_script.gravityXStorable, false);
+            CreateMultiplierSlider(_script.gravityZStorable, false);
+            CreateGravityPhysicsInfoTextArea(_gravityPhysicsMultipliersInfoText, true, spacing: 62);
         }
 
-        private void CreateGravityPhysicsTitle(JSONStorableString storable, bool rightSide, float spacing = 0)
+        private void CreateHeader(JSONStorableString storable, string text, bool rightSide)
         {
-            gravityPhysicsTitleTextFieldSpacer = _script.NewSpacer(spacing, rightSide);
-            gravityPhysicsTitleTextField = _script.CreateTextField(storable, rightSide);
-            gravityPhysicsTitleTextField.UItext.fontSize = 32;
-            gravityPhysicsTitleTextField.height = 100;
-            gravityPhysicsTitleTextField.backgroundColor = Color.clear;
+            elements[storable.name] = HeaderTextField(_script, storable, text, rightSide);
         }
 
-        private void CreateGravityPhysicsMorphingInfoTextArea(JSONStorableString storable, bool rightSide, float spacing = 0)
+        private void CreateMultiplierSlider(JSONStorableFloat storable, bool rightSide)
         {
-            gravityPhysicsInfoTextFieldSpacer = _script.NewSpacer(spacing, rightSide);
-            gravityPhysicsInfoTextField = _script.CreateTextField(storable, rightSide);
-            gravityPhysicsInfoTextField.UItext.fontSize = 28;
-            gravityPhysicsInfoTextField.height = 390;
+            var slider = _script.CreateSlider(storable, rightSide);
+            slider.valueFormat = "F2";
+            slider.AddSliderClickMonitor();
+            elements[storable.name] = slider;
         }
 
-        private void CreateGravityPhysicsYSlider(JSONStorableFloat storable, bool rightSide, float spacing = 0)
+        private void CreateGravityPhysicsInfoTextArea(JSONStorableString storable, bool rightSide, float spacing)
         {
-            gravityYSliderSpacer =_script.NewSpacer(spacing, rightSide);
-            gravityYSlider = _script.CreateSlider(storable, rightSide);
-            gravityYSlider.valueFormat = "F2";
-            gravityYSlider.AddSliderClickMonitor();
+            elements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
+            var textField = _script.CreateTextField(storable, rightSide);
+            textField.UItext.fontSize = 28;
+            textField.height = 390;
+            elements[storable.name] = textField;
         }
 
-        private void CreateGravityPhysicsXSlider(JSONStorableFloat storable, bool rightSide, float spacing = 0)
+        public List<UIDynamicSlider> GetSliders()
         {
-            gravityXSliderSpacer = _script.NewSpacer(spacing, rightSide);
-            gravityXSlider = _script.CreateSlider(storable, rightSide);
-            gravityXSlider.valueFormat = "F2";
-            gravityXSlider.AddSliderClickMonitor();
-        }
+            var sliders = new List<UIDynamicSlider>();
+            if(elements != null)
+            {
+                sliders.Add(elements[_script.gravityYStorable.name] as UIDynamicSlider);
+                sliders.Add(elements[_script.gravityXStorable.name] as UIDynamicSlider);
+                sliders.Add(elements[_script.gravityZStorable.name] as UIDynamicSlider);
+            }
 
-        private void CreateGravityPhysicsZSlider(JSONStorableFloat storable, bool rightSide, float spacing = 0)
-        {
-            gravityZSliderSpacer = _script.NewSpacer(spacing, rightSide);
-            gravityZSlider = _script.CreateSlider(storable, rightSide);
-            gravityZSlider.valueFormat = "F2";
-            gravityZSlider.AddSliderClickMonitor();
+            return sliders;
         }
 
         public void Clear()
         {
-            _script.RemoveSpacer(gravityPhysicsTitleTextFieldSpacer);
-            _script.RemoveTextField(gravityPhysicsTitleTextField);
-            _script.RemoveSpacer(gravityYSliderSpacer);
-            _script.RemoveSlider(gravityYSlider);
-            _script.RemoveSpacer(gravityXSliderSpacer);
-            _script.RemoveSlider(gravityXSlider);
-            _script.RemoveSpacer(gravityZSliderSpacer);
-            _script.RemoveSlider(gravityZSlider);
-            _script.RemoveSpacer(gravityPhysicsInfoTextFieldSpacer);
-            _script.RemoveTextField(gravityPhysicsInfoTextField);
+            foreach(var element in elements)
+            {
+                _script.RemoveElement(element.Value);
+            }
         }
     }
 }
