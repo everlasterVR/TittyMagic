@@ -453,25 +453,25 @@ namespace TittyMagic
             var texts = new Dictionary<string, string>();
 
             texts[CENTER_OF_GRAVITY_PERCENT] =
-                $"TODO info";
+                $"";
 
             texts[SPRING] =
-                $"TODO info";
+                $"";
 
             texts[DAMPER] =
-                $"TODO info";
+                $"";
 
             texts[POSITION_SPRING_Z] =
-                $"TODO info";
+                $"";
 
             texts[POSITION_DAMPER_Z] =
-                $"TODO info";
+                $"";
 
             texts[TARGET_ROTATION_X] =
-                $"TODO info";
+                $"";
 
             texts[TARGET_ROTATION_Y] =
-                $"TODO info";
+                $"";
 
             return texts;
         }

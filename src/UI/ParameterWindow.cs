@@ -32,39 +32,16 @@ namespace TittyMagic.UI
             elements = new Dictionary<string, UIDynamic>();
 
             CreateBackButton(backButtonListener, false);
-            CreateInfoTextArea(_infoText, false);
-            CreateHeader(true);
-            elements["headerMargin"] = _script.NewSpacer(20, true);
+            CreateInfoTextArea(true);
+
+            CreateHeader(false);
+            elements["headerMargin"] = _script.NewSpacer(20);
 
             if(_leftParam.currentValue != null)
-            {
-                CreateCurrentValueSlider(_leftParam, true);
-            }
+                CreateCurrentValueSlider(_leftParam, false);
 
             if(_leftParam.baseValue != null)
-            {
-                CreateBaseValueSlider(_leftParam, true);
-            }
-        }
-
-        private void CreateCurrentValueSlider(PhysicsParameter param, bool rightSide)
-        {
-            var slider = _script.CreateSlider(param.currentValue, rightSide);
-            slider.valueFormat = param.valueFormat;
-            slider.slider.interactable = false;
-            slider.quickButtonsEnabled = false;
-            slider.defaultButtonEnabled = false;
-            elements[param.currentValue.name] = slider;
-        }
-
-        private void CreateBaseValueSlider(PhysicsParameter param, bool rightSide)
-        {
-            var slider = _script.CreateSlider(param.baseValue, rightSide);
-            slider.valueFormat = param.valueFormat;
-            slider.slider.interactable = false;
-            slider.quickButtonsEnabled = false;
-            slider.defaultButtonEnabled = false;
-            elements[param.baseValue.name] = slider;
+                CreateBaseValueSlider(_leftParam, false);
         }
 
         private void CreateBackButton(UnityAction backButtonListener, bool rightSide)
@@ -76,17 +53,52 @@ namespace TittyMagic.UI
             elements["backButton"] = button;
         }
 
-        private void CreateInfoTextArea(JSONStorableString storable, bool rightSide)
+        private void CreateCurrentValueSlider(PhysicsParameter param, bool rightSide, int spacing = 0)
         {
+            var storable = param.currentValue;
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var slider = _script.CreateSlider(storable, rightSide);
+            slider.valueFormat = param.valueFormat;
+            slider.slider.interactable = false;
+            slider.quickButtonsEnabled = false;
+            slider.defaultButtonEnabled = false;
+            elements[storable.name] = slider;
+        }
+
+        private void CreateBaseValueSlider(PhysicsParameter param, bool rightSide, int spacing = 0)
+        {
+            var storable = param.baseValue;
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var slider = _script.CreateSlider(storable, rightSide);
+            slider.valueFormat = param.valueFormat;
+            slider.slider.interactable = false;
+            slider.quickButtonsEnabled = false;
+            slider.defaultButtonEnabled = false;
+            elements[storable.name] = slider;
+        }
+
+        private void CreateInfoTextArea(bool rightSide, int spacing = 0)
+        {
+            var storable = _infoText;
+            AddSpacer(storable.name, spacing, rightSide);
+
             var textField = _script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
-            textField.height = 390;
+            textField.height = 430;
+            textField.backgroundColor = Color.clear;
             elements[storable.name] = textField;
         }
 
         private void CreateHeader(bool rightSide)
         {
             elements[_title.name] = UIHelpers.TitleTextField(_script, _title, _leftParam.displayName, 62, rightSide);
+        }
+
+        private void AddSpacer(string name, int height, bool rightSide)
+        {
+            elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
         }
 
         public List<UIDynamicSlider> GetSliders()

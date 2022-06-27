@@ -69,12 +69,12 @@ namespace TittyMagic
 
         public static JSONStorableFloat NewBaseValueStorable(float min, float max)
         {
-            return new JSONStorableFloat("Base value", 0, min, max);
+            return new JSONStorableFloat("Base Value", 0, min, max);
         }
 
         public static JSONStorableFloat NewCurrentValueStorable(float min, float max)
         {
-            return new JSONStorableFloat("Current value", 0, min, max);
+            return new JSONStorableFloat("Current Value", 0, min, max);
         }
 
         public static float PhysicsRateMultiplier()

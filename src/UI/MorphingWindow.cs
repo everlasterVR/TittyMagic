@@ -36,16 +36,16 @@ namespace TittyMagic.UI
         {
             elements = new Dictionary<string, UIDynamic>();
 
-            CreateHeader(_dynamicMorphingMultipliersHeader, "Dynamic morphing multipliers", false);
-            CreateMultiplierSlider(_script.morphingYStorable, false);
-            CreateMultiplierSlider(_script.morphingXStorable, false);
-            CreateMultiplierSlider(_script.morphingZStorable, false);
-            CreateDynamicMorphingInfoTextArea(_dynamicMorphingMultipliersInfoText, true, spacing: 62);
+            CreateHeader(_dynamicMorphingMultipliersHeader, "Dynamic Morphing Multipliers", false);
+            CreateMultiplierSlider(_script.morphingYStorable, "Morphing Up/Down", false);
+            CreateMultiplierSlider(_script.morphingXStorable, "Morphing Left/Right", false);
+            CreateMultiplierSlider(_script.morphingZStorable, "Morphing Forward/Back", false);
+            CreateDynamicMorphingInfoTextArea(true, spacing: 62);
 
-            CreateHeader(_additionalSettingsHeader, "Additional settings", false);
-            CreateOffsetMorphingSlider(_script.offsetMorphing, false);
-            CreateNippleErectionSlider(_script.nippleErection, false);
-            CreateAdditionalSettingsInfoTextArea(_offsetMorphingInfoText, true, spacing: 62);
+            CreateHeader(_additionalSettingsHeader, "Additional Settings", false);
+            CreateOffsetMorphingSlider(false);
+            CreateNippleErectionSlider(false);
+            CreateOffsetMorphingInfoTextArea(true, spacing: 62);
         }
 
         private void CreateHeader(JSONStorableString storable, string text, bool rightSide)
@@ -53,45 +53,65 @@ namespace TittyMagic.UI
             elements[storable.name] = UIHelpers.HeaderTextField(_script, storable, text, rightSide);
         }
 
-        private void CreateMultiplierSlider(JSONStorableFloat storable, bool rightSide)
+        private void CreateMultiplierSlider(JSONStorableFloat storable, string label, bool rightSide, int spacing = 0)
         {
+            AddSpacer(storable.name, spacing, rightSide);
+
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
+            slider.label = label;
             slider.AddSliderClickMonitor();
             elements[storable.name] = slider;
         }
 
-        private void CreateOffsetMorphingSlider(JSONStorableFloat storable, bool rightSide)
+        private void CreateOffsetMorphingSlider(bool rightSide, int spacing = 0)
         {
+            var storable = _script.offsetMorphing;
+            AddSpacer(storable.name, spacing, rightSide);
+
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
+            slider.label = "Gravity Offset Morphing";
             slider.AddSliderClickMonitor();
             elements[storable.name] = slider;
         }
 
-        private void CreateNippleErectionSlider(JSONStorableFloat storable, bool rightSide)
+        private void CreateNippleErectionSlider(bool rightSide, int spacing = 0)
         {
+            var storable = _script.nippleErection;
+            AddSpacer(storable.name, spacing, rightSide);
+
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
+            slider.label = "Nipple Erection";
             elements[storable.name] = slider;
         }
 
-        private void CreateDynamicMorphingInfoTextArea(JSONStorableString storable, bool rightSide, float spacing)
+        private void CreateDynamicMorphingInfoTextArea(bool rightSide, int spacing = 0)
         {
-            elements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
+            var storable = _dynamicMorphingMultipliersInfoText;
+            AddSpacer(storable.name, spacing, rightSide);
+
             var textField = _script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.height = 390;
             elements[storable.name] = textField;
         }
 
-        private void CreateAdditionalSettingsInfoTextArea(JSONStorableString storable, bool rightSide, float spacing)
+        private void CreateOffsetMorphingInfoTextArea(bool rightSide, int spacing = 0)
         {
-            elements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
+            var storable = _offsetMorphingInfoText;
+            AddSpacer(storable.name, spacing, rightSide);
+
             var textField = _script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.height = 115;
             elements[storable.name] = textField;
+        }
+
+        private void AddSpacer(string name, int height, bool rightSide)
+        {
+            elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
         }
 
         public List<UIDynamicSlider> GetSliders()

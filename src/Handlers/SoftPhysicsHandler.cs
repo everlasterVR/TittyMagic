@@ -666,31 +666,31 @@ namespace TittyMagic
             var texts = new Dictionary<string, string>();
 
             texts[SOFT_VERTICES_COMBINED_SPRING] =
-                $"TODO info";
+                $"";
 
             texts[SOFT_VERTICES_COMBINED_DAMPER] =
-                $"TODO info";
+                $"";
 
             texts[SOFT_VERTICES_MASS] =
-                $"TODO info";
+                $"";
 
             texts[SOFT_VERTICES_BACK_FORCE] =
-                $"TODO info";
+                $"";
 
             texts[SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE] =
-                $"TODO info";
+                $"";
 
             texts[SOFT_VERTICES_BACK_FORCE_MAX_FORCE] =
-                $"TODO info";
+                $"";
 
             texts[SOFT_VERTICES_COLLIDER_RADIUS] =
-                $"TODO info";
+                $"";
 
             texts[SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET] =
-                $"TODO info";
+                $"";
 
             texts[SOFT_VERTICES_DISTANCE_LIMIT] =
-                $"TODO info";
+                $"";
 
             return texts;
         }

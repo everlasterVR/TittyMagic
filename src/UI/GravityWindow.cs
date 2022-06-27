@@ -30,11 +30,11 @@ namespace TittyMagic.UI
         {
             elements = new Dictionary<string, UIDynamic>();
 
-            CreateHeader(_gravityPhysicsMultipliersHeader, "Gravity physics multipliers", false);
-            CreateMultiplierSlider(_script.gravityYStorable, false);
-            CreateMultiplierSlider(_script.gravityXStorable, false);
-            CreateMultiplierSlider(_script.gravityZStorable, false);
-            CreateGravityPhysicsInfoTextArea(_gravityPhysicsMultipliersInfoText, true, spacing: 62);
+            CreateHeader(_gravityPhysicsMultipliersHeader, "Gravity Physics Multipliers", false);
+            CreateMultiplierSlider(_script.gravityYStorable, "Physics Up/Down", false);
+            CreateMultiplierSlider(_script.gravityXStorable, "Physics Left/Right", false);
+            CreateMultiplierSlider(_script.gravityZStorable, "Physics Forward/Back", false);
+            CreateGravityPhysicsInfoTextArea(true, spacing: 62);
         }
 
         private void CreateHeader(JSONStorableString storable, string text, bool rightSide)
@@ -42,21 +42,30 @@ namespace TittyMagic.UI
             elements[storable.name] = UIHelpers.HeaderTextField(_script, storable, text, rightSide);
         }
 
-        private void CreateMultiplierSlider(JSONStorableFloat storable, bool rightSide)
+        private void CreateMultiplierSlider(JSONStorableFloat storable, string label, bool rightSide, int spacing = 0)
         {
+            AddSpacer(storable.name, spacing, rightSide);
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
+            slider.label = label;
             slider.AddSliderClickMonitor();
             elements[storable.name] = slider;
         }
 
-        private void CreateGravityPhysicsInfoTextArea(JSONStorableString storable, bool rightSide, float spacing)
+        private void CreateGravityPhysicsInfoTextArea(bool rightSide, int spacing = 0)
         {
-            elements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
+            var storable = _gravityPhysicsMultipliersInfoText;
+            AddSpacer(storable.name, spacing, rightSide);
+
             var textField = _script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.height = 390;
             elements[storable.name] = textField;
+        }
+
+        private void AddSpacer(string name, int height, bool rightSide)
+        {
+            elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
         }
 
         public List<UIDynamicSlider> GetSliders()

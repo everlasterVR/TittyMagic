@@ -54,7 +54,7 @@ namespace TittyMagic
         private GravityWindow _gravityWindow;
         private AdvancedWindow _advancedWindow;
 
-        public JSONStorableBool autoRefresh;
+        public JSONStorableBool autoUpdateMass;
         public JSONStorableFloat mass;
         public JSONStorableFloat softness;
         public JSONStorableFloat quickness;
@@ -177,7 +177,7 @@ namespace TittyMagic
 
             LoadSettings();
 
-            _mainWindow = new MainWindow(this);
+            _mainWindow = new MainWindow(this, _softPhysicsHandler);
             _morphingWindow = new MorphingWindow(this);
             _gravityWindow = new GravityWindow(this);
             _advancedWindow = new AdvancedWindow(this, _mainPhysicsHandler, _softPhysicsHandler);
@@ -254,22 +254,22 @@ namespace TittyMagic
 
         private void SetupStorables()
         {
-            autoRefresh = this.NewJsonStorableBool("Auto-update mass", true);
-            mass = this.NewJsonStorableFloat("Breast mass", 0.1f, 0.1f, 3f);
+            autoUpdateMass = this.NewJsonStorableBool("autoUpdateMass", true);
+            mass = this.NewJsonStorableFloat("breastMass", 0.1f, 0.1f, 3f);
             _mainPhysicsHandler.mass = mass;
-            softness = this.NewJsonStorableFloat("Breast softness", 70f, 0f, 100f);
-            quickness = this.NewJsonStorableFloat("Breast quickness", 70f, 0f, 100f);
+            softness = this.NewJsonStorableFloat("breastSoftness", 70f, 0f, 100f);
+            quickness = this.NewJsonStorableFloat("breastQuickness", 70f, 0f, 100f);
 
-            morphingYStorable = this.NewJsonStorableFloat("Morphing Up/down", 1.00f, 0.00f, 3.00f);
-            morphingXStorable = this.NewJsonStorableFloat("Morphing Left/right", 1.00f, 0.00f, 3.00f);
-            morphingZStorable = this.NewJsonStorableFloat("Morphing Forward/back", 1.00f, 0.00f, 3.00f);
+            morphingYStorable = this.NewJsonStorableFloat("morphingUpDown", 1.00f, 0.00f, 3.00f);
+            morphingXStorable = this.NewJsonStorableFloat("morphingLeftRight", 1.00f, 0.00f, 3.00f);
+            morphingZStorable = this.NewJsonStorableFloat("morphingForwardBack", 1.00f, 0.00f, 3.00f);
 
-            gravityYStorable = this.NewJsonStorableFloat("Physics Up/down", 1.00f, 0.00f, 2.00f);
-            gravityXStorable = this.NewJsonStorableFloat("Physics Left/right", 1.00f, 0.00f, 2.00f);
-            gravityZStorable = this.NewJsonStorableFloat("Physics Forward/back", 1.00f, 0.00f, 2.00f);
+            gravityYStorable = this.NewJsonStorableFloat("gravityPhysicsUpDown", 1.00f, 0.00f, 2.00f);
+            gravityXStorable = this.NewJsonStorableFloat("gravityPhysicsLeftRight", 1.00f, 0.00f, 2.00f);
+            gravityZStorable = this.NewJsonStorableFloat("gravityPhysicsForwardBack", 1.00f, 0.00f, 2.00f);
 
-            offsetMorphing = this.NewJsonStorableFloat("Gravity offset morphing", 1.00f, 0.00f, 2.00f);
-            nippleErection = this.NewJsonStorableFloat("Nipple erection", 0.00f, 0.00f, 1.00f);
+            offsetMorphing = this.NewJsonStorableFloat("gravityOffsetMorphing", 1.00f, 0.00f, 2.00f);
+            nippleErection = this.NewJsonStorableFloat("nippleErection", 0.00f, 0.00f, 1.00f);
         }
 
         private void CreateNavigation()
@@ -293,14 +293,14 @@ namespace TittyMagic
             _tabs.activeWindow = _mainWindow;
             _tabs.activeWindow.Rebuild();
             _tabs.ActivateMainSettingsTab();
-            UpdateSlider(_mainWindow.elements[mass.name], autoRefresh.val);
+            UpdateSlider(_mainWindow.elements[mass.name], autoUpdateMass.val);
 
-            _mainWindow.elements[autoRefresh.name].AddListener(val =>
+            _mainWindow.elements[autoUpdateMass.name].AddListener(val =>
             {
                 UpdateSlider(_mainWindow.elements[mass.name], val);
             });
 
-            _mainWindow.elements[autoRefresh.name].AddListener(val =>
+            _mainWindow.elements[autoUpdateMass.name].AddListener(val =>
             {
                 if(val)
                 {
@@ -585,7 +585,7 @@ namespace TittyMagic
         {
             if(useNewMass == null)
             {
-                useNewMass = autoRefresh.val;
+                useNewMass = autoUpdateMass.val;
             }
 
             _waitStatus = RefreshStatus.WAITING;
@@ -732,7 +732,7 @@ namespace TittyMagic
                 _mainPhysicsHandler.UpdatePhysics(_softnessAmount, _quicknessAmount);
             }
 
-            if(autoRefresh.val)
+            if(autoUpdateMass.val)
             {
                 mass.defaultVal = mass.val;
             }
@@ -817,7 +817,7 @@ namespace TittyMagic
 
         private bool CheckListeners()
         {
-            return autoRefresh.val &&
+            return autoUpdateMass.val &&
                 _waitStatus != RefreshStatus.WAITING &&
                 (_breastMorphListener.Changed() || _atomScaleListener.Changed());
         }
