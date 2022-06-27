@@ -13,7 +13,7 @@ namespace TittyMagic.UI
         private Dictionary<string, ParameterWindow> _parameterWindows;
         private string _activeParamWindowKey;
 
-        private readonly JSONStorableString _mainPhysicsParamsHeader;
+        private readonly JSONStorableString _jointPhysicsParamsHeader;
         private readonly JSONStorableString _softPhysicsParamsHeader;
 
         public int Id() => 4;
@@ -24,7 +24,7 @@ namespace TittyMagic.UI
             _mainPhysicsHandler = mainPhysicsHandler;
             _softPhysicsHandler = softPhysicsHandler;
 
-            _mainPhysicsParamsHeader = new JSONStorableString("mainPhysicsParamsHeader", "");
+            _jointPhysicsParamsHeader = new JSONStorableString("mainPhysicsParamsHeader", "");
             _softPhysicsParamsHeader = new JSONStorableString("softPhysicsParamsHeader", "");
             CreateParameterWindows();
         }
@@ -66,7 +66,7 @@ namespace TittyMagic.UI
         {
             elements = new Dictionary<string, UIDynamic>();
 
-            CreateHeader(_mainPhysicsParamsHeader, "Main physics parameters", false);
+            CreateHeader(_softPhysicsParamsHeader, "Soft physics parameters", false);
             foreach(var kvp in _softPhysicsHandler.leftBreastParameters)
             {
                 CreateParamButton(kvp.Key, kvp.Value, false);
@@ -77,7 +77,7 @@ namespace TittyMagic.UI
                 CreateParamButton(kvp.Key, kvp.Value, false);
             }
 
-            CreateHeader(_softPhysicsParamsHeader, "Soft physics parameters", true);
+            CreateHeader(_jointPhysicsParamsHeader, "Joint physics parameters", true);
             foreach(var kvp in _mainPhysicsHandler.leftBreastParameters)
             {
                 CreateParamButton(kvp.Key, kvp.Value, true);
