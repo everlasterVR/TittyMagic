@@ -311,9 +311,7 @@ namespace TittyMagic
 
         private void CreateNavigation()
         {
-            _tabs = new Tabs(leftUIContent, rightUIContent);
-            _tabs.instantiateButton = () => Instantiate(manager.configurableButtonPrefab).GetComponent<UIDynamicButton>();
-
+            _tabs = new Tabs(this, leftUIContent, rightUIContent);
             _tabs.CreateUINavigationButtons();
             _tabs.mainSettingsButton.AddClickListener(NavigateToMainWindow);
             _tabs.morphingButton.AddClickListener(NavigateToMorphingWindow);

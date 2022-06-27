@@ -1,4 +1,5 @@
 // ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
 using System;
 
 namespace TittyMagic.Extensions
@@ -37,6 +38,36 @@ namespace TittyMagic.Extensions
             string filename = script.manager.GetJSON()["plugins"][id].Value;
             int idx = filename.IndexOf(":/", StringComparison.Ordinal);
             return idx >= 0 ? filename.Substring(0, idx) : "";
+        }
+
+        public static UIDynamicTextField InstantiateTextField(this MVRScript script)
+        {
+            return UnityEngine.Object.Instantiate(script.manager.configurableTextFieldPrefab).GetComponent<UIDynamicTextField>();
+        }
+
+        public static UIDynamicButton InstantiateButton(this MVRScript script)
+        {
+            return UnityEngine.Object.Instantiate(script.manager.configurableButtonPrefab).GetComponent<UIDynamicButton>();
+        }
+
+        public static UIDynamicSlider InstantiateSlider(this MVRScript script)
+        {
+            return UnityEngine.Object.Instantiate(script.manager.configurableSliderPrefab).GetComponent<UIDynamicSlider>();
+        }
+
+        public static UIDynamicToggle InstantiateToggle(this MVRScript script)
+        {
+            return UnityEngine.Object.Instantiate(script.manager.configurableTogglePrefab).GetComponent<UIDynamicToggle>();
+        }
+
+        public static UIDynamicPopup InstantiatePopup(this MVRScript script)
+        {
+            return UnityEngine.Object.Instantiate(script.manager.configurablePopupPrefab).GetComponent<UIDynamicPopup>();
+        }
+
+        public static UIDynamicColorPicker InstantiateColorPicker(this MVRScript script)
+        {
+            return UnityEngine.Object.Instantiate(script.manager.configurableColorPickerPrefab).GetComponent<UIDynamicColorPicker>();
         }
 
         public static void RemoveElement(this MVRScript script, UIDynamic element)

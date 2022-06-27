@@ -1,11 +1,9 @@
-using System;
-using System.Collections.Generic;
+// ReSharper disable MemberCanBePrivate.Global
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace TittyMagic.UI
 {
-    // ReSharper disable MemberCanBePrivate.Global
     public static class UIHelpers
     {
         public static Color darkOffGrayViolet = new Color(0.26f, 0.20f, 0.26f);
@@ -71,5 +69,4 @@ namespace TittyMagic.UI
             return horizontalLayoutGroup;
         }
     }
-    // ReSharper restore MemberCanBePrivate.Global
 }

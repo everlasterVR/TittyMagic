@@ -474,7 +474,6 @@ namespace TittyMagic
 
         public void RestoreFromJSON(JSONClass originalPhysicsJSON)
         {
-
             var breastPhysicsMeshFloats = originalPhysicsJSON["breastPhysicsMeshFloats"].AsArray;
             foreach(JSONClass json in breastPhysicsMeshFloats)
             {
