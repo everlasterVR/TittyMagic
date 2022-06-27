@@ -297,7 +297,7 @@ namespace TittyMagic
 
         private void UpdateParam(PhysicsParameter param, string direction, float effect)
         {
-            if(param.forcePhysicsConfigs == null || !param.forcePhysicsConfigs.ContainsKey(direction))
+            if(!param.forcePhysicsConfigs.ContainsKey(direction))
                 return;
 
             var config = param.forcePhysicsConfigs[direction];
