@@ -398,11 +398,6 @@ namespace TittyMagic
                 _forceMorphHandler.zMultiplier.mainMultiplier = Curves.QuadraticRegressionLesser(val);
             });
 
-            _morphingWindow.elements[offsetMorphing.name].AddListener((float val) =>
-            {
-                RefreshFromSliderChanged();
-            });
-
             _morphingWindow.elements[nippleErection.name].AddListener(val =>
             {
                 _nippleErectionMorphHandler.Update(val);
@@ -446,6 +441,11 @@ namespace TittyMagic
             _gravityWindow.elements[gravityZStorable.name].AddListener(val =>
             {
                 _gravityPhysicsHandler.zMultiplier.mainMultiplier = val;
+                RefreshFromSliderChanged();
+            });
+
+            _gravityWindow.elements[offsetMorphing.name].AddListener((float val) =>
+            {
                 RefreshFromSliderChanged();
             });
         }
