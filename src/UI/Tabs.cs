@@ -9,10 +9,10 @@ namespace TittyMagic.UI
 
         public IWindow activeWindow { get; set; }
 
-        public NavigationButton mainSettingsButton { get; private set; }
-        public NavigationButton morphingButton { get; private set; }
-        public NavigationButton gravityButton { get; private set; }
-        public NavigationButton advancedButton { get; private set; }
+        public NavigationButton tab1Button { get; private set; }
+        public NavigationButton tab2Button { get; private set; }
+        public NavigationButton tab3Button { get; private set; }
+        public NavigationButton tab4Button { get; private set; }
 
         public Tabs(Script script)
         {
@@ -24,42 +24,42 @@ namespace TittyMagic.UI
             var leftGroupTransform = UIHelpers.CreateHorizontalLayoutGroup(_script.GetLeftUIContent()).transform;
             var rightGroupTransform = UIHelpers.CreateHorizontalLayoutGroup(_script.GetRightUIContent()).transform;
 
-            mainSettingsButton = new NavigationButton(_script.InstantiateButton(), "Main", leftGroupTransform);
-            morphingButton = new NavigationButton(_script.InstantiateButton(), "Morphing", leftGroupTransform);
-            gravityButton = new NavigationButton(_script.InstantiateButton(), "Gravity physics", rightGroupTransform);
-            advancedButton = new NavigationButton(_script.InstantiateButton(), "Advanced", rightGroupTransform);
+            tab1Button = new NavigationButton(_script.InstantiateButton(), "Control", leftGroupTransform);
+            tab2Button = new NavigationButton(_script.InstantiateButton(), "Physics Params", leftGroupTransform);
+            tab3Button = new NavigationButton(_script.InstantiateButton(), "Morph Multipliers", rightGroupTransform);
+            tab4Button = new NavigationButton(_script.InstantiateButton(), "Gravity Multipliers", rightGroupTransform);
         }
 
-        public void ActivateMainSettingsTab()
+        public void ActivateTab1()
         {
-            mainSettingsButton.SetActive();
-            morphingButton.SetInactive();
-            gravityButton.SetInactive();
-            advancedButton.SetInactive();
+            tab1Button.SetActive();
+            tab2Button.SetInactive();
+            tab3Button.SetInactive();
+            tab4Button.SetInactive();
         }
 
-        public void ActivateMorphingTab()
+        public void ActivateTab2()
         {
-            mainSettingsButton.SetInactive();
-            morphingButton.SetActive();
-            gravityButton.SetInactive();
-            advancedButton.SetInactive();
+            tab1Button.SetInactive();
+            tab2Button.SetActive();
+            tab4Button.SetInactive();
+            tab3Button.SetInactive();
         }
 
-        public void ActivateGravityPhysicsTab()
+        public void ActivateTab3()
         {
-            mainSettingsButton.SetInactive();
-            morphingButton.SetInactive();
-            gravityButton.SetActive();
-            advancedButton.SetInactive();
+            tab1Button.SetInactive();
+            tab2Button.SetInactive();
+            tab3Button.SetActive();
+            tab4Button.SetInactive();
         }
 
-        public void ActivateAdvancedTab()
+        public void ActivateTab4()
         {
-            mainSettingsButton.SetInactive();
-            morphingButton.SetInactive();
-            gravityButton.SetInactive();
-            advancedButton.SetActive();
+            tab1Button.SetInactive();
+            tab2Button.SetInactive();
+            tab3Button.SetInactive();
+            tab4Button.SetActive();
         }
     }
 }

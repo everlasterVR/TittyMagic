@@ -12,7 +12,7 @@ namespace TittyMagic.UI
         private readonly JSONStorableString _additionalSettingsHeader;
         private readonly JSONStorableString _offsetMorphingInfoText;
 
-        public int Id() => 2;
+        public int Id() => 3;
 
         public MorphingWindow(Script script)
         {

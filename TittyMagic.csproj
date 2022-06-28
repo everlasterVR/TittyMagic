@@ -117,7 +117,7 @@
     <Compile Include="src\UI\NavigationButton.cs" />
     <Compile Include="src\UI\ParameterWindow.cs" />
     <Compile Include="src\UI\Tabs.cs" />
-    <Compile Include="src\UI\AdvancedWindow.cs" />
+    <Compile Include="src\UI\PhysicsWindow.cs" />
     <Compile Include="src\UI\SliderClickMonitor.cs" />
     <Compile Include="src\UI\UIHelpers.cs" />
     <Compile Include="src\Utils.cs" />

@@ -4,7 +4,7 @@ using UnityEngine.Events;
 
 namespace TittyMagic.UI
 {
-    internal class AdvancedWindow : IWindow
+    internal class PhysicsWindow : IWindow
     {
         private readonly Script _script;
         private readonly MainPhysicsHandler _mainPhysicsHandler;
@@ -17,9 +17,9 @@ namespace TittyMagic.UI
         private readonly JSONStorableString _jointPhysicsParamsHeader;
         private readonly JSONStorableString _softPhysicsParamsHeader;
 
-        public int Id() => 4;
+        public int Id() => 2;
 
-        public AdvancedWindow(Script script, MainPhysicsHandler mainPhysicsHandler, SoftPhysicsHandler softPhysicsHandler)
+        public PhysicsWindow(Script script, MainPhysicsHandler mainPhysicsHandler, SoftPhysicsHandler softPhysicsHandler)
         {
             _script = script;
             _mainPhysicsHandler = mainPhysicsHandler;

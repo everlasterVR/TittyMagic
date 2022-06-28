@@ -12,7 +12,7 @@ namespace TittyMagic
 {
     internal class Script : MVRScript
     {
-        public const string VERSION = "0.0.0";
+        public const string VERSION = "5.0-alpha0";
 
         private Bindings _customBindings;
 
@@ -52,7 +52,7 @@ namespace TittyMagic
         private MainWindow _mainWindow;
         private MorphingWindow _morphingWindow;
         private GravityWindow _gravityWindow;
-        private AdvancedWindow _advancedWindow;
+        private PhysicsWindow _physicsWindow;
 
         public JSONStorableBool autoUpdateMass;
         public JSONStorableFloat mass;
@@ -180,7 +180,7 @@ namespace TittyMagic
             _mainWindow = new MainWindow(this, _softPhysicsHandler);
             _morphingWindow = new MorphingWindow(this);
             _gravityWindow = new GravityWindow(this);
-            _advancedWindow = new AdvancedWindow(this, _mainPhysicsHandler, _softPhysicsHandler);
+            _physicsWindow = new PhysicsWindow(this, _mainPhysicsHandler, _softPhysicsHandler);
 
             SetupStorables();
             CreateNavigation();
@@ -276,10 +276,10 @@ namespace TittyMagic
         {
             _tabs = new Tabs(this);
             _tabs.CreateUINavigationButtons();
-            _tabs.mainSettingsButton.AddListener(NavigateToMainWindow);
-            _tabs.morphingButton.AddListener(NavigateToMorphingWindow);
-            _tabs.gravityButton.AddListener(NavigateToGravityWindow);
-            _tabs.advancedButton.AddListener(NavigateToAdvancedWindow);
+            _tabs.tab1Button.AddListener(NavigateToMainWindow);
+            _tabs.tab2Button.AddListener(NavigateToPhysicsWindow);
+            _tabs.tab3Button.AddListener(NavigateToMorphingWindow);
+            _tabs.tab4Button.AddListener(NavigateToGravityWindow);
         }
 
         private void NavigateToMainWindow()
@@ -292,7 +292,7 @@ namespace TittyMagic
             _tabs.activeWindow?.Clear();
             _tabs.activeWindow = _mainWindow;
             _tabs.activeWindow.Rebuild();
-            _tabs.ActivateMainSettingsTab();
+            _tabs.ActivateTab1();
             UpdateSlider(_mainWindow.elements[mass.name], autoUpdateMass.val);
 
             _mainWindow.elements[autoUpdateMass.name].AddListener(val =>
@@ -344,7 +344,7 @@ namespace TittyMagic
             });
         }
 
-        private void NavigateToMorphingWindow()
+        private void NavigateToPhysicsWindow()
         {
             if(_tabs.activeWindow?.Id() == 2)
             {
@@ -352,9 +352,22 @@ namespace TittyMagic
             }
 
             _tabs.activeWindow?.Clear();
+            _tabs.activeWindow = _physicsWindow;
+            _tabs.activeWindow.Rebuild();
+            _tabs.ActivateTab2();
+        }
+
+        private void NavigateToMorphingWindow()
+        {
+            if(_tabs.activeWindow?.Id() == 3)
+            {
+                return;
+            }
+
+            _tabs.activeWindow?.Clear();
             _tabs.activeWindow = _morphingWindow;
             _tabs.activeWindow.Rebuild();
-            _tabs.ActivateMorphingTab();
+            _tabs.ActivateTab3();
 
             _morphingWindow.elements[morphingXStorable.name].AddListener(val =>
             {
@@ -392,7 +405,7 @@ namespace TittyMagic
 
         private void NavigateToGravityWindow()
         {
-            if(_tabs.activeWindow?.Id() == 3)
+            if(_tabs.activeWindow?.Id() == 4)
             {
                 return;
             }
@@ -400,7 +413,7 @@ namespace TittyMagic
             _tabs.activeWindow?.Clear();
             _tabs.activeWindow = _gravityWindow;
             _tabs.activeWindow.Rebuild();
-            _tabs.ActivateGravityPhysicsTab();
+            _tabs.ActivateTab4();
 
             _gravityWindow.elements[gravityXStorable.name].AddListener(val =>
             {
@@ -420,19 +433,6 @@ namespace TittyMagic
                 _gravityPhysicsHandler.zMultiplier.mainMultiplier = val;
                 RefreshFromSliderChanged();
             });
-        }
-
-        private void NavigateToAdvancedWindow()
-        {
-            if(_tabs.activeWindow?.Id() == 4)
-            {
-                return;
-            }
-
-            _tabs.activeWindow?.Clear();
-            _tabs.activeWindow = _advancedWindow;
-            _tabs.activeWindow.Rebuild();
-            _tabs.ActivateAdvancedTab();
         }
 
         private static void UpdateSlider(UIDynamic element, bool autoRefreshOn)

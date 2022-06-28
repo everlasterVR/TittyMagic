@@ -10,7 +10,7 @@ namespace TittyMagic.UI
         private readonly JSONStorableString _gravityPhysicsMultipliersHeader;
         private readonly JSONStorableString _gravityPhysicsMultipliersInfoText;
 
-        public int Id() => 3;
+        public int Id() => 4;
 
         public GravityWindow(Script script)
         {

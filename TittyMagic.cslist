@@ -17,13 +17,13 @@ src\Handlers\Multiplier.cs
 src\Handlers\NippleErectionMorphHandler.cs
 src\Handlers\PhysicsParameter.cs
 src\Handlers\SoftPhysicsHandler.cs
-src\UI\AdvancedWindow.cs
 src\UI\GravityWindow.cs
 src\UI\IWindow.cs
 src\UI\MainWindow.cs
 src\UI\MorphingWindow.cs
 src\UI\NavigationButton.cs
 src\UI\ParameterWindow.cs
+src\UI\PhysicsWindow.cs
 src\UI\SliderClickMonitor.cs
 src\UI\Tabs.cs
 src\UI\UIHelpers.cs
