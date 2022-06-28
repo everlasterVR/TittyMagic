@@ -95,8 +95,7 @@ namespace TittyMagic.UI
 
             UnityAction returnCallback = () =>
             {
-                _parameterWindows[key].Clear();
-                _activeParamWindowKey = null;
+                ClearNestedWindow(key);
                 Rebuild();
             };
 
@@ -114,7 +113,7 @@ namespace TittyMagic.UI
         public void Clear()
         {
             if(_activeParamWindowKey != null)
-                ClearCurrentNestedWindow();
+                ClearNestedWindow(_activeParamWindowKey);
             else
                 ClearSelf();
         }
@@ -127,9 +126,9 @@ namespace TittyMagic.UI
             }
         }
 
-        private void ClearCurrentNestedWindow()
+        private void ClearNestedWindow(string key)
         {
-            _parameterWindows[_activeParamWindowKey].Clear();
+            _parameterWindows[key].Clear();
             _activeParamWindowKey = null;
         }
     }

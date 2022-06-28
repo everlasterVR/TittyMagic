@@ -9,14 +9,12 @@ namespace TittyMagic
 {
     internal class SoftPhysicsHandler
     {
-        private readonly DAZCharacterSelector _geometry;
         private readonly DAZPhysicsMesh _breastPhysicsMesh;
         private readonly List<string> _breastPhysicsMeshFloatParamNames;
         private Dictionary<string, float> _originalBreastPhysicsMeshFloats;
         private bool _originalSoftPhysicsOn;
         private bool _originalAllowSelfCollision;
         private bool _originalAutoFatColliderRadius;
-        private bool _originalHardColliders;
         private Dictionary<string, bool> _originalGroupsUseParentSettings;
 
         private readonly DAZPhysicsMeshSoftVerticesGroup _mainLeft;
@@ -37,7 +35,6 @@ namespace TittyMagic
 
         public JSONStorableBool softPhysicsOn { get; }
         public JSONStorableBool allowSelfCollision { get; }
-        public JSONStorableBool useAuxBreastColliders { get; }
 
         private float _combinedSpringLeft;
         private float _combinedSpringRight;
@@ -46,7 +43,6 @@ namespace TittyMagic
 
         public SoftPhysicsHandler(MVRScript script)
         {
-            _geometry = (DAZCharacterSelector) script.containingAtom.GetStorableByID("geometry");
             _breastPhysicsMesh = (DAZPhysicsMesh) script.containingAtom.GetStorableByID("BreastPhysicsMesh");
 
             var groups = _breastPhysicsMesh.softVerticesGroups;
@@ -64,9 +60,6 @@ namespace TittyMagic
 
             allowSelfCollision = script.NewJsonStorableBool(ALLOW_SELF_COLLISION, true);
             allowSelfCollision.setCallbackFunction = SyncAllowSelfCollision;
-
-            useAuxBreastColliders = script.NewJsonStorableBool(USE_AUX_BREAST_COLLIDERS, false);
-            useAuxBreastColliders.setCallbackFunction = SyncUseAuxBreastColliders;
 
             _breastPhysicsMeshFloatParamNames = _breastPhysicsMesh.GetFloatParamNames();
             SaveOriginalPhysicsAndSetPluginDefaults();
@@ -489,14 +482,6 @@ namespace TittyMagic
             }
         }
 
-        public void ReverseSyncUseAuxBreastColliders()
-        {
-            if(useAuxBreastColliders.val != _geometry.useAuxBreastColliders)
-            {
-                useAuxBreastColliders.val = _geometry.useAuxBreastColliders;
-            }
-        }
-
         private void SyncSoftPhysicsOn(bool value)
         {
             _breastPhysicsMesh.on = value;
@@ -505,11 +490,6 @@ namespace TittyMagic
         private void SyncAllowSelfCollision(bool value)
         {
             _breastPhysicsMesh.allowSelfCollision = value;
-        }
-
-        private void SyncUseAuxBreastColliders(bool value)
-        {
-            _geometry.useAuxBreastColliders = value;
         }
 
         public void UpdatePhysics(
@@ -574,10 +554,6 @@ namespace TittyMagic
             _originalAutoFatColliderRadius = _breastPhysicsMesh.softVerticesUseAutoColliderRadius;
             _breastPhysicsMesh.softVerticesUseAutoColliderRadius = false;
 
-            // hard colliders off
-            _originalHardColliders = _geometry.useAuxBreastColliders;
-            SyncUseAuxBreastColliders(useAuxBreastColliders.val);
-
             // prevent settings in F Breast Physics 2 from having effect
             _originalGroupsUseParentSettings = new Dictionary<string, bool>();
             foreach(var group in _breastPhysicsMesh.softVerticesGroups)
@@ -600,11 +576,12 @@ namespace TittyMagic
             _breastPhysicsMesh.on = _originalSoftPhysicsOn;
             _breastPhysicsMesh.allowSelfCollision = _originalAllowSelfCollision;
             _breastPhysicsMesh.softVerticesUseAutoColliderRadius = _originalAutoFatColliderRadius;
-            _geometry.useAuxBreastColliders = _originalHardColliders;
+
             foreach(string name in _breastPhysicsMeshFloatParamNames)
             {
                 _breastPhysicsMesh.GetFloatJSONParam(name).val = _originalBreastPhysicsMeshFloats[name];
             }
+
             foreach(var group in _breastPhysicsMesh.softVerticesGroups)
             {
                 group.useParentSettings = _originalGroupsUseParentSettings[group.name];
@@ -618,7 +595,6 @@ namespace TittyMagic
             json[ALLOW_SELF_COLLISION].AsBool = _originalAllowSelfCollision;
             json["breastPhysicsMeshFloats"] = JSONArrayFromDictionary(_originalBreastPhysicsMeshFloats);
             json[SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS].AsBool = _originalAutoFatColliderRadius;
-            json[USE_AUX_BREAST_COLLIDERS].AsBool = _originalHardColliders;
             json["groupsUseParentSettings"] = JSONArrayFromDictionary(_originalGroupsUseParentSettings);
             return json;
         }
@@ -655,7 +631,6 @@ namespace TittyMagic
             _originalSoftPhysicsOn = originalPhysicsJSON[SOFT_PHYSICS_ON].AsBool;
             _originalAllowSelfCollision = originalPhysicsJSON[ALLOW_SELF_COLLISION].AsBool;
             _originalAutoFatColliderRadius = originalPhysicsJSON[SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS].AsBool;
-            _originalHardColliders = originalPhysicsJSON[USE_AUX_BREAST_COLLIDERS].AsBool;
 
             var breastPhysicsMeshFloats = originalPhysicsJSON["breastPhysicsMeshFloats"].AsArray;
             foreach(JSONClass json in breastPhysicsMeshFloats)

@@ -1,4 +1,5 @@
 using UnityEngine;
+using TittyMagic.Configs;
 
 namespace TittyMagic
 {

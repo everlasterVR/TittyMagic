@@ -1,7 +1,7 @@
 using System;
 using UnityEngine.UI;
 
-namespace TittyMagic
+namespace TittyMagic.Configs
 {
     public class Multiplier
     {

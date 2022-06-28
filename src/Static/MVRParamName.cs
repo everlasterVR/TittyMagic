@@ -13,7 +13,8 @@ namespace TittyMagic
 
         public const string USE_AUX_BREAST_COLLIDERS = "useAuxBreastColliders";
 
-        public const string SOFT_PHYSICS_ON = "on";
+        public const string SOFT_PHYSICS_ON = "on"; // just "on" in the original JSONStorable
+        // public const string SOFT_PHYSICS_ON = "softPhysicsOn"; // just "on" in the original JSONStorable
         public const string ALLOW_SELF_COLLISION = "allowSelfCollision";
         public const string SOFT_VERTICES_COMBINED_SPRING = "softVerticesCombinedSpring";
         public const string SOFT_VERTICES_COMBINED_DAMPER = "softVerticesCombinedDamper";

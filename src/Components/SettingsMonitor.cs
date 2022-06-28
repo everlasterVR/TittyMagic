@@ -140,11 +140,6 @@ namespace TittyMagic
             bool value = globalSoftPhysicsOn && atomSoftPhysicsOn && breastSoftPhysicsOn;
             if(value != softPhysicsEnabled)
             {
-                if(!value && !_geometry.useAuxBreastColliders)
-                {
-                    LogMessage("Recalibrating due to soft physics being disabled. You might also want to enable Breast Hard Colliders!");
-                }
-
                 refreshNeeded = true;
             }
 

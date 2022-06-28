@@ -39,6 +39,7 @@ namespace TittyMagic
         private BreastVolumeCalculator _breastVolumeCalculator;
 
         private MainPhysicsHandler _mainPhysicsHandler;
+        private HardColliderHandler _hardColliderHandler;
         private SoftPhysicsHandler _softPhysicsHandler;
         private GravityPhysicsHandler _gravityPhysicsHandler;
         private GravityOffsetMorphHandler _gravityOffsetMorphHandler;
@@ -67,8 +68,9 @@ namespace TittyMagic
         public JSONStorableFloat offsetMorphing;
         public JSONStorableFloat nippleErection;
 
+        public bool initDone { get; private set; }
+
         private bool _isFemale;
-        private bool _initDone;
         private bool _loadingFromJson;
         private float _timeSinceListenersChecked;
         private const float LISTENERS_CHECK_INTERVAL = 0.0333f;
@@ -111,8 +113,8 @@ namespace TittyMagic
             }
 
             morphsPath = this.GetMorphsPath();
-            var geometry = (DAZCharacterSelector) containingAtom.GetStorableByID("geometry");
 
+            var geometry = (DAZCharacterSelector) containingAtom.GetStorableByID("geometry");
             _isFemale = geometry.gender == DAZCharacterSelector.Gender.Female;
             AdjustJoints breastControl;
             if(_isFemale)
@@ -137,6 +139,9 @@ namespace TittyMagic
             _breastVolumeCalculator = new BreastVolumeCalculator(_skin, _chestRb);
 
             _mainPhysicsHandler = new MainPhysicsHandler(breastControl, _pectoralRbLeft, _pectoralRbRight);
+            _hardColliderHandler = gameObject.AddComponent<HardColliderHandler>();
+            _hardColliderHandler.Init();
+
             if(_isFemale)
             {
                 _softPhysicsHandler = new SoftPhysicsHandler(this);
@@ -177,7 +182,7 @@ namespace TittyMagic
 
             LoadSettings();
 
-            _mainWindow = new MainWindow(this, _softPhysicsHandler);
+            _mainWindow = new MainWindow(this, _hardColliderHandler, _softPhysicsHandler);
             _morphingWindow = new MorphingWindow(this);
             _gravityWindow = new GravityWindow(this);
             _physicsWindow = new PhysicsWindow(this, _mainPhysicsHandler, _softPhysicsHandler);
@@ -193,7 +198,7 @@ namespace TittyMagic
             }
             else
             {
-                _initDone = true;
+                initDone = true;
             }
 
             SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
@@ -295,12 +300,11 @@ namespace TittyMagic
             _tabs.activeWindow.Rebuild();
             _tabs.ActivateTab1();
 
-            UpdateSlider(_mainWindow.elements[mass.name], autoUpdateMass.val);
-
             _mainWindow.elements[autoUpdateMass.name].AddListener(val =>
             {
-                UpdateSlider(_mainWindow.elements[mass.name], val);
+                UpdateSlider(_mainWindow.elements[mass.name], !val);
             });
+            UpdateSlider(_mainWindow.elements[mass.name], !autoUpdateMass.val);
 
             _mainWindow.elements[autoUpdateMass.name].AddListener(val =>
             {
@@ -343,6 +347,12 @@ namespace TittyMagic
                 }
 
                 RefreshFromSliderChanged();
+            });
+
+            _mainWindow.elements[_hardColliderHandler.useHardColliders.name].AddListener(val =>
+            {
+                UpdateSlider(_mainWindow.elements[_hardColliderHandler.hardCollidersRadiusMultiplier.name], val);
+                UpdateSlider(_mainWindow.elements[_hardColliderHandler.hardCollidersMassMultiplier.name], val);
             });
         }
 
@@ -442,22 +452,22 @@ namespace TittyMagic
 
         private void ResetActiveTabListener()
         {
-            if (_tabs.activeWindow?.Id() == 1)
+            if(_tabs.activeWindow?.Id() == 1)
             {
                 _tabs.tab1Button.RemoveAllListeners();
                 _tabs.tab1Button.AddListener(NavigateToMainWindow);
             }
-            else if (_tabs.activeWindow?.Id() == 2)
+            else if(_tabs.activeWindow?.Id() == 2)
             {
                 _tabs.tab2Button.RemoveAllListeners();
                 _tabs.tab2Button.AddListener(NavigateToPhysicsWindow);
             }
-            else if (_tabs.activeWindow?.Id() == 3)
+            else if(_tabs.activeWindow?.Id() == 3)
             {
                 _tabs.tab3Button.RemoveAllListeners();
                 _tabs.tab3Button.AddListener(NavigateToMorphingWindow);
             }
-            else if (_tabs.activeWindow?.Id() == 4)
+            else if(_tabs.activeWindow?.Id() == 4)
             {
                 _tabs.tab4Button.RemoveAllListeners();
                 _tabs.tab4Button.AddListener(NavigateToGravityWindow);
@@ -466,10 +476,18 @@ namespace TittyMagic
 
         public void EnableCurrentTabRenavigation()
         {
-            if (_tabs.activeWindow?.Id() == 1)
+            if(_tabs.activeWindow?.Id() == 1)
             {
+                _tabs.tab1Button.SetInteractable();
+                _tabs.tab1Button.RemoveListener(NavigateToMainWindow);
+                _tabs.tab1Button.AddListener(() =>
+                {
+                    _tabs.activeWindow.Clear();
+                    _tabs.activeWindow.Rebuild();
+                    _tabs.ActivateTab1();
+                });
             }
-            else if (_tabs.activeWindow?.Id() == 2)
+            else if(_tabs.activeWindow?.Id() == 2)
             {
                 _tabs.tab2Button.SetInteractable();
                 _tabs.tab2Button.RemoveListener(NavigateToPhysicsWindow);
@@ -480,15 +498,15 @@ namespace TittyMagic
                     _tabs.ActivateTab2();
                 });
             }
-            else if (_tabs.activeWindow?.Id() == 3)
+            else if(_tabs.activeWindow?.Id() == 3)
             {
             }
-            else if (_tabs.activeWindow?.Id() == 4)
+            else if(_tabs.activeWindow?.Id() == 4)
             {
             }
         }
 
-        private static void UpdateSlider(UIDynamic element, bool autoRefreshOn)
+        private static void UpdateSlider(UIDynamic element, bool interactable)
         {
             var uiDynamicSlider = element as UIDynamicSlider;
             if(uiDynamicSlider == null)
@@ -496,7 +514,7 @@ namespace TittyMagic
                 throw new ArgumentException($"UIDynamic {element.name} was null or not an UIDynamicSlider");
             }
 
-            uiDynamicSlider.slider.interactable = !autoRefreshOn;
+            uiDynamicSlider.slider.interactable = interactable;
             uiDynamicSlider.labelText.color = uiDynamicSlider.slider.interactable
                 ? Color.black
                 : UIHelpers.darkerGray;
@@ -540,7 +558,6 @@ namespace TittyMagic
             {
                 _softPhysicsHandler.ReverseSyncSoftPhysicsOn();
                 _softPhysicsHandler.ReverseSyncSyncAllowSelfCollision();
-                _softPhysicsHandler.ReverseSyncUseAuxBreastColliders();
             }
             _uiOpenPrevFrame = uiOpen;
         }
@@ -559,7 +576,7 @@ namespace TittyMagic
                     EndRefresh();
                 }
 
-                if(!_initDone || _waitStatus != RefreshStatus.DONE)
+                if(!initDone || _waitStatus != RefreshStatus.DONE)
                 {
                     return;
                 }
@@ -858,7 +875,7 @@ namespace TittyMagic
 
                     _waitStatus = RefreshStatus.DONE;
                     _refreshStatus = RefreshStatus.DONE;
-                    _initDone = true;
+                    initDone = true;
                 }
             }
             catch(Exception e)
@@ -903,6 +920,7 @@ namespace TittyMagic
         {
             JSONClass json = base.GetJSON(includePhysical, includeAppearance, forceStore);
             json["originalMainPhysics"] = _mainPhysicsHandler.Serialize();
+            json["originalHardColliders"] = _hardColliderHandler.Serialize();
             if(_isFemale)
             {
                 json["originalSoftPhysics"] = _softPhysicsHandler.Serialize();
@@ -925,7 +943,7 @@ namespace TittyMagic
 
         private IEnumerator DelayedRestore(JSONClass json, bool restorePhysical, bool restoreAppearance, JSONArray presetAtoms, bool setMissingToDefault)
         {
-            while(!_initDone)
+            while(!initDone)
             {
                 yield return null;
             }
@@ -936,6 +954,11 @@ namespace TittyMagic
             if(json.HasKey("originalMainPhysics"))
             {
                 _mainPhysicsHandler.RestoreFromJSON(json["originalMainPhysics"].AsObject);
+            }
+
+            if(json.HasKey("originalHardColliders"))
+            {
+                _hardColliderHandler.RestoreFromJSON(json["originalHardColliders"].AsObject);
             }
             if(json.HasKey("originalSoftPhysics") && _isFemale)
             {
@@ -959,6 +982,7 @@ namespace TittyMagic
             try
             {
                 Destroy(_settingsMonitor);
+                Destroy(_hardColliderHandler);
                 _mainWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
                 _morphingWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
                 _gravityWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
@@ -974,11 +998,12 @@ namespace TittyMagic
         public void OnEnable()
         {
             if(_settingsMonitor != null) _settingsMonitor.enabled = true;
-            _mainPhysicsHandler?.SaveOriginalPhysicsAndSetPluginDefaults();
-            _softPhysicsHandler?.SaveOriginalPhysicsAndSetPluginDefaults();
+            if(_hardColliderHandler != null) _hardColliderHandler.enabled = true;
 
-            if(_initDone)
+            if(initDone)
             {
+                _mainPhysicsHandler?.SaveOriginalPhysicsAndSetPluginDefaults();
+                _softPhysicsHandler?.SaveOriginalPhysicsAndSetPluginDefaults();
                 StartCoroutine(WaitToBeginRefresh(true));
             }
         }
@@ -993,6 +1018,7 @@ namespace TittyMagic
             try
             {
                 if(_settingsMonitor != null) _settingsMonitor.enabled = false;
+                if(_hardColliderHandler != null) _hardColliderHandler.enabled = false;
 
                 _mainPhysicsHandler?.RestoreOriginalPhysics();
                 _softPhysicsHandler?.RestoreOriginalPhysics();
