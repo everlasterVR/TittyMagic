@@ -31,7 +31,11 @@ namespace TittyMagic.UI
         {
             _uiDynamicButton.buttonColor = darkerGray;
             _uiDynamicButton.label = _label.Color(Color.white);
+            SetInteractable();
+        }
 
+        public void SetInteractable()
+        {
             var colors = _uiDynamicButton.button.colors;
             colors.highlightedColor = defaultBtnHighlightedColor;
             colors.pressedColor = defaultBtnPressedColor;
@@ -41,6 +45,16 @@ namespace TittyMagic.UI
         public void AddListener(UnityAction call)
         {
             _uiDynamicButton.AddListener(call);
+        }
+
+        public void RemoveListener(UnityAction call)
+        {
+            _uiDynamicButton.button.onClick.RemoveListener(call);
+        }
+
+        public void RemoveAllListeners()
+        {
+            _uiDynamicButton.button.onClick.RemoveAllListeners();
         }
     }
 }

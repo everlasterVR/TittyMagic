@@ -93,7 +93,7 @@ namespace TittyMagic.UI
             button.height = 52;
             button.buttonText.alignment = TextAnchor.MiddleLeft;
 
-            UnityAction backButtonListener = () =>
+            UnityAction returnCallback = () =>
             {
                 _parameterWindows[key].Clear();
                 _activeParamWindowKey = null;
@@ -104,7 +104,8 @@ namespace TittyMagic.UI
             {
                 ClearSelf();
                 _activeParamWindowKey = key;
-                _parameterWindows[key].Rebuild(backButtonListener);
+                _parameterWindows[key].Rebuild(returnCallback);
+                _script.EnableCurrentTabRenavigation();
             });
 
             elements[key] = button;
@@ -112,8 +113,10 @@ namespace TittyMagic.UI
 
         public void Clear()
         {
-            ClearSelf();
-            ClearActiveParamWindow();
+            if(_activeParamWindowKey != null)
+                ClearCurrentNestedWindow();
+            else
+                ClearSelf();
         }
 
         private void ClearSelf()
@@ -124,13 +127,10 @@ namespace TittyMagic.UI
             }
         }
 
-        private void ClearActiveParamWindow()
+        private void ClearCurrentNestedWindow()
         {
-            if(_activeParamWindowKey != null)
-            {
-                _parameterWindows[_activeParamWindowKey].Clear();
-                _activeParamWindowKey = null;
-            }
+            _parameterWindows[_activeParamWindowKey].Clear();
+            _activeParamWindowKey = null;
         }
     }
 }

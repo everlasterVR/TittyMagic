@@ -289,10 +289,12 @@ namespace TittyMagic
                 return;
             }
 
+            ResetActiveTabListener();
             _tabs.activeWindow?.Clear();
             _tabs.activeWindow = _mainWindow;
             _tabs.activeWindow.Rebuild();
             _tabs.ActivateTab1();
+
             UpdateSlider(_mainWindow.elements[mass.name], autoUpdateMass.val);
 
             _mainWindow.elements[autoUpdateMass.name].AddListener(val =>
@@ -351,6 +353,7 @@ namespace TittyMagic
                 return;
             }
 
+            ResetActiveTabListener();
             _tabs.activeWindow?.Clear();
             _tabs.activeWindow = _physicsWindow;
             _tabs.activeWindow.Rebuild();
@@ -364,6 +367,7 @@ namespace TittyMagic
                 return;
             }
 
+            ResetActiveTabListener();
             _tabs.activeWindow?.Clear();
             _tabs.activeWindow = _morphingWindow;
             _tabs.activeWindow.Rebuild();
@@ -410,6 +414,7 @@ namespace TittyMagic
                 return;
             }
 
+            ResetActiveTabListener();
             _tabs.activeWindow?.Clear();
             _tabs.activeWindow = _gravityWindow;
             _tabs.activeWindow.Rebuild();
@@ -433,6 +438,54 @@ namespace TittyMagic
                 _gravityPhysicsHandler.zMultiplier.mainMultiplier = val;
                 RefreshFromSliderChanged();
             });
+        }
+
+        private void ResetActiveTabListener()
+        {
+            if (_tabs.activeWindow?.Id() == 1)
+            {
+                _tabs.tab1Button.RemoveAllListeners();
+                _tabs.tab1Button.AddListener(NavigateToMainWindow);
+            }
+            else if (_tabs.activeWindow?.Id() == 2)
+            {
+                _tabs.tab2Button.RemoveAllListeners();
+                _tabs.tab2Button.AddListener(NavigateToPhysicsWindow);
+            }
+            else if (_tabs.activeWindow?.Id() == 3)
+            {
+                _tabs.tab3Button.RemoveAllListeners();
+                _tabs.tab3Button.AddListener(NavigateToMorphingWindow);
+            }
+            else if (_tabs.activeWindow?.Id() == 4)
+            {
+                _tabs.tab4Button.RemoveAllListeners();
+                _tabs.tab4Button.AddListener(NavigateToGravityWindow);
+            }
+        }
+
+        public void EnableCurrentTabRenavigation()
+        {
+            if (_tabs.activeWindow?.Id() == 1)
+            {
+            }
+            else if (_tabs.activeWindow?.Id() == 2)
+            {
+                _tabs.tab2Button.SetInteractable();
+                _tabs.tab2Button.RemoveListener(NavigateToPhysicsWindow);
+                _tabs.tab2Button.AddListener(() =>
+                {
+                    _tabs.activeWindow.Clear();
+                    _tabs.activeWindow.Rebuild();
+                    _tabs.ActivateTab2();
+                });
+            }
+            else if (_tabs.activeWindow?.Id() == 3)
+            {
+            }
+            else if (_tabs.activeWindow?.Id() == 4)
+            {
+            }
         }
 
         private static void UpdateSlider(UIDynamic element, bool autoRefreshOn)
