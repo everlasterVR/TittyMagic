@@ -540,7 +540,7 @@ namespace TittyMagic
             {
                 _softPhysicsHandler.ReverseSyncSoftPhysicsOn();
                 _softPhysicsHandler.ReverseSyncSyncAllowSelfCollision();
-                _softPhysicsHandler.ReverseUseAuxBreastColliders();
+                _softPhysicsHandler.ReverseSyncUseAuxBreastColliders();
             }
             _uiOpenPrevFrame = uiOpen;
         }

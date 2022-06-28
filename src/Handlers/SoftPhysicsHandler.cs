@@ -475,17 +475,26 @@ namespace TittyMagic
 
         public void ReverseSyncSoftPhysicsOn()
         {
-            softPhysicsOn.val = _breastPhysicsMesh.on;
+            if(softPhysicsOn.val != _breastPhysicsMesh.on)
+            {
+                softPhysicsOn.val = _breastPhysicsMesh.on;
+            }
         }
 
         public void ReverseSyncSyncAllowSelfCollision()
         {
-            allowSelfCollision.val = _breastPhysicsMesh.allowSelfCollision;
+            if(allowSelfCollision.val != _breastPhysicsMesh.allowSelfCollision)
+            {
+                allowSelfCollision.val = _breastPhysicsMesh.allowSelfCollision;
+            }
         }
 
-        public void ReverseUseAuxBreastColliders()
+        public void ReverseSyncUseAuxBreastColliders()
         {
-            useAuxBreastColliders.val = _geometry.useAuxBreastColliders;
+            if(useAuxBreastColliders.val != _geometry.useAuxBreastColliders)
+            {
+                useAuxBreastColliders.val = _geometry.useAuxBreastColliders;
+            }
         }
 
         private void SyncSoftPhysicsOn(bool value)
