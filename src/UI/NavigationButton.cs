@@ -19,7 +19,7 @@ namespace TittyMagic.UI
 
         public void SetActive()
         {
-            _uiDynamicButton.label = _label.Color(funkyCyan).Bold();
+            _uiDynamicButton.label = _label.Color(funkyCyan);
 
             var colors = _uiDynamicButton.button.colors;
             colors.highlightedColor = Color.white;
