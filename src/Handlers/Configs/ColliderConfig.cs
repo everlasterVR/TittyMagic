@@ -1,25 +1,70 @@
-using System;
 using GPUTools.Physics.Scripts.Behaviours;
 using UnityEngine;
 
 namespace TittyMagic.Configs
 {
+    internal class ColliderConfigGroup
+    {
+        private readonly ColliderConfig _left;
+        private readonly ColliderConfig _right;
+
+        // ReSharper disable once MemberCanBePrivate.Global UnusedAutoPropertyAccessor.Global
+        public string id { get; }
+
+        public ColliderConfigGroup(string id, Collider leftCollider, Collider rightCollider, float baseRadiusMultiplier, float baseMassMultiplier)
+        {
+            this.id = id;
+            _left = new ColliderConfig(leftCollider, baseRadiusMultiplier, baseMassMultiplier);
+            _right = new ColliderConfig(rightCollider, baseRadiusMultiplier, baseMassMultiplier);
+        }
+
+        public void UpdateRadius(float multiplier)
+        {
+            _left.UpdateRadius(multiplier);
+            _right.UpdateRadius(multiplier);
+        }
+
+        public void UpdateRigidbodyMass(float multiplier)
+        {
+            _left.UpdateRigidbodyMass(multiplier);
+            _right.UpdateRigidbodyMass(multiplier);
+        }
+
+        public void RestoreDefaultMass()
+        {
+            _left.RestoreDefaultMass();
+            _right.RestoreDefaultMass();
+        }
+
+        public bool HasRigidbodies()
+        {
+            return _left.HasRigidbody() && _right.HasRigidbody();
+        }
+
+        public void SetEnabled(bool value)
+        {
+            _left.SetEnabled(value);
+            _right.SetEnabled(value);
+        }
+    }
+
     internal class ColliderConfig
     {
+        // Seems to be a hard coded value in VaM. Hard coding it here avoids
+        // having to check for attachedRigidbody to be available when calling SetBaseValues.
+        private const float DEFAULT_MASS = 0.04f;
+
         private readonly Collider _collider;
         private readonly CapsuleLineSphereCollider _capsulelineSphereCollider;
 
-        // Seems to be a hard coded value in VaM. Hard coding it here avoids having to check for attachedRigidbody to be available.
-        private const float ORIGINAL_MASS = 0.04f;
-
-        public float originalRadius { get; set; }
         private float _baseRadius;
         private float _baseMass;
 
-        public ColliderConfig(Collider collider)
+        public ColliderConfig(Collider collider, float baseRadiusMultiplier, float baseMassMultiplier)
         {
             _collider = collider;
             _capsulelineSphereCollider = collider.GetComponent<CapsuleLineSphereCollider>();
+            SetBaseValues(baseRadiusMultiplier, baseMassMultiplier);
         }
 
         public void UpdateRadius(float multiplier)
@@ -32,18 +77,9 @@ namespace TittyMagic.Configs
             _collider.attachedRigidbody.mass = multiplier * _baseMass;
         }
 
-        public void ResetRadius()
+        public void RestoreDefaultMass()
         {
-            _capsulelineSphereCollider.capsuleCollider.radius = originalRadius;
-        }
-
-        public void ResetRigidbodyMass()
-        {
-            // attachedRigidbody is null if hard colliders are disabled
-            if(HasRigidbody())
-            {
-                _collider.attachedRigidbody.mass = ORIGINAL_MASS;
-            }
+            _collider.attachedRigidbody.mass = DEFAULT_MASS;
         }
 
         public bool HasRigidbody()
@@ -51,27 +87,16 @@ namespace TittyMagic.Configs
             return _collider.attachedRigidbody != null;
         }
 
-        public void SetEnabled(bool value, float massMultiplier)
+        public void SetEnabled(bool value)
         {
-            if(!value)
-            {
-                ResetRigidbodyMass();
-            }
-
             _collider.enabled = value;
             _capsulelineSphereCollider.enabled = value;
-
-            if(value)
-            {
-                UpdateRigidbodyMass(massMultiplier);
-            }
         }
 
-        public void SetBaseValues(float baseRadiusMultiplier, float baseMassMultiplier)
+        private void SetBaseValues(float baseRadiusMultiplier, float baseMassMultiplier)
         {
-            originalRadius = _capsulelineSphereCollider.capsuleCollider.radius;
-            _baseRadius = originalRadius * baseRadiusMultiplier;
-            _baseMass = ORIGINAL_MASS * baseMassMultiplier;
+            _baseRadius = _capsulelineSphereCollider.capsuleCollider.radius * baseRadiusMultiplier;
+            _baseMass = DEFAULT_MASS * baseMassMultiplier;
         }
     }
 }

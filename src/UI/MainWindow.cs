@@ -185,6 +185,7 @@ namespace TittyMagic.UI
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "Mass Multiplier";
+            slider.AddSliderClickMonitor();
             elements[storable.name] = slider;
         }
 
@@ -244,14 +245,19 @@ namespace TittyMagic.UI
 
         public List<UIDynamicSlider> GetSliders()
         {
+            var sliders = GetSlidersForRefresh();
+            sliders.Add(elements[_hardColliderHandler.hardCollidersMassMultiplier.name] as UIDynamicSlider);
+            return sliders;
+        }
+
+        public List<UIDynamicSlider> GetSlidersForRefresh()
+        {
             var sliders = new List<UIDynamicSlider>();
             if(elements != null)
             {
                 sliders.Add(elements[_script.mass.name] as UIDynamicSlider);
                 sliders.Add(elements[_script.softness.name] as UIDynamicSlider);
                 sliders.Add(elements[_script.quickness.name] as UIDynamicSlider);
-                // sliders.Add(elements[] as UIDynamicSlider); TODO collider radius
-                // sliders.Add(elements[] as UIDynamicSlider); TODO collider mass
             }
 
             return sliders;

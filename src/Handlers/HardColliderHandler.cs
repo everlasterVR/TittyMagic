@@ -14,63 +14,75 @@ namespace TittyMagic
         private DAZCharacterSelector _geometry;
         private bool _originalUseAuxBreastColliders;
 
-        public Dictionary<string, ColliderConfig> hardCollidersLeft { get; private set; }
-        public Dictionary<string, ColliderConfig> hardCollidersRight { get; private set; }
+        public List<ColliderConfigGroup> configs { get; private set; }
 
         public JSONStorableBool useHardColliders { get; private set; }
         public JSONStorableFloat hardCollidersRadiusMultiplier { get; private set; }
         public JSONStorableFloat hardCollidersMassMultiplier { get; private set; }
+
+        private int _syncMassStatus = -1;
+
+        // TODO storables
+        private const float BASE_MASS_MULTIPILIER = 1f;
+        private const float RADIUS_PECTORAL_1 = 1.1f;
+        private const float RADIUS_PECTORAL_2 = 1f;
+        private const float RADIUS_PECTORAL_3 = 1f;
+        private const float RADIUS_PECTORAL_4 = 0.5f;
+        private const float RADIUS_PECTORAL_5 = 0.75f;
 
         public void Init()
         {
             _script = gameObject.GetComponent<Script>();;
             _geometry = (DAZCharacterSelector) _script.containingAtom.GetStorableByID("geometry");
 
-            hardCollidersLeft = new Dictionary<string, ColliderConfig>()
-            {
-                { ColliderPosition.UPPER, CreateColliderConfig("lPectoral1") },
-                { ColliderPosition.CORE, CreateColliderConfig("lPectoral2") },
-                { ColliderPosition.INNER, CreateColliderConfig("lPectoral3") },
-                { ColliderPosition.LOWER1, CreateColliderConfig("lPectoral4") },
-                { ColliderPosition.LOWER2, CreateColliderConfig("lPectoral5") },
-            };
-            hardCollidersRight = new Dictionary<string, ColliderConfig>()
-            {
-                { ColliderPosition.UPPER, CreateColliderConfig("rPectoral1") },
-                { ColliderPosition.CORE, CreateColliderConfig("rPectoral2") },
-                { ColliderPosition.INNER, CreateColliderConfig("rPectoral3") },
-                { ColliderPosition.LOWER1, CreateColliderConfig("rPectoral4") },
-                { ColliderPosition.LOWER2, CreateColliderConfig("rPectoral5") },
-            };
+            configs = NewColliderConfigs();
 
             useHardColliders = _script.NewJSONStorableBool("useHardColliders", true);
             useHardColliders.setCallbackFunction = SyncUseHardColliders;
 
-            hardCollidersRadiusMultiplier = _script.NewJSONStorableFloat("hardColliderRadiusCombined", 1.00f, 0, 2.00f);
+            hardCollidersRadiusMultiplier = _script.NewJSONStorableFloat("hardColliderRadiusCombined", 0.90f, 0, 1.50f);
             hardCollidersRadiusMultiplier.setCallbackFunction = SyncHardColliderRadiusCombined;
 
-            hardCollidersMassMultiplier = _script.NewJSONStorableFloat("hardColliderMassCombined", 1.00f, 0.10f, 5.00f);
+            hardCollidersMassMultiplier = _script.NewJSONStorableFloat("hardColliderMassCombined", 0.10f, 0.01f, 1.00f);
             hardCollidersMassMultiplier.setCallbackFunction = SyncHardColliderMassCombined;
 
-            SaveOriginalPhysicsAndSetPluginDefaults();
+            _originalUseAuxBreastColliders = _geometry.useAuxBreastColliders;
             SyncUseHardColliders(useHardColliders.val);
-            SyncHardColliderRadiusCombined(hardCollidersRadiusMultiplier.val);
-            SyncHardColliderMassCombined(hardCollidersMassMultiplier.val);
         }
 
-        private ColliderConfig CreateColliderConfig(string partName)
+        private List<ColliderConfigGroup> NewColliderConfigs()
         {
-            var collider = _geometry.auxBreastColliders.ToList().Find(c => c.name.Contains(partName));
-            return new ColliderConfig(collider);
+            return new List<ColliderConfigGroup>
+            {
+                NewColliderConfigGroup("Pectoral1", RADIUS_PECTORAL_1),
+                NewColliderConfigGroup("Pectoral2", RADIUS_PECTORAL_2),
+                NewColliderConfigGroup("Pectoral3", RADIUS_PECTORAL_3),
+                NewColliderConfigGroup("Pectoral4", RADIUS_PECTORAL_4),
+                NewColliderConfigGroup("Pectoral5", RADIUS_PECTORAL_5),
+            };
+        }
+
+        private ColliderConfigGroup NewColliderConfigGroup(string id, float baseRadiusMultiplier)
+        {
+            var auxBreastColliders = _geometry.auxBreastColliders.ToList();
+            var left = auxBreastColliders.Find(c => c.name.Contains("l" + id));
+            var right = auxBreastColliders.Find(c => c.name.Contains("r" + id));
+            return new ColliderConfigGroup(id, left, right, baseRadiusMultiplier, BASE_MASS_MULTIPILIER);
         }
 
         private void SyncUseHardColliders(bool value)
         {
             if(!enabled) return;
 
-            hardCollidersLeft.Values.ToList().ForEach(config => config.SetEnabled(value, hardCollidersMassMultiplier.val));
-            hardCollidersRight.Values.ToList().ForEach(config => config.SetEnabled(value, hardCollidersMassMultiplier.val));
+            configs.ForEach(config => config.SetEnabled(value));
 
+            if(value)
+            {
+                SyncHardColliderRadiusCombined(hardCollidersRadiusMultiplier.val);
+                SyncHardColliderMassCombined(hardCollidersMassMultiplier.val);
+            }
+
+            // TODO necessary?
             if(_geometry.useAdvancedColliders) {
                 _script.containingAtom.ResetPhysics(false);
             }
@@ -80,118 +92,116 @@ namespace TittyMagic
         {
             if(!enabled) return;
 
-            hardCollidersLeft.Values.ToList().ForEach(config => config.UpdateRadius(value));
-            hardCollidersRight.Values.ToList().ForEach(config => config.UpdateRadius(value));
+            configs.ForEach(config => config.UpdateRadius(value));
         }
 
         private void SyncHardColliderMassCombined(float value)
         {
             if(!enabled) return;
 
-            StartCoroutine(DeferSyncHardCollidersMassCombined(value));
+            if(_syncMassStatus != WaitStatus.WAITING)
+            {
+                StartCoroutine(DeferBeginSyncMassCombined());
+            }
         }
 
-        private IEnumerator DeferSyncHardCollidersMassCombined(float value)
+        private IEnumerator DeferBeginSyncMassCombined()
         {
-            var configs = hardCollidersLeft.Values.Concat(hardCollidersRight.Values).ToList();
+            _syncMassStatus = WaitStatus.WAITING;
+            yield return new WaitForSecondsRealtime(0.1f);
 
-            while(configs.Any(config => !config.HasRigidbody()))
+            var slider = (UIDynamicSlider) _script.mainWindow?.elements[hardCollidersMassMultiplier.name];
+            if(slider != null)
+            {
+                while(slider.IsClickDown())
+                {
+                    yield return new WaitForSecondsRealtime(0.1f);
+                }
+
+                yield return new WaitForSecondsRealtime(0.1f);
+            }
+
+            _syncMassStatus = WaitStatus.DONE;
+            yield return DeferSyncMassCombined(hardCollidersMassMultiplier.val);
+        }
+
+        private IEnumerator DeferSyncMassCombined(float value)
+        {
+            // In case hard colliders are not enabled (yet)
+            float timeout = Time.unscaledTime + 3f;
+            while(configs.Any(config => !config.HasRigidbodies()) && Time.unscaledTime < timeout)
             {
                 yield return null;
             }
             yield return new WaitForSecondsRealtime(0.1f);
 
-            configs.ForEach(config => config.UpdateRigidbodyMass(value));
-        }
-
-        public void SaveOriginalPhysicsAndSetPluginDefaults()
-        {
-            _originalUseAuxBreastColliders = _geometry.useAuxBreastColliders;
-
-            const float mass = 0.2f;
-            const float upperRadius = 0.9f;
-            const float coreRadius = 0.9f;
-            const float innerRadius = 0.9f;
-            const float lower1Radius = 0.4f;
-            const float lower2Radius = 0.8f;
-
-            hardCollidersLeft[ColliderPosition.UPPER].SetBaseValues(upperRadius, mass);
-            hardCollidersRight[ColliderPosition.UPPER].SetBaseValues(upperRadius, mass);
-
-            hardCollidersLeft[ColliderPosition.CORE].SetBaseValues(coreRadius, mass);
-            hardCollidersRight[ColliderPosition.CORE].SetBaseValues(coreRadius, mass);
-
-            hardCollidersLeft[ColliderPosition.INNER].SetBaseValues(innerRadius, mass);
-            hardCollidersRight[ColliderPosition.INNER].SetBaseValues(innerRadius, mass);
-
-            hardCollidersLeft[ColliderPosition.LOWER1].SetBaseValues(lower1Radius, mass);
-            hardCollidersRight[ColliderPosition.LOWER1].SetBaseValues(lower1Radius,mass);
-
-            hardCollidersLeft[ColliderPosition.LOWER2].SetBaseValues(lower2Radius, mass);
-            hardCollidersRight[ColliderPosition.LOWER2].SetBaseValues(lower2Radius,mass);
+            if (configs.Any(config => !config.HasRigidbodies()))
+            {
+                Utils.LogMessage($"Unable to sync hard colliders mass because hard colliders are not enabled. Please enable hard colliders to re-sync.");
+            }
+            else
+            {
+                configs.ForEach(config => config.UpdateRigidbodyMass(value));
+            }
         }
 
         public JSONClass Serialize()
         {
             var jsonClass = new JSONClass();
             jsonClass[USE_AUX_BREAST_COLLIDERS].AsBool = _originalUseAuxBreastColliders;
-            jsonClass["hardCollidersLeft"] = JSONArrayFromColliderConfigs(hardCollidersLeft);
-            jsonClass["hardCollidersRight"] = JSONArrayFromColliderConfigs(hardCollidersRight);
             return jsonClass;
-        }
-
-        private static JSONArray JSONArrayFromColliderConfigs(Dictionary<string, ColliderConfig> dictionary)
-        {
-            var jsonArray = new JSONArray();
-            foreach(var kvp in dictionary)
-            {
-                var entry = new JSONClass();
-                entry["position"] = kvp.Key;
-                entry["radius"].AsFloat = kvp.Value.originalRadius;
-                jsonArray.Add(entry);
-            }
-            return jsonArray;
         }
 
         public void RestoreFromJSON(JSONClass originalJson)
         {
             _originalUseAuxBreastColliders = originalJson[USE_AUX_BREAST_COLLIDERS].AsBool;
+        }
 
-            var hardCollidersLeftJson = originalJson["hardCollidersLeft"].AsArray;
-            foreach(JSONClass jsonClass in hardCollidersLeftJson)
+        // cycling hard colliders on/off ensures that individual colliders are set back on/off
+        // if they were disabled/enabled by the plugin, and their radiuses are reset to defaults
+        private IEnumerator RestoreDefaults()
+        {
+            if(useHardColliders.val)
             {
-                var config = colliderConfigs[jsonClass["position"].Value];
-                config.originalRadius = jsonClass["radius"].AsFloat;
+                yield return DeferRestoreDefaultMass();
+                _geometry.useAuxBreastColliders = !_originalUseAuxBreastColliders;
+                _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
             }
-
-            var hardCollidersRightJson = originalJson["hardCollidersRight"].AsArray;
-            foreach(JSONClass json in hardCollidersRightJson)
+            else
             {
-                var config = hardCollidersRight[json["position"].Value];
-                config.originalRadius = json["radius"].AsFloat;
+                if(_originalUseAuxBreastColliders)
+                {
+                    _geometry.useAuxBreastColliders = !_originalUseAuxBreastColliders;
+                    _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
+                    yield return StartCoroutine(DeferRestoreDefaultMass());
+                }
+                else
+                {
+                    _geometry.useAuxBreastColliders = !_originalUseAuxBreastColliders;
+                    yield return StartCoroutine(DeferRestoreDefaultMass());
+                    _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
+                }
             }
         }
 
-        private void RestoreOriginalColliders()
+        private IEnumerator DeferRestoreDefaultMass()
         {
-            hardCollidersLeft.Values.ToList().ForEach(colliderConfig =>
+            // In case hard colliders are not enabled (yet)
+            float timeout = Time.unscaledTime + 3f;
+            while(configs.Any(config => !config.HasRigidbodies()) && Time.unscaledTime < timeout)
             {
-                colliderConfig.ResetRadius();
-                colliderConfig.ResetRigidbodyMass();
-            });
-            hardCollidersRight.Values.ToList().ForEach(colliderConfig =>
-            {
-                colliderConfig.ResetRadius();
-                colliderConfig.ResetRigidbodyMass();
-            });
-            RestoreUseAuxBreastColliders();
-        }
+                yield return null;
+            }
+            yield return new WaitForSecondsRealtime(0.1f);
 
-        // ensures that individual colliders are set back on/off that were disabled/enabled by the plugin
-        private void RestoreUseAuxBreastColliders()
-        {
-            _geometry.useAuxBreastColliders = !_originalUseAuxBreastColliders;
-            _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
+            if (configs.Any(config => !config.HasRigidbodies()))
+            {
+                Utils.LogError($"Failed restoring hard colliders mass to default.");
+            }
+            else
+            {
+                configs.ForEach(config => config.RestoreDefaultMass());
+            }
         }
 
         private void OnEnable()
@@ -199,15 +209,12 @@ namespace TittyMagic
             if(_script == null || !_script.initDone)
                 return;
 
-            SaveOriginalPhysicsAndSetPluginDefaults();
             SyncUseHardColliders(useHardColliders.val);
-            SyncHardColliderRadiusCombined(hardCollidersRadiusMultiplier.val);
-            SyncHardColliderMassCombined(hardCollidersMassMultiplier.val);
         }
 
         private void OnDisable()
         {
-            RestoreOriginalColliders();
+            StartCoroutine(RestoreDefaults());
         }
     }
 }

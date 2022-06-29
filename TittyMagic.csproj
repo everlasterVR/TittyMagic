@@ -100,10 +100,9 @@
     <Compile Include="src\Handlers\HardColliderHandler.cs" />
     <Compile Include="src\Handlers\PhysicsParameter.cs" />
     <Compile Include="src\Handlers\SoftPhysicsHandler.cs" />
-    <Compile Include="src\Static\ColliderPosition.cs" />
     <Compile Include="src\Static\Direction.cs" />
     <Compile Include="src\Static\MVRParamName.cs" />
-    <Compile Include="src\Static\RefreshStatus.cs" />
+    <Compile Include="src\Static\Statuses.cs" />
     <Compile Include="src\Static\VertexIndexGroup.cs" />
     <Compile Include="src\TrackNipple.cs" />
     <Compile Include="src\Components\Bindings.cs" />
