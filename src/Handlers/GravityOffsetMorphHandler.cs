@@ -36,27 +36,27 @@ namespace TittyMagic
         private List<MorphConfig> LoadSettingsFromFile(string subDir, string fileName, bool separateLeftRight = false)
         {
             string path = $@"{_script.PluginPath()}\settings\morphmultipliers\offset\{fileName}.json";
-            var json = _script.LoadJSON(path).AsObject;
+            var jsonClass = _script.LoadJSON(path).AsObject;
 
             var configs = new List<MorphConfig>();
-            foreach(string name in json.Keys)
+            foreach(string name in jsonClass.Keys)
             {
                 if(separateLeftRight)
                 {
                     configs.Add(
                         new MorphConfig(
                             $"{subDir}/{name} L",
-                            json[name]["IsNegative"].AsBool,
-                            json[name]["Multiplier1"].AsFloat,
-                            json[name]["Multiplier2"].AsFloat
+                            jsonClass[name]["IsNegative"].AsBool,
+                            jsonClass[name]["Multiplier1"].AsFloat,
+                            jsonClass[name]["Multiplier2"].AsFloat
                         )
                     );
                     configs.Add(
                         new MorphConfig(
                             $"{subDir}/{name} R",
-                            json[name]["IsNegative"].AsBool,
-                            json[name]["Multiplier1"].AsFloat,
-                            json[name]["Multiplier2"].AsFloat
+                            jsonClass[name]["IsNegative"].AsBool,
+                            jsonClass[name]["Multiplier1"].AsFloat,
+                            jsonClass[name]["Multiplier2"].AsFloat
                         )
                     );
                 }
@@ -65,9 +65,9 @@ namespace TittyMagic
                     configs.Add(
                         new MorphConfig(
                             $"{subDir}/{name}",
-                            json[name]["IsNegative"].AsBool,
-                            json[name]["Multiplier1"].AsFloat,
-                            json[name]["Multiplier2"].AsFloat
+                            jsonClass[name]["IsNegative"].AsBool,
+                            jsonClass[name]["Multiplier1"].AsFloat,
+                            jsonClass[name]["Multiplier2"].AsFloat
                         )
                     );
                 }

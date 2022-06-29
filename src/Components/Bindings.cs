@@ -30,7 +30,7 @@ namespace TittyMagic
 
         private object OpenUI()
         {
-            openUIAction = new JSONStorableAction(nameof(OpenUI), () => ShowUI(() => StartCoroutine(SelectPluginUICo())));
+            openUIAction = new JSONStorableAction(nameof(OpenUI), () => ShowUI(() => StartCoroutine(SelectPluginUI())));
             return openUIAction;
         }
 
@@ -42,7 +42,7 @@ namespace TittyMagic
         }
 
         // adapted from Timeline v4.3.1 (c) acidbubbles
-        private IEnumerator SelectPluginUICo()
+        private IEnumerator SelectPluginUI()
         {
             if(SuperController.singleton.gameMode != SuperController.GameMode.Edit)
             {

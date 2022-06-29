@@ -55,10 +55,10 @@ namespace TittyMagic
             _nippleLeft = groups.Find(group => group.name == "leftnipple");
             _nippleRight = groups.Find(group => group.name == "rightnipple");
 
-            softPhysicsOn = script.NewJsonStorableBool(SOFT_PHYSICS_ON, true);
+            softPhysicsOn = script.NewJSONStorableBool(SOFT_PHYSICS_ON, true);
             softPhysicsOn.setCallbackFunction = SyncSoftPhysicsOn;
 
-            allowSelfCollision = script.NewJsonStorableBool(ALLOW_SELF_COLLISION, true);
+            allowSelfCollision = script.NewJSONStorableBool(ALLOW_SELF_COLLISION, true);
             allowSelfCollision.setCallbackFunction = SyncAllowSelfCollision;
 
             _breastPhysicsMeshFloatParamNames = _breastPhysicsMesh.GetFloatParamNames();
@@ -590,13 +590,13 @@ namespace TittyMagic
 
         public JSONClass Serialize()
         {
-            var json = new JSONClass();
-            json[SOFT_PHYSICS_ON].AsBool = _originalSoftPhysicsOn;
-            json[ALLOW_SELF_COLLISION].AsBool = _originalAllowSelfCollision;
-            json["breastPhysicsMeshFloats"] = JSONArrayFromDictionary(_originalBreastPhysicsMeshFloats);
-            json[SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS].AsBool = _originalAutoFatColliderRadius;
-            json["groupsUseParentSettings"] = JSONArrayFromDictionary(_originalGroupsUseParentSettings);
-            return json;
+            var jsonClass = new JSONClass();
+            jsonClass[SOFT_PHYSICS_ON].AsBool = _originalSoftPhysicsOn;
+            jsonClass[ALLOW_SELF_COLLISION].AsBool = _originalAllowSelfCollision;
+            jsonClass["breastPhysicsMeshFloats"] = JSONArrayFromDictionary(_originalBreastPhysicsMeshFloats);
+            jsonClass[SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS].AsBool = _originalAutoFatColliderRadius;
+            jsonClass["groupsUseParentSettings"] = JSONArrayFromDictionary(_originalGroupsUseParentSettings);
+            return jsonClass;
         }
 
         //TODO is duplicate
@@ -626,19 +626,19 @@ namespace TittyMagic
             return jsonArray;
         }
 
-        public void RestoreFromJSON(JSONClass originalPhysicsJSON)
+        public void RestoreFromJSON(JSONClass originalJson)
         {
-            _originalSoftPhysicsOn = originalPhysicsJSON[SOFT_PHYSICS_ON].AsBool;
-            _originalAllowSelfCollision = originalPhysicsJSON[ALLOW_SELF_COLLISION].AsBool;
-            _originalAutoFatColliderRadius = originalPhysicsJSON[SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS].AsBool;
+            _originalSoftPhysicsOn = originalJson[SOFT_PHYSICS_ON].AsBool;
+            _originalAllowSelfCollision = originalJson[ALLOW_SELF_COLLISION].AsBool;
+            _originalAutoFatColliderRadius = originalJson[SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS].AsBool;
 
-            var breastPhysicsMeshFloats = originalPhysicsJSON["breastPhysicsMeshFloats"].AsArray;
+            var breastPhysicsMeshFloats = originalJson["breastPhysicsMeshFloats"].AsArray;
             foreach(JSONClass json in breastPhysicsMeshFloats)
             {
                 _originalBreastPhysicsMeshFloats[json["paramName"].Value] = json["value"].AsFloat;
             }
 
-            var groupsUseParentSettings = originalPhysicsJSON["groupsUseParentSettings"].AsArray;
+            var groupsUseParentSettings = originalJson["groupsUseParentSettings"].AsArray;
             foreach(JSONClass json in groupsUseParentSettings)
             {
                 _originalGroupsUseParentSettings[json["paramName"].Value] = json["value"].AsBool;

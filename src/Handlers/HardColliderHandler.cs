@@ -43,13 +43,13 @@ namespace TittyMagic
                 { ColliderPosition.LOWER2, CreateColliderConfig("rPectoral5") },
             };
 
-            useHardColliders = _script.NewJsonStorableBool("useHardColliders", true);
+            useHardColliders = _script.NewJSONStorableBool("useHardColliders", true);
             useHardColliders.setCallbackFunction = SyncUseHardColliders;
 
-            hardCollidersRadiusMultiplier = _script.NewJsonStorableFloat("hardColliderRadiusCombined", 1.00f, 0, 2.00f);
+            hardCollidersRadiusMultiplier = _script.NewJSONStorableFloat("hardColliderRadiusCombined", 1.00f, 0, 2.00f);
             hardCollidersRadiusMultiplier.setCallbackFunction = SyncHardColliderRadiusCombined;
 
-            hardCollidersMassMultiplier = _script.NewJsonStorableFloat("hardColliderMassCombined", 1.00f, 0.10f, 5.00f);
+            hardCollidersMassMultiplier = _script.NewJSONStorableFloat("hardColliderMassCombined", 1.00f, 0.10f, 5.00f);
             hardCollidersMassMultiplier.setCallbackFunction = SyncHardColliderMassCombined;
 
             SaveOriginalPhysicsAndSetPluginDefaults();
@@ -133,11 +133,11 @@ namespace TittyMagic
 
         public JSONClass Serialize()
         {
-            var json = new JSONClass();
-            json[USE_AUX_BREAST_COLLIDERS].AsBool = _originalUseAuxBreastColliders;
-            json["hardCollidersLeft"] = JSONArrayFromColliderConfigs(hardCollidersLeft);
-            json["hardCollidersRight"] = JSONArrayFromColliderConfigs(hardCollidersRight);
-            return json;
+            var jsonClass = new JSONClass();
+            jsonClass[USE_AUX_BREAST_COLLIDERS].AsBool = _originalUseAuxBreastColliders;
+            jsonClass["hardCollidersLeft"] = JSONArrayFromColliderConfigs(hardCollidersLeft);
+            jsonClass["hardCollidersRight"] = JSONArrayFromColliderConfigs(hardCollidersRight);
+            return jsonClass;
         }
 
         private static JSONArray JSONArrayFromColliderConfigs(Dictionary<string, ColliderConfig> dictionary)
@@ -153,18 +153,18 @@ namespace TittyMagic
             return jsonArray;
         }
 
-        public void RestoreFromJSON(JSONClass originalPhysicsJSON)
+        public void RestoreFromJSON(JSONClass originalJson)
         {
-            _originalUseAuxBreastColliders = originalPhysicsJSON[USE_AUX_BREAST_COLLIDERS].AsBool;
+            _originalUseAuxBreastColliders = originalJson[USE_AUX_BREAST_COLLIDERS].AsBool;
 
-            var hardCollidersLeftJson = originalPhysicsJSON["hardCollidersLeft"].AsArray;
-            foreach(JSONClass json in hardCollidersLeftJson)
+            var hardCollidersLeftJson = originalJson["hardCollidersLeft"].AsArray;
+            foreach(JSONClass jsonClass in hardCollidersLeftJson)
             {
-                var config = hardCollidersLeft[json["position"].Value];
-                config.originalRadius = json["radius"].AsFloat;
+                var config = colliderConfigs[jsonClass["position"].Value];
+                config.originalRadius = jsonClass["radius"].AsFloat;
             }
 
-            var hardCollidersRightJson = originalPhysicsJSON["hardCollidersRight"].AsArray;
+            var hardCollidersRightJson = originalJson["hardCollidersRight"].AsArray;
             foreach(JSONClass json in hardCollidersRightJson)
             {
                 var config = hardCollidersRight[json["position"].Value];

@@ -45,7 +45,7 @@ namespace TittyMagic
             return dazMorph;
         }
 
-        public static JSONStorableBool NewJsonStorableBool(this MVRScript script, string paramName, bool startingValue)
+        public static JSONStorableBool NewJSONStorableBool(this MVRScript script, string paramName, bool startingValue)
         {
             var storable = new JSONStorableBool(paramName, startingValue);
             storable.storeType = JSONStorableParam.StoreType.Full;
@@ -53,7 +53,7 @@ namespace TittyMagic
             return storable;
         }
 
-        public static JSONStorableFloat NewJsonStorableFloat(
+        public static JSONStorableFloat NewJSONStorableFloat(
             this MVRScript script,
             string paramName,
             float startingValue,

@@ -14,10 +14,10 @@ namespace TittyMagic
 
         private static List<SimpleMorphConfig> LoadSettings(MVRScript script)
         {
-            var json = script.LoadJSON($@"{script.PluginPath()}\settings\morphmultipliers\nippleErection.json").AsObject;
-            return json.Keys.Select(name => new SimpleMorphConfig(
+            var jsonClass = script.LoadJSON($@"{script.PluginPath()}\settings\morphmultipliers\nippleErection.json").AsObject;
+            return jsonClass.Keys.Select(name => new SimpleMorphConfig(
                 name,
-                json[name]["Multiplier"].AsFloat
+                jsonClass[name]["Multiplier"].AsFloat
             )).ToList();
         }
 

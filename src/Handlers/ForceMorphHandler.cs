@@ -57,16 +57,16 @@ namespace TittyMagic
         private List<MorphConfig> LoadSettingsFromFile(string subDir, string fileName, string morphNameSuffix = null)
         {
             string path = $@"{_script.PluginPath()}\settings\morphmultipliers\female\{fileName}.json";
-            var json = _script.LoadJSON(path).AsObject;
+            var jsonClass = _script.LoadJSON(path).AsObject;
 
-            return json.Keys.Select(name =>
+            return jsonClass.Keys.Select(name =>
             {
                 string morphName = string.IsNullOrEmpty(morphNameSuffix) ? name : name + $"{morphNameSuffix}";
                 return new MorphConfig(
                     $"{subDir}/{morphName}",
-                    json[name]["IsNegative"].AsBool,
-                    json[name]["Multiplier1"].AsFloat,
-                    json[name]["Multiplier2"].AsFloat
+                    jsonClass[name]["IsNegative"].AsBool,
+                    jsonClass[name]["Multiplier1"].AsFloat,
+                    jsonClass[name]["Multiplier2"].AsFloat
                 );
             }).ToList();
         }

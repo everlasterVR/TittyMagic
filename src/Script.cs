@@ -94,7 +94,7 @@ namespace TittyMagic
                     return;
                 }
 
-                StartCoroutine(DelayedInit());
+                StartCoroutine(DeferInit());
                 StartCoroutine(SubscribeToKeybindings());
             }
             catch(Exception e)
@@ -104,7 +104,7 @@ namespace TittyMagic
             }
         }
 
-        private IEnumerator DelayedInit()
+        private IEnumerator DeferInit()
         {
             yield return new WaitForEndOfFrame();
             while(SuperController.singleton.isLoading)
@@ -194,7 +194,7 @@ namespace TittyMagic
 
             if(!_loadingFromJson)
             {
-                StartCoroutine(WaitToBeginRefresh(refreshMass: true));
+                StartCoroutine(DeferBeginRefresh(refreshMass: true));
             }
             else
             {
@@ -202,7 +202,7 @@ namespace TittyMagic
             }
 
             SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
-            StartCoroutine(SetPluginVersion());
+            StartCoroutine(DeferSetPluginVersion());
         }
 
         public void LoadSettings()
@@ -247,7 +247,7 @@ namespace TittyMagic
             bindings.AddRange(_customBindings.onKeyDownActions);
         }
 
-        private IEnumerator SetPluginVersion()
+        private IEnumerator DeferSetPluginVersion()
         {
             while(_loadingFromJson)
             {
@@ -259,22 +259,22 @@ namespace TittyMagic
 
         private void SetupStorables()
         {
-            autoUpdateMass = this.NewJsonStorableBool("autoUpdateMass", true);
-            mass = this.NewJsonStorableFloat("breastMass", 0.1f, 0.1f, 3f);
+            autoUpdateMass = this.NewJSONStorableBool("autoUpdateMass", true);
+            mass = this.NewJSONStorableFloat("breastMass", 0.1f, 0.1f, 3f);
             _mainPhysicsHandler.mass = mass;
-            softness = this.NewJsonStorableFloat("breastSoftness", 70f, 0f, 100f);
-            quickness = this.NewJsonStorableFloat("breastQuickness", 70f, 0f, 100f);
+            softness = this.NewJSONStorableFloat("breastSoftness", 70f, 0f, 100f);
+            quickness = this.NewJSONStorableFloat("breastQuickness", 70f, 0f, 100f);
 
-            morphingYStorable = this.NewJsonStorableFloat("morphingUpDown", 1.00f, 0.00f, 3.00f);
-            morphingXStorable = this.NewJsonStorableFloat("morphingLeftRight", 1.00f, 0.00f, 3.00f);
-            morphingZStorable = this.NewJsonStorableFloat("morphingForwardBack", 1.00f, 0.00f, 3.00f);
+            morphingYStorable = this.NewJSONStorableFloat("morphingUpDown", 1.00f, 0.00f, 3.00f);
+            morphingXStorable = this.NewJSONStorableFloat("morphingLeftRight", 1.00f, 0.00f, 3.00f);
+            morphingZStorable = this.NewJSONStorableFloat("morphingForwardBack", 1.00f, 0.00f, 3.00f);
 
-            gravityYStorable = this.NewJsonStorableFloat("gravityPhysicsUpDown", 1.00f, 0.00f, 2.00f);
-            gravityXStorable = this.NewJsonStorableFloat("gravityPhysicsLeftRight", 1.00f, 0.00f, 2.00f);
-            gravityZStorable = this.NewJsonStorableFloat("gravityPhysicsForwardBack", 1.00f, 0.00f, 2.00f);
+            gravityYStorable = this.NewJSONStorableFloat("gravityPhysicsUpDown", 1.00f, 0.00f, 2.00f);
+            gravityXStorable = this.NewJSONStorableFloat("gravityPhysicsLeftRight", 1.00f, 0.00f, 2.00f);
+            gravityZStorable = this.NewJSONStorableFloat("gravityPhysicsForwardBack", 1.00f, 0.00f, 2.00f);
 
-            offsetMorphing = this.NewJsonStorableFloat("gravityOffsetMorphing", 1.00f, 0.00f, 2.00f);
-            nippleErection = this.NewJsonStorableFloat("nippleErection", 0.00f, 0.00f, 1.00f);
+            offsetMorphing = this.NewJSONStorableFloat("gravityOffsetMorphing", 1.00f, 0.00f, 2.00f);
+            nippleErection = this.NewJSONStorableFloat("nippleErection", 0.00f, 0.00f, 1.00f);
         }
 
         private void CreateNavigation()
@@ -310,18 +310,18 @@ namespace TittyMagic
             {
                 if(val)
                 {
-                    StartCoroutine(WaitToBeginRefresh(refreshMass: true, fromToggleOrButton: true));
+                    StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true));
                 }
             });
 
             _mainWindow.GetCalculateMassButton().AddListener(() =>
             {
-                StartCoroutine(WaitToBeginRefresh(refreshMass: true, fromToggleOrButton: true, useNewMass: true));
+                StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true, useNewMass: true));
             });
 
             _mainWindow.GetRecalibrateButton().AddListener(() =>
             {
-                StartCoroutine(WaitToBeginRefresh(refreshMass: true, fromToggleOrButton: true));
+                StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true));
             });
 
             _mainWindow.elements[mass.name].AddListener((float val) =>
@@ -534,7 +534,7 @@ namespace TittyMagic
         {
             if(!_loadingFromJson && _waitStatus != RefreshStatus.WAITING)
             {
-                StartCoroutine(WaitToBeginRefresh(refreshMass));
+                StartCoroutine(DeferBeginRefresh(refreshMass));
             }
         }
 
@@ -587,7 +587,7 @@ namespace TittyMagic
                     _timeSinceListenersChecked -= LISTENERS_CHECK_INTERVAL;
                     if(CheckListeners())
                     {
-                        StartCoroutine(WaitToBeginRefresh(refreshMass: true));
+                        StartCoroutine(DeferBeginRefresh(refreshMass: true));
                         return;
                     }
                 }
@@ -648,10 +648,10 @@ namespace TittyMagic
 
         public void StartRefreshCoroutine(bool refreshMass, bool fromToggleOrButton)
         {
-            StartCoroutine(WaitToBeginRefresh(refreshMass, fromToggleOrButton));
+            StartCoroutine(DeferBeginRefresh(refreshMass, fromToggleOrButton));
         }
 
-        private IEnumerator WaitToBeginRefresh(bool refreshMass, bool fromToggleOrButton = false, bool? useNewMass = null)
+        private IEnumerator DeferBeginRefresh(bool refreshMass, bool fromToggleOrButton = false, bool? useNewMass = null)
         {
             if(useNewMass == null)
             {
@@ -918,19 +918,19 @@ namespace TittyMagic
 
         public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
         {
-            JSONClass json = base.GetJSON(includePhysical, includeAppearance, forceStore);
-            json["originalMainPhysics"] = _mainPhysicsHandler.Serialize();
-            json["originalHardColliders"] = _hardColliderHandler.Serialize();
+            JSONClass jsonClass = base.GetJSON(includePhysical, includeAppearance, forceStore);
+            jsonClass["originalMainPhysics"] = _mainPhysicsHandler.Serialize();
+            jsonClass["originalHardColliders"] = _hardColliderHandler.Serialize();
             if(_isFemale)
             {
-                json["originalSoftPhysics"] = _softPhysicsHandler.Serialize();
+                jsonClass["originalSoftPhysics"] = _softPhysicsHandler.Serialize();
             }
             needsStore = true;
-            return json;
+            return jsonClass;
         }
 
         public override void RestoreFromJSON(
-            JSONClass json,
+            JSONClass jsonClass,
             bool restorePhysical = true,
             bool restoreAppearance = true,
             JSONArray presetAtoms = null,
@@ -938,31 +938,31 @@ namespace TittyMagic
         )
         {
             _loadingFromJson = true;
-            StartCoroutine(DelayedRestore(json, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault));
+            StartCoroutine(DeferRestoreFromJSON(jsonClass, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault));
         }
 
-        private IEnumerator DelayedRestore(JSONClass json, bool restorePhysical, bool restoreAppearance, JSONArray presetAtoms, bool setMissingToDefault)
+        private IEnumerator DeferRestoreFromJSON(JSONClass jsonClass, bool restorePhysical, bool restoreAppearance, JSONArray presetAtoms, bool setMissingToDefault)
         {
             while(!initDone)
             {
                 yield return null;
             }
 
-            base.RestoreFromJSON(json, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
-            StartCoroutine(WaitToBeginRefresh(refreshMass: true));
+            base.RestoreFromJSON(jsonClass, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
+            StartCoroutine(DeferBeginRefresh(refreshMass: true));
 
-            if(json.HasKey("originalMainPhysics"))
+            if(jsonClass.HasKey("originalMainPhysics"))
             {
-                _mainPhysicsHandler.RestoreFromJSON(json["originalMainPhysics"].AsObject);
+                _mainPhysicsHandler.RestoreFromJSON(jsonClass["originalMainPhysics"].AsObject);
             }
 
-            if(json.HasKey("originalHardColliders"))
+            if(jsonClass.HasKey("originalHardColliders"))
             {
-                _hardColliderHandler.RestoreFromJSON(json["originalHardColliders"].AsObject);
+                _hardColliderHandler.RestoreFromJSON(jsonClass["originalHardColliders"].AsObject);
             }
-            if(json.HasKey("originalSoftPhysics") && _isFemale)
+            if(jsonClass.HasKey("originalSoftPhysics") && _isFemale)
             {
-                _softPhysicsHandler.RestoreFromJSON(json["originalSoftPhysics"].AsObject);
+                _softPhysicsHandler.RestoreFromJSON(jsonClass["originalSoftPhysics"].AsObject);
             }
 
             _loadingFromJson = false;
@@ -1004,7 +1004,7 @@ namespace TittyMagic
             {
                 _mainPhysicsHandler?.SaveOriginalPhysicsAndSetPluginDefaults();
                 _softPhysicsHandler?.SaveOriginalPhysicsAndSetPluginDefaults();
-                StartCoroutine(WaitToBeginRefresh(true));
+                StartCoroutine(DeferBeginRefresh(true));
             }
         }
 

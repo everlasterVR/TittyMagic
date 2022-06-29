@@ -416,11 +416,11 @@ namespace TittyMagic
 
         public JSONClass Serialize()
         {
-            var json = new JSONClass();
-            json["breastControlFloats"] = JSONArrayFromDictionary(_originalBreastControlFloats);
-            json["pectoralRbLeftDetectCollisions"].AsBool = _originalPectoralRbLeftDetectCollisions;
-            json["pectoralRbRightDetectCollisions"].AsBool = _originalPectoralRbRightDetectCollisions;
-            return json;
+            var jsonClass = new JSONClass();
+            jsonClass["breastControlFloats"] = JSONArrayFromDictionary(_originalBreastControlFloats);
+            jsonClass["pectoralRbLeftDetectCollisions"].AsBool = _originalPectoralRbLeftDetectCollisions;
+            jsonClass["pectoralRbRightDetectCollisions"].AsBool = _originalPectoralRbRightDetectCollisions;
+            return jsonClass;
         }
 
         private static JSONArray JSONArrayFromDictionary(Dictionary<string, float> dictionary)
@@ -436,16 +436,16 @@ namespace TittyMagic
             return jsonArray;
         }
 
-        public void RestoreFromJSON(JSONClass originalPhysicsJSON)
+        public void RestoreFromJSON(JSONClass originalJson)
         {
-            var breastControlFloats = originalPhysicsJSON["breastControlFloats"].AsArray;
+            var breastControlFloats = originalJson["breastControlFloats"].AsArray;
             foreach(JSONClass json in breastControlFloats)
             {
                 _originalBreastControlFloats[json["paramName"].Value] = json["value"].AsFloat;
             }
 
-            _originalPectoralRbLeftDetectCollisions = originalPhysicsJSON["pectoralRbLeftDetectCollisions"].AsBool;
-            _originalPectoralRbRightDetectCollisions = originalPhysicsJSON["pectoralRbRightDetectCollisions"].AsBool;
+            _originalPectoralRbLeftDetectCollisions = originalJson["pectoralRbLeftDetectCollisions"].AsBool;
+            _originalPectoralRbRightDetectCollisions = originalJson["pectoralRbRightDetectCollisions"].AsBool;
         }
 
         private static Dictionary<string, string> CreateInfoTexts()
