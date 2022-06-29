@@ -351,8 +351,9 @@ namespace TittyMagic
 
             mainWindow.elements[_hardColliderHandler.useHardColliders.name].AddListener(val =>
             {
-                UpdateSlider(mainWindow.elements[_hardColliderHandler.hardCollidersRadiusMultiplier.name], val);
-                UpdateSlider(mainWindow.elements[_hardColliderHandler.hardCollidersMassMultiplier.name], val);
+                UpdateSlider(mainWindow.elements[_hardColliderHandler.radiusOffset.name], val);
+                UpdateSlider(mainWindow.elements[_hardColliderHandler.heightOffset.name], val);
+                UpdateSlider(mainWindow.elements[_hardColliderHandler.massMultiplier.name], val);
             });
         }
 

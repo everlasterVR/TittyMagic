@@ -11,17 +11,30 @@ namespace TittyMagic.Configs
         // ReSharper disable once MemberCanBePrivate.Global UnusedAutoPropertyAccessor.Global
         public string id { get; }
 
-        public ColliderConfigGroup(string id, Collider leftCollider, Collider rightCollider, float baseRadiusMultiplier, float baseMassMultiplier)
+        public ColliderConfigGroup(
+            string id,
+            Collider leftCollider,
+            Collider rightCollider,
+            float radiusMultiplier,
+            float lengthMultiplier,
+            float massMultiplier
+        )
         {
             this.id = id;
-            _left = new ColliderConfig(leftCollider, baseRadiusMultiplier, baseMassMultiplier);
-            _right = new ColliderConfig(rightCollider, baseRadiusMultiplier, baseMassMultiplier);
+            _left = new ColliderConfig(leftCollider, radiusMultiplier, lengthMultiplier, massMultiplier);
+            _right = new ColliderConfig(rightCollider, radiusMultiplier, lengthMultiplier, massMultiplier);
         }
 
         public void UpdateRadius(float multiplier)
         {
             _left.UpdateRadius(multiplier);
             _right.UpdateRadius(multiplier);
+        }
+
+        public void UpdateHeight(float multiplier)
+        {
+            _left.UpdateHeight(multiplier);
+            _right.UpdateHeight(multiplier);
         }
 
         public void UpdateRigidbodyMass(float multiplier)
@@ -58,18 +71,24 @@ namespace TittyMagic.Configs
         private readonly CapsuleLineSphereCollider _capsulelineSphereCollider;
 
         private float _baseRadius;
+        private float _baseHeight;
         private float _baseMass;
 
-        public ColliderConfig(Collider collider, float baseRadiusMultiplier, float baseMassMultiplier)
+        public ColliderConfig(Collider collider, float radiusMultiplier, float lengthMultiplier, float massMultiplier)
         {
             _collider = collider;
             _capsulelineSphereCollider = collider.GetComponent<CapsuleLineSphereCollider>();
-            SetBaseValues(baseRadiusMultiplier, baseMassMultiplier);
+            SetBaseValues(radiusMultiplier, lengthMultiplier, massMultiplier);
         }
 
         public void UpdateRadius(float multiplier)
         {
             _capsulelineSphereCollider.capsuleCollider.radius = multiplier * _baseRadius;
+        }
+
+        public void UpdateHeight(float multiplier)
+        {
+            _capsulelineSphereCollider.capsuleCollider.height = multiplier * _baseHeight;
         }
 
         public void UpdateRigidbodyMass(float multiplier)
@@ -93,10 +112,11 @@ namespace TittyMagic.Configs
             _capsulelineSphereCollider.enabled = value;
         }
 
-        private void SetBaseValues(float baseRadiusMultiplier, float baseMassMultiplier)
+        private void SetBaseValues(float radiusMultiplier, float heightMultiplier, float massMultiplier)
         {
-            _baseRadius = _capsulelineSphereCollider.capsuleCollider.radius * baseRadiusMultiplier;
-            _baseMass = DEFAULT_MASS * baseMassMultiplier;
+            _baseRadius = _capsulelineSphereCollider.capsuleCollider.radius * radiusMultiplier;
+            _baseHeight = _capsulelineSphereCollider.capsuleCollider.height * heightMultiplier;
+            _baseMass = DEFAULT_MASS * massMultiplier;
         }
     }
 }

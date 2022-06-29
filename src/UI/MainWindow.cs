@@ -53,6 +53,7 @@ namespace TittyMagic.UI
             CreateHeader(_hardCollidersHeader, "Breast Hard Colliders", false, spacing: 15);
             CreateUseAuxBreastCollidersToggle(false);
             CreateColliderRadiusSlider(false);
+            CreateColliderHeightSlider(false);
             CreateColliderMassSlider(false);
             CreateHardCollidersInfoTextArea(true, spacing: 92);
             // CreateConfigureHardCollidersButton(false);
@@ -168,7 +169,7 @@ namespace TittyMagic.UI
 
         private void CreateColliderRadiusSlider(bool rightSide, int spacing = 0)
         {
-            var storable = _hardColliderHandler.hardCollidersRadiusMultiplier;
+            var storable = _hardColliderHandler.radiusOffset;
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = _script.CreateSlider(storable, rightSide);
@@ -177,9 +178,20 @@ namespace TittyMagic.UI
             elements[storable.name] = slider;
         }
 
+        private void CreateColliderHeightSlider(bool rightSide, int spacing = 0)
+        {
+            var storable = _hardColliderHandler.heightOffset;
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var slider = _script.CreateSlider(storable, rightSide);
+            slider.valueFormat = "F2";
+            slider.label = "Height Multiplier";
+            elements[storable.name] = slider;
+        }
+
         private void CreateColliderMassSlider(bool rightSide, int spacing = 0)
         {
-            var storable = _hardColliderHandler.hardCollidersMassMultiplier;
+            var storable = _hardColliderHandler.massMultiplier;
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = _script.CreateSlider(storable, rightSide);
@@ -224,7 +236,7 @@ namespace TittyMagic.UI
 
             var textField = _script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
-            textField.height = 323;
+            textField.height = 390; //323
             elements[storable.name] = textField;
         }
 
@@ -246,7 +258,7 @@ namespace TittyMagic.UI
         public List<UIDynamicSlider> GetSliders()
         {
             var sliders = GetSlidersForRefresh();
-            sliders.Add(elements[_hardColliderHandler.hardCollidersMassMultiplier.name] as UIDynamicSlider);
+            sliders.Add(elements[_hardColliderHandler.massMultiplier.name] as UIDynamicSlider);
             return sliders;
         }
 
