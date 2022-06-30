@@ -23,7 +23,7 @@ namespace TittyMagic
 
         private static string Format(string message, string name)
         {
-            return $"{nameof(TittyMagic)} v{Script.VERSION}: {message}{(string.IsNullOrEmpty(name) ? "" : $" [{name}]")}";
+            return $"{nameof(TittyMagic)} {Script.VERSION}: {message}{(string.IsNullOrEmpty(name) ? "" : $" [{name}]")}";
         }
 
         // ReSharper disable once UnusedMember.Global

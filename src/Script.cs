@@ -12,7 +12,7 @@ namespace TittyMagic
 {
     internal class Script : MVRScript
     {
-        public const string VERSION = "5.0-alpha0";
+        public const string VERSION = "v0.0.0";
 
         private Bindings _customBindings;
 
