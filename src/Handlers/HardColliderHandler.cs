@@ -172,7 +172,7 @@ namespace TittyMagic
 
             if (configs.Any(config => !config.HasRigidbodies()))
             {
-                Utils.LogMessage($"Unable to sync hard colliders mass because hard colliders are not enabled. Please enable hard colliders to re-sync.");
+                Utils.LogMessage($"Unable to apply force multiplier: hard colliders are not enabled. Enable hard colliders in order to re-apply.");
             }
             else
             {

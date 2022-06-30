@@ -33,7 +33,10 @@ namespace TittyMagic.UI
             _hardCollidersInfoText = new JSONStorableString("hardCollidersInfoText", "");
 
             // TODO
-            _hardCollidersInfoText.val = "\n".Size(12);
+            _hardCollidersInfoText.val = "\n".Size(12) +
+                "Experimental feature." +
+                "\n\nAdjust Scale Offset to match breast size." +
+                "\n\nCollision Force makes breasts easier to move (but also adds weight).";
         }
 
         public void Rebuild()
@@ -248,7 +251,7 @@ namespace TittyMagic.UI
 
             var textField = _script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
-            textField.height = 458; //323
+            textField.height = 323;
             elements[storable.name] = textField;
         }
 
