@@ -77,7 +77,6 @@ namespace TittyMagic
         private int _waitStatus = -1;
         private int _refreshStatus = -1;
         private bool _animationWasSetFrozen;
-        private bool _removingAtom;
         private bool _uiOpenPrevFrame;
 
         public override void Init()
@@ -971,7 +970,6 @@ namespace TittyMagic
 
         private void OnRemoveAtom(Atom atom)
         {
-            _removingAtom = true;
             Destroy(_settingsMonitor);
             mainWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
             morphingWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
@@ -998,24 +996,26 @@ namespace TittyMagic
 
         public void OnEnable()
         {
-            if(_settingsMonitor != null) _settingsMonitor.enabled = true;
-            if(_hardColliderHandler != null) _hardColliderHandler.enabled = true;
-
-            if(initDone)
+            try
             {
-                _mainPhysicsHandler?.SaveOriginalPhysicsAndSetPluginDefaults();
-                _softPhysicsHandler?.SaveOriginalPhysicsAndSetPluginDefaults();
-                StartCoroutine(DeferBeginRefresh(true));
+                if(_settingsMonitor != null) _settingsMonitor.enabled = true;
+                if(_hardColliderHandler != null) _hardColliderHandler.enabled = true;
+
+                if(initDone)
+                {
+                    _mainPhysicsHandler?.SaveOriginalPhysicsAndSetPluginDefaults();
+                    _softPhysicsHandler?.SaveOriginalPhysicsAndSetPluginDefaults();
+                    StartCoroutine(DeferBeginRefresh(true));
+                }
+            }
+            catch(Exception e)
+            {
+                LogError($"OnEnable: {e}");
             }
         }
 
         private void OnDisable()
         {
-            if(_removingAtom)
-            {
-                return;
-            }
-
             try
             {
                 if(_settingsMonitor != null) _settingsMonitor.enabled = false;
