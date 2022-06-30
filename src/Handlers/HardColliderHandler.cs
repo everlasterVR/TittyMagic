@@ -174,29 +174,23 @@ namespace TittyMagic
             _originalUseAuxBreastColliders = originalJson[USE_AUX_BREAST_COLLIDERS].AsBool;
         }
 
-        // cycling hard colliders on/off ensures that individual colliders are set back on/off
-        // if they were disabled/enabled by the plugin, and their radiuses are reset to defaults
         private IEnumerator RestoreDefaults()
         {
             if(useHardColliders.val)
             {
-                yield return DeferRestoreDefaultMass();
-                _geometry.useAuxBreastColliders = !_originalUseAuxBreastColliders;
-                _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
+                yield return StartCoroutine(DeferRestoreDefaultMass());
             }
             else
             {
                 if(_originalUseAuxBreastColliders)
                 {
-                    _geometry.useAuxBreastColliders = !_originalUseAuxBreastColliders;
-                    _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
                     yield return StartCoroutine(DeferRestoreDefaultMass());
+                    _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
                 }
                 else
                 {
-                    _geometry.useAuxBreastColliders = !_originalUseAuxBreastColliders;
-                    yield return StartCoroutine(DeferRestoreDefaultMass());
                     _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
+                    yield return StartCoroutine(DeferRestoreDefaultMass());
                 }
             }
         }
