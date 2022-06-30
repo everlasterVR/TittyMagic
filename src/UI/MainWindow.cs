@@ -52,9 +52,10 @@ namespace TittyMagic.UI
 
             CreateHeader(_hardCollidersHeader, "Breast Hard Colliders", false, spacing: 15);
             CreateUseAuxBreastCollidersToggle(false);
-            CreateColliderRadiusSlider(false);
-            CreateColliderHeightSlider(false);
-            CreateColliderMassSlider(false);
+            CreateColliderScaleSlider(false);
+            // CreateColliderRadiusSlider(false);
+            // CreateColliderHeightSlider(false);
+            CreateColliderForceSlider(false);
             CreateHardCollidersInfoTextArea(true, spacing: 92);
             // CreateConfigureHardCollidersButton(false);
         }
@@ -167,9 +168,20 @@ namespace TittyMagic.UI
             elements[storable.name] = toggle;
         }
 
+        private void CreateColliderScaleSlider(bool rightSide, int spacing = 0)
+        {
+            var storable = _hardColliderHandler.scaleOffset;
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var slider = _script.CreateSlider(storable, rightSide);
+            slider.valueFormat = "F4";
+            slider.label = "Collider Scale Offset";
+            elements[storable.name] = slider;
+        }
+
         private void CreateColliderRadiusSlider(bool rightSide, int spacing = 0)
         {
-            var storable = _hardColliderHandler.radiusOffset;
+            var storable = _hardColliderHandler.radiusMultiplier;
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = _script.CreateSlider(storable, rightSide);
@@ -180,7 +192,7 @@ namespace TittyMagic.UI
 
         private void CreateColliderHeightSlider(bool rightSide, int spacing = 0)
         {
-            var storable = _hardColliderHandler.heightOffset;
+            var storable = _hardColliderHandler.heightMultiplier;
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = _script.CreateSlider(storable, rightSide);
@@ -189,14 +201,14 @@ namespace TittyMagic.UI
             elements[storable.name] = slider;
         }
 
-        private void CreateColliderMassSlider(bool rightSide, int spacing = 0)
+        private void CreateColliderForceSlider(bool rightSide, int spacing = 0)
         {
-            var storable = _hardColliderHandler.massMultiplier;
+            var storable = _hardColliderHandler.forceMultiplier;
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
-            slider.label = "Mass Multiplier";
+            slider.label = "Collision Force Multiplier";
             slider.AddSliderClickMonitor();
             elements[storable.name] = slider;
         }
@@ -236,7 +248,7 @@ namespace TittyMagic.UI
 
             var textField = _script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
-            textField.height = 390; //323
+            textField.height = 458; //323
             elements[storable.name] = textField;
         }
 
@@ -258,7 +270,7 @@ namespace TittyMagic.UI
         public List<UIDynamicSlider> GetSliders()
         {
             var sliders = GetSlidersForRefresh();
-            sliders.Add(elements[_hardColliderHandler.massMultiplier.name] as UIDynamicSlider);
+            sliders.Add(elements[_hardColliderHandler.forceMultiplier.name] as UIDynamicSlider);
             return sliders;
         }
 

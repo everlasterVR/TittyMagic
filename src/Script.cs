@@ -350,10 +350,13 @@ namespace TittyMagic
 
             mainWindow.elements[_hardColliderHandler.useHardColliders.name].AddListener(val =>
             {
-                UpdateSlider(mainWindow.elements[_hardColliderHandler.radiusOffset.name], val);
-                UpdateSlider(mainWindow.elements[_hardColliderHandler.heightOffset.name], val);
-                UpdateSlider(mainWindow.elements[_hardColliderHandler.massMultiplier.name], val);
+                UpdateSlider(mainWindow.elements[_hardColliderHandler.scaleOffset.name], val);
+                // UpdateSlider(mainWindow.elements[_hardColliderHandler.radiusMultiplier.name], val);
+                // UpdateSlider(mainWindow.elements[_hardColliderHandler.heightMultiplier.name], val);
+                UpdateSlider(mainWindow.elements[_hardColliderHandler.forceMultiplier.name], val);
             });
+            UpdateSlider(mainWindow.elements[_hardColliderHandler.scaleOffset.name], _hardColliderHandler.useHardColliders.val);
+            UpdateSlider(mainWindow.elements[_hardColliderHandler.forceMultiplier.name], _hardColliderHandler.useHardColliders.val);
         }
 
         private void NavigateToPhysicsWindow()

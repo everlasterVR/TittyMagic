@@ -17,24 +17,26 @@ namespace TittyMagic
         public List<ColliderConfigGroup> configs { get; private set; }
 
         public JSONStorableBool useHardColliders { get; private set; }
-        public JSONStorableFloat radiusOffset { get; private set; }
-        public JSONStorableFloat heightOffset { get; private set; }
-        public JSONStorableFloat massMultiplier { get; private set; }
+        public JSONStorableFloat scaleOffset { get; private set; }
+        public JSONStorableFloat radiusMultiplier { get; private set; }
+        public JSONStorableFloat heightMultiplier { get; private set; }
+        public JSONStorableFloat forceMultiplier { get; private set; }
 
         private int _syncMassStatus = -1;
 
         // TODO storables
+        private const float RADIUS_PECTORAL_1 = 0.89f;
+        private const float RADIUS_PECTORAL_2 = 0.79f;
+        private const float RADIUS_PECTORAL_3 = 0.93f;
+        private const float RADIUS_PECTORAL_4 = 0.79f;
+        private const float RADIUS_PECTORAL_5 = 0.74f;
+        private const float HEIGHT_PECTORAL_1 = 1.15f;
+        private const float HEIGHT_PECTORAL_2 = 1.25f;
+        private const float HEIGHT_PECTORAL_3 = 0.68f;
+        private const float HEIGHT_PECTORAL_4 = 0.78f;
+        private const float HEIGHT_PECTORAL_5 = 0.79f;
         private const float MASS_COMBINED = 1f;
-        private const float RADIUS_PECTORAL_1 = 1f;
-        private const float RADIUS_PECTORAL_2 = 1f;
-        private const float RADIUS_PECTORAL_3 = 1f;
-        private const float RADIUS_PECTORAL_4 = 1f;
-        private const float RADIUS_PECTORAL_5 = 1f;
-        private const float HEIGHT_PECTORAL_1 = 1f;
-        private const float HEIGHT_PECTORAL_2 = 1f;
-        private const float HEIGHT_PECTORAL_3 = 1f;
-        private const float HEIGHT_PECTORAL_4 = 1f;
-        private const float HEIGHT_PECTORAL_5 = 1f;
+        private const float MASS_PECTORAL_1 = 2.5f;
 
         public void Init()
         {
@@ -43,17 +45,22 @@ namespace TittyMagic
 
             configs = NewColliderConfigs();
 
-            useHardColliders = _script.NewJSONStorableBool("useHardColliders", true);
+            useHardColliders = _script.NewJSONStorableBool("useHardColliders", false);
             useHardColliders.setCallbackFunction = SyncUseHardColliders;
 
-            radiusOffset = _script.NewJSONStorableFloat("hardColliderRadiusCombined", 0.90f, 0, 1.50f);
-            radiusOffset.setCallbackFunction = SyncHardColliderRadiusCombined;
+            scaleOffset = _script.NewJSONStorableFloat("hardCollidersScaleCombined", 0, -0.05f, 0.05f);
+            scaleOffset.setCallbackFunction = SyncScaleOffsetCombined;
 
-            heightOffset = _script.NewJSONStorableFloat("hardColliderHeightCombined", 0.90f, 0, 1.50f);
-            heightOffset.setCallbackFunction = SyncHardColliderHeightCombined;
+            // TODO no slider
+            radiusMultiplier = _script.NewJSONStorableFloat("hardColliderRadiusCombined", 1f, 0, 1.5f);
+            radiusMultiplier.setCallbackFunction = SyncHardColliderRadiusCombined;
 
-            massMultiplier = _script.NewJSONStorableFloat("hardColliderMassCombined", 0.10f, 0.01f, 1.00f);
-            massMultiplier.setCallbackFunction = SyncHardColliderMassCombined;
+            // TODO no slider
+            heightMultiplier = _script.NewJSONStorableFloat("hardColliderHeightCombined", 1f, 0, 1.50f);
+            heightMultiplier.setCallbackFunction = SyncHardColliderHeightCombined;
+
+            forceMultiplier = _script.NewJSONStorableFloat("hardColliderForceCombined", 0.25f, 0.01f, 1.00f);
+            forceMultiplier.setCallbackFunction = SyncHardColliderMassCombined;
 
             _originalUseAuxBreastColliders = _geometry.useAuxBreastColliders;
             SyncUseHardColliders(useHardColliders.val);
@@ -63,7 +70,7 @@ namespace TittyMagic
         {
             return new List<ColliderConfigGroup>
             {
-                NewColliderConfigGroup("Pectoral1", RADIUS_PECTORAL_1, HEIGHT_PECTORAL_1),
+                NewColliderConfigGroup("Pectoral1", RADIUS_PECTORAL_1, HEIGHT_PECTORAL_1, MASS_PECTORAL_1),
                 NewColliderConfigGroup("Pectoral2", RADIUS_PECTORAL_2, HEIGHT_PECTORAL_2),
                 NewColliderConfigGroup("Pectoral3", RADIUS_PECTORAL_3, HEIGHT_PECTORAL_3),
                 NewColliderConfigGroup("Pectoral4", RADIUS_PECTORAL_4, HEIGHT_PECTORAL_4),
@@ -71,12 +78,12 @@ namespace TittyMagic
             };
         }
 
-        private ColliderConfigGroup NewColliderConfigGroup(string id, float radiusMultiplier, float heightMultiplier)
+        private ColliderConfigGroup NewColliderConfigGroup(string id, float radiusMultiplier, float heightMultiplier, float? massMultiplier = null)
         {
             var auxBreastColliders = _geometry.auxBreastColliders.ToList();
             var left = auxBreastColliders.Find(c => c.name.Contains("l" + id));
             var right = auxBreastColliders.Find(c => c.name.Contains("r" + id));
-            return new ColliderConfigGroup(id, left, right, radiusMultiplier, heightMultiplier, MASS_COMBINED);
+            return new ColliderConfigGroup(id, left, right, radiusMultiplier, heightMultiplier, massMultiplier ?? MASS_COMBINED);
         }
 
         private void SyncUseHardColliders(bool value)
@@ -87,15 +94,23 @@ namespace TittyMagic
 
             if(value)
             {
-                SyncHardColliderRadiusCombined(radiusOffset.val);
-                SyncHardColliderHeightCombined(heightOffset.val);
-                SyncHardColliderMassCombined(massMultiplier.val);
+                SyncScaleOffsetCombined(scaleOffset.val);
+                // SyncHardColliderRadiusCombined(radiusMultiplier.val);
+                // SyncHardColliderHeightCombined(heightMultiplier.val);
+                SyncHardColliderMassCombined(forceMultiplier.val);
             }
 
             // TODO necessary?
             if(_geometry.useAdvancedColliders) {
                 _script.containingAtom.ResetPhysics(false);
             }
+        }
+
+        private void SyncScaleOffsetCombined(float value)
+        {
+            if(!enabled) return;
+
+            configs.ForEach(config => config.UpdateScaleOffset(value, radiusMultiplier.val, heightMultiplier.val));
         }
 
         private void SyncHardColliderRadiusCombined(float value)
@@ -127,7 +142,7 @@ namespace TittyMagic
             _syncMassStatus = WaitStatus.WAITING;
             yield return new WaitForSecondsRealtime(0.1f);
 
-            var slider = (UIDynamicSlider) _script.mainWindow?.elements[massMultiplier.name];
+            var slider = (UIDynamicSlider) _script.mainWindow?.elements[forceMultiplier.name];
             if(slider != null)
             {
                 while(slider.IsClickDown())
@@ -139,7 +154,7 @@ namespace TittyMagic
             }
 
             _syncMassStatus = WaitStatus.DONE;
-            yield return DeferSyncMassCombined(massMultiplier.val);
+            yield return DeferSyncMassCombined(forceMultiplier.val);
         }
 
         private IEnumerator DeferSyncMassCombined(float value)

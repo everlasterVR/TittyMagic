@@ -37,6 +37,12 @@ namespace TittyMagic.Configs
             _right.UpdateHeight(multiplier);
         }
 
+        public void UpdateScaleOffset(float offset, float radiusMultiplier, float heightMultiplier)
+        {
+            _left.UpdateScaleOffset(offset, radiusMultiplier, heightMultiplier);
+            _right.UpdateScaleOffset(offset, radiusMultiplier, heightMultiplier);
+        }
+
         public void UpdateRigidbodyMass(float multiplier)
         {
             _left.UpdateRigidbodyMass(multiplier);
@@ -94,6 +100,13 @@ namespace TittyMagic.Configs
         public void UpdateRigidbodyMass(float multiplier)
         {
             _collider.attachedRigidbody.mass = multiplier * _baseMass;
+        }
+
+        public void UpdateScaleOffset(float offset, float radiusMultiplier, float heightMultiplier)
+        {
+            var capsule = _capsulelineSphereCollider.capsuleCollider;
+            capsule.radius = radiusMultiplier * _baseRadius + offset;
+            capsule.height = heightMultiplier * _baseHeight + offset / 2;
         }
 
         public void RestoreDefaultMass()
