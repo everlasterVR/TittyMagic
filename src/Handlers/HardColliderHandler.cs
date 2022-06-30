@@ -198,7 +198,7 @@ namespace TittyMagic
             {
                 configs.ForEach(config => config.SetEnabled(true));
             }
-            yield return StartCoroutine(DeferRestoreDefaultMass());
+            yield return DeferRestoreDefaultMass();
             _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
         }
 
