@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -200,6 +201,28 @@ namespace TittyMagic
             }
             yield return DeferRestoreDefaultMass();
             _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
+            ResetAutoColliderScale();
+        }
+
+        private void ResetAutoColliderScale()
+        {
+            try
+            {
+                var updater = _script.containingAtom.GetComponentInChildren<AutoColliderBatchUpdater>();
+                updater.autoColliders
+                    .Where(autoCollider =>
+                    {
+                        var jointCollider = autoCollider.jointCollider;
+                        if(jointCollider == null) return false;
+                        return jointCollider.name.Contains($"lPectoral") || jointCollider.name.Contains($"rPectoral");
+                    })
+                    .ToList()
+                    .ForEach(autoCollider => autoCollider.AutoColliderSizeSet());
+            }
+            catch(Exception e)
+            {
+                Utils.LogError($"Failed to reset hard collider scale. Error: {e}");
+            }
         }
 
         private IEnumerator DeferRestoreDefaultMass()
