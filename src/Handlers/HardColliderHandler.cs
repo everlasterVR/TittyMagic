@@ -101,6 +101,14 @@ namespace TittyMagic
             }
         }
 
+        public void ReSyncScaleOffsetCombined()
+        {
+            if(useHardColliders.val)
+            {
+                SyncScaleOffsetCombined(scaleOffset.val);
+            }
+        }
+
         private void SyncScaleOffsetCombined(float value)
         {
             if(!enabled) return;

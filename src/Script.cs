@@ -865,6 +865,7 @@ namespace TittyMagic
                 if(_refreshStatus == RefreshStatus.MASS_OK)
                 {
                     StartCoroutine(CalibrateNipplesTracking());
+                    _hardColliderHandler.ReSyncScaleOffsetCombined();
                 }
                 else if(_refreshStatus == RefreshStatus.NEUTRALPOS_OK)
                 {
