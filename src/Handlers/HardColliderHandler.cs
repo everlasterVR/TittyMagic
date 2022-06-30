@@ -99,11 +99,6 @@ namespace TittyMagic
                 // SyncHardColliderHeightCombined(heightMultiplier.val);
                 SyncHardColliderMassCombined(forceMultiplier.val);
             }
-
-            // TODO necessary?
-            if(_geometry.useAdvancedColliders) {
-                _script.containingAtom.ResetPhysics(false);
-            }
         }
 
         private void SyncScaleOffsetCombined(float value)
@@ -191,23 +186,12 @@ namespace TittyMagic
 
         private IEnumerator RestoreDefaults()
         {
-            if(useHardColliders.val)
+            if(!useHardColliders.val)
             {
-                yield return StartCoroutine(DeferRestoreDefaultMass());
+                configs.ForEach(config => config.SetEnabled(true));
             }
-            else
-            {
-                if(_originalUseAuxBreastColliders)
-                {
-                    yield return StartCoroutine(DeferRestoreDefaultMass());
-                    _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
-                }
-                else
-                {
-                    _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
-                    yield return StartCoroutine(DeferRestoreDefaultMass());
-                }
-            }
+            yield return StartCoroutine(DeferRestoreDefaultMass());
+            _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
         }
 
         private IEnumerator DeferRestoreDefaultMass()
