@@ -54,17 +54,13 @@ namespace TittyMagic
             _listenedFemaleMorphs = ProcessMorphs(femaleMorphs);
             _listenedMaleMorphs = ProcessMorphs(maleMorphs);
 #if DEBUG_ON
-            SuperController.LogMessage($"Female morphs:");
+            Debug.Log($"Female morphs:");
             foreach(var morph in _listenedFemaleMorphs)
-            {
-                SuperController.LogMessage($"{morph.Key.uid}");
-            }
+                Debug.Log($"{morph.Key.uid}");
 
-            SuperController.LogMessage($"Male morphs:");
+            Debug.Log($"Male morphs:");
             foreach(var morph in _listenedMaleMorphs)
-            {
-                SuperController.LogMessage($"{morph.Key.uid}");
-            }
+                Debug.Log($"{morph.Key.uid}");
 #endif
         }
 
@@ -94,7 +90,7 @@ namespace TittyMagic
                 {
                     // ignored
 #if DEBUG_ON
-                    SuperController.LogMessage($"Unable to initialize listener for morph {morph.morphName}.");
+                    Debug.Log($"Unable to initialize listener for morph {morph.morphName}.");
 #endif
                 }
             }
@@ -117,7 +113,7 @@ namespace TittyMagic
                 {
                     listenedMorphs[dazMorph] = value;
 #if DEBUG_ON
-                    SuperController.LogMessage($"change detected! morph {dazMorph.uid}");
+                    Debug.Log($"change detected! morph {dazMorph.uid}");
 #endif
                     return true;
                 }
