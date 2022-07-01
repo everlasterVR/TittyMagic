@@ -204,9 +204,13 @@ namespace TittyMagic
             }
 
             if(leftBreast)
+            {
                 leftBreastParameters = parameters;
+            }
             else
+            {
                 rightBreastParameters = parameters;
+            }
         }
 
         // Reimplements AdjustJoints.cs method SyncMass
@@ -316,7 +320,7 @@ namespace TittyMagic
         {
             _breastControl.smoothedJoint2TargetRotation.x = targetRotationX;
             var dazBone = _jointLeft.GetComponent<DAZBone>();
-            Vector3 rotation = _breastControl.smoothedJoint2TargetRotation;
+            var rotation = _breastControl.smoothedJoint2TargetRotation;
             rotation.x = -rotation.x;
             dazBone.baseJointRotation = rotation;
         }
@@ -326,7 +330,7 @@ namespace TittyMagic
         {
             _breastControl.smoothedJoint2TargetRotation.y = targetRotationY;
             var dazBone = _jointLeft.GetComponent<DAZBone>();
-            Vector3 rotation = _breastControl.smoothedJoint2TargetRotation;
+            var rotation = _breastControl.smoothedJoint2TargetRotation;
             dazBone.baseJointRotation = rotation;
         }
 
@@ -335,7 +339,7 @@ namespace TittyMagic
         {
             _breastControl.smoothedJoint1TargetRotation.x = targetRotationX;
             var dazBone = _jointRight.GetComponent<DAZBone>();
-            Vector3 rotation = _breastControl.smoothedJoint1TargetRotation;
+            var rotation = _breastControl.smoothedJoint1TargetRotation;
             rotation.x = -rotation.x;
             dazBone.baseJointRotation = rotation;
         }
@@ -345,25 +349,23 @@ namespace TittyMagic
         {
             _breastControl.smoothedJoint1TargetRotation.y = targetRotationY;
             var dazBone = _jointRight.GetComponent<DAZBone>();
-            Vector3 rotation = _breastControl.smoothedJoint1TargetRotation;
+            var rotation = _breastControl.smoothedJoint1TargetRotation;
             dazBone.baseJointRotation = rotation;
         }
 
-        public void UpdatePhysics(float softnessAmount, float quicknessAmount)
-        {
+        public void UpdatePhysics(float softnessAmount, float quicknessAmount) =>
             leftBreastParameters.Values
                 .Concat(rightBreastParameters.Values)
-                .Where(param => param.config != null).ToList()
+                .Where(param => param.config != null)
+                .ToList()
                 .ForEach(param => UpdateParam(param, softnessAmount, quicknessAmount));
-        }
 
-        public void UpdateRateDependentPhysics(float softnessAmount, float quicknessAmount)
-        {
+        public void UpdateRateDependentPhysics(float softnessAmount, float quicknessAmount) =>
             leftBreastParameters.Values
                 .Concat(rightBreastParameters.Values)
-                .Where(param => param.config != null && param.config.dependOnPhysicsRate).ToList()
+                .Where(param => param.config != null && param.config.dependOnPhysicsRate)
+                .ToList()
                 .ForEach(param => UpdateParam(param, softnessAmount, quicknessAmount));
-        }
 
         private void UpdateParam(PhysicsParameter param, float softnessAmount, float quicknessAmount)
         {
@@ -420,23 +422,10 @@ namespace TittyMagic
         public JSONClass Serialize()
         {
             var jsonClass = new JSONClass();
-            jsonClass["breastControlFloats"] = JSONArrayFromDictionary(_originalBreastControlFloats);
+            jsonClass["breastControlFloats"] = JSONUtils.JSONArrayFromDictionary(_originalBreastControlFloats);
             jsonClass["pectoralRbLeftDetectCollisions"].AsBool = _originalPectoralRbLeftDetectCollisions;
             jsonClass["pectoralRbRightDetectCollisions"].AsBool = _originalPectoralRbRightDetectCollisions;
             return jsonClass;
-        }
-
-        private static JSONArray JSONArrayFromDictionary(Dictionary<string, float> dictionary)
-        {
-            var jsonArray = new JSONArray();
-            foreach(var kvp in dictionary)
-            {
-                var entry = new JSONClass();
-                entry["paramName"] = kvp.Key;
-                entry["value"].AsFloat = kvp.Value;
-                jsonArray.Add(entry);
-            }
-            return jsonArray;
         }
 
         public void RestoreFromJSON(JSONClass originalJson)
@@ -445,16 +434,18 @@ namespace TittyMagic
             {
                 var breastControlFloats = originalJson["breastControlFloats"].AsArray;
                 foreach(JSONClass json in breastControlFloats)
-                {
                     _originalBreastControlFloats[json["paramName"].Value] = json["value"].AsFloat;
-                }
             }
 
             if(originalJson.HasKey("pectoralRbLeftDetectCollisions"))
+            {
                 _originalPectoralRbLeftDetectCollisions = originalJson["pectoralRbLeftDetectCollisions"].AsBool;
+            }
 
             if(originalJson.HasKey("pectoralRbRightDetectCollisions"))
+            {
                 _originalPectoralRbRightDetectCollisions = originalJson["pectoralRbRightDetectCollisions"].AsBool;
+            }
         }
 
         private static Dictionary<string, string> CreateInfoTexts()

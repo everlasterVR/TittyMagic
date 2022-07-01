@@ -55,10 +55,7 @@ namespace TittyMagic.Configs
             _right.RestoreDefaultMass();
         }
 
-        public bool HasRigidbodies()
-        {
-            return _left.HasRigidbody() && _right.HasRigidbody();
-        }
+        public bool HasRigidbodies() => _left.HasRigidbody() && _right.HasRigidbody();
 
         public void SetEnabled(bool value)
         {
@@ -87,20 +84,14 @@ namespace TittyMagic.Configs
             SetBaseValues(radiusMultiplier, lengthMultiplier, massMultiplier);
         }
 
-        public void UpdateRadius(float multiplier)
-        {
+        public void UpdateRadius(float multiplier) =>
             _capsulelineSphereCollider.capsuleCollider.radius = multiplier * _baseRadius;
-        }
 
-        public void UpdateHeight(float multiplier)
-        {
+        public void UpdateHeight(float multiplier) =>
             _capsulelineSphereCollider.capsuleCollider.height = multiplier * _baseHeight;
-        }
 
-        public void UpdateRigidbodyMass(float multiplier)
-        {
+        public void UpdateRigidbodyMass(float multiplier) =>
             _collider.attachedRigidbody.mass = multiplier * _baseMass;
-        }
 
         public void UpdateScaleOffset(float offset, float radiusMultiplier, float heightMultiplier)
         {
@@ -109,15 +100,9 @@ namespace TittyMagic.Configs
             capsule.height = heightMultiplier * _baseHeight + offset / 2;
         }
 
-        public void RestoreDefaultMass()
-        {
-            _collider.attachedRigidbody.mass = DEFAULT_MASS;
-        }
+        public void RestoreDefaultMass() => _collider.attachedRigidbody.mass = DEFAULT_MASS;
 
-        public bool HasRigidbody()
-        {
-            return _collider.attachedRigidbody != null;
-        }
+        public bool HasRigidbody() => _collider.attachedRigidbody != null;
 
         public void SetEnabled(bool value)
         {

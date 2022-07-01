@@ -7,6 +7,7 @@ namespace TittyMagic.UI
     internal class PhysicsWindow : IWindow
     {
         private readonly Script _script;
+
         // ReSharper disable once MemberCanBePrivate.Global
         public Dictionary<string, UIDynamic> elements { get; private set; }
         private Dictionary<string, ParameterWindow> _parameterWindows;
@@ -22,7 +23,11 @@ namespace TittyMagic.UI
             _script = script;
 
             _jointPhysicsParamsHeader = new JSONStorableString("mainPhysicsParamsHeader", "");
-            if(Gender.isFemale) _softPhysicsParamsHeader = new JSONStorableString("softPhysicsParamsHeader", "");
+            if(Gender.isFemale)
+            {
+                _softPhysicsParamsHeader = new JSONStorableString("softPhysicsParamsHeader", "");
+            }
+
             CreateParameterWindows();
         }
 
@@ -31,25 +36,19 @@ namespace TittyMagic.UI
             _parameterWindows = new Dictionary<string, ParameterWindow>();
 
             _script.mainPhysicsHandler.leftBreastParameters.Keys.ToList()
-                .ForEach(key =>
-                {
-                    _parameterWindows[key] = new ParameterWindow(
-                        _script,
-                        _script.mainPhysicsHandler.leftBreastParameters[key],
-                        _script.mainPhysicsHandler.rightBreastParameters[key]
-                    );
-                });
+                .ForEach(key => _parameterWindows[key] = new ParameterWindow(
+                    _script,
+                    _script.mainPhysicsHandler.leftBreastParameters[key],
+                    _script.mainPhysicsHandler.rightBreastParameters[key]
+                ));
             if(Gender.isFemale)
             {
                 _script.softPhysicsHandler.leftBreastParameters.Keys.ToList()
-                    .ForEach(key =>
-                    {
-                        _parameterWindows[key] = new ParameterWindow(
-                            _script,
-                            _script.softPhysicsHandler.leftBreastParameters[key],
-                            _script.softPhysicsHandler.rightBreastParameters[key]
-                        );
-                    });
+                    .ForEach(key => _parameterWindows[key] = new ParameterWindow(
+                        _script,
+                        _script.softPhysicsHandler.leftBreastParameters[key],
+                        _script.softPhysicsHandler.rightBreastParameters[key]
+                    ));
             }
         }
 
@@ -111,18 +110,17 @@ namespace TittyMagic.UI
         public void Clear()
         {
             if(_activeParamWindowKey != null)
-                ClearNestedWindow(_activeParamWindowKey);
-            else
-                ClearSelf();
-        }
-
-        private void ClearSelf()
-        {
-            foreach(var element in elements)
             {
-                _script.RemoveElement(element.Value);
+                ClearNestedWindow(_activeParamWindowKey);
+            }
+            else
+            {
+                ClearSelf();
             }
         }
+
+        private void ClearSelf() =>
+            elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
 
         private void ClearNestedWindow(string key)
         {

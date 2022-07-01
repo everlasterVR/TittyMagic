@@ -17,27 +17,15 @@ namespace TittyMagic
         private static List<SimpleMorphConfig> LoadSettings(MVRScript script)
         {
             var jsonClass = script.LoadJSON($@"{script.PluginPath()}\settings\morphmultipliers\nippleErection.json").AsObject;
-            return jsonClass.Keys.Select(name => new SimpleMorphConfig(
-                name,
-                jsonClass[name]["Multiplier"].AsFloat
-            )).ToList();
+            return jsonClass.Keys
+                .Select(name => new SimpleMorphConfig(name, jsonClass[name]["Multiplier"].AsFloat))
+                .ToList();
         }
 
-        public void Update(float nippleErection)
-        {
-            foreach(var config in _configs)
-            {
-                config.morph.morphValue = nippleErection * config.multiplier;
-            }
-        }
+        public void Update(float nippleErection) =>
+            _configs.ForEach(config => config.morph.morphValue = nippleErection * config.multiplier);
 
-        public void ResetAll()
-        {
-            foreach(var config in _configs)
-            {
-                config.morph.morphValue = 0;
-            }
-        }
+        public void ResetAll() => _configs.ForEach(config => config.morph.morphValue = 0);
     }
 
     internal class SimpleMorphConfig

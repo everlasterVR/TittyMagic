@@ -1,5 +1,3 @@
-using System;
-
 namespace TittyMagic.Configs
 {
     internal class DynamicPhysicsConfig
@@ -7,12 +5,16 @@ namespace TittyMagic.Configs
         public bool isNegative { get; }
         public float softnessMultiplier { get; }
         public float massMultiplier { get; }
-
         public bool multiplyInvertedMass { get; }
-
         public bool additive { get; }
 
-        public DynamicPhysicsConfig(float softnessMultiplier, float massMultiplier, bool isNegative = false, bool multiplyInvertedMass = false, bool additive = true)
+        public DynamicPhysicsConfig(
+            float softnessMultiplier,
+            float massMultiplier,
+            bool isNegative = false,
+            bool multiplyInvertedMass = false,
+            bool additive = true
+        )
         {
             this.softnessMultiplier = softnessMultiplier;
             this.massMultiplier = massMultiplier;

@@ -41,6 +41,8 @@ namespace TittyMagic
         public GravityPhysicsHandler gravityPhysicsHandler { get; private set; }
         public GravityOffsetMorphHandler offsetMorphHandler { get; private set; }
         public NippleErectionMorphHandler nippleMorphHandler { get; private set; }
+
+        // ReSharper disable once MemberCanBePrivate.Global
         public ForcePhysicsHandler forcePhysicsHandler { get; private set; }
         public ForceMorphHandler forceMorphHandler { get; private set; }
 
@@ -48,8 +50,14 @@ namespace TittyMagic
 
         private Tabs _tabs;
         public MainWindow mainWindow { get; private set; }
+
+        // ReSharper disable once MemberCanBePrivate.Global
         public MorphingWindow morphingWindow { get; private set; }
+
+        // ReSharper disable once MemberCanBePrivate.Global
         public GravityWindow gravityWindow { get; private set; }
+
+        // ReSharper disable once MemberCanBePrivate.Global
         public PhysicsWindow physicsWindow { get; private set; }
 
         public JSONStorableBool autoUpdateJsb;
@@ -108,7 +116,7 @@ namespace TittyMagic
             _chestRb = _rigidbodies.Find(rb => rb.name == "chest");
             _chestTransform = _chestRb.transform;
 
-            AdjustJoints breastControl = (AdjustJoints) containingAtom.GetStorableByID(Gender.isFemale ? "BreastControl" : "PectoralControl");
+            var breastControl = (AdjustJoints) containingAtom.GetStorableByID(Gender.isFemale ? "BreastControl" : "PectoralControl");
             _pectoralRbLeft = breastControl.joint2.GetComponent<Rigidbody>();
             _pectoralRbRight = breastControl.joint1.GetComponent<Rigidbody>();
 
@@ -149,9 +157,13 @@ namespace TittyMagic
             }
 
             if(Gender.isFemale)
+            {
                 _breastMorphListener = new BreastMorphListener(geometry.morphBank1.morphs);
+            }
             else
+            {
                 _breastMorphListener = new BreastMorphListener(geometry.morphBank1OtherGender.morphs, geometry.morphBank1.morphs);
+            }
 
             forcePhysicsHandler = new ForcePhysicsHandler(mainPhysicsHandler, softPhysicsHandler, _trackLeftNipple, _trackRightNipple);
             forceMorphHandler = new ForceMorphHandler(this, _trackLeftNipple, _trackRightNipple);
@@ -257,62 +269,79 @@ namespace TittyMagic
             _tabs.activeWindow.Rebuild();
             _tabs.ActivateTab1();
 
-            mainWindow.elements.ToList().ForEach(kvp =>
-            {
-                if(kvp.Key == autoUpdateJsb.name)
+            mainWindow.elements.ToList()
+                .ForEach(kvp =>
                 {
-                    kvp.Value.AddListener(val =>
+                    if(kvp.Key == autoUpdateJsb.name)
                     {
-                        if(val)
+                        kvp.Value.AddListener(val =>
                         {
-                            StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true));
-                        }
-                        UpdateSlider(mainWindow.elements[mainPhysicsHandler.massJsf.name], !val);
-                    });
-                    UpdateSlider(mainWindow.elements[mainPhysicsHandler.massJsf.name], !autoUpdateJsb.val);
-                }
-                else if(kvp.Key == "calculateBreastMass")
-                {
-                    kvp.Value.AddListener(() => {
-                        StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true, useNewMass: true));
-                    });
-                }
-                else if(kvp.Key == "recalibratePhysics")
-                {
-                    kvp.Value.AddListener(() => {
-                        StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true));
-                    });
-                }
-                else if(kvp.Key == mainPhysicsHandler.massJsf.name)
-                {
-                    kvp.Value.AddListener((float val) => RefreshFromSliderChanged(refreshMass: true));
-                }
-                else if(kvp.Key == softnessJsf.name)
-                {
-                    kvp.Value.AddListener(val => {
-                        if(Math.Abs(CalculateSoftnessAmount(val) - _softnessAmount) > 0.001f)
-                            RefreshFromSliderChanged();
-                    });
-                }
-                else if(kvp.Key == quicknessJsf.name)
-                {
-                    kvp.Value.AddListener(val => {
-                        if(Math.Abs(CalculateQuicknessAmount(val) - _quicknessAmount) > 0.001f)
-                            RefreshFromSliderChanged();
-                    });
-                }
-                else if(kvp.Key == hardColliderHandler.enabledJsb.name)
-                {
-                    kvp.Value.AddListener(val => {
-                        UpdateSlider(mainWindow.elements[hardColliderHandler.scaleJsf.name], val);
-                        // UpdateSlider(mainWindow.elements[_hardColliderHandler.radiusMultiplier.name], val);
-                        // UpdateSlider(mainWindow.elements[_hardColliderHandler.heightMultiplier.name], val);
-                        UpdateSlider(mainWindow.elements[hardColliderHandler.forceJsf.name], val);
-                    });
-                    UpdateSlider(mainWindow.elements[hardColliderHandler.scaleJsf.name], hardColliderHandler.enabledJsb.val);
-                    UpdateSlider(mainWindow.elements[hardColliderHandler.forceJsf.name], hardColliderHandler.enabledJsb.val);
-                }
-            });
+                            if(val)
+                            {
+                                StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true));
+                            }
+
+                            UpdateSlider(mainWindow.elements[mainPhysicsHandler.massJsf.name], !val);
+                        });
+                        UpdateSlider(mainWindow.elements[mainPhysicsHandler.massJsf.name], !autoUpdateJsb.val);
+                    }
+                    else if(kvp.Key == "calculateBreastMass")
+                    {
+                        kvp.Value.AddListener(() => StartCoroutine(
+                            DeferBeginRefresh(
+                                refreshMass: true,
+                                fromToggleOrButton: true,
+                                useNewMass: true
+                            )
+                        ));
+                    }
+                    else if(kvp.Key == "recalibratePhysics")
+                    {
+                        kvp.Value.AddListener(() => StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true)));
+                    }
+                    else if(kvp.Key == mainPhysicsHandler.massJsf.name)
+                    {
+                        kvp.Value.AddListener((float val) => RefreshFromSliderChanged(refreshMass: true));
+                    }
+                    else if(kvp.Key == softnessJsf.name)
+                    {
+                        kvp.Value.AddListener(val =>
+                        {
+                            if(Math.Abs(CalculateSoftnessAmount(val) - _softnessAmount) > 0.001f)
+                            {
+                                RefreshFromSliderChanged();
+                            }
+                        });
+                    }
+                    else if(kvp.Key == quicknessJsf.name)
+                    {
+                        kvp.Value.AddListener(val =>
+                        {
+                            if(Math.Abs(CalculateQuicknessAmount(val) - _quicknessAmount) > 0.001f)
+                            {
+                                RefreshFromSliderChanged();
+                            }
+                        });
+                    }
+                    else if(kvp.Key == hardColliderHandler.enabledJsb.name)
+                    {
+                        kvp.Value.AddListener(val =>
+                        {
+                            UpdateSlider(mainWindow.elements[hardColliderHandler.scaleJsf.name], val);
+                            // UpdateSlider(mainWindow.elements[_hardColliderHandler.radiusMultiplier.name], val);
+                            // UpdateSlider(mainWindow.elements[_hardColliderHandler.heightMultiplier.name], val);
+                            UpdateSlider(mainWindow.elements[hardColliderHandler.forceJsf.name], val);
+                        });
+                        UpdateSlider(
+                            mainWindow.elements[hardColliderHandler.scaleJsf.name],
+                            hardColliderHandler.enabledJsb.val
+                        );
+                        UpdateSlider(
+                            mainWindow.elements[hardColliderHandler.forceJsf.name],
+                            hardColliderHandler.enabledJsb.val
+                        );
+                    }
+                });
         }
 
         private void NavigateToPhysicsWindow()
@@ -342,30 +371,37 @@ namespace TittyMagic
             _tabs.activeWindow.Rebuild();
             _tabs.ActivateTab3();
 
-            morphingWindow.elements.ToList().ForEach(kvp =>
-            {
-                if(kvp.Key == forceMorphHandler.xMultiplierJsf.name)
+            morphingWindow.elements.ToList()
+                .ForEach(kvp =>
                 {
-                    kvp.Value.AddListener(val => forceMorphHandler.xMultiplier.mainMultiplier = Curves.QuadraticRegression(val));
-                }
-                else if(kvp.Key == forceMorphHandler.yMultiplierJsf.name)
-                {
-                    kvp.Value.AddListener(val => forceMorphHandler.yMultiplier.mainMultiplier = Curves.QuadraticRegression(val));
-                }
-                else if(kvp.Key == forceMorphHandler.zMultiplierJsf.name)
-                {
-                    kvp.Value.AddListener(val => forceMorphHandler.zMultiplier.mainMultiplier = Curves.QuadraticRegressionLesser(val));
-                }
-                else if(kvp.Key == nippleMorphHandler.nippleErectionJsf.name)
-                {
-                    kvp.Value.AddListener(val =>
+                    if(kvp.Key == forceMorphHandler.xMultiplierJsf.name)
                     {
-                        nippleMorphHandler.Update(val);
-                        if(_settingsMonitor.softPhysicsEnabled)
-                            softPhysicsHandler.UpdateNipplePhysics(mainPhysicsHandler.massAmount, _softnessAmount, val);
-                    });
-                }
-            });
+                        kvp.Value.AddListener(val => forceMorphHandler.xMultiplier.mainMultiplier = Curves.QuadraticRegression(val));
+                    }
+                    else if(kvp.Key == forceMorphHandler.yMultiplierJsf.name)
+                    {
+                        kvp.Value.AddListener(val => forceMorphHandler.yMultiplier.mainMultiplier = Curves.QuadraticRegression(val));
+                    }
+                    else if(kvp.Key == forceMorphHandler.zMultiplierJsf.name)
+                    {
+                        kvp.Value.AddListener(val => forceMorphHandler.zMultiplier.mainMultiplier = Curves.QuadraticRegressionLesser(val));
+                    }
+                    else if(kvp.Key == nippleMorphHandler.nippleErectionJsf.name)
+                    {
+                        kvp.Value.AddListener(val =>
+                        {
+                            nippleMorphHandler.Update(val);
+                            if(_settingsMonitor.softPhysicsEnabled)
+                            {
+                                softPhysicsHandler.UpdateNipplePhysics(
+                                    mainPhysicsHandler.massAmount,
+                                    _softnessAmount,
+                                    val
+                                );
+                            }
+                        });
+                    }
+                });
         }
 
         private void NavigateToGravityWindow()
@@ -381,38 +417,39 @@ namespace TittyMagic
             _tabs.activeWindow.Rebuild();
             _tabs.ActivateTab4();
 
-            gravityWindow.elements.ToList().ForEach(kvp =>
-            {
-                if(kvp.Key == gravityPhysicsHandler.xMultiplierJsf.name)
+            gravityWindow.elements.ToList()
+                .ForEach(kvp =>
                 {
-                    kvp.Value.AddListener(val =>
+                    if(kvp.Key == gravityPhysicsHandler.xMultiplierJsf.name)
                     {
-                        gravityPhysicsHandler.xMultiplier.mainMultiplier = val;
-                        RefreshFromSliderChanged();
-                    });
-                }
-                else if(kvp.Key == gravityPhysicsHandler.yMultiplierJsf.name)
-                {
-                    kvp.Value.AddListener(val =>
+                        kvp.Value.AddListener(val =>
+                        {
+                            gravityPhysicsHandler.xMultiplier.mainMultiplier = val;
+                            RefreshFromSliderChanged();
+                        });
+                    }
+                    else if(kvp.Key == gravityPhysicsHandler.yMultiplierJsf.name)
                     {
-                        gravityPhysicsHandler.yMultiplier.mainMultiplier = val;
-                        offsetMorphHandler.yMultiplier.mainMultiplier = val;
-                        RefreshFromSliderChanged();
-                    });
-                }
-                else if(kvp.Key == gravityPhysicsHandler.zMultiplierJsf.name)
-                {
-                    kvp.Value.AddListener(val =>
+                        kvp.Value.AddListener(val =>
+                        {
+                            gravityPhysicsHandler.yMultiplier.mainMultiplier = val;
+                            offsetMorphHandler.yMultiplier.mainMultiplier = val;
+                            RefreshFromSliderChanged();
+                        });
+                    }
+                    else if(kvp.Key == gravityPhysicsHandler.zMultiplierJsf.name)
                     {
-                        gravityPhysicsHandler.zMultiplier.mainMultiplier = val;
-                        RefreshFromSliderChanged();
-                    });
-                }
-                else if(kvp.Key == offsetMorphHandler.offsetMorphingJsf.name)
-                {
-                    kvp.Value.AddListener((float val) => RefreshFromSliderChanged());
-                }
-            });
+                        kvp.Value.AddListener(val =>
+                        {
+                            gravityPhysicsHandler.zMultiplier.mainMultiplier = val;
+                            RefreshFromSliderChanged();
+                        });
+                    }
+                    else if(kvp.Key == offsetMorphHandler.offsetMorphingJsf.name)
+                    {
+                        kvp.Value.AddListener((float val) => RefreshFromSliderChanged());
+                    }
+                });
         }
 
         private void ResetActiveTabListener()
@@ -485,15 +522,9 @@ namespace TittyMagic
                 : UIHelpers.darkerGray;
         }
 
-        private static float CalculateSoftnessAmount(float val)
-        {
-            return Mathf.Pow(val / 100f, 0.67f);
-        }
+        private static float CalculateSoftnessAmount(float val) => Mathf.Pow(val / 100f, 0.67f);
 
-        private static float CalculateQuicknessAmount(float val)
-        {
-            return 2 * val / 100 - 1;
-        }
+        private static float CalculateQuicknessAmount(float val) => 2 * val / 100 - 1;
 
         private void RefreshFromSliderChanged(bool refreshMass = false)
         {
@@ -524,6 +555,7 @@ namespace TittyMagic
                 softPhysicsHandler.ReverseSyncSoftPhysicsOn();
                 softPhysicsHandler.ReverseSyncSyncAllowSelfCollision();
             }
+
             _uiOpenPrevFrame = uiOpen;
         }
 
@@ -575,34 +607,14 @@ namespace TittyMagic
 
         private void UpdateDynamicPhysics(float roll, float pitch)
         {
-            forcePhysicsHandler.Update(
-                roll,
-                pitch,
-                mainPhysicsHandler.realMassAmount
-            );
-
-            gravityPhysicsHandler.Update(
-                roll,
-                pitch,
-                mainPhysicsHandler.massAmount,
-                _softnessAmount
-            );
+            forcePhysicsHandler.Update(roll, pitch, mainPhysicsHandler.realMassAmount);
+            gravityPhysicsHandler.Update(roll, pitch, mainPhysicsHandler.massAmount, _softnessAmount);
         }
 
         private void UpdateDynamicMorphs(float roll, float pitch)
         {
-            forceMorphHandler.Update(
-                roll,
-                pitch,
-                mainPhysicsHandler.realMassAmount
-            );
-
-            offsetMorphHandler.Update(
-                roll,
-                pitch,
-                mainPhysicsHandler.realMassAmount,
-                _softnessAmount
-            );
+            forceMorphHandler.Update(roll, pitch, mainPhysicsHandler.realMassAmount);
+            offsetMorphHandler.Update(roll, pitch, mainPhysicsHandler.realMassAmount, _softnessAmount);
         }
 
         private void UpdateStaticPhysics()
@@ -638,15 +650,10 @@ namespace TittyMagic
             }
         }
 
-        public void StartRefreshCoroutine()
-        {
-            StartRefreshCoroutine(true, false);
-        }
+        public void StartRefreshCoroutine() => StartRefreshCoroutine(true, false);
 
-        public void StartRefreshCoroutine(bool refreshMass, bool fromToggleOrButton)
-        {
+        public void StartRefreshCoroutine(bool refreshMass, bool fromToggleOrButton) =>
             StartCoroutine(DeferBeginRefresh(refreshMass, fromToggleOrButton));
-        }
 
         private IEnumerator DeferBeginRefresh(bool refreshMass, bool fromToggleOrButton = false, bool? useNewMass = null)
         {
@@ -707,6 +714,7 @@ namespace TittyMagic
             bool altToggleFrozen =
                 SuperController.singleton.freezeAnimationToggleAlt != null &&
                 SuperController.singleton.freezeAnimationToggleAlt.isOn;
+
             _animationWasSetFrozen = mainToggleFrozen || altToggleFrozen;
             SuperController.singleton.SetFreezeAnimation(true);
 
@@ -732,7 +740,10 @@ namespace TittyMagic
         {
             _refreshStatus = RefreshStatus.MASS_STARTED;
 
-            if(_settingsMonitor != null) _settingsMonitor.enabled = false;
+            if(_settingsMonitor != null)
+            {
+                _settingsMonitor.enabled = false;
+            }
 
             // simulate breasts zero G
             _pectoralRbLeft.useGravity = false;
@@ -834,7 +845,11 @@ namespace TittyMagic
                     _pectoralRbLeft.useGravity = true;
                     _pectoralRbRight.useGravity = true;
                     SuperController.singleton.SetFreezeAnimation(_animationWasSetFrozen);
-                    if(_settingsMonitor != null) _settingsMonitor.enabled = true;
+                    if(_settingsMonitor != null)
+                    {
+                        _settingsMonitor.enabled = true;
+                    }
+
                     _waitStatus = WaitStatus.DONE;
                     _refreshStatus = RefreshStatus.DONE;
                     initDone = true;
@@ -847,26 +862,17 @@ namespace TittyMagic
             }
         }
 
-        private bool CheckListeners()
-        {
-            return autoUpdateJsb.val &&
-                _waitStatus != WaitStatus.WAITING &&
-                (_breastMorphListener.Changed() || _atomScaleListener.Changed());
-        }
+        private bool CheckListeners() =>
+            autoUpdateJsb.val &&
+            _waitStatus != WaitStatus.WAITING &&
+            (_breastMorphListener.Changed() || _atomScaleListener.Changed());
 
-        public RectTransform GetLeftUIContent()
-        {
-            return leftUIContent;
-        }
-
-        public RectTransform GetRightUIContent()
-        {
-            return rightUIContent;
-        }
+        public RectTransform GetLeftUIContent() => leftUIContent;
+        public RectTransform GetRightUIContent() => rightUIContent;
 
         public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
         {
-            JSONClass jsonClass = base.GetJSON(includePhysical, includeAppearance, forceStore);
+            var jsonClass = base.GetJSON(includePhysical, includeAppearance, forceStore);
             jsonClass["originalMainPhysics"] = mainPhysicsHandler.Serialize();
             jsonClass["originalHardColliders"] = hardColliderHandler.Serialize();
             jsonClass["originalSoftPhysics"] = softPhysicsHandler.Serialize();
@@ -883,10 +889,24 @@ namespace TittyMagic
         )
         {
             _loadingFromJson = true;
-            StartCoroutine(DeferRestoreFromJSON(jsonClass, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault));
+            StartCoroutine(
+                DeferRestoreFromJSON(
+                    jsonClass,
+                    restorePhysical,
+                    restoreAppearance,
+                    presetAtoms,
+                    setMissingToDefault
+                )
+            );
         }
 
-        private IEnumerator DeferRestoreFromJSON(JSONClass jsonClass, bool restorePhysical, bool restoreAppearance, JSONArray presetAtoms, bool setMissingToDefault)
+        private IEnumerator DeferRestoreFromJSON(
+            JSONClass jsonClass,
+            bool restorePhysical,
+            bool restoreAppearance,
+            JSONArray presetAtoms,
+            bool setMissingToDefault
+        )
         {
             while(!initDone)
             {
@@ -944,8 +964,15 @@ namespace TittyMagic
         {
             try
             {
-                if(_settingsMonitor != null) _settingsMonitor.enabled = true;
-                if(hardColliderHandler != null) hardColliderHandler.enabled = true;
+                if(_settingsMonitor != null)
+                {
+                    _settingsMonitor.enabled = true;
+                }
+
+                if(hardColliderHandler != null)
+                {
+                    hardColliderHandler.enabled = true;
+                }
 
                 if(initDone)
                 {
@@ -964,8 +991,15 @@ namespace TittyMagic
         {
             try
             {
-                if(_settingsMonitor != null) _settingsMonitor.enabled = false;
-                if(hardColliderHandler != null) hardColliderHandler.enabled = false;
+                if(_settingsMonitor != null)
+                {
+                    _settingsMonitor.enabled = false;
+                }
+
+                if(hardColliderHandler != null)
+                {
+                    hardColliderHandler.enabled = false;
+                }
 
                 mainPhysicsHandler?.RestoreOriginalPhysics();
                 softPhysicsHandler?.RestoreOriginalPhysics();

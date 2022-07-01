@@ -2,10 +2,8 @@ using TittyMagic.UI;
 
 public static class UIDynamicSliderExtension
 {
-    public static void AddSliderClickMonitor(this UIDynamicSlider uiDynamicSlider)
-    {
+    public static void AddSliderClickMonitor(this UIDynamicSlider uiDynamicSlider) =>
         uiDynamicSlider.slider.gameObject.AddComponent<SliderClickMonitor>();
-    }
 
     public static SliderClickMonitor GetSliderClickMonitor(this UIDynamicSlider uiDynamicSlider)
     {
@@ -13,6 +11,7 @@ public static class UIDynamicSliderExtension
         {
             return null;
         }
+
         return uiDynamicSlider.slider.gameObject.GetComponent<SliderClickMonitor>();
     }
 

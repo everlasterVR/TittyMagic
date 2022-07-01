@@ -41,10 +41,8 @@ namespace TittyMagic.UI
             CreateNippleErectionSlider(false);
         }
 
-        private void CreateHeader(JSONStorableString storable, string text, bool rightSide)
-        {
+        private void CreateHeader(JSONStorableString storable, string text, bool rightSide) =>
             elements[storable.name] = UIHelpers.HeaderTextField(_script, storable, text, rightSide);
-        }
 
         private void CreateMultiplierSlider(JSONStorableFloat storable, string label, bool rightSide, int spacing = 0)
         {
@@ -79,10 +77,7 @@ namespace TittyMagic.UI
             elements[storable.name] = textField;
         }
 
-        private void AddSpacer(string name, int height, bool rightSide)
-        {
-            elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
-        }
+        private void AddSpacer(string name, int height, bool rightSide) => elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
 
         public List<UIDynamicSlider> GetSliders()
         {
@@ -98,12 +93,7 @@ namespace TittyMagic.UI
             return sliders;
         }
 
-        public void Clear()
-        {
-            foreach(var element in elements)
-            {
-                _script.RemoveElement(element.Value);
-            }
-        }
+        public void Clear() =>
+            elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
     }
 }

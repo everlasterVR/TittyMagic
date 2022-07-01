@@ -11,9 +11,11 @@ namespace TittyMagic.Configs
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
         // ReSharper disable once MemberCanBePrivate.Global
         public Func<float, float> massCurveLower { private get; set; }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
         // ReSharper disable once MemberCanBePrivate.Global
         public Func<float, float> massCurveUpper { private get; set; }
+
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
         // ReSharper disable once MemberCanBePrivate.Global
         public float? massCurveCutoff { private get; set; }
@@ -64,12 +66,10 @@ namespace TittyMagic.Configs
             return ProportionalSum(effectiveMass, effectiveSoftness);
         }
 
-        private float ProportionalSum(float mass, float softness)
-        {
-            return minMminS +
-                mass * (maxMminS - minMminS) +
-                softness * (minMmaxS - minMminS);
-        }
+        private float ProportionalSum(float mass, float softness) =>
+            minMminS +
+            mass * (maxMminS - minMminS) +
+            softness * (minMmaxS - minMminS);
     }
 
     internal class StaticPhysicsConfig : StaticPhysicsConfigBase

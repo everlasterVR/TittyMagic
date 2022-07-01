@@ -17,10 +17,8 @@ public static class MVRScriptExtension
         return packageId + $":/{path}/{nameof(TittyMagic)}";
     }
 
-    public static string PluginPath(this MVRScript script)
-    {
-        return $@"{script.GetPackagePath()}Custom\Scripts\everlaster\TittyMagic";
-    }
+    public static string PluginPath(this MVRScript script) =>
+        $@"{script.GetPackagePath()}Custom\Scripts\everlaster\TittyMagic";
 
     public static string GetPackagePath(this MVRScript script)
     {
@@ -38,35 +36,29 @@ public static class MVRScriptExtension
         return idx >= 0 ? filename.Substring(0, idx) : "";
     }
 
-    public static UIDynamicTextField InstantiateTextField(this MVRScript script)
-    {
-        return UnityEngine.Object.Instantiate(script.manager.configurableTextFieldPrefab).GetComponent<UIDynamicTextField>();
-    }
+    public static UIDynamicTextField InstantiateTextField(this MVRScript script) => UnityEngine.Object
+        .Instantiate(script.manager.configurableTextFieldPrefab)
+        .GetComponent<UIDynamicTextField>();
 
-    public static UIDynamicButton InstantiateButton(this MVRScript script)
-    {
-        return UnityEngine.Object.Instantiate(script.manager.configurableButtonPrefab).GetComponent<UIDynamicButton>();
-    }
+    public static UIDynamicButton InstantiateButton(this MVRScript script) => UnityEngine.Object
+        .Instantiate(script.manager.configurableButtonPrefab)
+        .GetComponent<UIDynamicButton>();
 
-    public static UIDynamicSlider InstantiateSlider(this MVRScript script)
-    {
-        return UnityEngine.Object.Instantiate(script.manager.configurableSliderPrefab).GetComponent<UIDynamicSlider>();
-    }
+    public static UIDynamicSlider InstantiateSlider(this MVRScript script) => UnityEngine.Object
+        .Instantiate(script.manager.configurableSliderPrefab)
+        .GetComponent<UIDynamicSlider>();
 
-    public static UIDynamicToggle InstantiateToggle(this MVRScript script)
-    {
-        return UnityEngine.Object.Instantiate(script.manager.configurableTogglePrefab).GetComponent<UIDynamicToggle>();
-    }
+    public static UIDynamicToggle InstantiateToggle(this MVRScript script) => UnityEngine.Object
+        .Instantiate(script.manager.configurableTogglePrefab)
+        .GetComponent<UIDynamicToggle>();
 
-    public static UIDynamicPopup InstantiatePopup(this MVRScript script)
-    {
-        return UnityEngine.Object.Instantiate(script.manager.configurablePopupPrefab).GetComponent<UIDynamicPopup>();
-    }
+    public static UIDynamicPopup InstantiatePopup(this MVRScript script) => UnityEngine.Object
+        .Instantiate(script.manager.configurablePopupPrefab)
+        .GetComponent<UIDynamicPopup>();
 
-    public static UIDynamicColorPicker InstantiateColorPicker(this MVRScript script)
-    {
-        return UnityEngine.Object.Instantiate(script.manager.configurableColorPickerPrefab).GetComponent<UIDynamicColorPicker>();
-    }
+    public static UIDynamicColorPicker InstantiateColorPicker(this MVRScript script) => UnityEngine.Object
+        .Instantiate(script.manager.configurableColorPickerPrefab)
+        .GetComponent<UIDynamicColorPicker>();
 
     public static void RemoveElement(this MVRScript script, UIDynamic element)
     {

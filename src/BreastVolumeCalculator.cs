@@ -24,12 +24,10 @@ namespace TittyMagic
             return (leftVolume + rightVolume) / (2 * 1000);
         }
 
-        private List<Vector3> GetPositions(IEnumerable<int> vertexIndices)
-        {
-            return vertexIndices
+        private List<Vector3> GetPositions(IEnumerable<int> vertexIndices) =>
+            vertexIndices
                 .Select(i => Calc.RelativePosition(_chestRb, _skin.rawSkinnedVerts[i]))
                 .ToList();
-        }
 
         private static Vector3 BoundsSize(List<Vector3> vertices)
         {
@@ -61,19 +59,19 @@ namespace TittyMagic
         // This somewhat accurately scales breast volume to the apparent breast size when atom scale is adjusted.
         private static float ResolveAtomScaleFactor(float value)
         {
-            if(value > 1)
+            float result;
+            float atomScaleAdjustment = 1 - Mathf.Abs(Mathf.Log10(Mathf.Pow(value, 3)));
+
+            if(value >= 1)
             {
-                float atomScaleAdjustment = 1 - Mathf.Abs(Mathf.Log10(Mathf.Pow(value, 3)));
-                return value * atomScaleAdjustment;
+                result = value * atomScaleAdjustment;
+            }
+            else
+            {
+                result = value / atomScaleAdjustment;
             }
 
-            if(value < 1)
-            {
-                float atomScaleAdjustment = 1 - Mathf.Abs(Mathf.Log10(Mathf.Pow(value, 3)));
-                return value / atomScaleAdjustment;
-            }
-
-            return 1;
+            return result;
         }
     }
 }

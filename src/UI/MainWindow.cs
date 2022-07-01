@@ -47,7 +47,11 @@ namespace TittyMagic.UI
             CreateAutoUpdateMassToggle(true);
             CreateMassSlider(false);
 
-            if(Gender.isFemale) CreateSoftPhysicsOnToggle(false, spacing: 15);
+            if(Gender.isFemale)
+            {
+                CreateSoftPhysicsOnToggle(false, spacing: 15);
+            }
+
             CreateSoftnessSlider(false);
             CreateQuicknessSlider(true, spacing: Gender.isFemale ? 80 : 0);
 
@@ -64,8 +68,7 @@ namespace TittyMagic.UI
             }
         }
 
-        private void CreateTitleTextField(bool rightSide)
-        {
+        private void CreateTitleTextField(bool rightSide) =>
             elements[_title.name] = UIHelpers.TitleTextField(
                 _script,
                 _title,
@@ -73,7 +76,6 @@ namespace TittyMagic.UI
                 100,
                 rightSide
             );
-        }
 
         private void CreateAutoUpdateMassToggle(bool rightSide, int spacing = 0)
         {
@@ -256,16 +258,15 @@ namespace TittyMagic.UI
             elements[storable.name] = textField;
         }
 
-        private void AddSpacer(string name, int height, bool rightSide)
-        {
-            elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
-        }
+        private void AddSpacer(string name, int height, bool rightSide) => elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
 
         public List<UIDynamicSlider> GetSliders()
         {
             var sliders = GetSlidersForRefresh();
             if(elements.ContainsKey(_script.hardColliderHandler.forceJsf.name))
+            {
                 sliders.Add(elements[_script.hardColliderHandler.forceJsf.name] as UIDynamicSlider);
+            }
 
             return sliders;
         }
@@ -286,18 +287,17 @@ namespace TittyMagic.UI
         public void Clear()
         {
             if(_nestedWindowActive)
-                ClearNestedWindow();
-            else
-                ClearSelf();
-        }
-
-        private void ClearSelf()
-        {
-            foreach(var element in elements)
             {
-                _script.RemoveElement(element.Value);
+                ClearNestedWindow();
+            }
+            else
+            {
+                ClearSelf();
             }
         }
+
+        private void ClearSelf() =>
+            elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
 
         private void ClearNestedWindow()
         {

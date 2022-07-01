@@ -5,7 +5,6 @@ namespace TittyMagic.Configs
         public bool isNegative { get; }
         public float softnessMultiplier { get; }
         public float massMultiplier { get; }
-
         public DAZMorph morph { get; }
 
         public MorphConfig(string name, bool isNegative, float softnessMultiplier, float massMultiplier)

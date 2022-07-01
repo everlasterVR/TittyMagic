@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using SimpleJSON;
 using TittyMagic.Configs;
-using UnityEngine;
 using static TittyMagic.MVRParamName;
 using static TittyMagic.Utils;
 
@@ -233,8 +232,8 @@ namespace TittyMagic
 
             if(leftBreast)
             {
-                softVerticesCombinedSpring.sync = value => { _combinedSpringLeft = value; };
-                softVerticesCombinedDamper.sync = value => { _combinedDamperLeft = value; };
+                softVerticesCombinedSpring.sync = value => _combinedSpringLeft = value;
+                softVerticesCombinedDamper.sync = value => _combinedDamperLeft = value;
                 softVerticesMass.sync = SyncMassLeft;
                 softVerticesBackForce.sync = SyncBackForceLeft;
                 softVerticesBackForceMaxForce.sync = SyncBackForceMaxForceLeft;
@@ -253,8 +252,8 @@ namespace TittyMagic
             }
             else
             {
-                softVerticesCombinedSpring.sync = value => { _combinedSpringRight = value; };
-                softVerticesCombinedDamper.sync = value => { _combinedDamperRight = value; };
+                softVerticesCombinedSpring.sync = value => _combinedSpringRight = value;
+                softVerticesCombinedDamper.sync = value => _combinedDamperRight = value;
                 softVerticesMass.sync = SyncMassRight;
                 softVerticesBackForce.sync = SyncBackForceRight;
                 softVerticesBackForceMaxForce.sync = SyncBackForceMaxForceRight;
@@ -301,9 +300,7 @@ namespace TittyMagic
 
             var texts = CreateInfoTexts();
             foreach(var param in breastParameters)
-            {
                 param.Value.infoText = texts[param.Key];
-            }
 
             if(leftBreast)
             {
@@ -438,18 +435,26 @@ namespace TittyMagic
                 group.colliderRadiusNoSync = value;
                 group.colliderNormalOffsetNoSync = value;
             }
+
             if(group.useParentColliderSettingsForSecondCollider)
             {
                 group.secondColliderRadiusNoSync = value;
                 group.secondColliderNormalOffsetNoSync = value;
             }
+
             if(group.colliderSyncDirty)
+            {
                 group.SyncColliders();
+            }
         }
 
         // Reimplements DAZPhysicsMesh.cs methods SyncGroup[A|B|C|D]SpringMultiplier and SyncSoftVerticesCombinedSpring
         // Circumvents use of softVerticesCombinedSpring value as multiplier on the group specific value, using custom multiplier instead
-        private static void SyncGroupSpringMultiplier(float value, float combinedSpring, DAZPhysicsMeshSoftVerticesGroup group)
+        private static void SyncGroupSpringMultiplier(
+            float value,
+            float combinedSpring,
+            DAZPhysicsMeshSoftVerticesGroup group
+        )
         {
             float combinedValue = combinedSpring * value;
             group.jointSpringNormal = combinedValue;
@@ -463,7 +468,11 @@ namespace TittyMagic
 
         // Reimplements DAZPhysicsMesh.cs methods SyncGroup[A|B|C|D]DamperMultiplier and SyncSoftVerticesCombinedDamper
         // Circumvents use of softVerticesCombinedDamper value as multiplier on the group specific value, using custom multiplier instead
-        private static void SyncGroupDamperMultiplier(float value, float combinedDamper, DAZPhysicsMeshSoftVerticesGroup group)
+        private static void SyncGroupDamperMultiplier(
+            float value,
+            float combinedDamper,
+            DAZPhysicsMeshSoftVerticesGroup group
+        )
         {
             float combinedValue = combinedDamper * value;
             group.jointDamperNormal = combinedValue;
@@ -477,7 +486,10 @@ namespace TittyMagic
 
         public void ReverseSyncSoftPhysicsOn()
         {
-            if(!Gender.isFemale) return;
+            if(!Gender.isFemale)
+            {
+                return;
+            }
 
             if(softPhysicsOn.val != _breastPhysicsMesh.on)
             {
@@ -487,7 +499,10 @@ namespace TittyMagic
 
         public void ReverseSyncSyncAllowSelfCollision()
         {
-            if(!Gender.isFemale) return;
+            if(!Gender.isFemale)
+            {
+                return;
+            }
 
             if(allowSelfCollision.val != _breastPhysicsMesh.allowSelfCollision)
             {
@@ -497,14 +512,20 @@ namespace TittyMagic
 
         private void SyncSoftPhysicsOn(bool value)
         {
-            if(!Gender.isFemale) return;
+            if(!Gender.isFemale)
+            {
+                return;
+            }
 
             _breastPhysicsMesh.on = value;
         }
 
         private void SyncAllowSelfCollision(bool value)
         {
-            if(!Gender.isFemale) return;
+            if(!Gender.isFemale)
+            {
+                return;
+            }
 
             _breastPhysicsMesh.allowSelfCollision = value;
         }
@@ -516,13 +537,17 @@ namespace TittyMagic
             float quicknessAmount
         )
         {
-            if(!Gender.isFemale) return;
+            if(!Gender.isFemale)
+            {
+                return;
+            }
 
             leftBreastParameters.Values
                 .Concat(leftBreastGroupParameters.Values)
                 .Concat(rightBreastParameters.Values)
                 .Concat(rightBreastGroupParameters.Values)
-                .Where(param => param.config != null).ToList()
+                .Where(param => param.config != null)
+                .ToList()
                 .ForEach(param => UpdateParam(param, massAmount, realMassAmount, softnessAmount, quicknessAmount));
         }
 
@@ -533,37 +558,49 @@ namespace TittyMagic
             float quicknessAmount
         )
         {
-            if(!Gender.isFemale) return;
+            if(!Gender.isFemale)
+            {
+                return;
+            }
 
             leftBreastParameters.Values
                 .Concat(leftBreastGroupParameters.Values)
                 .Concat(rightBreastParameters.Values)
                 .Concat(rightBreastGroupParameters.Values)
-                .Where(param => param.config != null && param.config.dependOnPhysicsRate).ToList()
+                .Where(param => param.config != null && param.config.dependOnPhysicsRate)
+                .ToList()
                 .ForEach(param => UpdateParam(param, massAmount, realMassAmount, softnessAmount, quicknessAmount));
         }
 
         public void UpdateNipplePhysics(float massAmount, float softnessAmount, float nippleErection)
         {
-            if(!Gender.isFemale) return;
+            if(!Gender.isFemale)
+            {
+                return;
+            }
 
             leftNippleGroupParameters.Values
                 .Concat(rightNippleGroupParameters.Values)
-                .Where(param => param.config != null).ToList()
+                .Where(param => param.config != null)
+                .ToList()
                 .ForEach(param => UpdateNippleParam(param, massAmount, softnessAmount, nippleErection));
         }
 
-        private static void UpdateParam(PhysicsParameter param, float realMassAmount, float massAmount, float softnessAmount, float quicknessAmount)
+        private static void UpdateParam(
+            PhysicsParameter param,
+            float realMassAmount,
+            float massAmount,
+            float softnessAmount,
+            float quicknessAmount
+        )
         {
             float massValue = param.config.useRealMass ? realMassAmount : massAmount;
             float value = MainPhysicsHandler.NewBaseValue(param, massValue, softnessAmount, quicknessAmount);
             param.SetValue(value);
         }
 
-        private static void UpdateNippleParam(PhysicsParameter param, float mass, float softness, float nippleErection)
-        {
+        private static void UpdateNippleParam(PhysicsParameter param, float mass, float softness, float nippleErection) =>
             param.SetValue(param.config.Calculate(mass, softness) + 1.25f * nippleErection);
-        }
 
         public void SaveOriginalPhysicsAndSetPluginDefaults()
         {
@@ -599,7 +636,10 @@ namespace TittyMagic
 
         public void RestoreOriginalPhysics()
         {
-            if(!Gender.isFemale) return;
+            if(!Gender.isFemale)
+            {
+                return;
+            }
 
             _breastPhysicsMesh.on = _originalSoftPhysicsOn;
             _breastPhysicsMesh.allowSelfCollision = _originalAllowSelfCollision;
@@ -623,50 +663,30 @@ namespace TittyMagic
             {
                 jsonClass[SOFT_PHYSICS_ON].AsBool = _originalSoftPhysicsOn;
                 jsonClass[ALLOW_SELF_COLLISION].AsBool = _originalAllowSelfCollision;
-                jsonClass["breastPhysicsMeshFloats"] = JSONArrayFromDictionary(_originalBreastPhysicsMeshFloats);
+                jsonClass["breastPhysicsMeshFloats"] = JSONUtils.JSONArrayFromDictionary(_originalBreastPhysicsMeshFloats);
                 jsonClass[SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS].AsBool = _originalAutoFatColliderRadius;
-                jsonClass["groupsUseParentSettings"] = JSONArrayFromDictionary(_originalGroupsUseParentSettings);
+                jsonClass["groupsUseParentSettings"] = JSONUtils.JSONArrayFromDictionary(_originalGroupsUseParentSettings);
             }
+
             return jsonClass;
-        }
-
-        //TODO is duplicate
-        private static JSONArray JSONArrayFromDictionary(Dictionary<string, float> dictionary)
-        {
-            var jsonArray = new JSONArray();
-            foreach(var kvp in dictionary)
-            {
-                var entry = new JSONClass();
-                entry["paramName"] = kvp.Key;
-                entry["value"].AsFloat = kvp.Value;
-                jsonArray.Add(entry);
-            }
-            return jsonArray;
-        }
-
-        private static JSONArray JSONArrayFromDictionary(Dictionary<string, bool> dictionary)
-        {
-            var jsonArray = new JSONArray();
-            foreach(var kvp in dictionary)
-            {
-                var entry = new JSONClass();
-                entry["paramName"] = kvp.Key;
-                entry["value"].AsBool = kvp.Value;
-                jsonArray.Add(entry);
-            }
-            return jsonArray;
         }
 
         public void RestoreFromJSON(JSONClass originalJson)
         {
             if(originalJson.HasKey(SOFT_PHYSICS_ON))
+            {
                 _originalSoftPhysicsOn = originalJson[SOFT_PHYSICS_ON].AsBool;
+            }
 
             if(originalJson.HasKey(ALLOW_SELF_COLLISION))
+            {
                 _originalAllowSelfCollision = originalJson[ALLOW_SELF_COLLISION].AsBool;
+            }
 
             if(originalJson.HasKey(SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS))
+            {
                 _originalAutoFatColliderRadius = originalJson[SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS].AsBool;
+            }
 
             if(originalJson.HasKey("breastPhysicsMeshFloats"))
             {

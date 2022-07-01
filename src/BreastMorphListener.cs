@@ -66,42 +66,30 @@ namespace TittyMagic
 
         private Dictionary<DAZMorph, float> ProcessMorphs(List<DAZMorph> morphs)
         {
-            var listenedMorphs = new Dictionary<DAZMorph, float>();
-            if(morphs == null)
+            var result = new Dictionary<DAZMorph, float>();
+            if(morphs != null)
             {
-                return listenedMorphs;
-            }
-
-            foreach(var morph in morphs)
-            {
-                try
+                foreach(var morph in morphs)
                 {
-                    if(!morph.visible || morph.isPoseControl || morph.group.Contains("Pose/") || _excludeMorphsNames.Contains(morph.morphName))
+                    if(
+                        morph.visible &&
+                        !morph.isPoseControl &&
+                        morph.group != null &&
+                        !morph.group.Contains("Pose/") &&
+                        !_excludeMorphsNames.Contains(morph.morphName) &&
+                        !result.ContainsKey(morph) &&
+                        IsInSet(morph, VertexIndexGroup.BREASTS, FILTER_STRENGTH)
+                    )
                     {
-                        continue;
+                        result.Add(morph, morph.morphValue);
                     }
-
-                    if(!listenedMorphs.ContainsKey(morph) && IsInSet(morph, VertexIndexGroup.BREASTS, FILTER_STRENGTH))
-                    {
-                        listenedMorphs.Add(morph, morph.morphValue);
-                    }
-                }
-                catch(Exception)
-                {
-                    // ignored
-#if DEBUG_ON
-                    Debug.Log($"Unable to initialize listener for morph {morph.morphName}.");
-#endif
                 }
             }
 
-            return listenedMorphs;
+            return result;
         }
 
-        public bool Changed()
-        {
-            return MorphsChanged(_listenedFemaleMorphs) || MorphsChanged(_listenedMaleMorphs);
-        }
+        public bool Changed() => MorphsChanged(_listenedFemaleMorphs) || MorphsChanged(_listenedMaleMorphs);
 
         private static bool MorphsChanged(Dictionary<DAZMorph, float> listenedMorphs)
         {
@@ -133,15 +121,13 @@ namespace TittyMagic
             float hitDeltaMax = morph.deltas.Sum(x => x.delta.magnitude) * filterStrength;
             foreach(var delta in morph.deltas)
             {
-                if(!vertices.Contains(delta.vertex))
+                if(vertices.Contains(delta.vertex))
                 {
-                    continue;
-                }
-
-                hitDelta += delta.delta.magnitude;
-                if(hitDelta >= hitDeltaMax)
-                {
-                    return true;
+                    hitDelta += delta.delta.magnitude;
+                    if(hitDelta >= hitDeltaMax)
+                    {
+                        return true;
+                    }
                 }
             }
 

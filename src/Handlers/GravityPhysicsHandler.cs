@@ -55,8 +55,14 @@ namespace TittyMagic
             {
                 { Direction.DOWN, null },
                 { Direction.UP, null },
-                { Direction.BACK, new DynamicPhysicsConfig(-0.071f, -0.053f, isNegative: true, multiplyInvertedMass: true) },
-                { Direction.FORWARD, new DynamicPhysicsConfig(0.141f, 0.106f, isNegative: false, multiplyInvertedMass: true) },
+                {
+                    Direction.BACK,
+                    new DynamicPhysicsConfig(-0.071f, -0.053f, isNegative: true, multiplyInvertedMass: true)
+                },
+                {
+                    Direction.FORWARD,
+                    new DynamicPhysicsConfig(0.141f, 0.106f, isNegative: false, multiplyInvertedMass: true)
+                },
                 { Direction.LEFT, null },
                 { Direction.RIGHT, null },
             };
@@ -230,7 +236,9 @@ namespace TittyMagic
         private void UpdateParam(PhysicsParameter param, string direction, float effect)
         {
             if(!param.gravityPhysicsConfigs.ContainsKey(direction))
+            {
                 return;
+            }
 
             var config = param.gravityPhysicsConfigs[direction];
             if(config != null)

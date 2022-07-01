@@ -9,6 +9,7 @@ namespace TittyMagic.UI
         private readonly Script _script;
         private readonly PhysicsParameter _leftParam;
         private readonly PhysicsParameter _rightParam;
+
         // ReSharper disable once MemberCanBePrivate.Global
         public Dictionary<string, UIDynamic> elements { get; private set; }
 
@@ -21,7 +22,7 @@ namespace TittyMagic.UI
             _leftParam = leftParam;
             _rightParam = rightParam;
 
-            _title = new JSONStorableString($"title", "");
+            _title = new JSONStorableString("title", "");
             _infoText = new JSONStorableString("infoText", "");
 
             _infoText.val = "\n".Size(12) + leftParam.infoText;
@@ -38,10 +39,14 @@ namespace TittyMagic.UI
             elements["headerMargin"] = _script.NewSpacer(20);
 
             if(_leftParam.currentValue != null)
+            {
                 CreateCurrentValueSlider(_leftParam, false);
+            }
 
             if(_leftParam.baseValue != null)
+            {
                 CreateBaseValueSlider(_leftParam, false);
+            }
         }
 
         private void CreateBackButton(UnityAction backButtonListener, bool rightSide)
@@ -91,15 +96,10 @@ namespace TittyMagic.UI
             elements[storable.name] = textField;
         }
 
-        private void CreateHeader(bool rightSide)
-        {
+        private void CreateHeader(bool rightSide) =>
             elements[_title.name] = UIHelpers.TitleTextField(_script, _title, _leftParam.displayName, 62, rightSide);
-        }
 
-        private void AddSpacer(string name, int height, bool rightSide)
-        {
-            elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
-        }
+        private void AddSpacer(string name, int height, bool rightSide) => elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
 
         public List<UIDynamicSlider> GetSliders()
         {
@@ -112,12 +112,7 @@ namespace TittyMagic.UI
             return sliders;
         }
 
-        public void Clear()
-        {
-            foreach(var element in elements)
-            {
-                _script.RemoveElement(element.Value);
-            }
-        }
+        public void Clear() =>
+            elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
     }
 }

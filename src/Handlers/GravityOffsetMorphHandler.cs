@@ -27,13 +27,11 @@ namespace TittyMagic
             yMultiplier.mainMultiplier = script.gravityPhysicsHandler.yMultiplierJsf.val;
         }
 
-        public void LoadSettings()
-        {
+        public void LoadSettings() =>
             _configSets = new Dictionary<string, List<MorphConfig>>
             {
                 { Direction.DOWN, LoadSettingsFromFile(Direction.DOWN, "upright", true) },
             };
-        }
 
         private List<MorphConfig> LoadSettingsFromFile(string subDir, string fileName, bool separateLeftRight = false)
         {
@@ -127,13 +125,8 @@ namespace TittyMagic
             }
         }
 
-        private void UpdateMorphs(string configSetName, float effect)
-        {
-            foreach(var config in _configSets[configSetName])
-            {
-                UpdateValue(config, effect);
-            }
-        }
+        private void UpdateMorphs(string configSetName, float effect) =>
+            _configSets[configSetName].ForEach(config => UpdateValue(config, effect));
 
         private void UpdateValue(MorphConfig config, float effect)
         {
@@ -144,17 +137,9 @@ namespace TittyMagic
             config.morph.morphValue = inRange ? Calc.RoundToDecimals(value, 1000f) : 0;
         }
 
-        public void ResetAll()
-        {
-            _configSets?.Keys.ToList().ForEach(ResetMorphs);
-        }
+        public void ResetAll() => _configSets?.Keys.ToList().ForEach(ResetMorphs);
 
-        private void ResetMorphs(string configSetName)
-        {
-            foreach(var config in _configSets[configSetName])
-            {
-                config.morph.morphValue = 0;
-            }
-        }
+        private void ResetMorphs(string configSetName) =>
+            _configSets[configSetName].ForEach(config => config.morph.morphValue = 0);
     }
 }

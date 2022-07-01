@@ -7,14 +7,8 @@ namespace TittyMagic.UI
     {
         public bool isDown;
 
-        public void OnPointerDown(PointerEventData data)
-        {
-            isDown = true;
-        }
+        public void OnPointerDown(PointerEventData data) => isDown = true;
 
-        public void OnPointerUp(PointerEventData data)
-        {
-            isDown = false;
-        }
+        public void OnPointerUp(PointerEventData data) => isDown = false;
     }
 }

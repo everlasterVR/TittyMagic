@@ -5,29 +5,28 @@ namespace TittyMagic
 {
     public static class GravityEffectCalc
     {
-        public static float CalculateRollEffect(float roll, Multiplier multiplier)
-        {
-            // div by 2 because softness and mass affect equally
-            return Mathf.Abs(roll) * multiplier.mainMultiplier / 2;
-        }
+        // div by 2 because softness and mass affect equally
+        public static float CalculateRollEffect(float roll, Multiplier multiplier) =>
+            Mathf.Abs(roll) * multiplier.mainMultiplier / 2;
 
         // ReSharper disable once UnusedMember.Global
-        public static float CalculateUpEffect(float pitch, float roll, Multiplier multiplier, float additionalRollEffect)
+        public static float CalculateUpEffect(
+            float pitch,
+            float roll,
+            Multiplier multiplier,
+            float additionalRollEffect
+        )
         {
             float effect = Mathf.Abs(pitch) * RollMultiplier(roll) / 2;
             return (effect + additionalRollEffect) * multiplier.mainMultiplier / 2;
         }
 
         // ReSharper disable once UnusedMember.Global
-        public static float CalculateDownEffect(float pitch, float roll, Multiplier multiplier)
-        {
-            return (2 - Mathf.Abs(pitch) / 2) * RollMultiplier(roll) * multiplier.mainMultiplier / 2;
-        }
+        public static float CalculateDownEffect(float pitch, float roll, Multiplier multiplier) =>
+            (2 - Mathf.Abs(pitch) / 2) * RollMultiplier(roll) * multiplier.mainMultiplier / 2;
 
-        public static float CalculateDepthEffect(float pitch, float roll, Multiplier multiplier)
-        {
-            return DepthAdjustByAngle(pitch) * RollMultiplier(roll) * multiplier.mainMultiplier / 2;
-        }
+        public static float CalculateDepthEffect(float pitch, float roll, Multiplier multiplier) =>
+            DepthAdjustByAngle(pitch) * RollMultiplier(roll) * multiplier.mainMultiplier / 2;
 
         private static float DepthAdjustByAngle(float pitch)
         {
@@ -55,10 +54,11 @@ namespace TittyMagic
             return 2 + pitch;
         }
 
-        public static float CalculateUpDownEffect(float pitch, float roll, Multiplier multiplier)
-        {
-            return UpDownAdjustByAngle(pitch) * RollMultiplier(roll) * multiplier.mainMultiplier * (multiplier.extraMultiplier ?? 1) / 2;
-        }
+        public static float CalculateUpDownEffect(float pitch, float roll, Multiplier multiplier) =>
+            UpDownAdjustByAngle(pitch) *
+            RollMultiplier(roll) *
+            multiplier.mainMultiplier *
+            (multiplier.extraMultiplier ?? 1) / 2;
 
         private static float UpDownAdjustByAngle(float pitch)
         {
@@ -92,9 +92,6 @@ namespace TittyMagic
             return 2 * diff * RollMultiplier(roll);
         }
 
-        private static float RollMultiplier(float roll)
-        {
-            return 1 - Mathf.Abs(roll);
-        }
+        private static float RollMultiplier(float roll) => 1 - Mathf.Abs(roll);
     }
 }

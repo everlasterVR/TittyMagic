@@ -1,6 +1,3 @@
-using System;
-using UnityEngine.UI;
-
 namespace TittyMagic.Configs
 {
     public class Multiplier

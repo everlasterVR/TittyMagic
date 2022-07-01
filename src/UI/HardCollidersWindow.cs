@@ -7,6 +7,7 @@ namespace TittyMagic.UI
     internal class HardCollidersWindow
     {
         private readonly Script _script;
+
         // ReSharper disable once MemberCanBePrivate.Global
         public Dictionary<string, UIDynamic> elements { get; private set; }
 
@@ -42,12 +43,7 @@ namespace TittyMagic.UI
             return sliders;
         }
 
-        public void Clear()
-        {
-            foreach(var element in elements)
-            {
-                _script.RemoveElement(element.Value);
-            }
-        }
+        public void Clear() =>
+            elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
     }
 }

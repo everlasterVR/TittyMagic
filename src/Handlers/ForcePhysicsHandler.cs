@@ -247,38 +247,25 @@ namespace TittyMagic
             }
         }
 
-        private static float CalculatePitchMultiplier(float pitch, float roll)
-        {
-            return Mathf.Lerp(0.72f, 1f, CalculateDiffFromHorizontal(pitch, roll));
-        }
+        private static float CalculatePitchMultiplier(float pitch, float roll) =>
+            Mathf.Lerp(0.72f, 1f, CalculateDiffFromHorizontal(pitch, roll));
 
-        private static float CalculateRollMultiplier(float roll)
-        {
-            return Mathf.Lerp(1.25f, 1f, Mathf.Abs(roll));
-        }
+        private static float CalculateRollMultiplier(float roll) =>
+            Mathf.Lerp(1.25f, 1f, Mathf.Abs(roll));
 
-        private float CalculateYEffect(float angle, float multiplier)
-        {
-            return multiplier * _pitchMultiplier * Mathf.Abs(angle) / 10;
-            // return multiplier * Curve(_pitchMultiplier * Mathf.Abs(angle) / 75);
-        }
+        private float CalculateYEffect(float angle, float multiplier) =>
+            multiplier * _pitchMultiplier * Mathf.Abs(angle) / 10;
 
-        private float CalculateXEffect(float angle, float multiplier)
-        {
-            return multiplier * _rollMultiplier * Mathf.Abs(angle) / 30;
-            // return multiplier * Curve(_rollMultiplier * Mathf.Abs(angle) / 60);
-        }
+        private float CalculateXEffect(float angle, float multiplier) =>
+            multiplier * _rollMultiplier * Mathf.Abs(angle) / 30;
+        // multiplier * Curve(_pitchMultiplier * Mathf.Abs(angle) / 75);
 
-        private static float CalculateZEffect(float distance, float multiplier)
-        {
-            return multiplier * Mathf.Abs(distance) * 12;
-            // return multiplier * Curve(Mathf.Abs(distance) * 12);
-        }
+        private static float CalculateZEffect(float distance, float multiplier) =>
+            multiplier * Mathf.Abs(distance) * 12;
+        // multiplier * Curve(_rollMultiplier * Mathf.Abs(angle) / 60);
 
-        private static float Curve(float effect)
-        {
-            return Calc.InverseSmoothStep(effect, 10, 0.8f, 0f);
-        }
+        // return multiplier * Curve(Mathf.Abs(distance) * 12);
+        private static float Curve(float effect) => Calc.InverseSmoothStep(effect, 10, 0.8f, 0f);
 
         private void UpdatePhysics(string direction, float effect)
         {
@@ -298,7 +285,9 @@ namespace TittyMagic
         private void UpdateParam(PhysicsParameter param, string direction, float effect)
         {
             if(!param.forcePhysicsConfigs.ContainsKey(direction))
+            {
                 return;
+            }
 
             var config = param.forcePhysicsConfigs[direction];
             if(config != null)

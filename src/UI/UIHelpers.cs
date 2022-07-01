@@ -46,6 +46,7 @@ namespace TittyMagic.UI
             {
                 return null;
             }
+
             var spacer = script.CreateSpacer(rightSide);
             spacer.height = height;
             return spacer;

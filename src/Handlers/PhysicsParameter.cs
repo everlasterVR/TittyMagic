@@ -19,7 +19,12 @@ namespace TittyMagic
         public Dictionary<string, DynamicPhysicsConfig> forcePhysicsConfigs { get; set; }
         public Action<float> sync { private get; set; }
 
-        public PhysicsParameter(string displayName, JSONStorableFloat baseValue, JSONStorableFloat currentValue, string valueFormat)
+        public PhysicsParameter(
+            string displayName,
+            JSONStorableFloat baseValue,
+            JSONStorableFloat currentValue,
+            string valueFormat
+        )
         {
             this.displayName = displayName;
             this.baseValue = baseValue;

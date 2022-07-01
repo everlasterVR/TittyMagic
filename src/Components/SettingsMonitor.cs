@@ -61,6 +61,7 @@ namespace TittyMagic
             {
                 _breastPhysicsMesh = (DAZPhysicsMesh) _script.containingAtom.GetStorableByID("BreastPhysicsMesh");
             }
+
             _geometry = (DAZCharacterSelector) _script.containingAtom.GetStorableByID("geometry");
             _useAdvancedColliders = new BoolSetting(
                 _geometry.useAdvancedColliders,
@@ -97,8 +98,10 @@ namespace TittyMagic
                     if(_breastInOut.GetBoolParamValue("enabled"))
                     {
                         _breastInOut.SetBoolParamValue("enabled", false);
-                        if (_breastPhysicsMesh != null)
+                        if(_breastPhysicsMesh != null)
+                        {
                             LogMessage("Auto Breast In/Out Morphs disabled - TittyMagic adjusts breast morphs better without them.");
+                        }
                     }
 
                     if(Gender.isFemale && _useAdvancedColliders.CheckIfUpdateNeeded(_geometry.useAdvancedColliders))

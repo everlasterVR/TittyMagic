@@ -48,8 +48,7 @@ namespace TittyMagic
 
         }
 
-        public void LoadSettings()
-        {
+        public void LoadSettings() =>
             _configSets = new Dictionary<string, List<MorphConfig>>
             {
                 { Direction.UP_L, LoadSettingsFromFile(Direction.UP, "upForce", " L") },
@@ -66,7 +65,6 @@ namespace TittyMagic
                 { Direction.RIGHT_L, LoadSettingsFromFile(Direction.RIGHT, "rightForceL") },
                 { Direction.RIGHT_R, LoadSettingsFromFile(Direction.RIGHT, "rightForceR") },
             };
-        }
 
         private List<MorphConfig> LoadSettingsFromFile(string subDir, string fileName, string morphNameSuffix = null)
         {
@@ -74,15 +72,16 @@ namespace TittyMagic
             var jsonClass = _script.LoadJSON(path).AsObject;
 
             return jsonClass.Keys.Select(name =>
-            {
-                string morphName = string.IsNullOrEmpty(morphNameSuffix) ? name : name + $"{morphNameSuffix}";
-                return new MorphConfig(
-                    $"{subDir}/{morphName}",
-                    jsonClass[name]["IsNegative"].AsBool,
-                    jsonClass[name]["Multiplier1"].AsFloat,
-                    jsonClass[name]["Multiplier2"].AsFloat
-                );
-            }).ToList();
+                {
+                    string morphName = string.IsNullOrEmpty(morphNameSuffix) ? name : name + $"{morphNameSuffix}";
+                    return new MorphConfig(
+                        $"{subDir}/{morphName}",
+                        jsonClass[name]["IsNegative"].AsBool,
+                        jsonClass[name]["Multiplier1"].AsFloat,
+                        jsonClass[name]["Multiplier2"].AsFloat
+                    );
+                })
+                .ToList();
         }
 
         public void Update(
@@ -229,52 +228,26 @@ namespace TittyMagic
             }
         }
 
-        private static float CalculatePitchMultiplier(float pitch, float roll)
-        {
-            float effect = CalculateDiffFromHorizontal(pitch, roll);
-            // upright
-            if(effect >= 0)
-            {
-                return Mathf.Lerp(0.72f, 1f, effect);
-            }
+        private static float CalculatePitchMultiplier(float pitch, float roll) =>
+            Mathf.Lerp(0.72f, 1f, CalculateDiffFromHorizontal(pitch, roll)); // same for upright and upside down
 
-            // upside down
-            return Mathf.Lerp(0.72f, 1f, effect);
-        }
+        private static float CalculateRollMultiplier(float roll) =>
+            Mathf.Lerp(1.25f, 1f, Mathf.Abs(roll));
 
-        private static float CalculateRollMultiplier(float roll)
-        {
-            return Mathf.Lerp(1.25f, 1f, Mathf.Abs(roll));
-        }
+        private float CalculateYEffect(float angle, float multiplier) =>
+            multiplier * Curve(_pitchMultiplier * Mathf.Abs(angle) / 75);
 
-        private float CalculateYEffect(float angle, float multiplier)
-        {
-            return multiplier * Curve(_pitchMultiplier * Mathf.Abs(angle) / 75);
-        }
+        private static float CalculateZEffect(float distance, float multiplier) =>
+            multiplier * Curve(Mathf.Abs(distance) * 12);
 
-        private static float CalculateZEffect(float distance, float multiplier)
-        {
-            return multiplier * Curve(Mathf.Abs(distance) * 12);
-        }
-
-        private float CalculateXEffect(float angle, float multiplier)
-        {
-            return multiplier * Curve(_rollMultiplier * Mathf.Abs(angle) / 60);
-        }
+        private float CalculateXEffect(float angle, float multiplier) =>
+            multiplier * Curve(_rollMultiplier * Mathf.Abs(angle) / 60);
 
         // https://www.desmos.com/calculator/ykxswso5ie
-        private static float Curve(float effect)
-        {
-            return Calc.InverseSmoothStep(effect, 10, 0.8f, 0f);
-        }
+        private static float Curve(float effect) => Calc.InverseSmoothStep(effect, 10, 0.8f, 0f);
 
-        private void UpdateMorphs(string configSetName, float effect)
-        {
-            foreach(var config in _configSets[configSetName])
-            {
-                UpdateValue(config, effect);
-            }
-        }
+        private void UpdateMorphs(string configSetName, float effect) =>
+            _configSets[configSetName].ForEach(config => UpdateValue(config, effect));
 
         private void UpdateValue(MorphConfig config, float effect)
         {
@@ -286,17 +259,9 @@ namespace TittyMagic
             config.morph.morphValue = inRange ? Calc.RoundToDecimals(value, 1000f) : 0;
         }
 
-        public void ResetAll()
-        {
-            _configSets?.Keys.ToList().ForEach(ResetMorphs);
-        }
+        public void ResetAll() => _configSets?.Keys.ToList().ForEach(ResetMorphs);
 
-        private void ResetMorphs(string configSetName)
-        {
-            foreach(var config in _configSets[configSetName])
-            {
-                config.morph.morphValue = 0;
-            }
-        }
+        private void ResetMorphs(string configSetName) =>
+            _configSets[configSetName].ForEach(config => config.morph.morphValue = 0);
     }
 }

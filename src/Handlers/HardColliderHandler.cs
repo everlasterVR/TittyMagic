@@ -41,7 +41,7 @@ namespace TittyMagic
 
         public void Init()
         {
-            _script = gameObject.GetComponent<Script>();;
+            _script = gameObject.GetComponent<Script>();
             _geometry = (DAZCharacterSelector) _script.containingAtom.GetStorableByID("geometry");
 
             configs = NewColliderConfigs();
@@ -49,7 +49,7 @@ namespace TittyMagic
             enabledJsb = _script.NewJSONStorableBool("useHardColliders", Gender.isFemale, register: Gender.isFemale);
             enabledJsb.setCallbackFunction = SyncUseHardColliders;
 
-            scaleJsf = _script.NewJSONStorableFloat("hardCollidersScaleCombined", 0, -0.05f, 0.05f, register: Gender.isFemale);
+            scaleJsf = _script.NewJSONStorableFloat("hardCollidersScaleCombined", 0, -0.05f, 0.05f, Gender.isFemale);
             scaleJsf.setCallbackFunction = SyncScaleOffsetCombined;
 
             // TODO no slider
@@ -71,12 +71,11 @@ namespace TittyMagic
             else
             {
                 enabledJsb.val = false;
-            };
+            }
         }
 
-        private List<ColliderConfigGroup> NewColliderConfigs()
-        {
-            return new List<ColliderConfigGroup>
+        private List<ColliderConfigGroup> NewColliderConfigs() =>
+            new List<ColliderConfigGroup>
             {
                 NewColliderConfigGroup("Pectoral1", RADIUS_PECTORAL_1, HEIGHT_PECTORAL_1, MASS_PECTORAL_1),
                 NewColliderConfigGroup("Pectoral2", RADIUS_PECTORAL_2, HEIGHT_PECTORAL_2),
@@ -84,19 +83,33 @@ namespace TittyMagic
                 NewColliderConfigGroup("Pectoral4", RADIUS_PECTORAL_4, HEIGHT_PECTORAL_4),
                 NewColliderConfigGroup("Pectoral5", RADIUS_PECTORAL_5, HEIGHT_PECTORAL_5),
             };
-        }
 
-        private ColliderConfigGroup NewColliderConfigGroup(string id, float radiusMultiplier, float heightMultiplier, float? massMultiplier = null)
+        private ColliderConfigGroup NewColliderConfigGroup(
+            string id,
+            float radiusMultiplier,
+            float heightMultiplier,
+            float? massMultiplier = null
+        )
         {
             var auxBreastColliders = _geometry.auxBreastColliders.ToList();
             var left = auxBreastColliders.Find(c => c.name.Contains("l" + id));
             var right = auxBreastColliders.Find(c => c.name.Contains("r" + id));
-            return new ColliderConfigGroup(id, left, right, radiusMultiplier, heightMultiplier, massMultiplier ?? MASS_COMBINED);
+            return new ColliderConfigGroup(
+                id,
+                left,
+                right,
+                radiusMultiplier,
+                heightMultiplier,
+                massMultiplier ?? MASS_COMBINED
+            );
         }
 
         private void SyncUseHardColliders(bool value)
         {
-            if(!enabled) return;
+            if(!enabled)
+            {
+                return;
+            }
 
             configs.ForEach(config => config.SetEnabled(value));
 
@@ -119,28 +132,40 @@ namespace TittyMagic
 
         private void SyncScaleOffsetCombined(float value)
         {
-            if(!enabled) return;
+            if(!enabled)
+            {
+                return;
+            }
 
             configs.ForEach(config => config.UpdateScaleOffset(value, radiusJsf.val, heightJsf.val));
         }
 
         private void SyncHardColliderRadiusCombined(float value)
         {
-            if(!enabled) return;
+            if(!enabled)
+            {
+                return;
+            }
 
             configs.ForEach(config => config.UpdateRadius(value));
         }
 
         private void SyncHardColliderHeightCombined(float value)
         {
-            if(!enabled) return;
+            if(!enabled)
+            {
+                return;
+            }
 
             configs.ForEach(config => config.UpdateHeight(value));
         }
 
         private void SyncHardColliderMassCombined(float value)
         {
-            if(!enabled) return;
+            if(!enabled)
+            {
+                return;
+            }
 
             if(_syncMassStatus != WaitStatus.WAITING)
             {
@@ -176,9 +201,10 @@ namespace TittyMagic
             {
                 yield return new WaitForSecondsRealtime(0.3f);
             }
+
             yield return new WaitForSecondsRealtime(0.1f);
 
-            if (configs.Any(config => !config.HasRigidbodies()))
+            if(configs.Any(config => !config.HasRigidbodies()))
             {
                 Utils.LogMessage("Unable to apply force multiplier: hard colliders are not enabled. Enable hard colliders in order to re-apply.");
             }
@@ -195,13 +221,16 @@ namespace TittyMagic
             {
                 jsonClass[USE_AUX_BREAST_COLLIDERS].AsBool = _originalUseAuxBreastColliders;
             }
+
             return jsonClass;
         }
 
         public void RestoreFromJSON(JSONClass originalJson)
         {
             if(originalJson.HasKey(USE_AUX_BREAST_COLLIDERS))
+            {
                 _originalUseAuxBreastColliders = originalJson[USE_AUX_BREAST_COLLIDERS].AsBool;
+            }
         }
 
         private IEnumerator RestoreDefaults()
@@ -210,6 +239,7 @@ namespace TittyMagic
             {
                 configs.ForEach(config => config.SetEnabled(true));
             }
+
             yield return DeferRestoreDefaultMass();
             _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
             ResetAutoColliderScale();
@@ -223,9 +253,10 @@ namespace TittyMagic
             {
                 yield return new WaitForSecondsRealtime(0.3f);
             }
+
             yield return new WaitForSecondsRealtime(0.1f);
 
-            if (configs.Any(config => !config.HasRigidbodies()))
+            if(configs.Any(config => !config.HasRigidbodies()))
             {
                 Utils.LogError("Failed restoring hard colliders mass to default.");
             }
@@ -244,7 +275,11 @@ namespace TittyMagic
                     .Where(autoCollider =>
                     {
                         var jointCollider = autoCollider.jointCollider;
-                        if(jointCollider == null) return false;
+                        if(jointCollider == null)
+                        {
+                            return false;
+                        }
+
                         return jointCollider.name.Contains("lPectoral") || jointCollider.name.Contains("rPectoral");
                     })
                     .ToList()
@@ -259,14 +294,19 @@ namespace TittyMagic
         private void OnEnable()
         {
             if(_script == null || !_script.initDone)
+            {
                 return;
+            }
 
             SyncUseHardColliders(enabledJsb.val);
         }
 
         private void OnDisable()
         {
-            if(Gender.isFemale) StartCoroutine(RestoreDefaults());
+            if(Gender.isFemale)
+            {
+                StartCoroutine(RestoreDefaults());
+            }
         }
     }
 }

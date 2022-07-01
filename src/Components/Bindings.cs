@@ -22,10 +22,7 @@ namespace TittyMagic
             {
                 { "Namespace", nameof(TittyMagic) },
             };
-            onKeyDownActions = new List<object>
-            {
-                OpenUI(),
-            };
+            onKeyDownActions = new List<object> { OpenUI() };
         }
 
         private object OpenUI()
