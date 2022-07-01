@@ -22,7 +22,7 @@ namespace TittyMagic.UI
             _script = script;
 
             _jointPhysicsParamsHeader = new JSONStorableString("mainPhysicsParamsHeader", "");
-            _softPhysicsParamsHeader = new JSONStorableString("softPhysicsParamsHeader", "");
+            if(Gender.isFemale) _softPhysicsParamsHeader = new JSONStorableString("softPhysicsParamsHeader", "");
             CreateParameterWindows();
         }
 
@@ -30,15 +30,6 @@ namespace TittyMagic.UI
         {
             _parameterWindows = new Dictionary<string, ParameterWindow>();
 
-            _script.softPhysicsHandler.leftBreastParameters.Keys.ToList()
-                .ForEach(key =>
-                {
-                    _parameterWindows[key] = new ParameterWindow(
-                        _script,
-                        _script.softPhysicsHandler.leftBreastParameters[key],
-                        _script.softPhysicsHandler.rightBreastParameters[key]
-                    );
-                });
             _script.mainPhysicsHandler.leftBreastParameters.Keys.ToList()
                 .ForEach(key =>
                 {
@@ -48,6 +39,18 @@ namespace TittyMagic.UI
                         _script.mainPhysicsHandler.rightBreastParameters[key]
                     );
                 });
+            if(Gender.isFemale)
+            {
+                _script.softPhysicsHandler.leftBreastParameters.Keys.ToList()
+                    .ForEach(key =>
+                    {
+                        _parameterWindows[key] = new ParameterWindow(
+                            _script,
+                            _script.softPhysicsHandler.leftBreastParameters[key],
+                            _script.softPhysicsHandler.rightBreastParameters[key]
+                        );
+                    });
+            }
         }
 
         public void Rebuild()
@@ -58,10 +61,13 @@ namespace TittyMagic.UI
             _script.mainPhysicsHandler?.leftBreastParameters.ToList()
                 .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, false));
 
-            CreateHeader(_softPhysicsParamsHeader, "Soft Physics Parameters", true);
-            CreateAllowSelfCollisionToggle(true);
-            _script.softPhysicsHandler.leftBreastParameters.ToList()
-                .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, true));
+            if(Gender.isFemale)
+            {
+                CreateHeader(_softPhysicsParamsHeader, "Soft Physics Parameters", true);
+                CreateAllowSelfCollisionToggle(true);
+                _script.softPhysicsHandler.leftBreastParameters.ToList()
+                    .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, true));
+            }
         }
 
         private void CreateAllowSelfCollisionToggle(bool rightSide)

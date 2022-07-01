@@ -257,64 +257,62 @@ namespace TittyMagic
             _tabs.activeWindow.Rebuild();
             _tabs.ActivateTab1();
 
-            mainWindow.elements[autoUpdateJsb.name].AddListener(val =>
+            mainWindow.elements.ToList().ForEach(kvp =>
             {
-                UpdateSlider(mainWindow.elements[mainPhysicsHandler.massJsf.name], !val);
-            });
-            UpdateSlider(mainWindow.elements[mainPhysicsHandler.massJsf.name], !autoUpdateJsb.val);
-
-            mainWindow.elements[autoUpdateJsb.name].AddListener(val =>
-            {
-                if(val)
+                if(kvp.Key == autoUpdateJsb.name)
                 {
-                    StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true));
+                    kvp.Value.AddListener(val =>
+                    {
+                        if(val)
+                        {
+                            StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true));
+                        }
+                        UpdateSlider(mainWindow.elements[mainPhysicsHandler.massJsf.name], !val);
+                    });
+                    UpdateSlider(mainWindow.elements[mainPhysicsHandler.massJsf.name], !autoUpdateJsb.val);
+                }
+                else if(kvp.Key == "calculateBreastMass")
+                {
+                    kvp.Value.AddListener(() => {
+                        StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true, useNewMass: true));
+                    });
+                }
+                else if(kvp.Key == "recalibratePhysics")
+                {
+                    kvp.Value.AddListener(() => {
+                        StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true));
+                    });
+                }
+                else if(kvp.Key == mainPhysicsHandler.massJsf.name)
+                {
+                    kvp.Value.AddListener((float val) => RefreshFromSliderChanged(refreshMass: true));
+                }
+                else if(kvp.Key == softnessJsf.name)
+                {
+                    kvp.Value.AddListener(val => {
+                        if(Math.Abs(CalculateSoftnessAmount(val) - _softnessAmount) > 0.001f)
+                            RefreshFromSliderChanged();
+                    });
+                }
+                else if(kvp.Key == quicknessJsf.name)
+                {
+                    kvp.Value.AddListener(val => {
+                        if(Math.Abs(CalculateQuicknessAmount(val) - _quicknessAmount) > 0.001f)
+                            RefreshFromSliderChanged();
+                    });
+                }
+                else if(kvp.Key == hardColliderHandler.enabledJsb.name)
+                {
+                    kvp.Value.AddListener(val => {
+                        UpdateSlider(mainWindow.elements[hardColliderHandler.scaleJsf.name], val);
+                        // UpdateSlider(mainWindow.elements[_hardColliderHandler.radiusMultiplier.name], val);
+                        // UpdateSlider(mainWindow.elements[_hardColliderHandler.heightMultiplier.name], val);
+                        UpdateSlider(mainWindow.elements[hardColliderHandler.forceJsf.name], val);
+                    });
+                    UpdateSlider(mainWindow.elements[hardColliderHandler.scaleJsf.name], hardColliderHandler.enabledJsb.val);
+                    UpdateSlider(mainWindow.elements[hardColliderHandler.forceJsf.name], hardColliderHandler.enabledJsb.val);
                 }
             });
-
-            mainWindow.GetCalculateMassButton().AddListener(() =>
-            {
-                StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true, useNewMass: true));
-            });
-
-            mainWindow.GetRecalibrateButton().AddListener(() =>
-            {
-                StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true));
-            });
-
-            mainWindow.elements[mainPhysicsHandler.massJsf.name].AddListener((float val) =>
-            {
-                RefreshFromSliderChanged(refreshMass: true);
-            });
-
-            mainWindow.elements[softnessJsf.name].AddListener(val =>
-            {
-                if(Math.Abs(CalculateSoftnessAmount(val) - _softnessAmount) < 0.001f)
-                {
-                    return;
-                }
-
-                RefreshFromSliderChanged();
-            });
-
-            mainWindow.elements[quicknessJsf.name].AddListener(val =>
-            {
-                if(Math.Abs(CalculateQuicknessAmount(val) - _quicknessAmount) < 0.001f)
-                {
-                    return;
-                }
-
-                RefreshFromSliderChanged();
-            });
-
-            mainWindow.elements[hardColliderHandler.enabledJsb.name].AddListener(val =>
-            {
-                UpdateSlider(mainWindow.elements[hardColliderHandler.scaleJsf.name], val);
-                // UpdateSlider(mainWindow.elements[_hardColliderHandler.radiusMultiplier.name], val);
-                // UpdateSlider(mainWindow.elements[_hardColliderHandler.heightMultiplier.name], val);
-                UpdateSlider(mainWindow.elements[hardColliderHandler.forceJsf.name], val);
-            });
-            UpdateSlider(mainWindow.elements[hardColliderHandler.scaleJsf.name], hardColliderHandler.enabledJsb.val);
-            UpdateSlider(mainWindow.elements[hardColliderHandler.forceJsf.name], hardColliderHandler.enabledJsb.val);
         }
 
         private void NavigateToPhysicsWindow()
@@ -344,31 +342,28 @@ namespace TittyMagic
             _tabs.activeWindow.Rebuild();
             _tabs.ActivateTab3();
 
-            morphingWindow.elements[forceMorphHandler.xMultiplierJsf.name].AddListener(val =>
+            morphingWindow.elements.ToList().ForEach(kvp =>
             {
-                forceMorphHandler.xMultiplier.mainMultiplier = Curves.QuadraticRegression(val);
-            });
-
-            morphingWindow.elements[forceMorphHandler.yMultiplierJsf.name].AddListener(val =>
-            {
-                forceMorphHandler.yMultiplier.mainMultiplier = Curves.QuadraticRegression(val);
-            });
-
-            morphingWindow.elements[forceMorphHandler.zMultiplierJsf.name].AddListener(val =>
-            {
-                forceMorphHandler.zMultiplier.mainMultiplier = Curves.QuadraticRegressionLesser(val);
-            });
-
-            morphingWindow.elements[nippleMorphHandler.nippleErectionJsf.name].AddListener(val =>
-            {
-                nippleMorphHandler.Update(val);
-                if(_settingsMonitor.softPhysicsEnabled)
+                if(kvp.Key == forceMorphHandler.xMultiplierJsf.name)
                 {
-                    softPhysicsHandler.UpdateNipplePhysics(
-                        mainPhysicsHandler.massAmount,
-                        _softnessAmount,
-                        val
-                    );
+                    kvp.Value.AddListener(val => forceMorphHandler.xMultiplier.mainMultiplier = Curves.QuadraticRegression(val));
+                }
+                else if(kvp.Key == forceMorphHandler.yMultiplierJsf.name)
+                {
+                    kvp.Value.AddListener(val => forceMorphHandler.yMultiplier.mainMultiplier = Curves.QuadraticRegression(val));
+                }
+                else if(kvp.Key == forceMorphHandler.zMultiplierJsf.name)
+                {
+                    kvp.Value.AddListener(val => forceMorphHandler.zMultiplier.mainMultiplier = Curves.QuadraticRegressionLesser(val));
+                }
+                else if(kvp.Key == nippleMorphHandler.nippleErectionJsf.name)
+                {
+                    kvp.Value.AddListener(val =>
+                    {
+                        nippleMorphHandler.Update(val);
+                        if(_settingsMonitor.softPhysicsEnabled)
+                            softPhysicsHandler.UpdateNipplePhysics(mainPhysicsHandler.massAmount, _softnessAmount, val);
+                    });
                 }
             });
         }
@@ -386,28 +381,37 @@ namespace TittyMagic
             _tabs.activeWindow.Rebuild();
             _tabs.ActivateTab4();
 
-            gravityWindow.elements[gravityPhysicsHandler.xMultiplierJsf.name].AddListener(val =>
+            gravityWindow.elements.ToList().ForEach(kvp =>
             {
-                gravityPhysicsHandler.xMultiplier.mainMultiplier = val;
-                RefreshFromSliderChanged();
-            });
-
-            gravityWindow.elements[gravityPhysicsHandler.yMultiplierJsf.name].AddListener(val =>
-            {
-                gravityPhysicsHandler.yMultiplier.mainMultiplier = val;
-                offsetMorphHandler.yMultiplier.mainMultiplier = val;
-                RefreshFromSliderChanged();
-            });
-
-            gravityWindow.elements[gravityPhysicsHandler.zMultiplierJsf.name].AddListener(val =>
-            {
-                gravityPhysicsHandler.zMultiplier.mainMultiplier = val;
-                RefreshFromSliderChanged();
-            });
-
-            gravityWindow.elements[offsetMorphHandler.offsetMorphingJsf.name].AddListener((float val) =>
-            {
-                RefreshFromSliderChanged();
+                if(kvp.Key == gravityPhysicsHandler.xMultiplierJsf.name)
+                {
+                    kvp.Value.AddListener(val =>
+                    {
+                        gravityPhysicsHandler.xMultiplier.mainMultiplier = val;
+                        RefreshFromSliderChanged();
+                    });
+                }
+                else if(kvp.Key == gravityPhysicsHandler.yMultiplierJsf.name)
+                {
+                    kvp.Value.AddListener(val =>
+                    {
+                        gravityPhysicsHandler.yMultiplier.mainMultiplier = val;
+                        offsetMorphHandler.yMultiplier.mainMultiplier = val;
+                        RefreshFromSliderChanged();
+                    });
+                }
+                else if(kvp.Key == gravityPhysicsHandler.zMultiplierJsf.name)
+                {
+                    kvp.Value.AddListener(val =>
+                    {
+                        gravityPhysicsHandler.zMultiplier.mainMultiplier = val;
+                        RefreshFromSliderChanged();
+                    });
+                }
+                else if(kvp.Key == offsetMorphHandler.offsetMorphingJsf.name)
+                {
+                    kvp.Value.AddListener((float val) => RefreshFromSliderChanged());
+                }
             });
         }
 

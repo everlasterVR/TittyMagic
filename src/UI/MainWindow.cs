@@ -24,15 +24,17 @@ namespace TittyMagic.UI
             _script = script;
             _title = new JSONStorableString("title", "");
 
-            _hardCollidersWindow = new HardCollidersWindow(script);
-            _hardCollidersHeader = new JSONStorableString("hardCollidersHeader", "");
-            _hardCollidersInfoText = new JSONStorableString("hardCollidersInfoText", "");
+            if(Gender.isFemale)
+            {
+                _hardCollidersWindow = new HardCollidersWindow(script);
+                _hardCollidersHeader = new JSONStorableString("hardCollidersHeader", "");
+                _hardCollidersInfoText = new JSONStorableString("hardCollidersInfoText", "");
 
-            // TODO
-            _hardCollidersInfoText.val = "\n".Size(12) +
-                "Experimental feature." +
-                "\n\nAdjust Scale Offset to match breast size." +
-                "\n\nCollision Force makes breasts easier to move (but also adds weight).";
+                _hardCollidersInfoText.val = "\n".Size(12) +
+                    "Experimental feature." +
+                    "\n\nAdjust Scale Offset to match breast size." +
+                    "\n\nCollision Force makes breasts easier to move (but also adds weight).";
+            }
         }
 
         public void Rebuild()
@@ -45,18 +47,21 @@ namespace TittyMagic.UI
             CreateAutoUpdateMassToggle(true);
             CreateMassSlider(false);
 
-            CreateSoftPhysicsOnToggle(false, spacing: 15);
+            if(Gender.isFemale) CreateSoftPhysicsOnToggle(false, spacing: 15);
             CreateSoftnessSlider(false);
-            CreateQuicknessSlider(true, spacing: 80);
+            CreateQuicknessSlider(true, spacing: Gender.isFemale ? 80 : 0);
 
-            CreateHeader(_hardCollidersHeader, "Breast Hard Colliders", false, spacing: 15);
-            CreateUseAuxBreastCollidersToggle(false);
-            CreateColliderScaleSlider(false);
-            // CreateColliderRadiusSlider(false);
-            // CreateColliderHeightSlider(false);
-            CreateColliderForceSlider(false);
-            CreateHardCollidersInfoTextArea(true, spacing: 92);
-            // CreateConfigureHardCollidersButton(false);
+            if(Gender.isFemale)
+            {
+                CreateHeader(_hardCollidersHeader, "Breast Hard Colliders", false, spacing: 15);
+                CreateUseAuxBreastCollidersToggle(false);
+                CreateColliderScaleSlider(false);
+                // CreateColliderRadiusSlider(false);
+                // CreateColliderHeightSlider(false);
+                CreateColliderForceSlider(false);
+                CreateHardCollidersInfoTextArea(true, spacing: 92);
+                // CreateConfigureHardCollidersButton(false);
+            }
         }
 
         private void CreateTitleTextField(bool rightSide)
@@ -256,20 +261,12 @@ namespace TittyMagic.UI
             elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
         }
 
-        public UIDynamic GetCalculateMassButton()
-        {
-            return elements["calculateBreastMass"];
-        }
-
-        public UIDynamic GetRecalibrateButton()
-        {
-            return elements["recalibratePhysics"];
-        }
-
         public List<UIDynamicSlider> GetSliders()
         {
             var sliders = GetSlidersForRefresh();
-            sliders.Add(elements[_script.hardColliderHandler.forceJsf.name] as UIDynamicSlider);
+            if(elements.ContainsKey(_script.hardColliderHandler.forceJsf.name))
+                sliders.Add(elements[_script.hardColliderHandler.forceJsf.name] as UIDynamicSlider);
+
             return sliders;
         }
 
