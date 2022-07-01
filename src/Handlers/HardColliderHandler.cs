@@ -46,10 +46,10 @@ namespace TittyMagic
 
             configs = NewColliderConfigs();
 
-            enabledJsb = _script.NewJSONStorableBool("useHardColliders", Gender.isFemale, register: Gender.isFemale);
+            enabledJsb = _script.NewJSONStorableBool("useHardColliders", false, register: Gender.isFemale);
             enabledJsb.setCallbackFunction = SyncUseHardColliders;
 
-            scaleJsf = _script.NewJSONStorableFloat("hardCollidersScaleCombined", 0, -0.05f, 0.05f, Gender.isFemale);
+            scaleJsf = _script.NewJSONStorableFloat("hardCollidersScaleCombined", 0, -0.05f, 0.05f, register: Gender.isFemale);
             scaleJsf.setCallbackFunction = SyncScaleOffsetCombined;
 
             // TODO no slider
