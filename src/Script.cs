@@ -15,6 +15,7 @@ namespace TittyMagic
         public const string VERSION = "v0.0.0";
 
         private Bindings _customBindings;
+        private FrequencyRunner _listenersCheckRunner;
 
         private List<Rigidbody> _rigidbodies;
         private Rigidbody _chestRb;
@@ -67,8 +68,6 @@ namespace TittyMagic
         public bool initDone { get; private set; }
 
         private bool _loadingFromJson;
-        private float _timeSinceListenersChecked;
-        private const float LISTENERS_CHECK_INTERVAL = 0.0333f;
         private int _waitStatus = -1;
         private int _refreshStatus = -1;
         private bool _animationWasSetFrozen;
@@ -110,6 +109,8 @@ namespace TittyMagic
 
             var geometry = (DAZCharacterSelector) containingAtom.GetStorableByID("geometry");
             Gender.isFemale = geometry.gender == DAZCharacterSelector.Gender.Female;
+
+            _listenersCheckRunner = new FrequencyRunner(0.333f);
 
             morphsControlUI = Gender.isFemale ? geometry.morphsControlUI : geometry.morphsControlUIOtherGender;
             _rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
@@ -578,15 +579,15 @@ namespace TittyMagic
                     return;
                 }
 
-                _timeSinceListenersChecked += Time.deltaTime;
-                if(_timeSinceListenersChecked >= LISTENERS_CHECK_INTERVAL)
+                bool morphsOrScaleChanged = _listenersCheckRunner.Run(() =>
+                    autoUpdateJsb.val &&
+                    _waitStatus != WaitStatus.WAITING &&
+                    (_breastMorphListener.Changed() || _atomScaleListener.Changed())
+                );
+                if(morphsOrScaleChanged)
                 {
-                    _timeSinceListenersChecked -= LISTENERS_CHECK_INTERVAL;
-                    if(CheckListeners())
-                    {
-                        StartCoroutine(DeferBeginRefresh(refreshMass: true));
-                        return;
-                    }
+                    StartCoroutine(DeferBeginRefresh(refreshMass: true));
+                    return;
                 }
 
                 _trackLeftNipple.UpdateAnglesAndDepthDiff();
@@ -677,7 +678,7 @@ namespace TittyMagic
             if(!fromToggleOrButton)
             {
                 // ensure refresh actually begins only once listeners report no change
-                yield return new WaitForSeconds(LISTENERS_CHECK_INTERVAL);
+                yield return new WaitForSeconds(0.33f);
 
                 while(
                     _breastMorphListener.Changed() ||
@@ -861,11 +862,6 @@ namespace TittyMagic
                 enabled = false;
             }
         }
-
-        private bool CheckListeners() =>
-            autoUpdateJsb.val &&
-            _waitStatus != WaitStatus.WAITING &&
-            (_breastMorphListener.Changed() || _atomScaleListener.Changed());
 
         public RectTransform GetLeftUIContent() => leftUIContent;
         public RectTransform GetRightUIContent() => rightUIContent;

@@ -31,9 +31,7 @@ namespace TittyMagic
 
     internal class SettingsMonitor : MonoBehaviour
     {
-        private float _timeSinceLastCheck;
-        private const float CHECK_FREQUENCY = 1f; // check for changes to settings every 1 second
-
+        private FrequencyRunner _runner;
         private JSONStorable _breastInOut;
         private JSONStorable _softBodyPhysicsEnabler;
         private DAZPhysicsMesh _breastPhysicsMesh;
@@ -54,6 +52,7 @@ namespace TittyMagic
         public void Init()
         {
             enabled = false; // will be enabled during main refresh cycle
+            _runner = new FrequencyRunner(1);
             _script = gameObject.GetComponent<Script>();
             _breastInOut = _script.containingAtom.GetStorableByID("BreastInOut");
             _softBodyPhysicsEnabler = _script.containingAtom.GetStorableByID("SoftBodyPhysicsEnabler");
@@ -85,33 +84,33 @@ namespace TittyMagic
             _breastInOut.SetBoolParamValue("enabled", false);
         }
 
+        private bool Watch()
+        {
+            if(_breastInOut.GetBoolParamValue("enabled"))
+            {
+                _breastInOut.SetBoolParamValue("enabled", false);
+                if(_breastPhysicsMesh != null)
+                {
+                    LogMessage("Auto Breast In/Out Morphs disabled - TittyMagic adjusts breast morphs better without them.");
+                }
+            }
+
+            if(Gender.isFemale && _useAdvancedColliders.CheckIfUpdateNeeded(_geometry.useAdvancedColliders))
+            {
+                _script.StartRefreshCoroutine();
+            }
+
+            CheckFixedDeltaTimeChanged();
+            CheckSoftPhysicsEnabledChanged();
+
+            return true;
+        }
+
         private void Update()
         {
             try
             {
-                _timeSinceLastCheck += Time.unscaledDeltaTime;
-                if(_timeSinceLastCheck >= CHECK_FREQUENCY)
-                {
-                    _timeSinceLastCheck -= CHECK_FREQUENCY;
-
-                    // In/Out morphs can become enabled by e.g. loading an appearance preset. Force off.
-                    if(_breastInOut.GetBoolParamValue("enabled"))
-                    {
-                        _breastInOut.SetBoolParamValue("enabled", false);
-                        if(_breastPhysicsMesh != null)
-                        {
-                            LogMessage("Auto Breast In/Out Morphs disabled - TittyMagic adjusts breast morphs better without them.");
-                        }
-                    }
-
-                    if(Gender.isFemale && _useAdvancedColliders.CheckIfUpdateNeeded(_geometry.useAdvancedColliders))
-                    {
-                        _script.StartRefreshCoroutine();
-                    }
-
-                    CheckFixedDeltaTimeChanged();
-                    CheckSoftPhysicsEnabledChanged();
-                }
+                _runner.Run(Watch);
             }
             catch(Exception e)
             {

@@ -125,6 +125,7 @@
     <Compile Include="src\UI\SliderClickMonitor.cs" />
     <Compile Include="src\UI\UIHelpers.cs" />
     <Compile Include="src\Utils.cs" />
+    <Compile Include="src\Utils\FrequencyRunner.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="settings\morphmultipliers\female\backForce.json" />

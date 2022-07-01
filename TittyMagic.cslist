@@ -19,6 +19,7 @@ src\Handlers\MainPhysicsHandler.cs
 src\Handlers\NippleErectionMorphHandler.cs
 src\Handlers\PhysicsParameter.cs
 src\Handlers\SoftPhysicsHandler.cs
+src\Utils\FrequencyRunner.cs
 src\UI\GravityWindow.cs
 src\UI\HardCollidersWindow.cs
 src\UI\IWindow.cs
