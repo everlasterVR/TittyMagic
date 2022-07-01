@@ -167,7 +167,7 @@ namespace TittyMagic
             float timeout = Time.unscaledTime + 3f;
             while(configs.Any(config => !config.HasRigidbodies()) && Time.unscaledTime < timeout)
             {
-                yield return null;
+                yield return new WaitForSecondsRealtime(0.3f);
             }
             yield return new WaitForSecondsRealtime(0.1f);
 
@@ -231,7 +231,7 @@ namespace TittyMagic
             float timeout = Time.unscaledTime + 3f;
             while(configs.Any(config => !config.HasRigidbodies()) && Time.unscaledTime < timeout)
             {
-                yield return null;
+                yield return new WaitForSecondsRealtime(0.3f);
             }
             yield return new WaitForSecondsRealtime(0.1f);
 
