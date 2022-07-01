@@ -44,11 +44,16 @@ namespace TittyMagic
             return dazMorph;
         }
 
-        public static JSONStorableBool NewJSONStorableBool(this MVRScript script, string paramName, bool startingValue)
+        public static JSONStorableBool NewJSONStorableBool(
+            this MVRScript script,
+            string paramName,
+            bool startingValue,
+            bool register = true
+        )
         {
             var storable = new JSONStorableBool(paramName, startingValue);
             storable.storeType = JSONStorableParam.StoreType.Full;
-            script.RegisterBool(storable);
+            if(register) script.RegisterBool(storable);
             return storable;
         }
 
@@ -57,23 +62,24 @@ namespace TittyMagic
             string paramName,
             float startingValue,
             float minValue,
-            float maxValue
+            float maxValue,
+            bool register = true
         )
         {
             var storable = new JSONStorableFloat(paramName, startingValue, minValue, maxValue);
             storable.storeType = JSONStorableParam.StoreType.Full;
-            script.RegisterFloat(storable);
+            if(register) script.RegisterFloat(storable);
             return storable;
         }
 
-        public static JSONStorableFloat NewBaseValueStorable(float min, float max)
+        public static JSONStorableFloat NewBaseValueStorable(float min, float max, bool register = true)
         {
-            return new JSONStorableFloat("Base Value", 0, min, max);
+            return new JSONStorableFloat("Base Value", 0, min, max, register);
         }
 
-        public static JSONStorableFloat NewCurrentValueStorable(float min, float max)
+        public static JSONStorableFloat NewCurrentValueStorable(float min, float max, bool register = true)
         {
-            return new JSONStorableFloat("Current Value", 0, min, max);
+            return new JSONStorableFloat("Current Value", 0, min, max, register);
         }
 
         public static float PhysicsRateMultiplier()

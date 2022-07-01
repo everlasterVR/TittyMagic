@@ -441,14 +441,20 @@ namespace TittyMagic
 
         public void RestoreFromJSON(JSONClass originalJson)
         {
-            var breastControlFloats = originalJson["breastControlFloats"].AsArray;
-            foreach(JSONClass json in breastControlFloats)
+            if(originalJson.HasKey("breastControlFloats"))
             {
-                _originalBreastControlFloats[json["paramName"].Value] = json["value"].AsFloat;
+                var breastControlFloats = originalJson["breastControlFloats"].AsArray;
+                foreach(JSONClass json in breastControlFloats)
+                {
+                    _originalBreastControlFloats[json["paramName"].Value] = json["value"].AsFloat;
+                }
             }
 
-            _originalPectoralRbLeftDetectCollisions = originalJson["pectoralRbLeftDetectCollisions"].AsBool;
-            _originalPectoralRbRightDetectCollisions = originalJson["pectoralRbRightDetectCollisions"].AsBool;
+            if(originalJson.HasKey("pectoralRbLeftDetectCollisions"))
+                _originalPectoralRbLeftDetectCollisions = originalJson["pectoralRbLeftDetectCollisions"].AsBool;
+
+            if(originalJson.HasKey("pectoralRbRightDetectCollisions"))
+                _originalPectoralRbRightDetectCollisions = originalJson["pectoralRbRightDetectCollisions"].AsBool;
         }
 
         private static Dictionary<string, string> CreateInfoTexts()

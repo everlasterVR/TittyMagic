@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SimpleJSON;
 using TittyMagic.Configs;
+using UnityEngine;
 using static TittyMagic.MVRParamName;
 using static TittyMagic.Utils;
 
@@ -43,25 +44,34 @@ namespace TittyMagic
 
         public SoftPhysicsHandler(MVRScript script)
         {
-            _breastPhysicsMesh = (DAZPhysicsMesh) script.containingAtom.GetStorableByID("BreastPhysicsMesh");
+            if(Gender.isFemale)
+            {
+                _breastPhysicsMesh = (DAZPhysicsMesh) script.containingAtom.GetStorableByID("BreastPhysicsMesh");
+                _breastPhysicsMeshFloatParamNames = _breastPhysicsMesh.GetFloatParamNames();
 
-            var groups = _breastPhysicsMesh.softVerticesGroups;
-            _mainLeft = groups.Find(group => group.name == "left");
-            _mainRight = groups.Find(group => group.name == "right");
-            _outerLeft = groups.Find(group => group.name == "leftouter");
-            _outerRight = groups.Find(group => group.name == "rightouter");
-            _areolaLeft = groups.Find(group => group.name == "leftareola");
-            _areolaRight = groups.Find(group => group.name == "rightareola");
-            _nippleLeft = groups.Find(group => group.name == "leftnipple");
-            _nippleRight = groups.Find(group => group.name == "rightnipple");
+                var groups = _breastPhysicsMesh.softVerticesGroups;
+                _mainLeft = groups.Find(group => group.name == "left");
+                _mainRight = groups.Find(group => group.name == "right");
+                _outerLeft = groups.Find(group => group.name == "leftouter");
+                _outerRight = groups.Find(group => group.name == "rightouter");
+                _areolaLeft = groups.Find(group => group.name == "leftareola");
+                _areolaRight = groups.Find(group => group.name == "rightareola");
+                _nippleLeft = groups.Find(group => group.name == "leftnipple");
+                _nippleRight = groups.Find(group => group.name == "rightnipple");
+            }
 
-            softPhysicsOn = script.NewJSONStorableBool(SOFT_PHYSICS_ON, true);
+            softPhysicsOn = script.NewJSONStorableBool(SOFT_PHYSICS_ON, Gender.isFemale, register: Gender.isFemale);
             softPhysicsOn.setCallbackFunction = SyncSoftPhysicsOn;
 
-            allowSelfCollision = script.NewJSONStorableBool(ALLOW_SELF_COLLISION, true);
+            allowSelfCollision = script.NewJSONStorableBool(ALLOW_SELF_COLLISION, Gender.isFemale, register: Gender.isFemale);
             allowSelfCollision.setCallbackFunction = SyncAllowSelfCollision;
 
-            _breastPhysicsMeshFloatParamNames = _breastPhysicsMesh.GetFloatParamNames();
+            if(!Gender.isFemale)
+            {
+                softPhysicsOn.val = false;
+                allowSelfCollision.val = false;
+            }
+
             SaveOriginalPhysicsAndSetPluginDefaults();
         }
 
@@ -441,7 +451,6 @@ namespace TittyMagic
         // Circumvents use of softVerticesCombinedSpring value as multiplier on the group specific value, using custom multiplier instead
         private static void SyncGroupSpringMultiplier(float value, float combinedSpring, DAZPhysicsMeshSoftVerticesGroup group)
         {
-            // var group = _breastPhysicsMesh.softVerticesGroups[slot];
             float combinedValue = combinedSpring * value;
             group.jointSpringNormal = combinedValue;
             group.jointSpringTangent = combinedValue;
@@ -468,6 +477,8 @@ namespace TittyMagic
 
         public void ReverseSyncSoftPhysicsOn()
         {
+            if(!Gender.isFemale) return;
+
             if(softPhysicsOn.val != _breastPhysicsMesh.on)
             {
                 softPhysicsOn.val = _breastPhysicsMesh.on;
@@ -476,6 +487,8 @@ namespace TittyMagic
 
         public void ReverseSyncSyncAllowSelfCollision()
         {
+            if(!Gender.isFemale) return;
+
             if(allowSelfCollision.val != _breastPhysicsMesh.allowSelfCollision)
             {
                 allowSelfCollision.val = _breastPhysicsMesh.allowSelfCollision;
@@ -484,11 +497,15 @@ namespace TittyMagic
 
         private void SyncSoftPhysicsOn(bool value)
         {
+            if(!Gender.isFemale) return;
+
             _breastPhysicsMesh.on = value;
         }
 
         private void SyncAllowSelfCollision(bool value)
         {
+            if(!Gender.isFemale) return;
+
             _breastPhysicsMesh.allowSelfCollision = value;
         }
 
@@ -499,6 +516,8 @@ namespace TittyMagic
             float quicknessAmount
         )
         {
+            if(!Gender.isFemale) return;
+
             leftBreastParameters.Values
                 .Concat(leftBreastGroupParameters.Values)
                 .Concat(rightBreastParameters.Values)
@@ -514,6 +533,8 @@ namespace TittyMagic
             float quicknessAmount
         )
         {
+            if(!Gender.isFemale) return;
+
             leftBreastParameters.Values
                 .Concat(leftBreastGroupParameters.Values)
                 .Concat(rightBreastParameters.Values)
@@ -524,6 +545,8 @@ namespace TittyMagic
 
         public void UpdateNipplePhysics(float massAmount, float softnessAmount, float nippleErection)
         {
+            if(!Gender.isFemale) return;
+
             leftNippleGroupParameters.Values
                 .Concat(rightNippleGroupParameters.Values)
                 .Where(param => param.config != null).ToList()
@@ -544,35 +567,40 @@ namespace TittyMagic
 
         public void SaveOriginalPhysicsAndSetPluginDefaults()
         {
-            _originalSoftPhysicsOn = _breastPhysicsMesh.on;
-            SyncSoftPhysicsOn(softPhysicsOn.val);
-
-            _originalAllowSelfCollision = _breastPhysicsMesh.allowSelfCollision;
-            SyncAllowSelfCollision(allowSelfCollision.val);
-
-            // auto fat collider radius off (no effect)
-            _originalAutoFatColliderRadius = _breastPhysicsMesh.softVerticesUseAutoColliderRadius;
-            _breastPhysicsMesh.softVerticesUseAutoColliderRadius = false;
-
-            // prevent settings in F Breast Physics 2 from having effect
-            _originalGroupsUseParentSettings = new Dictionary<string, bool>();
-            foreach(var group in _breastPhysicsMesh.softVerticesGroups)
-            {
-                _originalGroupsUseParentSettings[group.name] = group.useParentSettings;
-                group.useParentSettings = false;
-            }
-
             _originalBreastPhysicsMeshFloats = new Dictionary<string, float>();
-            foreach(string name in _breastPhysicsMeshFloatParamNames)
+            _originalGroupsUseParentSettings = new Dictionary<string, bool>();
+            if(_breastPhysicsMesh != null)
             {
-                var param = _breastPhysicsMesh.GetFloatJSONParam(name);
-                _originalBreastPhysicsMeshFloats[name] = param.val;
-                param.val = 0;
+                _originalSoftPhysicsOn = _breastPhysicsMesh.on;
+                SyncSoftPhysicsOn(softPhysicsOn.val);
+
+                _originalAllowSelfCollision = _breastPhysicsMesh.allowSelfCollision;
+                SyncAllowSelfCollision(allowSelfCollision.val);
+
+                // auto fat collider radius off (no effect)
+                _originalAutoFatColliderRadius = _breastPhysicsMesh.softVerticesUseAutoColliderRadius;
+                _breastPhysicsMesh.softVerticesUseAutoColliderRadius = false;
+
+                // prevent settings in F Breast Physics 2 from having effect
+                foreach(var group in _breastPhysicsMesh.softVerticesGroups)
+                {
+                    _originalGroupsUseParentSettings[group.name] = group.useParentSettings;
+                    group.useParentSettings = false;
+                }
+
+                foreach(string name in _breastPhysicsMeshFloatParamNames)
+                {
+                    var param = _breastPhysicsMesh.GetFloatJSONParam(name);
+                    _originalBreastPhysicsMeshFloats[name] = param.val;
+                    param.val = 0;
+                }
             }
         }
 
         public void RestoreOriginalPhysics()
         {
+            if(!Gender.isFemale) return;
+
             _breastPhysicsMesh.on = _originalSoftPhysicsOn;
             _breastPhysicsMesh.allowSelfCollision = _originalAllowSelfCollision;
             _breastPhysicsMesh.softVerticesUseAutoColliderRadius = _originalAutoFatColliderRadius;
@@ -591,11 +619,14 @@ namespace TittyMagic
         public JSONClass Serialize()
         {
             var jsonClass = new JSONClass();
-            jsonClass[SOFT_PHYSICS_ON].AsBool = _originalSoftPhysicsOn;
-            jsonClass[ALLOW_SELF_COLLISION].AsBool = _originalAllowSelfCollision;
-            jsonClass["breastPhysicsMeshFloats"] = JSONArrayFromDictionary(_originalBreastPhysicsMeshFloats);
-            jsonClass[SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS].AsBool = _originalAutoFatColliderRadius;
-            jsonClass["groupsUseParentSettings"] = JSONArrayFromDictionary(_originalGroupsUseParentSettings);
+            if(Gender.isFemale)
+            {
+                jsonClass[SOFT_PHYSICS_ON].AsBool = _originalSoftPhysicsOn;
+                jsonClass[ALLOW_SELF_COLLISION].AsBool = _originalAllowSelfCollision;
+                jsonClass["breastPhysicsMeshFloats"] = JSONArrayFromDictionary(_originalBreastPhysicsMeshFloats);
+                jsonClass[SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS].AsBool = _originalAutoFatColliderRadius;
+                jsonClass["groupsUseParentSettings"] = JSONArrayFromDictionary(_originalGroupsUseParentSettings);
+            }
             return jsonClass;
         }
 
@@ -628,20 +659,31 @@ namespace TittyMagic
 
         public void RestoreFromJSON(JSONClass originalJson)
         {
-            _originalSoftPhysicsOn = originalJson[SOFT_PHYSICS_ON].AsBool;
-            _originalAllowSelfCollision = originalJson[ALLOW_SELF_COLLISION].AsBool;
-            _originalAutoFatColliderRadius = originalJson[SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS].AsBool;
+            if(originalJson.HasKey(SOFT_PHYSICS_ON))
+                _originalSoftPhysicsOn = originalJson[SOFT_PHYSICS_ON].AsBool;
 
-            var breastPhysicsMeshFloats = originalJson["breastPhysicsMeshFloats"].AsArray;
-            foreach(JSONClass json in breastPhysicsMeshFloats)
+            if(originalJson.HasKey(ALLOW_SELF_COLLISION))
+                _originalAllowSelfCollision = originalJson[ALLOW_SELF_COLLISION].AsBool;
+
+            if(originalJson.HasKey(SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS))
+                _originalAutoFatColliderRadius = originalJson[SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS].AsBool;
+
+            if(originalJson.HasKey("breastPhysicsMeshFloats"))
             {
-                _originalBreastPhysicsMeshFloats[json["paramName"].Value] = json["value"].AsFloat;
+                var breastPhysicsMeshFloats = originalJson["breastPhysicsMeshFloats"].AsArray;
+                foreach(JSONClass json in breastPhysicsMeshFloats)
+                {
+                    _originalBreastPhysicsMeshFloats[json["paramName"].Value] = json["value"].AsFloat;
+                }
             }
 
-            var groupsUseParentSettings = originalJson["groupsUseParentSettings"].AsArray;
-            foreach(JSONClass json in groupsUseParentSettings)
+            if(originalJson.HasKey("groupsUseParentSettings"))
             {
-                _originalGroupsUseParentSettings[json["paramName"].Value] = json["value"].AsBool;
+                var groupsUseParentSettings = originalJson["groupsUseParentSettings"].AsArray;
+                foreach(JSONClass json in groupsUseParentSettings)
+                {
+                    _originalGroupsUseParentSettings[json["paramName"].Value] = json["value"].AsBool;
+                }
             }
         }
 

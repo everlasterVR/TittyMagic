@@ -57,7 +57,10 @@ namespace TittyMagic
             _script = gameObject.GetComponent<Script>();
             _breastInOut = _script.containingAtom.GetStorableByID("BreastInOut");
             _softBodyPhysicsEnabler = _script.containingAtom.GetStorableByID("SoftBodyPhysicsEnabler");
-            _breastPhysicsMesh = (DAZPhysicsMesh) _script.containingAtom.GetStorableByID("BreastPhysicsMesh");
+            if(Gender.isFemale)
+            {
+                _breastPhysicsMesh = (DAZPhysicsMesh) _script.containingAtom.GetStorableByID("BreastPhysicsMesh");
+            }
             _geometry = (DAZCharacterSelector) _script.containingAtom.GetStorableByID("geometry");
             _useAdvancedColliders = new BoolSetting(
                 _geometry.useAdvancedColliders,
@@ -66,7 +69,7 @@ namespace TittyMagic
 
             _fixedDeltaTime = Time.fixedDeltaTime;
 
-            _breastSoftPhysicsOn = _breastPhysicsMesh.on;
+            _breastSoftPhysicsOn = _breastPhysicsMesh != null && _breastPhysicsMesh.on;
             _atomSoftPhysicsOn = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
             _globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
 
@@ -94,10 +97,11 @@ namespace TittyMagic
                     if(_breastInOut.GetBoolParamValue("enabled"))
                     {
                         _breastInOut.SetBoolParamValue("enabled", false);
-                        LogMessage("Auto Breast In/Out Morphs disabled - TittyMagic adjusts breast morphs better without them.");
+                        if (_breastPhysicsMesh != null)
+                            LogMessage("Auto Breast In/Out Morphs disabled - TittyMagic adjusts breast morphs better without them.");
                     }
 
-                    if(_useAdvancedColliders.CheckIfUpdateNeeded(_geometry.useAdvancedColliders))
+                    if(Gender.isFemale && _useAdvancedColliders.CheckIfUpdateNeeded(_geometry.useAdvancedColliders))
                     {
                         _script.StartRefreshCoroutine();
                     }
@@ -126,10 +130,9 @@ namespace TittyMagic
 
         private void CheckSoftPhysicsEnabledChanged()
         {
-            bool breastSoftPhysicsOn = _breastPhysicsMesh.on;
+            bool breastSoftPhysicsOn = _breastPhysicsMesh != null && _breastPhysicsMesh.on;
             bool atomSoftPhysicsOn = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
             bool globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
-
 
             if(breastSoftPhysicsOn && !_breastSoftPhysicsOn)
             {

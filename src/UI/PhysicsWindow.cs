@@ -55,17 +55,13 @@ namespace TittyMagic.UI
             elements = new Dictionary<string, UIDynamic>();
 
             CreateHeader(_jointPhysicsParamsHeader, "Joint Physics Parameters", false);
-            foreach(var kvp in _script.mainPhysicsHandler.leftBreastParameters)
-            {
-                CreateParamButton(kvp.Key, kvp.Value, false);
-            }
+            _script.mainPhysicsHandler?.leftBreastParameters.ToList()
+                .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, false));
 
             CreateHeader(_softPhysicsParamsHeader, "Soft Physics Parameters", true);
             CreateAllowSelfCollisionToggle(true);
-            foreach(var kvp in _script.softPhysicsHandler.leftBreastParameters)
-            {
-                CreateParamButton(kvp.Key, kvp.Value, true);
-            }
+            _script.softPhysicsHandler.leftBreastParameters.ToList()
+                .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, true));
         }
 
         private void CreateAllowSelfCollisionToggle(bool rightSide)

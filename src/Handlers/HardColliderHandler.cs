@@ -46,25 +46,32 @@ namespace TittyMagic
 
             configs = NewColliderConfigs();
 
-            enabledJsb = _script.NewJSONStorableBool("useHardColliders", false);
+            enabledJsb = _script.NewJSONStorableBool("useHardColliders", Gender.isFemale, register: Gender.isFemale);
             enabledJsb.setCallbackFunction = SyncUseHardColliders;
 
-            scaleJsf = _script.NewJSONStorableFloat("hardCollidersScaleCombined", 0, -0.05f, 0.05f);
+            scaleJsf = _script.NewJSONStorableFloat("hardCollidersScaleCombined", 0, -0.05f, 0.05f, register: Gender.isFemale);
             scaleJsf.setCallbackFunction = SyncScaleOffsetCombined;
 
             // TODO no slider
-            radiusJsf = _script.NewJSONStorableFloat("hardColliderRadiusCombined", 1f, 0, 1.5f);
+            radiusJsf = _script.NewJSONStorableFloat("hardColliderRadiusCombined", 1f, 0, 1.5f, register: Gender.isFemale);
             radiusJsf.setCallbackFunction = SyncHardColliderRadiusCombined;
 
             // TODO no slider
-            heightJsf = _script.NewJSONStorableFloat("hardColliderHeightCombined", 1f, 0, 1.50f);
+            heightJsf = _script.NewJSONStorableFloat("hardColliderHeightCombined", 1f, 0, 1.50f, register: Gender.isFemale);
             heightJsf.setCallbackFunction = SyncHardColliderHeightCombined;
 
-            forceJsf = _script.NewJSONStorableFloat("hardColliderForceCombined", 0.25f, 0.01f, 1.00f);
+            forceJsf = _script.NewJSONStorableFloat("hardColliderForceCombined", 0.25f, 0.01f, 1.00f, register: Gender.isFemale);
             forceJsf.setCallbackFunction = SyncHardColliderMassCombined;
 
-            _originalUseAuxBreastColliders = _geometry.useAuxBreastColliders;
-            SyncUseHardColliders(enabledJsb.val);
+            if(Gender.isFemale)
+            {
+                _originalUseAuxBreastColliders = _geometry.useAuxBreastColliders;
+                SyncUseHardColliders(enabledJsb.val);
+            }
+            else
+            {
+                enabledJsb.val = false;
+            };
         }
 
         private List<ColliderConfigGroup> NewColliderConfigs()
@@ -184,13 +191,17 @@ namespace TittyMagic
         public JSONClass Serialize()
         {
             var jsonClass = new JSONClass();
-            jsonClass[USE_AUX_BREAST_COLLIDERS].AsBool = _originalUseAuxBreastColliders;
+            if(Gender.isFemale)
+            {
+                jsonClass[USE_AUX_BREAST_COLLIDERS].AsBool = _originalUseAuxBreastColliders;
+            }
             return jsonClass;
         }
 
         public void RestoreFromJSON(JSONClass originalJson)
         {
-            _originalUseAuxBreastColliders = originalJson[USE_AUX_BREAST_COLLIDERS].AsBool;
+            if(originalJson.HasKey(USE_AUX_BREAST_COLLIDERS))
+                _originalUseAuxBreastColliders = originalJson[USE_AUX_BREAST_COLLIDERS].AsBool;
         }
 
         private IEnumerator RestoreDefaults()
@@ -202,6 +213,26 @@ namespace TittyMagic
             yield return DeferRestoreDefaultMass();
             _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
             ResetAutoColliderScale();
+        }
+
+        private IEnumerator DeferRestoreDefaultMass()
+        {
+            // In case hard colliders are not enabled (yet)
+            float timeout = Time.unscaledTime + 3f;
+            while(configs.Any(config => !config.HasRigidbodies()) && Time.unscaledTime < timeout)
+            {
+                yield return new WaitForSecondsRealtime(0.3f);
+            }
+            yield return new WaitForSecondsRealtime(0.1f);
+
+            if (configs.Any(config => !config.HasRigidbodies()))
+            {
+                Utils.LogError("Failed restoring hard colliders mass to default.");
+            }
+            else
+            {
+                configs.ForEach(config => config.RestoreDefaultMass());
+            }
         }
 
         private void ResetAutoColliderScale()
@@ -225,26 +256,6 @@ namespace TittyMagic
             }
         }
 
-        private IEnumerator DeferRestoreDefaultMass()
-        {
-            // In case hard colliders are not enabled (yet)
-            float timeout = Time.unscaledTime + 3f;
-            while(configs.Any(config => !config.HasRigidbodies()) && Time.unscaledTime < timeout)
-            {
-                yield return new WaitForSecondsRealtime(0.3f);
-            }
-            yield return new WaitForSecondsRealtime(0.1f);
-
-            if (configs.Any(config => !config.HasRigidbodies()))
-            {
-                Utils.LogError("Failed restoring hard colliders mass to default.");
-            }
-            else
-            {
-                configs.ForEach(config => config.RestoreDefaultMass());
-            }
-        }
-
         private void OnEnable()
         {
             if(_script == null || !_script.initDone)
@@ -255,7 +266,7 @@ namespace TittyMagic
 
         private void OnDisable()
         {
-            StartCoroutine(RestoreDefaults());
+            if(Gender.isFemale) StartCoroutine(RestoreDefaults());
         }
     }
 }

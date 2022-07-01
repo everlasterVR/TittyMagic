@@ -58,7 +58,6 @@ namespace TittyMagic
 
         public bool initDone { get; private set; }
 
-        private bool _isFemale;
         private bool _loadingFromJson;
         private float _timeSinceListenersChecked;
         private const float LISTENERS_CHECK_INTERVAL = 0.0333f;
@@ -102,22 +101,14 @@ namespace TittyMagic
             morphsPath = this.GetMorphsPath();
 
             var geometry = (DAZCharacterSelector) containingAtom.GetStorableByID("geometry");
-            _isFemale = geometry.gender == DAZCharacterSelector.Gender.Female;
-            AdjustJoints breastControl;
-            if(_isFemale)
-            {
-                morphsControlUI = geometry.morphsControlUI;
-                breastControl = (AdjustJoints) containingAtom.GetStorableByID("BreastControl");
-            }
-            else
-            {
-                morphsControlUI = geometry.morphsControlUIOtherGender;
-                breastControl = (AdjustJoints) containingAtom.GetStorableByID("PectoralControl");
-            }
+            Gender.isFemale = geometry.gender == DAZCharacterSelector.Gender.Female;
 
+            morphsControlUI = Gender.isFemale ? geometry.morphsControlUI : geometry.morphsControlUIOtherGender;
             _rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
             _chestRb = _rigidbodies.Find(rb => rb.name == "chest");
             _chestTransform = _chestRb.transform;
+
+            AdjustJoints breastControl = (AdjustJoints) containingAtom.GetStorableByID(Gender.isFemale ? "BreastControl" : "PectoralControl");
             _pectoralRbLeft = breastControl.joint2.GetComponent<Rigidbody>();
             _pectoralRbRight = breastControl.joint1.GetComponent<Rigidbody>();
 
@@ -129,11 +120,7 @@ namespace TittyMagic
             hardColliderHandler = gameObject.AddComponent<HardColliderHandler>();
             hardColliderHandler.Init();
 
-            if(_isFemale)
-            {
-                softPhysicsHandler = new SoftPhysicsHandler(this);
-            }
-
+            softPhysicsHandler = new SoftPhysicsHandler(this);
             gravityPhysicsHandler = new GravityPhysicsHandler(this);
             offsetMorphHandler = new GravityOffsetMorphHandler(this);
             nippleMorphHandler = new NippleErectionMorphHandler(this);
@@ -141,16 +128,15 @@ namespace TittyMagic
             _trackLeftNipple = new TrackNipple(_chestRb, _pectoralRbLeft);
             _trackRightNipple = new TrackNipple(_chestRb, _pectoralRbRight);
 
-            if(_isFemale)
+            _settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
+            _settingsMonitor.Init();
+
+            if(Gender.isFemale)
             {
                 var nippleRbLeft = _rigidbodies.Find(rb => rb.name == "lNipple");
                 var nippleRbRight = _rigidbodies.Find(rb => rb.name == "rNipple");
                 _trackLeftNipple.getNipplePosition = () => nippleRbLeft.position;
                 _trackRightNipple.getNipplePosition = () => nippleRbRight.position;
-
-                _settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
-                _settingsMonitor.Init();
-                _breastMorphListener = new BreastMorphListener(geometry.morphBank1.morphs);
             }
             else
             {
@@ -160,9 +146,12 @@ namespace TittyMagic
                 _trackRightNipple.getNipplePosition = () => AveragePosition(
                     VertexIndexGroup.RIGHT_BREAST_CENTER.Select(i => _skin.rawSkinnedWorkingVerts[i]).ToList()
                 );
-
-                _breastMorphListener = new BreastMorphListener(geometry.morphBank1OtherGender.morphs, geometry.morphBank1.morphs);
             }
+
+            if(Gender.isFemale)
+                _breastMorphListener = new BreastMorphListener(geometry.morphBank1.morphs);
+            else
+                _breastMorphListener = new BreastMorphListener(geometry.morphBank1OtherGender.morphs, geometry.morphBank1.morphs);
 
             forcePhysicsHandler = new ForcePhysicsHandler(mainPhysicsHandler, softPhysicsHandler, _trackLeftNipple, _trackRightNipple);
             forceMorphHandler = new ForceMorphHandler(this, _trackLeftNipple, _trackRightNipple);
@@ -194,8 +183,8 @@ namespace TittyMagic
 
         public void LoadSettings()
         {
-            mainPhysicsHandler.LoadSettings(_isFemale && _settingsMonitor.softPhysicsEnabled);
-            softPhysicsHandler?.LoadSettings();
+            mainPhysicsHandler.LoadSettings(_settingsMonitor.softPhysicsEnabled);
+            softPhysicsHandler.LoadSettings();
             gravityPhysicsHandler.LoadSettings();
             forcePhysicsHandler.LoadSettings();
             forceMorphHandler.LoadSettings();
@@ -373,7 +362,7 @@ namespace TittyMagic
             morphingWindow.elements[nippleMorphHandler.nippleErectionJsf.name].AddListener(val =>
             {
                 nippleMorphHandler.Update(val);
-                if(_isFemale && _settingsMonitor.softPhysicsEnabled)
+                if(_settingsMonitor.softPhysicsEnabled)
                 {
                     softPhysicsHandler.UpdateNipplePhysics(
                         mainPhysicsHandler.massAmount,
@@ -615,7 +604,7 @@ namespace TittyMagic
         private void UpdateStaticPhysics()
         {
             mainPhysicsHandler.UpdatePhysics(_softnessAmount, _quicknessAmount);
-            if(_isFemale && _settingsMonitor.softPhysicsEnabled)
+            if(_settingsMonitor.softPhysicsEnabled)
             {
                 softPhysicsHandler.UpdatePhysics(
                     mainPhysicsHandler.massAmount,
@@ -634,7 +623,7 @@ namespace TittyMagic
         public void UpdateRateDependentPhysics()
         {
             mainPhysicsHandler.UpdateRateDependentPhysics(_softnessAmount, _quicknessAmount);
-            if(_isFemale && _settingsMonitor.softPhysicsEnabled)
+            if(_settingsMonitor.softPhysicsEnabled)
             {
                 softPhysicsHandler.UpdateRateDependentPhysics(
                     mainPhysicsHandler.massAmount,
@@ -739,10 +728,7 @@ namespace TittyMagic
         {
             _refreshStatus = RefreshStatus.MASS_STARTED;
 
-            if(_isFemale)
-            {
-                _settingsMonitor.enabled = false;
-            }
+            if(_settingsMonitor != null) _settingsMonitor.enabled = false;
 
             // simulate breasts zero G
             _pectoralRbLeft.useGravity = false;
@@ -844,11 +830,7 @@ namespace TittyMagic
                     _pectoralRbLeft.useGravity = true;
                     _pectoralRbRight.useGravity = true;
                     SuperController.singleton.SetFreezeAnimation(_animationWasSetFrozen);
-                    if(_settingsMonitor != null)
-                    {
-                        _settingsMonitor.enabled = true;
-                    }
-
+                    if(_settingsMonitor != null) _settingsMonitor.enabled = true;
                     _waitStatus = WaitStatus.DONE;
                     _refreshStatus = RefreshStatus.DONE;
                     initDone = true;
@@ -883,10 +865,7 @@ namespace TittyMagic
             JSONClass jsonClass = base.GetJSON(includePhysical, includeAppearance, forceStore);
             jsonClass["originalMainPhysics"] = mainPhysicsHandler.Serialize();
             jsonClass["originalHardColliders"] = hardColliderHandler.Serialize();
-            if(_isFemale)
-            {
-                jsonClass["originalSoftPhysics"] = softPhysicsHandler.Serialize();
-            }
+            jsonClass["originalSoftPhysics"] = softPhysicsHandler.Serialize();
             needsStore = true;
             return jsonClass;
         }
@@ -922,7 +901,8 @@ namespace TittyMagic
             {
                 hardColliderHandler.RestoreFromJSON(jsonClass["originalHardColliders"].AsObject);
             }
-            if(jsonClass.HasKey("originalSoftPhysics") && _isFemale)
+
+            if(jsonClass.HasKey("originalSoftPhysics"))
             {
                 softPhysicsHandler.RestoreFromJSON(jsonClass["originalSoftPhysics"].AsObject);
             }
