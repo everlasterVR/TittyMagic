@@ -17,11 +17,11 @@ namespace TittyMagic
 
         public List<ColliderConfigGroup> configs { get; private set; }
 
-        public JSONStorableBool useHardColliders { get; private set; }
-        public JSONStorableFloat scaleOffset { get; private set; }
-        public JSONStorableFloat radiusMultiplier { get; private set; }
-        public JSONStorableFloat heightMultiplier { get; private set; }
-        public JSONStorableFloat forceMultiplier { get; private set; }
+        public JSONStorableBool enabledJsb { get; private set; }
+        public JSONStorableFloat scaleJsf { get; private set; }
+        public JSONStorableFloat radiusJsf { get; private set; }
+        public JSONStorableFloat heightJsf { get; private set; }
+        public JSONStorableFloat forceJsf { get; private set; }
 
         private int _syncMassStatus = -1;
 
@@ -46,25 +46,25 @@ namespace TittyMagic
 
             configs = NewColliderConfigs();
 
-            useHardColliders = _script.NewJSONStorableBool("useHardColliders", false);
-            useHardColliders.setCallbackFunction = SyncUseHardColliders;
+            enabledJsb = _script.NewJSONStorableBool("useHardColliders", false);
+            enabledJsb.setCallbackFunction = SyncUseHardColliders;
 
-            scaleOffset = _script.NewJSONStorableFloat("hardCollidersScaleCombined", 0, -0.05f, 0.05f);
-            scaleOffset.setCallbackFunction = SyncScaleOffsetCombined;
-
-            // TODO no slider
-            radiusMultiplier = _script.NewJSONStorableFloat("hardColliderRadiusCombined", 1f, 0, 1.5f);
-            radiusMultiplier.setCallbackFunction = SyncHardColliderRadiusCombined;
+            scaleJsf = _script.NewJSONStorableFloat("hardCollidersScaleCombined", 0, -0.05f, 0.05f);
+            scaleJsf.setCallbackFunction = SyncScaleOffsetCombined;
 
             // TODO no slider
-            heightMultiplier = _script.NewJSONStorableFloat("hardColliderHeightCombined", 1f, 0, 1.50f);
-            heightMultiplier.setCallbackFunction = SyncHardColliderHeightCombined;
+            radiusJsf = _script.NewJSONStorableFloat("hardColliderRadiusCombined", 1f, 0, 1.5f);
+            radiusJsf.setCallbackFunction = SyncHardColliderRadiusCombined;
 
-            forceMultiplier = _script.NewJSONStorableFloat("hardColliderForceCombined", 0.25f, 0.01f, 1.00f);
-            forceMultiplier.setCallbackFunction = SyncHardColliderMassCombined;
+            // TODO no slider
+            heightJsf = _script.NewJSONStorableFloat("hardColliderHeightCombined", 1f, 0, 1.50f);
+            heightJsf.setCallbackFunction = SyncHardColliderHeightCombined;
+
+            forceJsf = _script.NewJSONStorableFloat("hardColliderForceCombined", 0.25f, 0.01f, 1.00f);
+            forceJsf.setCallbackFunction = SyncHardColliderMassCombined;
 
             _originalUseAuxBreastColliders = _geometry.useAuxBreastColliders;
-            SyncUseHardColliders(useHardColliders.val);
+            SyncUseHardColliders(enabledJsb.val);
         }
 
         private List<ColliderConfigGroup> NewColliderConfigs()
@@ -95,18 +95,18 @@ namespace TittyMagic
 
             if(value)
             {
-                SyncScaleOffsetCombined(scaleOffset.val);
+                SyncScaleOffsetCombined(scaleJsf.val);
                 // SyncHardColliderRadiusCombined(radiusMultiplier.val);
                 // SyncHardColliderHeightCombined(heightMultiplier.val);
-                SyncHardColliderMassCombined(forceMultiplier.val);
+                SyncHardColliderMassCombined(forceJsf.val);
             }
         }
 
         public void ReSyncScaleOffsetCombined()
         {
-            if(useHardColliders.val)
+            if(enabledJsb.val)
             {
-                SyncScaleOffsetCombined(scaleOffset.val);
+                SyncScaleOffsetCombined(scaleJsf.val);
             }
         }
 
@@ -114,7 +114,7 @@ namespace TittyMagic
         {
             if(!enabled) return;
 
-            configs.ForEach(config => config.UpdateScaleOffset(value, radiusMultiplier.val, heightMultiplier.val));
+            configs.ForEach(config => config.UpdateScaleOffset(value, radiusJsf.val, heightJsf.val));
         }
 
         private void SyncHardColliderRadiusCombined(float value)
@@ -146,7 +146,7 @@ namespace TittyMagic
             _syncMassStatus = WaitStatus.WAITING;
             yield return new WaitForSecondsRealtime(0.1f);
 
-            var slider = (UIDynamicSlider) _script.mainWindow?.elements[forceMultiplier.name];
+            var slider = (UIDynamicSlider) _script.mainWindow?.elements[forceJsf.name];
             if(slider != null)
             {
                 while(slider.IsClickDown())
@@ -158,7 +158,7 @@ namespace TittyMagic
             }
 
             _syncMassStatus = WaitStatus.DONE;
-            yield return DeferSyncMassCombined(forceMultiplier.val);
+            yield return DeferSyncMassCombined(forceJsf.val);
         }
 
         private IEnumerator DeferSyncMassCombined(float value)
@@ -173,7 +173,7 @@ namespace TittyMagic
 
             if (configs.Any(config => !config.HasRigidbodies()))
             {
-                Utils.LogMessage($"Unable to apply force multiplier: hard colliders are not enabled. Enable hard colliders in order to re-apply.");
+                Utils.LogMessage("Unable to apply force multiplier: hard colliders are not enabled. Enable hard colliders in order to re-apply.");
             }
             else
             {
@@ -195,7 +195,7 @@ namespace TittyMagic
 
         private IEnumerator RestoreDefaults()
         {
-            if(!useHardColliders.val)
+            if(!enabledJsb.val)
             {
                 configs.ForEach(config => config.SetEnabled(true));
             }
@@ -214,7 +214,7 @@ namespace TittyMagic
                     {
                         var jointCollider = autoCollider.jointCollider;
                         if(jointCollider == null) return false;
-                        return jointCollider.name.Contains($"lPectoral") || jointCollider.name.Contains($"rPectoral");
+                        return jointCollider.name.Contains("lPectoral") || jointCollider.name.Contains("rPectoral");
                     })
                     .ToList()
                     .ForEach(autoCollider => autoCollider.AutoColliderSizeSet());
@@ -237,7 +237,7 @@ namespace TittyMagic
 
             if (configs.Any(config => !config.HasRigidbodies()))
             {
-                Utils.LogError($"Failed restoring hard colliders mass to default.");
+                Utils.LogError("Failed restoring hard colliders mass to default.");
             }
             else
             {
@@ -250,7 +250,7 @@ namespace TittyMagic
             if(_script == null || !_script.initDone)
                 return;
 
-            SyncUseHardColliders(useHardColliders.val);
+            SyncUseHardColliders(enabledJsb.val);
         }
 
         private void OnDisable()

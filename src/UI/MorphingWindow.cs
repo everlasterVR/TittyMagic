@@ -32,9 +32,9 @@ namespace TittyMagic.UI
             elements = new Dictionary<string, UIDynamic>();
 
             CreateHeader(_dynamicMorphingMultipliersHeader, "Dynamic Morphing Multipliers", false);
-            CreateMultiplierSlider(_script.morphingYStorable, "Up/Down", false);
-            CreateMultiplierSlider(_script.morphingXStorable, "Left/Right", false);
-            CreateMultiplierSlider(_script.morphingZStorable, "Forward/Back", false);
+            CreateMultiplierSlider(_script.forceMorphHandler.yMultiplierJsf, "Up/Down", false);
+            CreateMultiplierSlider(_script.forceMorphHandler.xMultiplierJsf, "Left/Right", false);
+            CreateMultiplierSlider(_script.forceMorphHandler.zMultiplierJsf, "Forward/Back", false);
             CreateDynamicMorphingInfoTextArea(true, spacing: 62);
 
             CreateHeader(_otherSettingsHeader, "Other", false);
@@ -59,7 +59,7 @@ namespace TittyMagic.UI
 
         private void CreateNippleErectionSlider(bool rightSide, int spacing = 0)
         {
-            var storable = _script.nippleErection;
+            var storable = _script.nippleMorphHandler.nippleErectionJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = _script.CreateSlider(storable, rightSide);
@@ -89,10 +89,10 @@ namespace TittyMagic.UI
             var sliders = new List<UIDynamicSlider>();
             if(elements != null)
             {
-                sliders.Add(elements[_script.morphingXStorable.name] as UIDynamicSlider);
-                sliders.Add(elements[_script.morphingYStorable.name] as UIDynamicSlider);
-                sliders.Add(elements[_script.morphingZStorable.name] as UIDynamicSlider);
-                sliders.Add(elements[_script.nippleErection.name] as UIDynamicSlider);
+                sliders.Add(elements[_script.forceMorphHandler.yMultiplierJsf.name] as UIDynamicSlider);
+                sliders.Add(elements[_script.forceMorphHandler.xMultiplierJsf.name] as UIDynamicSlider);
+                sliders.Add(elements[_script.forceMorphHandler.zMultiplierJsf.name] as UIDynamicSlider);
+                sliders.Add(elements[_script.nippleMorphHandler.nippleErectionJsf.name] as UIDynamicSlider);
             }
 
             return sliders;

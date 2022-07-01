@@ -7,31 +7,46 @@ namespace TittyMagic
 {
     internal class GravityPhysicsHandler
     {
-        private readonly MainPhysicsHandler _mainPhysicsHandler;
+        private readonly Script _script;
         private List<PhysicsParameter> _leftBreastParams;
         private List<PhysicsParameter> _rightBreastParams;
 
         private float _mass;
         private float _softness;
 
+        public JSONStorableFloat xMultiplierJsf { get; }
+        public JSONStorableFloat yMultiplierJsf { get; }
+        public JSONStorableFloat zMultiplierJsf { get; }
+
         public Multiplier xMultiplier { get; }
         public Multiplier yMultiplier { get; }
         public Multiplier zMultiplier { get; }
 
-        public GravityPhysicsHandler(MainPhysicsHandler mainPhysicsHandler)
+        public GravityPhysicsHandler(Script script)
         {
-            _mainPhysicsHandler = mainPhysicsHandler;
+            _script = script;
+
+            xMultiplierJsf = script.NewJSONStorableFloat("gravityPhysicsLeftRight", 1.00f, 0.00f, 2.00f);
+            yMultiplierJsf = script.NewJSONStorableFloat("gravityPhysicsUpDown", 1.00f, 0.00f, 2.00f);
+            zMultiplierJsf = script.NewJSONStorableFloat("gravityPhysicsForwardBack", 1.00f, 0.00f, 2.00f);
+
             xMultiplier = new Multiplier();
             yMultiplier = new Multiplier();
             zMultiplier = new Multiplier();
+
+            xMultiplier.mainMultiplier = xMultiplierJsf.val;
+            yMultiplier.mainMultiplier = yMultiplierJsf.val;
+            zMultiplier.mainMultiplier = zMultiplierJsf.val;
         }
 
         public void LoadSettings()
         {
-            SetupGravityPhysicsConfigs(_mainPhysicsHandler.leftBreastParameters);
-            SetupGravityPhysicsConfigs(_mainPhysicsHandler.rightBreastParameters);
-            _leftBreastParams = _mainPhysicsHandler.leftBreastParameters.Values.ToList();
-            _rightBreastParams = _mainPhysicsHandler.rightBreastParameters.Values.ToList();
+            var left = _script.mainPhysicsHandler.leftBreastParameters;
+            var right = _script.mainPhysicsHandler.rightBreastParameters;
+            SetupGravityPhysicsConfigs(left);
+            SetupGravityPhysicsConfigs(right);
+            _leftBreastParams = left.Values.ToList();
+            _rightBreastParams = right.Values.ToList();
         }
 
         private static void SetupGravityPhysicsConfigs(Dictionary<string, PhysicsParameter> parameters)

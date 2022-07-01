@@ -31,9 +31,10 @@ namespace TittyMagic
         public float realMassAmount { get; private set; }
         public float massAmount { get; private set; }
 
-        public JSONStorableFloat mass { get; set; }
+        public JSONStorableFloat massJsf { get; }
 
         public MainPhysicsHandler(
+            MVRScript script,
             AdjustJoints breastControl,
             Rigidbody pectoralRbLeft,
             Rigidbody pectoralRbRight
@@ -58,28 +59,30 @@ namespace TittyMagic
             };
 
             SaveOriginalPhysicsAndSetPluginDefaults();
+
+            massJsf = script.NewJSONStorableFloat("breastMass", 0.1f, 0.1f, 3f);
         }
 
         public void UpdateMassValueAndAmounts(bool useNewMass, float volume)
         {
             float newMass = Mathf.Clamp(
                 Mathf.Pow(0.78f * volume, 1.5f),
-                mass.min,
-                mass.max
+                massJsf.min,
+                massJsf.max
             );
             realMassAmount = newMass / 2;
             if(useNewMass)
             {
                 massAmount = realMassAmount;
-                mass.val = newMass;
+                massJsf.val = newMass;
             }
             else
             {
-                massAmount = mass.val / 2;
+                massAmount = massJsf.val / 2;
             }
 
-            SyncMass(_pectoralRbLeft, mass.val);
-            SyncMass(_pectoralRbRight, mass.val);
+            SyncMass(_pectoralRbLeft, massJsf.val);
+            SyncMass(_pectoralRbRight, massJsf.val);
         }
 
         public void LoadSettings(bool softPhysicsEnabled)
@@ -384,7 +387,7 @@ namespace TittyMagic
                 value += Mathf.Lerp(0, maxSlownessOffset, -quickness);
             }
 
-            return param.config.dependOnPhysicsRate ? Utils.PhysicsRateMultiplier() * value : value;
+            return param.config.dependOnPhysicsRate ? PhysicsRateMultiplier() * value : value;
         }
 
         public void SaveOriginalPhysicsAndSetPluginDefaults()

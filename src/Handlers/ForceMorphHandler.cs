@@ -13,25 +13,39 @@ namespace TittyMagic
         private readonly TrackNipple _trackLeftNipple;
         private readonly TrackNipple _trackRightNipple;
 
-        public Multiplier xMultiplier { get; }
-        public Multiplier yMultiplier { get; }
-        public Multiplier zMultiplier { get; }
-
-        private Dictionary<string, List<MorphConfig>> _configSets;
-
         private const float SOFTNESS = 0.62f;
         private float _mass;
         private float _pitchMultiplier;
         private float _rollMultiplier;
+
+        private Dictionary<string, List<MorphConfig>> _configSets;
+
+        public JSONStorableFloat xMultiplierJsf { get; }
+        public JSONStorableFloat yMultiplierJsf { get; }
+        public JSONStorableFloat zMultiplierJsf { get; }
+
+        public Multiplier xMultiplier { get; }
+        public Multiplier yMultiplier { get; }
+        public Multiplier zMultiplier { get; }
 
         public ForceMorphHandler(Script script, TrackNipple trackLeftNipple, TrackNipple trackRightNipple)
         {
             _script = script;
             _trackLeftNipple = trackLeftNipple;
             _trackRightNipple = trackRightNipple;
+
+            xMultiplierJsf = script.NewJSONStorableFloat("morphingLeftRight", 1.00f, 0.00f, 3.00f);
+            yMultiplierJsf = script.NewJSONStorableFloat("morphingUpDown", 1.00f, 0.00f, 3.00f);
+            zMultiplierJsf = script.NewJSONStorableFloat("morphingForwardBack", 1.00f, 0.00f, 3.00f);
+
             xMultiplier = new Multiplier();
             yMultiplier = new Multiplier();
             zMultiplier = new Multiplier();
+
+            xMultiplier.mainMultiplier = Curves.QuadraticRegression(xMultiplierJsf.val);
+            yMultiplier.mainMultiplier = Curves.QuadraticRegression(yMultiplierJsf.val);
+            zMultiplier.mainMultiplier = Curves.QuadraticRegressionLesser(zMultiplierJsf.val);
+
         }
 
         public void LoadSettings()
@@ -281,8 +295,7 @@ namespace TittyMagic
         {
             foreach(var config in _configSets[configSetName])
             {
-                var morphConfig = (MorphConfig) config;
-                morphConfig.morph.morphValue = 0;
+                config.morph.morphValue = 0;
             }
         }
     }

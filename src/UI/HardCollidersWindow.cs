@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using TittyMagic.Configs;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -8,14 +7,12 @@ namespace TittyMagic.UI
     internal class HardCollidersWindow
     {
         private readonly Script _script;
-        private readonly SoftPhysicsHandler _softPhysicsHandler;
         // ReSharper disable once MemberCanBePrivate.Global
         public Dictionary<string, UIDynamic> elements { get; private set; }
 
-        public HardCollidersWindow(Script script, SoftPhysicsHandler softPhysicsHandler)
+        public HardCollidersWindow(Script script)
         {
             _script = script;
-            _softPhysicsHandler = softPhysicsHandler;
         }
 
         public void Rebuild(UnityAction backButtonListener)

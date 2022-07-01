@@ -7,8 +7,6 @@ namespace TittyMagic.UI
     internal class PhysicsWindow : IWindow
     {
         private readonly Script _script;
-        private readonly MainPhysicsHandler _mainPhysicsHandler;
-        private readonly SoftPhysicsHandler _softPhysicsHandler;
         // ReSharper disable once MemberCanBePrivate.Global
         public Dictionary<string, UIDynamic> elements { get; private set; }
         private Dictionary<string, ParameterWindow> _parameterWindows;
@@ -19,11 +17,9 @@ namespace TittyMagic.UI
 
         public int Id() => 2;
 
-        public PhysicsWindow(Script script, MainPhysicsHandler mainPhysicsHandler, SoftPhysicsHandler softPhysicsHandler)
+        public PhysicsWindow(Script script)
         {
             _script = script;
-            _mainPhysicsHandler = mainPhysicsHandler;
-            _softPhysicsHandler = softPhysicsHandler;
 
             _jointPhysicsParamsHeader = new JSONStorableString("mainPhysicsParamsHeader", "");
             _softPhysicsParamsHeader = new JSONStorableString("softPhysicsParamsHeader", "");
@@ -34,22 +30,22 @@ namespace TittyMagic.UI
         {
             _parameterWindows = new Dictionary<string, ParameterWindow>();
 
-            _softPhysicsHandler.leftBreastParameters.Keys.ToList()
+            _script.softPhysicsHandler.leftBreastParameters.Keys.ToList()
                 .ForEach(key =>
                 {
                     _parameterWindows[key] = new ParameterWindow(
                         _script,
-                        _softPhysicsHandler.leftBreastParameters[key],
-                        _softPhysicsHandler.rightBreastParameters[key]
+                        _script.softPhysicsHandler.leftBreastParameters[key],
+                        _script.softPhysicsHandler.rightBreastParameters[key]
                     );
                 });
-            _mainPhysicsHandler.leftBreastParameters.Keys.ToList()
+            _script.mainPhysicsHandler.leftBreastParameters.Keys.ToList()
                 .ForEach(key =>
                 {
                     _parameterWindows[key] = new ParameterWindow(
                         _script,
-                        _mainPhysicsHandler.leftBreastParameters[key],
-                        _mainPhysicsHandler.rightBreastParameters[key]
+                        _script.mainPhysicsHandler.leftBreastParameters[key],
+                        _script.mainPhysicsHandler.rightBreastParameters[key]
                     );
                 });
         }
@@ -59,14 +55,14 @@ namespace TittyMagic.UI
             elements = new Dictionary<string, UIDynamic>();
 
             CreateHeader(_jointPhysicsParamsHeader, "Joint Physics Parameters", false);
-            foreach(var kvp in _mainPhysicsHandler.leftBreastParameters)
+            foreach(var kvp in _script.mainPhysicsHandler.leftBreastParameters)
             {
                 CreateParamButton(kvp.Key, kvp.Value, false);
             }
 
             CreateHeader(_softPhysicsParamsHeader, "Soft Physics Parameters", true);
             CreateAllowSelfCollisionToggle(true);
-            foreach(var kvp in _softPhysicsHandler.leftBreastParameters)
+            foreach(var kvp in _script.softPhysicsHandler.leftBreastParameters)
             {
                 CreateParamButton(kvp.Key, kvp.Value, true);
             }
@@ -74,7 +70,7 @@ namespace TittyMagic.UI
 
         private void CreateAllowSelfCollisionToggle(bool rightSide)
         {
-            var storable = _softPhysicsHandler.allowSelfCollision;
+            var storable = _script.softPhysicsHandler.allowSelfCollision;
             var toggle = _script.CreateToggle(storable, rightSide);
             toggle.height = 52;
             toggle.label = "Breast Soft Physics Self Collide";

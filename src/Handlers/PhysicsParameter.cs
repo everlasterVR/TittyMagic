@@ -46,7 +46,7 @@ namespace TittyMagic
         {
             if(currentValue == null)
             {
-                throw new ArgumentNullException($"currentValue must not be null in for a PhysicsParameter updated with AddValue");
+                throw new Exception("currentValue must not be null in for a PhysicsParameter updated with AddValue");
             }
 
             float newCurrentValue = value;

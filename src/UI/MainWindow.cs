@@ -7,8 +7,6 @@ namespace TittyMagic.UI
     internal class MainWindow : IWindow
     {
         private readonly Script _script;
-        private readonly HardColliderHandler _hardColliderHandler;
-        private readonly SoftPhysicsHandler _softPhysicsHandler;
         public Dictionary<string, UIDynamic> elements { get; private set; }
 
         private readonly JSONStorableString _hardCollidersHeader;
@@ -21,14 +19,12 @@ namespace TittyMagic.UI
 
         public int Id() => 1;
 
-        public MainWindow(Script script, HardColliderHandler hardColliderHandler, SoftPhysicsHandler softPhysicsHandler)
+        public MainWindow(Script script)
         {
             _script = script;
-            _hardColliderHandler = hardColliderHandler;
-            _softPhysicsHandler = softPhysicsHandler;
             _title = new JSONStorableString("title", "");
 
-            _hardCollidersWindow = new HardCollidersWindow(script, _softPhysicsHandler);
+            _hardCollidersWindow = new HardCollidersWindow(script);
             _hardCollidersHeader = new JSONStorableString("hardCollidersHeader", "");
             _hardCollidersInfoText = new JSONStorableString("hardCollidersInfoText", "");
 
@@ -76,7 +72,7 @@ namespace TittyMagic.UI
 
         private void CreateAutoUpdateMassToggle(bool rightSide, int spacing = 0)
         {
-            var storable = _script.autoUpdateMass;
+            var storable = _script.autoUpdateJsb;
             AddSpacer(storable.name, spacing, rightSide);
 
             var toggle = _script.CreateToggle(storable, rightSide);
@@ -87,7 +83,7 @@ namespace TittyMagic.UI
 
         private void CreateSoftPhysicsOnToggle(bool rightSide, int spacing = 0)
         {
-            var storable = _softPhysicsHandler.softPhysicsOn;
+            var storable = _script.softPhysicsHandler.softPhysicsOn;
             AddSpacer(storable.name, spacing, rightSide);
 
             var toggle = _script.CreateToggle(storable, rightSide);
@@ -118,7 +114,7 @@ namespace TittyMagic.UI
 
         private void CreateMassSlider(bool rightSide, int spacing = 0)
         {
-            var storable = _script.mass;
+            var storable = _script.mainPhysicsHandler.massJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = _script.CreateSlider(storable, rightSide);
@@ -130,7 +126,7 @@ namespace TittyMagic.UI
 
         private void CreateSoftnessSlider(bool rightSide, int spacing = 0)
         {
-            var storable = _script.softness;
+            var storable = _script.softnessJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = _script.CreateSlider(storable, rightSide);
@@ -143,7 +139,7 @@ namespace TittyMagic.UI
 
         private void CreateQuicknessSlider(bool rightSide, int spacing = 0)
         {
-            var storable = _script.quickness;
+            var storable = _script.quicknessJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = _script.CreateSlider(storable, rightSide);
@@ -162,7 +158,7 @@ namespace TittyMagic.UI
 
         private void CreateUseAuxBreastCollidersToggle(bool rightSide, int spacing = 0)
         {
-            var storable = _hardColliderHandler.useHardColliders;
+            var storable = _script.hardColliderHandler.enabledJsb;
             AddSpacer(storable.name, spacing, rightSide);
 
             var toggle = _script.CreateToggle(storable, rightSide);
@@ -173,7 +169,7 @@ namespace TittyMagic.UI
 
         private void CreateColliderScaleSlider(bool rightSide, int spacing = 0)
         {
-            var storable = _hardColliderHandler.scaleOffset;
+            var storable = _script.hardColliderHandler.scaleJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = _script.CreateSlider(storable, rightSide);
@@ -184,7 +180,7 @@ namespace TittyMagic.UI
 
         private void CreateColliderRadiusSlider(bool rightSide, int spacing = 0)
         {
-            var storable = _hardColliderHandler.radiusMultiplier;
+            var storable = _script.hardColliderHandler.radiusJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = _script.CreateSlider(storable, rightSide);
@@ -195,7 +191,7 @@ namespace TittyMagic.UI
 
         private void CreateColliderHeightSlider(bool rightSide, int spacing = 0)
         {
-            var storable = _hardColliderHandler.heightMultiplier;
+            var storable = _script.hardColliderHandler.heightJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = _script.CreateSlider(storable, rightSide);
@@ -206,7 +202,7 @@ namespace TittyMagic.UI
 
         private void CreateColliderForceSlider(bool rightSide, int spacing = 0)
         {
-            var storable = _hardColliderHandler.forceMultiplier;
+            var storable = _script.hardColliderHandler.forceJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = _script.CreateSlider(storable, rightSide);
@@ -273,7 +269,7 @@ namespace TittyMagic.UI
         public List<UIDynamicSlider> GetSliders()
         {
             var sliders = GetSlidersForRefresh();
-            sliders.Add(elements[_hardColliderHandler.forceMultiplier.name] as UIDynamicSlider);
+            sliders.Add(elements[_script.hardColliderHandler.forceJsf.name] as UIDynamicSlider);
             return sliders;
         }
 
@@ -282,9 +278,9 @@ namespace TittyMagic.UI
             var sliders = new List<UIDynamicSlider>();
             if(elements != null)
             {
-                sliders.Add(elements[_script.mass.name] as UIDynamicSlider);
-                sliders.Add(elements[_script.softness.name] as UIDynamicSlider);
-                sliders.Add(elements[_script.quickness.name] as UIDynamicSlider);
+                sliders.Add(elements[_script.mainPhysicsHandler.massJsf.name] as UIDynamicSlider);
+                sliders.Add(elements[_script.softnessJsf.name] as UIDynamicSlider);
+                sliders.Add(elements[_script.quicknessJsf.name] as UIDynamicSlider);
             }
 
             return sliders;

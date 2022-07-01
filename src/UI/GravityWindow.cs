@@ -38,9 +38,9 @@ namespace TittyMagic.UI
             elements = new Dictionary<string, UIDynamic>();
 
             CreateHeader(_gravityPhysicsMultipliersHeader, "Gravity Physics Multipliers", false);
-            CreateMultiplierSlider(_script.gravityYStorable, "Up/Down", false);
-            CreateMultiplierSlider(_script.gravityXStorable, "Left/Right", false);
-            CreateMultiplierSlider(_script.gravityZStorable, "Forward/Back", false);
+            CreateMultiplierSlider(_script.gravityPhysicsHandler.yMultiplierJsf, "Up/Down", false);
+            CreateMultiplierSlider(_script.gravityPhysicsHandler.xMultiplierJsf, "Left/Right", false);
+            CreateMultiplierSlider(_script.gravityPhysicsHandler.zMultiplierJsf, "Forward/Back", false);
             CreateGravityPhysicsInfoTextArea(true, spacing: 62);
 
             CreateHeader(_otherSettingsHeader, "Other", false);
@@ -76,7 +76,7 @@ namespace TittyMagic.UI
 
         private void CreateOffsetMorphingSlider(bool rightSide, int spacing = 0)
         {
-            var storable = _script.offsetMorphing;
+            var storable = _script.offsetMorphHandler.offsetMorphingJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = _script.CreateSlider(storable, rightSide);
@@ -107,10 +107,10 @@ namespace TittyMagic.UI
             var sliders = new List<UIDynamicSlider>();
             if(elements != null)
             {
-                sliders.Add(elements[_script.gravityYStorable.name] as UIDynamicSlider);
-                sliders.Add(elements[_script.gravityXStorable.name] as UIDynamicSlider);
-                sliders.Add(elements[_script.gravityZStorable.name] as UIDynamicSlider);
-                sliders.Add(elements[_script.offsetMorphing.name] as UIDynamicSlider);
+                sliders.Add(elements[_script.gravityPhysicsHandler.yMultiplierJsf.name] as UIDynamicSlider);
+                sliders.Add(elements[_script.gravityPhysicsHandler.xMultiplierJsf.name] as UIDynamicSlider);
+                sliders.Add(elements[_script.gravityPhysicsHandler.zMultiplierJsf.name] as UIDynamicSlider);
+                sliders.Add(elements[_script.offsetMorphHandler.offsetMorphingJsf.name] as UIDynamicSlider);
             }
 
             return sliders;

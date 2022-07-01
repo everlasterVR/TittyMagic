@@ -7,22 +7,24 @@ using static TittyMagic.GravityEffectCalc;
 
 namespace TittyMagic
 {
-    public class GravityOffsetMorphHandler
+    internal class GravityOffsetMorphHandler
     {
-        private readonly MVRScript _script;
+        private readonly Script _script;
 
         private float _mass;
         private float _softness;
-        private float _morphing;
-
-        public Multiplier yMultiplier { get; }
 
         private Dictionary<string, List<MorphConfig>> _configSets;
 
-        public GravityOffsetMorphHandler(MVRScript script)
+        public JSONStorableFloat offsetMorphingJsf { get; }
+        public Multiplier yMultiplier { get; }
+
+        public GravityOffsetMorphHandler(Script script)
         {
             _script = script;
+            offsetMorphingJsf = script.NewJSONStorableFloat("gravityOffsetMorphing", 1.00f, 0.00f, 2.00f);
             yMultiplier = new Multiplier();
+            yMultiplier.mainMultiplier = script.gravityPhysicsHandler.yMultiplierJsf.val;
         }
 
         public void LoadSettings()
@@ -80,13 +82,11 @@ namespace TittyMagic
             float roll,
             float pitch,
             float mass,
-            float softness,
-            float morphing
+            float softness
         )
         {
             _softness = softness;
             _mass = mass;
-            _morphing = morphing;
 
             float smoothRoll = Calc.SmoothStep(roll);
             float smoothPitch = 2 * Calc.SmoothStep(pitch);
@@ -96,7 +96,7 @@ namespace TittyMagic
 
         private void AdjustUpDownMorphs(float pitch, float roll)
         {
-            float effect = _morphing * CalculateUpDownEffect(pitch, roll, yMultiplier);
+            float effect = offsetMorphingJsf.val * CalculateUpDownEffect(pitch, roll, _script.gravityPhysicsHandler.yMultiplier);
             // leaning forward
             if(pitch >= 0)
             {

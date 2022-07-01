@@ -3,13 +3,15 @@ using System.Linq;
 
 namespace TittyMagic
 {
-    public class NippleErectionMorphHandler
+    internal class NippleErectionMorphHandler
     {
         private readonly List<SimpleMorphConfig> _configs;
+        public JSONStorableFloat nippleErectionJsf { get; }
 
         public NippleErectionMorphHandler(MVRScript script)
         {
             _configs = LoadSettings(script);
+            nippleErectionJsf = script.NewJSONStorableFloat("nippleErection", 0.00f, 0.00f, 1.00f);
         }
 
         private static List<SimpleMorphConfig> LoadSettings(MVRScript script)
