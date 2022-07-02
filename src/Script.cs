@@ -77,7 +77,7 @@ namespace TittyMagic
         {
             try
             {
-                _pluginVersionStorable = new JSONStorableString("Version", "");
+                _pluginVersionStorable = new JSONStorableString("version", "");
                 _pluginVersionStorable.storeType = JSONStorableParam.StoreType.Full;
                 RegisterString(_pluginVersionStorable);
 
@@ -911,6 +911,11 @@ namespace TittyMagic
 
             base.RestoreFromJSON(jsonClass, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
             StartCoroutine(DeferBeginRefresh(refreshMass: true));
+
+            if(jsonClass.HasKey("autoUpdateMass") && jsonClass.HasKey("breastMass") && !jsonClass["autoUpdateMass"].AsBool)
+            {
+                mainPhysicsHandler.massJsf.defaultVal = jsonClass["breastMass"].AsFloat;
+            }
 
             if(jsonClass.HasKey("originalMainPhysics"))
             {
