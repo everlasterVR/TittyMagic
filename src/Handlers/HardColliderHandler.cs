@@ -283,7 +283,7 @@ namespace TittyMagic
                         return jointCollider.name.Contains("lPectoral") || jointCollider.name.Contains("rPectoral");
                     })
                     .ToList()
-                    .ForEach(autoCollider => autoCollider.AutoColliderSizeSet());
+                    .ForEach(autoCollider => autoCollider.AutoColliderSizeSetFinishFast());
             }
             catch(Exception e)
             {
