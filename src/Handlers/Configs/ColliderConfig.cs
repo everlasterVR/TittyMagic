@@ -13,16 +13,16 @@ namespace TittyMagic.Configs
 
         public ColliderConfigGroup(
             string id,
-            Collider leftCollider,
-            Collider rightCollider,
+            AutoCollider leftAutoCollider,
+            AutoCollider rightAutoCollider,
             float radiusMultiplier,
             float lengthMultiplier,
             float massMultiplier
         )
         {
             this.id = id;
-            _left = new ColliderConfig(leftCollider, radiusMultiplier, lengthMultiplier, massMultiplier);
-            _right = new ColliderConfig(rightCollider, radiusMultiplier, lengthMultiplier, massMultiplier);
+            _left = new ColliderConfig(leftAutoCollider, radiusMultiplier, lengthMultiplier, massMultiplier);
+            _right = new ColliderConfig(rightAutoCollider, radiusMultiplier, lengthMultiplier, massMultiplier);
         }
 
         public void UpdateRadius(float multiplier)
@@ -55,6 +55,12 @@ namespace TittyMagic.Configs
             _right.RestoreDefaultMass();
         }
 
+        public void ResetDefaultScale()
+        {
+            _left.ResetDefaultScale();
+            _right.ResetDefaultScale();
+        }
+
         public bool HasRigidbodies() => _left.HasRigidbody() && _right.HasRigidbody();
 
         public void SetEnabled(bool value)
@@ -70,6 +76,7 @@ namespace TittyMagic.Configs
         // having to check for attachedRigidbody to be available when calling SetBaseValues.
         private const float DEFAULT_MASS = 0.04f;
 
+        private readonly AutoCollider _autoCollider;
         private readonly Collider _collider;
         private readonly CapsuleLineSphereCollider _capsulelineSphereCollider;
 
@@ -77,10 +84,11 @@ namespace TittyMagic.Configs
         private float _baseHeight;
         private float _baseMass;
 
-        public ColliderConfig(Collider collider, float radiusMultiplier, float lengthMultiplier, float massMultiplier)
+        public ColliderConfig(AutoCollider autoCollider, float radiusMultiplier, float lengthMultiplier, float massMultiplier)
         {
-            _collider = collider;
-            _capsulelineSphereCollider = collider.GetComponent<CapsuleLineSphereCollider>();
+            _autoCollider = autoCollider;
+            _collider = _autoCollider.jointCollider;
+            _capsulelineSphereCollider = _collider.GetComponent<CapsuleLineSphereCollider>();
             SetBaseValues(radiusMultiplier, lengthMultiplier, massMultiplier);
         }
 
@@ -101,6 +109,8 @@ namespace TittyMagic.Configs
         }
 
         public void RestoreDefaultMass() => _collider.attachedRigidbody.mass = DEFAULT_MASS;
+
+        public void ResetDefaultScale() => _autoCollider.AutoColliderSizeSetFinishFast();
 
         public bool HasRigidbody() => _collider.attachedRigidbody != null;
 

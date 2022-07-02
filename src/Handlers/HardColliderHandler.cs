@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -94,14 +93,23 @@ namespace TittyMagic
             var auxBreastColliders = _geometry.auxBreastColliders.ToList();
             var left = auxBreastColliders.Find(c => c.name.Contains("l" + id));
             var right = auxBreastColliders.Find(c => c.name.Contains("r" + id));
+            var autoColliderLeft = FindAutoCollider(left);
+            var autoColliderRight = FindAutoCollider(right);
             return new ColliderConfigGroup(
                 id,
-                left,
-                right,
+                autoColliderLeft,
+                autoColliderRight,
                 radiusMultiplier,
                 heightMultiplier,
                 massMultiplier ?? MASS_COMBINED
             );
+        }
+
+        private AutoCollider FindAutoCollider(Collider collider)
+        {
+            var updater = _script.containingAtom.GetComponentInChildren<AutoColliderBatchUpdater>();
+            return updater.autoColliders.First(autoCollider =>
+                autoCollider.jointCollider != null && autoCollider.jointCollider.name == collider.name);
         }
 
         private void SyncUseHardColliders(bool value)
@@ -233,16 +241,20 @@ namespace TittyMagic
             }
         }
 
-        private IEnumerator RestoreDefaults()
+        private void RestoreDefaults()
         {
-            if(!enabledJsb.val)
+            configs.ForEach(config =>
             {
-                configs.ForEach(config => config.SetEnabled(true));
-            }
+                if(!enabledJsb.val)
+                {
+                    config.SetEnabled(true);
+                }
 
-            yield return DeferRestoreDefaultMass();
+                config.ResetDefaultScale();
+            });
+
+            StartCoroutine(DeferRestoreDefaultMass());
             _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
-            ResetAutoColliderScale();
         }
 
         private IEnumerator DeferRestoreDefaultMass()
@@ -266,31 +278,6 @@ namespace TittyMagic
             }
         }
 
-        private void ResetAutoColliderScale()
-        {
-            try
-            {
-                var updater = _script.containingAtom.GetComponentInChildren<AutoColliderBatchUpdater>();
-                updater.autoColliders
-                    .Where(autoCollider =>
-                    {
-                        var jointCollider = autoCollider.jointCollider;
-                        if(jointCollider == null)
-                        {
-                            return false;
-                        }
-
-                        return jointCollider.name.Contains("lPectoral") || jointCollider.name.Contains("rPectoral");
-                    })
-                    .ToList()
-                    .ForEach(autoCollider => autoCollider.AutoColliderSizeSetFinishFast());
-            }
-            catch(Exception e)
-            {
-                Utils.LogError($"Failed to reset hard collider scale. Error: {e}");
-            }
-        }
-
         private void OnEnable()
         {
             if(_script == null || !_script.initDone)
@@ -305,7 +292,7 @@ namespace TittyMagic
         {
             if(Gender.isFemale)
             {
-                StartCoroutine(RestoreDefaults());
+                RestoreDefaults();
             }
         }
     }
