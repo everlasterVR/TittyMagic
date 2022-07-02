@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using SimpleJSON;
 using UnityEngine;
 using TittyMagic.UI;
+using UnityEngine.UI;
 using static TittyMagic.Utils;
 using static TittyMagic.Calc;
 
@@ -539,7 +540,7 @@ namespace TittyMagic
         {
             try
             {
-                CheckOutsideParametersChanged();
+                ActionsOnPluginUIOpened();
             }
             catch(Exception e)
             {
@@ -548,16 +549,24 @@ namespace TittyMagic
             }
         }
 
-        private void CheckOutsideParametersChanged()
+        private void ActionsOnPluginUIOpened()
         {
             bool uiOpen = UITransform.gameObject.activeInHierarchy;
             if(uiOpen && !_uiOpenPrevFrame)
             {
                 softPhysicsHandler.ReverseSyncSoftPhysicsOn();
                 softPhysicsHandler.ReverseSyncSyncAllowSelfCollision();
+
+                SetBackgroundColor();
             }
 
             _uiOpenPrevFrame = uiOpen;
+        }
+
+        private void SetBackgroundColor()
+        {
+            var background = rightUIContent.parent.parent.parent.transform.GetComponent<Image>();
+            background.color = new Color(0.85f, 0.85f, 0.85f);
         }
 
         private void FixedUpdate()

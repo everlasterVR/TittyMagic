@@ -13,7 +13,7 @@ namespace TittyMagic.UI
         // ReSharper disable once MemberCanBePrivate.Global
         public Dictionary<string, UIDynamic> elements { get; private set; }
 
-        private readonly JSONStorableString _title;
+        private readonly JSONStorableString _header;
         private readonly JSONStorableString _infoText;
 
         public ParameterWindow(Script script, PhysicsParameter leftParam, PhysicsParameter rightParam)
@@ -22,7 +22,7 @@ namespace TittyMagic.UI
             _leftParam = leftParam;
             _rightParam = rightParam;
 
-            _title = new JSONStorableString("title", "");
+            _header = new JSONStorableString("header", "");
             _infoText = new JSONStorableString("infoText", "");
 
             _infoText.val = "\n".Size(12) + leftParam.infoText;
@@ -52,8 +52,14 @@ namespace TittyMagic.UI
         private void CreateBackButton(UnityAction backButtonListener, bool rightSide)
         {
             var button = _script.CreateButton("Return", rightSide);
+
             button.textColor = Color.white;
-            button.buttonColor = UIHelpers.sliderGray;
+            var colors = button.button.colors;
+            colors.normalColor = UIHelpers.sliderGray;
+            colors.highlightedColor = Color.grey;
+            colors.pressedColor = Color.grey;
+            button.button.colors = colors;
+
             button.AddListener(backButtonListener);
             elements["backButton"] = button;
         }
@@ -96,8 +102,12 @@ namespace TittyMagic.UI
             elements[storable.name] = textField;
         }
 
-        private void CreateHeader(bool rightSide) =>
-            elements[_title.name] = UIHelpers.TitleTextField(_script, _title, _leftParam.displayName, 62, rightSide);
+        private void CreateHeader(bool rightSide)
+        {
+            var textField = UIHelpers.TitleTextField(_script, _header, _leftParam.displayName, 62, rightSide);
+            textField.UItext.fontSize = 32;
+            elements[_header.name] = textField;
+        }
 
         private void AddSpacer(string name, int height, bool rightSide) => elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
 

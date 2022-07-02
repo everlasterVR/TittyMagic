@@ -7,20 +7,18 @@ namespace TittyMagic.UI
     internal class NavigationButton
     {
         private readonly UIDynamicButton _uiDynamicButton;
-        private readonly string _label;
 
         public NavigationButton(UIDynamicButton uiDynamicButton, string label, Transform parent)
         {
             _uiDynamicButton = uiDynamicButton;
-            _label = label;
+            _uiDynamicButton.label = label;
             _uiDynamicButton.gameObject.transform.SetParent(parent, false);
             SetInactive();
         }
 
         public void SetActive()
         {
-            _uiDynamicButton.label = _label.Color(funkyCyan);
-
+            _uiDynamicButton.textColor = funkyCyan;
             var colors = _uiDynamicButton.button.colors;
             colors.highlightedColor = Color.white;
             colors.pressedColor = Color.white;
@@ -29,8 +27,8 @@ namespace TittyMagic.UI
 
         public void SetInactive()
         {
+            _uiDynamicButton.textColor = Color.white;
             _uiDynamicButton.buttonColor = darkerGray;
-            _uiDynamicButton.label = _label.Color(Color.white);
             SetInteractable();
         }
 

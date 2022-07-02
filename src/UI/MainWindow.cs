@@ -68,14 +68,18 @@ namespace TittyMagic.UI
             }
         }
 
-        private void CreateTitleTextField(bool rightSide) =>
-            elements[_title.name] = UIHelpers.TitleTextField(
+        private void CreateTitleTextField(bool rightSide)
+        {
+            var textField = UIHelpers.TitleTextField(
                 _script,
                 _title,
                 $"{"\n".Size(12)}{nameof(TittyMagic)}    {Script.VERSION}",
                 100,
                 rightSide
             );
+            textField.UItext.fontSize = 40;
+            elements[_title.name] = textField;
+        }
 
         private void CreateAutoUpdateMassToggle(bool rightSide, int spacing = 0)
         {

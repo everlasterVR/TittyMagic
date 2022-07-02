@@ -13,6 +13,7 @@ namespace TittyMagic.UI
         public static Color offGrayViolet = new Color(0.80f, 0.75f, 0.80f);
         public static Color sliderGray = new Color(0, 0, 0, 0.498f);
         public static Color funkyCyan = new Color(0.596f, 1.000f, 0.780f);
+        public static Color titleGreen = new Color(0.285f, 0.690f, 0.489f);
         public static Color paleCyan = new Color32(195, 231, 212, 255);
         public static Color evenPalerCyan = new Color32(206, 228, 216, 255);
 
@@ -86,8 +87,6 @@ namespace TittyMagic.UI
         {
             storable.val = "\n".Size(12) + displayName.Bold();
             var textField = script.CreateTextField(storable, rightSide);
-            textField.UItext.fontSize = 40;
-            textField.UItext.color = funkyCyan;
             textField.UItext.alignment = TextAnchor.MiddleCenter;
             textField.backgroundColor = Color.clear;
 

@@ -26,8 +26,14 @@ namespace TittyMagic.UI
         private void CreateBackButton(UnityAction backButtonListener, bool rightSide)
         {
             var button = _script.CreateButton("Return", rightSide);
+
             button.textColor = Color.white;
-            button.buttonColor = UIHelpers.sliderGray;
+            var colors = button.button.colors;
+            colors.normalColor = UIHelpers.sliderGray;
+            colors.highlightedColor = Color.grey;
+            colors.pressedColor = Color.grey;
+            button.button.colors = colors;
+
             button.AddListener(backButtonListener);
             elements["backButton"] = button;
         }
