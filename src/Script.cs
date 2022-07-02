@@ -62,6 +62,7 @@ namespace TittyMagic
         // ReSharper disable once MemberCanBePrivate.Global
         public PhysicsWindow physicsWindow { get; private set; }
 
+        public JSONStorableString statusInfo;
         public JSONStorableBool autoUpdateJsb;
         public JSONStorableFloat softnessJsf;
         public JSONStorableFloat quicknessJsf;
@@ -242,6 +243,7 @@ namespace TittyMagic
 
         private void SetupStorables()
         {
+            statusInfo = new JSONStorableString("recalibrating", "");
             autoUpdateJsb = this.NewJSONStorableBool("autoUpdateMass", true);
             softnessJsf = this.NewJSONStorableFloat("breastSoftness", 70f, 0f, 100f);
             quicknessJsf = this.NewJSONStorableFloat("breastQuickness", 70f, 0f, 100f);
@@ -605,6 +607,9 @@ namespace TittyMagic
                 var rotation = _chestTransform.rotation;
                 float roll = Roll(rotation);
                 float pitch = Pitch(rotation);
+
+                statusInfo.val = "";
+
                 UpdateDynamicPhysics(roll, pitch);
                 UpdateDynamicMorphs(roll, pitch);
             }
@@ -688,6 +693,7 @@ namespace TittyMagic
             {
                 // ensure refresh actually begins only once listeners report no change
                 yield return new WaitForSeconds(0.33f);
+                float waited = 0.33f;
 
                 while(
                     _breastMorphListener.Changed() ||
@@ -698,9 +704,19 @@ namespace TittyMagic
                 )
                 {
                     yield return new WaitForSeconds(0.1f);
+                    waited += 0.1f;
+                    if(waited > 2)
+                    {
+                        statusInfo.val = "Waiting...";
+                    }
                 }
 
-                yield return new WaitForSeconds(0.33f);
+                if(waited > 2)
+                {
+                    statusInfo.val = "Recalibrating";
+                }
+
+                yield return new WaitForSeconds(0.1f);
             }
 
             while(_refreshStatus != RefreshStatus.PRE_REFRESH_OK)
@@ -741,6 +757,7 @@ namespace TittyMagic
             _quicknessAmount = CalculateQuicknessAmount(quicknessJsf.val);
 
             UpdateStaticPhysics();
+            UpdateDynamicPhysics(roll: 0, pitch: 0);
             UpdateDynamicMorphs(roll: 0, pitch: 0);
 
             _refreshStatus = RefreshStatus.PRE_REFRESH_OK;
@@ -760,6 +777,7 @@ namespace TittyMagic
             _pectoralRbRight.useGravity = false;
 
             yield return new WaitForSeconds(0.33f);
+            UpdateDynamicPhysics(roll: 0, pitch: 0);
             UpdateDynamicMorphs(roll: 0, pitch: 0);
 
             _softnessAmount = CalculateSoftnessAmount(softnessJsf.val);
@@ -842,7 +860,7 @@ namespace TittyMagic
                 // simulate force of gravity when upright
                 // 0.75f is a hack, for some reason a normal gravity force pushes breasts too much down,
                 // causing the neutral position to be off by a little
-                var force = _chestTransform.up * (0.75f * -Physics.gravity.magnitude);
+                var force = _chestTransform.up * -Physics.gravity.magnitude;
                 _pectoralRbLeft.AddForce(force, ForceMode.Acceleration);
                 _pectoralRbRight.AddForce(force, ForceMode.Acceleration);
                 if(_refreshStatus == RefreshStatus.MASS_OK)

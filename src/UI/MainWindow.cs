@@ -42,7 +42,8 @@ namespace TittyMagic.UI
             elements = new Dictionary<string, UIDynamic>();
 
             CreateTitleTextField(false);
-            CreateRecalibrateButton(true, spacing: 35);
+            CreateRecalibratingTextField(true);
+            CreateRecalibrateButton(true);
             CreateCalculateMassButton(true);
             CreateAutoUpdateMassToggle(true);
             CreateMassSlider(false);
@@ -111,6 +112,13 @@ namespace TittyMagic.UI
             var button = _script.CreateButton("Calculate Breast Mass", rightSide);
             button.height = 52;
             elements[name] = button;
+        }
+
+        private void CreateRecalibratingTextField(bool rightSide, int spacing = 0)
+        {
+            var storable = _script.statusInfo;
+            AddSpacer(storable.name, spacing, rightSide);
+            elements[storable.name] = UIHelpers.NotificationTextField(_script, storable, 32, rightSide);
         }
 
         private void CreateRecalibrateButton(bool rightSide, int spacing = 0)
