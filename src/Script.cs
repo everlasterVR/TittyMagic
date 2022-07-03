@@ -180,7 +180,7 @@ namespace TittyMagic
 
             SetupStorables();
             CreateNavigation();
-            NavigateToWindow(mainWindow);
+            NavigateToWindow(mainWindow, PostNavigateToMainWindow);
             InitializeValuesAppliedByListeners();
 
             if(!_loadingFromJson)
