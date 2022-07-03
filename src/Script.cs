@@ -477,8 +477,6 @@ namespace TittyMagic
                 float roll = Roll(rotation);
                 float pitch = Pitch(rotation);
 
-                statusInfo.val = "";
-
                 UpdateDynamicPhysics(roll, pitch);
                 UpdateDynamicMorphs(roll, pitch);
             }

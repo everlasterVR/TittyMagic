@@ -21,8 +21,8 @@ namespace TittyMagic
         public JSONStorableFloat backJsf { get; }
         public JSONStorableFloat leftRightJsf { get; }
 
-        public float upMultiplier => baseJsf.val * upJsf.val;
-        private float downMultiplier => baseJsf.val * downJsf.val;
+        private float upMultiplier => baseJsf.val * upJsf.val;
+        public float downMultiplier => baseJsf.val * downJsf.val;
         private float forwardMultiplier => baseJsf.val * forwardJsf.val;
         private float backMultiplier => baseJsf.val * backJsf.val;
         private float leftRightMultiplier => baseJsf.val * leftRightJsf.val;
@@ -140,46 +140,30 @@ namespace TittyMagic
         private void AdjustUpPhysics(float pitch, float roll)
         {
             float effect = CalculateUpDownEffect(pitch, roll, upMultiplier);
-            // leaning forward
-            if(pitch >= 0)
+            // leaning forward,  upside down
+            if(pitch >= 1)
             {
-                // upside down
-                if(pitch >= 1)
-                {
-                    UpdatePhysics(Direction.UP, effect);
-                }
+                UpdatePhysics(Direction.UP, effect);
             }
-            // leaning back
-            else
+            // leaning back, upside down
+            else if(pitch < -1)
             {
-                // upside down
-                if(pitch < -1)
-                {
-                    UpdatePhysics(Direction.UP, effect);
-                }
+                UpdatePhysics(Direction.UP, effect);
             }
         }
 
         private void AdjustDownPhysics(float pitch, float roll)
         {
             float effect = CalculateUpDownEffect(pitch, roll, downMultiplier);
-            // leaning forward
-            if(pitch >= 0)
+            // leaning forward, upright
+            if(pitch >= 0 && pitch < 1)
             {
-                // upright
-                if(pitch < 1)
-                {
-                    UpdatePhysics(Direction.DOWN, effect);
-                }
+                UpdatePhysics(Direction.DOWN, effect);
             }
             // leaning back
-            else
+            else if(pitch >= -1 && pitch < 0)
             {
-                // upright
-                if(pitch >= -1)
-                {
-                    UpdatePhysics(Direction.DOWN, effect);
-                }
+                UpdatePhysics(Direction.DOWN, effect);
             }
         }
 

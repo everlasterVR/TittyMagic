@@ -93,7 +93,7 @@ namespace TittyMagic
 
         private void AdjustUpDownMorphs(float pitch, float roll)
         {
-            float multiplier = upDownExtraMultiplier * _script.gravityPhysicsHandler.upMultiplier;
+            float multiplier = upDownExtraMultiplier * _script.gravityPhysicsHandler.downMultiplier;
             float upDownEffect = CalculateUpDownEffect(pitch, roll, multiplier);
             float effect = offsetMorphingJsf.val * upDownEffect;
             // leaning forward
