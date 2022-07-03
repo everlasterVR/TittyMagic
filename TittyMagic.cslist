@@ -7,7 +7,6 @@ src\Extensions\UIDynamicSliderExtension.cs
 src\Handlers\Configs\DynamicPhysicsConfig.cs
 src\Handlers\Configs\ColliderConfig.cs
 src\Handlers\Configs\MorphConfig.cs
-src\Handlers\Configs\Multiplier.cs
 src\Handlers\Configs\StaticPhysicsConfig.cs
 src\Handlers\ForceMorphHandler.cs
 src\Handlers\ForcePhysicsHandler.cs

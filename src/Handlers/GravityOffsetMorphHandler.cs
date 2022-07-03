@@ -17,13 +17,12 @@ namespace TittyMagic
         private Dictionary<string, List<MorphConfig>> _configSets;
 
         public JSONStorableFloat offsetMorphingJsf { get; }
-        public Multiplier yMultiplier { get; }
+        public float upDownExtraMultiplier { get; set; }
 
         public GravityOffsetMorphHandler(Script script)
         {
             _script = script;
             offsetMorphingJsf = script.NewJSONStorableFloat("gravityOffsetMorphing", 1.00f, 0.00f, 2.00f);
-            yMultiplier = new Multiplier(script.gravityPhysicsHandler.yMultiplierJsf.val);
         }
 
         public void LoadSettings() =>
@@ -93,7 +92,8 @@ namespace TittyMagic
 
         private void AdjustUpDownMorphs(float pitch, float roll)
         {
-            float effect = offsetMorphingJsf.val * CalculateUpDownEffect(pitch, roll, _script.gravityPhysicsHandler.yMultiplier);
+            float upDownEffect = CalculateUpDownEffect(pitch, roll, upDownExtraMultiplier * _script.gravityPhysicsHandler.yMultiplierJsf.val);
+            float effect = offsetMorphingJsf.val * upDownEffect;
             // leaning forward
             if(pitch >= 0)
             {

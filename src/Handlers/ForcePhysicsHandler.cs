@@ -24,11 +24,12 @@ namespace TittyMagic
         private float _pitchMultiplier;
         private float _rollMultiplier;
 
-        public Multiplier xMultiplier { get; }
-        public Multiplier yMultiplier { get; }
-        public Multiplier zMultiplier { get; }
+        public JSONStorableFloat yMultiplierJsf { get; }
+        public JSONStorableFloat zMultiplierJsf { get; }
+        public JSONStorableFloat xMultiplierJsf { get; }
 
         public ForcePhysicsHandler(
+            Script script,
             MainPhysicsHandler mainPhysicsHandler,
             SoftPhysicsHandler softPhysicsHandler,
             TrackNipple trackLeftNipple,
@@ -39,9 +40,10 @@ namespace TittyMagic
             _softPhysicsHandler = softPhysicsHandler;
             _trackLeftNipple = trackLeftNipple;
             _trackRightNipple = trackRightNipple;
-            xMultiplier = new Multiplier(0);
-            yMultiplier = new Multiplier(0);
-            zMultiplier = new Multiplier(0);
+
+            yMultiplierJsf = script.NewJSONStorableFloat("forcePhysicsUpDown", 1.00f, 0.00f, 2.00f);
+            zMultiplierJsf = script.NewJSONStorableFloat("forcePhysicsForwardBack", 1.00f, 0.00f, 2.00f);
+            xMultiplierJsf = script.NewJSONStorableFloat("forcePhysicsLeftRight", 1.00f, 0.00f, 2.00f);
         }
 
         public void LoadSettings()

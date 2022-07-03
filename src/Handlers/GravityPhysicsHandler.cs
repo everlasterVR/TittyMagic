@@ -14,25 +14,17 @@ namespace TittyMagic
         private float _mass;
         private float _softness;
 
-        public JSONStorableFloat xMultiplierJsf { get; }
         public JSONStorableFloat yMultiplierJsf { get; }
         public JSONStorableFloat zMultiplierJsf { get; }
-
-        public Multiplier xMultiplier { get; }
-        public Multiplier yMultiplier { get; }
-        public Multiplier zMultiplier { get; }
+        public JSONStorableFloat xMultiplierJsf { get; }
 
         public GravityPhysicsHandler(Script script)
         {
             _script = script;
 
-            xMultiplierJsf = script.NewJSONStorableFloat("gravityPhysicsLeftRight", 1.00f, 0.00f, 2.00f);
             yMultiplierJsf = script.NewJSONStorableFloat("gravityPhysicsUpDown", 1.00f, 0.00f, 2.00f);
             zMultiplierJsf = script.NewJSONStorableFloat("gravityPhysicsForwardBack", 1.00f, 0.00f, 2.00f);
-
-            xMultiplier = new Multiplier(xMultiplierJsf.val);
-            yMultiplier = new Multiplier(yMultiplierJsf.val);
-            zMultiplier = new Multiplier(zMultiplierJsf.val);
+            xMultiplierJsf = script.NewJSONStorableFloat("gravityPhysicsLeftRight", 1.00f, 0.00f, 2.00f);
         }
 
         public void LoadSettings()
@@ -144,7 +136,7 @@ namespace TittyMagic
 
         private void AdjustRollPhysics(float roll)
         {
-            float effect = CalculateRollEffect(roll, xMultiplier);
+            float effect = CalculateRollEffect(roll, xMultiplierJsf.val);
             // left
             if(roll >= 0)
             {
@@ -159,7 +151,7 @@ namespace TittyMagic
 
         private void AdjustUpDownPhysics(float pitch, float roll)
         {
-            float effect = CalculateUpDownEffect(pitch, roll, yMultiplier);
+            float effect = CalculateUpDownEffect(pitch, roll, yMultiplierJsf.val);
             // leaning forward
             if(pitch >= 0)
             {
@@ -192,7 +184,7 @@ namespace TittyMagic
 
         private void AdjustDepthPhysics(float pitch, float roll)
         {
-            float effect = CalculateDepthEffect(pitch, roll, zMultiplier);
+            float effect = CalculateDepthEffect(pitch, roll, zMultiplierJsf.val);
             // leaning forward
             if(pitch >= 0)
             {

@@ -5,7 +5,7 @@ namespace TittyMagic.UI
     internal class GravityWindow : IWindow
     {
         private readonly Script _script;
-        public Dictionary<string, UIDynamic> elements { get; private set; }
+        private Dictionary<string, UIDynamic> elements { get; set; }
 
         private readonly JSONStorableString _gravityPhysicsMultipliersHeader;
         private readonly JSONStorableString _gravityPhysicsMultipliersInfoText;

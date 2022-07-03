@@ -168,7 +168,7 @@ namespace TittyMagic
                 _breastMorphListener = new BreastMorphListener(geometry.morphBank1OtherGender.morphs, geometry.morphBank1.morphs);
             }
 
-            forcePhysicsHandler = new ForcePhysicsHandler(mainPhysicsHandler, softPhysicsHandler, _trackLeftNipple, _trackRightNipple);
+            forcePhysicsHandler = new ForcePhysicsHandler(this, mainPhysicsHandler, softPhysicsHandler, _trackLeftNipple, _trackRightNipple);
             forceMorphHandler = new ForceMorphHandler(this, _trackLeftNipple, _trackRightNipple);
 
             LoadSettings();
@@ -248,18 +248,49 @@ namespace TittyMagic
             softnessJsf = this.NewJSONStorableFloat("breastSoftness", 70f, 0f, 100f);
             quicknessJsf = this.NewJSONStorableFloat("breastQuickness", 70f, 0f, 100f);
 
-            nippleMorphHandler.nippleErectionJsf.setCallbackFunction = val =>
+            autoUpdateJsb.setCallbackFunction = value =>
             {
-                nippleMorphHandler.Update(val);
+                if(value)
+                {
+                    StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true));
+                }
+            };
+
+            mainPhysicsHandler.massJsf.setCallbackFunction = val => RefreshFromSliderChanged(refreshMass: true);
+
+            softnessJsf.setCallbackFunction = value =>
+            {
+                if(Math.Abs(CalculateSoftnessAmount(value) - _softnessAmount) > 0.001f)
+                {
+                    RefreshFromSliderChanged();
+                }
+            };
+
+            quicknessJsf.setCallbackFunction = value =>
+            {
+                if(Math.Abs(CalculateQuicknessAmount(value) - _quicknessAmount) > 0.001f)
+                {
+                    RefreshFromSliderChanged();
+                }
+            };
+
+            nippleMorphHandler.nippleErectionJsf.setCallbackFunction = value =>
+            {
+                nippleMorphHandler.Update(value);
                 if(_settingsMonitor.softPhysicsEnabled)
                 {
                     softPhysicsHandler.UpdateNipplePhysics(
                         mainPhysicsHandler.massAmount,
                         _softnessAmount,
-                        val
+                        value
                     );
                 }
             };
+
+            gravityPhysicsHandler.xMultiplierJsf.setCallbackFunction = value => RefreshFromSliderChanged();
+            gravityPhysicsHandler.yMultiplierJsf.setCallbackFunction = value => RefreshFromSliderChanged();
+            gravityPhysicsHandler.zMultiplierJsf.setCallbackFunction = value => RefreshFromSliderChanged();
+            offsetMorphHandler.offsetMorphingJsf.setCallbackFunction = value => RefreshFromSliderChanged();
         }
 
         private void CreateNavigation()
@@ -285,79 +316,37 @@ namespace TittyMagic
             _tabs.activeWindow.Rebuild();
             _tabs.ActivateTab1();
 
-            mainWindow.elements.ToList()
-                .ForEach(kvp =>
-                {
-                    if(kvp.Key == autoUpdateJsb.name)
-                    {
-                        kvp.Value.AddListener(val =>
-                        {
-                            if(val)
-                            {
-                                StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true));
-                            }
+            mainWindow.elements[autoUpdateJsb.name].AddListener(value =>
+                UpdateSlider(mainWindow.elements[mainPhysicsHandler.massJsf.name], !value));
 
-                            UpdateSlider(mainWindow.elements[mainPhysicsHandler.massJsf.name], !val);
-                        });
-                        UpdateSlider(mainWindow.elements[mainPhysicsHandler.massJsf.name], !autoUpdateJsb.val);
-                    }
-                    else if(kvp.Key == "calculateBreastMass")
-                    {
-                        kvp.Value.AddListener(() => StartCoroutine(
-                            DeferBeginRefresh(
-                                refreshMass: true,
-                                fromToggleOrButton: true,
-                                useNewMass: true
-                            )
-                        ));
-                    }
-                    else if(kvp.Key == "recalibratePhysics")
-                    {
-                        kvp.Value.AddListener(() => StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true)));
-                    }
-                    else if(kvp.Key == mainPhysicsHandler.massJsf.name)
-                    {
-                        kvp.Value.AddListener((float val) => RefreshFromSliderChanged(refreshMass: true));
-                    }
-                    else if(kvp.Key == softnessJsf.name)
-                    {
-                        kvp.Value.AddListener(val =>
-                        {
-                            if(Math.Abs(CalculateSoftnessAmount(val) - _softnessAmount) > 0.001f)
-                            {
-                                RefreshFromSliderChanged();
-                            }
-                        });
-                    }
-                    else if(kvp.Key == quicknessJsf.name)
-                    {
-                        kvp.Value.AddListener(val =>
-                        {
-                            if(Math.Abs(CalculateQuicknessAmount(val) - _quicknessAmount) > 0.001f)
-                            {
-                                RefreshFromSliderChanged();
-                            }
-                        });
-                    }
-                    else if(kvp.Key == hardColliderHandler.enabledJsb.name)
-                    {
-                        kvp.Value.AddListener(val =>
-                        {
-                            UpdateSlider(mainWindow.elements[hardColliderHandler.scaleJsf.name], val);
-                            // UpdateSlider(mainWindow.elements[_hardColliderHandler.radiusMultiplier.name], val);
-                            // UpdateSlider(mainWindow.elements[_hardColliderHandler.heightMultiplier.name], val);
-                            UpdateSlider(mainWindow.elements[hardColliderHandler.forceJsf.name], val);
-                        });
-                        UpdateSlider(
-                            mainWindow.elements[hardColliderHandler.scaleJsf.name],
-                            hardColliderHandler.enabledJsb.val
-                        );
-                        UpdateSlider(
-                            mainWindow.elements[hardColliderHandler.forceJsf.name],
-                            hardColliderHandler.enabledJsb.val
-                        );
-                    }
-                });
+            UpdateSlider(mainWindow.elements[mainPhysicsHandler.massJsf.name], !autoUpdateJsb.val);
+
+            mainWindow.elements["calculateBreastMass"].AddListener(() => StartCoroutine(
+                DeferBeginRefresh(
+                    refreshMass: true,
+                    fromToggleOrButton: true,
+                    useNewMass: true
+                )
+            ));
+
+            mainWindow.elements["recalibratePhysics"]
+                .AddListener(() => StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true)));
+
+            mainWindow.elements[hardColliderHandler.enabledJsb.name].AddListener(value =>
+            {
+                UpdateSlider(mainWindow.elements[hardColliderHandler.scaleJsf.name], value);
+                // UpdateSlider(mainWindow.elements[_hardColliderHandler.radiusMultiplier.name], val);
+                // UpdateSlider(mainWindow.elements[_hardColliderHandler.heightMultiplier.name], val);
+                UpdateSlider(mainWindow.elements[hardColliderHandler.forceJsf.name], value);
+            });
+            UpdateSlider(
+                mainWindow.elements[hardColliderHandler.scaleJsf.name],
+                hardColliderHandler.enabledJsb.val
+            );
+            UpdateSlider(
+                mainWindow.elements[hardColliderHandler.forceJsf.name],
+                hardColliderHandler.enabledJsb.val
+            );
         }
 
         private void NavigateToPhysicsWindow()
@@ -400,40 +389,6 @@ namespace TittyMagic
             _tabs.activeWindow = gravityWindow;
             _tabs.activeWindow.Rebuild();
             _tabs.ActivateTab4();
-
-            gravityWindow.elements.ToList()
-                .ForEach(kvp =>
-                {
-                    if(kvp.Key == gravityPhysicsHandler.xMultiplierJsf.name)
-                    {
-                        kvp.Value.AddListener(val =>
-                        {
-                            gravityPhysicsHandler.xMultiplier.mainMultiplier = val;
-                            RefreshFromSliderChanged();
-                        });
-                    }
-                    else if(kvp.Key == gravityPhysicsHandler.yMultiplierJsf.name)
-                    {
-                        kvp.Value.AddListener(val =>
-                        {
-                            gravityPhysicsHandler.yMultiplier.mainMultiplier = val;
-                            offsetMorphHandler.yMultiplier.mainMultiplier = val;
-                            RefreshFromSliderChanged();
-                        });
-                    }
-                    else if(kvp.Key == gravityPhysicsHandler.zMultiplierJsf.name)
-                    {
-                        kvp.Value.AddListener(val =>
-                        {
-                            gravityPhysicsHandler.zMultiplier.mainMultiplier = val;
-                            RefreshFromSliderChanged();
-                        });
-                    }
-                    else if(kvp.Key == offsetMorphHandler.offsetMorphingJsf.name)
-                    {
-                        kvp.Value.AddListener((float val) => RefreshFromSliderChanged());
-                    }
-                });
         }
 
         private void ResetActiveTabListener()
@@ -802,7 +757,7 @@ namespace TittyMagic
             forceMorphHandler.forwardBackExtraMultiplier = softnessMultiplier * (3.8f - 1.5f * mass);
             forceMorphHandler.leftRightExtraMultiplier = softnessMultiplier * (3.55f - 1.40f * mass);
 
-            offsetMorphHandler.yMultiplier.extraMultiplier = 1.16f - mass;
+            offsetMorphHandler.upDownExtraMultiplier = 1.16f - mass;
         }
 
         private IEnumerator CalibrateNipplesTracking()

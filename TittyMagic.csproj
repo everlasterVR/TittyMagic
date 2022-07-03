@@ -92,7 +92,6 @@
     <Compile Include="src\Handlers\Configs\ColliderConfig.cs" />
     <Compile Include="src\Handlers\Configs\DynamicPhysicsConfig.cs" />
     <Compile Include="src\Handlers\Configs\MorphConfig.cs" />
-    <Compile Include="src\Handlers\Configs\Multiplier.cs" />
     <Compile Include="src\Handlers\Configs\StaticPhysicsConfig.cs" />
     <Compile Include="src\Handlers\ForcePhysicsHandler.cs" />
     <Compile Include="src\Handlers\GravityEffectCalc.cs" />
