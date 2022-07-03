@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
 
@@ -80,5 +81,17 @@ namespace TittyMagic
 
         public static float PhysicsRateMultiplier() =>
             0.01666667f / Time.fixedDeltaTime;
+
+        // ReSharper disable once UnusedMember.Global
+        public static void DumpObjectToLog(object obj)
+        {
+            string result = "";
+            foreach(PropertyDescriptor descriptor in TypeDescriptor.GetProperties(obj))
+            {
+                result += $"{descriptor.Name} = {descriptor.GetValue(obj)}\n";
+            }
+
+            Debug.Log(result);
+        }
     }
 }
