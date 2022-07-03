@@ -186,7 +186,7 @@ namespace TittyMagic
             _syncMassStatus = WaitStatus.WAITING;
             yield return new WaitForSecondsRealtime(0.1f);
 
-            var slider = (UIDynamicSlider) _script.mainWindow?.elements[forceJsf.name];
+            var slider = (UIDynamicSlider) _script.mainWindow?.GetElements()[forceJsf.name];
             if(slider != null)
             {
                 while(slider.IsClickDown())

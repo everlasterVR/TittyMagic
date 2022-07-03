@@ -7,9 +7,10 @@ namespace TittyMagic.UI
     internal class PhysicsWindow : IWindow
     {
         private readonly Script _script;
+        private Dictionary<string, UIDynamic> _elements;
 
-        // ReSharper disable once MemberCanBePrivate.Global
-        public Dictionary<string, UIDynamic> elements { get; private set; }
+        public Dictionary<string, UIDynamic> GetElements() => _elements;
+
         private Dictionary<string, ParameterWindow> _parameterWindows;
         private string _activeParamWindowKey;
 
@@ -54,7 +55,7 @@ namespace TittyMagic.UI
 
         public void Rebuild()
         {
-            elements = new Dictionary<string, UIDynamic>();
+            _elements = new Dictionary<string, UIDynamic>();
 
             CreateHeader(_jointPhysicsParamsHeader, "Joint Physics Parameters", false);
             _script.mainPhysicsHandler?.leftBreastParameters.ToList()
@@ -75,13 +76,13 @@ namespace TittyMagic.UI
             var toggle = _script.CreateToggle(storable, rightSide);
             toggle.height = 52;
             toggle.label = "Breast Soft Physics Self Collide";
-            elements[storable.name] = toggle;
+            _elements[storable.name] = toggle;
         }
 
         private void CreateHeader(JSONStorableString storable, string text, bool rightSide, int spacing = 0)
         {
-            elements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
-            elements[storable.name] = UIHelpers.HeaderTextField(_script, storable, text, rightSide);
+            _elements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
+            _elements[storable.name] = UIHelpers.HeaderTextField(_script, storable, text, rightSide);
         }
 
         private void CreateParamButton(string key, PhysicsParameter param, bool rightSide)
@@ -101,10 +102,9 @@ namespace TittyMagic.UI
                 ClearSelf();
                 _activeParamWindowKey = key;
                 _parameterWindows[key].Rebuild(returnCallback);
-                _script.EnableCurrentTabRenavigation();
             });
 
-            elements[key] = button;
+            _elements[key] = button;
         }
 
         public void Clear()
@@ -120,7 +120,7 @@ namespace TittyMagic.UI
         }
 
         private void ClearSelf() =>
-            elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
+            _elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
 
         private void ClearNestedWindow(string key)
         {

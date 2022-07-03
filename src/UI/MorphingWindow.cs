@@ -9,6 +9,9 @@ namespace TittyMagic.UI
     {
         private readonly Script _script;
         private Dictionary<string, UIDynamic> _elements;
+
+        public Dictionary<string, UIDynamic> GetElements() => _elements;
+
         private readonly JSONStorableString _dynamicMorphingMultipliersHeader;
         private readonly JSONStorableString _dynamicMorphingMultipliersInfoText;
         private readonly JSONStorableString _otherSettingsHeader;

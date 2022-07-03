@@ -1,3 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.Events;
+
 namespace TittyMagic.UI
 {
     internal class Tabs
@@ -6,57 +11,35 @@ namespace TittyMagic.UI
 
         public IWindow activeWindow { get; set; }
 
-        public NavigationButton tab1Button { get; private set; }
-        public NavigationButton tab2Button { get; private set; }
-        public NavigationButton tab3Button { get; private set; }
-        public NavigationButton tab4Button { get; private set; }
+        private readonly Dictionary<int, NavigationButton> _tabButtons;
+        private readonly Transform _leftGroupTransform;
+        private readonly Transform _rightGroupTransform;
 
         public Tabs(Script script)
         {
             _script = script;
+            _leftGroupTransform = UIHelpers.CreateHorizontalLayoutGroup(_script.GetLeftUIContent()).transform;
+            _rightGroupTransform = UIHelpers.CreateHorizontalLayoutGroup(_script.GetRightUIContent()).transform;
+            _tabButtons = new Dictionary<int, NavigationButton>();
         }
 
-        public void CreateUINavigationButtons()
+        public void CreateNavigationButton(int windowId, string name, UnityAction callback)
         {
-            var leftGroupTransform = UIHelpers.CreateHorizontalLayoutGroup(_script.GetLeftUIContent()).transform;
-            var rightGroupTransform = UIHelpers.CreateHorizontalLayoutGroup(_script.GetRightUIContent()).transform;
-
-            tab1Button = new NavigationButton(_script.InstantiateButton(), "Control", leftGroupTransform);
-            tab2Button = new NavigationButton(_script.InstantiateButton(), "Physics Params", leftGroupTransform);
-            tab3Button = new NavigationButton(_script.InstantiateButton(), "Morph Multipliers", rightGroupTransform);
-            tab4Button = new NavigationButton(_script.InstantiateButton(), "Gravity Multipliers", rightGroupTransform);
+            var parent = _tabButtons.Count < 2 ? _leftGroupTransform : _rightGroupTransform;
+            var button = new NavigationButton(_script.InstantiateButton(), name, parent);
+            button.callback = callback;
+            button.AddListener(callback);
+            _tabButtons[windowId] = button;
         }
 
-        public void ActivateTab1()
+        public void ActivateTab(int windowId)
         {
-            tab1Button.SetActive();
-            tab2Button.SetInactive();
-            tab3Button.SetInactive();
-            tab4Button.SetInactive();
-        }
-
-        public void ActivateTab2()
-        {
-            tab1Button.SetInactive();
-            tab2Button.SetActive();
-            tab4Button.SetInactive();
-            tab3Button.SetInactive();
-        }
-
-        public void ActivateTab3()
-        {
-            tab1Button.SetInactive();
-            tab2Button.SetInactive();
-            tab3Button.SetActive();
-            tab4Button.SetInactive();
-        }
-
-        public void ActivateTab4()
-        {
-            tab1Button.SetInactive();
-            tab2Button.SetInactive();
-            tab3Button.SetInactive();
-            tab4Button.SetActive();
+            var navigationButton = _tabButtons[windowId];
+            navigationButton.SetActive();
+            _tabButtons
+                .Where(kvp => kvp.Key != windowId)
+                .ToList()
+                .ForEach(kvp => kvp.Value.SetInactive());
         }
     }
 }

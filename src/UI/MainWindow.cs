@@ -7,7 +7,9 @@ namespace TittyMagic.UI
     internal class MainWindow : IWindow
     {
         private readonly Script _script;
-        public Dictionary<string, UIDynamic> elements { get; private set; }
+        private Dictionary<string, UIDynamic> _elements;
+
+        public Dictionary<string, UIDynamic> GetElements() => _elements;
 
         private readonly JSONStorableString _hardCollidersHeader;
         private readonly JSONStorableString _hardCollidersInfoText;
@@ -39,7 +41,7 @@ namespace TittyMagic.UI
 
         public void Rebuild()
         {
-            elements = new Dictionary<string, UIDynamic>();
+            _elements = new Dictionary<string, UIDynamic>();
 
             CreateTitleTextField(false);
             CreateRecalibratingTextField(true);
@@ -79,7 +81,7 @@ namespace TittyMagic.UI
                 rightSide
             );
             textField.UItext.fontSize = 40;
-            elements[_title.name] = textField;
+            _elements[_title.name] = textField;
         }
 
         private void CreateAutoUpdateMassToggle(bool rightSide, int spacing = 0)
@@ -90,7 +92,7 @@ namespace TittyMagic.UI
             var toggle = _script.CreateToggle(storable, rightSide);
             toggle.height = 52;
             toggle.label = "Auto-Update Mass";
-            elements[storable.name] = toggle;
+            _elements[storable.name] = toggle;
         }
 
         private void CreateSoftPhysicsOnToggle(bool rightSide, int spacing = 0)
@@ -101,34 +103,36 @@ namespace TittyMagic.UI
             var toggle = _script.CreateToggle(storable, rightSide);
             toggle.height = 52;
             toggle.label = "Soft Physics Enabled";
-            elements[storable.name] = toggle;
-        }
-
-        private void CreateCalculateMassButton(bool rightSide, int spacing = 0)
-        {
-            const string name = "calculateBreastMass";
-            AddSpacer(name, spacing, rightSide);
-
-            var button = _script.CreateButton("Calculate Breast Mass", rightSide);
-            button.height = 52;
-            elements[name] = button;
+            _elements[storable.name] = toggle;
         }
 
         private void CreateRecalibratingTextField(bool rightSide, int spacing = 0)
         {
             var storable = _script.statusInfo;
             AddSpacer(storable.name, spacing, rightSide);
-            elements[storable.name] = UIHelpers.NotificationTextField(_script, storable, 32, rightSide);
+            _elements[storable.name] = UIHelpers.NotificationTextField(_script, storable, 32, rightSide);
         }
 
         private void CreateRecalibrateButton(bool rightSide, int spacing = 0)
         {
-            const string name = "recalibratePhysics";
-            AddSpacer(name, spacing, rightSide);
+            var storable = _script.recalibratePhysics;
+            AddSpacer(storable.name, spacing, rightSide);
 
             var button = _script.CreateButton("Recalibrate Physics", rightSide);
+            storable.RegisterButton(button);
             button.height = 52;
-            elements[name] = button;
+            _elements[storable.name] = button;
+        }
+
+        private void CreateCalculateMassButton(bool rightSide, int spacing = 0)
+        {
+            var storable = _script.calculateBreastMass;
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var button = _script.CreateButton("Calculate Breast Mass", rightSide);
+            storable.RegisterButton(button);
+            button.height = 52;
+            _elements[storable.name] = button;
         }
 
         private void CreateMassSlider(bool rightSide, int spacing = 0)
@@ -140,7 +144,7 @@ namespace TittyMagic.UI
             slider.valueFormat = "F3";
             slider.label = "Breast Mass";
             slider.AddSliderClickMonitor();
-            elements[storable.name] = slider;
+            _elements[storable.name] = slider;
         }
 
         private void CreateSoftnessSlider(bool rightSide, int spacing = 0)
@@ -153,7 +157,7 @@ namespace TittyMagic.UI
             slider.slider.wholeNumbers = true;
             slider.label = "Breast Softness";
             slider.AddSliderClickMonitor();
-            elements[storable.name] = slider;
+            _elements[storable.name] = slider;
         }
 
         private void CreateQuicknessSlider(bool rightSide, int spacing = 0)
@@ -166,13 +170,13 @@ namespace TittyMagic.UI
             slider.slider.wholeNumbers = true;
             slider.label = "Breast Quickness";
             slider.AddSliderClickMonitor();
-            elements[storable.name] = slider;
+            _elements[storable.name] = slider;
         }
 
         private void CreateHeader(JSONStorableString storable, string text, bool rightSide, int spacing = 0)
         {
             AddSpacer(storable.name, spacing, rightSide);
-            elements[storable.name] = UIHelpers.HeaderTextField(_script, storable, text, rightSide);
+            _elements[storable.name] = UIHelpers.HeaderTextField(_script, storable, text, rightSide);
         }
 
         private void CreateUseAuxBreastCollidersToggle(bool rightSide, int spacing = 0)
@@ -183,7 +187,7 @@ namespace TittyMagic.UI
             var toggle = _script.CreateToggle(storable, rightSide);
             toggle.height = 52;
             toggle.label = "Use Hard Colliders";
-            elements[storable.name] = toggle;
+            _elements[storable.name] = toggle;
         }
 
         private void CreateColliderScaleSlider(bool rightSide, int spacing = 0)
@@ -194,7 +198,7 @@ namespace TittyMagic.UI
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F4";
             slider.label = "Collider Scale Offset";
-            elements[storable.name] = slider;
+            _elements[storable.name] = slider;
         }
 
         private void CreateColliderRadiusSlider(bool rightSide, int spacing = 0)
@@ -205,7 +209,7 @@ namespace TittyMagic.UI
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "Radius Multiplier";
-            elements[storable.name] = slider;
+            _elements[storable.name] = slider;
         }
 
         private void CreateColliderHeightSlider(bool rightSide, int spacing = 0)
@@ -216,7 +220,7 @@ namespace TittyMagic.UI
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "Height Multiplier";
-            elements[storable.name] = slider;
+            _elements[storable.name] = slider;
         }
 
         private void CreateColliderForceSlider(bool rightSide, int spacing = 0)
@@ -228,7 +232,7 @@ namespace TittyMagic.UI
             slider.valueFormat = "F2";
             slider.label = "Collision Force Multiplier";
             slider.AddSliderClickMonitor();
-            elements[storable.name] = slider;
+            _elements[storable.name] = slider;
         }
 
         private void CreateConfigureHardCollidersButton(bool rightSide, int spacing = 0)
@@ -253,10 +257,9 @@ namespace TittyMagic.UI
                 ClearSelf();
                 _nestedWindowActive = true;
                 _hardCollidersWindow.Rebuild(returnCallback);
-                _script.EnableCurrentTabRenavigation();
             });
 
-            elements[name] = button;
+            _elements[name] = button;
         }
 
         private void CreateHardCollidersInfoTextArea(bool rightSide, int spacing = 0)
@@ -267,17 +270,17 @@ namespace TittyMagic.UI
             var textField = _script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.height = 323;
-            elements[storable.name] = textField;
+            _elements[storable.name] = textField;
         }
 
-        private void AddSpacer(string name, int height, bool rightSide) => elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
+        private void AddSpacer(string name, int height, bool rightSide) => _elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
 
         public List<UIDynamicSlider> GetSliders()
         {
             var sliders = GetSlidersForRefresh();
-            if(elements.ContainsKey(_script.hardColliderHandler.forceJsf.name))
+            if(_elements.ContainsKey(_script.hardColliderHandler.forceJsf.name))
             {
-                sliders.Add(elements[_script.hardColliderHandler.forceJsf.name] as UIDynamicSlider);
+                sliders.Add(_elements[_script.hardColliderHandler.forceJsf.name] as UIDynamicSlider);
             }
 
             return sliders;
@@ -286,11 +289,11 @@ namespace TittyMagic.UI
         public List<UIDynamicSlider> GetSlidersForRefresh()
         {
             var sliders = new List<UIDynamicSlider>();
-            if(elements != null)
+            if(_elements != null)
             {
-                sliders.Add(elements[_script.mainPhysicsHandler.massJsf.name] as UIDynamicSlider);
-                sliders.Add(elements[_script.softnessJsf.name] as UIDynamicSlider);
-                sliders.Add(elements[_script.quicknessJsf.name] as UIDynamicSlider);
+                sliders.Add(_elements[_script.mainPhysicsHandler.massJsf.name] as UIDynamicSlider);
+                sliders.Add(_elements[_script.softnessJsf.name] as UIDynamicSlider);
+                sliders.Add(_elements[_script.quicknessJsf.name] as UIDynamicSlider);
             }
 
             return sliders;
@@ -309,7 +312,7 @@ namespace TittyMagic.UI
         }
 
         private void ClearSelf() =>
-            elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
+            _elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
 
         private void ClearNestedWindow()
         {

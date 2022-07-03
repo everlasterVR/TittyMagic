@@ -114,7 +114,6 @@
     <Compile Include="src\Script.cs" />
     <Compile Include="src\UI\HardCollidersWindow.cs" />
     <Compile Include="src\UI\GravityWindow.cs" />
-    <Compile Include="src\UI\IWindow.cs" />
     <Compile Include="src\UI\MainWindow.cs" />
     <Compile Include="src\UI\MorphingWindow.cs" />
     <Compile Include="src\UI\NavigationButton.cs" />
@@ -123,6 +122,7 @@
     <Compile Include="src\UI\PhysicsWindow.cs" />
     <Compile Include="src\UI\SliderClickMonitor.cs" />
     <Compile Include="src\UI\UIHelpers.cs" />
+    <Compile Include="src\UI\IWindow.cs" />
     <Compile Include="src\Utils\Calc.cs" />
     <Compile Include="src\Utils\Curves.cs" />
     <Compile Include="src\Utils\FrequencyRunner.cs" />

@@ -5,7 +5,9 @@ namespace TittyMagic.UI
     internal class GravityWindow : IWindow
     {
         private readonly Script _script;
-        private Dictionary<string, UIDynamic> elements { get; set; }
+        private Dictionary<string, UIDynamic> _elements;
+
+        public Dictionary<string, UIDynamic> GetElements() => _elements;
 
         private readonly JSONStorableString _gravityPhysicsMultipliersHeader;
         private readonly JSONStorableString _gravityPhysicsMultipliersInfoText;
@@ -35,7 +37,7 @@ namespace TittyMagic.UI
 
         public void Rebuild()
         {
-            elements = new Dictionary<string, UIDynamic>();
+            _elements = new Dictionary<string, UIDynamic>();
 
             CreateHeader(_gravityPhysicsMultipliersHeader, "Gravity Physics Multipliers", false);
             CreateMultiplierSlider(_script.gravityPhysicsHandler.yMultiplierJsf, "Up/Down", false);
@@ -49,7 +51,7 @@ namespace TittyMagic.UI
         }
 
         private void CreateHeader(JSONStorableString storable, string text, bool rightSide) =>
-            elements[storable.name] = UIHelpers.HeaderTextField(_script, storable, text, rightSide);
+            _elements[storable.name] = UIHelpers.HeaderTextField(_script, storable, text, rightSide);
 
         private void CreateMultiplierSlider(JSONStorableFloat storable, string label, bool rightSide, int spacing = 0)
         {
@@ -58,7 +60,7 @@ namespace TittyMagic.UI
             slider.valueFormat = "F2";
             slider.label = label;
             slider.AddSliderClickMonitor();
-            elements[storable.name] = slider;
+            _elements[storable.name] = slider;
         }
 
         private void CreateGravityPhysicsInfoTextArea(bool rightSide, int spacing = 0)
@@ -69,7 +71,7 @@ namespace TittyMagic.UI
             var textField = _script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.height = 390;
-            elements[storable.name] = textField;
+            _elements[storable.name] = textField;
         }
 
         private void CreateOffsetMorphingSlider(bool rightSide, int spacing = 0)
@@ -81,7 +83,7 @@ namespace TittyMagic.UI
             slider.valueFormat = "F2";
             slider.label = "Gravity Offset Morphing";
             slider.AddSliderClickMonitor();
-            elements[storable.name] = slider;
+            _elements[storable.name] = slider;
         }
 
         private void CreateOffsetMorphingInfoTextArea(bool rightSide, int spacing = 0)
@@ -92,26 +94,26 @@ namespace TittyMagic.UI
             var textField = _script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.height = 115;
-            elements[storable.name] = textField;
+            _elements[storable.name] = textField;
         }
 
-        private void AddSpacer(string name, int height, bool rightSide) => elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
+        private void AddSpacer(string name, int height, bool rightSide) => _elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
 
         public List<UIDynamicSlider> GetSliders()
         {
             var sliders = new List<UIDynamicSlider>();
-            if(elements != null)
+            if(_elements != null)
             {
-                sliders.Add(elements[_script.gravityPhysicsHandler.yMultiplierJsf.name] as UIDynamicSlider);
-                sliders.Add(elements[_script.gravityPhysicsHandler.xMultiplierJsf.name] as UIDynamicSlider);
-                sliders.Add(elements[_script.gravityPhysicsHandler.zMultiplierJsf.name] as UIDynamicSlider);
-                sliders.Add(elements[_script.offsetMorphHandler.offsetMorphingJsf.name] as UIDynamicSlider);
+                sliders.Add(_elements[_script.gravityPhysicsHandler.yMultiplierJsf.name] as UIDynamicSlider);
+                sliders.Add(_elements[_script.gravityPhysicsHandler.xMultiplierJsf.name] as UIDynamicSlider);
+                sliders.Add(_elements[_script.gravityPhysicsHandler.zMultiplierJsf.name] as UIDynamicSlider);
+                sliders.Add(_elements[_script.offsetMorphHandler.offsetMorphingJsf.name] as UIDynamicSlider);
             }
 
             return sliders;
         }
 
         public void Clear() =>
-            elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
+            _elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
     }
 }

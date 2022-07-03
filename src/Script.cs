@@ -62,10 +62,12 @@ namespace TittyMagic
         // ReSharper disable once MemberCanBePrivate.Global
         public PhysicsWindow physicsWindow { get; private set; }
 
-        public JSONStorableString statusInfo;
-        public JSONStorableBool autoUpdateJsb;
-        public JSONStorableFloat softnessJsf;
-        public JSONStorableFloat quicknessJsf;
+        public JSONStorableAction recalibratePhysics { get; private set; }
+        public JSONStorableAction calculateBreastMass { get; private set; }
+        public JSONStorableString statusInfo { get; private set; }
+        public JSONStorableBool autoUpdateJsb { get; private set; }
+        public JSONStorableFloat softnessJsf { get; private set; }
+        public JSONStorableFloat quicknessJsf { get; private set; }
 
         public bool initDone { get; private set; }
 
@@ -180,7 +182,7 @@ namespace TittyMagic
 
             SetupStorables();
             CreateNavigation();
-            NavigateToMainWindow();
+            NavigateToWindow(mainWindow);
             InitializeValuesAppliedByListeners();
 
             if(!_loadingFromJson)
@@ -248,6 +250,21 @@ namespace TittyMagic
             softnessJsf = this.NewJSONStorableFloat("breastSoftness", 70f, 0f, 100f);
             quicknessJsf = this.NewJSONStorableFloat("breastQuickness", 70f, 0f, 100f);
 
+            recalibratePhysics = new JSONStorableAction(
+                "recalibratePhysics",
+                () => StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true))
+            );
+
+            calculateBreastMass = new JSONStorableAction(
+                "calculateBreastMass",
+                () => StartCoroutine(
+                    DeferBeginRefresh(
+                        refreshMass: true,
+                        fromToggleOrButton: true,
+                        useNewMass: true
+                    ))
+            );
+
             autoUpdateJsb.setCallbackFunction = value =>
             {
                 if(value)
@@ -296,155 +313,61 @@ namespace TittyMagic
         private void CreateNavigation()
         {
             _tabs = new Tabs(this);
-            _tabs.CreateUINavigationButtons();
-            _tabs.tab1Button.AddListener(NavigateToMainWindow);
-            _tabs.tab2Button.AddListener(NavigateToPhysicsWindow);
-            _tabs.tab3Button.AddListener(NavigateToMorphingWindow);
-            _tabs.tab4Button.AddListener(NavigateToGravityWindow);
+            _tabs.CreateNavigationButton(
+                mainWindow.Id(),
+                "Control",
+                () => NavigateToWindow(mainWindow, PostNavigateToMainWindow)
+            );
+            _tabs.CreateNavigationButton(
+                physicsWindow.Id(),
+                "Physics Params",
+                () => NavigateToWindow(physicsWindow)
+            );
+            _tabs.CreateNavigationButton(
+                morphingWindow.Id(),
+                "Morph Multipliers",
+                () => NavigateToWindow(morphingWindow)
+            );
+            _tabs.CreateNavigationButton(
+                gravityWindow.Id(),
+                "Gravity Multipliers",
+                () => NavigateToWindow(gravityWindow)
+            );
         }
 
-        private void NavigateToMainWindow()
+        private void NavigateToWindow(IWindow window, Action postNavigateAction = null)
         {
-            if(_tabs.activeWindow?.Id() == 1)
-            {
-                return;
-            }
-
-            ResetActiveTabListener();
             _tabs.activeWindow?.Clear();
-            _tabs.activeWindow = mainWindow;
-            _tabs.activeWindow.Rebuild();
-            _tabs.ActivateTab1();
+            _tabs.ActivateTab(window.Id());
+            _tabs.activeWindow = window;
+            window.Rebuild();
 
-            mainWindow.elements[autoUpdateJsb.name].AddListener(value =>
-                UpdateSlider(mainWindow.elements[mainPhysicsHandler.massJsf.name], !value));
+            postNavigateAction?.Invoke();
+        }
 
-            UpdateSlider(mainWindow.elements[mainPhysicsHandler.massJsf.name], !autoUpdateJsb.val);
+        private void PostNavigateToMainWindow()
+        {
+            var elements = _tabs.activeWindow.GetElements();
 
-            mainWindow.elements["calculateBreastMass"].AddListener(() => StartCoroutine(
-                DeferBeginRefresh(
-                    refreshMass: true,
-                    fromToggleOrButton: true,
-                    useNewMass: true
-                )
-            ));
+            elements[autoUpdateJsb.name]
+                .AddListener(value => UpdateSlider(elements[mainPhysicsHandler.massJsf.name], !value));
+            UpdateSlider(elements[mainPhysicsHandler.massJsf.name], !autoUpdateJsb.val);
 
-            mainWindow.elements["recalibratePhysics"]
-                .AddListener(() => StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true)));
-
-            mainWindow.elements[hardColliderHandler.enabledJsb.name].AddListener(value =>
+            elements[hardColliderHandler.enabledJsb.name].AddListener(value =>
             {
-                UpdateSlider(mainWindow.elements[hardColliderHandler.scaleJsf.name], value);
-                // UpdateSlider(mainWindow.elements[_hardColliderHandler.radiusMultiplier.name], val);
-                // UpdateSlider(mainWindow.elements[_hardColliderHandler.heightMultiplier.name], val);
-                UpdateSlider(mainWindow.elements[hardColliderHandler.forceJsf.name], value);
+                UpdateSlider(elements[hardColliderHandler.scaleJsf.name], value);
+                // UpdateSlider(elements[_hardColliderHandler.radiusMultiplier.name], val);
+                // UpdateSlider(elements[_hardColliderHandler.heightMultiplier.name], val);
+                UpdateSlider(elements[hardColliderHandler.forceJsf.name], value);
             });
             UpdateSlider(
-                mainWindow.elements[hardColliderHandler.scaleJsf.name],
+                elements[hardColliderHandler.scaleJsf.name],
                 hardColliderHandler.enabledJsb.val
             );
             UpdateSlider(
-                mainWindow.elements[hardColliderHandler.forceJsf.name],
+                elements[hardColliderHandler.forceJsf.name],
                 hardColliderHandler.enabledJsb.val
             );
-        }
-
-        private void NavigateToPhysicsWindow()
-        {
-            if(_tabs.activeWindow?.Id() == 2)
-            {
-                return;
-            }
-
-            ResetActiveTabListener();
-            _tabs.activeWindow?.Clear();
-            _tabs.activeWindow = physicsWindow;
-            _tabs.activeWindow.Rebuild();
-            _tabs.ActivateTab2();
-        }
-
-        private void NavigateToMorphingWindow()
-        {
-            if(_tabs.activeWindow?.Id() == 3)
-            {
-                return;
-            }
-
-            ResetActiveTabListener();
-            _tabs.activeWindow?.Clear();
-            _tabs.activeWindow = morphingWindow;
-            _tabs.activeWindow.Rebuild();
-            _tabs.ActivateTab3();
-        }
-
-        private void NavigateToGravityWindow()
-        {
-            if(_tabs.activeWindow?.Id() == 4)
-            {
-                return;
-            }
-
-            ResetActiveTabListener();
-            _tabs.activeWindow?.Clear();
-            _tabs.activeWindow = gravityWindow;
-            _tabs.activeWindow.Rebuild();
-            _tabs.ActivateTab4();
-        }
-
-        private void ResetActiveTabListener()
-        {
-            if(_tabs.activeWindow?.Id() == 1)
-            {
-                _tabs.tab1Button.RemoveAllListeners();
-                _tabs.tab1Button.AddListener(NavigateToMainWindow);
-            }
-            else if(_tabs.activeWindow?.Id() == 2)
-            {
-                _tabs.tab2Button.RemoveAllListeners();
-                _tabs.tab2Button.AddListener(NavigateToPhysicsWindow);
-            }
-            else if(_tabs.activeWindow?.Id() == 3)
-            {
-                _tabs.tab3Button.RemoveAllListeners();
-                _tabs.tab3Button.AddListener(NavigateToMorphingWindow);
-            }
-            else if(_tabs.activeWindow?.Id() == 4)
-            {
-                _tabs.tab4Button.RemoveAllListeners();
-                _tabs.tab4Button.AddListener(NavigateToGravityWindow);
-            }
-        }
-
-        public void EnableCurrentTabRenavigation()
-        {
-            if(_tabs.activeWindow?.Id() == 1)
-            {
-                _tabs.tab1Button.SetInteractable();
-                _tabs.tab1Button.RemoveListener(NavigateToMainWindow);
-                _tabs.tab1Button.AddListener(() =>
-                {
-                    _tabs.activeWindow.Clear();
-                    _tabs.activeWindow.Rebuild();
-                    _tabs.ActivateTab1();
-                });
-            }
-            else if(_tabs.activeWindow?.Id() == 2)
-            {
-                _tabs.tab2Button.SetInteractable();
-                _tabs.tab2Button.RemoveListener(NavigateToPhysicsWindow);
-                _tabs.tab2Button.AddListener(() =>
-                {
-                    _tabs.activeWindow.Clear();
-                    _tabs.activeWindow.Rebuild();
-                    _tabs.ActivateTab2();
-                });
-            }
-            else if(_tabs.activeWindow?.Id() == 3)
-            {
-            }
-            else if(_tabs.activeWindow?.Id() == 4)
-            {
-            }
         }
 
         private static void UpdateSlider(UIDynamic element, bool interactable)
@@ -605,7 +528,11 @@ namespace TittyMagic
         public void StartRefreshCoroutine(bool refreshMass, bool fromToggleOrButton) =>
             StartCoroutine(DeferBeginRefresh(refreshMass, fromToggleOrButton));
 
-        private IEnumerator DeferBeginRefresh(bool refreshMass, bool fromToggleOrButton = false, bool? useNewMass = null)
+        private IEnumerator DeferBeginRefresh(
+            bool refreshMass,
+            bool fromToggleOrButton = false,
+            bool? useNewMass = null
+        )
         {
             if(useNewMass == null)
             {
