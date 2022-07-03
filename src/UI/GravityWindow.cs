@@ -29,20 +29,27 @@ namespace TittyMagic.UI
             _offsetMorphingInfoText = new JSONStorableString("offsetMorphingInfoText", "");
 
             _gravityPhysicsMultipliersInfoText.val = "\n".Size(12) +
-                "Adjust the effect of chest angle on breast main physics settings." +
-                "\n\n" +
-                "Higher values mean breasts drop more heavily up/down and left/right, " +
-                "are more swingy when leaning forward, and less springy when leaning back.";
+                "Adjust the effect of gravity on breasts." +
+                "\n\n".Size(24) +
+                "Which slider takes effect depends on the person's orientation: " +
+                "e.g. Up gravity is applied when upside down (breasts \"fall up\" more heavily)." +
+                "\n\n".Size(24) +
+                "Low values maintain the shape better, and make breasts easier to move." +
+                "\n\n".Size(24) +
+                "High values add weight, causing breasts to deform more and fall in the direction of gravity more quickly." +
+                "\n\n".Size(24) +
+                "Adjusting the sliders lets you preview the effect in real time. " +
+                "The final result requires a recalibration - click the button or navigate away from this view.";
 
             _offsetMorphingInfoText.val = "\n".Size(12) +
-                "Rotate breasts up when upright to compensate for negative Up/Down Angle Target.";
+                "Compensates for the droop caused by Down gravity.";
         }
 
         public void Rebuild()
         {
             _elements = new Dictionary<string, UIDynamic>();
 
-            CreateHeader(_gravityPhysicsMultipliersHeader, "Gravity Physics Multipliers", false);
+            CreateHeader(_gravityPhysicsMultipliersHeader, "Breast Gravity", false);
             CreateRecalibrateButton(true, spacing: 62);
 
             var baseSlider = CreateBaseMultiplierSlider(false);
@@ -52,7 +59,7 @@ namespace TittyMagic.UI
             CreateMultiplierSlider(_script.gravityPhysicsHandler.forwardJsf, "Forward", false);
             CreateMultiplierSlider(_script.gravityPhysicsHandler.backJsf, "Back", false);
             CreateMultiplierSlider(_script.gravityPhysicsHandler.leftRightJsf, "Left/Right", false);
-            CreateGravityPhysicsInfoTextArea(true, spacing: 72);
+            CreateGravityPhysicsInfoTextArea(true, spacing: 62);
 
             baseSlider.AddListener(UpdateAllSliderColors);
             UpdateAllSliderColors(0);
@@ -104,7 +111,7 @@ namespace TittyMagic.UI
 
             var textField = _script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
-            textField.height = 660;
+            textField.height = 670;
             textField.backgroundColor = Color.clear;
             _elements[storable.name] = textField;
         }
@@ -116,7 +123,7 @@ namespace TittyMagic.UI
 
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
-            slider.label = "Gravity Offset Morphing";
+            slider.label = "Down Offset Morphing";
             _elements[storable.name] = slider;
         }
 

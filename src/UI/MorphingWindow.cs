@@ -37,7 +37,7 @@ namespace TittyMagic.UI
         {
             _elements = new Dictionary<string, UIDynamic>();
 
-            CreateHeader(_dynamicMorphingMultipliersHeader, "Dynamic Force Morphing", false);
+            CreateHeader(_dynamicMorphingMultipliersHeader, "Directional Force Morphing", false);
 
             var baseSlider = CreateBaseMultiplierSlider(false);
 
