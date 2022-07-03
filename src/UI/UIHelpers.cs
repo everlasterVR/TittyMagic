@@ -111,10 +111,5 @@ namespace TittyMagic.UI
 
             return textField;
         }
-
-        public static Color MultiplierSliderColor(float value) =>
-            value <= 1
-                ? Color.Lerp(new Color(1, 1, 1, 0.25f), Color.white, value)
-                : Color.Lerp(Color.white, new Color(1.0f, 0.2f, 0.2f), (value - 1) / 3);
     }
 }

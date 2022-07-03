@@ -14,17 +14,29 @@ namespace TittyMagic
         private float _mass;
         private float _softness;
 
-        public JSONStorableFloat yMultiplierJsf { get; }
-        public JSONStorableFloat zMultiplierJsf { get; }
-        public JSONStorableFloat xMultiplierJsf { get; }
+        public JSONStorableFloat baseJsf { get; }
+        public JSONStorableFloat upJsf { get; }
+        public JSONStorableFloat downJsf { get; }
+        public JSONStorableFloat forwardJsf { get; }
+        public JSONStorableFloat backJsf { get; }
+        public JSONStorableFloat leftRightJsf { get; }
+
+        public float upMultiplier => baseJsf.val * upJsf.val;
+        private float downMultiplier => baseJsf.val * downJsf.val;
+        private float forwardMultiplier => baseJsf.val * forwardJsf.val;
+        private float backMultiplier => baseJsf.val * backJsf.val;
+        private float leftRightMultiplier => baseJsf.val * leftRightJsf.val;
 
         public GravityPhysicsHandler(Script script)
         {
             _script = script;
 
-            yMultiplierJsf = script.NewJSONStorableFloat("gravityPhysicsUpDown", 1.00f, 0.00f, 2.00f);
-            zMultiplierJsf = script.NewJSONStorableFloat("gravityPhysicsForwardBack", 1.00f, 0.00f, 2.00f);
-            xMultiplierJsf = script.NewJSONStorableFloat("gravityPhysicsLeftRight", 1.00f, 0.00f, 2.00f);
+            baseJsf = script.NewJSONStorableFloat("gravityPhysicsBase", 1.00f, 0.00f, 2.00f);
+            upJsf = script.NewJSONStorableFloat("gravityPhysicsUp", 1.00f, 0.00f, 2.00f);
+            downJsf = script.NewJSONStorableFloat("gravityPhysicsDown", 1.00f, 0.00f, 2.00f);
+            forwardJsf = script.NewJSONStorableFloat("gravityPhysicsForward", 1.00f, 0.00f, 2.00f);
+            backJsf = script.NewJSONStorableFloat("gravityPhysicsBack", 1.00f, 0.00f, 2.00f);
+            leftRightJsf = script.NewJSONStorableFloat("gravityPhysicsLeftRight", 1.00f, 0.00f, 2.00f);
         }
 
         public void LoadSettings()
@@ -41,76 +53,42 @@ namespace TittyMagic
         {
             parameters[CENTER_OF_GRAVITY_PERCENT].gravityPhysicsConfigs = new Dictionary<string, DynamicPhysicsConfig>
             {
-                { Direction.DOWN, null },
-                { Direction.UP, null },
-                {
-                    Direction.BACK,
-                    new DynamicPhysicsConfig(-0.071f, -0.053f, isNegative: true, multiplyInvertedMass: true)
-                },
-                {
-                    Direction.FORWARD,
-                    new DynamicPhysicsConfig(0.141f, 0.106f, isNegative: false, multiplyInvertedMass: true)
-                },
-                { Direction.LEFT, null },
-                { Direction.RIGHT, null },
+                { Direction.BACK, new DynamicPhysicsConfig(-0.071f, -0.053f, isNegative: true, multiplyInvertedMass: true) },
+                { Direction.FORWARD, new DynamicPhysicsConfig(0.141f, 0.106f, isNegative: false, multiplyInvertedMass: true) },
             };
 
             parameters[SPRING].gravityPhysicsConfigs = new Dictionary<string, DynamicPhysicsConfig>
             {
-                { Direction.DOWN, null },
-                { Direction.UP, null },
                 { Direction.BACK, new DynamicPhysicsConfig(-7.0f, -5.3f, isNegative: true) },
                 { Direction.FORWARD, new DynamicPhysicsConfig(-7.0f, -5.3f, isNegative: true) },
-                { Direction.LEFT, null },
-                { Direction.RIGHT, null },
             };
 
             parameters[DAMPER].gravityPhysicsConfigs = new Dictionary<string, DynamicPhysicsConfig>
             {
-                { Direction.DOWN, null },
-                { Direction.UP, null },
                 { Direction.BACK, new DynamicPhysicsConfig(-0.27f, -0.36f, isNegative: true) },
                 { Direction.FORWARD, new DynamicPhysicsConfig(-0.27f, -0.36f, isNegative: true) },
-                { Direction.LEFT, null },
-                { Direction.RIGHT, null },
             };
 
             parameters[POSITION_SPRING_Z].gravityPhysicsConfigs = new Dictionary<string, DynamicPhysicsConfig>
             {
-                { Direction.DOWN, null },
-                { Direction.UP, null },
                 { Direction.BACK, new DynamicPhysicsConfig(-180f, -140f, isNegative: true) },
                 { Direction.FORWARD, new DynamicPhysicsConfig(-180f, -140f, isNegative: true) },
-                { Direction.LEFT, null },
-                { Direction.RIGHT, null },
             };
 
             parameters[POSITION_DAMPER_Z].gravityPhysicsConfigs = new Dictionary<string, DynamicPhysicsConfig>
             {
-                { Direction.DOWN, null },
-                { Direction.UP, null },
                 { Direction.BACK, new DynamicPhysicsConfig(-15f, 5f, isNegative: true, multiplyInvertedMass: true) },
                 { Direction.FORWARD, new DynamicPhysicsConfig(0f, 0f) },
-                { Direction.LEFT, null },
-                { Direction.RIGHT, null },
             };
 
             parameters[TARGET_ROTATION_X].gravityPhysicsConfigs = new Dictionary<string, DynamicPhysicsConfig>
             {
                 { Direction.DOWN, new DynamicPhysicsConfig(-16f, -12f, isNegative: true, additive: false) },
                 { Direction.UP, new DynamicPhysicsConfig(10.7f, 8f, additive: false) },
-                { Direction.BACK, null },
-                { Direction.FORWARD, null },
-                { Direction.LEFT, null },
-                { Direction.RIGHT, null },
             };
 
             parameters[TARGET_ROTATION_Y].gravityPhysicsConfigs = new Dictionary<string, DynamicPhysicsConfig>
             {
-                { Direction.DOWN, null },
-                { Direction.UP, null },
-                { Direction.BACK, null },
-                { Direction.FORWARD, null },
                 { Direction.LEFT, new DynamicPhysicsConfig(16f, 12f, additive: false) },
                 { Direction.RIGHT, new DynamicPhysicsConfig(-16f, -12f, isNegative: true, additive: false) },
             };
@@ -129,14 +107,17 @@ namespace TittyMagic
             float smoothRoll = Calc.SmoothStep(roll);
             float smoothPitch = 2 * Calc.SmoothStep(pitch);
 
-            AdjustRollPhysics(smoothRoll);
-            AdjustUpDownPhysics(smoothPitch, smoothRoll);
-            AdjustDepthPhysics(smoothPitch, smoothRoll);
+            // for some reason, if left right is adjusted after down, down physics is not correctly applied
+            AdjustLeftRightPhysics(smoothRoll);
+            AdjustUpPhysics(smoothPitch, smoothRoll);
+            AdjustDownPhysics(smoothPitch, smoothRoll);
+            AdjustForwardPhysics(smoothPitch, smoothRoll);
+            AdjustBackPhysics(smoothPitch, smoothRoll);
         }
 
-        private void AdjustRollPhysics(float roll)
+        private void AdjustLeftRightPhysics(float roll)
         {
-            float effect = CalculateRollEffect(roll, xMultiplierJsf.val);
+            float effect = CalculateRollEffect(roll, leftRightMultiplier);
             // left
             if(roll >= 0)
             {
@@ -149,9 +130,32 @@ namespace TittyMagic
             }
         }
 
-        private void AdjustUpDownPhysics(float pitch, float roll)
+        private void AdjustUpPhysics(float pitch, float roll)
         {
-            float effect = CalculateUpDownEffect(pitch, roll, yMultiplierJsf.val);
+            float effect = CalculateUpDownEffect(pitch, roll, upMultiplier);
+            // leaning forward
+            if(pitch >= 0)
+            {
+                // upside down
+                if(pitch >= 1)
+                {
+                    UpdatePhysics(Direction.UP, effect);
+                }
+            }
+            // leaning back
+            else
+            {
+                // upside down
+                if(pitch < -1)
+                {
+                    UpdatePhysics(Direction.UP, effect);
+                }
+            }
+        }
+
+        private void AdjustDownPhysics(float pitch, float roll)
+        {
+            float effect = CalculateUpDownEffect(pitch, roll, downMultiplier);
             // leaning forward
             if(pitch >= 0)
             {
@@ -159,11 +163,6 @@ namespace TittyMagic
                 if(pitch < 1)
                 {
                     UpdatePhysics(Direction.DOWN, effect);
-                }
-                // upside down
-                else
-                {
-                    UpdatePhysics(Direction.UP, effect);
                 }
             }
             // leaning back
@@ -174,17 +173,12 @@ namespace TittyMagic
                 {
                     UpdatePhysics(Direction.DOWN, effect);
                 }
-                // upside down
-                else
-                {
-                    UpdatePhysics(Direction.UP, effect);
-                }
             }
         }
 
-        private void AdjustDepthPhysics(float pitch, float roll)
+        private void AdjustForwardPhysics(float pitch, float roll)
         {
-            float effect = CalculateDepthEffect(pitch, roll, zMultiplierJsf.val);
+            float effect = CalculateDepthEffect(pitch, roll, forwardMultiplier);
             // leaning forward
             if(pitch >= 0)
             {
@@ -199,8 +193,13 @@ namespace TittyMagic
                     UpdatePhysics(Direction.FORWARD, effect);
                 }
             }
+        }
+
+        private void AdjustBackPhysics(float pitch, float roll)
+        {
+            float effect = CalculateDepthEffect(pitch, roll, backMultiplier);
             // leaning back
-            else
+            if(pitch < 0)
             {
                 // upright
                 if(pitch >= -1)

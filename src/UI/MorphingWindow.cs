@@ -71,11 +71,9 @@ namespace TittyMagic.UI
         private void CreateMultiplierSlider(JSONStorableFloat storable, string label, bool rightSide, int spacing = 0)
         {
             AddSpacer(storable.name, spacing, rightSide);
-
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = label;
-
             slider.AddListener((float value) => UpdateSliderColor(storable));
             _elements[storable.name] = slider;
         }
@@ -119,10 +117,15 @@ namespace TittyMagic.UI
             var images = slider.slider.gameObject.transform.GetComponentsInChildren<Image>();
             var fillImage = images.First(image => image.name == "Fill");
             var handleImage = images.First(image => image.name == "Handle");
-            var color = UIHelpers.MultiplierSliderColor(_script.forceMorphHandler.baseJsf.val * storable.val);
+            var color = MultiplierSliderColor(_script.forceMorphHandler.baseJsf.val * storable.val);
             fillImage.color = color;
             handleImage.color = color;
         }
+
+        private static Color MultiplierSliderColor(float value) =>
+            value <= 1
+                ? Color.Lerp(new Color(1, 1, 1, 0.25f), Color.white, value)
+                : Color.Lerp(Color.white, new Color(1.0f, 0.2f, 0.2f), (value - 1) / 3);
 
         public List<UIDynamicSlider> GetSliders()
         {

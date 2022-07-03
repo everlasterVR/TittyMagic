@@ -303,11 +303,6 @@ namespace TittyMagic
                     );
                 }
             };
-
-            gravityPhysicsHandler.xMultiplierJsf.setCallbackFunction = value => RefreshFromSliderChanged();
-            gravityPhysicsHandler.yMultiplierJsf.setCallbackFunction = value => RefreshFromSliderChanged();
-            gravityPhysicsHandler.zMultiplierJsf.setCallbackFunction = value => RefreshFromSliderChanged();
-            offsetMorphHandler.offsetMorphingJsf.setCallbackFunction = value => RefreshFromSliderChanged();
         }
 
         private void CreateNavigation()
@@ -828,9 +823,7 @@ namespace TittyMagic
         private void OnRemoveAtom(Atom atom)
         {
             Destroy(_settingsMonitor);
-            mainWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
-            morphingWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
-            gravityWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
+            DestroyAllSliderClickMonitors();
         }
 
         private void OnDestroy()
@@ -839,9 +832,7 @@ namespace TittyMagic
             {
                 Destroy(_settingsMonitor);
                 Destroy(hardColliderHandler);
-                mainWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
-                morphingWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
-                gravityWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
+                DestroyAllSliderClickMonitors();
                 SuperController.singleton.onAtomRemovedHandlers -= OnRemoveAtom;
                 SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
             }
@@ -849,6 +840,13 @@ namespace TittyMagic
             {
                 LogError($"OnDestroy: {e}");
             }
+        }
+
+        private void DestroyAllSliderClickMonitors()
+        {
+            mainWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
+            morphingWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
+            gravityWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
         }
 
         public void OnEnable()

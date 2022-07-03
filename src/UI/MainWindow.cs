@@ -45,8 +45,7 @@ namespace TittyMagic.UI
 
             CreateTitleTextField(false);
             CreateRecalibratingTextField(true);
-            CreateRecalibrateButton(true);
-            CreateCalculateMassButton(true);
+            CreateCalculateMassButton(true, spacing: 54);
             CreateAutoUpdateMassToggle(true);
             CreateMassSlider(false);
 
@@ -113,17 +112,6 @@ namespace TittyMagic.UI
             _elements[storable.name] = UIHelpers.NotificationTextField(_script, storable, 32, rightSide);
         }
 
-        private void CreateRecalibrateButton(bool rightSide, int spacing = 0)
-        {
-            var storable = _script.recalibratePhysics;
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var button = _script.CreateButton("Recalibrate Physics", rightSide);
-            storable.RegisterButton(button);
-            button.height = 52;
-            _elements[storable.name] = button;
-        }
-
         private void CreateCalculateMassButton(bool rightSide, int spacing = 0)
         {
             var storable = _script.calculateBreastMass;
@@ -131,7 +119,7 @@ namespace TittyMagic.UI
 
             var button = _script.CreateButton("Calculate Breast Mass", rightSide);
             storable.RegisterButton(button);
-            button.height = 52;
+            button.height = 53;
             _elements[storable.name] = button;
         }
 
@@ -270,6 +258,7 @@ namespace TittyMagic.UI
             var textField = _script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.height = 323;
+            textField.backgroundColor = Color.clear;
             _elements[storable.name] = textField;
         }
 

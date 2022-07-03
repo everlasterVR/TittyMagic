@@ -43,7 +43,7 @@ namespace TittyMagic
             _trackLeftNipple = trackLeftNipple;
             _trackRightNipple = trackRightNipple;
 
-            baseJsf = script.NewJSONStorableFloat("forceMorphingOverall", 1.00f, 0.00f, 2.00f);
+            baseJsf = script.NewJSONStorableFloat("forceMorphingBase", 1.00f, 0.00f, 2.00f);
             upJsf = script.NewJSONStorableFloat("forceMorphingUp", 1.00f, 0.00f, 2.00f);
             downJsf = script.NewJSONStorableFloat("forceMorphingDown", 1.00f, 0.00f, 2.00f);
             forwardJsf = script.NewJSONStorableFloat("forceMorphingForward", 1.00f, 0.00f, 2.00f);
