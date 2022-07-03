@@ -1,12 +1,15 @@
 using System.Collections.Generic;
+using System.Linq;
+using Leap.Unity;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace TittyMagic.UI
 {
     internal class MorphingWindow : IWindow
     {
         private readonly Script _script;
-        public Dictionary<string, UIDynamic> elements { get; private set; }
-
+        private Dictionary<string, UIDynamic> _elements;
         private readonly JSONStorableString _dynamicMorphingMultipliersHeader;
         private readonly JSONStorableString _dynamicMorphingMultipliersInfoText;
         private readonly JSONStorableString _otherSettingsHeader;
@@ -21,6 +24,7 @@ namespace TittyMagic.UI
             _dynamicMorphingMultipliersInfoText = new JSONStorableString("dynamicMorphingMultipliersInfoText", "");
             _otherSettingsHeader = new JSONStorableString("otherSettingsHeader", "");
 
+            //TODO
             _dynamicMorphingMultipliersInfoText.val = "\n".Size(12) +
                 "Adjust the amount of breast morphing due to forces including gravity.\n" +
                 "\n" +
@@ -29,20 +33,38 @@ namespace TittyMagic.UI
 
         public void Rebuild()
         {
-            elements = new Dictionary<string, UIDynamic>();
+            _elements = new Dictionary<string, UIDynamic>();
 
-            CreateHeader(_dynamicMorphingMultipliersHeader, "Dynamic Morphing Multipliers", false);
-            CreateMultiplierSlider(_script.forceMorphHandler.yMultiplierJsf, "Up/Down", false);
-            CreateMultiplierSlider(_script.forceMorphHandler.xMultiplierJsf, "Left/Right", false);
-            CreateMultiplierSlider(_script.forceMorphHandler.zMultiplierJsf, "Forward/Back", false);
-            CreateDynamicMorphingInfoTextArea(true, spacing: 62);
+            CreateHeader(_dynamicMorphingMultipliersHeader, "Dynamic Force Morphing", false);
+
+            var baseSlider = CreateBaseMultiplierSlider(false);
+
+            CreateMultiplierSlider(_script.forceMorphHandler.upJsf, "Up", false, spacing: 5);
+            CreateMultiplierSlider(_script.forceMorphHandler.downJsf, "Down", false);
+            CreateMultiplierSlider(_script.forceMorphHandler.forwardJsf, "Forward", false);
+            CreateMultiplierSlider(_script.forceMorphHandler.backJsf, "Back", false);
+            CreateMultiplierSlider(_script.forceMorphHandler.leftRightJsf, "Left / Right", false);
+
+            baseSlider.AddListener(UpdateAllSliderColors);
+            UpdateAllSliderColors(0);
 
             CreateHeader(_otherSettingsHeader, "Other", false);
             CreateNippleErectionSlider(false);
         }
 
         private void CreateHeader(JSONStorableString storable, string text, bool rightSide) =>
-            elements[storable.name] = UIHelpers.HeaderTextField(_script, storable, text, rightSide);
+            _elements[storable.name] = UIHelpers.HeaderTextField(_script, storable, text, rightSide);
+
+        private UIDynamicSlider CreateBaseMultiplierSlider(bool rightSide, int spacing = 0)
+        {
+            var storable = _script.forceMorphHandler.baseJsf;
+            AddSpacer(storable.name, spacing, rightSide);
+            var slider = _script.CreateSlider(storable, rightSide);
+            slider.valueFormat = "F2";
+            slider.label = "Base Multiplier";
+            _elements[storable.name] = slider;
+            return slider;
+        }
 
         private void CreateMultiplierSlider(JSONStorableFloat storable, string label, bool rightSide, int spacing = 0)
         {
@@ -51,7 +73,20 @@ namespace TittyMagic.UI
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = label;
-            elements[storable.name] = slider;
+
+            slider.AddListener((float value) => UpdateSliderColor(storable));
+            _elements[storable.name] = slider;
+        }
+
+        private void CreateMultiplierTextArea(JSONStorableString storable, bool rightSide, int spacing = 0)
+        {
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var textField = _script.CreateTextField(storable, rightSide);
+            textField.UItext.fontSize = 28;
+            textField.backgroundColor = Color.clear;
+            textField.height = 120;
+            _elements[storable.name] = textField;
         }
 
         private void CreateNippleErectionSlider(bool rightSide, int spacing = 0)
@@ -62,37 +97,46 @@ namespace TittyMagic.UI
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "Nipple Erection";
-            elements[storable.name] = slider;
+            _elements[storable.name] = slider;
         }
 
-        private void CreateDynamicMorphingInfoTextArea(bool rightSide, int spacing = 0)
+        private void AddSpacer(string name, int height, bool rightSide) => _elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
+
+        private void UpdateAllSliderColors(float value)
         {
-            var storable = _dynamicMorphingMultipliersInfoText;
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var textField = _script.CreateTextField(storable, rightSide);
-            textField.UItext.fontSize = 28;
-            textField.height = 390;
-            elements[storable.name] = textField;
+            UpdateSliderColor(_script.forceMorphHandler.upJsf);
+            UpdateSliderColor(_script.forceMorphHandler.downJsf);
+            UpdateSliderColor(_script.forceMorphHandler.forwardJsf);
+            UpdateSliderColor(_script.forceMorphHandler.backJsf);
+            UpdateSliderColor(_script.forceMorphHandler.leftRightJsf);
         }
 
-        private void AddSpacer(string name, int height, bool rightSide) => elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
+        private void UpdateSliderColor(JSONStorableFloat storable)
+        {
+            var slider = (UIDynamicSlider) _elements[storable.name];
+            var images = slider.slider.gameObject.transform.GetComponentsInChildren<Image>();
+            var fillImage = images.First(image => image.name == "Fill");
+            var handleImage = images.First(image => image.name == "Handle");
+            var color = UIHelpers.MultiplierSliderColor(_script.forceMorphHandler.baseJsf.val * storable.val);
+            fillImage.color = color;
+            handleImage.color = color;
+        }
 
         public List<UIDynamicSlider> GetSliders()
         {
             var sliders = new List<UIDynamicSlider>();
-            if(elements != null)
+            if(_elements != null)
             {
-                sliders.Add(elements[_script.forceMorphHandler.yMultiplierJsf.name] as UIDynamicSlider);
-                sliders.Add(elements[_script.forceMorphHandler.xMultiplierJsf.name] as UIDynamicSlider);
-                sliders.Add(elements[_script.forceMorphHandler.zMultiplierJsf.name] as UIDynamicSlider);
-                sliders.Add(elements[_script.nippleMorphHandler.nippleErectionJsf.name] as UIDynamicSlider);
+                sliders.Add(_elements[_script.forceMorphHandler.upJsf.name] as UIDynamicSlider);
+                sliders.Add(_elements[_script.forceMorphHandler.leftRightJsf.name] as UIDynamicSlider);
+                sliders.Add(_elements[_script.forceMorphHandler.forwardJsf.name] as UIDynamicSlider);
+                sliders.Add(_elements[_script.nippleMorphHandler.nippleErectionJsf.name] as UIDynamicSlider);
             }
 
             return sliders;
         }
 
         public void Clear() =>
-            elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
+            _elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
     }
 }

@@ -96,5 +96,25 @@ namespace TittyMagic.UI
 
             return textField;
         }
+
+        public static UIDynamicTextField NotificationTextField(MVRScript script, JSONStorableString storable, int height, bool rightSide)
+        {
+            var textField = script.CreateTextField(storable, rightSide);
+            textField.UItext.fontSize = 26;
+            textField.UItext.color = new Color(0.15f, 0.15f, 0.15f);
+            textField.UItext.alignment = TextAnchor.MiddleRight;
+            textField.backgroundColor = Color.clear;
+
+            var layout = textField.GetComponent<LayoutElement>();
+            layout.preferredHeight = height;
+            layout.minHeight = height;
+
+            return textField;
+        }
+
+        public static Color MultiplierSliderColor(float value) =>
+            value <= 1
+                ? Color.Lerp(new Color(1, 1, 1, 0.25f), Color.white, value)
+                : Color.Lerp(Color.white, new Color(1.0f, 0.2f, 0.2f), (value - 1) / 3);
     }
 }

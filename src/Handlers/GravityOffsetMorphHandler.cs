@@ -23,8 +23,7 @@ namespace TittyMagic
         {
             _script = script;
             offsetMorphingJsf = script.NewJSONStorableFloat("gravityOffsetMorphing", 1.00f, 0.00f, 2.00f);
-            yMultiplier = new Multiplier();
-            yMultiplier.mainMultiplier = script.gravityPhysicsHandler.yMultiplierJsf.val;
+            yMultiplier = new Multiplier(script.gravityPhysicsHandler.yMultiplierJsf.val);
         }
 
         public void LoadSettings() =>

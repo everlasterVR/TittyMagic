@@ -20,13 +20,22 @@ namespace TittyMagic
 
         private Dictionary<string, List<MorphConfig>> _configSets;
 
-        public JSONStorableFloat xMultiplierJsf { get; }
-        public JSONStorableFloat yMultiplierJsf { get; }
-        public JSONStorableFloat zMultiplierJsf { get; }
+        public JSONStorableFloat baseJsf { get; }
+        public JSONStorableFloat upJsf { get; }
+        public JSONStorableFloat downJsf { get; }
+        public JSONStorableFloat forwardJsf { get; }
+        public JSONStorableFloat backJsf { get; }
+        public JSONStorableFloat leftRightJsf { get; }
 
-        public Multiplier xMultiplier { get; }
-        public Multiplier yMultiplier { get; }
-        public Multiplier zMultiplier { get; }
+        public float upDownExtraMultiplier { get; set; }
+        public float forwardBackExtraMultiplier { get; set; }
+        public float leftRightExtraMultiplier { get; set; }
+
+        private float upMultiplier => baseJsf.val * upJsf.val;
+        private float downMultiplier => baseJsf.val * downJsf.val;
+        private float forwardMultiplier => baseJsf.val * forwardJsf.val;
+        private float backMultiplier => baseJsf.val * backJsf.val;
+        private float leftRightMultiplier => baseJsf.val * leftRightJsf.val;
 
         public ForceMorphHandler(Script script, TrackNipple trackLeftNipple, TrackNipple trackRightNipple)
         {
@@ -34,18 +43,12 @@ namespace TittyMagic
             _trackLeftNipple = trackLeftNipple;
             _trackRightNipple = trackRightNipple;
 
-            xMultiplierJsf = script.NewJSONStorableFloat("morphingLeftRight", 1.00f, 0.00f, 3.00f);
-            yMultiplierJsf = script.NewJSONStorableFloat("morphingUpDown", 1.00f, 0.00f, 3.00f);
-            zMultiplierJsf = script.NewJSONStorableFloat("morphingForwardBack", 1.00f, 0.00f, 3.00f);
-
-            xMultiplier = new Multiplier();
-            yMultiplier = new Multiplier();
-            zMultiplier = new Multiplier();
-
-            xMultiplier.mainMultiplier = Curves.QuadraticRegression(xMultiplierJsf.val);
-            yMultiplier.mainMultiplier = Curves.QuadraticRegression(yMultiplierJsf.val);
-            zMultiplier.mainMultiplier = Curves.QuadraticRegressionLesser(zMultiplierJsf.val);
-
+            baseJsf = script.NewJSONStorableFloat("forceMorphingOverall", 1.00f, 0.00f, 2.00f);
+            upJsf = script.NewJSONStorableFloat("forceMorphingUp", 1.00f, 0.00f, 2.00f);
+            downJsf = script.NewJSONStorableFloat("forceMorphingDown", 1.00f, 0.00f, 2.00f);
+            forwardJsf = script.NewJSONStorableFloat("forceMorphingForward", 1.00f, 0.00f, 2.00f);
+            backJsf = script.NewJSONStorableFloat("forceMorphingBack", 1.00f, 0.00f, 2.00f);
+            leftRightJsf = script.NewJSONStorableFloat("forceMorphingLeftRight", 1.00f, 0.00f, 2.00f);
         }
 
         public void LoadSettings() =>
@@ -54,6 +57,8 @@ namespace TittyMagic
                 { Direction.UP_L, LoadSettingsFromFile(Direction.UP, "upForce", " L") },
                 { Direction.UP_R, LoadSettingsFromFile(Direction.UP, "upForce", " R") },
                 { Direction.UP_C, LoadSettingsFromFile(Direction.UP, "upForceCenter") },
+                { Direction.DOWN_L, LoadSettingsFromFile(Direction.DOWN, "downForce", " L") },
+                { Direction.DOWN_R, LoadSettingsFromFile(Direction.DOWN, "downForce", " R") },
                 { Direction.BACK_L, LoadSettingsFromFile(Direction.BACK, "backForce", " L") },
                 { Direction.BACK_R, LoadSettingsFromFile(Direction.BACK, "backForce", " R") },
                 { Direction.BACK_C, LoadSettingsFromFile(Direction.BACK, "backForceCenter") },
@@ -95,13 +100,15 @@ namespace TittyMagic
             _mass = mass;
 
             AdjustUpMorphs();
-            AdjustDepthMorphs();
+            AdjustDownMorphs();
+            AdjustForwardMorphs();
+            AdjustBackMorphs();
             AdjustLeftRightMorphs();
         }
 
         private void AdjustUpMorphs()
         {
-            float multiplier = yMultiplier.mainMultiplier * (yMultiplier.extraMultiplier ?? 1);
+            float multiplier = Curves.QuadraticRegression(upMultiplier) * upDownExtraMultiplier;
             float effectYLeft = CalculateYEffect(_trackLeftNipple.angleY, multiplier);
             float effectYRight = CalculateYEffect(_trackRightNipple.angleY, multiplier);
             float angleYCenter = (_trackRightNipple.angleY + _trackLeftNipple.angleY) / 2;
@@ -140,31 +147,93 @@ namespace TittyMagic
             }
         }
 
-        private void AdjustDepthMorphs()
+        private void AdjustDownMorphs()
         {
-            float forwardMultiplier = zMultiplier.mainMultiplier * (zMultiplier.extraMultiplier ?? 1);
-            float backMultiplier = zMultiplier.mainMultiplier * (zMultiplier.oppositeExtraMultiplier ?? 1);
+            float multiplier = Curves.QuadraticRegression(downMultiplier) * upDownExtraMultiplier;
+            float effectYLeft = CalculateYEffect(_trackLeftNipple.angleY, multiplier);
+            float effectYRight = CalculateYEffect(_trackRightNipple.angleY, multiplier);
 
-            float leftMultiplier = _trackLeftNipple.depthDiff < 0 ? forwardMultiplier : backMultiplier;
-            float rightMultiplier = _trackRightNipple.depthDiff < 0 ? forwardMultiplier : backMultiplier;
+            // up force on left breast
+            if(_trackLeftNipple.angleY >= 0)
+            {
+                ResetMorphs(Direction.DOWN_L);
+            }
+            // down force on left breast
+            else
+            {
+                UpdateMorphs(Direction.DOWN_L, effectYLeft);
+            }
 
-            float effectZLeft = CalculateZEffect(_trackLeftNipple.depthDiff, leftMultiplier);
-            float effectZRight = CalculateZEffect(_trackRightNipple.depthDiff, rightMultiplier);
+            // up force on right breast
+            if(_trackRightNipple.angleY >= 0)
+            {
+                ResetMorphs(Direction.DOWN_R);
+            }
+            // down force on right breast
+            else
+            {
+                UpdateMorphs(Direction.DOWN_R, effectYRight);
+            }
+        }
 
+        private void AdjustForwardMorphs()
+        {
+            float multiplier = Curves.QuadraticRegression(forwardMultiplier) * forwardBackExtraMultiplier;
+            float effectZLeft = CalculateZEffect(_trackLeftNipple.depthDiff, multiplier);
+            float effectZRight = CalculateZEffect(_trackRightNipple.depthDiff, multiplier);
             float depthDiffCenter = (_trackLeftNipple.depthDiff + _trackRightNipple.depthDiff) / 2;
-            float centerMultiplier = depthDiffCenter < 0 ? forwardMultiplier : backMultiplier;
-            float effectZCenter = CalculateZEffect(depthDiffCenter, centerMultiplier);
+            float effectZCenter = CalculateZEffect(depthDiffCenter, multiplier);
 
             // forward force on left breast
             if(_trackLeftNipple.depthDiff <= 0)
             {
-                ResetMorphs(Direction.BACK_L);
                 UpdateMorphs(Direction.FORWARD_L, effectZLeft);
             }
             // back force on left breast
             else
             {
                 ResetMorphs(Direction.FORWARD_L);
+            }
+
+            // forward force on right breast
+            if(_trackRightNipple.depthDiff <= 0)
+            {
+                UpdateMorphs(Direction.FORWARD_R, effectZRight);
+            }
+            // back force on right breast
+            else
+            {
+                ResetMorphs(Direction.FORWARD_R);
+            }
+
+            // forward force on average of left and right breast
+            if(depthDiffCenter <= 0)
+            {
+                UpdateMorphs(Direction.FORWARD_C, effectZCenter);
+            }
+            // back force on average of left and right breast
+            else
+            {
+                ResetMorphs(Direction.FORWARD_C);
+            }
+        }
+
+        private void AdjustBackMorphs()
+        {
+            float multiplier = Curves.QuadraticRegression(backMultiplier) * forwardBackExtraMultiplier;
+            float effectZLeft = CalculateZEffect(_trackLeftNipple.depthDiff, multiplier);
+            float effectZRight = CalculateZEffect(_trackRightNipple.depthDiff, multiplier);
+            float depthDiffCenter = (_trackLeftNipple.depthDiff + _trackRightNipple.depthDiff) / 2;
+            float effectZCenter = CalculateZEffect(depthDiffCenter, multiplier);
+
+            // forward force on left breast
+            if(_trackLeftNipple.depthDiff <= 0)
+            {
+                ResetMorphs(Direction.BACK_L);
+            }
+            // back force on left breast
+            else
+            {
                 UpdateMorphs(Direction.BACK_L, effectZLeft);
             }
 
@@ -172,12 +241,10 @@ namespace TittyMagic
             if(_trackRightNipple.depthDiff <= 0)
             {
                 ResetMorphs(Direction.BACK_R);
-                UpdateMorphs(Direction.FORWARD_R, effectZRight);
             }
             // back force on right breast
             else
             {
-                ResetMorphs(Direction.FORWARD_R);
                 UpdateMorphs(Direction.BACK_R, effectZRight);
             }
 
@@ -185,19 +252,17 @@ namespace TittyMagic
             if(depthDiffCenter <= 0)
             {
                 ResetMorphs(Direction.BACK_C);
-                UpdateMorphs(Direction.FORWARD_C, effectZCenter);
             }
             // back force on average of left and right breast
             else
             {
-                ResetMorphs(Direction.FORWARD_C);
                 UpdateMorphs(Direction.BACK_C, effectZCenter);
             }
         }
 
         private void AdjustLeftRightMorphs()
         {
-            float multiplier = xMultiplier.mainMultiplier * (xMultiplier.extraMultiplier ?? 1);
+            float multiplier = Curves.QuadraticRegression(leftRightMultiplier) * leftRightExtraMultiplier;
             float effectXLeft = CalculateXEffect(_trackLeftNipple.angleX, multiplier);
             float effectXRight = CalculateXEffect(_trackRightNipple.angleX, multiplier);
 

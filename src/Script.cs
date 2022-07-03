@@ -248,6 +248,18 @@ namespace TittyMagic
             softnessJsf = this.NewJSONStorableFloat("breastSoftness", 70f, 0f, 100f);
             quicknessJsf = this.NewJSONStorableFloat("breastQuickness", 70f, 0f, 100f);
 
+            nippleMorphHandler.nippleErectionJsf.setCallbackFunction = val =>
+            {
+                nippleMorphHandler.Update(val);
+                if(_settingsMonitor.softPhysicsEnabled)
+                {
+                    softPhysicsHandler.UpdateNipplePhysics(
+                        mainPhysicsHandler.massAmount,
+                        _softnessAmount,
+                        val
+                    );
+                }
+            };
         }
 
         private void CreateNavigation()
@@ -374,38 +386,6 @@ namespace TittyMagic
             _tabs.activeWindow = morphingWindow;
             _tabs.activeWindow.Rebuild();
             _tabs.ActivateTab3();
-
-            morphingWindow.elements.ToList()
-                .ForEach(kvp =>
-                {
-                    if(kvp.Key == forceMorphHandler.xMultiplierJsf.name)
-                    {
-                        kvp.Value.AddListener(val => forceMorphHandler.xMultiplier.mainMultiplier = Curves.QuadraticRegression(val));
-                    }
-                    else if(kvp.Key == forceMorphHandler.yMultiplierJsf.name)
-                    {
-                        kvp.Value.AddListener(val => forceMorphHandler.yMultiplier.mainMultiplier = Curves.QuadraticRegression(val));
-                    }
-                    else if(kvp.Key == forceMorphHandler.zMultiplierJsf.name)
-                    {
-                        kvp.Value.AddListener(val => forceMorphHandler.zMultiplier.mainMultiplier = Curves.QuadraticRegressionLesser(val));
-                    }
-                    else if(kvp.Key == nippleMorphHandler.nippleErectionJsf.name)
-                    {
-                        kvp.Value.AddListener(val =>
-                        {
-                            nippleMorphHandler.Update(val);
-                            if(_settingsMonitor.softPhysicsEnabled)
-                            {
-                                softPhysicsHandler.UpdateNipplePhysics(
-                                    mainPhysicsHandler.massAmount,
-                                    _softnessAmount,
-                                    val
-                                );
-                            }
-                        });
-                    }
-                });
         }
 
         private void NavigateToGravityWindow()
@@ -817,10 +797,11 @@ namespace TittyMagic
         {
             float softnessMultiplier = Mathf.Lerp(0.5f, 1.14f, _softnessAmount);
             float mass = mainPhysicsHandler.realMassAmount;
-            forceMorphHandler.yMultiplier.extraMultiplier = softnessMultiplier * (3.15f - 1.40f * mass);
-            forceMorphHandler.xMultiplier.extraMultiplier = softnessMultiplier * (3.55f - 1.40f * mass);
-            forceMorphHandler.zMultiplier.extraMultiplier = softnessMultiplier * (3.8f - 1.5f * mass);
-            forceMorphHandler.zMultiplier.oppositeExtraMultiplier = softnessMultiplier * (3.8f - 1.5f * mass);
+
+            forceMorphHandler.upDownExtraMultiplier = softnessMultiplier * (3.15f - 1.40f * mass);
+            forceMorphHandler.forwardBackExtraMultiplier = softnessMultiplier * (3.8f - 1.5f * mass);
+            forceMorphHandler.leftRightExtraMultiplier = softnessMultiplier * (3.55f - 1.40f * mass);
+
             offsetMorphHandler.yMultiplier.extraMultiplier = 1.16f - mass;
         }
 
@@ -879,6 +860,7 @@ namespace TittyMagic
 
                     _waitStatus = WaitStatus.DONE;
                     _refreshStatus = RefreshStatus.DONE;
+                    statusInfo.val = "";
                     initDone = true;
                 }
             }

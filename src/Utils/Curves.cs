@@ -4,11 +4,9 @@ namespace TittyMagic
 {
     internal static class Curves
     {
-        public static float QuadraticRegression(float f) =>
-            -0.173f * f * f + 1.142f * f;
-
-        public static float QuadraticRegressionLesser(float f) =>
-            -0.115f * f * f + 1.12f * f;
+        // https://www.desmos.com/calculator/ebvzukk7ps
+        public static float QuadraticRegression(float value) =>
+            -0.118f * value * value + 0.97f * value;
 
         // ReSharper disable once UnusedMember.Local
         private static float Polynomial(

@@ -39,9 +39,9 @@ namespace TittyMagic
             _softPhysicsHandler = softPhysicsHandler;
             _trackLeftNipple = trackLeftNipple;
             _trackRightNipple = trackRightNipple;
-            xMultiplier = new Multiplier();
-            yMultiplier = new Multiplier();
-            zMultiplier = new Multiplier();
+            xMultiplier = new Multiplier(0);
+            yMultiplier = new Multiplier(0);
+            zMultiplier = new Multiplier(0);
         }
 
         public void LoadSettings()

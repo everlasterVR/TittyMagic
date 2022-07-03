@@ -30,13 +30,9 @@ namespace TittyMagic
             yMultiplierJsf = script.NewJSONStorableFloat("gravityPhysicsUpDown", 1.00f, 0.00f, 2.00f);
             zMultiplierJsf = script.NewJSONStorableFloat("gravityPhysicsForwardBack", 1.00f, 0.00f, 2.00f);
 
-            xMultiplier = new Multiplier();
-            yMultiplier = new Multiplier();
-            zMultiplier = new Multiplier();
-
-            xMultiplier.mainMultiplier = xMultiplierJsf.val;
-            yMultiplier.mainMultiplier = yMultiplierJsf.val;
-            zMultiplier.mainMultiplier = zMultiplierJsf.val;
+            xMultiplier = new Multiplier(xMultiplierJsf.val);
+            yMultiplier = new Multiplier(yMultiplierJsf.val);
+            zMultiplier = new Multiplier(zMultiplierJsf.val);
         }
 
         public void LoadSettings()
