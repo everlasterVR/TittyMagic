@@ -11,5 +11,7 @@ namespace TittyMagic.UI
         void Rebuild();
 
         void Clear();
+
+        void ActionsOnWindowClosed();
     }
 }

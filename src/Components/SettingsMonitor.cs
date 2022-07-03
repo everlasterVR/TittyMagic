@@ -97,7 +97,7 @@ namespace TittyMagic
 
             if(Gender.isFemale && _useAdvancedColliders.CheckIfUpdateNeeded(_geometry.useAdvancedColliders))
             {
-                _script.StartRefreshCoroutine();
+                _script.StartRefreshCoroutine(refreshMass: true, waitForListeners: false);
             }
 
             CheckFixedDeltaTimeChanged();

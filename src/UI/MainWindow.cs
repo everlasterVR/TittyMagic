@@ -308,5 +308,9 @@ namespace TittyMagic.UI
             _hardCollidersWindow.Clear();
             _nestedWindowActive = false;
         }
+
+        public void ActionsOnWindowClosed()
+        {
+        }
     }
 }

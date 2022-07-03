@@ -127,5 +127,9 @@ namespace TittyMagic.UI
             _parameterWindows[key].Clear();
             _activeParamWindowKey = null;
         }
+
+        public void ActionsOnWindowClosed()
+        {
+        }
     }
 }

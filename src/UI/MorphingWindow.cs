@@ -143,5 +143,9 @@ namespace TittyMagic.UI
 
         public void Clear() =>
             _elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
+
+        public void ActionsOnWindowClosed()
+        {
+        }
     }
 }

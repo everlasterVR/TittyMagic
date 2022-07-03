@@ -51,17 +51,14 @@ namespace TittyMagic
         private JSONStorableString _pluginVersionStorable;
 
         private Tabs _tabs;
+
+        // ReSharper disable MemberCanBePrivate.Global
         public MainWindow mainWindow { get; private set; }
-
-        // ReSharper disable once MemberCanBePrivate.Global
         public MorphingWindow morphingWindow { get; private set; }
-
-        // ReSharper disable once MemberCanBePrivate.Global
         public GravityWindow gravityWindow { get; private set; }
-
-        // ReSharper disable once MemberCanBePrivate.Global
         public PhysicsWindow physicsWindow { get; private set; }
 
+        // ReSharper restore MemberCanBePrivate.Global
         public JSONStorableAction recalibratePhysics { get; private set; }
         public JSONStorableAction calculateBreastMass { get; private set; }
         public JSONStorableString statusInfo { get; private set; }
@@ -69,6 +66,7 @@ namespace TittyMagic
         public JSONStorableFloat softnessJsf { get; private set; }
         public JSONStorableFloat quicknessJsf { get; private set; }
 
+        public bool needsRecalibration { get; set; }
         public bool initDone { get; private set; }
 
         private bool _loadingFromJson;
@@ -252,7 +250,7 @@ namespace TittyMagic
 
             recalibratePhysics = new JSONStorableAction(
                 "recalibratePhysics",
-                () => StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true))
+                () => StartCoroutine(DeferBeginRefresh(refreshMass: true, waitForListeners: true))
             );
 
             calculateBreastMass = new JSONStorableAction(
@@ -260,7 +258,7 @@ namespace TittyMagic
                 () => StartCoroutine(
                     DeferBeginRefresh(
                         refreshMass: true,
-                        fromToggleOrButton: true,
+                        waitForListeners: true,
                         useNewMass: true
                     ))
             );
@@ -269,7 +267,7 @@ namespace TittyMagic
             {
                 if(value)
                 {
-                    StartCoroutine(DeferBeginRefresh(refreshMass: true, fromToggleOrButton: true));
+                    StartCoroutine(DeferBeginRefresh(refreshMass: true, waitForListeners: true));
                 }
             };
 
@@ -333,6 +331,7 @@ namespace TittyMagic
         private void NavigateToWindow(IWindow window, Action postNavigateAction = null)
         {
             _tabs.activeWindow?.Clear();
+            _tabs.activeWindow?.ActionsOnWindowClosed();
             _tabs.ActivateTab(window.Id());
             _tabs.activeWindow = window;
             window.Rebuild();
@@ -395,7 +394,7 @@ namespace TittyMagic
         {
             try
             {
-                ActionsOnPluginUIOpened();
+                CheckUIOpenedOrClosed();
             }
             catch(Exception e)
             {
@@ -404,24 +403,41 @@ namespace TittyMagic
             }
         }
 
-        private void ActionsOnPluginUIOpened()
+        private void CheckUIOpenedOrClosed()
         {
             bool uiOpen = UITransform.gameObject.activeInHierarchy;
             if(uiOpen && !_uiOpenPrevFrame)
             {
-                softPhysicsHandler.ReverseSyncSoftPhysicsOn();
-                softPhysicsHandler.ReverseSyncSyncAllowSelfCollision();
-
-                SetBackgroundColor();
+                ActionsOnUIOpened();
+            }
+            else if(!uiOpen && _uiOpenPrevFrame)
+            {
+                ActionsOnUIClosed();
             }
 
             _uiOpenPrevFrame = uiOpen;
         }
 
-        private void SetBackgroundColor()
+        private void ActionsOnUIOpened()
         {
+            softPhysicsHandler.ReverseSyncSoftPhysicsOn();
+            softPhysicsHandler.ReverseSyncSyncAllowSelfCollision();
+
             var background = rightUIContent.parent.parent.parent.transform.GetComponent<Image>();
             background.color = new Color(0.85f, 0.85f, 0.85f);
+        }
+
+        private void ActionsOnUIClosed()
+        {
+            RecalibrateOnNavigation();
+        }
+
+        public void RecalibrateOnNavigation()
+        {
+            if(needsRecalibration)
+            {
+                StartCoroutine(DeferBeginRefresh(refreshMass: true, waitForListeners: true));
+            }
         }
 
         private void FixedUpdate()
@@ -518,17 +534,16 @@ namespace TittyMagic
             }
         }
 
-        public void StartRefreshCoroutine() => StartRefreshCoroutine(true, false);
-
-        public void StartRefreshCoroutine(bool refreshMass, bool fromToggleOrButton) =>
-            StartCoroutine(DeferBeginRefresh(refreshMass, fromToggleOrButton));
+        public void StartRefreshCoroutine(bool refreshMass, bool waitForListeners) =>
+            StartCoroutine(DeferBeginRefresh(refreshMass, waitForListeners));
 
         private IEnumerator DeferBeginRefresh(
             bool refreshMass,
-            bool fromToggleOrButton = false,
+            bool waitForListeners = false,
             bool? useNewMass = null
         )
         {
+            needsRecalibration = false;
             if(useNewMass == null)
             {
                 useNewMass = autoUpdateJsb.val;
@@ -546,7 +561,7 @@ namespace TittyMagic
                 PreRefresh(refreshMass, useNewMass.Value);
             }
 
-            if(!fromToggleOrButton)
+            if(!waitForListeners)
             {
                 // ensure refresh actually begins only once listeners report no change
                 yield return new WaitForSeconds(0.33f);
