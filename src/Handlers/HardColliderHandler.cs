@@ -43,10 +43,16 @@ namespace TittyMagic
             _script = gameObject.GetComponent<Script>();
             _geometry = (DAZCharacterSelector) _script.containingAtom.GetStorableByID("geometry");
 
-            configs = NewColliderConfigs();
-
             enabledJsb = _script.NewJSONStorableBool("useHardColliders", false, register: Gender.isFemale);
             enabledJsb.setCallbackFunction = SyncUseHardColliders;
+
+            if(!Gender.isFemale)
+            {
+                enabledJsb.val = false;
+                return;
+            }
+
+            configs = NewColliderConfigs();
 
             scaleJsf = _script.NewJSONStorableFloat("hardCollidersScaleCombined", 0, -0.05f, 0.05f, register: Gender.isFemale);
             scaleJsf.setCallbackFunction = SyncScaleOffsetCombined;
@@ -62,15 +68,8 @@ namespace TittyMagic
             forceJsf = _script.NewJSONStorableFloat("hardColliderForceCombined", 0.25f, 0.01f, 1.00f, register: Gender.isFemale);
             forceJsf.setCallbackFunction = SyncHardColliderMassCombined;
 
-            if(Gender.isFemale)
-            {
-                _originalUseAuxBreastColliders = _geometry.useAuxBreastColliders;
-                SyncUseHardColliders(enabledJsb.val);
-            }
-            else
-            {
-                enabledJsb.val = false;
-            }
+            _originalUseAuxBreastColliders = _geometry.useAuxBreastColliders;
+            SyncUseHardColliders(enabledJsb.val);
         }
 
         private List<ColliderConfigGroup> NewColliderConfigs() =>

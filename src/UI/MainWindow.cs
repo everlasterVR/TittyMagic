@@ -267,7 +267,10 @@ namespace TittyMagic.UI
         public List<UIDynamicSlider> GetSliders()
         {
             var sliders = GetSlidersForRefresh();
-            if(_elements.ContainsKey(_script.hardColliderHandler.forceJsf.name))
+            if(
+                _script.hardColliderHandler.forceJsf != null &&
+                _elements.ContainsKey(_script.hardColliderHandler.forceJsf.name)
+            )
             {
                 sliders.Add(_elements[_script.hardColliderHandler.forceJsf.name] as UIDynamicSlider);
             }

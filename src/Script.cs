@@ -343,25 +343,29 @@ namespace TittyMagic
         {
             var elements = _tabs.activeWindow.GetElements();
 
-            elements[autoUpdateJsb.name]
-                .AddListener(value => UpdateSlider(elements[mainPhysicsHandler.massJsf.name], !value));
+            elements[autoUpdateJsb.name].AddListener(
+                value => UpdateSlider(elements[mainPhysicsHandler.massJsf.name], !value)
+            );
             UpdateSlider(elements[mainPhysicsHandler.massJsf.name], !autoUpdateJsb.val);
 
-            elements[hardColliderHandler.enabledJsb.name].AddListener(value =>
+            if(Gender.isFemale)
             {
-                UpdateSlider(elements[hardColliderHandler.scaleJsf.name], value);
-                // UpdateSlider(elements[_hardColliderHandler.radiusMultiplier.name], val);
-                // UpdateSlider(elements[_hardColliderHandler.heightMultiplier.name], val);
-                UpdateSlider(elements[hardColliderHandler.forceJsf.name], value);
-            });
-            UpdateSlider(
-                elements[hardColliderHandler.scaleJsf.name],
-                hardColliderHandler.enabledJsb.val
-            );
-            UpdateSlider(
-                elements[hardColliderHandler.forceJsf.name],
-                hardColliderHandler.enabledJsb.val
-            );
+                elements[hardColliderHandler.enabledJsb.name].AddListener(value =>
+                {
+                    UpdateSlider(elements[hardColliderHandler.scaleJsf.name], value);
+                    // UpdateSlider(elements[_hardColliderHandler.radiusMultiplier.name], val);
+                    // UpdateSlider(elements[_hardColliderHandler.heightMultiplier.name], val);
+                    UpdateSlider(elements[hardColliderHandler.forceJsf.name], value);
+                });
+                UpdateSlider(
+                    elements[hardColliderHandler.scaleJsf.name],
+                    hardColliderHandler.enabledJsb.val
+                );
+                UpdateSlider(
+                    elements[hardColliderHandler.forceJsf.name],
+                    hardColliderHandler.enabledJsb.val
+                );
+            }
         }
 
         private static void UpdateSlider(UIDynamic element, bool interactable)
