@@ -51,7 +51,6 @@ namespace TittyMagic.UI
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = label;
-            slider.AddSliderClickMonitor();
             elements[storable.name] = slider;
         }
 

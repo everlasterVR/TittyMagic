@@ -699,7 +699,6 @@ namespace TittyMagic
                     _breastMorphListener.Changed() ||
                     _atomScaleListener.Changed() ||
                     mainWindow.GetSlidersForRefresh().Any(slider => slider.IsClickDown()) ||
-                    morphingWindow.GetSliders().Any(slider => slider.IsClickDown()) ||
                     gravityWindow.GetSliders().Any(slider => slider.IsClickDown())
                 )
                 {
