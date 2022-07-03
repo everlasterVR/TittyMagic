@@ -135,11 +135,7 @@ namespace TittyMagic
             bool breastSoftPhysicsOn = _breastPhysicsMesh != null && _breastPhysicsMesh.on;
             bool atomSoftPhysicsOn = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
             bool globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
-
-            if(breastSoftPhysicsOn && !_breastSoftPhysicsOn)
-            {
-                CheckIfStillDisabled(atomSoftPhysicsOn, globalSoftPhysicsOn);
-            }
+            CheckIfStillDisabled(breastSoftPhysicsOn, atomSoftPhysicsOn, globalSoftPhysicsOn);
 
             bool refreshNeeded = false;
             bool value = globalSoftPhysicsOn && atomSoftPhysicsOn && breastSoftPhysicsOn;
@@ -159,27 +155,59 @@ namespace TittyMagic
             }
         }
 
-        private static void CheckIfStillDisabled(bool atomSoftPhysicsOn, bool globalSoftPhysicsOn)
+        private void CheckIfStillDisabled(bool breastSoftPhysicsOn, bool atomSoftPhysicsOn, bool globalSoftPhysicsOn)
         {
-            string message = "";
-            const string partOne = "You enabled soft physics for breasts.";
+            string location = "";
 
-            if(!atomSoftPhysicsOn && !globalSoftPhysicsOn)
+            if(breastSoftPhysicsOn && !_breastSoftPhysicsOn)
             {
-                message = $"{partOne} Soft Body Physics is still disabled in the Control & Physics 1 tab and in User Preferences!";
+                if(!atomSoftPhysicsOn && !globalSoftPhysicsOn)
+                {
+                    location = "Control & Physics 1 and in User Preferences";
+                }
+                else if(!atomSoftPhysicsOn)
+                {
+                    location = "Control & Physics 1";
+                }
+                else if(!globalSoftPhysicsOn)
+                {
+                    location = "User Preferences";
+                }
             }
-            else if(!atomSoftPhysicsOn)
+            else if(atomSoftPhysicsOn && !_atomSoftPhysicsOn)
             {
-                message = $"{partOne} Soft Body Physics is still disabled in the Control & Physics 1 tab!";
+                if(!breastSoftPhysicsOn && !globalSoftPhysicsOn)
+                {
+                    location = "the plugin UI and in User Preferences";
+                }
+                else if(!breastSoftPhysicsOn)
+                {
+                    location = "the plugin UI";
+                }
+                else if(!globalSoftPhysicsOn)
+                {
+                    location = "User Preferences";
+                }
             }
-            else if(!globalSoftPhysicsOn)
+            else if(globalSoftPhysicsOn && !_globalSoftPhysicsOn)
             {
-                message = $"{partOne} Soft Body Physics is still disabled in User Preferences!";
+                if(!breastSoftPhysicsOn && !atomSoftPhysicsOn)
+                {
+                    location = "the plugin UI and in Control & Physics 1";
+                }
+                else if(!breastSoftPhysicsOn)
+                {
+                    location = "the plugin UI";
+                }
+                else if(!atomSoftPhysicsOn)
+                {
+                    location = "Control & Physics 1";
+                }
             }
 
-            if(message != "")
+            if(location != "")
             {
-                LogMessage(message);
+                LogMessage($"Soft Physics is still disabled in {location}");
             }
         }
     }
