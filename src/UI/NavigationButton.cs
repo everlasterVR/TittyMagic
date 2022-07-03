@@ -7,7 +7,6 @@ namespace TittyMagic.UI
     internal class NavigationButton
     {
         private readonly UIDynamicButton _uiDynamicButton;
-        public UnityAction callback { get; set; }
 
         public NavigationButton(UIDynamicButton uiDynamicButton, string label, Transform parent)
         {
@@ -33,7 +32,7 @@ namespace TittyMagic.UI
             SetInteractableStyle();
         }
 
-        public void SetInteractableStyle()
+        private void SetInteractableStyle()
         {
             var colors = _uiDynamicButton.button.colors;
             colors.highlightedColor = defaultBtnHighlightedColor;
@@ -45,10 +44,5 @@ namespace TittyMagic.UI
         {
             _uiDynamicButton.AddListener(unityAction);
         }
-
-        public void RemoveListener(UnityAction unityAction) =>
-            _uiDynamicButton.button.onClick.RemoveListener(unityAction);
-
-        public void RemoveAllListeners() => _uiDynamicButton.button.onClick.RemoveAllListeners();
     }
 }

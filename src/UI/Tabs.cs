@@ -27,7 +27,6 @@ namespace TittyMagic.UI
         {
             var parent = _tabButtons.Count < 2 ? _leftGroupTransform : _rightGroupTransform;
             var button = new NavigationButton(_script.InstantiateButton(), name, parent);
-            button.callback = callback;
             button.AddListener(callback);
             _tabButtons[windowId] = button;
         }
