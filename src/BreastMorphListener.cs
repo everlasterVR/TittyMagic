@@ -54,13 +54,8 @@ namespace TittyMagic
             _listenedFemaleMorphs = ProcessMorphs(femaleMorphs);
             _listenedMaleMorphs = ProcessMorphs(maleMorphs);
 #if DEBUG_ON
-            Debug.Log($"Female morphs:");
-            foreach(var morph in _listenedFemaleMorphs)
-                Debug.Log($"{morph.Key.uid}");
-
-            Debug.Log($"Male morphs:");
-            foreach(var morph in _listenedMaleMorphs)
-                Debug.Log($"{morph.Key.uid}");
+            Debug.Log($"Female morphs:\n{string.Join("\n", _listenedFemaleMorphs.Keys.Select(key => key.uid).ToArray())}");
+            Debug.Log($"Male morphs:\n{string.Join("\n", _listenedMaleMorphs.Keys.Select(key => key.uid).ToArray())}");
 #endif
         }
 
@@ -71,17 +66,27 @@ namespace TittyMagic
             {
                 foreach(var morph in morphs)
                 {
-                    if(
-                        morph.visible &&
-                        !morph.isPoseControl &&
-                        morph.group != null &&
-                        !morph.group.Contains("Pose/") &&
-                        !_excludeMorphsNames.Contains(morph.morphName) &&
-                        !result.ContainsKey(morph) &&
-                        IsInSet(morph, VertexIndexGroup.BREASTS, FILTER_STRENGTH)
-                    )
+                    try
                     {
-                        result.Add(morph, morph.morphValue);
+                        if(
+                            morph.visible &&
+                            !morph.isPoseControl &&
+                            morph.group != null &&
+                            !morph.group.Contains("Pose/") &&
+                            !_excludeMorphsNames.Contains(morph.morphName) &&
+                            !result.ContainsKey(morph) &&
+                            IsInSet(morph, VertexIndexGroup.BREASTS, FILTER_STRENGTH)
+                        )
+                        {
+                            result.Add(morph, morph.morphValue);
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        // ignored
+#if DEBUG_ON
+                        Debug.Log($"Unable to add morph '{morph.morphName}'. Error: {e}");
+#endif
                     }
                 }
             }
