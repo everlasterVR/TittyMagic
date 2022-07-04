@@ -1,34 +1,9 @@
 ﻿using System;
-using System.Collections;
 using UnityEngine;
 using static TittyMagic.Utils;
 
 namespace TittyMagic
 {
-    internal class BoolSetting
-    {
-        private bool prevValue { get; set; }
-        private readonly string _notification;
-
-        public BoolSetting(bool prevValue, string notification = "")
-        {
-            this.prevValue = prevValue;
-            _notification = notification;
-        }
-
-        public bool CheckIfUpdateNeeded(bool value)
-        {
-            bool result = value && !prevValue;
-            if(!value && prevValue && !string.IsNullOrEmpty(_notification))
-            {
-                LogMessage(_notification);
-            }
-
-            prevValue = value;
-            return result;
-        }
-    }
-
     internal class SettingsMonitor : MonoBehaviour
     {
         private FrequencyRunner _runner;
@@ -36,8 +11,6 @@ namespace TittyMagic
         private JSONStorable _softBodyPhysicsEnabler;
         private DAZPhysicsMesh _breastPhysicsMesh;
         private DAZCharacterSelector _geometry;
-
-        private BoolSetting _useAdvancedColliders;
 
         private float _fixedDeltaTime;
 
@@ -56,30 +29,23 @@ namespace TittyMagic
             _script = gameObject.GetComponent<Script>();
             _breastInOut = _script.containingAtom.GetStorableByID("BreastInOut");
             _softBodyPhysicsEnabler = _script.containingAtom.GetStorableByID("SoftBodyPhysicsEnabler");
+            _geometry = (DAZCharacterSelector) _script.containingAtom.GetStorableByID("geometry");
+
             if(Gender.isFemale)
             {
                 _breastPhysicsMesh = (DAZPhysicsMesh) _script.containingAtom.GetStorableByID("BreastPhysicsMesh");
+                _breastSoftPhysicsOn = _breastPhysicsMesh.on;
+                _atomSoftPhysicsOn = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
+                _globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
             }
 
-            _geometry = (DAZCharacterSelector) _script.containingAtom.GetStorableByID("geometry");
-            _useAdvancedColliders = new BoolSetting(
-                _geometry.useAdvancedColliders,
-                "Advanced Colliders are not enabled in Control & Physics 1 tab. Enable them to allow dynamic breast morphing to work correctly!"
-            );
-
             _fixedDeltaTime = Time.fixedDeltaTime;
-
-            _breastSoftPhysicsOn = _breastPhysicsMesh != null && _breastPhysicsMesh.on;
-            _atomSoftPhysicsOn = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
-            _globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
-
-            StartCoroutine(FixInOut());
+            FixInOut();
         }
 
         // prevents breasts being flattened due to breastInOut morphs on scene load with plugin already present
-        private IEnumerator FixInOut()
+        private void FixInOut()
         {
-            yield return new WaitForEndOfFrame();
             _breastInOut.SetBoolParamValue("enabled", true);
             _breastInOut.SetBoolParamValue("enabled", false);
         }
@@ -89,20 +55,24 @@ namespace TittyMagic
             if(_breastInOut.GetBoolParamValue("enabled"))
             {
                 _breastInOut.SetBoolParamValue("enabled", false);
-                if(_breastPhysicsMesh != null)
+                if(Gender.isFemale)
                 {
-                    LogMessage("Auto Breast In/Out Morphs disabled - TittyMagic adjusts breast morphs better without them.");
+                    LogMessage("Auto Breast In/Out Morphs disabled - directional force morphing works better without them.");
                 }
             }
 
-            if(Gender.isFemale && _useAdvancedColliders.CheckIfUpdateNeeded(_geometry.useAdvancedColliders))
+            if(Gender.isFemale)
             {
-                _script.StartRefreshCoroutine(refreshMass: true, waitForListeners: false);
+                if(!_geometry.useAdvancedColliders)
+                {
+                    _geometry.useAdvancedColliders = true;
+                    LogMessage("Advanced Colliders enabled - they are necessary for directional force morphing and hard colliders to work.");
+                }
+
+                CheckSoftPhysicsEnabledChanged();
             }
 
             CheckFixedDeltaTimeChanged();
-            CheckSoftPhysicsEnabledChanged();
-
             return true;
         }
 
@@ -132,7 +102,7 @@ namespace TittyMagic
 
         private void CheckSoftPhysicsEnabledChanged()
         {
-            bool breastSoftPhysicsOn = _breastPhysicsMesh != null && _breastPhysicsMesh.on;
+            bool breastSoftPhysicsOn = _breastPhysicsMesh.on;
             bool atomSoftPhysicsOn = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
             bool globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
             CheckIfStillDisabled(breastSoftPhysicsOn, atomSoftPhysicsOn, globalSoftPhysicsOn);
@@ -208,6 +178,14 @@ namespace TittyMagic
             if(location != "")
             {
                 LogMessage($"Soft Physics is still disabled in {location}");
+            }
+        }
+
+        private void OnEnable()
+        {
+            if(_geometry != null)
+            {
+                _geometry.useAdvancedColliders = true;
             }
         }
     }

@@ -12,6 +12,7 @@ namespace TittyMagic
     {
         private Script _script;
         private DAZCharacterSelector _geometry;
+        private bool _originalUseAdvancedColliders;
         private bool _originalUseAuxBreastColliders;
 
         public List<ColliderConfigGroup> configs { get; private set; }
@@ -42,6 +43,9 @@ namespace TittyMagic
         {
             _script = gameObject.GetComponent<Script>();
             _geometry = (DAZCharacterSelector) _script.containingAtom.GetStorableByID("geometry");
+            _originalUseAdvancedColliders = _geometry.useAdvancedColliders;
+            _geometry.useAdvancedColliders = true;
+            _originalUseAuxBreastColliders = _geometry.useAuxBreastColliders;
 
             enabledJsb = _script.NewJSONStorableBool("useHardColliders", false, register: Gender.isFemale);
             enabledJsb.setCallbackFunction = SyncUseHardColliders;
@@ -68,7 +72,6 @@ namespace TittyMagic
             forceJsf = _script.NewJSONStorableFloat("hardColliderForceCombined", 0.25f, 0.01f, 1.00f, register: Gender.isFemale);
             forceJsf.setCallbackFunction = SyncHardColliderMassCombined;
 
-            _originalUseAuxBreastColliders = _geometry.useAuxBreastColliders;
             SyncUseHardColliders(enabledJsb.val);
         }
 
@@ -213,7 +216,7 @@ namespace TittyMagic
 
             if(configs.Any(config => !config.HasRigidbodies()))
             {
-                Utils.LogMessage("Unable to apply force multiplier: hard colliders are not enabled. Enable hard colliders in order to re-apply.");
+                LogSyncMassFailure();
             }
             else
             {
@@ -226,6 +229,7 @@ namespace TittyMagic
             var jsonClass = new JSONClass();
             if(Gender.isFemale)
             {
+                jsonClass[USE_ADVANCED_COLLIDERS].AsBool = _originalUseAdvancedColliders;
                 jsonClass[USE_AUX_BREAST_COLLIDERS].AsBool = _originalUseAuxBreastColliders;
             }
 
@@ -234,6 +238,11 @@ namespace TittyMagic
 
         public void RestoreFromJSON(JSONClass originalJson)
         {
+            if(originalJson.HasKey(USE_ADVANCED_COLLIDERS))
+            {
+                _originalUseAdvancedColliders = originalJson[USE_ADVANCED_COLLIDERS].AsBool;
+            }
+
             if(originalJson.HasKey(USE_AUX_BREAST_COLLIDERS))
             {
                 _originalUseAuxBreastColliders = originalJson[USE_AUX_BREAST_COLLIDERS].AsBool;
@@ -258,8 +267,10 @@ namespace TittyMagic
 
         private IEnumerator DeferRestoreDefaultMass()
         {
-            // In case hard colliders are not enabled (yet)
+            // e.g. in case hard colliders are not enabled (yet)
+            yield return new WaitForSecondsRealtime(0.1f);
             float timeout = Time.unscaledTime + 3f;
+
             while(configs.Any(config => !config.HasRigidbodies()) && Time.unscaledTime < timeout)
             {
                 yield return new WaitForSecondsRealtime(0.3f);
@@ -275,6 +286,8 @@ namespace TittyMagic
             {
                 configs.ForEach(config => config.RestoreDefaultMass());
             }
+
+            _geometry.useAdvancedColliders = _originalUseAdvancedColliders;
         }
 
         private void OnEnable()
@@ -292,6 +305,23 @@ namespace TittyMagic
             if(Gender.isFemale)
             {
                 RestoreDefaults();
+            }
+        }
+
+        private void LogSyncMassFailure()
+        {
+            string message = "Unable to apply collision force: ";
+            if(!_geometry.useAdvancedColliders)
+            {
+                message +=
+                    "Advanced Colliders are not enabled in Control & Physics 1 tab. " +
+                    "Enabling them and toggling hard colliders on will auto-apply the current collision force.";
+                Utils.LogMessage(message);
+            }
+            else
+            {
+                message += "Unknown reason.";
+                Utils.LogMessage(message);
             }
         }
     }

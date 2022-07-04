@@ -18,7 +18,6 @@ namespace TittyMagic
         private Bindings _customBindings;
         private FrequencyRunner _listenersCheckRunner;
 
-        private List<Rigidbody> _rigidbodies;
         private Rigidbody _chestRb;
         private Transform _chestTransform;
         private Rigidbody _pectoralRbLeft;
@@ -115,8 +114,8 @@ namespace TittyMagic
             _listenersCheckRunner = new FrequencyRunner(0.333f);
 
             morphsControlUI = Gender.isFemale ? geometry.morphsControlUI : geometry.morphsControlUIOtherGender;
-            _rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
-            _chestRb = _rigidbodies.Find(rb => rb.name == "chest");
+            var rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
+            _chestRb = rigidbodies.Find(rb => rb.name == "chest");
             _chestTransform = _chestRb.transform;
 
             var breastControl = (AdjustJoints) containingAtom.GetStorableByID(Gender.isFemale ? "BreastControl" : "PectoralControl");
@@ -144,10 +143,7 @@ namespace TittyMagic
 
             if(Gender.isFemale)
             {
-                var nippleRbLeft = _rigidbodies.Find(rb => rb.name == "lNipple");
-                var nippleRbRight = _rigidbodies.Find(rb => rb.name == "rNipple");
-                _trackLeftNipple.getNipplePosition = () => nippleRbLeft.position;
-                _trackRightNipple.getNipplePosition = () => nippleRbRight.position;
+                yield return DeferSetupTrackFemaleNipples();
             }
             else
             {
@@ -194,6 +190,30 @@ namespace TittyMagic
 
             SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
             StartCoroutine(DeferSetPluginVersion());
+        }
+
+        private IEnumerator DeferSetupTrackFemaleNipples()
+        {
+            Rigidbody nippleRbLeft = null;
+            Rigidbody nippleRbRight = null;
+            float timeout = Time.unscaledTime + 3f;
+            while((nippleRbLeft == null || nippleRbRight == null) && Time.unscaledTime < timeout)
+            {
+                var rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
+                nippleRbLeft = rigidbodies.Find(rb => rb.name == "lNipple");
+                nippleRbRight = rigidbodies.Find(rb => rb.name == "rNipple");
+                yield return new WaitForSecondsRealtime(0.1f);
+            }
+
+            if(nippleRbLeft == null || nippleRbRight == null)
+            {
+                LogError($"Init: failed to find nipple rigidbodies. Try: Remove the plugin, enable advanced colliders, then add the plugin.");
+                enabled = false;
+                yield break;
+            }
+
+            _trackLeftNipple.getNipplePosition = () => nippleRbLeft.position;
+            _trackRightNipple.getNipplePosition = () => nippleRbRight.position;
         }
 
         public void LoadSettings()
