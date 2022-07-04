@@ -860,6 +860,7 @@ namespace TittyMagic
         private void OnRemoveAtom(Atom atom)
         {
             Destroy(_settingsMonitor);
+            Destroy(hardColliderHandler);
             DestroyAllSliderClickMonitors();
         }
 
