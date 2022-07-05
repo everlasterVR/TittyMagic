@@ -4,22 +4,6 @@ using System;
 
 public static class MVRScriptExtension
 {
-    public static string GetMorphsPath(this MVRScript script)
-    {
-        string packageId = GetPackageId(script);
-        const string path = "Custom/Atom/Person/Morphs/female/everlaster";
-
-        if(string.IsNullOrEmpty(packageId))
-        {
-            return $"{path}/{nameof(TittyMagic)}_dev";
-        }
-
-        return packageId + $":/{path}/{nameof(TittyMagic)}";
-    }
-
-    public static string PluginPath(this MVRScript script) =>
-        $@"{script.GetPackagePath()}Custom\Scripts\everlaster\TittyMagic";
-
     public static string GetPackagePath(this MVRScript script)
     {
         string packageId = script.GetPackageId();

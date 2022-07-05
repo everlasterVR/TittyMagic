@@ -38,12 +38,12 @@ namespace TittyMagic
             backJsf = script.NewJSONStorableFloat("gravityPhysicsBack", 1.00f, 0.00f, 2.00f);
             leftRightJsf = script.NewJSONStorableFloat("gravityPhysicsLeftRight", 1.00f, 0.00f, 2.00f);
 
-            baseJsf.setCallbackFunction = value => _script.needsRecalibration = true;
-            upJsf.setCallbackFunction = value => _script.needsRecalibration = true;
-            downJsf.setCallbackFunction = value => _script.needsRecalibration = true;
-            forwardJsf.setCallbackFunction = value => _script.needsRecalibration = true;
-            backJsf.setCallbackFunction = value => _script.needsRecalibration = true;
-            leftRightJsf.setCallbackFunction = value => _script.needsRecalibration = true;
+            baseJsf.setCallbackFunction = _ => _script.needsRecalibration = true;
+            upJsf.setCallbackFunction = _ => _script.needsRecalibration = true;
+            downJsf.setCallbackFunction = _ => _script.needsRecalibration = true;
+            forwardJsf.setCallbackFunction = _ => _script.needsRecalibration = true;
+            backJsf.setCallbackFunction = _ => _script.needsRecalibration = true;
+            leftRightJsf.setCallbackFunction = _ => _script.needsRecalibration = true;
         }
 
         public void LoadSettings()

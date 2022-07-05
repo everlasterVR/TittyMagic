@@ -107,7 +107,7 @@ namespace TittyMagic
                 yield return null;
             }
 
-            morphsPath = this.GetMorphsPath();
+            morphsPath = GetMorphsPath();
 
             var geometry = (DAZCharacterSelector) containingAtom.GetStorableByID("geometry");
             Gender.isFemale = geometry.gender == DAZCharacterSelector.Gender.Female;
@@ -224,7 +224,7 @@ namespace TittyMagic
 
             if(nippleRbLeft == null || nippleRbRight == null)
             {
-                LogError($"Init: failed to find nipple rigidbodies. Try: Remove the plugin, enable advanced colliders, then add the plugin.");
+                LogError("Init: failed to find nipple rigidbodies. Try: Remove the plugin, enable advanced colliders, then add the plugin.");
                 enabled = false;
                 yield break;
             }
@@ -308,7 +308,7 @@ namespace TittyMagic
                 }
             };
 
-            mainPhysicsHandler.massJsf.setCallbackFunction = val => RefreshFromSliderChanged(refreshMass: true);
+            mainPhysicsHandler.massJsf.setCallbackFunction = _ => RefreshFromSliderChanged(refreshMass: true);
 
             softnessJsf.setCallbackFunction = value =>
             {
@@ -822,6 +822,22 @@ namespace TittyMagic
 
         public RectTransform GetLeftUIContent() => leftUIContent;
         public RectTransform GetRightUIContent() => rightUIContent;
+
+        private string GetMorphsPath()
+        {
+            string packageId = this.GetPackageId();
+            const string path = "Custom/Atom/Person/Morphs/female/everlaster";
+
+            if(string.IsNullOrEmpty(packageId))
+            {
+                return $"{path}/{nameof(TittyMagic)}_dev";
+            }
+
+            return packageId + $":/{path}/{nameof(TittyMagic)}";
+        }
+
+        public string PluginPath() =>
+            $@"{this.GetPackagePath()}Custom\Scripts\everlaster\TittyMagic";
 
         public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
         {

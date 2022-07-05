@@ -8,13 +8,13 @@ namespace TittyMagic
         private readonly List<SimpleMorphConfig> _configs;
         public JSONStorableFloat nippleErectionJsf { get; }
 
-        public NippleErectionMorphHandler(MVRScript script)
+        public NippleErectionMorphHandler(Script script)
         {
             _configs = LoadSettings(script);
             nippleErectionJsf = script.NewJSONStorableFloat("nippleErection", 0.00f, 0.00f, 1.00f);
         }
 
-        private static List<SimpleMorphConfig> LoadSettings(MVRScript script)
+        private static List<SimpleMorphConfig> LoadSettings(Script script)
         {
             var jsonClass = script.LoadJSON($@"{script.PluginPath()}\settings\morphmultipliers\nippleErection.json").AsObject;
             return jsonClass.Keys
