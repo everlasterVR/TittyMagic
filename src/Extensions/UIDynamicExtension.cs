@@ -66,6 +66,21 @@ public static class UIDynamicExtension
             return;
         }
 
-        throw new ArgumentException($"UIDynamic {element.name} was null or not an expected type");
+        var uiDynamicButton = element as UIDynamicButton;
+        if(uiDynamicButton != null)
+        {
+            if(setInteractable)
+            {
+                uiDynamicButton.button.interactable = active;
+            }
+
+            var colors = uiDynamicButton.button.colors;
+            colors.disabledColor = colors.normalColor;
+            uiDynamicButton.button.colors = colors;
+            uiDynamicButton.textColor = color;
+            return;
+        }
+
+        throw new ArgumentException($"UIDynamic {element.name} was null, or not an expected type");
     }
 }

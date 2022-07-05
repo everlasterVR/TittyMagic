@@ -109,7 +109,8 @@ namespace TittyMagic.UI
             elements[_header.name] = textField;
         }
 
-        private void AddSpacer(string name, int height, bool rightSide) => elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
+        private void AddSpacer(string name, int height, bool rightSide) =>
+            elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
 
         public List<UIDynamicSlider> GetSliders()
         {

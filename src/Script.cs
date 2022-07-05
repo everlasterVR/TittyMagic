@@ -65,6 +65,7 @@ namespace TittyMagic
         public JSONStorableBool autoUpdateJsb { get; private set; }
         public JSONStorableFloat softnessJsf { get; private set; }
         public JSONStorableFloat quicknessJsf { get; private set; }
+        public JSONStorableAction configureHardColliders { get; private set; }
 
         public bool needsRecalibration { get; set; }
         public bool initDone { get; private set; }
@@ -206,6 +207,7 @@ namespace TittyMagic
             };
             colliderVisualizer.Init(this, groups);
             colliderVisualizer.PreviewOpacityJSON.val = 1;
+            colliderVisualizer.PreviewOpacityJSON.defaultVal = 1;
             colliderVisualizer.GroupsJSON.val = "Hard colliders";
         }
 
@@ -339,6 +341,8 @@ namespace TittyMagic
                 }
             };
 
+            configureHardColliders = new JSONStorableAction("configureHardColliders", () => { });
+
             colliderVisualizer.ShowPreviewsJSON.setCallbackFunction = value =>
                 colliderVisualizer.ShowPreviewsCallback(hardColliderHandler.enabledJsb.val && value);
         }
@@ -379,38 +383,22 @@ namespace TittyMagic
             postNavigateAction?.Invoke();
         }
 
-        private void PostNavigateToMainWindow()
+        public void PostNavigateToMainWindow()
         {
             var elements = _tabs.activeWindow.GetElements();
 
-            elements[autoUpdateJsb.name].AddListener(
-                value => elements[mainPhysicsHandler.massJsf.name].SetActiveStyle(!value, true)
+            elements[autoUpdateJsb.name].AddListener(value =>
+                elements[mainPhysicsHandler.massJsf.name].SetActiveStyle(!value, true)
             );
             elements[mainPhysicsHandler.massJsf.name].SetActiveStyle(!autoUpdateJsb.val, true);
 
             if(Gender.isFemale)
             {
                 elements[hardColliderHandler.enabledJsb.name].AddListener(value =>
-                {
-                    elements[hardColliderHandler.scaleJsf.name].SetActiveStyle(value);
-                    // elements[hardColliderHandler.radiusMultiplier.name].SetActiveStyle(value);
-                    // elements[hardColliderHandler.heightMultiplier.name].SetActiveStyle(value);
-                    elements[hardColliderHandler.forceJsf.name].SetActiveStyle(value);
-                    elements[colliderVisualizer.ShowPreviewsJSON.name].SetActiveStyle(value);
-                    elements[colliderVisualizer.XRayPreviewsOffJSON.name].SetActiveStyle(value && colliderVisualizer.ShowPreviewsJSON.val);
-                });
+                    elements[configureHardColliders.name].SetActiveStyle(value, true)
+                );
 
-                elements[colliderVisualizer.ShowPreviewsJSON.name].AddListener(value =>
-                    elements[colliderVisualizer.XRayPreviewsOffJSON.name].SetActiveStyle(hardColliderHandler.enabledJsb.val && value));
-
-                elements[hardColliderHandler.scaleJsf.name]
-                    .SetActiveStyle(hardColliderHandler.enabledJsb.val);
-                elements[hardColliderHandler.forceJsf.name]
-                    .SetActiveStyle(hardColliderHandler.enabledJsb.val);
-                elements[colliderVisualizer.ShowPreviewsJSON.name]
-                    .SetActiveStyle(hardColliderHandler.enabledJsb.val);
-                elements[colliderVisualizer.XRayPreviewsOffJSON.name]
-                    .SetActiveStyle(colliderVisualizer.ShowPreviewsJSON.val && hardColliderHandler.enabledJsb.val);
+                elements[configureHardColliders.name].SetActiveStyle(hardColliderHandler.enabledJsb.val, true);
             }
         }
 
