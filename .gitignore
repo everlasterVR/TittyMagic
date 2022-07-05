@@ -4,4 +4,5 @@
 bin/
 obj/
 local/
+vam-collider-editor/
 *.fav

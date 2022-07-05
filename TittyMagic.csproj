@@ -128,6 +128,26 @@
     <Compile Include="src\Utils\FrequencyRunner.cs" />
     <Compile Include="src\Utils\JSONUtils.cs" />
     <Compile Include="src\Utils\Utils.cs" />
+    <Compile Include="vam-collider-editor\src\ColliderPreviewConfig.cs" />
+    <Compile Include="vam-collider-editor\src\ColliderVisualizer.cs" />
+    <Compile Include="vam-collider-editor\src\ColorExtensions.cs" />
+    <Compile Include="vam-collider-editor\src\ComponentExtensions.cs" />
+    <Compile Include="vam-collider-editor\src\EditablesList.cs" />
+    <Compile Include="vam-collider-editor\src\EnumerableExtensions.cs" />
+    <Compile Include="vam-collider-editor\src\FloatExtensions.cs" />
+    <Compile Include="vam-collider-editor\src\Group.cs" />
+    <Compile Include="vam-collider-editor\src\MaterialHelper.cs" />
+    <Compile Include="vam-collider-editor\src\Mirrors.cs" />
+    <Compile Include="vam-collider-editor\src\Models\AutoColliderGroupModel.cs" />
+    <Compile Include="vam-collider-editor\src\Models\AutoColliderModel.cs" />
+    <Compile Include="vam-collider-editor\src\Models\BoxColliderModel.cs" />
+    <Compile Include="vam-collider-editor\src\Models\CapsuleColliderModel.cs" />
+    <Compile Include="vam-collider-editor\src\Models\ColliderContainerModelBase.cs" />
+    <Compile Include="vam-collider-editor\src\Models\ColliderModel.cs" />
+    <Compile Include="vam-collider-editor\src\Models\IModel.cs" />
+    <Compile Include="vam-collider-editor\src\Models\ModelBase.cs" />
+    <Compile Include="vam-collider-editor\src\Models\SphereColliderModel.cs" />
+    <Compile Include="vam-collider-editor\src\NameHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="settings\morphmultipliers\female\backForce.json" />
@@ -147,6 +167,10 @@
     <None Include="meta.json" />
     <None Include="README.md" />
     <None Include="TittyMagic.cslist" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="vam-collider-editor\.editorconfig" />
+    <Content Include="vam-collider-editor\README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

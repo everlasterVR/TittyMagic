@@ -121,6 +121,11 @@ namespace TittyMagic
                 return;
             }
 
+            if(_script.colliderVisualizer != null && _script.colliderVisualizer.ShowPreviewsJSON.val)
+            {
+                _script.colliderVisualizer.ShowPreviewsCallback(value);
+            }
+
             configs.ForEach(config => config.SetEnabled(value));
 
             if(value)
@@ -148,6 +153,7 @@ namespace TittyMagic
             }
 
             configs.ForEach(config => config.UpdateScaleOffset(value, radiusJsf.val, heightJsf.val));
+            _script.colliderVisualizer.SyncPreviews();
         }
 
         private void SyncHardColliderRadiusCombined(float value)

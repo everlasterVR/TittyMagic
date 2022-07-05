@@ -67,6 +67,9 @@ namespace TittyMagic.UI
                 CreateColliderForceSlider(false);
                 CreateHardCollidersInfoTextArea(true, spacing: 92);
                 // CreateConfigureHardCollidersButton(false);
+                CreateShowAuxBreastCollidersToggle(false);
+                CreateXRayVisualizationToggle(false);
+                // CreatePreviewOpacitySlider(false);
             }
         }
 
@@ -250,6 +253,28 @@ namespace TittyMagic.UI
             _elements[name] = button;
         }
 
+        private void CreateShowAuxBreastCollidersToggle(bool rightSide, int spacing = 0)
+        {
+            var storable = _script.colliderVisualizer.ShowPreviewsJSON;
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var toggle = _script.CreateToggle(storable, rightSide);
+            toggle.height = 52;
+            toggle.label = "Show Hard Colliders";
+            _elements[storable.name] = toggle;
+        }
+
+        private void CreateXRayVisualizationToggle(bool rightSide, int spacing = 0)
+        {
+            var storable = _script.colliderVisualizer.XRayPreviewsOffJSON;
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var toggle = _script.CreateToggle(storable, rightSide);
+            toggle.height = 52;
+            toggle.label = "Show Only Exposed Areas";
+            _elements[storable.name] = toggle;
+        }
+
         private void CreateHardCollidersInfoTextArea(bool rightSide, int spacing = 0)
         {
             var storable = _hardCollidersInfoText;
@@ -260,6 +285,17 @@ namespace TittyMagic.UI
             textField.height = 323;
             textField.backgroundColor = Color.clear;
             _elements[storable.name] = textField;
+        }
+
+        private void CreatePreviewOpacitySlider(bool rightSide, int spacing = 0)
+        {
+            var storable = _script.colliderVisualizer.PreviewOpacityJSON;
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var slider = _script.CreateSlider(storable, rightSide);
+            slider.valueFormat = "F2";
+            slider.label = "Preview Opacity";
+            _elements[storable.name] = slider;
         }
 
         private void AddSpacer(string name, int height, bool rightSide) => _elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);

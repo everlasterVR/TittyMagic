@@ -42,6 +42,7 @@ namespace TittyMagic
         public GravityPhysicsHandler gravityPhysicsHandler { get; private set; }
         public GravityOffsetMorphHandler offsetMorphHandler { get; private set; }
         public NippleErectionMorphHandler nippleMorphHandler { get; private set; }
+        public ColliderVisualizer colliderVisualizer { get; private set; }
 
         // ReSharper disable once MemberCanBePrivate.Global
         public ForcePhysicsHandler forcePhysicsHandler { get; private set; }
@@ -135,6 +136,8 @@ namespace TittyMagic
             offsetMorphHandler = new GravityOffsetMorphHandler(this);
             nippleMorphHandler = new NippleErectionMorphHandler(this);
 
+            SetupColliderVisualizer();
+
             _trackLeftNipple = new TrackNipple(_chestRb, _pectoralRbLeft);
             _trackRightNipple = new TrackNipple(_chestRb, _pectoralRbRight);
 
@@ -190,6 +193,20 @@ namespace TittyMagic
 
             SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
             StartCoroutine(DeferSetPluginVersion());
+        }
+
+        private void SetupColliderVisualizer()
+        {
+            colliderVisualizer = gameObject.AddComponent<ColliderVisualizer>();
+            var groups = new List<Group>
+            {
+                new Group("Left hard collider", @"lPectoral\d"),
+                new Group("Right hard collider", @"rPectoral\d"),
+                new Group("Hard colliders", @"[lr](Pectoral\d)"),
+            };
+            colliderVisualizer.Init(this, groups);
+            colliderVisualizer.PreviewOpacityJSON.val = 1;
+            colliderVisualizer.GroupsJSON.val = "Hard colliders";
         }
 
         private IEnumerator DeferSetupTrackFemaleNipples()
@@ -321,6 +338,9 @@ namespace TittyMagic
                     );
                 }
             };
+
+            colliderVisualizer.ShowPreviewsJSON.setCallbackFunction = value =>
+                colliderVisualizer.ShowPreviewsCallback(hardColliderHandler.enabledJsb.val && value);
         }
 
         private void CreateNavigation()
@@ -376,15 +396,17 @@ namespace TittyMagic
                     // UpdateSlider(elements[_hardColliderHandler.radiusMultiplier.name], val);
                     // UpdateSlider(elements[_hardColliderHandler.heightMultiplier.name], val);
                     UpdateSlider(elements[hardColliderHandler.forceJsf.name], value);
+                    UpdateToggle(elements[colliderVisualizer.ShowPreviewsJSON.name], value);
+                    UpdateToggle(elements[colliderVisualizer.XRayPreviewsOffJSON.name], value && colliderVisualizer.ShowPreviewsJSON.val);
                 });
-                UpdateSlider(
-                    elements[hardColliderHandler.scaleJsf.name],
-                    hardColliderHandler.enabledJsb.val
-                );
-                UpdateSlider(
-                    elements[hardColliderHandler.forceJsf.name],
-                    hardColliderHandler.enabledJsb.val
-                );
+
+                elements[colliderVisualizer.ShowPreviewsJSON.name].AddListener(value =>
+                    UpdateToggle(elements[colliderVisualizer.XRayPreviewsOffJSON.name], hardColliderHandler.enabledJsb.val && value));
+
+                UpdateSlider(elements[hardColliderHandler.scaleJsf.name], hardColliderHandler.enabledJsb.val);
+                UpdateSlider(elements[hardColliderHandler.forceJsf.name], hardColliderHandler.enabledJsb.val);
+                UpdateToggle(elements[colliderVisualizer.ShowPreviewsJSON.name], hardColliderHandler.enabledJsb.val);
+                UpdateToggle(elements[colliderVisualizer.XRayPreviewsOffJSON.name], colliderVisualizer.ShowPreviewsJSON.val && hardColliderHandler.enabledJsb.val);
             }
         }
 
@@ -397,7 +419,20 @@ namespace TittyMagic
             }
 
             uiDynamicSlider.slider.interactable = interactable;
-            uiDynamicSlider.labelText.color = uiDynamicSlider.slider.interactable
+            uiDynamicSlider.labelText.color = interactable
+                ? Color.black
+                : UIHelpers.darkerGray;
+        }
+
+        private static void UpdateToggle(UIDynamic element, bool active)
+        {
+            var uiDynamicToggle = element as UIDynamicToggle;
+            if(uiDynamicToggle == null)
+            {
+                throw new ArgumentException($"UIDynamic {element.name} was null or not an UIDynamicToggle");
+            }
+
+            uiDynamicToggle.labelText.color = active
                 ? Color.black
                 : UIHelpers.darkerGray;
         }
@@ -860,6 +895,7 @@ namespace TittyMagic
         private void OnRemoveAtom(Atom atom)
         {
             Destroy(_settingsMonitor);
+            Destroy(colliderVisualizer);
             Destroy(hardColliderHandler);
             DestroyAllSliderClickMonitors();
         }
@@ -869,6 +905,7 @@ namespace TittyMagic
             try
             {
                 Destroy(_settingsMonitor);
+                Destroy(colliderVisualizer);
                 Destroy(hardColliderHandler);
                 DestroyAllSliderClickMonitors();
                 SuperController.singleton.onAtomRemovedHandlers -= OnRemoveAtom;
@@ -896,6 +933,11 @@ namespace TittyMagic
                     _settingsMonitor.enabled = true;
                 }
 
+                if(colliderVisualizer != null)
+                {
+                    colliderVisualizer.enabled = true;
+                }
+
                 if(hardColliderHandler != null)
                 {
                     hardColliderHandler.enabled = true;
@@ -921,6 +963,11 @@ namespace TittyMagic
                 if(_settingsMonitor != null)
                 {
                     _settingsMonitor.enabled = false;
+                }
+
+                if(colliderVisualizer != null)
+                {
+                    colliderVisualizer.enabled = false;
                 }
 
                 if(hardColliderHandler != null)
