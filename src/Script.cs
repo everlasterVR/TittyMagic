@@ -384,57 +384,34 @@ namespace TittyMagic
             var elements = _tabs.activeWindow.GetElements();
 
             elements[autoUpdateJsb.name].AddListener(
-                value => UpdateSlider(elements[mainPhysicsHandler.massJsf.name], !value)
+                value => elements[mainPhysicsHandler.massJsf.name].SetActiveStyle(!value, true)
             );
-            UpdateSlider(elements[mainPhysicsHandler.massJsf.name], !autoUpdateJsb.val);
+            elements[mainPhysicsHandler.massJsf.name].SetActiveStyle(!autoUpdateJsb.val, true);
 
             if(Gender.isFemale)
             {
                 elements[hardColliderHandler.enabledJsb.name].AddListener(value =>
                 {
-                    UpdateSlider(elements[hardColliderHandler.scaleJsf.name], value);
-                    // UpdateSlider(elements[_hardColliderHandler.radiusMultiplier.name], val);
-                    // UpdateSlider(elements[_hardColliderHandler.heightMultiplier.name], val);
-                    UpdateSlider(elements[hardColliderHandler.forceJsf.name], value);
-                    UpdateToggle(elements[colliderVisualizer.ShowPreviewsJSON.name], value);
-                    UpdateToggle(elements[colliderVisualizer.XRayPreviewsOffJSON.name], value && colliderVisualizer.ShowPreviewsJSON.val);
+                    elements[hardColliderHandler.scaleJsf.name].SetActiveStyle(value);
+                    // elements[hardColliderHandler.radiusMultiplier.name].SetActiveStyle(value);
+                    // elements[hardColliderHandler.heightMultiplier.name].SetActiveStyle(value);
+                    elements[hardColliderHandler.forceJsf.name].SetActiveStyle(value);
+                    elements[colliderVisualizer.ShowPreviewsJSON.name].SetActiveStyle(value);
+                    elements[colliderVisualizer.XRayPreviewsOffJSON.name].SetActiveStyle(value && colliderVisualizer.ShowPreviewsJSON.val);
                 });
 
                 elements[colliderVisualizer.ShowPreviewsJSON.name].AddListener(value =>
-                    UpdateToggle(elements[colliderVisualizer.XRayPreviewsOffJSON.name], hardColliderHandler.enabledJsb.val && value));
+                    elements[colliderVisualizer.XRayPreviewsOffJSON.name].SetActiveStyle(hardColliderHandler.enabledJsb.val && value));
 
-                UpdateSlider(elements[hardColliderHandler.scaleJsf.name], hardColliderHandler.enabledJsb.val);
-                UpdateSlider(elements[hardColliderHandler.forceJsf.name], hardColliderHandler.enabledJsb.val);
-                UpdateToggle(elements[colliderVisualizer.ShowPreviewsJSON.name], hardColliderHandler.enabledJsb.val);
-                UpdateToggle(elements[colliderVisualizer.XRayPreviewsOffJSON.name], colliderVisualizer.ShowPreviewsJSON.val && hardColliderHandler.enabledJsb.val);
+                elements[hardColliderHandler.scaleJsf.name]
+                    .SetActiveStyle(hardColliderHandler.enabledJsb.val);
+                elements[hardColliderHandler.forceJsf.name]
+                    .SetActiveStyle(hardColliderHandler.enabledJsb.val);
+                elements[colliderVisualizer.ShowPreviewsJSON.name]
+                    .SetActiveStyle(hardColliderHandler.enabledJsb.val);
+                elements[colliderVisualizer.XRayPreviewsOffJSON.name]
+                    .SetActiveStyle(colliderVisualizer.ShowPreviewsJSON.val && hardColliderHandler.enabledJsb.val);
             }
-        }
-
-        private static void UpdateSlider(UIDynamic element, bool interactable)
-        {
-            var uiDynamicSlider = element as UIDynamicSlider;
-            if(uiDynamicSlider == null)
-            {
-                throw new ArgumentException($"UIDynamic {element.name} was null or not an UIDynamicSlider");
-            }
-
-            uiDynamicSlider.slider.interactable = interactable;
-            uiDynamicSlider.labelText.color = interactable
-                ? Color.black
-                : UIHelpers.darkerGray;
-        }
-
-        private static void UpdateToggle(UIDynamic element, bool active)
-        {
-            var uiDynamicToggle = element as UIDynamicToggle;
-            if(uiDynamicToggle == null)
-            {
-                throw new ArgumentException($"UIDynamic {element.name} was null or not an UIDynamicToggle");
-            }
-
-            uiDynamicToggle.labelText.color = active
-                ? Color.black
-                : UIHelpers.darkerGray;
         }
 
         private static float CalculateSoftnessAmount(float val) => Mathf.Pow(val / 100f, 0.67f);
