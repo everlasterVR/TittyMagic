@@ -11,7 +11,7 @@ namespace TittyMagic.UI
 
         public Dictionary<string, UIDynamic> GetElements() => _elements;
 
-        private readonly HardCollidersWindow _hardCollidersWindow;
+        private readonly HardCollidersWindow _nestedWindow;
 
         private bool _nestedWindowActive;
         private readonly JSONStorableString _title;
@@ -25,7 +25,7 @@ namespace TittyMagic.UI
 
             if(Gender.isFemale)
             {
-                _hardCollidersWindow = new HardCollidersWindow(script);
+                _nestedWindow = new HardCollidersWindow(script);
             }
         }
 
@@ -178,7 +178,7 @@ namespace TittyMagic.UI
             {
                 ClearSelf();
                 _nestedWindowActive = true;
-                _hardCollidersWindow.Rebuild(returnCallback);
+                _nestedWindow.Rebuild(returnCallback);
                 PostNavigateToHardCollidersWindow();
             });
 
@@ -187,7 +187,7 @@ namespace TittyMagic.UI
 
         private void PostNavigateToHardCollidersWindow()
         {
-            var elements = _hardCollidersWindow.GetElements();
+            var elements = _nestedWindow.GetElements();
 
             elements[_script.colliderVisualizer.ShowPreviewsJSON.name].AddListener(value =>
                 elements[_script.colliderVisualizer.XRayPreviewsOffJSON.name].SetActiveStyle(value));
@@ -243,7 +243,7 @@ namespace TittyMagic.UI
 
         private void ClearNestedWindow()
         {
-            _hardCollidersWindow.Clear();
+            _nestedWindow.Clear();
             _nestedWindowActive = false;
         }
 
@@ -258,7 +258,7 @@ namespace TittyMagic.UI
                 return null;
             }
 
-            return _hardCollidersWindow.GetElements()[key];
+            return _nestedWindow.GetElements()[key];
         }
     }
 }

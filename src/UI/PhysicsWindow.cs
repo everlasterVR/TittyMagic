@@ -11,8 +11,8 @@ namespace TittyMagic.UI
 
         public Dictionary<string, UIDynamic> GetElements() => _elements;
 
-        private Dictionary<string, ParameterWindow> _parameterWindows;
-        private string _activeParamWindowKey;
+        private Dictionary<string, ParameterWindow> _nestedWindows;
+        private string _activeNestedWindowKey;
 
         private readonly JSONStorableString _jointPhysicsParamsHeader;
         private readonly JSONStorableString _softPhysicsParamsHeader;
@@ -34,10 +34,10 @@ namespace TittyMagic.UI
 
         private void CreateParameterWindows()
         {
-            _parameterWindows = new Dictionary<string, ParameterWindow>();
+            _nestedWindows = new Dictionary<string, ParameterWindow>();
 
             _script.mainPhysicsHandler.leftBreastParameters.Keys.ToList()
-                .ForEach(key => _parameterWindows[key] = new ParameterWindow(
+                .ForEach(key => _nestedWindows[key] = new ParameterWindow(
                     _script,
                     _script.mainPhysicsHandler.leftBreastParameters[key],
                     _script.mainPhysicsHandler.rightBreastParameters[key]
@@ -45,7 +45,7 @@ namespace TittyMagic.UI
             if(Gender.isFemale)
             {
                 _script.softPhysicsHandler.leftBreastParameters.Keys.ToList()
-                    .ForEach(key => _parameterWindows[key] = new ParameterWindow(
+                    .ForEach(key => _nestedWindows[key] = new ParameterWindow(
                         _script,
                         _script.softPhysicsHandler.leftBreastParameters[key],
                         _script.softPhysicsHandler.rightBreastParameters[key]
@@ -100,8 +100,8 @@ namespace TittyMagic.UI
             button.AddListener(() =>
             {
                 ClearSelf();
-                _activeParamWindowKey = key;
-                _parameterWindows[key].Rebuild(returnCallback);
+                _activeNestedWindowKey = key;
+                _nestedWindows[key].Rebuild(returnCallback);
             });
 
             _elements[key] = button;
@@ -109,9 +109,9 @@ namespace TittyMagic.UI
 
         public void Clear()
         {
-            if(_activeParamWindowKey != null)
+            if(_activeNestedWindowKey != null)
             {
-                ClearNestedWindow(_activeParamWindowKey);
+                ClearNestedWindow(_activeNestedWindowKey);
             }
             else
             {
@@ -124,8 +124,8 @@ namespace TittyMagic.UI
 
         private void ClearNestedWindow(string key)
         {
-            _parameterWindows[key].Clear();
-            _activeParamWindowKey = null;
+            _nestedWindows[key].Clear();
+            _activeNestedWindowKey = null;
         }
 
         public void ActionsOnWindowClosed()
