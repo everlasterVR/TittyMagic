@@ -38,7 +38,7 @@ namespace TittyMagic.UI
             // CreateColliderRadiusSlider(false);
             // CreateColliderHeightSlider(false);
             CreateColliderForceSlider(false);
-            CreateShowAuxBreastCollidersToggle(false, spacing: 15);
+            CreateShowHardCollidersChooser(false, spacing: 15);
             CreateXRayVisualizationToggle(false);
             CreatePreviewOpacitySlider(false);
         }
@@ -121,25 +121,25 @@ namespace TittyMagic.UI
             _elements[storable.name] = slider;
         }
 
-        private void CreateShowAuxBreastCollidersToggle(bool rightSide, int spacing = 0)
+        private void CreateShowHardCollidersChooser(bool rightSide, int spacing = 0)
         {
-            var storable = _script.colliderVisualizer.ShowPreviewsJSON;
+            var storable = _script.colliderVisualizer.GroupsJSON;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var toggle = _script.CreateToggle(storable, rightSide);
-            toggle.height = 52;
-            toggle.label = "Show Hard Colliders";
-            _elements[storable.name] = toggle;
+            var chooser = _script.CreatePopup(storable, rightSide);
+            chooser.label = "Show Previews";
+            chooser.popup.labelText.color = Color.black;
+            _elements[storable.name] = chooser;
         }
 
         private void CreateXRayVisualizationToggle(bool rightSide, int spacing = 0)
         {
-            var storable = _script.colliderVisualizer.XRayPreviewsOffJSON;
+            var storable = _script.colliderVisualizer.XRayPreviewsJSON;
             AddSpacer(storable.name, spacing, rightSide);
 
             var toggle = _script.CreateToggle(storable, rightSide);
             toggle.height = 52;
-            toggle.label = "Show Only Exposed Areas";
+            toggle.label = "Use XRay Previews";
             _elements[storable.name] = toggle;
         }
 
@@ -168,7 +168,28 @@ namespace TittyMagic.UI
             return sliders;
         }
 
-        public void Clear() =>
+        public void Clear()
+        {
             _elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
+            ActionsOnWindowClosed();
+        }
+
+        private void ActionsOnWindowClosed()
+        {
+            var element = _elements[_script.colliderVisualizer.GroupsJSON.name];
+            var groupsPopup = element as UIDynamicPopup;
+            if(groupsPopup != null)
+            {
+                groupsPopup.popup.onValueChangeHandlers -= OnGroupsPopupValueChanged;
+            }
+
+            _script.colliderVisualizer.ShowPreviewsJSON.val = false;
+        }
+
+        public void OnGroupsPopupValueChanged(string value)
+        {
+            _elements[_script.colliderVisualizer.XRayPreviewsJSON.name].SetActiveStyle(value != "Off");
+            _elements[_script.colliderVisualizer.PreviewOpacityJSON.name].SetActiveStyle(value != "Off");
+        }
     }
 }

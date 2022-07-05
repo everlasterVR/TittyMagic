@@ -121,11 +121,6 @@ namespace TittyMagic
                 return;
             }
 
-            if(_script.colliderVisualizer != null && _script.colliderVisualizer.ShowPreviewsJSON.val)
-            {
-                _script.colliderVisualizer.ShowPreviewsCallback(value);
-            }
-
             configs.ForEach(config => config.SetEnabled(value));
 
             if(value)
@@ -192,17 +187,21 @@ namespace TittyMagic
         private IEnumerator DeferBeginSyncMassCombined()
         {
             _syncMassStatus = WaitStatus.WAITING;
-            yield return new WaitForSecondsRealtime(0.1f);
 
-            var slider = (UIDynamicSlider) _script.mainWindow?.GetNestedElement(forceJsf.name);
-            if(slider != null)
+            var elements = _script.mainWindow?.nestedWindow?.GetElements();
+            if(elements != null)
             {
-                while(slider.IsClickDown())
+                yield return new WaitForSecondsRealtime(0.1f);
+                var slider = (UIDynamicSlider) elements[forceJsf.name];
+                if(slider != null)
                 {
+                    while(slider.IsClickDown())
+                    {
+                        yield return new WaitForSecondsRealtime(0.1f);
+                    }
+
                     yield return new WaitForSecondsRealtime(0.1f);
                 }
-
-                yield return new WaitForSecondsRealtime(0.1f);
             }
 
             _syncMassStatus = WaitStatus.DONE;

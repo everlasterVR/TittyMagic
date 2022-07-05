@@ -11,9 +11,9 @@ namespace TittyMagic.UI
 
         public Dictionary<string, UIDynamic> GetElements() => _elements;
 
-        private readonly HardCollidersWindow _nestedWindow;
+        public HardCollidersWindow nestedWindow { get; }
+        public bool nestedWindowActive { get; private set; }
 
-        private bool _nestedWindowActive;
         private readonly JSONStorableString _title;
 
         public int Id() => 1;
@@ -25,7 +25,7 @@ namespace TittyMagic.UI
 
             if(Gender.isFemale)
             {
-                _nestedWindow = new HardCollidersWindow(script);
+                nestedWindow = new HardCollidersWindow(script);
             }
         }
 
@@ -177,8 +177,8 @@ namespace TittyMagic.UI
             button.AddListener(() =>
             {
                 ClearSelf();
-                _nestedWindowActive = true;
-                _nestedWindow.Rebuild(returnCallback);
+                nestedWindowActive = true;
+                nestedWindow.Rebuild(returnCallback);
                 PostNavigateToHardCollidersWindow();
             });
 
@@ -187,13 +187,18 @@ namespace TittyMagic.UI
 
         private void PostNavigateToHardCollidersWindow()
         {
-            var elements = _nestedWindow.GetElements();
+            var elements = nestedWindow.GetElements();
+            var element = elements[_script.colliderVisualizer.GroupsJSON.name];
+            var groupsPopup = element as UIDynamicPopup;
+            if(groupsPopup != null)
+            {
+                groupsPopup.popup.onValueChangeHandlers += nestedWindow.OnGroupsPopupValueChanged;
 
-            elements[_script.colliderVisualizer.ShowPreviewsJSON.name].AddListener(value =>
-                elements[_script.colliderVisualizer.XRayPreviewsOffJSON.name].SetActiveStyle(value));
-
-            elements[_script.colliderVisualizer.XRayPreviewsOffJSON.name]
-                .SetActiveStyle(_script.colliderVisualizer.ShowPreviewsJSON.val);
+                elements[_script.colliderVisualizer.XRayPreviewsJSON.name]
+                    .SetActiveStyle(groupsPopup.popup.currentValue != "Off");
+                elements[_script.colliderVisualizer.PreviewOpacityJSON.name]
+                    .SetActiveStyle(groupsPopup.popup.currentValue != "Off");
+            }
         }
 
         private void AddSpacer(string name, int height, bool rightSide) =>
@@ -228,7 +233,7 @@ namespace TittyMagic.UI
 
         public void Clear()
         {
-            if(_nestedWindowActive)
+            if(nestedWindowActive)
             {
                 ClearNestedWindow();
             }
@@ -243,22 +248,12 @@ namespace TittyMagic.UI
 
         private void ClearNestedWindow()
         {
-            _nestedWindow.Clear();
-            _nestedWindowActive = false;
+            nestedWindow.Clear();
+            nestedWindowActive = false;
         }
 
         public void ActionsOnWindowClosed()
         {
-        }
-
-        public UIDynamic GetNestedElement(string key)
-        {
-            if(!_nestedWindowActive)
-            {
-                return null;
-            }
-
-            return _nestedWindow.GetElements()[key];
         }
     }
 }

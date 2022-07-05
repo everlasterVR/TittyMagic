@@ -11,7 +11,7 @@ namespace TittyMagic.UI
 
         public Dictionary<string, UIDynamic> GetElements() => _elements;
 
-        private Dictionary<string, ParameterWindow> _nestedWindows;
+        public Dictionary<string, ParameterWindow> nestedWindows { get; private set; }
         private string _activeNestedWindowKey;
 
         private readonly JSONStorableString _jointPhysicsParamsHeader;
@@ -34,10 +34,10 @@ namespace TittyMagic.UI
 
         private void CreateParameterWindows()
         {
-            _nestedWindows = new Dictionary<string, ParameterWindow>();
+            nestedWindows = new Dictionary<string, ParameterWindow>();
 
             _script.mainPhysicsHandler.leftBreastParameters.Keys.ToList()
-                .ForEach(key => _nestedWindows[key] = new ParameterWindow(
+                .ForEach(key => nestedWindows[key] = new ParameterWindow(
                     _script,
                     _script.mainPhysicsHandler.leftBreastParameters[key],
                     _script.mainPhysicsHandler.rightBreastParameters[key]
@@ -45,7 +45,7 @@ namespace TittyMagic.UI
             if(Gender.isFemale)
             {
                 _script.softPhysicsHandler.leftBreastParameters.Keys.ToList()
-                    .ForEach(key => _nestedWindows[key] = new ParameterWindow(
+                    .ForEach(key => nestedWindows[key] = new ParameterWindow(
                         _script,
                         _script.softPhysicsHandler.leftBreastParameters[key],
                         _script.softPhysicsHandler.rightBreastParameters[key]
@@ -101,7 +101,7 @@ namespace TittyMagic.UI
             {
                 ClearSelf();
                 _activeNestedWindowKey = key;
-                _nestedWindows[key].Rebuild(returnCallback);
+                nestedWindows[key].Rebuild(returnCallback);
             });
 
             _elements[key] = button;
@@ -124,7 +124,7 @@ namespace TittyMagic.UI
 
         private void ClearNestedWindow(string key)
         {
-            _nestedWindows[key].Clear();
+            nestedWindows[key].Clear();
             _activeNestedWindowKey = null;
         }
 

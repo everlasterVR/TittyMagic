@@ -201,14 +201,21 @@ namespace TittyMagic
             colliderVisualizer = gameObject.AddComponent<ColliderVisualizer>();
             var groups = new List<Group>
             {
-                new Group("Left hard collider", @"lPectoral\d"),
-                new Group("Right hard collider", @"rPectoral\d"),
-                new Group("Hard colliders", @"[lr](Pectoral\d)"),
+                new Group("Off", @"$off"), //match nothing
+                new Group("Both breasts", @"[lr](Pectoral\d)"),
+                new Group("Left breast", @"lPectoral\d"),
+                new Group("Right breast", @"rPectoral\d"),
             };
             colliderVisualizer.Init(this, groups);
             colliderVisualizer.PreviewOpacityJSON.val = 1;
             colliderVisualizer.PreviewOpacityJSON.defaultVal = 1;
-            colliderVisualizer.GroupsJSON.val = "Hard colliders";
+            colliderVisualizer.GroupsJSON.val = "Both breasts";
+            colliderVisualizer.GroupsJSON.defaultVal = "Both breasts";
+
+            foreach(string option in new[] { "Select...", "Other", "All" })
+            {
+                colliderVisualizer.GroupsJSON.choices.Remove(option);
+            }
         }
 
         private IEnumerator DeferSetupTrackFemaleNipples()
@@ -341,7 +348,10 @@ namespace TittyMagic
                 }
             };
 
-            configureHardColliders = new JSONStorableAction("configureHardColliders", () => { });
+            configureHardColliders = new JSONStorableAction(
+                "configureHardColliders",
+                () => colliderVisualizer.ShowPreviewsJSON.val = true
+            );
 
             colliderVisualizer.ShowPreviewsJSON.setCallbackFunction = value =>
                 colliderVisualizer.ShowPreviewsCallback(hardColliderHandler.enabledJsb.val && value);
@@ -444,16 +454,22 @@ namespace TittyMagic
 
         private void ActionsOnUIOpened()
         {
+            var background = rightUIContent.parent.parent.parent.transform.GetComponent<Image>();
+            background.color = new Color(0.85f, 0.85f, 0.85f);
+
             softPhysicsHandler.ReverseSyncSoftPhysicsOn();
             softPhysicsHandler.ReverseSyncSyncAllowSelfCollision();
 
-            var background = rightUIContent.parent.parent.parent.transform.GetComponent<Image>();
-            background.color = new Color(0.85f, 0.85f, 0.85f);
+            if(_tabs.activeWindow.Id() == mainWindow.Id() && mainWindow.nestedWindowActive)
+            {
+                colliderVisualizer.ShowPreviewsJSON.val = true;
+            }
         }
 
         private void ActionsOnUIClosed()
         {
             RecalibrateOnNavigation();
+            colliderVisualizer.ShowPreviewsJSON.val = false;
         }
 
         public void RecalibrateOnNavigation()
