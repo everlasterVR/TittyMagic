@@ -170,6 +170,7 @@
     <None Include="TittyMagic.cslist" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="package.sh" />
     <Content Include="vam-collider-editor\.editorconfig" />
     <Content Include="vam-collider-editor\README.md" />
   </ItemGroup>

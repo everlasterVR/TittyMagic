@@ -33,11 +33,11 @@ namespace TittyMagic
         private const float RADIUS_PECTORAL_3 = 0.93f;
         private const float RADIUS_PECTORAL_4 = 0.79f;
         private const float RADIUS_PECTORAL_5 = 0.74f;
-        private const float HEIGHT_PECTORAL_1 = 1.15f;
-        private const float HEIGHT_PECTORAL_2 = 1.25f;
-        private const float HEIGHT_PECTORAL_3 = 0.68f;
-        private const float HEIGHT_PECTORAL_4 = 0.78f;
-        private const float HEIGHT_PECTORAL_5 = 0.79f;
+        private const float LENGTH_PECTORAL_1 = 1.15f;
+        private const float LENGTH_PECTORAL_2 = 1.25f;
+        private const float LENGTH_PECTORAL_3 = 0.68f;
+        private const float LENGTH_PECTORAL_4 = 0.78f;
+        private const float LENGTH_PECTORAL_5 = 0.79f;
         private const float MASS_COMBINED = 1f;
         private const float MASS_PECTORAL_1 = 2.5f;
 
@@ -60,11 +60,11 @@ namespace TittyMagic
 
             colliderConfigs = new List<ColliderConfigGroup>
             {
-                NewColliderConfigGroup("Pectoral1", RADIUS_PECTORAL_1, HEIGHT_PECTORAL_1, MASS_PECTORAL_1),
-                NewColliderConfigGroup("Pectoral2", RADIUS_PECTORAL_2, HEIGHT_PECTORAL_2),
-                NewColliderConfigGroup("Pectoral3", RADIUS_PECTORAL_3, HEIGHT_PECTORAL_3),
-                NewColliderConfigGroup("Pectoral4", RADIUS_PECTORAL_4, HEIGHT_PECTORAL_4),
-                NewColliderConfigGroup("Pectoral5", RADIUS_PECTORAL_5, HEIGHT_PECTORAL_5),
+                NewColliderConfigGroup("Pectoral1", RADIUS_PECTORAL_1, LENGTH_PECTORAL_1, MASS_PECTORAL_1),
+                NewColliderConfigGroup("Pectoral2", RADIUS_PECTORAL_2, LENGTH_PECTORAL_2),
+                NewColliderConfigGroup("Pectoral3", RADIUS_PECTORAL_3, LENGTH_PECTORAL_3),
+                NewColliderConfigGroup("Pectoral4", RADIUS_PECTORAL_4, LENGTH_PECTORAL_4),
+                NewColliderConfigGroup("Pectoral5", RADIUS_PECTORAL_5, LENGTH_PECTORAL_5),
             };
 
             var options = colliderConfigs.Select(c => c.visualizerEditableId).ToList();
@@ -93,12 +93,12 @@ namespace TittyMagic
         private ColliderConfigGroup NewColliderConfigGroup(
             string id,
             float radiusMultiplier,
-            float heightMultiplier,
+            float lengthMultiplier,
             float? massMultiplier = null
         )
         {
-            var configLeft = NewColliderConfig("l" + id, radiusMultiplier, heightMultiplier, massMultiplier ?? MASS_COMBINED);
-            var configRight = NewColliderConfig("r" + id, radiusMultiplier, heightMultiplier, massMultiplier ?? MASS_COMBINED);
+            var configLeft = NewColliderConfig("l" + id, radiusMultiplier, lengthMultiplier, massMultiplier ?? MASS_COMBINED);
+            var configRight = NewColliderConfig("r" + id, radiusMultiplier, lengthMultiplier, massMultiplier ?? MASS_COMBINED);
             var colliderConfigGroup = new ColliderConfigGroup(id, configLeft, configRight);
 
             var forceJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderForce", 0.50f, 0.01f, 1.00f);
@@ -109,9 +109,9 @@ namespace TittyMagic
             radiusJsf.setCallbackFunction = _ => SyncHardColliderRadius(colliderConfigGroup);
             colliderConfigGroup.radiusJsf = radiusJsf;
 
-            var heightJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderHeight", 1f, 0, 2f);
-            heightJsf.setCallbackFunction = _ => SyncHardColliderHeight(colliderConfigGroup);
-            colliderConfigGroup.heightJsf = heightJsf;
+            var lengthJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderLength", 1f, 0, 2f);
+            lengthJsf.setCallbackFunction = _ => SyncHardColliderLength(colliderConfigGroup);
+            colliderConfigGroup.lengthJsf = lengthJsf;
 
             var centerXJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderCenterX", 0, -0.02f, 0.02f);
             var centerYJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderCenterY", 0, -0.02f, 0.02f);
@@ -175,7 +175,7 @@ namespace TittyMagic
             {
                 config.SetBaseValues();
                 config.UpdateRadius();
-                config.UpdateHeight();
+                config.UpdateLength();
                 config.UpdateCenter();
                 //UpdateRigidbodyMass not needed, as base value should not change
             }
@@ -191,14 +191,14 @@ namespace TittyMagic
             config.UpdateRadius();
         }
 
-        private void SyncHardColliderHeight(ColliderConfigGroup config)
+        private void SyncHardColliderLength(ColliderConfigGroup config)
         {
             if(!enabled)
             {
                 return;
             }
 
-            config.UpdateHeight();
+            config.UpdateLength();
         }
 
         private void SyncHardColliderCenterOffset(ColliderConfigGroup config)

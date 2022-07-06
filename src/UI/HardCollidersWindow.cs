@@ -279,7 +279,7 @@ namespace TittyMagic.UI
 
                 CreateColliderForceSlider(colliderConfigGroup.forceJsf, true, spacing: 15);
                 CreateColliderRadiusSlider(colliderConfigGroup.radiusJsf, true, spacing: 15);
-                CreateColliderHeightSlider(colliderConfigGroup.heightJsf, true);
+                CreateColliderLengthSlider(colliderConfigGroup.lengthJsf, true);
 
                 CreateColliderCenterYSlider(colliderConfigGroup.centerYJsf, true, spacing: 15);
                 CreateColliderCenterZSlider(colliderConfigGroup.centerZJsf, true);
@@ -336,7 +336,7 @@ namespace TittyMagic.UI
             _colliderSectionElements[storable.name] = slider;
         }
 
-        private void CreateColliderHeightSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
+        private void CreateColliderLengthSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
         {
             _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
             var slider = _script.CreateSlider(storable, rightSide);

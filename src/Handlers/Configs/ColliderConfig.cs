@@ -13,7 +13,7 @@ namespace TittyMagic.Configs
 
         public JSONStorableFloat forceJsf { get; set; }
         public JSONStorableFloat radiusJsf { get; set; }
-        public JSONStorableFloat heightJsf { get; set; }
+        public JSONStorableFloat lengthJsf { get; set; }
         public JSONStorableFloat centerXJsf { get; set; }
         public JSONStorableFloat centerYJsf { get; set; }
         public JSONStorableFloat centerZJsf { get; set; }
@@ -45,10 +45,10 @@ namespace TittyMagic.Configs
             _right.UpdateRadius(radiusJsf.val);
         }
 
-        public void UpdateHeight()
+        public void UpdateLength()
         {
-            _left.UpdateHeight(heightJsf.val);
-            _right.UpdateHeight(heightJsf.val);
+            _left.UpdateLength(lengthJsf.val);
+            _right.UpdateLength(lengthJsf.val);
         }
 
         public void UpdateCenter()
@@ -93,7 +93,7 @@ namespace TittyMagic.Configs
         private readonly float _massMultiplier;
 
         private float _baseRadius;
-        private float _baseHeight;
+        private float _baseLength;
         private Vector3 _baseCenter;
         private float _baseMass;
 
@@ -126,8 +126,8 @@ namespace TittyMagic.Configs
         public void UpdateRadius(float multiplier) =>
             _capsulelineSphereCollider.capsuleCollider.radius = multiplier * _baseRadius;
 
-        public void UpdateHeight(float multiplier) =>
-            _capsulelineSphereCollider.capsuleCollider.height = multiplier * _baseHeight;
+        public void UpdateLength(float multiplier) =>
+            _capsulelineSphereCollider.capsuleCollider.height = multiplier * _baseLength;
 
         public void UpdateCenter(float xOffset, float yOffset, float zOffset)
         {
@@ -153,7 +153,7 @@ namespace TittyMagic.Configs
             ResetDefaultScale();
             var collider = _capsulelineSphereCollider.capsuleCollider;
             _baseRadius = collider.radius * _radiusMultiplier;
-            _baseHeight = collider.height * _lengthMultiplier;
+            _baseLength = collider.height * _lengthMultiplier;
             _baseCenter = collider.center;
             _baseMass = DEFAULT_MASS * _massMultiplier;
         }
