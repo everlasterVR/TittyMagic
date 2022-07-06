@@ -188,6 +188,8 @@ namespace TittyMagic.UI
 
         private void PostNavigateToHardCollidersWindow()
         {
+            _script.colliderVisualizer.enabled = true;
+            _script.colliderVisualizer.ShowPreviewsJSON.val = true;
             AddColliderPopupChangeHandler();
         }
 

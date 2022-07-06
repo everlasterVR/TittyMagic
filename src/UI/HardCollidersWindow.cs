@@ -197,6 +197,7 @@ namespace TittyMagic.UI
             RemoveColliderPopupChangeHandler();
             RemoveShowPreviewsPopupChangeHandler();
             _script.colliderVisualizer.ShowPreviewsJSON.val = false;
+            _script.colliderVisualizer.enabled = false;
         }
 
         private void ClearColliderSection()

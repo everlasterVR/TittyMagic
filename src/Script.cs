@@ -218,6 +218,8 @@ namespace TittyMagic
             {
                 colliderVisualizer.GroupsJSON.choices.Remove(option);
             }
+
+            colliderVisualizer.enabled = false;
         }
 
         private IEnumerator DeferSetupTrackFemaleNipples()
@@ -350,13 +352,7 @@ namespace TittyMagic
                 }
             };
 
-            configureHardColliders = new JSONStorableAction(
-                "configureHardColliders",
-                () => colliderVisualizer.ShowPreviewsJSON.val = true
-            );
-
-            colliderVisualizer.ShowPreviewsJSON.setCallbackFunction = value =>
-                colliderVisualizer.ShowPreviewsCallback(hardColliderHandler.enabledJsb.val && value);
+            configureHardColliders = new JSONStorableAction("configureHardColliders", () => {});
         }
 
         private void CreateNavigation()
@@ -472,6 +468,7 @@ namespace TittyMagic
             if(_tabs.activeWindow.Id() == mainWindow.Id() && mainWindow.nestedWindowActive)
             {
                 colliderVisualizer.ShowPreviewsJSON.val = true;
+                colliderVisualizer.enabled = true;
             }
         }
 
@@ -479,6 +476,7 @@ namespace TittyMagic
         {
             RecalibrateOnNavigation();
             colliderVisualizer.ShowPreviewsJSON.val = false;
+            colliderVisualizer.enabled = false;
 
             if(_tabs.activeWindow.Id() == mainWindow.Id() && mainWindow.nestedWindowActive)
             {
@@ -942,11 +940,6 @@ namespace TittyMagic
                     _settingsMonitor.enabled = true;
                 }
 
-                if(colliderVisualizer != null)
-                {
-                    colliderVisualizer.enabled = true;
-                }
-
                 if(hardColliderHandler != null)
                 {
                     hardColliderHandler.enabled = true;
@@ -972,11 +965,6 @@ namespace TittyMagic
                 if(_settingsMonitor != null)
                 {
                     _settingsMonitor.enabled = false;
-                }
-
-                if(colliderVisualizer != null)
-                {
-                    colliderVisualizer.enabled = false;
                 }
 
                 if(hardColliderHandler != null)

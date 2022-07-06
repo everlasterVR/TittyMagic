@@ -179,8 +179,6 @@ namespace TittyMagic
                     config.UpdateHeight(config.radiusJsf.val);
                 }
             }
-
-            _script.colliderVisualizer.SyncPreviews();
         }
 
         private void SyncHardColliderRadius(ColliderConfigGroup config)
@@ -191,7 +189,6 @@ namespace TittyMagic
             }
 
             config.UpdateRadius(config.radiusJsf.val);
-            _script.colliderVisualizer.SyncPreviews();
         }
 
         private void SyncHardColliderHeight(ColliderConfigGroup config)
@@ -202,7 +199,6 @@ namespace TittyMagic
             }
 
             config.UpdateHeight(config.heightJsf.val);
-            _script.colliderVisualizer.SyncPreviews();
         }
 
         private void SyncHardColliderCenterOffset(ColliderConfigGroup config, float xOffset, float yOffset, float zOffset)
@@ -213,7 +209,6 @@ namespace TittyMagic
             }
 
             config.UpdateCenter(xOffset, yOffset, zOffset);
-            _script.colliderVisualizer.SyncPreviews();
         }
 
         private void SyncHardColliderMass(ColliderConfigGroup config)
