@@ -74,7 +74,7 @@ namespace TittyMagic
             if(useNewMass)
             {
                 massAmount = realMassAmount;
-                massJsf.val = newMass;
+                massJsf.valNoCallback = newMass;
             }
             else
             {

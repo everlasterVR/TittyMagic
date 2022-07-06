@@ -71,8 +71,9 @@ namespace TittyMagic
         public bool initDone { get; private set; }
 
         private bool _loadingFromJson;
-        private int _waitStatus = -1;
-        private int _refreshStatus = -1;
+        private bool _waiting;
+        private bool _refreshInProgress;
+        private bool _refreshQueued;
         private bool _animationWasSetFrozen;
         private bool _uiOpenPrevFrame;
 
@@ -416,7 +417,7 @@ namespace TittyMagic
 
         private void RefreshFromSliderChanged(bool refreshMass = false)
         {
-            if(!_loadingFromJson && _waitStatus != WaitStatus.WAITING)
+            if(!_loadingFromJson)
             {
                 StartCoroutine(DeferBeginRefresh(refreshMass));
             }
@@ -496,17 +497,15 @@ namespace TittyMagic
         {
             try
             {
-                if(!initDone || _waitStatus != WaitStatus.DONE)
+                if(!initDone || _waiting)
                 {
                     return;
                 }
 
                 bool morphsOrScaleChanged = _listenersCheckRunner.Run(() =>
-                    autoUpdateJsb.val &&
-                    _waitStatus != WaitStatus.WAITING &&
-                    (_breastMorphListener.Changed() || _atomScaleListener.Changed())
+                    _breastMorphListener.Changed() || _atomScaleListener.Changed()
                 );
-                if(morphsOrScaleChanged)
+                if(morphsOrScaleChanged && autoUpdateJsb.val && !_waiting)
                 {
                     StartCoroutine(DeferBeginRefresh(refreshMass: true));
                     return;
@@ -583,23 +582,35 @@ namespace TittyMagic
             bool? useNewMass = null
         )
         {
+            var guid = Guid.NewGuid();
+            _waiting = true;
             needsRecalibration = false;
             if(useNewMass == null)
             {
                 useNewMass = autoUpdateJsb.val;
             }
 
-            _waitStatus = WaitStatus.WAITING;
-
-            while(_refreshStatus != RefreshStatus.DONE && _refreshStatus != -1)
+            if(!_refreshQueued && !mainWindow.GetSlidersForRefresh().Any(slider => slider.IsClickDown()))
             {
-                yield return null;
+                if(_refreshInProgress)
+                {
+                    _refreshQueued = true;
+                }
+
+                while(_refreshInProgress)
+                {
+                    yield return null;
+                }
+            }
+            else if(_refreshInProgress)
+            {
+                yield break;
             }
 
-            if(_refreshStatus != RefreshStatus.PRE_REFRESH_STARTED && _refreshStatus != RefreshStatus.PRE_REFRESH_OK)
-            {
-                PreRefresh(refreshMass, useNewMass.Value);
-            }
+            _refreshQueued = false;
+            _refreshInProgress = true;
+
+            PreRefresh(refreshMass, useNewMass.Value);
 
             if(!waitForListeners)
             {
@@ -629,11 +640,6 @@ namespace TittyMagic
                 yield return new WaitForSeconds(0.1f);
             }
 
-            while(_refreshStatus != RefreshStatus.PRE_REFRESH_OK)
-            {
-                yield return null;
-            }
-
             _softnessAmount = CalculateSoftnessAmount(softnessJsf.val);
             _quicknessAmount = CalculateQuicknessAmount(quicknessJsf.val);
 
@@ -642,8 +648,6 @@ namespace TittyMagic
 
         private void PreRefresh(bool refreshMass, bool useNewMass)
         {
-            _refreshStatus = RefreshStatus.PRE_REFRESH_STARTED;
-
             bool mainToggleFrozen =
                 SuperController.singleton.freezeAnimationToggle != null &&
                 SuperController.singleton.freezeAnimationToggle.isOn;
@@ -669,8 +673,6 @@ namespace TittyMagic
             UpdateStaticPhysics();
             UpdateDynamicPhysics(roll: 0, pitch: 0);
             UpdateDynamicMorphs(roll: 0, pitch: 0);
-
-            _refreshStatus = RefreshStatus.PRE_REFRESH_OK;
         }
 
         private IEnumerator Refresh(bool refreshMass, bool useNewMass)
@@ -709,8 +711,8 @@ namespace TittyMagic
                 _settingsMonitor.enabled = true;
             }
 
-            _waitStatus = WaitStatus.DONE;
-            _refreshStatus = RefreshStatus.DONE;
+            _waiting = false;
+            _refreshInProgress = false;
             statusInfo.val = "";
             initDone = true;
         }

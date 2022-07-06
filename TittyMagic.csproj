@@ -102,7 +102,6 @@
     <Compile Include="src\Static\Direction.cs" />
     <Compile Include="src\Static\Gender.cs" />
     <Compile Include="src\Static\MVRParamName.cs" />
-    <Compile Include="src\Static\Statuses.cs" />
     <Compile Include="src\Static\VertexIndexGroup.cs" />
     <Compile Include="src\TrackNipple.cs" />
     <Compile Include="src\Components\Bindings.cs" />

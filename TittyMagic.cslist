@@ -59,7 +59,6 @@ src\UI\UIHelpers.cs
 src\Static\Direction.cs
 src\Static\Gender.cs
 src\Static\MVRParamName.cs
-src\Static\Statuses.cs
 src\Static\VertexIndexGroup.cs
 src\AtomScaleListener.cs
 src\BreastVolumeCalculator.cs

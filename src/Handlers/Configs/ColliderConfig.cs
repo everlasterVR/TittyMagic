@@ -6,7 +6,7 @@ namespace TittyMagic.Configs
     internal class ColliderConfigGroup
     {
         public string id { get; }
-        public int syncMassStatus { get; set; }
+        public bool syncInProgress { get; set; }
 
         private readonly ColliderConfig _left;
         private readonly ColliderConfig _right;
@@ -25,7 +25,6 @@ namespace TittyMagic.Configs
             this.id = id;
             _left = left;
             _right = right;
-            syncMassStatus = -1;
         }
 
         public void UpdateRigidbodyMass(float combinedMultiplier)

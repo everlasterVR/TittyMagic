@@ -23,7 +23,7 @@ namespace TittyMagic
 
         public JSONStorableFloat baseForceJsf { get; private set; }
 
-        private int _combinedSyncMassStatus = -1;
+        private bool _combinedSyncInProgress;
 
         public const string ALL_OPTION = "All";
 
@@ -218,7 +218,7 @@ namespace TittyMagic
                 return;
             }
 
-            if(config.syncMassStatus != WaitStatus.WAITING)
+            if(!config.syncInProgress)
             {
                 StartCoroutine(DeferBeginSyncMass(config));
             }
@@ -226,7 +226,7 @@ namespace TittyMagic
 
         private IEnumerator DeferBeginSyncMass(ColliderConfigGroup config)
         {
-            config.syncMassStatus = WaitStatus.WAITING;
+            config.syncInProgress = true;
 
             var elements = _script.mainWindow?.nestedWindow?.GetColliderSectionElements();
             if(elements != null)
@@ -244,7 +244,7 @@ namespace TittyMagic
                 }
             }
 
-            config.syncMassStatus = WaitStatus.DONE;
+            config.syncInProgress = false;
             yield return DeferSyncMass(config);
         }
 
@@ -276,7 +276,7 @@ namespace TittyMagic
                 return;
             }
 
-            if(_combinedSyncMassStatus != WaitStatus.WAITING)
+            if(!_combinedSyncInProgress)
             {
                 StartCoroutine(DeferBeginSyncBaseMass());
             }
@@ -284,7 +284,7 @@ namespace TittyMagic
 
         private IEnumerator DeferBeginSyncBaseMass()
         {
-            _combinedSyncMassStatus = WaitStatus.WAITING;
+            _combinedSyncInProgress = true;
 
             var elements = _script.mainWindow?.nestedWindow?.GetElements();
             if(elements != null)
@@ -302,7 +302,7 @@ namespace TittyMagic
                 }
             }
 
-            _combinedSyncMassStatus = WaitStatus.DONE;
+            _combinedSyncInProgress = false;
             yield return DeferSyncMassCombined(baseForceJsf.val);
         }
 
