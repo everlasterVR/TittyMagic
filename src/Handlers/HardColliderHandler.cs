@@ -27,19 +27,7 @@ namespace TittyMagic
 
         public const string ALL_OPTION = "All";
 
-        // TODO storables
-        private const float RADIUS_PECTORAL_1 = 0.89f;
-        private const float RADIUS_PECTORAL_2 = 0.79f;
-        private const float RADIUS_PECTORAL_3 = 0.93f;
-        private const float RADIUS_PECTORAL_4 = 0.79f;
-        private const float RADIUS_PECTORAL_5 = 0.74f;
-        private const float LENGTH_PECTORAL_1 = 1.15f;
-        private const float LENGTH_PECTORAL_2 = 1.25f;
-        private const float LENGTH_PECTORAL_3 = 0.68f;
-        private const float LENGTH_PECTORAL_4 = 0.78f;
-        private const float LENGTH_PECTORAL_5 = 0.79f;
-        private const float MASS_COMBINED = 1f;
-        private const float MASS_PECTORAL_1 = 2.5f;
+        private Dictionary<string, Dictionary<string, float>> _defaultBaseValues;
 
         public void Init()
         {
@@ -58,6 +46,7 @@ namespace TittyMagic
                 return;
             }
 
+            CreateDefaultBaseValuesDictionary();
             colliderConfigs = new List<ColliderConfigGroup>
             {
                 NewColliderConfigGroup("Pectoral1"),
@@ -82,7 +71,10 @@ namespace TittyMagic
             {
                 _script.colliderVisualizer.PreviewOpacityJSON.val = value == ALL_OPTION ? 1 : 0.67f;
                 _script.colliderVisualizer.EditablesJSON.val = value == ALL_OPTION ? "" : value;
+                SyncSizeAuto();
             };
+            _script.colliderVisualizer.GroupsJSON.setJSONCallbackFunction = _ => SyncSizeAuto();
+            _script.colliderVisualizer.XRayPreviewsJSON.setJSONCallbackFunction = _ => SyncSizeAuto();
 
             baseForceJsf = _script.NewJSONStorableFloat("combinedColliderForce", 0.50f, 0.01f, 1.00f);
             baseForceJsf.setCallbackFunction = SyncHardColliderBaseMass;
@@ -90,14 +82,97 @@ namespace TittyMagic
             SyncUseHardColliders(enabledJsb.val);
         }
 
+        private void CreateDefaultBaseValuesDictionary()
+        {
+            // // TODO storables
+            // private const float RADIUS_PECTORAL_1 = 0.89f;
+            // private const float RADIUS_PECTORAL_2 = 0.79f;
+            // private const float RADIUS_PECTORAL_3 = 0.93f;
+            // private const float RADIUS_PECTORAL_4 = 0.79f;
+            // private const float RADIUS_PECTORAL_5 = 0.74f;
+            // private const float LENGTH_PECTORAL_1 = 1.15f;
+            // private const float LENGTH_PECTORAL_2 = 1.25f;
+            // private const float LENGTH_PECTORAL_3 = 0.68f;
+            // private const float LENGTH_PECTORAL_4 = 0.78f;
+            // private const float LENGTH_PECTORAL_5 = 0.79f;
+            // private const float MASS_COMBINED = 1f;
+            // private const float MASS_PECTORAL_1 = 2.5f;
+
+            _defaultBaseValues = new Dictionary<string, Dictionary<string, float>>
+            {
+                {
+                    "Pectoral1", new Dictionary<string, float>
+                    {
+                        { "ColliderForce", 1 },
+                        { "ColliderRadius", 0 },
+                        { "ColliderLength", 0 },
+                        { "ColliderCenterX", 0 },
+                        { "ColliderCenterY", 0 },
+                        { "ColliderCenterZ", 0 },
+                    }
+                },
+                {
+                    "Pectoral2", new Dictionary<string, float>
+                    {
+                        { "ColliderForce", 1 },
+                        { "ColliderRadius", 0 },
+                        { "ColliderLength", 0 },
+                        { "ColliderCenterX", 0 },
+                        { "ColliderCenterY", 0 },
+                        { "ColliderCenterZ", 0 },
+                    }
+                },
+                {
+                    "Pectoral3", new Dictionary<string, float>
+                    {
+                        { "ColliderForce", 1 },
+                        { "ColliderRadius", 0 },
+                        { "ColliderLength", 0 },
+                        { "ColliderCenterX", 0 },
+                        { "ColliderCenterY", 0 },
+                        { "ColliderCenterZ", 0 },
+                    }
+                },
+                {
+                    "Pectoral4", new Dictionary<string, float>
+                    {
+                        { "ColliderForce", 1 },
+                        { "ColliderRadius", 0 },
+                        { "ColliderLength", 0 },
+                        { "ColliderCenterX", 0 },
+                        { "ColliderCenterY", 0 },
+                        { "ColliderCenterZ", 0 },
+                    }
+                },
+                {
+                    "Pectoral5", new Dictionary<string, float>
+                    {
+                        { "ColliderForce", 1 },
+                        { "ColliderRadius", 0 },
+                        { "ColliderLength", 0 },
+                        { "ColliderCenterX", 0 },
+                        { "ColliderCenterY", 0 },
+                        { "ColliderCenterZ", 0 },
+                    }
+                },
+            };
+        }
+
         private ColliderConfigGroup NewColliderConfigGroup(string id)
         {
             var configLeft = NewColliderConfig("l" + id);
             var configRight = NewColliderConfig("r" + id);
+            var defaultBaseValues = _defaultBaseValues[id];
             var colliderConfigGroup = new ColliderConfigGroup(
                 id,
                 configLeft,
-                configRight
+                configRight,
+                defaultBaseValues["ColliderForce"],
+                defaultBaseValues["ColliderRadius"],
+                defaultBaseValues["ColliderLength"],
+                defaultBaseValues["ColliderCenterX"],
+                defaultBaseValues["ColliderCenterY"],
+                defaultBaseValues["ColliderCenterZ"]
             );
 
             var forceJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderForce", 0.50f, 0.01f, 1.00f);
@@ -155,21 +230,8 @@ namespace TittyMagic
             {
                 SyncHardColliderBaseMass(0);
             }
-        }
 
-        public void ResetBaseValues()
-        {
-            foreach(var config in colliderConfigs)
-            {
-                config.RestoreDefaultMass();
-                config.UpdateRadius();
-                config.UpdateLength();
-                config.UpdateLookOffset();
-                config.UpdateUpOffset();
-                config.UpdateRightOffset();
-                //UpdateRigidbodyMass not needed, as base value should not change
-                _script.colliderVisualizer.SyncPreviews();
-            }
+            SyncSizeAuto();
         }
 
         private void SyncHardColliderRadius(ColliderConfigGroup config)
@@ -180,7 +242,7 @@ namespace TittyMagic
             }
 
             config.UpdateRadius();
-            _script.colliderVisualizer.SyncPreviews();
+            SyncSizeAuto();
         }
 
         private void SyncHardColliderLength(ColliderConfigGroup config)
@@ -191,7 +253,7 @@ namespace TittyMagic
             }
 
             config.UpdateLength();
-            _script.colliderVisualizer.SyncPreviews();
+            SyncSizeAuto();
         }
 
         private void SyncHardColliderLookOffset(ColliderConfigGroup config)
@@ -202,7 +264,7 @@ namespace TittyMagic
             }
 
             config.UpdateLookOffset();
-            _script.colliderVisualizer.SyncPreviews();
+            SyncSizeAuto();
         }
 
         private void SyncHardColliderUpOffset(ColliderConfigGroup config)
@@ -213,7 +275,7 @@ namespace TittyMagic
             }
 
             config.UpdateUpOffset();
-            _script.colliderVisualizer.SyncPreviews();
+            SyncSizeAuto();
         }
 
         private void SyncHardColliderRightOffset(ColliderConfigGroup config)
@@ -224,7 +286,7 @@ namespace TittyMagic
             }
 
             config.UpdateRightOffset();
-            _script.colliderVisualizer.SyncPreviews();
+            SyncSizeAuto();
         }
 
         private void SyncHardColliderMass(ColliderConfigGroup config)
@@ -238,6 +300,12 @@ namespace TittyMagic
             {
                 StartCoroutine(DeferBeginSyncMass(config));
             }
+        }
+
+        public void SyncSizeAuto()
+        {
+            colliderConfigs.ForEach(config => config.AutoColliderSizeSet());
+            _script.colliderVisualizer.SyncPreviews();
         }
 
         private IEnumerator DeferBeginSyncMass(ColliderConfigGroup config)

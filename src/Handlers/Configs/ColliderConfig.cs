@@ -13,6 +13,15 @@ namespace TittyMagic.Configs
         public string visualizerEditableId => _left.visualizerEditableId;
         public bool syncInProgress { get; set; }
 
+        private readonly float _massMultiplier;
+        private readonly float _baseRadiusOffset;
+        private readonly float _baseLengthOffset;
+        private readonly float _baseRightOffset;
+        private readonly float _baseUpOffset;
+        private readonly float _baseLookOffset;
+
+        private float baseMass => DEFAULT_MASS * _massMultiplier;
+
         private readonly ColliderConfig _left;
         private readonly ColliderConfig _right;
 
@@ -26,18 +35,30 @@ namespace TittyMagic.Configs
         public ColliderConfigGroup(
             string id,
             ColliderConfig left,
-            ColliderConfig right
+            ColliderConfig right,
+            float massMultiplier,
+            float baseRadiusOffset,
+            float baseLengthOffset,
+            float baseRightOffset,
+            float baseUpOffset,
+            float baseLookOffset
         )
         {
             this.id = id;
             _left = left;
             _right = right;
+            _massMultiplier = massMultiplier;
+            _baseRadiusOffset = baseRadiusOffset;
+            _baseLengthOffset = baseLengthOffset;
+            _baseRightOffset = baseRightOffset;
+            _baseUpOffset = baseUpOffset;
+            _baseLookOffset = baseLookOffset;
         }
 
         public void UpdateRigidbodyMass(float combinedMultiplier)
         {
-            _left.UpdateRigidbodyMass(combinedMultiplier);
-            _right.UpdateRigidbodyMass(combinedMultiplier);
+            _left.UpdateRigidbodyMass(baseMass * combinedMultiplier);
+            _right.UpdateRigidbodyMass(baseMass * combinedMultiplier);
         }
 
         public void RestoreDefaultMass()
@@ -48,32 +69,43 @@ namespace TittyMagic.Configs
 
         public void UpdateRadius()
         {
-            _left.UpdateRadius(-radiusJsf.val);
-            _right.UpdateRadius(-radiusJsf.val);
+            float radius = _baseRadiusOffset + radiusJsf.val;
+            _left.UpdateRadius(-radius);
+            _right.UpdateRadius(-radius);
         }
 
         public void UpdateLength()
         {
-            _left.UpdateLength(-lengthJsf.val);
-            _right.UpdateLength(-lengthJsf.val);
+            float length = _baseLengthOffset + lengthJsf.val;
+            _left.UpdateLength(-length);
+            _right.UpdateLength(-length);
         }
 
         public void UpdateRightOffset()
         {
-            _left.UpdateRightOffset(-rightJsf.val);
-            _right.UpdateRightOffset(rightJsf.val);
+            float right = _baseRightOffset + rightJsf.val;
+            _left.UpdateRightOffset(-right);
+            _right.UpdateRightOffset(right);
         }
 
         public void UpdateUpOffset()
         {
-            _left.UpdateUpOffset(upJsf.val);
-            _right.UpdateUpOffset(upJsf.val);
+            float up = _baseUpOffset + upJsf.val;
+            _left.UpdateUpOffset(-up);
+            _right.UpdateUpOffset(-up);
         }
 
         public void UpdateLookOffset()
         {
-            _left.UpdateLookOffset(lookJsf.val);
-            _right.UpdateLookOffset(lookJsf.val);
+            float look = _baseLookOffset + lookJsf.val;
+            _left.UpdateLookOffset(-look);
+            _right.UpdateLookOffset(-look);
+        }
+
+        public void AutoColliderSizeSet()
+        {
+            _left.AutoColliderSizeSet();
+            _right.AutoColliderSizeSet();
         }
 
         public void RestoreDefaults()
@@ -115,31 +147,26 @@ namespace TittyMagic.Configs
         public void UpdateRadius(float offset)
         {
             _autoCollider.autoRadiusBuffer = offset;
-            AutoColliderSizeSet();
         }
 
         public void UpdateLength(float offset)
         {
             _autoCollider.autoLengthBuffer = offset;
-            AutoColliderSizeSet();
         }
 
         public void UpdateRightOffset(float offset)
         {
             _autoCollider.colliderRightOffset = offset;
-            AutoColliderSizeSet();
         }
 
         public void UpdateUpOffset(float offset)
         {
             _autoCollider.colliderUpOffset = offset;
-            AutoColliderSizeSet();
         }
 
         public void UpdateLookOffset(float offset)
         {
             _autoCollider.colliderLookOffset = offset;
-            AutoColliderSizeSet();
         }
 
         public void RestoreDefaults()
@@ -154,7 +181,7 @@ namespace TittyMagic.Configs
             _autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.MorphChangeOnly;
         }
 
-        private void AutoColliderSizeSet()
+        public void AutoColliderSizeSet()
         {
             _autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.Always;
             _autoCollider.AutoColliderSizeSet(true);

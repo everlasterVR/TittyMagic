@@ -700,9 +700,9 @@ namespace TittyMagic
 
             yield return CalibrateNipplesTracking();
 
-            hardColliderHandler.ResetBaseValues();
-
             SetBreastsUseGravity(true);
+            hardColliderHandler.SyncSizeAuto();
+
             SuperController.singleton.SetFreezeAnimation(_animationWasSetFrozen);
 
             if(_settingsMonitor != null)
