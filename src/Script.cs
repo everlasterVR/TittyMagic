@@ -352,7 +352,7 @@ namespace TittyMagic
                 }
             };
 
-            configureHardColliders = new JSONStorableAction("configureHardColliders", () => {});
+            configureHardColliders = new JSONStorableAction("configureHardColliders", () => { });
         }
 
         private void CreateNavigation()
@@ -496,16 +496,6 @@ namespace TittyMagic
         {
             try
             {
-                if(_refreshStatus == RefreshStatus.MASS_STARTED)
-                {
-                    return;
-                }
-
-                if(_refreshStatus > RefreshStatus.MASS_STARTED)
-                {
-                    EndRefresh();
-                }
-
                 if(!initDone || _waitStatus != WaitStatus.DONE)
                 {
                     return;
@@ -686,16 +676,12 @@ namespace TittyMagic
 
         private IEnumerator Refresh(bool refreshMass, bool useNewMass)
         {
-            _refreshStatus = RefreshStatus.MASS_STARTED;
-
             if(_settingsMonitor != null)
             {
                 _settingsMonitor.enabled = false;
             }
 
-            // simulate breasts zero G
-            _pectoralRbLeft.useGravity = false;
-            _pectoralRbRight.useGravity = false;
+            SetBreastsUseGravity(false);
 
             yield return new WaitForSeconds(0.33f);
             UpdateDynamicPhysics(roll: 0, pitch: 0);
@@ -710,8 +696,30 @@ namespace TittyMagic
             }
 
             UpdateStaticPhysics();
+            SimulateUprightPhysics();
 
-            _refreshStatus = RefreshStatus.MASS_OK;
+            yield return CalibrateNipplesTracking();
+
+            hardColliderHandler.ResetBaseValues();
+
+            SetBreastsUseGravity(true);
+            SuperController.singleton.SetFreezeAnimation(_animationWasSetFrozen);
+
+            if(_settingsMonitor != null)
+            {
+                _settingsMonitor.enabled = true;
+            }
+
+            _waitStatus = WaitStatus.DONE;
+            _refreshStatus = RefreshStatus.DONE;
+            statusInfo.val = "";
+            initDone = true;
+        }
+
+        private void SetBreastsUseGravity(bool value)
+        {
+            _pectoralRbLeft.useGravity = value;
+            _pectoralRbRight.useGravity = value;
         }
 
         private IEnumerator RefreshMass(bool useNewMass)
@@ -747,10 +755,21 @@ namespace TittyMagic
             offsetMorphHandler.upDownExtraMultiplier = 1.16f - mass;
         }
 
+        private void SimulateUprightPhysics()
+        {
+            // simulate gravityPhysics when upright
+            gravityPhysicsHandler.Update(0, 0, mainPhysicsHandler.massAmount, _softnessAmount);
+            forcePhysicsHandler.Update(0, 0, mainPhysicsHandler.massAmount);
+            offsetMorphHandler.Update(0, 0, mainPhysicsHandler.massAmount, _softnessAmount);
+
+            // simulate force of gravity when upright
+            var force = _chestTransform.up * -Physics.gravity.magnitude;
+            _pectoralRbLeft.AddForce(force, ForceMode.Acceleration);
+            _pectoralRbRight.AddForce(force, ForceMode.Acceleration);
+        }
+
         private IEnumerator CalibrateNipplesTracking()
         {
-            _refreshStatus = RefreshStatus.NEUTRALPOS_STARTED;
-
             yield return new WaitForSeconds(0.67f);
 
             float duration = 0;
@@ -765,49 +784,6 @@ namespace TittyMagic
                 duration += interval;
                 _trackLeftNipple.Calibrate();
                 _trackRightNipple.Calibrate();
-            }
-
-            _refreshStatus = RefreshStatus.NEUTRALPOS_OK;
-        }
-
-        private void EndRefresh()
-        {
-            try
-            {
-                // simulate gravityPhysics when upright
-                gravityPhysicsHandler.Update(0, 0, mainPhysicsHandler.massAmount, _softnessAmount);
-                forcePhysicsHandler.Update(0, 0, mainPhysicsHandler.massAmount);
-                offsetMorphHandler.Update(0, 0, mainPhysicsHandler.massAmount, _softnessAmount);
-
-                // simulate force of gravity when upright
-                var force = _chestTransform.up * -Physics.gravity.magnitude;
-                _pectoralRbLeft.AddForce(force, ForceMode.Acceleration);
-                _pectoralRbRight.AddForce(force, ForceMode.Acceleration);
-                if(_refreshStatus == RefreshStatus.MASS_OK)
-                {
-                    StartCoroutine(CalibrateNipplesTracking());
-                }
-                else if(_refreshStatus == RefreshStatus.NEUTRALPOS_OK)
-                {
-                    hardColliderHandler.ReSyncScaleOffsetCombined();
-                    _pectoralRbLeft.useGravity = true;
-                    _pectoralRbRight.useGravity = true;
-                    SuperController.singleton.SetFreezeAnimation(_animationWasSetFrozen);
-                    if(_settingsMonitor != null)
-                    {
-                        _settingsMonitor.enabled = true;
-                    }
-
-                    _waitStatus = WaitStatus.DONE;
-                    _refreshStatus = RefreshStatus.DONE;
-                    statusInfo.val = "";
-                    initDone = true;
-                }
-            }
-            catch(Exception e)
-            {
-                LogError($"EndRefresh: {e}");
-                enabled = false;
             }
         }
 

@@ -28,34 +28,34 @@ namespace TittyMagic.Configs
             syncMassStatus = -1;
         }
 
-        public void UpdateRadius(float multiplier)
+        public void UpdateRigidbodyMass(float combinedMultiplier)
         {
-            _left.UpdateRadius(multiplier);
-            _right.UpdateRadius(multiplier);
-        }
-
-        public void UpdateHeight(float multiplier)
-        {
-            _left.UpdateHeight(multiplier);
-            _right.UpdateHeight(multiplier);
-        }
-
-        public void UpdateCenter(float xOffset, float yOffset, float zOffset)
-        {
-            _left.UpdateCenter(xOffset, yOffset, zOffset);
-            _right.UpdateCenter(-xOffset, yOffset, zOffset);
-        }
-
-        public void UpdateRigidbodyMass(float multiplier)
-        {
-            _left.UpdateRigidbodyMass(multiplier);
-            _right.UpdateRigidbodyMass(multiplier);
+            _left.UpdateRigidbodyMass(combinedMultiplier);
+            _right.UpdateRigidbodyMass(combinedMultiplier);
         }
 
         public void RestoreDefaultMass()
         {
             _left.RestoreDefaultMass();
             _right.RestoreDefaultMass();
+        }
+
+        public void UpdateRadius()
+        {
+            _left.UpdateRadius(radiusJsf.val);
+            _right.UpdateRadius(radiusJsf.val);
+        }
+
+        public void UpdateHeight()
+        {
+            _left.UpdateHeight(heightJsf.val);
+            _right.UpdateHeight(heightJsf.val);
+        }
+
+        public void UpdateCenter()
+        {
+            _left.UpdateCenter(centerXJsf.val, centerYJsf.val, centerZJsf.val);
+            _right.UpdateCenter(-centerXJsf.val, centerYJsf.val, centerZJsf.val);
         }
 
         public void ResetDefaultScale()
@@ -71,6 +71,12 @@ namespace TittyMagic.Configs
             _left.SetEnabled(value);
             _right.SetEnabled(value);
         }
+
+        public void SetBaseValues()
+        {
+            _left.SetBaseValues();
+            _right.SetBaseValues();
+        }
     }
 
     internal class ColliderConfig
@@ -82,6 +88,10 @@ namespace TittyMagic.Configs
         private readonly AutoCollider _autoCollider;
         private readonly Collider _collider;
         private readonly CapsuleLineSphereCollider _capsulelineSphereCollider;
+
+        private readonly float _radiusMultiplier;
+        private readonly float _lengthMultiplier;
+        private readonly float _massMultiplier;
 
         private float _baseRadius;
         private float _baseHeight;
@@ -99,11 +109,20 @@ namespace TittyMagic.Configs
         )
         {
             _autoCollider = autoCollider;
+            _radiusMultiplier = radiusMultiplier;
+            _lengthMultiplier = lengthMultiplier;
+            _massMultiplier = massMultiplier;
+
             _collider = _autoCollider.jointCollider;
             _capsulelineSphereCollider = _collider.GetComponent<CapsuleLineSphereCollider>();
-            SetBaseValues(radiusMultiplier, lengthMultiplier, massMultiplier);
+            SetBaseValues();
             this.visualizerEditableId = visualizerEditableId;
         }
+
+        public void UpdateRigidbodyMass(float multiplier) =>
+            _collider.attachedRigidbody.mass = multiplier * _baseMass;
+
+        public void RestoreDefaultMass() => _collider.attachedRigidbody.mass = DEFAULT_MASS;
 
         public void UpdateRadius(float multiplier) =>
             _capsulelineSphereCollider.capsuleCollider.radius = multiplier * _baseRadius;
@@ -120,11 +139,6 @@ namespace TittyMagic.Configs
             _capsulelineSphereCollider.capsuleCollider.center = center;
         }
 
-        public void UpdateRigidbodyMass(float multiplier) =>
-            _collider.attachedRigidbody.mass = multiplier * _baseMass;
-
-        public void RestoreDefaultMass() => _collider.attachedRigidbody.mass = DEFAULT_MASS;
-
         public void ResetDefaultScale() => _autoCollider.AutoColliderSizeSetFinishFast();
 
         public bool HasRigidbody() => _collider.attachedRigidbody != null;
@@ -135,13 +149,14 @@ namespace TittyMagic.Configs
             _capsulelineSphereCollider.enabled = value;
         }
 
-        private void SetBaseValues(float radiusMultiplier, float heightMultiplier, float massMultiplier)
+        public void SetBaseValues()
         {
+            ResetDefaultScale();
             var collider = _capsulelineSphereCollider.capsuleCollider;
-            _baseRadius = collider.radius * radiusMultiplier;
-            _baseHeight = collider.height * heightMultiplier;
+            _baseRadius = collider.radius * _radiusMultiplier;
+            _baseHeight = collider.height * _lengthMultiplier;
             _baseCenter = collider.center;
-            _baseMass = DEFAULT_MASS * massMultiplier;
+            _baseMass = DEFAULT_MASS * _massMultiplier;
         }
     }
 }

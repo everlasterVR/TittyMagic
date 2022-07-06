@@ -117,9 +117,9 @@ namespace TittyMagic
             var centerYJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderCenterY", 0, -0.02f, 0.02f);
             var centerZJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderCenterZ", 0, -0.02f, 0.02f);
 
-            centerXJsf.setCallbackFunction = value => SyncHardColliderCenterOffset(colliderConfigGroup, value, centerYJsf.val, centerZJsf.val);
-            centerYJsf.setCallbackFunction = value => SyncHardColliderCenterOffset(colliderConfigGroup, centerXJsf.val, value, centerZJsf.val);
-            centerZJsf.setCallbackFunction = value => SyncHardColliderCenterOffset(colliderConfigGroup, centerXJsf.val, centerYJsf.val, value);
+            centerXJsf.setCallbackFunction = _ => SyncHardColliderCenterOffset(colliderConfigGroup);
+            centerYJsf.setCallbackFunction = _ => SyncHardColliderCenterOffset(colliderConfigGroup);
+            centerZJsf.setCallbackFunction = _ => SyncHardColliderCenterOffset(colliderConfigGroup);
 
             colliderConfigGroup.centerXJsf = centerXJsf;
             colliderConfigGroup.centerYJsf = centerYJsf;
@@ -169,15 +169,15 @@ namespace TittyMagic
             }
         }
 
-        public void ReSyncScaleOffsetCombined()
+        public void ResetBaseValues()
         {
-            if(enabledJsb.val)
+            foreach(var config in colliderConfigs)
             {
-                foreach(var config in colliderConfigs)
-                {
-                    config.UpdateRadius(config.radiusJsf.val);
-                    config.UpdateHeight(config.radiusJsf.val);
-                }
+                config.SetBaseValues();
+                config.UpdateRadius();
+                config.UpdateHeight();
+                config.UpdateCenter();
+                //UpdateRigidbodyMass not needed, as base value should not change
             }
         }
 
@@ -188,7 +188,7 @@ namespace TittyMagic
                 return;
             }
 
-            config.UpdateRadius(config.radiusJsf.val);
+            config.UpdateRadius();
         }
 
         private void SyncHardColliderHeight(ColliderConfigGroup config)
@@ -198,17 +198,17 @@ namespace TittyMagic
                 return;
             }
 
-            config.UpdateHeight(config.heightJsf.val);
+            config.UpdateHeight();
         }
 
-        private void SyncHardColliderCenterOffset(ColliderConfigGroup config, float xOffset, float yOffset, float zOffset)
+        private void SyncHardColliderCenterOffset(ColliderConfigGroup config)
         {
             if(!enabled)
             {
                 return;
             }
 
-            config.UpdateCenter(xOffset, yOffset, zOffset);
+            config.UpdateCenter();
         }
 
         private void SyncHardColliderMass(ColliderConfigGroup config)
