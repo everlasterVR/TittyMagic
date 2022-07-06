@@ -74,6 +74,7 @@ namespace TittyMagic
         private bool _waiting;
         private bool _refreshInProgress;
         private bool _refreshQueued;
+        private bool _calibrating;
         private bool _animationWasSetFrozen;
         private bool _uiOpenPrevFrame;
 
@@ -696,7 +697,6 @@ namespace TittyMagic
             }
 
             UpdateStaticPhysics();
-            SimulateUprightPhysics();
 
             yield return CalibrateNipplesTracking();
 
@@ -755,22 +755,29 @@ namespace TittyMagic
             offsetMorphHandler.upDownExtraMultiplier = 1.16f - mass;
         }
 
-        private void SimulateUprightPhysics()
+        private IEnumerator SimulateUprightPhysics()
         {
-            // simulate gravityPhysics when upright
-            gravityPhysicsHandler.Update(0, 0, mainPhysicsHandler.massAmount, _softnessAmount);
-            forcePhysicsHandler.Update(0, 0, mainPhysicsHandler.massAmount);
-            offsetMorphHandler.Update(0, 0, mainPhysicsHandler.massAmount, _softnessAmount);
+            while(_calibrating)
+            {
+                // simulate gravityPhysics when upright
+                gravityPhysicsHandler.Update(0, 0, mainPhysicsHandler.massAmount, _softnessAmount);
+                forcePhysicsHandler.Update(0, 0, mainPhysicsHandler.massAmount);
+                offsetMorphHandler.Update(0, 0, mainPhysicsHandler.massAmount, _softnessAmount);
 
-            // simulate force of gravity when upright
-            var force = _chestTransform.up * -Physics.gravity.magnitude;
-            _pectoralRbLeft.AddForce(force, ForceMode.Acceleration);
-            _pectoralRbRight.AddForce(force, ForceMode.Acceleration);
+                // simulate force of gravity when upright
+                var force = _chestTransform.up * -Physics.gravity.magnitude;
+                _pectoralRbLeft.AddForce(force, ForceMode.Acceleration);
+                _pectoralRbRight.AddForce(force, ForceMode.Acceleration);
+
+                yield return null;
+            }
         }
 
         private IEnumerator CalibrateNipplesTracking()
         {
-            yield return new WaitForSeconds(0.67f);
+            _calibrating = true;
+            StartCoroutine(SimulateUprightPhysics());
+            yield return new WaitForSeconds(0.5f);
 
             float duration = 0;
             const float interval = 0.1f;
@@ -785,6 +792,8 @@ namespace TittyMagic
                 _trackLeftNipple.Calibrate();
                 _trackRightNipple.Calibrate();
             }
+
+            _calibrating = false;
         }
 
         public RectTransform GetLeftUIContent() => leftUIContent;
