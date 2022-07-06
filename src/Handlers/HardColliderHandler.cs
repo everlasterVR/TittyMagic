@@ -15,15 +15,17 @@ namespace TittyMagic
         private bool _originalUseAdvancedColliders;
         private bool _originalUseAuxBreastColliders;
 
-        public List<ColliderConfigGroup> configs { get; private set; }
+        public JSONStorableStringChooser colliderGroupsJsc { get; private set; }
 
         public JSONStorableBool enabledJsb { get; private set; }
-        public JSONStorableFloat scaleJsf { get; private set; }
-        public JSONStorableFloat radiusJsf { get; private set; }
-        public JSONStorableFloat heightJsf { get; private set; }
-        public JSONStorableFloat forceJsf { get; private set; }
 
-        private int _syncMassStatus = -1;
+        public List<ColliderConfigGroup> colliderConfigs { get; private set; }
+
+        public JSONStorableFloat baseForceJsf { get; private set; }
+
+        private int _combinedSyncMassStatus = -1;
+
+        public const string ALL_OPTION = "All";
 
         // TODO storables
         private const float RADIUS_PECTORAL_1 = 0.89f;
@@ -47,7 +49,7 @@ namespace TittyMagic
             _geometry.useAdvancedColliders = true;
             _originalUseAuxBreastColliders = _geometry.useAuxBreastColliders;
 
-            enabledJsb = _script.NewJSONStorableBool("useHardColliders", false, register: Gender.isFemale);
+            enabledJsb = _script.NewJSONStorableBool("useHardColliders", true, register: Gender.isFemale);
             enabledJsb.setCallbackFunction = SyncUseHardColliders;
 
             if(!Gender.isFemale)
@@ -56,27 +58,7 @@ namespace TittyMagic
                 return;
             }
 
-            configs = NewColliderConfigs();
-
-            scaleJsf = _script.NewJSONStorableFloat("hardCollidersScaleCombined", 0, -0.05f, 0.05f, register: Gender.isFemale);
-            scaleJsf.setCallbackFunction = SyncScaleOffsetCombined;
-
-            // TODO no slider
-            radiusJsf = _script.NewJSONStorableFloat("hardColliderRadiusCombined", 1f, 0, 1.5f, register: Gender.isFemale);
-            radiusJsf.setCallbackFunction = SyncHardColliderRadiusCombined;
-
-            // TODO no slider
-            heightJsf = _script.NewJSONStorableFloat("hardColliderHeightCombined", 1f, 0, 1.50f, register: Gender.isFemale);
-            heightJsf.setCallbackFunction = SyncHardColliderHeightCombined;
-
-            forceJsf = _script.NewJSONStorableFloat("hardColliderForceCombined", 0.25f, 0.01f, 1.00f, register: Gender.isFemale);
-            forceJsf.setCallbackFunction = SyncHardColliderMassCombined;
-
-            SyncUseHardColliders(enabledJsb.val);
-        }
-
-        private List<ColliderConfigGroup> NewColliderConfigs() =>
-            new List<ColliderConfigGroup>
+            colliderConfigs = new List<ColliderConfigGroup>
             {
                 NewColliderConfigGroup("Pectoral1", RADIUS_PECTORAL_1, HEIGHT_PECTORAL_1, MASS_PECTORAL_1),
                 NewColliderConfigGroup("Pectoral2", RADIUS_PECTORAL_2, HEIGHT_PECTORAL_2),
@@ -85,6 +67,29 @@ namespace TittyMagic
                 NewColliderConfigGroup("Pectoral5", RADIUS_PECTORAL_5, HEIGHT_PECTORAL_5),
             };
 
+            var options = colliderConfigs.Select(c => c.visualizerEditableId).ToList();
+            options.Insert(0, ALL_OPTION);
+            var displayOptions = colliderConfigs.Select(c => c.id).ToList();
+            displayOptions.Insert(0, ALL_OPTION);
+            colliderGroupsJsc = new JSONStorableStringChooser(
+                "colliderGroup",
+                options,
+                displayOptions,
+                ALL_OPTION,
+                "Collider"
+            );
+            colliderGroupsJsc.setCallbackFunction = value =>
+            {
+                _script.colliderVisualizer.PreviewOpacityJSON.val = value == ALL_OPTION ? 1 : 0.67f;
+                _script.colliderVisualizer.EditablesJSON.val = value == ALL_OPTION ? "" : value;
+            };
+
+            baseForceJsf = _script.NewJSONStorableFloat("combinedColliderForce", 0.50f, 0.01f, 1.00f);
+            baseForceJsf.setCallbackFunction = SyncHardColliderBaseMass;
+
+            SyncUseHardColliders(enabledJsb.val);
+        }
+
         private ColliderConfigGroup NewColliderConfigGroup(
             string id,
             float radiusMultiplier,
@@ -92,18 +97,53 @@ namespace TittyMagic
             float? massMultiplier = null
         )
         {
-            var auxBreastColliders = _geometry.auxBreastColliders.ToList();
-            var left = auxBreastColliders.Find(c => c.name.Contains("l" + id));
-            var right = auxBreastColliders.Find(c => c.name.Contains("r" + id));
-            var autoColliderLeft = FindAutoCollider(left);
-            var autoColliderRight = FindAutoCollider(right);
-            return new ColliderConfigGroup(
-                id,
-                autoColliderLeft,
-                autoColliderRight,
+            var configLeft = NewColliderConfig("l" + id, radiusMultiplier, heightMultiplier, massMultiplier ?? MASS_COMBINED);
+            var configRight = NewColliderConfig("r" + id, radiusMultiplier, heightMultiplier, massMultiplier ?? MASS_COMBINED);
+            var colliderConfigGroup = new ColliderConfigGroup(id, configLeft, configRight);
+
+            var forceJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderForce", 0.50f, 0.01f, 1.00f);
+            forceJsf.setCallbackFunction = _ => SyncHardColliderMass(colliderConfigGroup);
+            colliderConfigGroup.forceJsf = forceJsf;
+
+            var radiusJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderRadius", 1f, 0, 2f);
+            radiusJsf.setCallbackFunction = _ => SyncHardColliderRadius(colliderConfigGroup);
+            colliderConfigGroup.radiusJsf = radiusJsf;
+
+            var heightJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderHeight", 1f, 0, 2f);
+            heightJsf.setCallbackFunction = _ => SyncHardColliderHeight(colliderConfigGroup);
+            colliderConfigGroup.heightJsf = heightJsf;
+
+            var centerXJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderCenterX", 0, -0.02f, 0.02f);
+            var centerYJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderCenterY", 0, -0.02f, 0.02f);
+            var centerZJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderCenterZ", 0, -0.02f, 0.02f);
+
+            centerXJsf.setCallbackFunction = value => SyncHardColliderCenterOffset(colliderConfigGroup, value, centerYJsf.val, centerZJsf.val);
+            centerYJsf.setCallbackFunction = value => SyncHardColliderCenterOffset(colliderConfigGroup, centerXJsf.val, value, centerZJsf.val);
+            centerZJsf.setCallbackFunction = value => SyncHardColliderCenterOffset(colliderConfigGroup, centerXJsf.val, centerYJsf.val, value);
+
+            colliderConfigGroup.centerXJsf = centerXJsf;
+            colliderConfigGroup.centerYJsf = centerYJsf;
+            colliderConfigGroup.centerZJsf = centerZJsf;
+
+            return colliderConfigGroup;
+        }
+
+        private ColliderConfig NewColliderConfig(
+            string id,
+            float radiusMultiplier,
+            float heightMultiplier,
+            float? massMultiplier = null
+        )
+        {
+            var collider = _geometry.auxBreastColliders.ToList().Find(c => c.name.Contains(id));
+            var autoCollider = FindAutoCollider(collider);
+            string visualizerEditableId = _script.colliderVisualizer.EditablesJSON.choices.Find(option => option.EndsWith(id));
+            return new ColliderConfig(
+                autoCollider,
                 radiusMultiplier,
                 heightMultiplier,
-                massMultiplier ?? MASS_COMBINED
+                massMultiplier ?? MASS_COMBINED,
+                visualizerEditableId
             );
         }
 
@@ -121,14 +161,11 @@ namespace TittyMagic
                 return;
             }
 
-            configs.ForEach(config => config.SetEnabled(value));
+            colliderConfigs.ForEach(config => config.SetEnabled(value));
 
             if(value)
             {
-                SyncScaleOffsetCombined(scaleJsf.val);
-                // SyncHardColliderRadiusCombined(radiusMultiplier.val);
-                // SyncHardColliderHeightCombined(heightMultiplier.val);
-                SyncHardColliderMassCombined(forceJsf.val);
+                SyncHardColliderBaseMass(0);
             }
         }
 
@@ -136,63 +173,71 @@ namespace TittyMagic
         {
             if(enabledJsb.val)
             {
-                SyncScaleOffsetCombined(scaleJsf.val);
-            }
-        }
-
-        private void SyncScaleOffsetCombined(float value)
-        {
-            if(!enabled)
-            {
-                return;
+                foreach(var config in colliderConfigs)
+                {
+                    config.UpdateRadius(config.radiusJsf.val);
+                    config.UpdateHeight(config.radiusJsf.val);
+                }
             }
 
-            configs.ForEach(config => config.UpdateScaleOffset(value, radiusJsf.val, heightJsf.val));
             _script.colliderVisualizer.SyncPreviews();
         }
 
-        private void SyncHardColliderRadiusCombined(float value)
+        private void SyncHardColliderRadius(ColliderConfigGroup config)
         {
             if(!enabled)
             {
                 return;
             }
 
-            configs.ForEach(config => config.UpdateRadius(value));
+            config.UpdateRadius(config.radiusJsf.val);
+            _script.colliderVisualizer.SyncPreviews();
         }
 
-        private void SyncHardColliderHeightCombined(float value)
+        private void SyncHardColliderHeight(ColliderConfigGroup config)
         {
             if(!enabled)
             {
                 return;
             }
 
-            configs.ForEach(config => config.UpdateHeight(value));
+            config.UpdateHeight(config.heightJsf.val);
+            _script.colliderVisualizer.SyncPreviews();
         }
 
-        private void SyncHardColliderMassCombined(float value)
+        private void SyncHardColliderCenterOffset(ColliderConfigGroup config, float xOffset, float yOffset, float zOffset)
         {
             if(!enabled)
             {
                 return;
             }
 
-            if(_syncMassStatus != WaitStatus.WAITING)
+            config.UpdateCenter(xOffset, yOffset, zOffset);
+            _script.colliderVisualizer.SyncPreviews();
+        }
+
+        private void SyncHardColliderMass(ColliderConfigGroup config)
+        {
+            if(!enabled)
             {
-                StartCoroutine(DeferBeginSyncMassCombined());
+                return;
+            }
+
+            if(config.syncMassStatus != WaitStatus.WAITING)
+            {
+                StartCoroutine(DeferBeginSyncMass(config));
             }
         }
 
-        private IEnumerator DeferBeginSyncMassCombined()
+        private IEnumerator DeferBeginSyncMass(ColliderConfigGroup config)
         {
-            _syncMassStatus = WaitStatus.WAITING;
+            config.syncMassStatus = WaitStatus.WAITING;
 
-            var elements = _script.mainWindow?.nestedWindow?.GetElements();
+            var elements = _script.mainWindow?.nestedWindow?.GetColliderSectionElements();
             if(elements != null)
             {
                 yield return new WaitForSecondsRealtime(0.1f);
-                var slider = (UIDynamicSlider) elements[forceJsf.name];
+                var slider = (UIDynamicSlider) elements[config.forceJsf.name];
                 if(slider != null)
                 {
                     while(slider.IsClickDown())
@@ -204,28 +249,86 @@ namespace TittyMagic
                 }
             }
 
-            _syncMassStatus = WaitStatus.DONE;
-            yield return DeferSyncMassCombined(forceJsf.val);
+            config.syncMassStatus = WaitStatus.DONE;
+            yield return DeferSyncMass(config);
         }
 
-        private IEnumerator DeferSyncMassCombined(float value)
+        private IEnumerator DeferSyncMass(ColliderConfigGroup config)
         {
             // In case hard colliders are not enabled (yet)
             float timeout = Time.unscaledTime + 3f;
-            while(configs.Any(config => !config.HasRigidbodies()) && Time.unscaledTime < timeout)
+            while(!config.HasRigidbodies() && Time.unscaledTime < timeout)
             {
                 yield return new WaitForSecondsRealtime(0.3f);
             }
 
             yield return new WaitForSecondsRealtime(0.1f);
 
-            if(configs.Any(config => !config.HasRigidbodies()))
+            if(!config.HasRigidbodies())
             {
                 LogSyncMassFailure();
             }
             else
             {
-                configs.ForEach(config => config.UpdateRigidbodyMass(value));
+                config.UpdateRigidbodyMass(baseForceJsf.val * config.forceJsf.val);
+            }
+        }
+
+        private void SyncHardColliderBaseMass(float value)
+        {
+            if(!enabled)
+            {
+                return;
+            }
+
+            if(_combinedSyncMassStatus != WaitStatus.WAITING)
+            {
+                StartCoroutine(DeferBeginSyncBaseMass());
+            }
+        }
+
+        private IEnumerator DeferBeginSyncBaseMass()
+        {
+            _combinedSyncMassStatus = WaitStatus.WAITING;
+
+            var elements = _script.mainWindow?.nestedWindow?.GetElements();
+            if(elements != null)
+            {
+                yield return new WaitForSecondsRealtime(0.1f);
+                var slider = (UIDynamicSlider) elements[baseForceJsf.name];
+                if(slider != null)
+                {
+                    while(slider.IsClickDown())
+                    {
+                        yield return new WaitForSecondsRealtime(0.1f);
+                    }
+
+                    yield return new WaitForSecondsRealtime(0.1f);
+                }
+            }
+
+            _combinedSyncMassStatus = WaitStatus.DONE;
+            yield return DeferSyncMassCombined(baseForceJsf.val);
+        }
+
+        private IEnumerator DeferSyncMassCombined(float value)
+        {
+            // In case hard colliders are not enabled (yet)
+            float timeout = Time.unscaledTime + 3f;
+            while(colliderConfigs.Any(config => !config.HasRigidbodies()) && Time.unscaledTime < timeout)
+            {
+                yield return new WaitForSecondsRealtime(0.3f);
+            }
+
+            yield return new WaitForSecondsRealtime(0.1f);
+
+            if(colliderConfigs.Any(config => !config.HasRigidbodies()))
+            {
+                LogSyncMassFailure();
+            }
+            else
+            {
+                colliderConfigs.ForEach(config => config.UpdateRigidbodyMass(value * config.forceJsf.val));
             }
         }
 
@@ -256,7 +359,7 @@ namespace TittyMagic
 
         private void RestoreDefaults()
         {
-            configs.ForEach(config =>
+            colliderConfigs.ForEach(config =>
             {
                 if(!enabledJsb.val)
                 {
@@ -276,20 +379,20 @@ namespace TittyMagic
             yield return new WaitForSecondsRealtime(0.1f);
             float timeout = Time.unscaledTime + 3f;
 
-            while(configs.Any(config => !config.HasRigidbodies()) && Time.unscaledTime < timeout)
+            while(colliderConfigs.Any(config => !config.HasRigidbodies()) && Time.unscaledTime < timeout)
             {
                 yield return new WaitForSecondsRealtime(0.3f);
             }
 
             yield return new WaitForSecondsRealtime(0.1f);
 
-            if(configs.Any(config => !config.HasRigidbodies()))
+            if(colliderConfigs.Any(config => !config.HasRigidbodies()))
             {
                 Utils.LogError("Failed restoring hard colliders mass to default.");
             }
             else
             {
-                configs.ForEach(config => config.RestoreDefaultMass());
+                colliderConfigs.ForEach(config => config.RestoreDefaultMass());
             }
 
             _geometry.useAdvancedColliders = _originalUseAdvancedColliders;

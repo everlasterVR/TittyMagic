@@ -128,6 +128,8 @@ namespace TittyMagic
             _skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
             _breastVolumeCalculator = new BreastVolumeCalculator(_skin, _chestRb);
 
+            SetupColliderVisualizer();
+
             mainPhysicsHandler = new MainPhysicsHandler(this, breastControl, _pectoralRbLeft, _pectoralRbRight);
             hardColliderHandler = gameObject.AddComponent<HardColliderHandler>();
             hardColliderHandler.Init();
@@ -136,8 +138,6 @@ namespace TittyMagic
             gravityPhysicsHandler = new GravityPhysicsHandler(this);
             offsetMorphHandler = new GravityOffsetMorphHandler(this);
             nippleMorphHandler = new NippleErectionMorphHandler(this);
-
-            SetupColliderVisualizer();
 
             _trackLeftNipple = new TrackNipple(_chestRb, _pectoralRbLeft);
             _trackRightNipple = new TrackNipple(_chestRb, _pectoralRbRight);
@@ -204,13 +204,15 @@ namespace TittyMagic
                 new Group("Off", @"$off"), //match nothing
                 new Group("Both breasts", @"[lr](Pectoral\d)"),
                 new Group("Left breast", @"lPectoral\d"),
-                new Group("Right breast", @"rPectoral\d"),
             };
             colliderVisualizer.Init(this, groups);
             colliderVisualizer.PreviewOpacityJSON.val = 1;
             colliderVisualizer.PreviewOpacityJSON.defaultVal = 1;
+            colliderVisualizer.SelectedPreviewOpacityJSON.val = 1;
+            colliderVisualizer.SelectedPreviewOpacityJSON.defaultVal = 1;
             colliderVisualizer.GroupsJSON.val = "Both breasts";
             colliderVisualizer.GroupsJSON.defaultVal = "Both breasts";
+            colliderVisualizer.HighlightMirrorJSON.val = true;
 
             foreach(string option in new[] { "Select...", "Other", "All" })
             {
@@ -477,6 +479,11 @@ namespace TittyMagic
         {
             RecalibrateOnNavigation();
             colliderVisualizer.ShowPreviewsJSON.val = false;
+
+            if(_tabs.activeWindow.Id() == mainWindow.Id() && mainWindow.nestedWindowActive)
+            {
+                mainWindow.nestedWindow.ClosePopups();
+            }
         }
 
         public void RecalibrateOnNavigation()
@@ -775,18 +782,16 @@ namespace TittyMagic
                 offsetMorphHandler.Update(0, 0, mainPhysicsHandler.massAmount, _softnessAmount);
 
                 // simulate force of gravity when upright
-                // 0.75f is a hack, for some reason a normal gravity force pushes breasts too much down,
-                // causing the neutral position to be off by a little
                 var force = _chestTransform.up * -Physics.gravity.magnitude;
                 _pectoralRbLeft.AddForce(force, ForceMode.Acceleration);
                 _pectoralRbRight.AddForce(force, ForceMode.Acceleration);
                 if(_refreshStatus == RefreshStatus.MASS_OK)
                 {
                     StartCoroutine(CalibrateNipplesTracking());
-                    hardColliderHandler.ReSyncScaleOffsetCombined();
                 }
                 else if(_refreshStatus == RefreshStatus.NEUTRALPOS_OK)
                 {
+                    hardColliderHandler.ReSyncScaleOffsetCombined();
                     _pectoralRbLeft.useGravity = true;
                     _pectoralRbRight.useGravity = true;
                     SuperController.singleton.SetFreezeAnimation(_animationWasSetFrozen);

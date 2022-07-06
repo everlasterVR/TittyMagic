@@ -15,9 +15,11 @@ vam-collider-editor\src\EditablesList.cs
 vam-collider-editor\src\EnumerableExtensions.cs
 vam-collider-editor\src\FloatExtensions.cs
 vam-collider-editor\src\Group.cs
-vam-collider-editor\src\Mirrors.cs
 vam-collider-editor\src\MaterialHelper.cs
+vam-collider-editor\src\Mirrors.cs
+vam-collider-editor\src\MVRScriptExtensions.cs
 vam-collider-editor\src\NameHelper.cs
+vam-collider-editor\src\UIPopupExtensions.cs
 src\Components\Bindings.cs
 src\Components\SettingsMonitor.cs
 src\Extensions\MVRScriptExtension.cs

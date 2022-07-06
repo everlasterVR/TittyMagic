@@ -5,24 +5,27 @@ namespace TittyMagic.Configs
 {
     internal class ColliderConfigGroup
     {
+        public string id { get; }
+        public int syncMassStatus { get; set; }
+
         private readonly ColliderConfig _left;
         private readonly ColliderConfig _right;
 
-        // ReSharper disable once MemberCanBePrivate.Global UnusedAutoPropertyAccessor.Global
-        public string id { get; }
+        public JSONStorableFloat forceJsf { get; set; }
+        public JSONStorableFloat radiusJsf { get; set; }
+        public JSONStorableFloat heightJsf { get; set; }
+        public JSONStorableFloat centerXJsf { get; set; }
+        public JSONStorableFloat centerYJsf { get; set; }
+        public JSONStorableFloat centerZJsf { get; set; }
 
-        public ColliderConfigGroup(
-            string id,
-            AutoCollider leftAutoCollider,
-            AutoCollider rightAutoCollider,
-            float radiusMultiplier,
-            float lengthMultiplier,
-            float massMultiplier
-        )
+        public string visualizerEditableId => _left.visualizerEditableId;
+
+        public ColliderConfigGroup(string id, ColliderConfig left, ColliderConfig right)
         {
             this.id = id;
-            _left = new ColliderConfig(leftAutoCollider, radiusMultiplier, lengthMultiplier, massMultiplier);
-            _right = new ColliderConfig(rightAutoCollider, radiusMultiplier, lengthMultiplier, massMultiplier);
+            _left = left;
+            _right = right;
+            syncMassStatus = -1;
         }
 
         public void UpdateRadius(float multiplier)
@@ -37,10 +40,10 @@ namespace TittyMagic.Configs
             _right.UpdateHeight(multiplier);
         }
 
-        public void UpdateScaleOffset(float offset, float radiusMultiplier, float heightMultiplier)
+        public void UpdateCenter(float xOffset, float yOffset, float zOffset)
         {
-            _left.UpdateScaleOffset(offset, radiusMultiplier, heightMultiplier);
-            _right.UpdateScaleOffset(offset, radiusMultiplier, heightMultiplier);
+            _left.UpdateCenter(xOffset, yOffset, zOffset);
+            _right.UpdateCenter(-xOffset, yOffset, zOffset);
         }
 
         public void UpdateRigidbodyMass(float multiplier)
@@ -82,14 +85,24 @@ namespace TittyMagic.Configs
 
         private float _baseRadius;
         private float _baseHeight;
+        private Vector3 _baseCenter;
         private float _baseMass;
 
-        public ColliderConfig(AutoCollider autoCollider, float radiusMultiplier, float lengthMultiplier, float massMultiplier)
+        public string visualizerEditableId { get; }
+
+        public ColliderConfig(
+            AutoCollider autoCollider,
+            float radiusMultiplier,
+            float lengthMultiplier,
+            float massMultiplier,
+            string visualizerEditableId
+        )
         {
             _autoCollider = autoCollider;
             _collider = _autoCollider.jointCollider;
             _capsulelineSphereCollider = _collider.GetComponent<CapsuleLineSphereCollider>();
             SetBaseValues(radiusMultiplier, lengthMultiplier, massMultiplier);
+            this.visualizerEditableId = visualizerEditableId;
         }
 
         public void UpdateRadius(float multiplier) =>
@@ -98,15 +111,17 @@ namespace TittyMagic.Configs
         public void UpdateHeight(float multiplier) =>
             _capsulelineSphereCollider.capsuleCollider.height = multiplier * _baseHeight;
 
+        public void UpdateCenter(float xOffset, float yOffset, float zOffset)
+        {
+            var center = _capsulelineSphereCollider.capsuleCollider.center;
+            center.x = _baseCenter.x + xOffset;
+            center.y = _baseCenter.y + yOffset;
+            center.z = _baseCenter.z + zOffset;
+            _capsulelineSphereCollider.capsuleCollider.center = center;
+        }
+
         public void UpdateRigidbodyMass(float multiplier) =>
             _collider.attachedRigidbody.mass = multiplier * _baseMass;
-
-        public void UpdateScaleOffset(float offset, float radiusMultiplier, float heightMultiplier)
-        {
-            var capsule = _capsulelineSphereCollider.capsuleCollider;
-            capsule.radius = radiusMultiplier * _baseRadius + offset;
-            capsule.height = heightMultiplier * _baseHeight + offset / 2;
-        }
 
         public void RestoreDefaultMass() => _collider.attachedRigidbody.mass = DEFAULT_MASS;
 
@@ -122,8 +137,10 @@ namespace TittyMagic.Configs
 
         private void SetBaseValues(float radiusMultiplier, float heightMultiplier, float massMultiplier)
         {
-            _baseRadius = _capsulelineSphereCollider.capsuleCollider.radius * radiusMultiplier;
-            _baseHeight = _capsulelineSphereCollider.capsuleCollider.height * heightMultiplier;
+            var collider = _capsulelineSphereCollider.capsuleCollider;
+            _baseRadius = collider.radius * radiusMultiplier;
+            _baseHeight = collider.height * heightMultiplier;
+            _baseCenter = collider.center;
             _baseMass = DEFAULT_MASS * massMultiplier;
         }
     }

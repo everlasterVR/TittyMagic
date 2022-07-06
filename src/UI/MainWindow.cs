@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -187,38 +188,39 @@ namespace TittyMagic.UI
 
         private void PostNavigateToHardCollidersWindow()
         {
-            var elements = nestedWindow.GetElements();
-            var element = elements[_script.colliderVisualizer.GroupsJSON.name];
-            var groupsPopup = element as UIDynamicPopup;
-            if(groupsPopup != null)
-            {
-                groupsPopup.popup.onValueChangeHandlers += nestedWindow.OnGroupsPopupValueChanged;
+            AddColliderPopupChangeHandler();
+        }
 
-                elements[_script.colliderVisualizer.XRayPreviewsJSON.name]
-                    .SetActiveStyle(groupsPopup.popup.currentValue != "Off");
-                elements[_script.colliderVisualizer.PreviewOpacityJSON.name]
-                    .SetActiveStyle(groupsPopup.popup.currentValue != "Off");
+        private void AddColliderPopupChangeHandler()
+        {
+            var elements = nestedWindow.GetElements();
+            var element = elements[_script.hardColliderHandler.colliderGroupsJsc.name];
+            var uiDynamicPopup = element as UIDynamicPopup;
+            if(uiDynamicPopup != null)
+            {
+                uiDynamicPopup.popup.onValueChangeHandlers += nestedWindow.OnColliderPopupValueChanged;
+                nestedWindow.RebuildColliderSection(_script.hardColliderHandler.colliderGroupsJsc.val);
             }
         }
 
         private void AddSpacer(string name, int height, bool rightSide) =>
             _elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
 
-        public List<UIDynamicSlider> GetSliders()
-        {
-            var sliders = GetSlidersForRefresh();
-            if(
-                _script.hardColliderHandler.forceJsf != null &&
-                _elements.ContainsKey(_script.hardColliderHandler.forceJsf.name)
-            )
+        public List<UIDynamicSlider> GetSliders() => _elements.Aggregate(
+            new List<UIDynamicSlider>(),
+            (list, element) =>
             {
-                sliders.Add(_elements[_script.hardColliderHandler.forceJsf.name] as UIDynamicSlider);
+                var uiDynamicSlider = element.Value as UIDynamicSlider;
+                if(uiDynamicSlider != null)
+                {
+                    list.Add(uiDynamicSlider);
+                }
+
+                return list;
             }
+        );
 
-            return sliders;
-        }
-
-        public List<UIDynamicSlider> GetSlidersForRefresh()
+        public IEnumerable<UIDynamicSlider> GetSlidersForRefresh()
         {
             var sliders = new List<UIDynamicSlider>();
             if(_elements != null)

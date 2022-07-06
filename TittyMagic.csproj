@@ -147,7 +147,9 @@
     <Compile Include="vam-collider-editor\src\Models\IModel.cs" />
     <Compile Include="vam-collider-editor\src\Models\ModelBase.cs" />
     <Compile Include="vam-collider-editor\src\Models\SphereColliderModel.cs" />
+    <Compile Include="vam-collider-editor\src\MVRScriptExtensions.cs" />
     <Compile Include="vam-collider-editor\src\NameHelper.cs" />
+    <Compile Include="vam-collider-editor\src\UIPopupExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="settings\morphmultipliers\female\backForce.json" />
