@@ -610,8 +610,7 @@ namespace TittyMagic
                 while(
                     _breastMorphListener.Changed() ||
                     _atomScaleListener.Changed() ||
-                    mainWindow.GetSlidersForRefresh().Any(slider => slider.IsClickDown()) ||
-                    gravityWindow.GetSliders().Any(slider => slider.IsClickDown())
+                    mainWindow.GetSlidersForRefresh().Any(slider => slider.IsClickDown())
                 )
                 {
                     yield return new WaitForSeconds(0.1f);
