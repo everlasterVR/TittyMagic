@@ -442,7 +442,7 @@ namespace TittyMagic
             bool uiOpen = UITransform.gameObject.activeInHierarchy;
             if(uiOpen && !_uiOpenPrevFrame)
             {
-                ActionsOnUIOpened();
+                StartCoroutine(ActionsOnUIOpened());
             }
             else if(!uiOpen && _uiOpenPrevFrame)
             {
@@ -452,10 +452,17 @@ namespace TittyMagic
             _uiOpenPrevFrame = uiOpen;
         }
 
-        private void ActionsOnUIOpened()
+        private IEnumerator ActionsOnUIOpened()
         {
+            yield return new WaitForEndOfFrame();
+
             var background = rightUIContent.parent.parent.parent.transform.GetComponent<Image>();
             background.color = new Color(0.85f, 0.85f, 0.85f);
+
+            while(_tabs?.activeWindow == null)
+            {
+                yield return null;
+            }
 
             softPhysicsHandler.ReverseSyncSoftPhysicsOn();
             softPhysicsHandler.ReverseSyncSyncAllowSelfCollision();
