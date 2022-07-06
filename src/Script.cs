@@ -582,7 +582,6 @@ namespace TittyMagic
             bool? useNewMass = null
         )
         {
-            var guid = Guid.NewGuid();
             _waiting = true;
             needsRecalibration = false;
             if(useNewMass == null)

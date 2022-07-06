@@ -61,7 +61,7 @@ namespace TittyMagic.UI
 
             CreateCombinedColliderForceSlider(false, spacing: 8);
 
-            CreateHeader(_scalingHeaderText, "Scaling", false);
+            CreateHeader(_scalingHeaderText, "Scaling Offsets", false);
             CreateScalingInfoTextArea(false);
             CreateHeader(_centerHeaderText, "Center Offsets", false);
             CreateCenterInfoTextArea(false);
@@ -281,9 +281,9 @@ namespace TittyMagic.UI
                 CreateColliderRadiusSlider(colliderConfigGroup.radiusJsf, true, spacing: 15);
                 CreateColliderLengthSlider(colliderConfigGroup.lengthJsf, true);
 
-                CreateColliderCenterYSlider(colliderConfigGroup.centerYJsf, true, spacing: 15);
-                CreateColliderCenterZSlider(colliderConfigGroup.centerZJsf, true);
-                CreateColliderCenterXSlider(colliderConfigGroup.centerXJsf, true);
+                CreateColliderUpSlider(colliderConfigGroup.upJsf, true, spacing: 15);
+                CreateColliderLookSlider(colliderConfigGroup.lookJsf, true);
+                CreateColliderRightSlider(colliderConfigGroup.rightJsf, true);
 
                 var baseSlider = _elements[_script.hardColliderHandler.baseForceJsf.name];
                 baseSlider.AddListener(UpdateAllSliderColors);
@@ -331,8 +331,8 @@ namespace TittyMagic.UI
         {
             _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
             var slider = _script.CreateSlider(storable, rightSide);
-            slider.valueFormat = "F2";
-            slider.label = "Radius Multiplier";
+            slider.valueFormat = "F4";
+            slider.label = "Radius";
             _colliderSectionElements[storable.name] = slider;
         }
 
@@ -340,35 +340,35 @@ namespace TittyMagic.UI
         {
             _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
             var slider = _script.CreateSlider(storable, rightSide);
-            slider.valueFormat = "F2";
-            slider.label = "Height Multiplier";
+            slider.valueFormat = "F4";
+            slider.label = "Length";
             _colliderSectionElements[storable.name] = slider;
         }
 
-        private void CreateColliderCenterYSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
+        private void CreateColliderUpSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
         {
             _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F4";
-            slider.label = "Up / Down";
+            slider.label = "Y Offset";
             _colliderSectionElements[storable.name] = slider;
         }
 
-        private void CreateColliderCenterZSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
+        private void CreateColliderLookSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
         {
             _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F4";
-            slider.label = "Forward / Back";
+            slider.label = "Z Offset";
             _colliderSectionElements[storable.name] = slider;
         }
 
-        private void CreateColliderCenterXSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
+        private void CreateColliderRightSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
         {
             _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F4";
-            slider.label = "Left / Right";
+            slider.label = "X Offset";
             _colliderSectionElements[storable.name] = slider;
         }
 

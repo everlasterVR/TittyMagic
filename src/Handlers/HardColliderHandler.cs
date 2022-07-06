@@ -60,11 +60,11 @@ namespace TittyMagic
 
             colliderConfigs = new List<ColliderConfigGroup>
             {
-                NewColliderConfigGroup("Pectoral1", RADIUS_PECTORAL_1, LENGTH_PECTORAL_1, MASS_PECTORAL_1),
-                NewColliderConfigGroup("Pectoral2", RADIUS_PECTORAL_2, LENGTH_PECTORAL_2),
-                NewColliderConfigGroup("Pectoral3", RADIUS_PECTORAL_3, LENGTH_PECTORAL_3),
-                NewColliderConfigGroup("Pectoral4", RADIUS_PECTORAL_4, LENGTH_PECTORAL_4),
-                NewColliderConfigGroup("Pectoral5", RADIUS_PECTORAL_5, LENGTH_PECTORAL_5),
+                NewColliderConfigGroup("Pectoral1"),
+                NewColliderConfigGroup("Pectoral2"),
+                NewColliderConfigGroup("Pectoral3"),
+                NewColliderConfigGroup("Pectoral4"),
+                NewColliderConfigGroup("Pectoral5"),
             };
 
             var options = colliderConfigs.Select(c => c.visualizerEditableId).ToList();
@@ -90,26 +90,25 @@ namespace TittyMagic
             SyncUseHardColliders(enabledJsb.val);
         }
 
-        private ColliderConfigGroup NewColliderConfigGroup(
-            string id,
-            float radiusMultiplier,
-            float lengthMultiplier,
-            float? massMultiplier = null
-        )
+        private ColliderConfigGroup NewColliderConfigGroup(string id)
         {
-            var configLeft = NewColliderConfig("l" + id, radiusMultiplier, lengthMultiplier, massMultiplier ?? MASS_COMBINED);
-            var configRight = NewColliderConfig("r" + id, radiusMultiplier, lengthMultiplier, massMultiplier ?? MASS_COMBINED);
-            var colliderConfigGroup = new ColliderConfigGroup(id, configLeft, configRight);
+            var configLeft = NewColliderConfig("l" + id);
+            var configRight = NewColliderConfig("r" + id);
+            var colliderConfigGroup = new ColliderConfigGroup(
+                id,
+                configLeft,
+                configRight
+            );
 
             var forceJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderForce", 0.50f, 0.01f, 1.00f);
             forceJsf.setCallbackFunction = _ => SyncHardColliderMass(colliderConfigGroup);
             colliderConfigGroup.forceJsf = forceJsf;
 
-            var radiusJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderRadius", 1f, 0, 2f);
+            var radiusJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderRadius", 0, -0.02f, 0.02f);
             radiusJsf.setCallbackFunction = _ => SyncHardColliderRadius(colliderConfigGroup);
             colliderConfigGroup.radiusJsf = radiusJsf;
 
-            var lengthJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderLength", 1f, 0, 2f);
+            var lengthJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderLength", 0, -0.02f, 0.02f);
             lengthJsf.setCallbackFunction = _ => SyncHardColliderLength(colliderConfigGroup);
             colliderConfigGroup.lengthJsf = lengthJsf;
 
@@ -117,34 +116,23 @@ namespace TittyMagic
             var centerYJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderCenterY", 0, -0.02f, 0.02f);
             var centerZJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderCenterZ", 0, -0.02f, 0.02f);
 
-            centerXJsf.setCallbackFunction = _ => SyncHardColliderCenterOffset(colliderConfigGroup);
-            centerYJsf.setCallbackFunction = _ => SyncHardColliderCenterOffset(colliderConfigGroup);
-            centerZJsf.setCallbackFunction = _ => SyncHardColliderCenterOffset(colliderConfigGroup);
+            centerXJsf.setCallbackFunction = _ => SyncHardColliderRightOffset(colliderConfigGroup);
+            centerYJsf.setCallbackFunction = _ => SyncHardColliderUpOffset(colliderConfigGroup);
+            centerZJsf.setCallbackFunction = _ => SyncHardColliderLookOffset(colliderConfigGroup);
 
-            colliderConfigGroup.centerXJsf = centerXJsf;
-            colliderConfigGroup.centerYJsf = centerYJsf;
-            colliderConfigGroup.centerZJsf = centerZJsf;
+            colliderConfigGroup.rightJsf = centerXJsf;
+            colliderConfigGroup.upJsf = centerYJsf;
+            colliderConfigGroup.lookJsf = centerZJsf;
 
             return colliderConfigGroup;
         }
 
-        private ColliderConfig NewColliderConfig(
-            string id,
-            float radiusMultiplier,
-            float heightMultiplier,
-            float? massMultiplier = null
-        )
+        private ColliderConfig NewColliderConfig(string id)
         {
             var collider = _geometry.auxBreastColliders.ToList().Find(c => c.name.Contains(id));
             var autoCollider = FindAutoCollider(collider);
             string visualizerEditableId = _script.colliderVisualizer.EditablesJSON.choices.Find(option => option.EndsWith(id));
-            return new ColliderConfig(
-                autoCollider,
-                radiusMultiplier,
-                heightMultiplier,
-                massMultiplier ?? MASS_COMBINED,
-                visualizerEditableId
-            );
+            return new ColliderConfig(autoCollider, visualizerEditableId);
         }
 
         private AutoCollider FindAutoCollider(Collider collider)
@@ -173,11 +161,14 @@ namespace TittyMagic
         {
             foreach(var config in colliderConfigs)
             {
-                config.SetBaseValues();
+                config.RestoreDefaultMass();
                 config.UpdateRadius();
                 config.UpdateLength();
-                config.UpdateCenter();
+                config.UpdateLookOffset();
+                config.UpdateUpOffset();
+                config.UpdateRightOffset();
                 //UpdateRigidbodyMass not needed, as base value should not change
+                _script.colliderVisualizer.SyncPreviews();
             }
         }
 
@@ -189,6 +180,7 @@ namespace TittyMagic
             }
 
             config.UpdateRadius();
+            _script.colliderVisualizer.SyncPreviews();
         }
 
         private void SyncHardColliderLength(ColliderConfigGroup config)
@@ -199,16 +191,40 @@ namespace TittyMagic
             }
 
             config.UpdateLength();
+            _script.colliderVisualizer.SyncPreviews();
         }
 
-        private void SyncHardColliderCenterOffset(ColliderConfigGroup config)
+        private void SyncHardColliderLookOffset(ColliderConfigGroup config)
         {
             if(!enabled)
             {
                 return;
             }
 
-            config.UpdateCenter();
+            config.UpdateLookOffset();
+            _script.colliderVisualizer.SyncPreviews();
+        }
+
+        private void SyncHardColliderUpOffset(ColliderConfigGroup config)
+        {
+            if(!enabled)
+            {
+                return;
+            }
+
+            config.UpdateUpOffset();
+            _script.colliderVisualizer.SyncPreviews();
+        }
+
+        private void SyncHardColliderRightOffset(ColliderConfigGroup config)
+        {
+            if(!enabled)
+            {
+                return;
+            }
+
+            config.UpdateRightOffset();
+            _script.colliderVisualizer.SyncPreviews();
         }
 
         private void SyncHardColliderMass(ColliderConfigGroup config)
@@ -361,7 +377,7 @@ namespace TittyMagic
                     config.SetEnabled(true);
                 }
 
-                config.ResetDefaultScale();
+                config.RestoreDefaults();
             });
 
             StartCoroutine(DeferRestoreDefaultMass());
