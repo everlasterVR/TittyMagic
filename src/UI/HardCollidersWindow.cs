@@ -260,6 +260,13 @@ namespace TittyMagic.UI
 
         private void OnShowPreviewsPopupValueChanged(string value)
         {
+            var popupElement = _elements[_script.colliderVisualizer.GroupsJSON.name];
+            var uiDynamicPopup = popupElement as UIDynamicPopup;
+            if(uiDynamicPopup != null)
+            {
+                uiDynamicPopup.popup.labelTextColor = value == "Off" ? Color.red : Color.black;
+            }
+
             _elements[_script.colliderVisualizer.XRayPreviewsJSON.name].SetActiveStyle(value != "Off");
         }
 
