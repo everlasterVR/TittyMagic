@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using TittyMagic.Configs;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UI;
+using Image = UnityEngine.UI.Image;
 
 namespace TittyMagic.UI
 {
@@ -67,10 +66,10 @@ namespace TittyMagic.UI
 
             CreateHeader(_scalingHeaderText, "Scaling Offsets", false);
             CreateScalingInfoTextArea(false);
-            CreateHeader(_centerHeaderText, "Center Offsets", false);
+            CreateHeader(_centerHeaderText, "Center Offsets", false, spacing: 10);
             CreateCenterInfoTextArea(false);
 
-            CreateShowHardCollidersChooser(false, spacing: 60);
+            CreateShowHardCollidersChooser(false, spacing: 35);
             CreateXRayVisualizationToggle(false);
             AddShowPreviewsPopupChangeHandler();
         }
@@ -120,8 +119,11 @@ namespace TittyMagic.UI
             _elements[storable.name] = slider;
         }
 
-        private void CreateHeader(JSONStorableString storable, string text, bool rightSide) =>
+        private void CreateHeader(JSONStorableString storable, string text, bool rightSide, int spacing = 0)
+        {
+            _elements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
             _elements[storable.name] = UIHelpers.HeaderTextField(_script, storable, text, rightSide);
+        }
 
         private void CreateScalingInfoTextArea(bool rightSide, int spacing = 0)
         {
