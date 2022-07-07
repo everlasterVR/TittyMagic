@@ -17,8 +17,9 @@ namespace TittyMagic.UI
         public Dictionary<string, UIDynamic> GetColliderSectionElements() => _colliderSectionElements;
 
         private readonly JSONStorableString _title;
-        private readonly JSONStorableString _selectColliderText;
+        private readonly JSONStorableString _baseForceInfoText;
         private readonly JSONStorableString _mainInfoText;
+        private readonly JSONStorableString _selectColliderText;
         private readonly JSONStorableString _scalingHeaderText;
         private readonly JSONStorableString _scalingInfoText;
         private readonly JSONStorableString _centerHeaderText;
@@ -29,24 +30,27 @@ namespace TittyMagic.UI
             _script = script;
 
             _title = new JSONStorableString("hardCollidersTitle", "");
-            _selectColliderText = new JSONStorableString("selectColliderText", "");
+            _baseForceInfoText = new JSONStorableString("hardCollidersBaseForceInfoText", "");
             _mainInfoText = new JSONStorableString("hardCollidersInfoText", "");
+            _selectColliderText = new JSONStorableString("selectColliderText", "");
             _scalingHeaderText = new JSONStorableString("colliderScalingHeaderText", "");
             _scalingInfoText = new JSONStorableString("colliderScalingInfoText", "");
             _centerHeaderText = new JSONStorableString("colliderCenterHeaderText", "");
             _centerInfoText = new JSONStorableString("colliderCenterInfoText", "");
 
-            _selectColliderText.val = "Select a collider...";
+            _baseForceInfoText.val = "\n".Size(12) +
+                "Base force multiplier combined with the collider's own force multiplier produce the total force for that collider.";
             _mainInfoText.val = "\n".Size(12) +
                 "Hard colliders make breasts move as a uniform shape when touched." +
-                "\n\nThis makes them both easier to move and better at maintaining their volume." +
-                "\n\nThe end result also depends on the amount of morphing, and on breast physics settings." +
-                "\n\nBase Force Multiplier adjusts the collision force of all colliders." +
-                " The amount of force can be fine tuned per collider.";
-            _scalingInfoText.val =
+                "\n\nThey make breasts both easier to move and better at maintaining their volume." +
+                "\n\nThe end result also depends on collision force, collider size and shape," +
+                " but also on the amount of morphing and on breast physics settings." +
+                "\n\nThey have almost no impact on animation that doesn't involve collision.";
+            _selectColliderText.val = "Select a collider above to continue.";
+            _scalingInfoText.val = "\n".Size(12) +
                 "Adjust the size and shape of the selected collider." +
                 "\n\nThe closer the collider is to the skin, the more easily it will react to touch.";
-            _centerInfoText.val =
+            _centerInfoText.val = "\n".Size(12) +
                 "Adjust the position of the selected collider." +
                 "\n\nCombined with the size and chape, the position determines how well the collider fits inside the breast.";
         }
@@ -126,8 +130,7 @@ namespace TittyMagic.UI
 
             var textField = _script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
-            textField.height = 207;
-            textField.backgroundColor = Color.clear;
+            textField.height = 187;
             _elements[storable.name] = textField;
         }
 
@@ -138,8 +141,7 @@ namespace TittyMagic.UI
 
             var textField = _script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
-            textField.height = 207;
-            textField.backgroundColor = Color.clear;
+            textField.height = 222;
             _elements[storable.name] = textField;
         }
 
@@ -272,11 +274,14 @@ namespace TittyMagic.UI
             _colliderSectionElements = new Dictionary<string, UIDynamic>();
             if(colliderId == HardColliderHandler.ALL_OPTION)
             {
-                CreateHardCollidersInfoTextArea(true, spacing: 15);
+                CreateBaseForceInfoTextArea(true, spacing: 15);
+                CreateHardCollidersInfoTextArea(true, spacing: 50);
                 CreateSelectColliderTextArea(true, spacing: 15);
             }
             else
             {
+                _selectColliderText.val = "";
+
                 var colliderConfigGroup = _script.hardColliderHandler.colliderConfigs
                     .Find(config => config.visualizerEditableId == colliderId);
 
@@ -294,6 +299,17 @@ namespace TittyMagic.UI
             }
         }
 
+        private void CreateBaseForceInfoTextArea(bool rightSide, int spacing = 0)
+        {
+            var storable = _baseForceInfoText;
+            _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
+
+            var textField = _script.CreateTextField(storable, rightSide);
+            textField.UItext.fontSize = 28;
+            textField.height = 120;
+            _colliderSectionElements[storable.name] = textField;
+        }
+
         private void CreateHardCollidersInfoTextArea(bool rightSide, int spacing = 0)
         {
             var storable = _mainInfoText;
@@ -301,8 +317,8 @@ namespace TittyMagic.UI
 
             var textField = _script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
-            textField.height = 480;
-            // textField.backgroundColor = Color.clear;
+            textField.height = 450;
+            textField.backgroundColor = Color.clear;
             _colliderSectionElements[storable.name] = textField;
         }
 
