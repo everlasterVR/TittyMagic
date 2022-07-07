@@ -4,7 +4,7 @@ using System.Linq;
 using SimpleJSON;
 using TittyMagic.Configs;
 using UnityEngine;
-using static TittyMagic.MVRParamName;
+using static TittyMagic.ParamName;
 
 namespace TittyMagic
 {
@@ -219,6 +219,7 @@ namespace TittyMagic
             SyncSizeAuto();
         }
 
+        // todo enabled check necessary?
         private void SyncHardColliderRadius(ColliderConfigGroup config)
         {
             if(!enabled)

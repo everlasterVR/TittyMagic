@@ -7,8 +7,7 @@ namespace TittyMagic.UI
     internal class ParameterWindow
     {
         private readonly Script _script;
-        private readonly PhysicsParameter _leftParam;
-        private readonly PhysicsParameter _rightParam;
+        private readonly PhysicsParameterGroup _parameterGroup;
 
         // ReSharper disable once MemberCanBePrivate.Global
         public Dictionary<string, UIDynamic> elements { get; private set; }
@@ -16,16 +15,15 @@ namespace TittyMagic.UI
         private readonly JSONStorableString _title;
         private readonly JSONStorableString _infoText;
 
-        public ParameterWindow(Script script, PhysicsParameter leftParam, PhysicsParameter rightParam)
+        public ParameterWindow(Script script, PhysicsParameterGroup parameterGroup)
         {
             _script = script;
-            _leftParam = leftParam;
-            _rightParam = rightParam;
+            _parameterGroup = parameterGroup;
 
             _title = new JSONStorableString("title", "");
             _infoText = new JSONStorableString("infoText", "");
 
-            _infoText.val = "\n".Size(12) + leftParam.infoText;
+            _infoText.val = "\n".Size(12) + _parameterGroup.infoText;
         }
 
         public void Rebuild(UnityAction backButtonListener)
@@ -38,14 +36,16 @@ namespace TittyMagic.UI
             CreateTitle(false);
             elements["headerMargin"] = _script.NewSpacer(20);
 
-            if(_leftParam.currentValue != null)
+            foreach(var kvp in _parameterGroup.valueJsfs)
             {
-                CreateCurrentValueSlider(_leftParam, false);
-            }
-
-            if(_leftParam.baseValue != null)
-            {
-                CreateBaseValueSlider(_leftParam, false);
+                if(kvp.Key.EndsWith("Base") && kvp.Value != null)
+                {
+                    CreateBaseValueSlider(kvp.Value, _parameterGroup.valueFormat, false);
+                }
+                else if(kvp.Key.EndsWith("Curr") && kvp.Value != null)
+                {
+                    CreateCurrentValueSlider(kvp.Value, _parameterGroup.valueFormat, false);
+                }
             }
         }
 
@@ -64,26 +64,24 @@ namespace TittyMagic.UI
             elements["backButton"] = button;
         }
 
-        private void CreateCurrentValueSlider(PhysicsParameter param, bool rightSide, int spacing = 0)
+        private void CreateCurrentValueSlider(JSONStorableFloat storable, string valueFormat, bool rightSide, int spacing = 0)
         {
-            var storable = param.currentValue;
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = _script.CreateSlider(storable, rightSide);
-            slider.valueFormat = param.valueFormat;
+            slider.valueFormat = valueFormat;
             slider.slider.interactable = false;
             slider.quickButtonsEnabled = false;
             slider.defaultButtonEnabled = false;
             elements[storable.name] = slider;
         }
 
-        private void CreateBaseValueSlider(PhysicsParameter param, bool rightSide, int spacing = 0)
+        private void CreateBaseValueSlider(JSONStorableFloat storable, string valueFormat, bool rightSide, int spacing = 0)
         {
-            var storable = param.baseValue;
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = _script.CreateSlider(storable, rightSide);
-            slider.valueFormat = param.valueFormat;
+            slider.valueFormat = valueFormat;
             slider.slider.interactable = false;
             slider.quickButtonsEnabled = false;
             slider.defaultButtonEnabled = false;
@@ -104,7 +102,7 @@ namespace TittyMagic.UI
 
         private void CreateTitle(bool rightSide)
         {
-            var textField = UIHelpers.TitleTextField(_script, _title, _leftParam.displayName, 62, rightSide);
+            var textField = UIHelpers.TitleTextField(_script, _title, _parameterGroup.displayName, 62, rightSide);
             textField.UItext.fontSize = 32;
             elements[_title.name] = textField;
         }

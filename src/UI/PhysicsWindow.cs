@@ -36,19 +36,17 @@ namespace TittyMagic.UI
         {
             nestedWindows = new Dictionary<string, ParameterWindow>();
 
-            _script.mainPhysicsHandler.leftBreastParameters.Keys.ToList()
+            _script.mainPhysicsHandler.parameterGroups.Keys.ToList()
                 .ForEach(key => nestedWindows[key] = new ParameterWindow(
                     _script,
-                    _script.mainPhysicsHandler.leftBreastParameters[key],
-                    _script.mainPhysicsHandler.rightBreastParameters[key]
+                    _script.mainPhysicsHandler.parameterGroups[key]
                 ));
             if(Gender.isFemale)
             {
-                _script.softPhysicsHandler.leftBreastParameters.Keys.ToList()
+                _script.softPhysicsHandler.parameterGroups.Keys.ToList()
                     .ForEach(key => nestedWindows[key] = new ParameterWindow(
                         _script,
-                        _script.softPhysicsHandler.leftBreastParameters[key],
-                        _script.softPhysicsHandler.rightBreastParameters[key]
+                        _script.softPhysicsHandler.parameterGroups[key]
                     ));
             }
         }
@@ -58,14 +56,14 @@ namespace TittyMagic.UI
             _elements = new Dictionary<string, UIDynamic>();
 
             CreateHeader(_jointPhysicsParamsHeader, "Joint Physics Parameters", false);
-            _script.mainPhysicsHandler?.leftBreastParameters.ToList()
+            _script.mainPhysicsHandler?.parameterGroups.ToList()
                 .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, false));
 
             if(Gender.isFemale)
             {
                 CreateHeader(_softPhysicsParamsHeader, "Soft Physics Parameters", true);
                 CreateAllowSelfCollisionToggle(true);
-                _script.softPhysicsHandler.leftBreastParameters.ToList()
+                _script.softPhysicsHandler.parameterGroups.ToList()
                     .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, true));
             }
         }
@@ -85,7 +83,7 @@ namespace TittyMagic.UI
             _elements[storable.name] = UIHelpers.HeaderTextField(_script, storable, text, rightSide);
         }
 
-        private void CreateParamButton(string key, PhysicsParameter param, bool rightSide)
+        private void CreateParamButton(string key, PhysicsParameterGroup param, bool rightSide)
         {
             var button = _script.CreateButton("  " + param.displayName, rightSide);
             button.height = 52;

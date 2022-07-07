@@ -1,25 +1,23 @@
 ﻿using System.Collections.Generic;
 using TittyMagic.Configs;
 using UnityEngine;
-using static TittyMagic.MVRParamName;
+using static TittyMagic.ParamName;
 using static TittyMagic.GravityEffectCalc;
 
 namespace TittyMagic
 {
     internal class ForcePhysicsHandler
     {
+        private readonly Script _script;
         private readonly MainPhysicsHandler _mainPhysicsHandler;
         private readonly SoftPhysicsHandler _softPhysicsHandler;
 
-        private List<PhysicsParameter> _leftBreastMainParams;
-        private List<PhysicsParameter> _rightBreastMainParams;
-        private List<PhysicsParameter> _leftBreastSoftParams;
-        private List<PhysicsParameter> _rightBreastSoftParams;
+        private List<PhysicsParameterGroup> _mainParamGroups;
+        private List<PhysicsParameterGroup> _softParamGroups;
 
         private readonly TrackNipple _trackLeftNipple;
         private readonly TrackNipple _trackRightNipple;
 
-        private const float SOFTNESS = 0.62f;
         private float _mass;
         private float _pitchMultiplier;
         private float _rollMultiplier;
@@ -30,110 +28,80 @@ namespace TittyMagic
 
         public ForcePhysicsHandler(
             Script script,
-            MainPhysicsHandler mainPhysicsHandler,
-            SoftPhysicsHandler softPhysicsHandler,
             TrackNipple trackLeftNipple,
             TrackNipple trackRightNipple
         )
         {
-            _mainPhysicsHandler = mainPhysicsHandler;
-            _softPhysicsHandler = softPhysicsHandler;
+            _script = script;
+            _mainPhysicsHandler = _script.mainPhysicsHandler;
+            _softPhysicsHandler = _script.softPhysicsHandler;
             _trackLeftNipple = trackLeftNipple;
             _trackRightNipple = trackRightNipple;
 
-            yMultiplierJsf = script.NewJSONStorableFloat("forcePhysicsUpDown", 1.00f, 0.00f, 2.00f);
-            zMultiplierJsf = script.NewJSONStorableFloat("forcePhysicsForwardBack", 1.00f, 0.00f, 2.00f);
-            xMultiplierJsf = script.NewJSONStorableFloat("forcePhysicsLeftRight", 1.00f, 0.00f, 2.00f);
+            yMultiplierJsf = _script.NewJSONStorableFloat("forcePhysicsUpDown", 1.00f, 0.00f, 2.00f);
+            zMultiplierJsf = _script.NewJSONStorableFloat("forcePhysicsForwardBack", 1.00f, 0.00f, 2.00f);
+            xMultiplierJsf = _script.NewJSONStorableFloat("forcePhysicsLeftRight", 1.00f, 0.00f, 2.00f);
         }
 
         public void LoadSettings()
         {
-            SetupMainForcePhysicsConfigs(_mainPhysicsHandler.leftBreastParameters);
-            SetupMainForcePhysicsConfigs(_mainPhysicsHandler.rightBreastParameters);
-            _leftBreastMainParams = _mainPhysicsHandler.leftBreastParameters.Values.ToList();
-            _rightBreastMainParams = _mainPhysicsHandler.rightBreastParameters.Values.ToList();
+            SetupMainForcePhysicsConfigs();
+            SetupSoftForcePhysicsConfigs();
 
-            SetupSoftForcePhysicsConfigs(_softPhysicsHandler.leftBreastParameters);
-            SetupSoftForcePhysicsConfigs(_softPhysicsHandler.rightBreastParameters);
-            _leftBreastSoftParams = _softPhysicsHandler.leftBreastParameters.Values.ToList();
-            _rightBreastSoftParams = _softPhysicsHandler.rightBreastParameters.Values.ToList();
+            _mainParamGroups = _mainPhysicsHandler.parameterGroups.Values.ToList();
+            _softParamGroups = _softPhysicsHandler.parameterGroups.Values.ToList();
         }
 
-        private static void SetupMainForcePhysicsConfigs(Dictionary<string, PhysicsParameter> parameters)
+        private static Dictionary<string, DynamicPhysicsConfig> NewCenterOfGravityConfigs() =>
+            new Dictionary<string, DynamicPhysicsConfig>
+            {
+            };
+
+        private static Dictionary<string, DynamicPhysicsConfig> NewSpringConfigs() =>
+            new Dictionary<string, DynamicPhysicsConfig>
+            {
+            };
+
+        private static Dictionary<string, DynamicPhysicsConfig> NewDamperConfigs() =>
+            new Dictionary<string, DynamicPhysicsConfig>
+            {
+            };
+
+        private static Dictionary<string, DynamicPhysicsConfig> NewPositionSpringZConfigs() =>
+            new Dictionary<string, DynamicPhysicsConfig>
+            {
+            };
+
+        private static Dictionary<string, DynamicPhysicsConfig> NewPositionDamperZConfigs() =>
+            new Dictionary<string, DynamicPhysicsConfig>
+            {
+            };
+
+        private static Dictionary<string, DynamicPhysicsConfig> NewPositionTargetRotationXConfigs() =>
+            new Dictionary<string, DynamicPhysicsConfig>
+            {
+            };
+
+        private static Dictionary<string, DynamicPhysicsConfig> NewPositionTargetRotationYConfigs() =>
+            new Dictionary<string, DynamicPhysicsConfig>
+            {
+            };
+
+        private void SetupMainForcePhysicsConfigs()
         {
-            parameters[CENTER_OF_GRAVITY_PERCENT].forcePhysicsConfigs = new Dictionary<string, DynamicPhysicsConfig>
-            {
-                { Direction.DOWN, null },
-                { Direction.UP, null },
-                { Direction.BACK, null },
-                { Direction.FORWARD, null },
-                { Direction.LEFT, null },
-                { Direction.RIGHT, null },
-            };
-
-            parameters[SPRING].forcePhysicsConfigs = new Dictionary<string, DynamicPhysicsConfig>
-            {
-                { Direction.DOWN, null },
-                { Direction.UP, null },
-                { Direction.BACK, null },
-                { Direction.FORWARD, null },
-                { Direction.LEFT, null },
-                { Direction.RIGHT, null },
-            };
-
-            parameters[DAMPER].forcePhysicsConfigs = new Dictionary<string, DynamicPhysicsConfig>
-            {
-                { Direction.DOWN, null },
-                { Direction.UP, null },
-                { Direction.BACK, null },
-                { Direction.FORWARD, null },
-                { Direction.LEFT, null },
-                { Direction.RIGHT, null },
-            };
-
-            parameters[POSITION_SPRING_Z].forcePhysicsConfigs = new Dictionary<string, DynamicPhysicsConfig>
-            {
-                { Direction.DOWN, null },
-                { Direction.UP, null },
-                { Direction.BACK, null },
-                { Direction.FORWARD, null },
-                { Direction.LEFT, null },
-                { Direction.RIGHT, null },
-            };
-
-            parameters[POSITION_DAMPER_Z].forcePhysicsConfigs = new Dictionary<string, DynamicPhysicsConfig>
-            {
-                { Direction.DOWN, null },
-                { Direction.UP, null },
-                { Direction.BACK, null },
-                { Direction.FORWARD, null },
-                { Direction.LEFT, null },
-                { Direction.RIGHT, null },
-            };
-
-            parameters[TARGET_ROTATION_X].forcePhysicsConfigs = new Dictionary<string, DynamicPhysicsConfig>
-            {
-                { Direction.DOWN, null },
-                { Direction.UP, null },
-                { Direction.BACK, null },
-                { Direction.FORWARD, null },
-                { Direction.LEFT, null },
-                { Direction.RIGHT, null },
-            };
-
-            parameters[TARGET_ROTATION_Y].forcePhysicsConfigs = new Dictionary<string, DynamicPhysicsConfig>
-            {
-                { Direction.DOWN, null },
-                { Direction.UP, null },
-                { Direction.BACK, null },
-                { Direction.FORWARD, null },
-                { Direction.LEFT, null },
-                { Direction.RIGHT, null },
-            };
+            var paramGroups = _script.mainPhysicsHandler.parameterGroups;
+            paramGroups[CENTER_OF_GRAVITY_PERCENT].SetForcePhysicsConfigs(NewCenterOfGravityConfigs(), NewCenterOfGravityConfigs());
+            paramGroups[SPRING].SetForcePhysicsConfigs(NewSpringConfigs(), NewSpringConfigs());
+            paramGroups[DAMPER].SetForcePhysicsConfigs(NewDamperConfigs(), NewDamperConfigs());
+            paramGroups[POSITION_SPRING_Z].SetForcePhysicsConfigs(NewPositionSpringZConfigs(), NewPositionSpringZConfigs());
+            paramGroups[POSITION_DAMPER_Z].SetForcePhysicsConfigs(NewPositionDamperZConfigs(), NewPositionDamperZConfigs());
+            paramGroups[TARGET_ROTATION_X].SetForcePhysicsConfigs(NewPositionTargetRotationXConfigs(), NewPositionTargetRotationXConfigs());
+            paramGroups[TARGET_ROTATION_Y].SetForcePhysicsConfigs(NewPositionTargetRotationYConfigs(), NewPositionTargetRotationYConfigs());
         }
 
-        private static void SetupSoftForcePhysicsConfigs(Dictionary<string, PhysicsParameter> parameters)
+        private void SetupSoftForcePhysicsConfigs()
         {
+            var paramGroups = _script.softPhysicsHandler.parameterGroups;
             //TODO
         }
 
@@ -271,40 +239,11 @@ namespace TittyMagic
 
         private void UpdatePhysics(string direction, float effect)
         {
-            _leftBreastMainParams.ForEach(param => UpdateParam(param, direction, effect));
-            _rightBreastMainParams.ForEach(param => UpdateParam(param, direction, effect));
-            // _leftBreastSoftParams.ForEach(param => UpdateParam(param, direction, effect));
-            // _rightBreastSoftParams.ForEach(param => UpdateParam(param, direction, effect));
-        }
+            _mainParamGroups.ForEach(paramGroup =>
+                paramGroup.UpdateForceValue(direction, effect, _mass));
 
-        private float NewValue(DynamicPhysicsConfig config, float effect)
-        {
-            float value = CalculateValue(config, effect);
-            bool inRange = config.isNegative ? value < 0 : value > 0;
-            return inRange ? value : 0;
-        }
-
-        private void UpdateParam(PhysicsParameter param, string direction, float effect)
-        {
-            if(!param.forcePhysicsConfigs.ContainsKey(direction))
-            {
-                return;
-            }
-
-            var config = param.forcePhysicsConfigs[direction];
-            if(config != null)
-            {
-                float value = NewValue(config, effect);
-                param.AddValue(value);
-            }
-        }
-
-        private float CalculateValue(DynamicPhysicsConfig config, float effect)
-        {
-            float mass = config.multiplyInvertedMass ? 1 - _mass : _mass;
-            return
-                SOFTNESS * config.softnessMultiplier * effect +
-                mass * config.massMultiplier * effect;
+            // _softParamGroups.ForEach(paramGroup =>
+            //     paramGroup.UpdateForceValue(direction, effect, _mass));
         }
     }
 }

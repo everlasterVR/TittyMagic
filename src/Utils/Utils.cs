@@ -73,12 +73,6 @@ namespace TittyMagic
             return storable;
         }
 
-        public static JSONStorableFloat NewBaseValueStorable(float min, float max, bool register = true) =>
-            new JSONStorableFloat("Base Value", 0, min, max, register);
-
-        public static JSONStorableFloat NewCurrentValueStorable(float min, float max, bool register = true) =>
-            new JSONStorableFloat("Current Value", 0, min, max, register);
-
         public static float PhysicsRateMultiplier() =>
             0.01666667f / Time.fixedDeltaTime;
 

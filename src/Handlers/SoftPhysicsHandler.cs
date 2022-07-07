@@ -1,8 +1,10 @@
+// ReSharper disable RedundantCast
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using SimpleJSON;
 using TittyMagic.Configs;
-using static TittyMagic.MVRParamName;
+using static TittyMagic.ParamName;
 using static TittyMagic.Utils;
 
 namespace TittyMagic
@@ -26,20 +28,15 @@ namespace TittyMagic
         private readonly DAZPhysicsMeshSoftVerticesGroup _nippleLeft;
         private readonly DAZPhysicsMeshSoftVerticesGroup _nippleRight;
 
-        public Dictionary<string, PhysicsParameter> leftBreastParameters { get; private set; }
-        public Dictionary<string, PhysicsParameter> rightBreastParameters { get; private set; }
-        public Dictionary<string, PhysicsParameter> leftBreastGroupParameters { get; private set; }
-        public Dictionary<string, PhysicsParameter> rightBreastGroupParameters { get; private set; }
-        public Dictionary<string, PhysicsParameter> leftNippleGroupParameters { get; private set; }
-        public Dictionary<string, PhysicsParameter> rightNippleGroupParameters { get; private set; }
+        public Dictionary<string, PhysicsParameterGroup> parameterGroups { get; private set; }
 
         public JSONStorableBool softPhysicsOn { get; }
         public JSONStorableBool allowSelfCollision { get; }
 
-        private float _combinedSpringLeft;
-        private float _combinedSpringRight;
-        private float _combinedDamperLeft;
-        private float _combinedDamperRight;
+        private float _baseSpringLeft;
+        private float _baseSpringRight;
+        private float _baseDamperLeft;
+        private float _baseDamperRight;
 
         public SoftPhysicsHandler(MVRScript script)
         {
@@ -76,205 +73,270 @@ namespace TittyMagic
 
         public void LoadSettings()
         {
-            SetupPhysicsParameters(true);
-            SetupPhysicsParameters(false);
+            SetupPhysicsParameterGroups();
+
+            var texts = CreateInfoTexts();
+            parameterGroups.ForEach(param => param.Value.infoText = texts[param.Key]);
         }
 
-        private void SetupPhysicsParameters(bool leftBreast)
+        private SoftGroupPhysicsParameter NewMainSpringParameter(bool left) =>
+            new SoftGroupPhysicsParameter(new JSONStorableFloat("Main Base Value", 0, 0, 5))
+            {
+                config = new StaticPhysicsConfig(5f, 5f, 1f),
+                sync = left
+                    ? (Action<float>) (value => SyncGroupSpringMultiplier(value, _baseSpringLeft, _mainLeft))
+                    : (Action<float>) (value => SyncGroupSpringMultiplier(value, _baseSpringRight, _mainRight)),
+            };
+
+        private SoftGroupPhysicsParameter NewOuterSpringParameter(bool left) =>
+            new SoftGroupPhysicsParameter(new JSONStorableFloat("Outer Base Value", 0, 0, 5))
+            {
+                config = new StaticPhysicsConfig(5f, 5f, 1f),
+                sync = left
+                    ? (Action<float>) (value => SyncGroupSpringMultiplier(value, _baseSpringLeft, _outerLeft))
+                    : (Action<float>) (value => SyncGroupSpringMultiplier(value, _baseSpringRight, _outerRight)),
+            };
+
+        private SoftGroupPhysicsParameter NewAreolaSpringParameter(bool left) =>
+            new SoftGroupPhysicsParameter(new JSONStorableFloat("Areola Base Value", 0, 0, 5))
+            {
+                config = new StaticPhysicsConfig(2.29f, 1.30f, 2.29f),
+                sync = left
+                    ? (Action<float>) (value => SyncGroupSpringMultiplier(value, _baseSpringLeft, _areolaLeft))
+                    : (Action<float>) (value => SyncGroupSpringMultiplier(value, _baseSpringRight, _areolaRight)),
+            };
+
+        private SoftGroupPhysicsParameter NewNippleSpringParameter(bool left) =>
+            new SoftGroupPhysicsParameter(new JSONStorableFloat("Nipple Base Value", 0, 0, 5))
+            {
+                config = new StaticPhysicsConfig(2.29f, 1.30f, 2.29f),
+                sync = left
+                    ? (Action<float>) (value => SyncGroupSpringMultiplier(value, _baseSpringLeft, _nippleLeft))
+                    : (Action<float>) (value => SyncGroupSpringMultiplier(value, _baseSpringRight, _nippleRight)),
+            };
+
+        private PhysicsParameter NewSpringParameter(bool left) =>
+            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 500))
+            {
+                config = new StaticPhysicsConfig(500f, 500f, 62f),
+                sync = left
+                    ? (Action<float>) (value => _baseSpringLeft = value)
+                    : (Action<float>) (value => _baseSpringRight = value),
+                groupMultiplierParams = new Dictionary<string, SoftGroupPhysicsParameter>
+                {
+                    { SoftColliderGroup.MAIN, NewMainSpringParameter(left) },
+                    { SoftColliderGroup.OUTER, NewOuterSpringParameter(left) },
+                    { SoftColliderGroup.AREOLA, NewAreolaSpringParameter(left) },
+                    { SoftColliderGroup.NIPPLE, NewNippleSpringParameter(left) },
+                },
+            };
+
+        private SoftGroupPhysicsParameter NewMainDamperParameter(bool left) =>
+            new SoftGroupPhysicsParameter(new JSONStorableFloat("Main Base Value", 0, 0, 5), currentValueJsf: null)
+            {
+                config = new StaticPhysicsConfig(1f, 1f, 1f),
+                sync = left
+                    ? (Action<float>) (value => SyncGroupDamperMultiplier(value, _baseDamperLeft, _mainLeft))
+                    : (Action<float>) (value => SyncGroupDamperMultiplier(value, _baseDamperRight, _mainRight)),
+            };
+
+        private SoftGroupPhysicsParameter NewOuterDamperParameter(bool left) =>
+            new SoftGroupPhysicsParameter(new JSONStorableFloat("Outer Base Value", 0, 0, 5), currentValueJsf: null)
+            {
+                config = new StaticPhysicsConfig(1f, 1f, 1f),
+                sync = left
+                    ? (Action<float>) (value => SyncGroupDamperMultiplier(value, _baseDamperLeft, _outerLeft))
+                    : (Action<float>) (value => SyncGroupDamperMultiplier(value, _baseDamperRight, _outerRight)),
+            };
+
+        private SoftGroupPhysicsParameter NewAreolaDamperParameter(bool left) =>
+            new SoftGroupPhysicsParameter(new JSONStorableFloat("Areola Base Value", 0, 0, 5), currentValueJsf: null)
+            {
+                config = new StaticPhysicsConfig(1.81f, 1.22f, 1.81f),
+                sync = left
+                    ? (Action<float>) (value => SyncGroupDamperMultiplier(value, _baseDamperLeft, _areolaLeft))
+                    : (Action<float>) (value => SyncGroupDamperMultiplier(value, _baseDamperRight, _areolaRight)),
+            };
+
+        private SoftGroupPhysicsParameter NewNippleDamperParameter(bool left) =>
+            new SoftGroupPhysicsParameter(new JSONStorableFloat("Nipple Base Value", 0, 0, 5), currentValueJsf: null)
+            {
+                config = new StaticPhysicsConfig(1.81f, 1.22f, 1.81f),
+                sync = left
+                    ? (Action<float>) (value => SyncGroupDamperMultiplier(value, _baseDamperLeft, _nippleLeft))
+                    : (Action<float>) (value => SyncGroupDamperMultiplier(value, _baseDamperRight, _nippleRight)),
+            };
+
+        private PhysicsParameter NewDamperParameter(bool left) =>
+            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 10), currentValueJsf: null)
+            {
+                config = new StaticPhysicsConfig(10.0f, 10.0f, 0.90f),
+                quicknessOffsetConfig = new StaticPhysicsConfig(-0.75f, -0.90f, -0.45f),
+                slownessOffsetConfig = new StaticPhysicsConfig(1.125f, 1.35f, 0.675f),
+                sync = left
+                    ? (Action<float>) (value => _baseDamperLeft = value)
+                    : (Action<float>) (value => _baseDamperRight = value),
+                groupMultiplierParams = new Dictionary<string, SoftGroupPhysicsParameter>
+                {
+                    { SoftColliderGroup.MAIN, NewMainDamperParameter(left) },
+                    { SoftColliderGroup.OUTER, NewOuterDamperParameter(left) },
+                    { SoftColliderGroup.AREOLA, NewAreolaDamperParameter(left) },
+                    { SoftColliderGroup.NIPPLE, NewNippleDamperParameter(left) },
+                },
+            };
+
+        private PhysicsParameter NewSoftVerticesMassParameter(bool left) =>
+            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0.05f, 0.5f), currentValueJsf: null)
+            {
+                config = new StaticPhysicsConfig(0.050f, 0.130f, 0.085f),
+                quicknessOffsetConfig = new StaticPhysicsConfig(0.000f, -0.048f, -0.028f),
+                slownessOffsetConfig = new StaticPhysicsConfig(0.012f, 0.060f, 0.040f),
+                sync = left
+                    ? (Action<float>) SyncMassLeft
+                    : (Action<float>) SyncMassRight,
+            };
+
+        private PhysicsParameter NewColliderRadiusParameter(bool left) =>
+            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 0.07f), currentValueJsf: null)
+            {
+                config = new StaticPhysicsConfig(0.024f, 0.037f, 0.028f),
+                sync = left
+                    ? (Action<float>) SyncColliderRadiusLeft
+                    : (Action<float>) SyncColliderRadiusRight,
+            };
+
+        private PhysicsParameter NewColliderAdditionalNormalOffsetParameter(bool left) =>
+            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, -0.01f, 0.01f), currentValueJsf: null)
+            {
+                config = new StaticPhysicsConfig(0.001f, 0.001f, 0.001f),
+                sync = left
+                    ? (Action<float>) SyncAdditionalNormalOffsetLeft
+                    : (Action<float>) SyncAdditionalNormalOffsetRight,
+            };
+
+        private PhysicsParameter NewDistanceLimitParameter(bool left) =>
+            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 0.1f), currentValueJsf: null)
+            {
+                config = new StaticPhysicsConfig(0.020f, 0.068f, 0.028f),
+                quicknessOffsetConfig = new StaticPhysicsConfig(0.000f, 0.000f, 0.024f),
+                slownessOffsetConfig = new StaticPhysicsConfig(0.000f, 0.000f, -0.008f),
+                sync = left
+                    ? (Action<float>) SyncDistanceLimitLeft
+                    : (Action<float>) SyncDistanceLimitRight,
+            };
+
+        private PhysicsParameter NewBackForceParameter(bool left) =>
+            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 50), currentValueJsf: null)
+            {
+                config = new StaticPhysicsConfig(50f, 55.6f, 9.3f),
+                quicknessOffsetConfig = new StaticPhysicsConfig(-2.6f, -4f, -2.33f),
+                slownessOffsetConfig = new StaticPhysicsConfig(0.8f, 1.33f, 0.77f),
+                sync = left
+                    ? (Action<float>) SyncBackForceLeft
+                    : (Action<float>) SyncBackForceRight,
+            };
+
+        private PhysicsParameter NewBackForceMaxForceParameter(bool left) =>
+            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 50), currentValueJsf: null)
+            {
+                config = new StaticPhysicsConfig(50f, 50f, 50f),
+                sync = left
+                    ? (Action<float>) SyncBackForceMaxForceLeft
+                    : (Action<float>) SyncBackForceMaxForceRight,
+            };
+
+        private PhysicsParameter NewBackForceThresholdDistanceParameter(bool left) =>
+            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 0.030f), currentValueJsf: null)
+            {
+                config = new StaticPhysicsConfig(0f, 0f, 0f),
+                sync = left
+                    ? (Action<float>) SyncBackForceThresholdDistanceLeft
+                    : (Action<float>) SyncBackForceThresholdDistanceRight,
+            };
+
+        private void SetupPhysicsParameterGroups()
         {
-            var softVerticesCombinedSpring = new PhysicsParameter(
+            var softVerticesSpring = new PhysicsParameterGroup(
+                NewSpringParameter(true),
+                NewSpringParameter(false),
                 "Fat Spring",
-                NewBaseValueStorable(0, 500),
-                null,
                 "F2"
             );
-            var softVerticesCombinedDamper = new PhysicsParameter(
+            softVerticesSpring.SetLinearCurvesAroundMidpoint(null, slope: 0.41f);
+            softVerticesSpring.SetLinearCurvesAroundMidpoint(SoftColliderGroup.MAIN, slope: 0);
+            softVerticesSpring.SetLinearCurvesAroundMidpoint(SoftColliderGroup.OUTER, slope: 0);
+
+            var softVerticesDamper = new PhysicsParameterGroup(
+                NewDamperParameter(true),
+                NewDamperParameter(false),
                 "Fat Damper",
-                NewBaseValueStorable(0, 10),
-                null,
                 "F3"
-            );
-            var softVerticesMass = new PhysicsParameter(
+            )
+            {
+                dependOnPhysicsRate = true,
+            };
+            softVerticesDamper.SetLinearCurvesAroundMidpoint(null, slope: 0.082f);
+
+            var softVerticesMass = new PhysicsParameterGroup(
+                NewSoftVerticesMassParameter(true),
+                NewSoftVerticesMassParameter(false),
                 "Fat Mass",
-                NewBaseValueStorable(0.05f, 0.5f),
-                null,
                 "F3"
             );
-            var softVerticesColliderRadius = new PhysicsParameter(
+
+            var softVerticesColliderRadius = new PhysicsParameterGroup(
+                NewColliderRadiusParameter(true),
+                NewColliderRadiusParameter(false),
                 "Fat Collider Radius",
-                NewBaseValueStorable(0, 0.07f),
-                null,
                 "F3"
-            );
-            var softVerticesColliderAdditionalNormalOffset = new PhysicsParameter(
+            )
+            {
+                useRealMass = true,
+            };
+
+            var softVerticesColliderAdditionalNormalOffset = new PhysicsParameterGroup(
+                NewColliderAdditionalNormalOffsetParameter(true),
+                NewColliderAdditionalNormalOffsetParameter(false),
                 "Fat Collider Depth",
-                NewBaseValueStorable(-0.01f, 0.01f),
-                null,
                 "F3"
             );
-            var softVerticesDistanceLimit = new PhysicsParameter(
+
+            var softVerticesDistanceLimit = new PhysicsParameterGroup(
+                NewDistanceLimitParameter(true),
+                NewDistanceLimitParameter(false),
                 "Fat Distance Limit",
-                NewBaseValueStorable(0, 0.1f),
-                null,
                 "F3"
-            );
-            var softVerticesBackForce = new PhysicsParameter(
+            )
+            {
+                useRealMass = true,
+            };
+
+            var softVerticesBackForce = new PhysicsParameterGroup(
+                NewBackForceParameter(true),
+                NewBackForceParameter(false),
                 "Fat Back Force",
-                NewBaseValueStorable(0, 50),
-                null,
                 "F2"
             );
-            var softVerticesBackForceMaxForce = new PhysicsParameter(
+            softVerticesBackForce.SetLinearCurvesAroundMidpoint(null, slope: 0.027f);
+
+            var softVerticesBackForceMaxForce = new PhysicsParameterGroup(
+                NewBackForceMaxForceParameter(true),
+                NewBackForceMaxForceParameter(false),
                 "Fat Bk Force Max Force",
-                NewBaseValueStorable(0, 50),
-                null,
                 "F2"
             );
-            var softVerticesBackForceThresholdDistance = new PhysicsParameter(
+
+            var softVerticesBackForceThresholdDistance = new PhysicsParameterGroup(
+                NewBackForceThresholdDistanceParameter(true),
+                NewBackForceThresholdDistanceParameter(false),
                 "Fat Bk Force Threshold",
-                NewBaseValueStorable(0, 0.030f),
-                null,
-                "F3"
-            );
-            var groupASpringMultiplier = new PhysicsParameter(
-                "Main Spring Multiplier",
-                NewBaseValueStorable(0, 5),
-                null,
-                "F3"
-            );
-            var groupADamperMultiplier = new PhysicsParameter(
-                "Main Damper Multiplier",
-                NewBaseValueStorable(0, 5),
-                null,
-                "F3"
-            );
-            var groupBSpringMultiplier = new PhysicsParameter(
-                "Outer Spring Multiplier",
-                NewBaseValueStorable(0, 5),
-                null,
-                "F3"
-            );
-            var groupBDamperMultiplier = new PhysicsParameter(
-                "Outer Damper Multiplier",
-                NewBaseValueStorable(0, 5),
-                null,
-                "F3"
-            );
-            var groupCSpringMultiplier = new PhysicsParameter(
-                "Areola Spring Multiplier",
-                NewBaseValueStorable(0, 5),
-                null,
-                "F3"
-            );
-            var groupCDamperMultiplier = new PhysicsParameter(
-                "Areola Damper Multiplier",
-                NewBaseValueStorable(0, 5),
-                null,
-                "F3"
-            );
-            var groupDSpringMultiplier = new PhysicsParameter(
-                "Nipple Spring Multiplier",
-                NewBaseValueStorable(0, 5),
-                null,
-                "F3"
-            );
-            var groupDDamperMultiplier = new PhysicsParameter(
-                "Nipple Damper Multiplier",
-                NewBaseValueStorable(0, 5),
-                null,
                 "F3"
             );
 
-            softVerticesCombinedSpring.config = new StaticPhysicsConfig(500f, 500f, 62f);
-            softVerticesCombinedSpring.config.SetLinearCurvesAroundMidpoint(slope: 0.41f);
-
-            softVerticesCombinedDamper.config = new StaticPhysicsConfig(10.0f, 10.0f, 0.90f);
-            softVerticesCombinedDamper.config.dependOnPhysicsRate = true;
-            softVerticesCombinedDamper.config.SetLinearCurvesAroundMidpoint(slope: 0.082f);
-            softVerticesCombinedDamper.quicknessOffsetConfig = new StaticPhysicsConfig(-0.75f, -0.90f, -0.45f);
-            softVerticesCombinedDamper.slownessOffsetConfig = new StaticPhysicsConfig(1.125f, 1.35f, 0.675f);
-
-            softVerticesMass.config = new StaticPhysicsConfig(0.050f, 0.130f, 0.085f);
-            softVerticesMass.quicknessOffsetConfig = new StaticPhysicsConfig(0.000f, -0.048f, -0.028f);
-            softVerticesMass.slownessOffsetConfig = new StaticPhysicsConfig(0.012f, 0.060f, 0.040f);
-
-            softVerticesColliderRadius.config = new StaticPhysicsConfig(0.024f, 0.037f, 0.028f);
-            softVerticesColliderRadius.config.useRealMass = true;
-
-            softVerticesColliderAdditionalNormalOffset.config = new StaticPhysicsConfig(0.001f, 0.001f, 0.001f);
-
-            softVerticesDistanceLimit.config = new StaticPhysicsConfig(0.020f, 0.068f, 0.028f);
-            softVerticesDistanceLimit.config.useRealMass = true;
-            softVerticesDistanceLimit.quicknessOffsetConfig = new StaticPhysicsConfig(0.000f, 0.000f, 0.024f);
-            softVerticesDistanceLimit.slownessOffsetConfig = new StaticPhysicsConfig(0.000f, 0.000f, -0.008f);
-
-            softVerticesBackForce.config = new StaticPhysicsConfig(50f, 55.6f, 9.3f);
-            softVerticesBackForce.config.SetLinearCurvesAroundMidpoint(slope: 0.027f);
-            softVerticesBackForce.quicknessOffsetConfig = new StaticPhysicsConfig(-2.6f, -4f, -2.33f);
-            softVerticesBackForce.slownessOffsetConfig = new StaticPhysicsConfig(0.8f, 1.33f, 0.77f);
-
-            softVerticesBackForceThresholdDistance.config = new StaticPhysicsConfig(0f, 0f, 0f);
-            softVerticesBackForceMaxForce.config = new StaticPhysicsConfig(50f, 50f, 50f);
-
-            groupASpringMultiplier.config = new StaticPhysicsConfig(5f, 5f, 1f);
-            groupASpringMultiplier.config.SetLinearCurvesAroundMidpoint(slope: 0);
-            groupADamperMultiplier.config = new StaticPhysicsConfig(1f, 1f, 1f);
-
-            groupBSpringMultiplier.config = new StaticPhysicsConfig(5f, 5f, 1f);
-            groupBSpringMultiplier.config.SetLinearCurvesAroundMidpoint(slope: 0);
-            groupBDamperMultiplier.config = new StaticPhysicsConfig(1f, 1f, 1f);
-
-            groupCSpringMultiplier.config = new StaticPhysicsConfig(2.29f, 1.30f, 2.29f);
-            groupCDamperMultiplier.config = new StaticPhysicsConfig(1.81f, 1.22f, 1.81f);
-
-            groupDSpringMultiplier.config = new StaticPhysicsConfig(2.29f, 1.30f, 2.29f);
-            groupDDamperMultiplier.config = new StaticPhysicsConfig(1.81f, 1.22f, 1.81f);
-
-            if(leftBreast)
+            parameterGroups = new Dictionary<string, PhysicsParameterGroup>
             {
-                softVerticesCombinedSpring.sync = value => _combinedSpringLeft = value;
-                softVerticesCombinedDamper.sync = value => _combinedDamperLeft = value;
-                softVerticesMass.sync = SyncMassLeft;
-                softVerticesBackForce.sync = SyncBackForceLeft;
-                softVerticesBackForceMaxForce.sync = SyncBackForceMaxForceLeft;
-                softVerticesBackForceThresholdDistance.sync = SyncBackForceThresholdDistanceLeft;
-                softVerticesColliderRadius.sync = SyncColliderRadiusLeft;
-                softVerticesColliderAdditionalNormalOffset.sync = SyncAdditionalNormalOffsetLeft;
-                softVerticesDistanceLimit.sync = SyncDistanceLimitLeft;
-                groupASpringMultiplier.sync = value => SyncGroupSpringMultiplier(value, _combinedSpringLeft, _mainLeft);
-                groupADamperMultiplier.sync = value => SyncGroupDamperMultiplier(value, _combinedDamperLeft, _mainLeft);
-                groupBSpringMultiplier.sync = value => SyncGroupSpringMultiplier(value, _combinedSpringLeft, _outerLeft);
-                groupBDamperMultiplier.sync = value => SyncGroupDamperMultiplier(value, _combinedDamperLeft, _outerLeft);
-                groupCSpringMultiplier.sync = value => SyncGroupSpringMultiplier(value, _combinedSpringLeft, _areolaLeft);
-                groupCDamperMultiplier.sync = value => SyncGroupDamperMultiplier(value, _combinedDamperLeft, _areolaLeft);
-                groupDSpringMultiplier.sync = value => SyncGroupSpringMultiplier(value, _combinedSpringLeft, _nippleLeft);
-                groupDDamperMultiplier.sync = value => SyncGroupDamperMultiplier(value, _combinedDamperLeft, _nippleLeft);
-            }
-            else
-            {
-                softVerticesCombinedSpring.sync = value => _combinedSpringRight = value;
-                softVerticesCombinedDamper.sync = value => _combinedDamperRight = value;
-                softVerticesMass.sync = SyncMassRight;
-                softVerticesBackForce.sync = SyncBackForceRight;
-                softVerticesBackForceMaxForce.sync = SyncBackForceMaxForceRight;
-                softVerticesBackForceThresholdDistance.sync = SyncBackForceThresholdDistanceRight;
-                softVerticesColliderRadius.sync = SyncColliderRadiusRight;
-                softVerticesColliderAdditionalNormalOffset.sync = SyncAdditionalNormalOffsetRight;
-                softVerticesDistanceLimit.sync = SyncDistanceLimitRight;
-                groupASpringMultiplier.sync = value => SyncGroupSpringMultiplier(value, _combinedSpringRight, _mainRight);
-                groupADamperMultiplier.sync = value => SyncGroupDamperMultiplier(value, _combinedDamperRight, _mainRight);
-                groupBSpringMultiplier.sync = value => SyncGroupSpringMultiplier(value, _combinedSpringRight, _outerRight);
-                groupBDamperMultiplier.sync = value => SyncGroupDamperMultiplier(value, _combinedDamperRight, _outerRight);
-                groupCSpringMultiplier.sync = value => SyncGroupSpringMultiplier(value, _combinedSpringRight, _areolaRight);
-                groupCDamperMultiplier.sync = value => SyncGroupDamperMultiplier(value, _combinedDamperRight, _areolaRight);
-                groupDSpringMultiplier.sync = value => SyncGroupSpringMultiplier(value, _combinedSpringRight, _nippleRight);
-                groupDDamperMultiplier.sync = value => SyncGroupDamperMultiplier(value, _combinedDamperRight, _nippleRight);
-            }
-
-            var breastParameters = new Dictionary<string, PhysicsParameter>
-            {
-                { SOFT_VERTICES_COMBINED_SPRING, softVerticesCombinedSpring },
-                { SOFT_VERTICES_COMBINED_DAMPER, softVerticesCombinedDamper },
+                { SOFT_VERTICES_SPRING, softVerticesSpring },
+                { SOFT_VERTICES_DAMPER, softVerticesDamper },
                 { SOFT_VERTICES_MASS, softVerticesMass },
                 { SOFT_VERTICES_BACK_FORCE, softVerticesBackForce },
                 { SOFT_VERTICES_BACK_FORCE_MAX_FORCE, softVerticesBackForceMaxForce },
@@ -283,37 +345,6 @@ namespace TittyMagic
                 { SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, softVerticesColliderAdditionalNormalOffset },
                 { SOFT_VERTICES_DISTANCE_LIMIT, softVerticesDistanceLimit },
             };
-            var groupParameters = new Dictionary<string, PhysicsParameter>
-            {
-                { GROUP_A_SPRING_MULTIPLIER, groupASpringMultiplier },
-                { GROUP_A_DAMPER_MULTIPLIER, groupADamperMultiplier },
-                { GROUP_B_SPRING_MULTIPLIER, groupBSpringMultiplier },
-                { GROUP_B_DAMPER_MULTIPLIER, groupBDamperMultiplier },
-                { GROUP_C_SPRING_MULTIPLIER, groupCSpringMultiplier },
-                { GROUP_C_DAMPER_MULTIPLIER, groupCDamperMultiplier },
-            };
-            var nippleGroupParameters = new Dictionary<string, PhysicsParameter>
-            {
-                { GROUP_D_SPRING_MULTIPLIER, groupDSpringMultiplier },
-                { GROUP_D_DAMPER_MULTIPLIER, groupDDamperMultiplier },
-            };
-
-            var texts = CreateInfoTexts();
-            foreach(var param in breastParameters)
-                param.Value.infoText = texts[param.Key];
-
-            if(leftBreast)
-            {
-                leftBreastParameters = breastParameters;
-                leftBreastGroupParameters = groupParameters;
-                leftNippleGroupParameters = nippleGroupParameters;
-            }
-            else
-            {
-                rightBreastParameters = breastParameters;
-                rightBreastGroupParameters = groupParameters;
-                rightNippleGroupParameters = nippleGroupParameters;
-            }
         }
 
         private void SyncMassLeft(float value)
@@ -451,36 +482,36 @@ namespace TittyMagic
         // Reimplements DAZPhysicsMesh.cs methods SyncGroup[A|B|C|D]SpringMultiplier and SyncSoftVerticesCombinedSpring
         // Circumvents use of softVerticesCombinedSpring value as multiplier on the group specific value, using custom multiplier instead
         private static void SyncGroupSpringMultiplier(
-            float value,
-            float combinedSpring,
+            float multiplier,
+            float baseSpring,
             DAZPhysicsMeshSoftVerticesGroup group
         )
         {
-            float combinedValue = combinedSpring * value;
-            group.jointSpringNormal = combinedValue;
-            group.jointSpringTangent = combinedValue;
-            group.jointSpringTangent2 = combinedValue;
+            float spring = baseSpring * multiplier;
+            group.jointSpringNormal = spring;
+            group.jointSpringTangent = spring;
+            group.jointSpringTangent2 = spring;
             if(group.tieLinkJointSpringAndDamperToNormalSpringAndDamper)
             {
-                group.linkSpring = combinedValue;
+                group.linkSpring = spring;
             }
         }
 
         // Reimplements DAZPhysicsMesh.cs methods SyncGroup[A|B|C|D]DamperMultiplier and SyncSoftVerticesCombinedDamper
         // Circumvents use of softVerticesCombinedDamper value as multiplier on the group specific value, using custom multiplier instead
         private static void SyncGroupDamperMultiplier(
-            float value,
-            float combinedDamper,
+            float multiplier,
+            float baseDamper,
             DAZPhysicsMeshSoftVerticesGroup group
         )
         {
-            float combinedValue = combinedDamper * value;
-            group.jointDamperNormal = combinedValue;
-            group.jointDamperTangent = combinedValue;
-            group.jointDamperTangent2 = combinedValue;
+            float damper = baseDamper * multiplier;
+            group.jointDamperNormal = damper;
+            group.jointDamperTangent = damper;
+            group.jointDamperTangent2 = damper;
             if(group.tieLinkJointSpringAndDamperToNormalSpringAndDamper)
             {
-                group.linkDamper = combinedValue;
+                group.linkDamper = damper;
             }
         }
 
@@ -542,13 +573,13 @@ namespace TittyMagic
                 return;
             }
 
-            leftBreastParameters.Values
-                .Concat(leftBreastGroupParameters.Values)
-                .Concat(rightBreastParameters.Values)
-                .Concat(rightBreastGroupParameters.Values)
-                .Where(param => param.config != null)
+            parameterGroups.Values
                 .ToList()
-                .ForEach(param => UpdateParam(param, massAmount, realMassAmount, softnessAmount, quicknessAmount));
+                .ForEach(paramGroup =>
+                {
+                    float massValue = paramGroup.useRealMass ? realMassAmount : massAmount;
+                    paramGroup.UpdateValue(massValue, softnessAmount, quicknessAmount);
+                });
         }
 
         public void UpdateRateDependentPhysics(
@@ -563,13 +594,14 @@ namespace TittyMagic
                 return;
             }
 
-            leftBreastParameters.Values
-                .Concat(leftBreastGroupParameters.Values)
-                .Concat(rightBreastParameters.Values)
-                .Concat(rightBreastGroupParameters.Values)
-                .Where(param => param.config != null && param.config.dependOnPhysicsRate)
+            parameterGroups.Values
+                .Where(paramGroup => paramGroup.dependOnPhysicsRate)
                 .ToList()
-                .ForEach(param => UpdateParam(param, massAmount, realMassAmount, softnessAmount, quicknessAmount));
+                .ForEach(paramGroup =>
+                {
+                    float massValue = paramGroup.useRealMass ? realMassAmount : massAmount;
+                    paramGroup.UpdateValue(massValue, softnessAmount, quicknessAmount);
+                });
         }
 
         public void UpdateNipplePhysics(float massAmount, float softnessAmount, float nippleErection)
@@ -579,28 +611,10 @@ namespace TittyMagic
                 return;
             }
 
-            leftNippleGroupParameters.Values
-                .Concat(rightNippleGroupParameters.Values)
-                .Where(param => param.config != null)
+            parameterGroups.Values
                 .ToList()
-                .ForEach(param => UpdateNippleParam(param, massAmount, softnessAmount, nippleErection));
+                .ForEach(paramGroup => paramGroup.UpdateNippleValue(massAmount, softnessAmount, nippleErection));
         }
-
-        private static void UpdateParam(
-            PhysicsParameter param,
-            float realMassAmount,
-            float massAmount,
-            float softnessAmount,
-            float quicknessAmount
-        )
-        {
-            float massValue = param.config.useRealMass ? realMassAmount : massAmount;
-            float value = MainPhysicsHandler.NewBaseValue(param, massValue, softnessAmount, quicknessAmount);
-            param.SetValue(value);
-        }
-
-        private static void UpdateNippleParam(PhysicsParameter param, float mass, float softness, float nippleErection) =>
-            param.SetValue(param.config.Calculate(mass, softness) + 1.25f * nippleErection);
 
         public void SaveOriginalPhysicsAndSetPluginDefaults()
         {
@@ -625,11 +639,11 @@ namespace TittyMagic
                     group.useParentSettings = false;
                 }
 
-                foreach(string name in _breastPhysicsMeshFloatParamNames)
+                foreach(string jsonParamName in _breastPhysicsMeshFloatParamNames)
                 {
-                    var param = _breastPhysicsMesh.GetFloatJSONParam(name);
-                    _originalBreastPhysicsMeshFloats[name] = param.val;
-                    param.val = 0;
+                    var paramJsf = _breastPhysicsMesh.GetFloatJSONParam(jsonParamName);
+                    _originalBreastPhysicsMeshFloats[jsonParamName] = paramJsf.val;
+                    paramJsf.val = 0;
                 }
             }
         }
@@ -645,9 +659,9 @@ namespace TittyMagic
             _breastPhysicsMesh.allowSelfCollision = _originalAllowSelfCollision;
             _breastPhysicsMesh.softVerticesUseAutoColliderRadius = _originalAutoFatColliderRadius;
 
-            foreach(string name in _breastPhysicsMeshFloatParamNames)
+            foreach(string jsonParamName in _breastPhysicsMeshFloatParamNames)
             {
-                _breastPhysicsMesh.GetFloatJSONParam(name).val = _originalBreastPhysicsMeshFloats[name];
+                _breastPhysicsMesh.GetFloatJSONParam(jsonParamName).val = _originalBreastPhysicsMeshFloats[jsonParamName];
             }
 
             foreach(var group in _breastPhysicsMesh.softVerticesGroups)
@@ -711,10 +725,10 @@ namespace TittyMagic
         {
             var texts = new Dictionary<string, string>();
 
-            texts[SOFT_VERTICES_COMBINED_SPRING] =
+            texts[SOFT_VERTICES_SPRING] =
                 $"";
 
-            texts[SOFT_VERTICES_COMBINED_DAMPER] =
+            texts[SOFT_VERTICES_DAMPER] =
                 $"";
 
             texts[SOFT_VERTICES_MASS] =

@@ -170,7 +170,7 @@ namespace TittyMagic
                 _breastMorphListener = new BreastMorphListener(geometry.morphBank1OtherGender.morphs, geometry.morphBank1.morphs);
             }
 
-            forcePhysicsHandler = new ForcePhysicsHandler(this, mainPhysicsHandler, softPhysicsHandler, _trackLeftNipple, _trackRightNipple);
+            forcePhysicsHandler = new ForcePhysicsHandler(this, _trackLeftNipple, _trackRightNipple);
             forceMorphHandler = new ForceMorphHandler(this, _trackLeftNipple, _trackRightNipple);
 
             LoadSettings();
