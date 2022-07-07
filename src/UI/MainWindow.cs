@@ -190,7 +190,7 @@ namespace TittyMagic.UI
         {
             _script.colliderVisualizer.enabled = true;
             _script.colliderVisualizer.ShowPreviewsJSON.val = true;
-            _script.hardColliderHandler.SyncSizeAuto();
+            _script.hardColliderHandler.SyncAllOffsets();
             AddColliderPopupChangeHandler();
         }
 

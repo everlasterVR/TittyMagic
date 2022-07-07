@@ -30,7 +30,7 @@ namespace TittyMagic.Configs
 
         // normalizes to value to [min, max] range and applies scaling func
         public float Scale(float value) =>
-            _offset + _func((value - _min) / (_max - _min));
+            _func((_offset + value - _min) / (_max - _min));
 
         // clamped at lower end, unclamped at upper end
         public float ScaleFromMin(float value)

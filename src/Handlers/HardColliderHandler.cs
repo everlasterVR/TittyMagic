@@ -297,6 +297,19 @@ namespace TittyMagic
             }
         }
 
+        public void SyncAllOffsets()
+        {
+            colliderConfigs.ForEach(config =>
+            {
+                config.UpdateRadius();
+                config.UpdateLength();
+                config.UpdateLookOffset();
+                config.UpdateUpOffset();
+                config.UpdateRightOffset();
+            });
+            SyncSizeAuto();
+        }
+
         public void SyncSizeAuto()
         {
             colliderConfigs.ForEach(config => config.AutoColliderSizeSet());
