@@ -202,8 +202,11 @@ namespace TittyMagic.UI
 
         private void ClearColliderSection()
         {
-            GetColliderSectionSliders().ForEach(slider => Object.Destroy(slider.GetSliderClickMonitor()));
-            _colliderSectionElements.ToList().ForEach(element => _script.RemoveElement(element.Value));
+            GetColliderSectionSliders()
+                .ForEach(slider => Object.Destroy(slider.GetSliderClickMonitor()));
+            _colliderSectionElements
+                .ToList()
+                .ForEach(element => _script.RemoveElement(element.Value));
         }
 
         private void RemoveColliderPopupChangeHandler()
@@ -331,7 +334,7 @@ namespace TittyMagic.UI
         {
             _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
             var slider = _script.CreateSlider(storable, rightSide);
-            slider.valueFormat = "F4";
+            slider.valueFormat = "F2";
             slider.label = "Radius";
             _colliderSectionElements[storable.name] = slider;
         }
@@ -340,7 +343,7 @@ namespace TittyMagic.UI
         {
             _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
             var slider = _script.CreateSlider(storable, rightSide);
-            slider.valueFormat = "F4";
+            slider.valueFormat = "F2";
             slider.label = "Length";
             _colliderSectionElements[storable.name] = slider;
         }
@@ -349,7 +352,7 @@ namespace TittyMagic.UI
         {
             _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
             var slider = _script.CreateSlider(storable, rightSide);
-            slider.valueFormat = "F4";
+            slider.valueFormat = "F2";
             slider.label = "Y Offset";
             _colliderSectionElements[storable.name] = slider;
         }
@@ -358,7 +361,7 @@ namespace TittyMagic.UI
         {
             _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
             var slider = _script.CreateSlider(storable, rightSide);
-            slider.valueFormat = "F4";
+            slider.valueFormat = "F2";
             slider.label = "Z Offset";
             _colliderSectionElements[storable.name] = slider;
         }
@@ -367,7 +370,7 @@ namespace TittyMagic.UI
         {
             _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
             var slider = _script.CreateSlider(storable, rightSide);
-            slider.valueFormat = "F4";
+            slider.valueFormat = "F2";
             slider.label = "X Offset";
             _colliderSectionElements[storable.name] = slider;
         }

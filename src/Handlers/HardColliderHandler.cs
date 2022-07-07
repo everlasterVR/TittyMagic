@@ -108,55 +108,55 @@ namespace TittyMagic
                     "Pectoral1", new Dictionary<string, Scaler>
                     {
                         { COLLIDER_FORCE, new Scaler(0) },
-                        { COLLIDER_RADIUS, new Scaler(0) },
-                        { COLLIDER_LENGTH, new Scaler(0) },
-                        { COLLIDER_CENTER_X, new Scaler(0) },
-                        { COLLIDER_CENTER_Y, new Scaler(0) },
-                        { COLLIDER_CENTER_Z, new Scaler(0) },
+                        { COLLIDER_RADIUS, new Scaler(0, 0, 40) },
+                        { COLLIDER_LENGTH, new Scaler(0, 0, 40) },
+                        { COLLIDER_CENTER_X, new Scaler(0, 0, 40) },
+                        { COLLIDER_CENTER_Y, new Scaler(0, 0, 40) },
+                        { COLLIDER_CENTER_Z, new Scaler(0, 0, 40) },
                     }
                 },
                 {
                     "Pectoral2", new Dictionary<string, Scaler>
                     {
                         { COLLIDER_FORCE, new Scaler(0) },
-                        { COLLIDER_RADIUS, new Scaler(0) },
-                        { COLLIDER_LENGTH, new Scaler(0) },
-                        { COLLIDER_CENTER_X, new Scaler(0) },
-                        { COLLIDER_CENTER_Y, new Scaler(0) },
-                        { COLLIDER_CENTER_Z, new Scaler(0) },
+                        { COLLIDER_RADIUS, new Scaler(0, 0, 40) },
+                        { COLLIDER_LENGTH, new Scaler(0, 0, 40) },
+                        { COLLIDER_CENTER_X, new Scaler(0, 0, 40) },
+                        { COLLIDER_CENTER_Y, new Scaler(0, 0, 40) },
+                        { COLLIDER_CENTER_Z, new Scaler(0, 0, 40) },
                     }
                 },
                 {
                     "Pectoral3", new Dictionary<string, Scaler>
                     {
                         { COLLIDER_FORCE, new Scaler(0) },
-                        { COLLIDER_RADIUS, new Scaler(0) },
-                        { COLLIDER_LENGTH, new Scaler(0) },
-                        { COLLIDER_CENTER_X, new Scaler(0) },
-                        { COLLIDER_CENTER_Y, new Scaler(0) },
-                        { COLLIDER_CENTER_Z, new Scaler(0) },
+                        { COLLIDER_RADIUS, new Scaler(0, 0, 40) },
+                        { COLLIDER_LENGTH, new Scaler(0, 0, 40) },
+                        { COLLIDER_CENTER_X, new Scaler(0, 0, 40) },
+                        { COLLIDER_CENTER_Y, new Scaler(0, 0, 40) },
+                        { COLLIDER_CENTER_Z, new Scaler(0, 0, 40) },
                     }
                 },
                 {
                     "Pectoral4", new Dictionary<string, Scaler>
                     {
                         { COLLIDER_FORCE, new Scaler(0) },
-                        { COLLIDER_RADIUS, new Scaler(0) },
-                        { COLLIDER_LENGTH, new Scaler(0) },
-                        { COLLIDER_CENTER_X, new Scaler(0) },
-                        { COLLIDER_CENTER_Y, new Scaler(0) },
-                        { COLLIDER_CENTER_Z, new Scaler(0) },
+                        { COLLIDER_RADIUS, new Scaler(0, 0, 40) },
+                        { COLLIDER_LENGTH, new Scaler(0, 0, 40) },
+                        { COLLIDER_CENTER_X, new Scaler(0, 0, 40) },
+                        { COLLIDER_CENTER_Y, new Scaler(0, 0, 40) },
+                        { COLLIDER_CENTER_Z, new Scaler(0, 0, 40) },
                     }
                 },
                 {
                     "Pectoral5", new Dictionary<string, Scaler>
                     {
                         { COLLIDER_FORCE, new Scaler(0) },
-                        { COLLIDER_RADIUS, new Scaler(0) },
-                        { COLLIDER_LENGTH, new Scaler(0) },
-                        { COLLIDER_CENTER_X, new Scaler(0) },
-                        { COLLIDER_CENTER_Y, new Scaler(0) },
-                        { COLLIDER_CENTER_Z, new Scaler(0) },
+                        { COLLIDER_RADIUS, new Scaler(0, 0, 40) },
+                        { COLLIDER_LENGTH, new Scaler(0, 0, 40) },
+                        { COLLIDER_CENTER_X, new Scaler(0, 0, 40) },
+                        { COLLIDER_CENTER_Y, new Scaler(0, 0, 40) },
+                        { COLLIDER_CENTER_Z, new Scaler(0, 0, 40) },
                     }
                 },
             };
@@ -180,11 +180,11 @@ namespace TittyMagic
             )
             {
                 forceJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_FORCE, 0.50f, 0.01f, 1.00f),
-                radiusJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_RADIUS, 0, -0.02f, 0.02f),
-                lengthJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_LENGTH, 0, -0.02f, 0.02f),
-                rightJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_X, 0, -0.02f, 0.02f),
-                upJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_Y, 0, -0.02f, 0.02f),
-                lookJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_Z, 0, -0.02f, 0.02f),
+                radiusJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_RADIUS, 0, -1f, 1f),
+                lengthJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_LENGTH, 0, -1f, 1f),
+                rightJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_X, 0, -1f, 1f),
+                upJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_Y, 0, -1f, 1f),
+                lookJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_Z, 0, -1f, 1f),
             };
 
             colliderConfigGroup.forceJsf.setCallbackFunction = _ => SyncHardColliderMass(colliderConfigGroup);
