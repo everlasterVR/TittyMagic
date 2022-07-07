@@ -77,7 +77,11 @@ namespace TittyMagic
                 _script.colliderVisualizer.EditablesJSON.val = value == ALL_OPTION ? "" : value;
                 SyncSizeAuto();
             };
-            _script.colliderVisualizer.GroupsJSON.setJSONCallbackFunction = _ => SyncSizeAuto();
+            _script.colliderVisualizer.GroupsJSON.setJSONCallbackFunction = jsc =>
+            {
+                _script.colliderVisualizer.SelectedPreviewOpacityJSON.val = jsc.val == "Off" ? 0 : 1;
+                SyncSizeAuto();
+            };
             _script.colliderVisualizer.XRayPreviewsJSON.setJSONCallbackFunction = _ => SyncSizeAuto();
 
             baseForceJsf = _script.NewJSONStorableFloat("combinedColliderForce", 0.50f, 0.01f, 1.00f);
