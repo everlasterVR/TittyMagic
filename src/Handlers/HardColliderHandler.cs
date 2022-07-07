@@ -92,20 +92,6 @@ namespace TittyMagic
 
         private void CreateScalingConfigs()
         {
-            // // TODO storables
-            // private const float RADIUS_PECTORAL_1 = 0.89f;
-            // private const float RADIUS_PECTORAL_2 = 0.79f;
-            // private const float RADIUS_PECTORAL_3 = 0.93f;
-            // private const float RADIUS_PECTORAL_4 = 0.79f;
-            // private const float RADIUS_PECTORAL_5 = 0.74f;
-            // private const float LENGTH_PECTORAL_1 = 1.15f;
-            // private const float LENGTH_PECTORAL_2 = 1.25f;
-            // private const float LENGTH_PECTORAL_3 = 0.68f;
-            // private const float LENGTH_PECTORAL_4 = 0.78f;
-            // private const float LENGTH_PECTORAL_5 = 0.79f;
-            // private const float MASS_COMBINED = 1f;
-            // private const float MASS_PECTORAL_1 = 2.5f;
-
             _scalingConfigs = new Dictionary<string, Dictionary<string, Scaler>>
             {
                 {
