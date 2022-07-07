@@ -95,8 +95,8 @@ namespace TittyMagic
 
     internal class PhysicsParameter
     {
-        protected JSONStorableFloat baseValueJsf { get; }
         protected JSONStorableFloat currentValueJsf { get; }
+        protected JSONStorableFloat baseValueJsf { get; }
 
         public bool dependOnPhysicsRate { get; set; }
 
@@ -109,17 +109,17 @@ namespace TittyMagic
 
         public Dictionary<string, SoftGroupPhysicsParameter> groupMultiplierParams { get; set; }
 
-        public PhysicsParameter(JSONStorableFloat baseValueJsf)
+        public PhysicsParameter(JSONStorableFloat currentValueJsf)
         {
-            this.baseValueJsf = baseValueJsf;
-            currentValueJsf = new JSONStorableFloat(baseValueJsf.name.Replace("Base", "Current"), 0, baseValueJsf.min, baseValueJsf.max);
+            this.currentValueJsf = currentValueJsf;
+            baseValueJsf = new JSONStorableFloat(Intl.BASE_VALUE, 0, currentValueJsf.min, currentValueJsf.max);
         }
 
         public void UpdateValue(float massValue, float softness, float quickness)
         {
             float value = NewBaseValue(massValue, softness, quickness);
-            baseValueJsf?.SetVal(value);
             currentValueJsf?.SetVal(value);
+            baseValueJsf?.SetVal(value);
             sync(value);
 
             if(groupMultiplierParams != null)
@@ -172,8 +172,8 @@ namespace TittyMagic
             }
             else
             {
-                baseValueJsf?.SetVal(value);
                 currentValueJsf?.SetVal(value);
+                baseValueJsf?.SetVal(value);
                 sync(value);
             }
         }
@@ -215,18 +215,18 @@ namespace TittyMagic
 
         private void AddValue(float value)
         {
-            if(currentValueJsf == null)
+            if(baseValueJsf == null)
             {
                 throw new Exception("currentValueJsf must not be null for a PhysicsParameter updated with AddValue");
             }
 
             float newCurrentValue = value;
-            if(baseValueJsf != null)
+            if(currentValueJsf != null)
             {
-                newCurrentValue += baseValueJsf.val;
+                newCurrentValue += currentValueJsf.val;
             }
 
-            currentValueJsf.val = newCurrentValue;
+            baseValueJsf.val = newCurrentValue;
             sync(newCurrentValue);
         }
 
@@ -259,16 +259,16 @@ namespace TittyMagic
 
     internal class SoftGroupPhysicsParameter : PhysicsParameter
     {
-        public SoftGroupPhysicsParameter(JSONStorableFloat baseValueJsf)
-            : base(baseValueJsf)
+        public SoftGroupPhysicsParameter(JSONStorableFloat currentValueJsf)
+            : base(currentValueJsf)
         {
         }
 
         public new void UpdateNippleValue(float massValue, float softness, float nippleErection)
         {
             float value = NewNippleValue(massValue, softness, nippleErection);
-            baseValueJsf?.SetVal(value);
             currentValueJsf?.SetVal(value);
+            baseValueJsf?.SetVal(value);
             sync(value);
         }
 

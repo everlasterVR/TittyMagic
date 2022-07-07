@@ -5,6 +5,8 @@ using System.Linq;
 using SimpleJSON;
 using TittyMagic.Configs;
 using static TittyMagic.ParamName;
+using static TittyMagic.SoftColliderGroup;
+using static TittyMagic.Intl;
 
 namespace TittyMagic
 {
@@ -36,6 +38,8 @@ namespace TittyMagic
         private float _baseSpringRight;
         private float _baseDamperLeft;
         private float _baseDamperRight;
+        private float _baseMassLeft;
+        private float _baseMassRight;
 
         public SoftPhysicsHandler(MVRScript script)
         {
@@ -78,8 +82,10 @@ namespace TittyMagic
             parameterGroups.ForEach(param => param.Value.infoText = texts[param.Key]);
         }
 
+        #region *** Parameter setup ***
+
         private SoftGroupPhysicsParameter NewMainSpringParameter(bool left) =>
-            new SoftGroupPhysicsParameter(new JSONStorableFloat("Main Base Value", 0, 0, 5))
+            new SoftGroupPhysicsParameter(new JSONStorableFloat($"{MAIN} {MULTIPLIER}", 0, 0, 5))
             {
                 config = new StaticPhysicsConfig(5f, 5f, 1f),
                 sync = left
@@ -88,7 +94,7 @@ namespace TittyMagic
             };
 
         private SoftGroupPhysicsParameter NewOuterSpringParameter(bool left) =>
-            new SoftGroupPhysicsParameter(new JSONStorableFloat("Outer Base Value", 0, 0, 5))
+            new SoftGroupPhysicsParameter(new JSONStorableFloat($"{OUTER} {MULTIPLIER}", 0, 0, 5))
             {
                 config = new StaticPhysicsConfig(5f, 5f, 1f),
                 sync = left
@@ -97,7 +103,7 @@ namespace TittyMagic
             };
 
         private SoftGroupPhysicsParameter NewAreolaSpringParameter(bool left) =>
-            new SoftGroupPhysicsParameter(new JSONStorableFloat("Areola Base Value", 0, 0, 5))
+            new SoftGroupPhysicsParameter(new JSONStorableFloat($"{AREOLA} {MULTIPLIER}", 0, 0, 5))
             {
                 config = new StaticPhysicsConfig(2.29f, 1.30f, 2.29f),
                 sync = left
@@ -106,7 +112,7 @@ namespace TittyMagic
             };
 
         private SoftGroupPhysicsParameter NewNippleSpringParameter(bool left) =>
-            new SoftGroupPhysicsParameter(new JSONStorableFloat("Nipple Base Value", 0, 0, 5))
+            new SoftGroupPhysicsParameter(new JSONStorableFloat($"{NIPPLE} {MULTIPLIER}", 0, 0, 5))
             {
                 config = new StaticPhysicsConfig(2.29f, 1.30f, 2.29f),
                 sync = left
@@ -115,7 +121,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewSpringParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 500))
+            new PhysicsParameter(new JSONStorableFloat(CURRENT_VALUE, 0, 0, 500))
             {
                 config = new StaticPhysicsConfig(500f, 500f, 62f),
                 sync = left
@@ -123,15 +129,15 @@ namespace TittyMagic
                     : (Action<float>) (value => _baseSpringRight = value),
                 groupMultiplierParams = new Dictionary<string, SoftGroupPhysicsParameter>
                 {
-                    { SoftColliderGroup.MAIN, NewMainSpringParameter(left) },
-                    { SoftColliderGroup.OUTER, NewOuterSpringParameter(left) },
-                    { SoftColliderGroup.AREOLA, NewAreolaSpringParameter(left) },
-                    { SoftColliderGroup.NIPPLE, NewNippleSpringParameter(left) },
+                    { MAIN, NewMainSpringParameter(left) },
+                    { OUTER, NewOuterSpringParameter(left) },
+                    { AREOLA, NewAreolaSpringParameter(left) },
+                    { NIPPLE, NewNippleSpringParameter(left) },
                 },
             };
 
         private SoftGroupPhysicsParameter NewMainDamperParameter(bool left) =>
-            new SoftGroupPhysicsParameter(new JSONStorableFloat("Main Base Value", 0, 0, 5))
+            new SoftGroupPhysicsParameter(new JSONStorableFloat($"{MAIN} {MULTIPLIER}", 0, 0, 5))
             {
                 config = new StaticPhysicsConfig(1f, 1f, 1f),
                 sync = left
@@ -140,7 +146,7 @@ namespace TittyMagic
             };
 
         private SoftGroupPhysicsParameter NewOuterDamperParameter(bool left) =>
-            new SoftGroupPhysicsParameter(new JSONStorableFloat("Outer Base Value", 0, 0, 5))
+            new SoftGroupPhysicsParameter(new JSONStorableFloat($"{OUTER} {MULTIPLIER}", 0, 0, 5))
             {
                 config = new StaticPhysicsConfig(1f, 1f, 1f),
                 sync = left
@@ -149,7 +155,7 @@ namespace TittyMagic
             };
 
         private SoftGroupPhysicsParameter NewAreolaDamperParameter(bool left) =>
-            new SoftGroupPhysicsParameter(new JSONStorableFloat("Areola Base Value", 0, 0, 5))
+            new SoftGroupPhysicsParameter(new JSONStorableFloat($"{AREOLA} {MULTIPLIER}", 0, 0, 5))
             {
                 config = new StaticPhysicsConfig(1.81f, 1.22f, 1.81f),
                 sync = left
@@ -158,7 +164,7 @@ namespace TittyMagic
             };
 
         private SoftGroupPhysicsParameter NewNippleDamperParameter(bool left) =>
-            new SoftGroupPhysicsParameter(new JSONStorableFloat("Nipple Base Value", 0, 0, 5))
+            new SoftGroupPhysicsParameter(new JSONStorableFloat($"{NIPPLE} {MULTIPLIER}", 0, 0, 5))
             {
                 config = new StaticPhysicsConfig(1.81f, 1.22f, 1.81f),
                 sync = left
@@ -167,7 +173,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewDamperParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 10))
+            new PhysicsParameter(new JSONStorableFloat(CURRENT_VALUE, 0, 0, 10))
             {
                 config = new StaticPhysicsConfig(10.0f, 10.0f, 0.90f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(-0.75f, -0.90f, -0.45f),
@@ -177,26 +183,69 @@ namespace TittyMagic
                     : (Action<float>) (value => _baseDamperRight = value),
                 groupMultiplierParams = new Dictionary<string, SoftGroupPhysicsParameter>
                 {
-                    { SoftColliderGroup.MAIN, NewMainDamperParameter(left) },
-                    { SoftColliderGroup.OUTER, NewOuterDamperParameter(left) },
-                    { SoftColliderGroup.AREOLA, NewAreolaDamperParameter(left) },
-                    { SoftColliderGroup.NIPPLE, NewNippleDamperParameter(left) },
+                    { MAIN, NewMainDamperParameter(left) },
+                    { OUTER, NewOuterDamperParameter(left) },
+                    { AREOLA, NewAreolaDamperParameter(left) },
+                    { NIPPLE, NewNippleDamperParameter(left) },
                 },
             };
 
+        private SoftGroupPhysicsParameter NewMainSoftVerticesMassParameter(bool left) =>
+            new SoftGroupPhysicsParameter(new JSONStorableFloat($"{MAIN} {MULTIPLIER}", 1, 0, 2))
+            {
+                config = new StaticPhysicsConfig(1f, 1f, 1f),
+                sync = left
+                    ? (Action<float>) (value => SyncGroupMassMultiplier(value, _baseMassLeft, _mainLeft))
+                    : (Action<float>) (value => SyncGroupMassMultiplier(value, _baseMassRight, _mainRight)),
+            };
+
+        private SoftGroupPhysicsParameter NewOuterSoftVerticesMassParameter(bool left) =>
+            new SoftGroupPhysicsParameter(new JSONStorableFloat($"{OUTER} {MULTIPLIER}", 1, 0, 2))
+            {
+                config = new StaticPhysicsConfig(1f, 1f, 1f),
+                sync = left
+                    ? (Action<float>) (value => SyncGroupMassMultiplier(value, _baseMassLeft, _outerLeft))
+                    : (Action<float>) (value => SyncGroupMassMultiplier(value, _baseMassRight, _outerRight)),
+            };
+
+        private SoftGroupPhysicsParameter NewAreolaSoftVerticesMassParameter(bool left) =>
+            new SoftGroupPhysicsParameter(new JSONStorableFloat($"{AREOLA} {MULTIPLIER}", 1, 0, 2))
+            {
+                config = new StaticPhysicsConfig(1f, 1f, 1f),
+                sync = left
+                    ? (Action<float>) (value => SyncGroupMassMultiplier(value, _baseMassLeft, _areolaLeft))
+                    : (Action<float>) (value => SyncGroupMassMultiplier(value, _baseMassRight, _areolaRight)),
+            };
+
+        private SoftGroupPhysicsParameter NewNippleSoftVerticesMassParameter(bool left) =>
+            new SoftGroupPhysicsParameter(new JSONStorableFloat($"{NIPPLE} {MULTIPLIER}", 1, 0, 2))
+            {
+                config = new StaticPhysicsConfig(1f, 1f, 1f),
+                sync = left
+                    ? (Action<float>) (value => SyncGroupMassMultiplier(value, _baseMassLeft, _nippleLeft))
+                    : (Action<float>) (value => SyncGroupMassMultiplier(value, _baseMassRight, _nippleRight)),
+            };
+
         private PhysicsParameter NewSoftVerticesMassParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0.05f, 0.5f))
+            new PhysicsParameter(new JSONStorableFloat(CURRENT_VALUE, 0, 0.05f, 0.5f))
             {
                 config = new StaticPhysicsConfig(0.050f, 0.130f, 0.085f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(0.000f, -0.048f, -0.028f),
                 slownessOffsetConfig = new StaticPhysicsConfig(0.012f, 0.060f, 0.040f),
                 sync = left
-                    ? (Action<float>) SyncMassLeft
-                    : (Action<float>) SyncMassRight,
+                    ? (Action<float>) (value => _baseMassLeft = value)
+                    : (Action<float>) (value => _baseMassRight = value),
+                groupMultiplierParams = new Dictionary<string, SoftGroupPhysicsParameter>
+                {
+                    { MAIN, NewMainSoftVerticesMassParameter(left) },
+                    { OUTER, NewOuterSoftVerticesMassParameter(left) },
+                    { AREOLA, NewAreolaSoftVerticesMassParameter(left) },
+                    { NIPPLE, NewNippleSoftVerticesMassParameter(left) },
+                },
             };
 
         private PhysicsParameter NewColliderRadiusParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 0.07f))
+            new PhysicsParameter(new JSONStorableFloat(CURRENT_VALUE, 0, 0, 0.07f))
             {
                 config = new StaticPhysicsConfig(0.024f, 0.037f, 0.028f),
                 sync = left
@@ -205,7 +254,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewColliderAdditionalNormalOffsetParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, -0.01f, 0.01f))
+            new PhysicsParameter(new JSONStorableFloat(CURRENT_VALUE, 0, -0.01f, 0.01f))
             {
                 config = new StaticPhysicsConfig(0.001f, 0.001f, 0.001f),
                 sync = left
@@ -214,7 +263,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewDistanceLimitParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 0.1f))
+            new PhysicsParameter(new JSONStorableFloat(CURRENT_VALUE, 0, 0, 0.1f))
             {
                 config = new StaticPhysicsConfig(0.020f, 0.068f, 0.028f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(0.000f, 0.000f, 0.024f),
@@ -225,7 +274,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewBackForceParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 50))
+            new PhysicsParameter(new JSONStorableFloat(CURRENT_VALUE, 0, 0, 50))
             {
                 config = new StaticPhysicsConfig(50f, 55.6f, 9.3f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(-2.6f, -4f, -2.33f),
@@ -236,7 +285,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewBackForceMaxForceParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 50))
+            new PhysicsParameter(new JSONStorableFloat(CURRENT_VALUE, 0, 0, 50))
             {
                 config = new StaticPhysicsConfig(50f, 50f, 50f),
                 sync = left
@@ -245,7 +294,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewBackForceThresholdDistanceParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 0.030f))
+            new PhysicsParameter(new JSONStorableFloat(CURRENT_VALUE, 0, 0, 0.030f))
             {
                 config = new StaticPhysicsConfig(0f, 0f, 0f),
                 sync = left
@@ -262,8 +311,8 @@ namespace TittyMagic
                 "F2"
             );
             softVerticesSpring.SetLinearCurvesAroundMidpoint(null, slope: 0.41f);
-            softVerticesSpring.SetLinearCurvesAroundMidpoint(SoftColliderGroup.MAIN, slope: 0);
-            softVerticesSpring.SetLinearCurvesAroundMidpoint(SoftColliderGroup.OUTER, slope: 0);
+            softVerticesSpring.SetLinearCurvesAroundMidpoint(MAIN, slope: 0);
+            softVerticesSpring.SetLinearCurvesAroundMidpoint(OUTER, slope: 0);
 
             var softVerticesDamper = new PhysicsParameterGroup(
                 NewDamperParameter(true),
@@ -346,21 +395,9 @@ namespace TittyMagic
             };
         }
 
-        private void SyncMassLeft(float value)
-        {
-            _mainLeft.jointMass = value;
-            _outerLeft.jointMass = value;
-            _areolaLeft.jointMass = value;
-            _nippleLeft.jointMass = value;
-        }
+        #endregion *** Parameter setup ***
 
-        private void SyncMassRight(float value)
-        {
-            _mainRight.jointMass = value;
-            _outerRight.jointMass = value;
-            _areolaRight.jointMass = value;
-            _nippleRight.jointMass = value;
-        }
+        #region *** Sync functions ***
 
         private void SyncBackForceLeft(float value)
         {
@@ -480,11 +517,7 @@ namespace TittyMagic
 
         // Reimplements DAZPhysicsMesh.cs methods SyncGroup[A|B|C|D]SpringMultiplier and SyncSoftVerticesCombinedSpring
         // Circumvents use of softVerticesCombinedSpring value as multiplier on the group specific value, using custom multiplier instead
-        private static void SyncGroupSpringMultiplier(
-            float multiplier,
-            float baseSpring,
-            DAZPhysicsMeshSoftVerticesGroup group
-        )
+        private static void SyncGroupSpringMultiplier(float multiplier, float baseSpring, DAZPhysicsMeshSoftVerticesGroup group)
         {
             float spring = baseSpring * multiplier;
             group.jointSpringNormal = spring;
@@ -498,11 +531,7 @@ namespace TittyMagic
 
         // Reimplements DAZPhysicsMesh.cs methods SyncGroup[A|B|C|D]DamperMultiplier and SyncSoftVerticesCombinedDamper
         // Circumvents use of softVerticesCombinedDamper value as multiplier on the group specific value, using custom multiplier instead
-        private static void SyncGroupDamperMultiplier(
-            float multiplier,
-            float baseDamper,
-            DAZPhysicsMeshSoftVerticesGroup group
-        )
+        private static void SyncGroupDamperMultiplier(float multiplier, float baseDamper, DAZPhysicsMeshSoftVerticesGroup group)
         {
             float damper = baseDamper * multiplier;
             group.jointDamperNormal = damper;
@@ -512,6 +541,11 @@ namespace TittyMagic
             {
                 group.linkDamper = damper;
             }
+        }
+
+        private static void SyncGroupMassMultiplier(float multiplier, float baseMass, DAZPhysicsMeshSoftVerticesGroup group)
+        {
+            group.jointMass = baseMass * multiplier;
         }
 
         public void ReverseSyncSoftPhysicsOn()
@@ -559,6 +593,8 @@ namespace TittyMagic
 
             _breastPhysicsMesh.allowSelfCollision = value;
         }
+
+        #endregion *** Sync functions ***
 
         public void UpdatePhysics(
             float massAmount,
