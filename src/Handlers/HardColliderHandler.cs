@@ -108,55 +108,55 @@ namespace TittyMagic
                     "Pectoral1", new Dictionary<string, Scaler>
                     {
                         { COLLIDER_FORCE, new Scaler(0) },
-                        { COLLIDER_RADIUS, new Scaler(0, 0, 40) },
-                        { COLLIDER_LENGTH, new Scaler(0, 0, 40) },
-                        { COLLIDER_CENTER_X, new Scaler(0, 0, 40) },
-                        { COLLIDER_CENTER_Y, new Scaler(0, 0, 40) },
-                        { COLLIDER_CENTER_Z, new Scaler(0, 0, 40) },
+                        { COLLIDER_RADIUS, new Scaler(-0.34f, 0, 40) },
+                        { COLLIDER_LENGTH, new Scaler(0.38f, 0, 40) },
+                        { COLLIDER_CENTER_X, new Scaler(-0.43f, 0, 40) },
+                        { COLLIDER_CENTER_Y, new Scaler(0.23f, 0, 40) },
+                        { COLLIDER_CENTER_Z, new Scaler(-0.40f, 0, 40) },
                     }
                 },
                 {
                     "Pectoral2", new Dictionary<string, Scaler>
                     {
                         { COLLIDER_FORCE, new Scaler(0) },
-                        { COLLIDER_RADIUS, new Scaler(0, 0, 40) },
-                        { COLLIDER_LENGTH, new Scaler(0, 0, 40) },
-                        { COLLIDER_CENTER_X, new Scaler(0, 0, 40) },
-                        { COLLIDER_CENTER_Y, new Scaler(0, 0, 40) },
-                        { COLLIDER_CENTER_Z, new Scaler(0, 0, 40) },
+                        { COLLIDER_RADIUS, new Scaler(0.03f, 0, 40) },
+                        { COLLIDER_LENGTH, new Scaler(0.20f, 0, 40) },
+                        { COLLIDER_CENTER_X, new Scaler(0.37f, 0, 40) },
+                        { COLLIDER_CENTER_Y, new Scaler(0.25f, 0, 40) },
+                        { COLLIDER_CENTER_Z, new Scaler(-0.82f, 0, 40) },
                     }
                 },
                 {
                     "Pectoral3", new Dictionary<string, Scaler>
                     {
                         { COLLIDER_FORCE, new Scaler(0) },
-                        { COLLIDER_RADIUS, new Scaler(0, 0, 40) },
-                        { COLLIDER_LENGTH, new Scaler(0, 0, 40) },
-                        { COLLIDER_CENTER_X, new Scaler(0, 0, 40) },
-                        { COLLIDER_CENTER_Y, new Scaler(0, 0, 40) },
-                        { COLLIDER_CENTER_Z, new Scaler(0, 0, 40) },
+                        { COLLIDER_RADIUS, new Scaler(-0.12f, 0, 40) },
+                        { COLLIDER_LENGTH, new Scaler(-0.16f, 0, 40) },
+                        { COLLIDER_CENTER_X, new Scaler(0.13f, 0, 40) },
+                        { COLLIDER_CENTER_Y, new Scaler(0.13f, 0, 40) },
+                        { COLLIDER_CENTER_Z, new Scaler(-0.20f, 0, 40) },
                     }
                 },
                 {
                     "Pectoral4", new Dictionary<string, Scaler>
                     {
                         { COLLIDER_FORCE, new Scaler(0) },
-                        { COLLIDER_RADIUS, new Scaler(0, 0, 40) },
-                        { COLLIDER_LENGTH, new Scaler(0, 0, 40) },
-                        { COLLIDER_CENTER_X, new Scaler(0, 0, 40) },
-                        { COLLIDER_CENTER_Y, new Scaler(0, 0, 40) },
-                        { COLLIDER_CENTER_Z, new Scaler(0, 0, 40) },
+                        { COLLIDER_RADIUS, new Scaler(-0.26f, 0, 40) },
+                        { COLLIDER_LENGTH, new Scaler(-0.63f, 0, 40) },
+                        { COLLIDER_CENTER_X, new Scaler(-0.39f, 0, 40) },
+                        { COLLIDER_CENTER_Y, new Scaler(0.05f, 0, 40) },
+                        { COLLIDER_CENTER_Z, new Scaler(-0.53f, 0, 40) },
                     }
                 },
                 {
                     "Pectoral5", new Dictionary<string, Scaler>
                     {
                         { COLLIDER_FORCE, new Scaler(0) },
-                        { COLLIDER_RADIUS, new Scaler(0, 0, 40) },
-                        { COLLIDER_LENGTH, new Scaler(0, 0, 40) },
-                        { COLLIDER_CENTER_X, new Scaler(0, 0, 40) },
-                        { COLLIDER_CENTER_Y, new Scaler(0, 0, 40) },
-                        { COLLIDER_CENTER_Z, new Scaler(0, 0, 40) },
+                        { COLLIDER_RADIUS, new Scaler(-0.96f, 0, 40) },
+                        { COLLIDER_LENGTH, new Scaler(-0.19f, 0, 40) },
+                        { COLLIDER_CENTER_X, new Scaler(-0.40f, 0, 40) },
+                        { COLLIDER_CENTER_Y, new Scaler(0.59f, 0, 40) },
+                        { COLLIDER_CENTER_Z, new Scaler(-0.17f, 0, 40) },
                     }
                 },
             };
