@@ -16,18 +16,22 @@ namespace TittyMagic
         private bool _originalUseAuxBreastColliders;
 
         public JSONStorableStringChooser colliderGroupsJsc { get; private set; }
-
         public JSONStorableBool enabledJsb { get; private set; }
-
         public List<ColliderConfigGroup> colliderConfigs { get; private set; }
-
         public JSONStorableFloat baseForceJsf { get; private set; }
 
-        private bool _combinedSyncInProgress;
+        private Dictionary<string, Dictionary<string, Scaler>> _scalingConfigs;
+
+        private const string COLLIDER_FORCE = "ColliderForce";
+        private const string COLLIDER_RADIUS = "ColliderRadius";
+        private const string COLLIDER_LENGTH = "ColliderLength";
+        private const string COLLIDER_CENTER_X = "ColliderCenterX";
+        private const string COLLIDER_CENTER_Y = "ColliderCenterY";
+        private const string COLLIDER_CENTER_Z = "ColliderCenterZ";
 
         public const string ALL_OPTION = "All";
 
-        private Dictionary<string, Dictionary<string, float>> _defaultBaseValues;
+        private bool _combinedSyncInProgress;
 
         public void Init()
         {
@@ -46,7 +50,7 @@ namespace TittyMagic
                 return;
             }
 
-            CreateDefaultBaseValuesDictionary();
+            CreateScalingConfigs();
             colliderConfigs = new List<ColliderConfigGroup>
             {
                 NewColliderConfigGroup("Pectoral1"),
@@ -82,7 +86,7 @@ namespace TittyMagic
             SyncUseHardColliders(enabledJsb.val);
         }
 
-        private void CreateDefaultBaseValuesDictionary()
+        private void CreateScalingConfigs()
         {
             // // TODO storables
             // private const float RADIUS_PECTORAL_1 = 0.89f;
@@ -98,61 +102,61 @@ namespace TittyMagic
             // private const float MASS_COMBINED = 1f;
             // private const float MASS_PECTORAL_1 = 2.5f;
 
-            _defaultBaseValues = new Dictionary<string, Dictionary<string, float>>
+            _scalingConfigs = new Dictionary<string, Dictionary<string, Scaler>>
             {
                 {
-                    "Pectoral1", new Dictionary<string, float>
+                    "Pectoral1", new Dictionary<string, Scaler>
                     {
-                        { "ColliderForce", 1 },
-                        { "ColliderRadius", 0 },
-                        { "ColliderLength", 0 },
-                        { "ColliderCenterX", 0 },
-                        { "ColliderCenterY", 0 },
-                        { "ColliderCenterZ", 0 },
+                        { COLLIDER_FORCE, new Scaler(0) },
+                        { COLLIDER_RADIUS, new Scaler(0) },
+                        { COLLIDER_LENGTH, new Scaler(0) },
+                        { COLLIDER_CENTER_X, new Scaler(0) },
+                        { COLLIDER_CENTER_Y, new Scaler(0) },
+                        { COLLIDER_CENTER_Z, new Scaler(0) },
                     }
                 },
                 {
-                    "Pectoral2", new Dictionary<string, float>
+                    "Pectoral2", new Dictionary<string, Scaler>
                     {
-                        { "ColliderForce", 1 },
-                        { "ColliderRadius", 0 },
-                        { "ColliderLength", 0 },
-                        { "ColliderCenterX", 0 },
-                        { "ColliderCenterY", 0 },
-                        { "ColliderCenterZ", 0 },
+                        { COLLIDER_FORCE, new Scaler(0) },
+                        { COLLIDER_RADIUS, new Scaler(0) },
+                        { COLLIDER_LENGTH, new Scaler(0) },
+                        { COLLIDER_CENTER_X, new Scaler(0) },
+                        { COLLIDER_CENTER_Y, new Scaler(0) },
+                        { COLLIDER_CENTER_Z, new Scaler(0) },
                     }
                 },
                 {
-                    "Pectoral3", new Dictionary<string, float>
+                    "Pectoral3", new Dictionary<string, Scaler>
                     {
-                        { "ColliderForce", 1 },
-                        { "ColliderRadius", 0 },
-                        { "ColliderLength", 0 },
-                        { "ColliderCenterX", 0 },
-                        { "ColliderCenterY", 0 },
-                        { "ColliderCenterZ", 0 },
+                        { COLLIDER_FORCE, new Scaler(0) },
+                        { COLLIDER_RADIUS, new Scaler(0) },
+                        { COLLIDER_LENGTH, new Scaler(0) },
+                        { COLLIDER_CENTER_X, new Scaler(0) },
+                        { COLLIDER_CENTER_Y, new Scaler(0) },
+                        { COLLIDER_CENTER_Z, new Scaler(0) },
                     }
                 },
                 {
-                    "Pectoral4", new Dictionary<string, float>
+                    "Pectoral4", new Dictionary<string, Scaler>
                     {
-                        { "ColliderForce", 1 },
-                        { "ColliderRadius", 0 },
-                        { "ColliderLength", 0 },
-                        { "ColliderCenterX", 0 },
-                        { "ColliderCenterY", 0 },
-                        { "ColliderCenterZ", 0 },
+                        { COLLIDER_FORCE, new Scaler(0) },
+                        { COLLIDER_RADIUS, new Scaler(0) },
+                        { COLLIDER_LENGTH, new Scaler(0) },
+                        { COLLIDER_CENTER_X, new Scaler(0) },
+                        { COLLIDER_CENTER_Y, new Scaler(0) },
+                        { COLLIDER_CENTER_Z, new Scaler(0) },
                     }
                 },
                 {
-                    "Pectoral5", new Dictionary<string, float>
+                    "Pectoral5", new Dictionary<string, Scaler>
                     {
-                        { "ColliderForce", 1 },
-                        { "ColliderRadius", 0 },
-                        { "ColliderLength", 0 },
-                        { "ColliderCenterX", 0 },
-                        { "ColliderCenterY", 0 },
-                        { "ColliderCenterZ", 0 },
+                        { COLLIDER_FORCE, new Scaler(0) },
+                        { COLLIDER_RADIUS, new Scaler(0) },
+                        { COLLIDER_LENGTH, new Scaler(0) },
+                        { COLLIDER_CENTER_X, new Scaler(0) },
+                        { COLLIDER_CENTER_Y, new Scaler(0) },
+                        { COLLIDER_CENTER_Z, new Scaler(0) },
                     }
                 },
             };
@@ -162,42 +166,33 @@ namespace TittyMagic
         {
             var configLeft = NewColliderConfig("l" + id);
             var configRight = NewColliderConfig("r" + id);
-            var defaultBaseValues = _defaultBaseValues[id];
+            var scalingConfig = _scalingConfigs[id];
             var colliderConfigGroup = new ColliderConfigGroup(
                 id,
                 configLeft,
                 configRight,
-                defaultBaseValues["ColliderForce"],
-                defaultBaseValues["ColliderRadius"],
-                defaultBaseValues["ColliderLength"],
-                defaultBaseValues["ColliderCenterX"],
-                defaultBaseValues["ColliderCenterY"],
-                defaultBaseValues["ColliderCenterZ"]
-            );
+                scalingConfig[COLLIDER_FORCE],
+                scalingConfig[COLLIDER_RADIUS],
+                scalingConfig[COLLIDER_LENGTH],
+                scalingConfig[COLLIDER_CENTER_X],
+                scalingConfig[COLLIDER_CENTER_Y],
+                scalingConfig[COLLIDER_CENTER_Z]
+            )
+            {
+                forceJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_FORCE, 0.50f, 0.01f, 1.00f),
+                radiusJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_RADIUS, 0, -0.02f, 0.02f),
+                lengthJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_LENGTH, 0, -0.02f, 0.02f),
+                rightJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_X, 0, -0.02f, 0.02f),
+                upJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_Y, 0, -0.02f, 0.02f),
+                lookJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_Z, 0, -0.02f, 0.02f),
+            };
 
-            var forceJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderForce", 0.50f, 0.01f, 1.00f);
-            forceJsf.setCallbackFunction = _ => SyncHardColliderMass(colliderConfigGroup);
-            colliderConfigGroup.forceJsf = forceJsf;
-
-            var radiusJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderRadius", 0, -0.02f, 0.02f);
-            radiusJsf.setCallbackFunction = _ => SyncHardColliderRadius(colliderConfigGroup);
-            colliderConfigGroup.radiusJsf = radiusJsf;
-
-            var lengthJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderLength", 0, -0.02f, 0.02f);
-            lengthJsf.setCallbackFunction = _ => SyncHardColliderLength(colliderConfigGroup);
-            colliderConfigGroup.lengthJsf = lengthJsf;
-
-            var centerXJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderCenterX", 0, -0.02f, 0.02f);
-            var centerYJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderCenterY", 0, -0.02f, 0.02f);
-            var centerZJsf = _script.NewJSONStorableFloat($"{id.ToLower()}ColliderCenterZ", 0, -0.02f, 0.02f);
-
-            centerXJsf.setCallbackFunction = _ => SyncHardColliderRightOffset(colliderConfigGroup);
-            centerYJsf.setCallbackFunction = _ => SyncHardColliderUpOffset(colliderConfigGroup);
-            centerZJsf.setCallbackFunction = _ => SyncHardColliderLookOffset(colliderConfigGroup);
-
-            colliderConfigGroup.rightJsf = centerXJsf;
-            colliderConfigGroup.upJsf = centerYJsf;
-            colliderConfigGroup.lookJsf = centerZJsf;
+            colliderConfigGroup.forceJsf.setCallbackFunction = _ => SyncHardColliderMass(colliderConfigGroup);
+            colliderConfigGroup.radiusJsf.setCallbackFunction = _ => SyncHardColliderRadius(colliderConfigGroup);
+            colliderConfigGroup.lengthJsf.setCallbackFunction = _ => SyncHardColliderLength(colliderConfigGroup);
+            colliderConfigGroup.rightJsf.setCallbackFunction = _ => SyncHardColliderRightOffset(colliderConfigGroup);
+            colliderConfigGroup.upJsf.setCallbackFunction = _ => SyncHardColliderUpOffset(colliderConfigGroup);
+            colliderConfigGroup.lookJsf.setCallbackFunction = _ => SyncHardColliderLookOffset(colliderConfigGroup);
 
             return colliderConfigGroup;
         }
