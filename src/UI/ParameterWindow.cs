@@ -36,16 +36,9 @@ namespace TittyMagic.UI
             CreateTitle(false);
             elements["headerMargin"] = _script.NewSpacer(20);
 
-            foreach(var kvp in _parameterGroup.valueJsfs)
+            foreach(var storable in _parameterGroup.currentValueStorables)
             {
-                if(kvp.Key.EndsWith("Base") && kvp.Value != null)
-                {
-                    CreateBaseValueSlider(kvp.Value, _parameterGroup.valueFormat, false);
-                }
-                else if(kvp.Key.EndsWith("Curr") && kvp.Value != null)
-                {
-                    CreateCurrentValueSlider(kvp.Value, _parameterGroup.valueFormat, false);
-                }
+                CreateCurrentValueSlider(storable, _parameterGroup.valueFormat, false);
             }
         }
 
@@ -65,18 +58,6 @@ namespace TittyMagic.UI
         }
 
         private void CreateCurrentValueSlider(JSONStorableFloat storable, string valueFormat, bool rightSide, int spacing = 0)
-        {
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var slider = _script.CreateSlider(storable, rightSide);
-            slider.valueFormat = valueFormat;
-            slider.slider.interactable = false;
-            slider.quickButtonsEnabled = false;
-            slider.defaultButtonEnabled = false;
-            elements[storable.name] = slider;
-        }
-
-        private void CreateBaseValueSlider(JSONStorableFloat storable, string valueFormat, bool rightSide, int spacing = 0)
         {
             AddSpacer(storable.name, spacing, rightSide);
 

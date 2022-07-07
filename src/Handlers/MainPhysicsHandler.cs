@@ -6,7 +6,6 @@ using SimpleJSON;
 using TittyMagic.Configs;
 using UnityEngine;
 using static TittyMagic.ParamName;
-using static TittyMagic.Utils;
 
 namespace TittyMagic
 {
@@ -155,7 +154,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewTargetRotationYParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, -20, 20), currentValueJsf: null)
+            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, -20, 20))
             {
                 sync = left
                     ? (Action<float>) SyncTargetRotationYLeft
@@ -163,7 +162,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewTargetRotationXParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, -20, 20), currentValueJsf: null)
+            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, -20, 20))
             {
                 sync = left
                     ? (Action<float>) SyncTargetRotationXLeft

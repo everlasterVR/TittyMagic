@@ -5,7 +5,6 @@ using System.Linq;
 using SimpleJSON;
 using TittyMagic.Configs;
 using static TittyMagic.ParamName;
-using static TittyMagic.Utils;
 
 namespace TittyMagic
 {
@@ -132,7 +131,7 @@ namespace TittyMagic
             };
 
         private SoftGroupPhysicsParameter NewMainDamperParameter(bool left) =>
-            new SoftGroupPhysicsParameter(new JSONStorableFloat("Main Base Value", 0, 0, 5), currentValueJsf: null)
+            new SoftGroupPhysicsParameter(new JSONStorableFloat("Main Base Value", 0, 0, 5))
             {
                 config = new StaticPhysicsConfig(1f, 1f, 1f),
                 sync = left
@@ -141,7 +140,7 @@ namespace TittyMagic
             };
 
         private SoftGroupPhysicsParameter NewOuterDamperParameter(bool left) =>
-            new SoftGroupPhysicsParameter(new JSONStorableFloat("Outer Base Value", 0, 0, 5), currentValueJsf: null)
+            new SoftGroupPhysicsParameter(new JSONStorableFloat("Outer Base Value", 0, 0, 5))
             {
                 config = new StaticPhysicsConfig(1f, 1f, 1f),
                 sync = left
@@ -150,7 +149,7 @@ namespace TittyMagic
             };
 
         private SoftGroupPhysicsParameter NewAreolaDamperParameter(bool left) =>
-            new SoftGroupPhysicsParameter(new JSONStorableFloat("Areola Base Value", 0, 0, 5), currentValueJsf: null)
+            new SoftGroupPhysicsParameter(new JSONStorableFloat("Areola Base Value", 0, 0, 5))
             {
                 config = new StaticPhysicsConfig(1.81f, 1.22f, 1.81f),
                 sync = left
@@ -159,7 +158,7 @@ namespace TittyMagic
             };
 
         private SoftGroupPhysicsParameter NewNippleDamperParameter(bool left) =>
-            new SoftGroupPhysicsParameter(new JSONStorableFloat("Nipple Base Value", 0, 0, 5), currentValueJsf: null)
+            new SoftGroupPhysicsParameter(new JSONStorableFloat("Nipple Base Value", 0, 0, 5))
             {
                 config = new StaticPhysicsConfig(1.81f, 1.22f, 1.81f),
                 sync = left
@@ -168,7 +167,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewDamperParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 10), currentValueJsf: null)
+            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 10))
             {
                 config = new StaticPhysicsConfig(10.0f, 10.0f, 0.90f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(-0.75f, -0.90f, -0.45f),
@@ -186,7 +185,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewSoftVerticesMassParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0.05f, 0.5f), currentValueJsf: null)
+            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0.05f, 0.5f))
             {
                 config = new StaticPhysicsConfig(0.050f, 0.130f, 0.085f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(0.000f, -0.048f, -0.028f),
@@ -197,7 +196,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewColliderRadiusParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 0.07f), currentValueJsf: null)
+            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 0.07f))
             {
                 config = new StaticPhysicsConfig(0.024f, 0.037f, 0.028f),
                 sync = left
@@ -206,7 +205,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewColliderAdditionalNormalOffsetParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, -0.01f, 0.01f), currentValueJsf: null)
+            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, -0.01f, 0.01f))
             {
                 config = new StaticPhysicsConfig(0.001f, 0.001f, 0.001f),
                 sync = left
@@ -215,7 +214,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewDistanceLimitParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 0.1f), currentValueJsf: null)
+            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 0.1f))
             {
                 config = new StaticPhysicsConfig(0.020f, 0.068f, 0.028f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(0.000f, 0.000f, 0.024f),
@@ -226,7 +225,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewBackForceParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 50), currentValueJsf: null)
+            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 50))
             {
                 config = new StaticPhysicsConfig(50f, 55.6f, 9.3f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(-2.6f, -4f, -2.33f),
@@ -237,7 +236,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewBackForceMaxForceParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 50), currentValueJsf: null)
+            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 50))
             {
                 config = new StaticPhysicsConfig(50f, 50f, 50f),
                 sync = left
@@ -246,7 +245,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewBackForceThresholdDistanceParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 0.030f), currentValueJsf: null)
+            new PhysicsParameter(new JSONStorableFloat("Base Value", 0, 0, 0.030f))
             {
                 config = new StaticPhysicsConfig(0f, 0f, 0f),
                 sync = left

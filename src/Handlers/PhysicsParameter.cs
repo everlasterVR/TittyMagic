@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TittyMagic.Configs;
 using UnityEngine;
 
@@ -27,7 +28,7 @@ namespace TittyMagic
         private readonly PhysicsParameter _right;
 
         public bool hasStaticConfig => _left.config != null && _right.config != null;
-        public Dictionary<string, JSONStorableFloat> valueJsfs => _left.GetJsonStorableFloats();
+        public List<JSONStorableFloat> currentValueStorables => _left.GetCurrentValueStorables();
 
         public PhysicsParameterGroup(PhysicsParameter left, PhysicsParameter right, string displayName, string valueFormat)
         {
@@ -107,12 +108,6 @@ namespace TittyMagic
         public Action<float> sync { protected get; set; }
 
         public Dictionary<string, SoftGroupPhysicsParameter> groupMultiplierParams { get; set; }
-
-        public PhysicsParameter(JSONStorableFloat baseValueJsf, JSONStorableFloat currentValueJsf = null)
-        {
-            this.baseValueJsf = baseValueJsf;
-            this.currentValueJsf = currentValueJsf;
-        }
 
         public PhysicsParameter(JSONStorableFloat baseValueJsf)
         {
@@ -247,31 +242,23 @@ namespace TittyMagic
             }
         }
 
-        public Dictionary<string, JSONStorableFloat> GetJsonStorableFloats()
+        public List<JSONStorableFloat> GetCurrentValueStorables()
         {
-            var dict = new Dictionary<string, JSONStorableFloat>();
-            dict["Base"] = baseValueJsf;
-            dict["Curr"] = currentValueJsf;
+            var list = new List<JSONStorableFloat>
+            {
+                currentValueJsf,
+            };
             if(groupMultiplierParams != null)
             {
-                foreach(var param in groupMultiplierParams)
-                {
-                    dict[param.Key + "Base"] = param.Value.baseValueJsf;
-                    dict[param.Key + "Curr"] = param.Value.currentValueJsf;
-                }
+                list.AddRange(groupMultiplierParams.Values.ToList().Select(param => param.currentValueJsf));
             }
 
-            return dict;
+            return list;
         }
     }
 
     internal class SoftGroupPhysicsParameter : PhysicsParameter
     {
-        public SoftGroupPhysicsParameter(JSONStorableFloat baseValueJsf, JSONStorableFloat currentValueJsf = null)
-            : base(baseValueJsf, currentValueJsf)
-        {
-        }
-
         public SoftGroupPhysicsParameter(JSONStorableFloat baseValueJsf)
             : base(baseValueJsf)
         {
