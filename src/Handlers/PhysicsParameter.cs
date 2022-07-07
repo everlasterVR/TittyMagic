@@ -29,6 +29,7 @@ namespace TittyMagic
 
         public bool hasStaticConfig => _left.config != null && _right.config != null;
         public List<JSONStorableFloat> currentValueStorables => _left.GetCurrentValueStorables();
+        public List<JSONStorableFloat> offsetStorables => _left.GetOffsetStorables();
 
         public PhysicsParameterGroup(PhysicsParameter left, PhysicsParameter right, string displayName, string valueFormat)
         {
@@ -97,7 +98,9 @@ namespace TittyMagic
     {
         protected JSONStorableFloat currentValueJsf { get; }
         protected JSONStorableFloat baseValueJsf { get; }
+        private JSONStorableFloat offsetJsf { get; }
 
+        private float _additiveAdjustedValue = 0;
         public bool dependOnPhysicsRate { get; set; }
 
         public StaticPhysicsConfig config { get; set; }
@@ -109,24 +112,49 @@ namespace TittyMagic
 
         public Dictionary<string, SoftGroupPhysicsParameter> groupMultiplierParams { get; set; }
 
-        public PhysicsParameter(JSONStorableFloat currentValueJsf)
+        public PhysicsParameter(JSONStorableFloat currentValueJsf, JSONStorableFloat baseValueJsf = null, JSONStorableFloat offsetJsf = null)
         {
             this.currentValueJsf = currentValueJsf;
-            baseValueJsf = new JSONStorableFloat(Intl.BASE_VALUE, 0, currentValueJsf.min, currentValueJsf.max);
+            this.baseValueJsf = baseValueJsf ?? new JSONStorableFloat(Intl.BASE_VALUE, 0, currentValueJsf.min, currentValueJsf.max);
+            this.offsetJsf = offsetJsf ?? new JSONStorableFloat(Intl.OFFSET, 0, -currentValueJsf.max, currentValueJsf.max);
+            this.offsetJsf.setCallbackFunction = UpdateOffsetValue;
         }
 
         public void UpdateValue(float massValue, float softness, float quickness)
         {
-            float value = NewBaseValue(massValue, softness, quickness);
-            currentValueJsf?.SetVal(value);
-            baseValueJsf?.SetVal(value);
-            sync(value);
+            baseValueJsf.val = NewBaseValue(massValue, softness, quickness);
+            float newValue = _additiveAdjustedValue + offsetJsf.val + baseValueJsf.val;
+            currentValueJsf.val = newValue;
+            sync(newValue);
+
+            UpdateOffsetJsfMinMax();
 
             if(groupMultiplierParams != null)
             {
                 foreach(var param in groupMultiplierParams)
                 {
                     param.Value.UpdateValue(massValue, softness, quickness);
+                }
+            }
+        }
+
+        private void UpdateOffsetJsfMinMax()
+        {
+            offsetJsf.min = -(baseValueJsf.val - baseValueJsf.min);
+            offsetJsf.max = baseValueJsf.max - baseValueJsf.val;
+        }
+
+        private void UpdateOffsetValue(float value)
+        {
+            float newValue = _additiveAdjustedValue + value + baseValueJsf.val;
+            currentValueJsf.val = newValue;
+            sync(newValue);
+
+            if(groupMultiplierParams != null)
+            {
+                foreach(var param in groupMultiplierParams)
+                {
+                    param.Value.Sync();
                 }
             }
         }
@@ -157,6 +185,14 @@ namespace TittyMagic
             return dependOnPhysicsRate ? Utils.PhysicsRateMultiplier() * value : value;
         }
 
+        private void AddValue(float value)
+        {
+            _additiveAdjustedValue = value;
+            float newValue = _additiveAdjustedValue + offsetJsf.val + baseValueJsf.val;
+            currentValueJsf.val = newValue;
+            sync(newValue);
+        }
+
         public void UpdateGravityValue(string direction, float effect, float massValue, float softness)
         {
             if(!gravityPhysicsConfigs.ContainsKey(direction))
@@ -165,16 +201,17 @@ namespace TittyMagic
             }
 
             var dpConfig = gravityPhysicsConfigs[direction];
-            float value = NewGravityValue(dpConfig, effect, massValue, softness);
+            float gravityValue = NewGravityValue(dpConfig, effect, massValue, softness);
             if(dpConfig.additive)
             {
-                AddValue(value);
+                AddValue(gravityValue);
             }
             else
             {
-                currentValueJsf?.SetVal(value);
-                baseValueJsf?.SetVal(value);
-                sync(value);
+                baseValueJsf.val = gravityValue;
+                float newValue = offsetJsf.val + baseValueJsf.val;
+                currentValueJsf.val = newValue;
+                sync(newValue);
             }
         }
 
@@ -213,23 +250,6 @@ namespace TittyMagic
             return inRange ? value : 0;
         }
 
-        private void AddValue(float value)
-        {
-            if(baseValueJsf == null)
-            {
-                throw new Exception("currentValueJsf must not be null for a PhysicsParameter updated with AddValue");
-            }
-
-            float newCurrentValue = value;
-            if(currentValueJsf != null)
-            {
-                newCurrentValue += currentValueJsf.val;
-            }
-
-            baseValueJsf.val = newCurrentValue;
-            sync(newCurrentValue);
-        }
-
         public void SetLinearCurvesAroundMidpoint(string group, float slope, float cutoff)
         {
             if(group == null)
@@ -255,20 +275,34 @@ namespace TittyMagic
 
             return list;
         }
+
+        public List<JSONStorableFloat> GetOffsetStorables()
+        {
+            var list = new List<JSONStorableFloat>
+            {
+                offsetJsf,
+            };
+            if(groupMultiplierParams != null)
+            {
+                list.AddRange(groupMultiplierParams.Values.ToList().Select(param => param.offsetJsf));
+            }
+
+            return list;
+        }
     }
 
     internal class SoftGroupPhysicsParameter : PhysicsParameter
     {
-        public SoftGroupPhysicsParameter(JSONStorableFloat currentValueJsf)
-            : base(currentValueJsf)
+        public SoftGroupPhysicsParameter(JSONStorableFloat currentValueJsf, JSONStorableFloat baseValueJsf, JSONStorableFloat offsetJsf)
+            : base(currentValueJsf, baseValueJsf, offsetJsf)
         {
         }
 
         public new void UpdateNippleValue(float massValue, float softness, float nippleErection)
         {
             float value = NewNippleValue(massValue, softness, nippleErection);
-            currentValueJsf?.SetVal(value);
-            baseValueJsf?.SetVal(value);
+            currentValueJsf.val = value;
+            baseValueJsf.val = value;
             sync(value);
         }
 
@@ -276,6 +310,11 @@ namespace TittyMagic
         {
             float value = config.Calculate(massValue, softness);
             return value + 1.25f * nippleErection;
+        }
+
+        public void Sync()
+        {
+            sync(baseValueJsf.val);
         }
     }
 }

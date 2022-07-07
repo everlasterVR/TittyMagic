@@ -102,13 +102,19 @@ namespace TittyMagic
             Action<float, float, DAZPhysicsMeshSoftVerticesGroup> syncCallback,
             StaticPhysicsConfig quicknessOffsetConfig = null,
             StaticPhysicsConfig slownessOffsetConfig = null
-        ) => new SoftGroupPhysicsParameter(new JSONStorableFloat($"{group} {MULTIPLIER}", 1, 0, 5))
+        )
         {
-            config = config,
-            quicknessOffsetConfig = quicknessOffsetConfig,
-            slownessOffsetConfig = slownessOffsetConfig,
-            sync = value => syncCallback(value, _baseValues[side][parameterName], _softVerticesGroups[side][group]),
-        };
+            var baseStorable = new JSONStorableFloat($"{group} {MULTIPLIER}", 1, 0, 5);
+            var currentStorable = new JSONStorableFloat($"{group} {CURRENT_VALUE}", baseStorable.defaultVal, baseStorable.min, baseStorable.max);
+            var offsetStorable = new JSONStorableFloat($"{group} {OFFSET}", 0, -baseStorable.max, baseStorable.max);
+            return new SoftGroupPhysicsParameter(baseStorable, currentStorable, offsetStorable)
+            {
+                config = config,
+                quicknessOffsetConfig = quicknessOffsetConfig,
+                slownessOffsetConfig = slownessOffsetConfig,
+                sync = value => syncCallback(value, _baseValues[side][parameterName], _softVerticesGroups[side][group]),
+            };
+        }
 
         private PhysicsParameter NewSpringParameter(string parameterName, string side) =>
             new PhysicsParameter(new JSONStorableFloat(CURRENT_VALUE, 0, 0, 500))

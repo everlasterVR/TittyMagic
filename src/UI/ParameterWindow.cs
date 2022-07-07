@@ -31,14 +31,20 @@ namespace TittyMagic.UI
             elements = new Dictionary<string, UIDynamic>();
 
             CreateBackButton(backButtonListener, false);
-            CreateInfoTextArea(true);
+            // CreateInfoTextArea(true);
 
             CreateTitle(false);
             elements["headerMargin"] = _script.NewSpacer(20);
+            elements["rightSideMargin"] = _script.NewSpacer(162, true);
 
             foreach(var storable in _parameterGroup.currentValueStorables)
             {
                 CreateCurrentValueSlider(storable, _parameterGroup.valueFormat, false);
+            }
+
+            foreach(var storable in _parameterGroup.offsetStorables)
+            {
+                CreateOffsetSlider(storable, _parameterGroup.valueFormat, true);
             }
         }
 
@@ -63,9 +69,19 @@ namespace TittyMagic.UI
 
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = valueFormat;
+            slider.SetActiveStyle(false);
             slider.slider.interactable = false;
             slider.quickButtonsEnabled = false;
             slider.defaultButtonEnabled = false;
+            elements[storable.name] = slider;
+        }
+
+        private void CreateOffsetSlider(JSONStorableFloat storable, string valueFormat, bool rightSide, int spacing = 0)
+        {
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var slider = _script.CreateSlider(storable, rightSide);
+            slider.valueFormat = valueFormat;
             elements[storable.name] = slider;
         }
 
