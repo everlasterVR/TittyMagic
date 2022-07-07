@@ -13,8 +13,8 @@ namespace TittyMagic
         public string infoText { get; set; }
 
         public StaticPhysicsConfig config { get; set; }
-        public StaticPhysicsConfigBase quicknessOffsetConfig { get; set; }
-        public StaticPhysicsConfigBase slownessOffsetConfig { get; set; }
+        public StaticPhysicsConfig quicknessOffsetConfig { get; set; }
+        public StaticPhysicsConfig slownessOffsetConfig { get; set; }
         public Dictionary<string, DynamicPhysicsConfig> gravityPhysicsConfigs { get; set; }
         public Dictionary<string, DynamicPhysicsConfig> forcePhysicsConfigs { get; set; }
         public Action<float> sync { private get; set; }

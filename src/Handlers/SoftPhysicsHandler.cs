@@ -191,12 +191,12 @@ namespace TittyMagic
             softVerticesCombinedDamper.config = new StaticPhysicsConfig(10.0f, 10.0f, 0.90f);
             softVerticesCombinedDamper.config.dependOnPhysicsRate = true;
             softVerticesCombinedDamper.config.SetLinearCurvesAroundMidpoint(slope: 0.082f);
-            softVerticesCombinedDamper.quicknessOffsetConfig = new StaticPhysicsConfigBase(-0.75f, -0.90f, -0.45f);
-            softVerticesCombinedDamper.slownessOffsetConfig = new StaticPhysicsConfigBase(1.125f, 1.35f, 0.675f);
+            softVerticesCombinedDamper.quicknessOffsetConfig = new StaticPhysicsConfig(-0.75f, -0.90f, -0.45f);
+            softVerticesCombinedDamper.slownessOffsetConfig = new StaticPhysicsConfig(1.125f, 1.35f, 0.675f);
 
             softVerticesMass.config = new StaticPhysicsConfig(0.050f, 0.130f, 0.085f);
-            softVerticesMass.quicknessOffsetConfig = new StaticPhysicsConfigBase(0.000f, -0.048f, -0.028f);
-            softVerticesMass.slownessOffsetConfig = new StaticPhysicsConfigBase(0.012f, 0.060f, 0.040f);
+            softVerticesMass.quicknessOffsetConfig = new StaticPhysicsConfig(0.000f, -0.048f, -0.028f);
+            softVerticesMass.slownessOffsetConfig = new StaticPhysicsConfig(0.012f, 0.060f, 0.040f);
 
             softVerticesColliderRadius.config = new StaticPhysicsConfig(0.024f, 0.037f, 0.028f);
             softVerticesColliderRadius.config.useRealMass = true;
@@ -205,13 +205,13 @@ namespace TittyMagic
 
             softVerticesDistanceLimit.config = new StaticPhysicsConfig(0.020f, 0.068f, 0.028f);
             softVerticesDistanceLimit.config.useRealMass = true;
-            softVerticesDistanceLimit.quicknessOffsetConfig = new StaticPhysicsConfigBase(0.000f, 0.000f, 0.024f);
-            softVerticesDistanceLimit.slownessOffsetConfig = new StaticPhysicsConfigBase(0.000f, 0.000f, -0.008f);
+            softVerticesDistanceLimit.quicknessOffsetConfig = new StaticPhysicsConfig(0.000f, 0.000f, 0.024f);
+            softVerticesDistanceLimit.slownessOffsetConfig = new StaticPhysicsConfig(0.000f, 0.000f, -0.008f);
 
             softVerticesBackForce.config = new StaticPhysicsConfig(50f, 55.6f, 9.3f);
             softVerticesBackForce.config.SetLinearCurvesAroundMidpoint(slope: 0.027f);
-            softVerticesBackForce.quicknessOffsetConfig = new StaticPhysicsConfigBase(-2.6f, -4f, -2.33f);
-            softVerticesBackForce.slownessOffsetConfig = new StaticPhysicsConfigBase(0.8f, 1.33f, 0.77f);
+            softVerticesBackForce.quicknessOffsetConfig = new StaticPhysicsConfig(-2.6f, -4f, -2.33f);
+            softVerticesBackForce.slownessOffsetConfig = new StaticPhysicsConfig(0.8f, 1.33f, 0.77f);
 
             softVerticesBackForceThresholdDistance.config = new StaticPhysicsConfig(0f, 0f, 0f);
             softVerticesBackForceMaxForce.config = new StaticPhysicsConfig(50f, 50f, 50f);

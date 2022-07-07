@@ -2,11 +2,11 @@ using System;
 
 namespace TittyMagic.Configs
 {
-    internal class StaticPhysicsConfigBase
+    internal class StaticPhysicsConfig
     {
-        protected float minMminS; // value at min mass and min softness
-        protected float maxMminS; // value at max mass and min softness
-        protected float minMmaxS; // value at min mass and max softness
+        private readonly float _minMminS; // value at min mass and min softness
+        private readonly float _maxMminS; // value at max mass and min softness
+        private readonly float _minMmaxS; // value at min mass and max softness
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Global
         // ReSharper disable once MemberCanBePrivate.Global
@@ -24,15 +24,14 @@ namespace TittyMagic.Configs
         private Func<float, float> softnessCurveUpper { get; set; }
         private float? softnessCurveCutoff { get; set; }
 
-        protected StaticPhysicsConfigBase()
-        {
-        }
+        public bool dependOnPhysicsRate { get; set; }
+        public bool useRealMass { get; set; }
 
-        public StaticPhysicsConfigBase(float minMminS, float maxMminS, float minMmaxS)
+        public StaticPhysicsConfig(float minMminS, float maxMminS, float minMmaxS)
         {
-            this.minMminS = minMminS;
-            this.maxMminS = maxMminS;
-            this.minMmaxS = minMmaxS;
+            _minMminS = minMminS;
+            _maxMminS = maxMminS;
+            _minMmaxS = minMmaxS;
         }
 
         // Transition between two linear functions at mid point. 0.6285f is softnessAmount at slider 50
@@ -67,21 +66,8 @@ namespace TittyMagic.Configs
         }
 
         private float ProportionalSum(float mass, float softness) =>
-            minMminS +
-            mass * (maxMminS - minMminS) +
-            softness * (minMmaxS - minMminS);
-    }
-
-    internal class StaticPhysicsConfig : StaticPhysicsConfigBase
-    {
-        public bool dependOnPhysicsRate { get; set; }
-        public bool useRealMass { get; set; }
-
-        public StaticPhysicsConfig(float minMminS, float maxMminS, float minMmaxS)
-        {
-            this.minMminS = minMminS;
-            this.maxMminS = maxMminS;
-            this.minMmaxS = minMmaxS;
-        }
+            _minMminS +
+            mass * (_maxMminS - _minMminS) +
+            softness * (_minMmaxS - _minMminS);
     }
 }

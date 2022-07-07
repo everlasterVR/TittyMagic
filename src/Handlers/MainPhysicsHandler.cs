@@ -138,8 +138,8 @@ namespace TittyMagic
                 damper.config = new StaticPhysicsConfig(2.4f, 2.8f, 0.9f);
                 damper.config.dependOnPhysicsRate = true;
                 damper.config.SetLinearCurvesAroundMidpoint(slope: 0.2f);
-                damper.quicknessOffsetConfig = new StaticPhysicsConfigBase(-0.6f, -0.75f, -0.4f);
-                damper.slownessOffsetConfig = new StaticPhysicsConfigBase(0.4f, 0.5f, 0.27f);
+                damper.quicknessOffsetConfig = new StaticPhysicsConfig(-0.6f, -0.75f, -0.4f);
+                damper.slownessOffsetConfig = new StaticPhysicsConfig(0.4f, 0.5f, 0.27f);
             }
             else
             {
@@ -148,19 +148,19 @@ namespace TittyMagic
                 damper.config = new StaticPhysicsConfig(1.8f, 2.1f, 0.675f);
                 damper.config.dependOnPhysicsRate = true;
                 damper.config.SetLinearCurvesAroundMidpoint(slope: 0.2f);
-                damper.quicknessOffsetConfig = new StaticPhysicsConfigBase(-0.45f, -0.56f, -0.3f);
-                damper.slownessOffsetConfig = new StaticPhysicsConfigBase(0.3f, 0.38f, 0.2f);
+                damper.quicknessOffsetConfig = new StaticPhysicsConfig(-0.45f, -0.56f, -0.3f);
+                damper.slownessOffsetConfig = new StaticPhysicsConfig(0.3f, 0.38f, 0.2f);
             }
 
             spring.config = new StaticPhysicsConfig(82f, 96f, 45f);
             spring.config.SetLinearCurvesAroundMidpoint(slope: 0.135f);
-            spring.quicknessOffsetConfig = new StaticPhysicsConfigBase(20f, 24f, 18f);
-            spring.slownessOffsetConfig = new StaticPhysicsConfigBase(-13f, -16f, -12f);
+            spring.quicknessOffsetConfig = new StaticPhysicsConfig(20f, 24f, 18f);
+            spring.slownessOffsetConfig = new StaticPhysicsConfig(-13f, -16f, -12f);
 
             positionSpringZ.config = new StaticPhysicsConfig(850f, 950f, 250f);
             positionSpringZ.config.SetLinearCurvesAroundMidpoint(slope: 0.33f);
-            positionSpringZ.quicknessOffsetConfig = new StaticPhysicsConfigBase(90, 110, 50f);
-            positionSpringZ.slownessOffsetConfig = new StaticPhysicsConfigBase(-60, -70, -33f);
+            positionSpringZ.quicknessOffsetConfig = new StaticPhysicsConfig(90, 110, 50f);
+            positionSpringZ.slownessOffsetConfig = new StaticPhysicsConfig(-60, -70, -33f);
 
             positionDamperZ.config = new StaticPhysicsConfig(16f, 22f, 9f);
             positionDamperZ.config.dependOnPhysicsRate = true;
