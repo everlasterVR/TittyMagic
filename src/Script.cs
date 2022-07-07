@@ -212,8 +212,8 @@ namespace TittyMagic
             colliderVisualizer.PreviewOpacityJSON.defaultVal = 1;
             colliderVisualizer.SelectedPreviewOpacityJSON.val = 1;
             colliderVisualizer.SelectedPreviewOpacityJSON.defaultVal = 1;
-            colliderVisualizer.GroupsJSON.val = "Both breasts";
-            colliderVisualizer.GroupsJSON.defaultVal = "Both breasts";
+            colliderVisualizer.GroupsJSON.val = "Left breast";
+            colliderVisualizer.GroupsJSON.defaultVal = "Left breast";
             colliderVisualizer.HighlightMirrorJSON.val = true;
 
             foreach(string option in new[] { "Select...", "Other", "All" })
