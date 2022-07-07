@@ -42,13 +42,13 @@ namespace TittyMagic
             _originalUseAuxBreastColliders = _geometry.useAuxBreastColliders;
 
             enabledJsb = _script.NewJSONStorableBool("useHardColliders", true, register: Gender.isFemale);
-            enabledJsb.setCallbackFunction = SyncUseHardColliders;
-
             if(!Gender.isFemale)
             {
                 enabledJsb.val = false;
                 return;
             }
+
+            enabledJsb.setCallbackFunction = SyncUseHardColliders;
 
             CreateScalingConfigs();
             colliderConfigs = new List<ColliderConfigGroup>

@@ -701,7 +701,10 @@ namespace TittyMagic
             yield return CalibrateNipplesTracking();
 
             SetBreastsUseGravity(true);
-            hardColliderHandler.SyncAllOffsets();
+            if(Gender.isFemale)
+            {
+                hardColliderHandler.SyncAllOffsets();
+            }
 
             SuperController.singleton.SetFreezeAnimation(_animationWasSetFrozen);
 
