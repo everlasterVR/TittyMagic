@@ -284,9 +284,9 @@ namespace TittyMagic.UI
                 CreateColliderRadiusSlider(colliderConfigGroup.radiusJsf, true, spacing: 15);
                 CreateColliderLengthSlider(colliderConfigGroup.lengthJsf, true);
 
-                CreateColliderUpSlider(colliderConfigGroup.upJsf, true, spacing: 15);
+                CreateColliderRightSlider(colliderConfigGroup.rightJsf, true, spacing: 15);
+                CreateColliderUpSlider(colliderConfigGroup.upJsf, true);
                 CreateColliderLookSlider(colliderConfigGroup.lookJsf, true);
-                CreateColliderRightSlider(colliderConfigGroup.rightJsf, true);
 
                 var baseSlider = _elements[_script.hardColliderHandler.baseForceJsf.name];
                 baseSlider.AddListener(UpdateAllSliderColors);
@@ -348,6 +348,15 @@ namespace TittyMagic.UI
             _colliderSectionElements[storable.name] = slider;
         }
 
+        private void CreateColliderRightSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
+        {
+            _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
+            var slider = _script.CreateSlider(storable, rightSide);
+            slider.valueFormat = "F2";
+            slider.label = "X Offset";
+            _colliderSectionElements[storable.name] = slider;
+        }
+
         private void CreateColliderUpSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
         {
             _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
@@ -363,15 +372,6 @@ namespace TittyMagic.UI
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "Z Offset";
-            _colliderSectionElements[storable.name] = slider;
-        }
-
-        private void CreateColliderRightSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
-        {
-            _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
-            var slider = _script.CreateSlider(storable, rightSide);
-            slider.valueFormat = "F2";
-            slider.label = "X Offset";
             _colliderSectionElements[storable.name] = slider;
         }
 
