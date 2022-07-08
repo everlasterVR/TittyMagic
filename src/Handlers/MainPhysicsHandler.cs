@@ -141,7 +141,7 @@ namespace TittyMagic
         private PhysicsParameter NewPositionSpringZParameter(bool left) =>
             new PhysicsParameter(POSITION_SPRING_Z, new JSONStorableFloat(VALUE, 0, 0, 1000))
             {
-                config = new StaticPhysicsConfig(850f, 950f, 250f),
+                config = new StaticPhysicsConfig(650f, 750f, 250f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(90, 110, 50f),
                 slownessOffsetConfig = new StaticPhysicsConfig(-60, -70, -33f),
                 valueFormat = "F0",
@@ -151,11 +151,9 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewPositionDamperZParameter(bool left) =>
-            new PhysicsParameter(POSITION_SPRING_Z, new JSONStorableFloat(VALUE, 0, 0, 100))
+            new PhysicsParameter(POSITION_DAMPER_Z, new JSONStorableFloat(VALUE, 0, 0, 100))
             {
-                config = new StaticPhysicsConfig(16f, 22f, 9f),
-                quicknessOffsetConfig = new StaticPhysicsConfig(20f, 24f, 18f),
-                slownessOffsetConfig = new StaticPhysicsConfig(-13f, -16f, -12f),
+                config = new StaticPhysicsConfig(10f, 15f, 4f),
                 valueFormat = "F0",
                 sync = left
                     ? (Action<float>) (value => SyncJointPositionZDriveDamper(_jointLeft, _pectoralRbLeft, value))

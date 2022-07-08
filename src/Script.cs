@@ -751,9 +751,9 @@ namespace TittyMagic
             float softnessMultiplier = Mathf.Lerp(0.5f, 1.14f, _softnessAmount);
             float mass = mainPhysicsHandler.realMassAmount;
 
-            forceMorphHandler.upDownExtraMultiplier = softnessMultiplier * (3.15f - 1.40f * mass);
-            forceMorphHandler.forwardBackExtraMultiplier = softnessMultiplier * (3.8f - 1.5f * mass);
-            forceMorphHandler.leftRightExtraMultiplier = softnessMultiplier * (3.55f - 1.40f * mass);
+            forceMorphHandler.upDownExtraMultiplier = softnessMultiplier * Curves.MorphingCurve(mass);
+            forceMorphHandler.forwardBackExtraMultiplier = softnessMultiplier * Curves.MorphingCurve(mass);
+            forceMorphHandler.leftRightExtraMultiplier = softnessMultiplier * Curves.MorphingCurve(mass);
 
             offsetMorphHandler.upDownExtraMultiplier = 1.16f - mass;
         }

@@ -235,7 +235,7 @@ namespace TittyMagic
 
         public void UpdateGravityValue(string direction, float effect, float massValue, float softness)
         {
-            if(!gravityPhysicsConfigs.ContainsKey(direction))
+            if(gravityPhysicsConfigs == null || !gravityPhysicsConfigs.ContainsKey(direction))
             {
                 return;
             }

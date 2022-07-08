@@ -8,7 +8,7 @@ namespace TittyMagic
     internal class GravityPhysicsHandler
     {
         private readonly Script _script;
-        private List<PhysicsParameterGroup> _paramsGroups;
+        private List<PhysicsParameterGroup> _paramGroups;
 
         private float _mass;
         private float _softness;
@@ -48,7 +48,7 @@ namespace TittyMagic
         public void LoadSettings()
         {
             SetupGravityPhysicsConfigs();
-            _paramsGroups = _script.mainPhysicsHandler.parameterGroups.Values.ToList();
+            _paramGroups = _script.mainPhysicsHandler.parameterGroups.Values.ToList();
         }
 
         private static Dictionary<string, DynamicPhysicsConfig> NewCenterOfGravityConfigs() =>
@@ -61,22 +61,15 @@ namespace TittyMagic
         private static Dictionary<string, DynamicPhysicsConfig> NewSpringConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
             {
-                { Direction.BACK, new DynamicPhysicsConfig(-7.0f, -5.3f, isNegative: true) },
-                { Direction.FORWARD, new DynamicPhysicsConfig(-7.0f, -5.3f, isNegative: true) },
-            };
-
-        private static Dictionary<string, DynamicPhysicsConfig> NewDamperConfigs() =>
-            new Dictionary<string, DynamicPhysicsConfig>
-            {
-                { Direction.BACK, new DynamicPhysicsConfig(-0.27f, -0.36f, isNegative: true) },
-                { Direction.FORWARD, new DynamicPhysicsConfig(-0.27f, -0.36f, isNegative: true) },
+                { Direction.BACK, new DynamicPhysicsConfig(-30.0f, -20f, isNegative: true) },
+                { Direction.FORWARD, new DynamicPhysicsConfig(-20.0f, -13.33f, isNegative: true) },
             };
 
         private static Dictionary<string, DynamicPhysicsConfig> NewPositionSpringZConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
             {
-                { Direction.BACK, new DynamicPhysicsConfig(-180f, -140f, isNegative: true) },
-                { Direction.FORWARD, new DynamicPhysicsConfig(-180f, -140f, isNegative: true) },
+                { Direction.BACK, new DynamicPhysicsConfig(-320f, -230f, isNegative: true) },
+                { Direction.FORWARD, new DynamicPhysicsConfig(-500f, -400f, isNegative: true) },
             };
 
         private static Dictionary<string, DynamicPhysicsConfig> NewPositionDamperZConfigs() =>
@@ -89,8 +82,8 @@ namespace TittyMagic
         private static Dictionary<string, DynamicPhysicsConfig> NewPositionTargetRotationXConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
             {
-                { Direction.DOWN, new DynamicPhysicsConfig(-16f, -12f, isNegative: true, additive: false) },
-                { Direction.UP, new DynamicPhysicsConfig(10.7f, 8f, additive: false) },
+                { Direction.DOWN, new DynamicPhysicsConfig(-20f, -12f, isNegative: true, additive: false) },
+                { Direction.UP, new DynamicPhysicsConfig(25, 15f, additive: false) },
             };
 
         private static Dictionary<string, DynamicPhysicsConfig> NewPositionTargetRotationYConfigs() =>
@@ -105,7 +98,6 @@ namespace TittyMagic
             var paramGroups = _script.mainPhysicsHandler.parameterGroups;
             paramGroups[CENTER_OF_GRAVITY_PERCENT].SetGravityPhysicsConfigs(NewCenterOfGravityConfigs(), NewCenterOfGravityConfigs());
             paramGroups[SPRING].SetGravityPhysicsConfigs(NewSpringConfigs(), NewSpringConfigs());
-            paramGroups[DAMPER].SetGravityPhysicsConfigs(NewDamperConfigs(), NewDamperConfigs());
             paramGroups[POSITION_SPRING_Z].SetGravityPhysicsConfigs(NewPositionSpringZConfigs(), NewPositionSpringZConfigs());
             paramGroups[POSITION_DAMPER_Z].SetGravityPhysicsConfigs(NewPositionDamperZConfigs(), NewPositionDamperZConfigs());
             paramGroups[TARGET_ROTATION_X].SetGravityPhysicsConfigs(NewPositionTargetRotationXConfigs(), NewPositionTargetRotationXConfigs());
@@ -217,7 +209,7 @@ namespace TittyMagic
         }
 
         private void UpdatePhysics(string direction, float effect) =>
-            _paramsGroups.ForEach(paramGroup =>
+            _paramGroups.ForEach(paramGroup =>
                 paramGroup.UpdateGravityValue(direction, effect, _mass, _softness));
     }
 }
