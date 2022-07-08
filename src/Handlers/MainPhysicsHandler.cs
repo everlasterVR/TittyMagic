@@ -97,7 +97,7 @@ namespace TittyMagic
         }
 
         private PhysicsParameter NewCenterOfGravityParameter(bool left, bool softPhysicsEnabled) =>
-            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 1))
+            new PhysicsParameter(CENTER_OF_GRAVITY_PERCENT, new JSONStorableFloat(VALUE, 0, 0, 1))
             {
                 config = softPhysicsEnabled
                     ? new StaticPhysicsConfig(0.350f, 0.480f, 0.560f)
@@ -109,7 +109,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewSpringParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 10, 200))
+            new PhysicsParameter(SPRING, new JSONStorableFloat(VALUE, 0, 10, 200))
             {
                 config = new StaticPhysicsConfig(82f, 96f, 45f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(20f, 24f, 18f),
@@ -121,7 +121,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewDamperParameter(bool left, bool softPhysicsEnabled) =>
-            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 10))
+            new PhysicsParameter(DAMPER, new JSONStorableFloat(VALUE, 0, 0, 10))
             {
                 config = softPhysicsEnabled
                     ? new StaticPhysicsConfig(2.4f, 2.8f, 0.9f)
@@ -139,7 +139,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewPositionSpringZParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 1000))
+            new PhysicsParameter(POSITION_SPRING_Z, new JSONStorableFloat(VALUE, 0, 0, 1000))
             {
                 config = new StaticPhysicsConfig(850f, 950f, 250f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(90, 110, 50f),
@@ -151,7 +151,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewPositionDamperZParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 100))
+            new PhysicsParameter(POSITION_SPRING_Z, new JSONStorableFloat(VALUE, 0, 0, 100))
             {
                 config = new StaticPhysicsConfig(16f, 22f, 9f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(20f, 24f, 18f),
@@ -163,7 +163,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewTargetRotationYParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, -20, 20))
+            new PhysicsParameter(TARGET_ROTATION_Y, new JSONStorableFloat(VALUE, 0, -20, 20))
             {
                 sync = left
                     ? (Action<float>) SyncTargetRotationYLeft
@@ -172,7 +172,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewTargetRotationXParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, -20, 20))
+            new PhysicsParameter(TARGET_ROTATION_X, new JSONStorableFloat(VALUE, 0, -20, 20))
             {
                 sync = left
                     ? (Action<float>) SyncTargetRotationXLeft
