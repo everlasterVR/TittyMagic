@@ -37,9 +37,10 @@ namespace TittyMagic.UI
             elements["headerMargin"] = _script.NewSpacer(20);
             elements["rightSideMargin"] = _script.NewSpacer(162, true);
 
-            foreach(var storable in _parameterGroup.currentValueStorables)
+            CreateCurrentValueSlider(_parameterGroup.currentValueJsf, _parameterGroup.valueFormat, false);
+            foreach(var storable in _parameterGroup.groupMultiplierStorables)
             {
-                CreateCurrentValueSlider(storable, _parameterGroup.valueFormat, false);
+                CreateMultiplierSlider(storable, _parameterGroup.valueFormat, false);
             }
 
             foreach(var storable in _parameterGroup.offsetStorables)
@@ -73,6 +74,22 @@ namespace TittyMagic.UI
             slider.slider.interactable = false;
             slider.quickButtonsEnabled = false;
             slider.defaultButtonEnabled = false;
+            elements[storable.name] = slider;
+        }
+
+        private void CreateMultiplierSlider(JSONStorableFloat storable, string valueFormat, bool rightSide, int spacing = 0)
+        {
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var slider = _script.CreateSlider(storable, rightSide);
+            slider.valueFormat = valueFormat;
+            slider.SetActiveStyle(false);
+            slider.slider.interactable = false;
+            slider.quickButtonsEnabled = false;
+            slider.defaultButtonEnabled = false;
+
+            slider.slider.onValueChanged.AddListener(value => { });
+
             elements[storable.name] = slider;
         }
 

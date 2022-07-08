@@ -21,9 +21,6 @@ namespace TittyMagic
         //Group name -> Value
         private Dictionary<string, bool> _originalGroupsUseParentSettings;
 
-        //Left/Right -> Parameter name -> Value
-        private Dictionary<string, Dictionary<string, float>> _baseValues;
-
         //Left/Right -> Group name -> Group
         private readonly Dictionary<string, Dictionary<string, DAZPhysicsMeshSoftVerticesGroup>> _softVerticesGroups;
 
@@ -81,11 +78,6 @@ namespace TittyMagic
 
         public void LoadSettings()
         {
-            _baseValues = new Dictionary<string, Dictionary<string, float>>
-            {
-                { LEFT, new Dictionary<string, float>() },
-                { RIGHT, new Dictionary<string, float>() },
-            };
             SetupPhysicsParameterGroups();
 
             var texts = CreateInfoTexts();
@@ -97,452 +89,288 @@ namespace TittyMagic
         private SoftGroupPhysicsParameter NewGroupParameter(
             string side,
             string group,
-            string parameterName,
             StaticPhysicsConfig config,
-            Action<float, float, DAZPhysicsMeshSoftVerticesGroup> syncCallback,
-            StaticPhysicsConfig quicknessOffsetConfig = null,
-            StaticPhysicsConfig slownessOffsetConfig = null
+            Action<float, DAZPhysicsMeshSoftVerticesGroup> syncCallback,
+            JSONStorableFloat baseValueJsf
         )
         {
-            var baseStorable = new JSONStorableFloat($"{group} {MULTIPLIER}", 1, 0, 5);
-            var currentStorable = new JSONStorableFloat($"{group} {CURRENT_VALUE}", baseStorable.defaultVal, baseStorable.min, baseStorable.max);
-            var offsetStorable = new JSONStorableFloat($"{group} {OFFSET}", 0, -baseStorable.max, baseStorable.max);
-            return new SoftGroupPhysicsParameter(baseStorable, currentStorable, offsetStorable)
+            const float min = 0;
+            const float max = 5;
+            var multiplierJsf = new JSONStorableFloat($"{group} {MULTIPLIER}", 1, min, max);
+            var currentJsf = new JSONStorableFloat($"{group} {CURRENT_VALUE}", 1, min, max);
+            var offsetJsf = new JSONStorableFloat($"{group} {MULTIPLIER} {OFFSET}", 0, -max, max);
+            return new SoftGroupPhysicsParameter(multiplierJsf, currentJsf, offsetJsf)
             {
                 config = config,
-                quicknessOffsetConfig = quicknessOffsetConfig,
-                slownessOffsetConfig = slownessOffsetConfig,
-                sync = value => syncCallback(value, _baseValues[side][parameterName], _softVerticesGroups[side][group]),
+                sync = value => syncCallback(baseValueJsf.val * value, _softVerticesGroups[side][group]),
             };
         }
 
-        private PhysicsParameter NewSpringParameter(string parameterName, string side) =>
-            new PhysicsParameter(new JSONStorableFloat(CURRENT_VALUE, 0, 0, 500))
+        private PhysicsParameter NewSpringParameter(string side)
+        {
+            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 500))
             {
                 config = new StaticPhysicsConfig(500f, 500f, 62f),
-                sync = value => _baseValues[side][parameterName] = value,
-                groupMultiplierParams = new Dictionary<string, SoftGroupPhysicsParameter>
-                {
-                    {
-                        MAIN, NewGroupParameter(
-                            side,
-                            MAIN,
-                            parameterName,
-                            new StaticPhysicsConfig(5f, 5f, 1f),
-                            SyncGroupSpringMultiplier
-                        )
-                    },
-                    {
-                        OUTER, NewGroupParameter(
-                            side,
-                            OUTER,
-                            parameterName,
-                            new StaticPhysicsConfig(5f, 5f, 1f),
-                            SyncGroupSpringMultiplier
-                        )
-                    },
-                    {
-                        AREOLA, NewGroupParameter(
-                            side,
-                            AREOLA,
-                            parameterName,
-                            new StaticPhysicsConfig(2.29f, 1.30f, 2.29f),
-                            SyncGroupSpringMultiplier
-                        )
-                    },
-                    {
-                        NIPPLE, NewGroupParameter(
-                            side,
-                            NIPPLE,
-                            parameterName,
-                            new StaticPhysicsConfig(2.29f, 1.30f, 2.29f),
-                            SyncGroupSpringMultiplier
-                        )
-                    },
-                },
             };
 
-        private PhysicsParameter NewDamperParameter(string parameterName, string side) =>
-            new PhysicsParameter(new JSONStorableFloat(CURRENT_VALUE, 0, 0, 10))
+            var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
+            {
+                { MAIN, new StaticPhysicsConfig(5f, 5f, 1f) },
+                { OUTER, new StaticPhysicsConfig(5f, 5f, 1f) },
+                { AREOLA, new StaticPhysicsConfig(2.29f, 1.30f, 2.29f) },
+                { NIPPLE, new StaticPhysicsConfig(2.29f, 1.30f, 2.29f) },
+            };
+
+            parameter.groupMultiplierParams = allGroups.ToDictionary(
+                group => group,
+                group => NewGroupParameter(
+                    side,
+                    group,
+                    groupConfigs[group],
+                    SyncGroupSpring,
+                    parameter.valueJsf
+                ));
+
+            return parameter;
+        }
+
+        private PhysicsParameter NewDamperParameter(string side)
+        {
+            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 10))
             {
                 config = new StaticPhysicsConfig(10.0f, 10.0f, 0.90f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(-0.75f, -0.90f, -0.45f),
                 slownessOffsetConfig = new StaticPhysicsConfig(1.125f, 1.35f, 0.675f),
-                sync = value => _baseValues[side][parameterName] = value,
-                groupMultiplierParams = new Dictionary<string, SoftGroupPhysicsParameter>
-                {
-                    {
-                        MAIN, NewGroupParameter(
-                            side,
-                            MAIN,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupDamperMultiplier
-                        )
-                    },
-                    {
-                        OUTER, NewGroupParameter(
-                            side,
-                            OUTER,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupDamperMultiplier
-                        )
-                    },
-                    {
-                        AREOLA, NewGroupParameter(
-                            side,
-                            AREOLA,
-                            parameterName,
-                            new StaticPhysicsConfig(1.81f, 1.22f, 1.81f),
-                            SyncGroupDamperMultiplier
-                        )
-                    },
-                    {
-                        NIPPLE, NewGroupParameter(
-                            side,
-                            NIPPLE,
-                            parameterName,
-                            new StaticPhysicsConfig(1.81f, 1.22f, 1.81f),
-                            SyncGroupDamperMultiplier
-                        )
-                    },
-                },
             };
 
-        private PhysicsParameter NewSoftVerticesMassParameter(string parameterName, string side) =>
-            new PhysicsParameter(new JSONStorableFloat(CURRENT_VALUE, 0, 0.05f, 0.5f))
+            var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
+            {
+                { MAIN, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { OUTER, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { AREOLA, new StaticPhysicsConfig(1.81f, 1.22f, 1.81f) },
+                { NIPPLE, new StaticPhysicsConfig(1.81f, 1.22f, 1.81f) },
+            };
+
+            parameter.groupMultiplierParams = allGroups.ToDictionary(
+                group => group,
+                group => NewGroupParameter(
+                    side,
+                    group,
+                    groupConfigs[group],
+                    SyncGroupDamper,
+                    parameter.valueJsf
+                ));
+
+            return parameter;
+        }
+
+        private PhysicsParameter NewSoftVerticesMassParameter(string side)
+        {
+            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0.05f, 0.5f))
             {
                 config = new StaticPhysicsConfig(0.050f, 0.130f, 0.085f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(0.000f, -0.048f, -0.028f),
                 slownessOffsetConfig = new StaticPhysicsConfig(0.012f, 0.060f, 0.040f),
-                sync = value => _baseValues[side][parameterName] = value,
-                groupMultiplierParams = new Dictionary<string, SoftGroupPhysicsParameter>
-                {
-                    {
-                        MAIN, NewGroupParameter(
-                            side,
-                            MAIN,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupMassMultiplier
-                        )
-                    },
-                    {
-                        OUTER, NewGroupParameter(
-                            side,
-                            OUTER,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupMassMultiplier
-                        )
-                    },
-                    {
-                        AREOLA, NewGroupParameter(
-                            side,
-                            AREOLA,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupMassMultiplier
-                        )
-                    },
-                    {
-                        NIPPLE, NewGroupParameter(
-                            side,
-                            NIPPLE,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupMassMultiplier
-                        )
-                    },
-                },
             };
 
-        private PhysicsParameter NewColliderRadiusParameter(string parameterName, string side) =>
-            new PhysicsParameter(new JSONStorableFloat(CURRENT_VALUE, 0, 0, 0.07f))
+            var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
+            {
+                { MAIN, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { OUTER, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { AREOLA, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { NIPPLE, new StaticPhysicsConfig(1f, 1f, 1f) },
+            };
+
+            parameter.groupMultiplierParams = allGroups.ToDictionary(
+                group => group,
+                group => NewGroupParameter(
+                    side,
+                    group,
+                    groupConfigs[group],
+                    SyncGroupMass,
+                    parameter.valueJsf
+                ));
+
+            return parameter;
+        }
+
+        private PhysicsParameter NewColliderRadiusParameter(string side)
+        {
+            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 0.07f))
             {
                 config = new StaticPhysicsConfig(0.024f, 0.037f, 0.028f),
-                sync = value => _baseValues[side][parameterName] = value,
-                groupMultiplierParams = new Dictionary<string, SoftGroupPhysicsParameter>
-                {
-                    {
-                        MAIN, NewGroupParameter(
-                            side,
-                            MAIN,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupColliderRadiusMultiplier
-                        )
-                    },
-                    {
-                        OUTER, NewGroupParameter(
-                            side,
-                            OUTER,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupColliderRadiusMultiplier
-                        )
-                    },
-                    {
-                        AREOLA, NewGroupParameter(
-                            side,
-                            AREOLA,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupColliderRadiusMultiplier
-                        )
-                    },
-                    {
-                        NIPPLE, NewGroupParameter(
-                            side,
-                            NIPPLE,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupColliderRadiusMultiplier
-                        )
-                    },
-                },
             };
 
-        private PhysicsParameter NewColliderAdditionalNormalOffsetParameter(string parameterName, string side) =>
-            new PhysicsParameter(new JSONStorableFloat(CURRENT_VALUE, 0, -0.01f, 0.01f))
+            var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
+            {
+                { MAIN, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { OUTER, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { AREOLA, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { NIPPLE, new StaticPhysicsConfig(1f, 1f, 1f) },
+            };
+
+            parameter.groupMultiplierParams = allGroups.ToDictionary(
+                group => group,
+                group => NewGroupParameter(
+                    side,
+                    group,
+                    groupConfigs[group],
+                    SyncGroupColliderRadius,
+                    parameter.valueJsf
+                ));
+
+            return parameter;
+        }
+
+        private PhysicsParameter NewColliderAdditionalNormalOffsetParameter(string side)
+        {
+            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, -0.01f, 0.01f))
             {
                 config = new StaticPhysicsConfig(0.001f, 0.001f, 0.001f),
-                sync = value => _baseValues[side][SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET] = value,
-                groupMultiplierParams = new Dictionary<string, SoftGroupPhysicsParameter>
-                {
-                    {
-                        MAIN, NewGroupParameter(
-                            side,
-                            MAIN,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupAdditionalNormalOffsetMultiplier
-                        )
-                    },
-                    {
-                        OUTER, NewGroupParameter(
-                            side,
-                            OUTER,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupAdditionalNormalOffsetMultiplier
-                        )
-                    },
-                    {
-                        AREOLA, NewGroupParameter(
-                            side,
-                            AREOLA,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupAdditionalNormalOffsetMultiplier
-                        )
-                    },
-                    {
-                        NIPPLE, NewGroupParameter(
-                            side,
-                            NIPPLE,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupAdditionalNormalOffsetMultiplier
-                        )
-                    },
-                },
             };
 
-        private PhysicsParameter NewDistanceLimitParameter(string parameterName, string side) =>
-            new PhysicsParameter(new JSONStorableFloat(CURRENT_VALUE, 0, 0, 0.1f))
+            var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
+            {
+                { MAIN, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { OUTER, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { AREOLA, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { NIPPLE, new StaticPhysicsConfig(1f, 1f, 1f) },
+            };
+
+            parameter.groupMultiplierParams = allGroups.ToDictionary(
+                group => group,
+                group => NewGroupParameter(
+                    side,
+                    group,
+                    groupConfigs[group],
+                    SyncGroupAdditionalNormalOffset,
+                    parameter.valueJsf
+                ));
+
+            return parameter;
+        }
+
+        private PhysicsParameter NewDistanceLimitParameter(string side)
+        {
+            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 0.1f))
             {
                 config = new StaticPhysicsConfig(0.020f, 0.068f, 0.028f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(0.000f, 0.000f, 0.024f),
                 slownessOffsetConfig = new StaticPhysicsConfig(0.000f, 0.000f, -0.008f),
-                sync = value => _baseValues[side][SOFT_VERTICES_DISTANCE_LIMIT] = value,
-                groupMultiplierParams = new Dictionary<string, SoftGroupPhysicsParameter>
-                {
-                    {
-                        MAIN, NewGroupParameter(
-                            side,
-                            MAIN,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupDistanceLimitMultiplier
-                        )
-                    },
-                    {
-                        OUTER, NewGroupParameter(
-                            side,
-                            OUTER,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupDistanceLimitMultiplier
-                        )
-                    },
-                    {
-                        AREOLA, NewGroupParameter(
-                            side,
-                            AREOLA,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupDistanceLimitMultiplier
-                        )
-                    },
-                    {
-                        NIPPLE, NewGroupParameter(
-                            side,
-                            NIPPLE,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupDistanceLimitMultiplier
-                        )
-                    },
-                },
             };
 
-        private PhysicsParameter NewBackForceParameter(string parameterName, string side) =>
-            new PhysicsParameter(new JSONStorableFloat(CURRENT_VALUE, 0, 0, 50))
+            var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
+            {
+                { MAIN, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { OUTER, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { AREOLA, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { NIPPLE, new StaticPhysicsConfig(1f, 1f, 1f) },
+            };
+
+            parameter.groupMultiplierParams = allGroups.ToDictionary(
+                group => group,
+                group => NewGroupParameter(
+                    side,
+                    group,
+                    groupConfigs[group],
+                    SyncGroupDistanceLimit,
+                    parameter.valueJsf
+                ));
+
+            return parameter;
+        }
+
+        private PhysicsParameter NewBackForceParameter(string side)
+        {
+            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 50))
             {
                 config = new StaticPhysicsConfig(50f, 55.6f, 9.3f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(-2.6f, -4f, -2.33f),
                 slownessOffsetConfig = new StaticPhysicsConfig(0.8f, 1.33f, 0.77f),
-                sync = value => _baseValues[side][parameterName] = value,
-                groupMultiplierParams = new Dictionary<string, SoftGroupPhysicsParameter>
-                {
-                    {
-                        MAIN, NewGroupParameter(
-                            side,
-                            MAIN,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupBackForceMultiplier
-                        )
-                    },
-                    {
-                        OUTER, NewGroupParameter(
-                            side,
-                            OUTER,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupBackForceMultiplier
-                        )
-                    },
-                    {
-                        AREOLA, NewGroupParameter(
-                            side,
-                            AREOLA,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupBackForceMultiplier
-                        )
-                    },
-                    {
-                        NIPPLE, NewGroupParameter(
-                            side,
-                            NIPPLE,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupBackForceMultiplier
-                        )
-                    },
-                },
             };
 
-        private PhysicsParameter NewBackForceMaxForceParameter(string parameterName, string side) =>
-            new PhysicsParameter(new JSONStorableFloat(CURRENT_VALUE, 0, 0, 50))
+            var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
+            {
+                { MAIN, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { OUTER, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { AREOLA, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { NIPPLE, new StaticPhysicsConfig(1f, 1f, 1f) },
+            };
+
+            parameter.groupMultiplierParams = allGroups.ToDictionary(
+                group => group,
+                group => NewGroupParameter(
+                    side,
+                    group,
+                    groupConfigs[group],
+                    SyncGroupBackForce,
+                    parameter.valueJsf
+                ));
+
+            return parameter;
+        }
+
+        private PhysicsParameter NewBackForceMaxForceParameter(string side)
+        {
+            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 50))
             {
                 config = new StaticPhysicsConfig(50f, 50f, 50f),
-                sync = value => _baseValues[side][parameterName] = value,
-                groupMultiplierParams = new Dictionary<string, SoftGroupPhysicsParameter>
-                {
-                    {
-                        MAIN, NewGroupParameter(
-                            side,
-                            MAIN,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupBackForceMaxForceMultiplier
-                        )
-                    },
-                    {
-                        OUTER, NewGroupParameter(
-                            side,
-                            OUTER,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupBackForceMaxForceMultiplier
-                        )
-                    },
-                    {
-                        AREOLA, NewGroupParameter(
-                            side,
-                            AREOLA,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupBackForceMaxForceMultiplier
-                        )
-                    },
-                    {
-                        NIPPLE, NewGroupParameter(
-                            side,
-                            NIPPLE,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupBackForceMaxForceMultiplier
-                        )
-                    },
-                },
             };
 
-        private PhysicsParameter NewBackForceThresholdDistanceParameter(string parameterName, string side) =>
-            new PhysicsParameter(new JSONStorableFloat(CURRENT_VALUE, 0, 0, 0.030f))
+            var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
+            {
+                { MAIN, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { OUTER, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { AREOLA, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { NIPPLE, new StaticPhysicsConfig(1f, 1f, 1f) },
+            };
+
+            parameter.groupMultiplierParams = allGroups.ToDictionary(
+                group => group,
+                group => NewGroupParameter(
+                    side,
+                    group,
+                    groupConfigs[group],
+                    SyncGroupBackForceMaxForce,
+                    parameter.valueJsf
+                ));
+
+            return parameter;
+        }
+
+        private PhysicsParameter NewBackForceThresholdDistanceParameter(string side)
+        {
+            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 0.030f))
             {
                 config = new StaticPhysicsConfig(0f, 0f, 0f),
-                sync = value => _baseValues[side][SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE] = value,
-                groupMultiplierParams = new Dictionary<string, SoftGroupPhysicsParameter>
-                {
-                    {
-                        MAIN, NewGroupParameter(
-                            side,
-                            MAIN,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupBackForceThresholdDistanceMultiplier
-                        )
-                    },
-                    {
-                        OUTER, NewGroupParameter(
-                            side,
-                            OUTER,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupBackForceThresholdDistanceMultiplier
-                        )
-                    },
-                    {
-                        AREOLA, NewGroupParameter(
-                            side,
-                            AREOLA,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupBackForceThresholdDistanceMultiplier
-                        )
-                    },
-                    {
-                        NIPPLE, NewGroupParameter(
-                            side,
-                            NIPPLE,
-                            parameterName,
-                            new StaticPhysicsConfig(1f, 1f, 1f),
-                            SyncGroupBackForceThresholdDistanceMultiplier
-                        )
-                    },
-                },
             };
+
+            var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
+            {
+                { MAIN, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { OUTER, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { AREOLA, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { NIPPLE, new StaticPhysicsConfig(1f, 1f, 1f) },
+            };
+
+            parameter.groupMultiplierParams = allGroups.ToDictionary(
+                group => group,
+                group => NewGroupParameter(
+                    side,
+                    group,
+                    groupConfigs[group],
+                    SyncGroupBackForceThresholdDistance,
+                    parameter.valueJsf
+                ));
+
+            return parameter;
+        }
 
         private void SetupPhysicsParameterGroups()
         {
             var softVerticesSpring = new PhysicsParameterGroup(
-                NewSpringParameter(SOFT_VERTICES_SPRING, LEFT),
-                NewSpringParameter(SOFT_VERTICES_SPRING, RIGHT),
+                NewSpringParameter(LEFT),
+                NewSpringParameter(RIGHT),
                 "Fat Spring",
                 "F2"
             );
@@ -551,8 +379,8 @@ namespace TittyMagic
             softVerticesSpring.SetLinearCurvesAroundMidpoint(OUTER, slope: 0);
 
             var softVerticesDamper = new PhysicsParameterGroup(
-                NewDamperParameter(SOFT_VERTICES_DAMPER, LEFT),
-                NewDamperParameter(SOFT_VERTICES_DAMPER, RIGHT),
+                NewDamperParameter(LEFT),
+                NewDamperParameter(RIGHT),
                 "Fat Damper",
                 "F3"
             )
@@ -562,15 +390,15 @@ namespace TittyMagic
             softVerticesDamper.SetLinearCurvesAroundMidpoint(null, slope: 0.082f);
 
             var softVerticesMass = new PhysicsParameterGroup(
-                NewSoftVerticesMassParameter(SOFT_VERTICES_MASS, LEFT),
-                NewSoftVerticesMassParameter(SOFT_VERTICES_MASS, RIGHT),
+                NewSoftVerticesMassParameter(LEFT),
+                NewSoftVerticesMassParameter(RIGHT),
                 "Fat Mass",
                 "F3"
             );
 
             var softVerticesColliderRadius = new PhysicsParameterGroup(
-                NewColliderRadiusParameter(SOFT_VERTICES_COLLIDER_RADIUS, LEFT),
-                NewColliderRadiusParameter(SOFT_VERTICES_COLLIDER_RADIUS, RIGHT),
+                NewColliderRadiusParameter(LEFT),
+                NewColliderRadiusParameter(RIGHT),
                 "Fat Collider Radius",
                 "F3"
             )
@@ -579,15 +407,15 @@ namespace TittyMagic
             };
 
             var softVerticesColliderAdditionalNormalOffset = new PhysicsParameterGroup(
-                NewColliderAdditionalNormalOffsetParameter(SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, LEFT),
-                NewColliderAdditionalNormalOffsetParameter(SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, RIGHT),
+                NewColliderAdditionalNormalOffsetParameter(LEFT),
+                NewColliderAdditionalNormalOffsetParameter(RIGHT),
                 "Fat Collider Depth",
                 "F3"
             );
 
             var softVerticesDistanceLimit = new PhysicsParameterGroup(
-                NewDistanceLimitParameter(SOFT_VERTICES_DISTANCE_LIMIT, LEFT),
-                NewDistanceLimitParameter(SOFT_VERTICES_DISTANCE_LIMIT, RIGHT),
+                NewDistanceLimitParameter(LEFT),
+                NewDistanceLimitParameter(RIGHT),
                 "Fat Distance Limit",
                 "F3"
             )
@@ -596,23 +424,23 @@ namespace TittyMagic
             };
 
             var softVerticesBackForce = new PhysicsParameterGroup(
-                NewBackForceParameter(SOFT_VERTICES_BACK_FORCE, LEFT),
-                NewBackForceParameter(SOFT_VERTICES_BACK_FORCE, RIGHT),
+                NewBackForceParameter(LEFT),
+                NewBackForceParameter(RIGHT),
                 "Fat Back Force",
                 "F2"
             );
             softVerticesBackForce.SetLinearCurvesAroundMidpoint(null, slope: 0.027f);
 
             var softVerticesBackForceMaxForce = new PhysicsParameterGroup(
-                NewBackForceMaxForceParameter(SOFT_VERTICES_BACK_FORCE_MAX_FORCE, LEFT),
-                NewBackForceMaxForceParameter(SOFT_VERTICES_BACK_FORCE_MAX_FORCE, RIGHT),
+                NewBackForceMaxForceParameter(LEFT),
+                NewBackForceMaxForceParameter(RIGHT),
                 "Fat Bk Force Max Force",
                 "F2"
             );
 
             var softVerticesBackForceThresholdDistance = new PhysicsParameterGroup(
-                NewBackForceThresholdDistanceParameter(SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE, LEFT),
-                NewBackForceThresholdDistanceParameter(SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE, RIGHT),
+                NewBackForceThresholdDistanceParameter(LEFT),
+                NewBackForceThresholdDistanceParameter(RIGHT),
                 "Fat Bk Force Threshold",
                 "F3"
             );
@@ -637,50 +465,47 @@ namespace TittyMagic
 
         // Reimplements DAZPhysicsMesh.cs methods SyncGroup[A|B|C|D]SpringMultiplier and SyncSoftVerticesCombinedSpring
         // Circumvents use of softVerticesCombinedSpring value as multiplier on the group specific value, using custom multiplier instead
-        private static void SyncGroupSpringMultiplier(float multiplier, float baseSpring, DAZPhysicsMeshSoftVerticesGroup group)
+        private static void SyncGroupSpring(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
-            float spring = baseSpring * multiplier;
-            group.jointSpringNormal = spring;
-            group.jointSpringTangent = spring;
-            group.jointSpringTangent2 = spring;
+            group.jointSpringNormal = value;
+            group.jointSpringTangent = value;
+            group.jointSpringTangent2 = value;
             if(group.tieLinkJointSpringAndDamperToNormalSpringAndDamper)
             {
-                group.linkSpring = spring;
+                group.linkSpring = value;
             }
         }
 
         // Reimplements DAZPhysicsMesh.cs methods SyncGroup[A|B|C|D]DamperMultiplier and SyncSoftVerticesCombinedDamper
         // Circumvents use of softVerticesCombinedDamper value as multiplier on the group specific value, using custom multiplier instead
-        private static void SyncGroupDamperMultiplier(float multiplier, float baseDamper, DAZPhysicsMeshSoftVerticesGroup group)
+        private static void SyncGroupDamper(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
-            float damper = baseDamper * multiplier;
-            group.jointDamperNormal = damper;
-            group.jointDamperTangent = damper;
-            group.jointDamperTangent2 = damper;
+            group.jointDamperNormal = value;
+            group.jointDamperTangent = value;
+            group.jointDamperTangent2 = value;
             if(group.tieLinkJointSpringAndDamperToNormalSpringAndDamper)
             {
-                group.linkDamper = damper;
+                group.linkDamper = value;
             }
         }
 
-        private static void SyncGroupMassMultiplier(float multiplier, float baseMass, DAZPhysicsMeshSoftVerticesGroup group)
+        private static void SyncGroupMass(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
-            group.jointMass = baseMass * multiplier;
+            group.jointMass = value;
         }
 
-        private static void SyncGroupColliderRadiusMultiplier(float multiplier, float baseRadius, DAZPhysicsMeshSoftVerticesGroup group)
+        private static void SyncGroupColliderRadius(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
-            float colliderRadius = baseRadius * multiplier;
             if(group.useParentColliderSettings)
             {
-                group.colliderRadiusNoSync = colliderRadius;
-                group.colliderNormalOffsetNoSync = colliderRadius;
+                group.colliderRadiusNoSync = value;
+                group.colliderNormalOffsetNoSync = value;
             }
 
             if(group.useParentColliderSettingsForSecondCollider)
             {
-                group.secondColliderRadiusNoSync = colliderRadius;
-                group.secondColliderNormalOffsetNoSync = colliderRadius;
+                group.secondColliderRadiusNoSync = value;
+                group.secondColliderNormalOffsetNoSync = value;
             }
 
             if(group.colliderSyncDirty)
@@ -689,33 +514,29 @@ namespace TittyMagic
             }
         }
 
-        private static void SyncGroupBackForceMultiplier(float multiplier, float baseForce, DAZPhysicsMeshSoftVerticesGroup group)
+        private static void SyncGroupBackForce(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
-            group.jointBackForce = baseForce * multiplier;
+            group.jointBackForce = value;
         }
 
-        private static void SyncGroupAdditionalNormalOffsetMultiplier(float multiplier, float baseNormalOffset, DAZPhysicsMeshSoftVerticesGroup group)
+        private static void SyncGroupAdditionalNormalOffset(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
-            group.colliderAdditionalNormalOffset = baseNormalOffset * multiplier;
+            group.colliderAdditionalNormalOffset = value;
         }
 
-        private static void SyncGroupDistanceLimitMultiplier(float multiplier, float baseDistanceLimit, DAZPhysicsMeshSoftVerticesGroup group)
+        private static void SyncGroupDistanceLimit(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
-            group.normalDistanceLimit = baseDistanceLimit * multiplier;
+            group.normalDistanceLimit = value;
         }
 
-        private static void SyncGroupBackForceMaxForceMultiplier(float multiplier, float baseMaxForce, DAZPhysicsMeshSoftVerticesGroup group)
+        private static void SyncGroupBackForceMaxForce(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
-            group.jointBackForceMaxForce = baseMaxForce * multiplier;
+            group.jointBackForceMaxForce = value;
         }
 
-        private static void SyncGroupBackForceThresholdDistanceMultiplier(
-            float multiplier,
-            float baseForceThreshold,
-            DAZPhysicsMeshSoftVerticesGroup group
-        )
+        private static void SyncGroupBackForceThresholdDistance(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
-            group.jointBackForceThresholdDistance = baseForceThreshold * multiplier;
+            group.jointBackForceThresholdDistance = value;
         }
 
         public void ReverseSyncSoftPhysicsOn()
