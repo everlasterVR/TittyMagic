@@ -99,26 +99,26 @@ namespace TittyMagic
                 config = softPhysicsEnabled
                     ? new StaticPhysicsConfig(0.350f, 0.480f, 0.560f)
                     : new StaticPhysicsConfig(0.525f, 0.750f, 0.900f),
-                valueFormat = "F3",
+                valueFormat = "F2",
                 sync = left
                     ? (Action<float>) (value => SyncCenterOfGravity(_pectoralRbLeft, value))
                     : (Action<float>) (value => SyncCenterOfGravity(_pectoralRbRight, value)),
             };
 
         private PhysicsParameter NewSpringParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 100))
+            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 10, 200))
             {
                 config = new StaticPhysicsConfig(82f, 96f, 45f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(20f, 24f, 18f),
                 slownessOffsetConfig = new StaticPhysicsConfig(-13f, -16f, -12f),
-                valueFormat = "F2",
+                valueFormat = "F0",
                 sync = left
                     ? (Action<float>) (value => SyncJointSpring(_jointLeft, _pectoralRbLeft, value))
                     : (Action<float>) (value => SyncJointSpring(_jointRight, _pectoralRbRight, value)),
             };
 
         private PhysicsParameter NewDamperParameter(bool left, bool softPhysicsEnabled) =>
-            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 5))
+            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 10))
             {
                 config = softPhysicsEnabled
                     ? new StaticPhysicsConfig(2.4f, 2.8f, 0.9f)
@@ -141,18 +141,19 @@ namespace TittyMagic
                 config = new StaticPhysicsConfig(850f, 950f, 250f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(90, 110, 50f),
                 slownessOffsetConfig = new StaticPhysicsConfig(-60, -70, -33f),
+                valueFormat = "F0",
                 sync = left
                     ? (Action<float>) (value => SyncJointPositionZDriveSpring(_jointLeft, _pectoralRbLeft, value))
                     : (Action<float>) (value => SyncJointPositionZDriveSpring(_jointRight, _pectoralRbRight, value)),
             };
 
         private PhysicsParameter NewPositionDamperZParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 1000))
+            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 100))
             {
                 config = new StaticPhysicsConfig(16f, 22f, 9f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(20f, 24f, 18f),
                 slownessOffsetConfig = new StaticPhysicsConfig(-13f, -16f, -12f),
-                valueFormat = "F3",
+                valueFormat = "F0",
                 sync = left
                     ? (Action<float>) (value => SyncJointPositionZDriveDamper(_jointLeft, _pectoralRbLeft, value))
                     : (Action<float>) (value => SyncJointPositionZDriveDamper(_jointRight, _pectoralRbRight, value)),

@@ -111,7 +111,7 @@ namespace TittyMagic
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 500))
             {
                 config = new StaticPhysicsConfig(500f, 500f, 62f),
-                valueFormat = "F2",
+                valueFormat = "F0",
             };
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
@@ -142,7 +142,7 @@ namespace TittyMagic
                 config = new StaticPhysicsConfig(10.0f, 10.0f, 0.90f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(-0.75f, -0.90f, -0.45f),
                 slownessOffsetConfig = new StaticPhysicsConfig(1.125f, 1.35f, 0.675f),
-                valueFormat = "F3",
+                valueFormat = "F2",
             };
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
@@ -351,7 +351,7 @@ namespace TittyMagic
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 0.030f))
             {
                 config = new StaticPhysicsConfig(0f, 0f, 0f),
-                valueFormat = "F2",
+                valueFormat = "F3",
             };
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
