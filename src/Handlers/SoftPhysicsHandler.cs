@@ -108,7 +108,7 @@ namespace TittyMagic
 
         private PhysicsParameter NewSpringParameter(string side)
         {
-            var parameter = new PhysicsParameter(SPRING, new JSONStorableFloat(VALUE, 0, 0, 500))
+            var parameter = new PhysicsParameter(SOFT_VERTICES_SPRING, new JSONStorableFloat(VALUE, 0, 0, 500))
             {
                 config = new StaticPhysicsConfig(500f, 500f, 62f),
                 valueFormat = "F0",
