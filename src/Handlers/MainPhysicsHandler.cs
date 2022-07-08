@@ -90,7 +90,10 @@ namespace TittyMagic
             SetupPhysicsParameterGroups(softPhysicsEnabled);
 
             var texts = CreateInfoTexts();
-            parameterGroups.ForEach(param => param.Value.infoText = texts[param.Key]);
+            foreach(var param in parameterGroups)
+            {
+                param.Value.infoText = texts[param.Key];
+            }
         }
 
         private PhysicsParameter NewCenterOfGravityParameter(bool left, bool softPhysicsEnabled) =>
@@ -517,10 +520,18 @@ namespace TittyMagic
                 $"";
 
             texts[TARGET_ROTATION_X] =
-                $"";
+                $"Determines the vertical angle of the breast relative to the person." +
+                $" Negative values pull breasts down, positive values pull up." +
+                $"\n\n" +
+                $"The offset shifts the center around which the final value is calculated" +
+                $" based on chest angle (see Gravity Multipliers).";
 
             texts[TARGET_ROTATION_Y] =
-                $"";
+                $"Determines the horizontal angle of the breast relative to the person." +
+                $" Negative values pull breasts together, positive values pull outward." +
+                $"\n\n" +
+                $"The offset shifts the center around which the final value is calculated" +
+                $" based on chest angle (see Gravity Multipliers).";
 
             return texts;
         }

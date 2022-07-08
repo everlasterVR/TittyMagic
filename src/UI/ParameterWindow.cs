@@ -27,8 +27,6 @@ namespace TittyMagic.UI
 
             _title = new JSONStorableString("title", "");
             _infoText = new JSONStorableString("infoText", "");
-
-            _infoText.val = "\n".Size(12) + _parameterGroup.infoText;
         }
 
         public void Rebuild(UnityAction backButtonListener)
@@ -36,22 +34,20 @@ namespace TittyMagic.UI
             _elements = new Dictionary<string, UIDynamic>();
 
             CreateBackButton(backButtonListener, false);
-            // CreateInfoTextArea(true);
 
             CreateTitle(false);
-            _elements["headerMargin"] = _script.NewSpacer(20);
+            CreateInfoTextArea(false);
+            CreateCurrentValueSlider(false);
 
             if(_parameterGroup.requiresRecalibration)
             {
-                _elements["rightSideMargin"] = _script.NewSpacer(17, true);
-                CreateRecalibrateButton(true, spacing: 62);
+                CreateRecalibrateButton(true, spacing: 363);
             }
             else
             {
-                _elements["rightSideMargin"] = _script.NewSpacer(162, true);
+                _elements["rightSideMargin"] = _script.NewSpacer(430, true);
             }
 
-            CreateCurrentValueSlider(false);
             foreach(var storable in _parameterGroup.groupMultiplierStorables)
             {
                 CreateMultiplierSlider(storable, false);
@@ -103,11 +99,12 @@ namespace TittyMagic.UI
         private void CreateInfoTextArea(bool rightSide, int spacing = 0)
         {
             var storable = _infoText;
+            storable.val = _parameterGroup.infoText;
             AddSpacer(storable.name, spacing, rightSide);
 
             var textField = _script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
-            textField.height = 430;
+            textField.height = 288;
             textField.backgroundColor = Color.clear;
             _elements[storable.name] = textField;
         }
