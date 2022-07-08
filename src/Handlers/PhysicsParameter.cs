@@ -177,7 +177,7 @@ namespace TittyMagic
             }
         }
 
-        private void UpdateOffsetJsfMinMax()
+        protected void UpdateOffsetJsfMinMax()
         {
             offsetJsf.min = -(baseValueJsf.val - baseValueJsf.min);
             offsetJsf.max = baseValueJsf.max - baseValueJsf.val;
@@ -334,10 +334,12 @@ namespace TittyMagic
 
         public new void UpdateNippleValue(float massValue, float softness, float nippleErection)
         {
-            float value = NewNippleValue(massValue, softness, nippleErection);
-            valueJsf.val = value;
-            baseValueJsf.val = value;
-            sync?.Invoke(value);
+            baseValueJsf.val = NewNippleValue(massValue, softness, nippleErection);
+            float newValue = offsetJsf.val + baseValueJsf.val;
+            valueJsf.val = newValue;
+            sync?.Invoke(newValue);
+
+            UpdateOffsetJsfMinMax();
         }
 
         private float NewNippleValue(float massValue, float softness, float nippleErection)
