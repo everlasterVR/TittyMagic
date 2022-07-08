@@ -386,15 +386,9 @@ namespace TittyMagic
         // Circumvents default invertJoint2RotationX = true
         private void SyncTargetRotationXLeft(float targetRotationX)
         {
-            var currentRotation = _breastControl.smoothedJoint2TargetRotation;
-            if(Mathf.Abs(currentRotation.x - targetRotationX) <= 0.01f)
-            {
-                return;
-            }
-
-            currentRotation.x = targetRotationX;
+            _breastControl.smoothedJoint2TargetRotation.x = targetRotationX;
             var dazBone = _jointLeft.GetComponent<DAZBone>();
-            var rotation = currentRotation;
+            var rotation = _breastControl.smoothedJoint2TargetRotation;
             rotation.x = -rotation.x;
             dazBone.baseJointRotation = rotation;
         }
@@ -402,30 +396,18 @@ namespace TittyMagic
         // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
         private void SyncTargetRotationYLeft(float targetRotationY)
         {
-            var currentRotation = _breastControl.smoothedJoint2TargetRotation;
-            if(Mathf.Abs(currentRotation.y - targetRotationY) <= 0.01f)
-            {
-                return;
-            }
-
-            currentRotation.y = targetRotationY;
+            _breastControl.smoothedJoint2TargetRotation.y = targetRotationY;
             var dazBone = _jointLeft.GetComponent<DAZBone>();
-            var rotation = currentRotation;
+            var rotation = _breastControl.smoothedJoint2TargetRotation;
             dazBone.baseJointRotation = rotation;
         }
 
         // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
         private void SyncTargetRotationXRight(float targetRotationX)
         {
-            var currentRotation = _breastControl.smoothedJoint1TargetRotation;
-            if(Mathf.Abs(currentRotation.x - targetRotationX) <= 0.01f)
-            {
-                return;
-            }
-
-            currentRotation.x = targetRotationX;
+            _breastControl.smoothedJoint1TargetRotation.x = targetRotationX;
             var dazBone = _jointRight.GetComponent<DAZBone>();
-            var rotation = currentRotation;
+            var rotation = _breastControl.smoothedJoint1TargetRotation;
             rotation.x = -rotation.x;
             dazBone.baseJointRotation = rotation;
         }
@@ -433,15 +415,9 @@ namespace TittyMagic
         // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
         private void SyncTargetRotationYRight(float targetRotationY)
         {
-            var currentRotation = _breastControl.smoothedJoint1TargetRotation;
-            if(Mathf.Abs(currentRotation.y - targetRotationY) <= 0.01f)
-            {
-                return;
-            }
-
-            currentRotation.y = targetRotationY;
+            _breastControl.smoothedJoint1TargetRotation.y = targetRotationY;
             var dazBone = _jointRight.GetComponent<DAZBone>();
-            var rotation = currentRotation;
+            var rotation = _breastControl.smoothedJoint1TargetRotation;
             dazBone.baseJointRotation = rotation;
         }
 
