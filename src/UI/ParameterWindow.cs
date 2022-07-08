@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -16,6 +17,8 @@ namespace TittyMagic.UI
         private readonly JSONStorableString _title;
         private readonly JSONStorableString _infoText;
         private float _offsetWhenCalibrated;
+
+        public UIDynamicButton parentButton { private get; set; }
 
         public ParameterWindow(Script script, PhysicsParameterGroup parameterGroup)
         {
@@ -177,12 +180,14 @@ namespace TittyMagic.UI
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = _parameterGroup.valueFormat;
 
-            if(_parameterGroup.requiresRecalibration)
+            slider.slider.onValueChanged.AddListener(value =>
             {
-                slider.slider.onValueChanged.AddListener(value
-                    => _script.recalibrationNeeded = Math.Abs(value - _offsetWhenCalibrated) > 0.01f
-                );
-            }
+                parentButton.label = ParamButtonLabel();
+                if(_parameterGroup.requiresRecalibration)
+                {
+                    _script.recalibrationNeeded = Math.Abs(value - _offsetWhenCalibrated) > 0.01f;
+                }
+            });
 
             _elements[storable.name] = slider;
             _offsetWhenCalibrated = storable.val;
@@ -194,7 +199,21 @@ namespace TittyMagic.UI
 
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
+
+            slider.slider.onValueChanged.AddListener(value => parentButton.label = ParamButtonLabel());
+
             _elements[storable.name] = slider;
+        }
+
+        public string ParamButtonLabel()
+        {
+            string label = $"  {_parameterGroup.displayName}";
+            if(_parameterGroup.offsetJsf.val != 0 || _parameterGroup.groupOffsetStorables.Any(jsf => jsf.val != 0))
+            {
+                label += " *".Bold();
+            }
+
+            return label;
         }
 
         private void AddSpacer(string name, int height, bool rightSide) =>

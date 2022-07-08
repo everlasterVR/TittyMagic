@@ -199,7 +199,7 @@ namespace TittyMagic
 
         private PhysicsParameter NewColliderRadiusParameter(string side)
         {
-            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 0.07f))
+            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 0.04f))
             {
                 config = new StaticPhysicsConfig(0.024f, 0.037f, 0.028f),
                 valueFormat = "F3",

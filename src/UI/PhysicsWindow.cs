@@ -102,6 +102,8 @@ namespace TittyMagic.UI
                 nestedWindows[key].Rebuild(returnCallback);
             });
 
+            nestedWindows[key].parentButton = button;
+            button.label = nestedWindows[key].ParamButtonLabel();
             _elements[key] = button;
         }
 
