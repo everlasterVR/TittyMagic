@@ -9,7 +9,6 @@ namespace TittyMagic
     internal class PhysicsParameterGroup
     {
         public string displayName { get; }
-        public string valueFormat { get; }
         public string infoText { get; set; }
 
         public bool dependOnPhysicsRate
@@ -27,17 +26,18 @@ namespace TittyMagic
         private readonly PhysicsParameter _left;
         private readonly PhysicsParameter _right;
 
+        public string valueFormat => _left.valueFormat;
         public bool hasStaticConfig => _left.config != null && _right.config != null;
         public JSONStorableFloat currentValueJsf => _left.valueJsf;
+        public JSONStorableFloat offsetJsf => _left.offsetJsf;
         public List<JSONStorableFloat> groupMultiplierStorables => _left.GetGroupMultiplierStorables();
-        public List<JSONStorableFloat> offsetStorables => _left.GetOffsetStorables();
+        public List<JSONStorableFloat> groupOffsetStorables => _left.GetGroupOffsetStorables();
 
-        public PhysicsParameterGroup(PhysicsParameter left, PhysicsParameter right, string displayName, string valueFormat)
+        public PhysicsParameterGroup(PhysicsParameter left, PhysicsParameter right, string displayName)
         {
             _left = left;
             _right = right;
             this.displayName = displayName;
-            this.valueFormat = valueFormat;
         }
 
         public void UpdateValue(float massValue, float softness, float quickness)
@@ -99,7 +99,7 @@ namespace TittyMagic
     {
         protected internal JSONStorableFloat valueJsf { get; }
         protected JSONStorableFloat baseValueJsf { get; }
-        private JSONStorableFloat offsetJsf { get; }
+        internal JSONStorableFloat offsetJsf { get; }
 
         private float _additiveAdjustedValue = 0;
         public bool dependOnPhysicsRate { get; set; }
@@ -109,6 +109,7 @@ namespace TittyMagic
         public StaticPhysicsConfig slownessOffsetConfig { get; set; }
         public Dictionary<string, DynamicPhysicsConfig> gravityPhysicsConfigs { get; set; }
         public Dictionary<string, DynamicPhysicsConfig> forcePhysicsConfigs { get; set; }
+        public string valueFormat { get; set; }
         public Action<float> sync { protected get; set; }
 
         public Dictionary<string, SoftGroupPhysicsParameter> groupMultiplierParams { get; set; }
@@ -274,12 +275,9 @@ namespace TittyMagic
             return list;
         }
 
-        public List<JSONStorableFloat> GetOffsetStorables()
+        public List<JSONStorableFloat> GetGroupOffsetStorables()
         {
-            var list = new List<JSONStorableFloat>
-            {
-                offsetJsf,
-            };
+            var list = new List<JSONStorableFloat>();
             if(groupMultiplierParams != null)
             {
                 list.AddRange(groupMultiplierParams.Values.ToList().Select(param => param.offsetJsf));

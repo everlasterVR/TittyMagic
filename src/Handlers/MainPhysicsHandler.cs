@@ -99,6 +99,7 @@ namespace TittyMagic
                 config = softPhysicsEnabled
                     ? new StaticPhysicsConfig(0.350f, 0.480f, 0.560f)
                     : new StaticPhysicsConfig(0.525f, 0.750f, 0.900f),
+                valueFormat = "F3",
                 sync = left
                     ? (Action<float>) (value => SyncCenterOfGravity(_pectoralRbLeft, value))
                     : (Action<float>) (value => SyncCenterOfGravity(_pectoralRbRight, value)),
@@ -110,6 +111,7 @@ namespace TittyMagic
                 config = new StaticPhysicsConfig(82f, 96f, 45f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(20f, 24f, 18f),
                 slownessOffsetConfig = new StaticPhysicsConfig(-13f, -16f, -12f),
+                valueFormat = "F2",
                 sync = left
                     ? (Action<float>) (value => SyncJointSpring(_jointLeft, _pectoralRbLeft, value))
                     : (Action<float>) (value => SyncJointSpring(_jointRight, _pectoralRbRight, value)),
@@ -127,6 +129,7 @@ namespace TittyMagic
                 slownessOffsetConfig = softPhysicsEnabled
                     ? new StaticPhysicsConfig(0.4f, 0.5f, 0.27f)
                     : new StaticPhysicsConfig(0.3f, 0.38f, 0.2f),
+                valueFormat = "F2",
                 sync = left
                     ? (Action<float>) (value => SyncJointDamper(_jointLeft, _pectoralRbLeft, value))
                     : (Action<float>) (value => SyncJointDamper(_jointRight, _pectoralRbRight, value)),
@@ -149,6 +152,7 @@ namespace TittyMagic
                 config = new StaticPhysicsConfig(16f, 22f, 9f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(20f, 24f, 18f),
                 slownessOffsetConfig = new StaticPhysicsConfig(-13f, -16f, -12f),
+                valueFormat = "F3",
                 sync = left
                     ? (Action<float>) (value => SyncJointPositionZDriveDamper(_jointLeft, _pectoralRbLeft, value))
                     : (Action<float>) (value => SyncJointPositionZDriveDamper(_jointRight, _pectoralRbRight, value)),
@@ -160,6 +164,7 @@ namespace TittyMagic
                 sync = left
                     ? (Action<float>) SyncTargetRotationYLeft
                     : (Action<float>) SyncTargetRotationYRight,
+                valueFormat = "F2",
             };
 
         private PhysicsParameter NewTargetRotationXParameter(bool left) =>
@@ -168,6 +173,7 @@ namespace TittyMagic
                 sync = left
                     ? (Action<float>) SyncTargetRotationXLeft
                     : (Action<float>) SyncTargetRotationXRight,
+                valueFormat = "F2",
             };
 
         private void SetupPhysicsParameterGroups(bool softPhysicsEnabled)
@@ -175,22 +181,19 @@ namespace TittyMagic
             var centerOfGravityPercent = new PhysicsParameterGroup(
                 NewCenterOfGravityParameter(true, softPhysicsEnabled),
                 NewCenterOfGravityParameter(false, softPhysicsEnabled),
-                "Center Of Gravity",
-                "F3"
+                "Center Of Gravity"
             );
             var spring = new PhysicsParameterGroup(
                 NewSpringParameter(true),
                 NewSpringParameter(false),
-                "Spring",
-                "F2"
+                "Spring"
             );
             spring.SetLinearCurvesAroundMidpoint(slope: 0.135f);
 
             var damper = new PhysicsParameterGroup(
                 NewDamperParameter(true, softPhysicsEnabled),
                 NewDamperParameter(false, softPhysicsEnabled),
-                "Damper",
-                "F2"
+                "Damper"
             )
             {
                 dependOnPhysicsRate = true,
@@ -200,16 +203,14 @@ namespace TittyMagic
             var positionSpringZ = new PhysicsParameterGroup(
                 NewPositionSpringZParameter(true),
                 NewPositionSpringZParameter(false),
-                "In/Out Spring",
-                "F2"
+                "In/Out Spring"
             );
             positionSpringZ.SetLinearCurvesAroundMidpoint(slope: 0.33f);
 
             var positionDamperZ = new PhysicsParameterGroup(
                 NewPositionDamperZParameter(true),
                 NewPositionDamperZParameter(false),
-                "In/Out Damper",
-                "F3"
+                "In/Out Damper"
             )
             {
                 dependOnPhysicsRate = true,
@@ -218,14 +219,12 @@ namespace TittyMagic
             var targetRotationY = new PhysicsParameterGroup(
                 NewTargetRotationYParameter(true),
                 NewTargetRotationYParameter(false),
-                "Right/Left Angle Target",
-                "F2"
+                "Right/Left Angle Target"
             );
             var targetRotationX = new PhysicsParameterGroup(
                 NewTargetRotationXParameter(true),
                 NewTargetRotationXParameter(false),
-                "Up/Down Angle Target",
-                "F2"
+                "Up/Down Angle Target"
             );
 
             parameterGroups = new Dictionary<string, PhysicsParameterGroup>

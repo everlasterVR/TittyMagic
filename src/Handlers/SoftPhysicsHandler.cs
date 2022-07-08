@@ -111,6 +111,7 @@ namespace TittyMagic
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 500))
             {
                 config = new StaticPhysicsConfig(500f, 500f, 62f),
+                valueFormat = "F2",
             };
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
@@ -141,6 +142,7 @@ namespace TittyMagic
                 config = new StaticPhysicsConfig(10.0f, 10.0f, 0.90f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(-0.75f, -0.90f, -0.45f),
                 slownessOffsetConfig = new StaticPhysicsConfig(1.125f, 1.35f, 0.675f),
+                valueFormat = "F3",
             };
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
@@ -171,6 +173,7 @@ namespace TittyMagic
                 config = new StaticPhysicsConfig(0.050f, 0.130f, 0.085f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(0.000f, -0.048f, -0.028f),
                 slownessOffsetConfig = new StaticPhysicsConfig(0.012f, 0.060f, 0.040f),
+                valueFormat = "F3",
             };
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
@@ -199,6 +202,7 @@ namespace TittyMagic
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 0.07f))
             {
                 config = new StaticPhysicsConfig(0.024f, 0.037f, 0.028f),
+                valueFormat = "F3",
             };
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
@@ -227,6 +231,7 @@ namespace TittyMagic
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, -0.01f, 0.01f))
             {
                 config = new StaticPhysicsConfig(0.001f, 0.001f, 0.001f),
+                valueFormat = "F3",
             };
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
@@ -257,6 +262,7 @@ namespace TittyMagic
                 config = new StaticPhysicsConfig(0.020f, 0.068f, 0.028f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(0.000f, 0.000f, 0.024f),
                 slownessOffsetConfig = new StaticPhysicsConfig(0.000f, 0.000f, -0.008f),
+                valueFormat = "F3",
             };
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
@@ -287,6 +293,7 @@ namespace TittyMagic
                 config = new StaticPhysicsConfig(50f, 55.6f, 9.3f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(-2.6f, -4f, -2.33f),
                 slownessOffsetConfig = new StaticPhysicsConfig(0.8f, 1.33f, 0.77f),
+                valueFormat = "F2",
             };
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
@@ -315,6 +322,7 @@ namespace TittyMagic
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 50))
             {
                 config = new StaticPhysicsConfig(50f, 50f, 50f),
+                valueFormat = "F2",
             };
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
@@ -343,6 +351,7 @@ namespace TittyMagic
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 0.030f))
             {
                 config = new StaticPhysicsConfig(0f, 0f, 0f),
+                valueFormat = "F2",
             };
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
@@ -371,8 +380,7 @@ namespace TittyMagic
             var softVerticesSpring = new PhysicsParameterGroup(
                 NewSpringParameter(LEFT),
                 NewSpringParameter(RIGHT),
-                "Fat Spring",
-                "F2"
+                "Fat Spring"
             );
             softVerticesSpring.SetLinearCurvesAroundMidpoint(null, slope: 0.41f);
             softVerticesSpring.SetLinearCurvesAroundMidpoint(MAIN, slope: 0);
@@ -381,8 +389,7 @@ namespace TittyMagic
             var softVerticesDamper = new PhysicsParameterGroup(
                 NewDamperParameter(LEFT),
                 NewDamperParameter(RIGHT),
-                "Fat Damper",
-                "F3"
+                "Fat Damper"
             )
             {
                 dependOnPhysicsRate = true,
@@ -392,15 +399,13 @@ namespace TittyMagic
             var softVerticesMass = new PhysicsParameterGroup(
                 NewSoftVerticesMassParameter(LEFT),
                 NewSoftVerticesMassParameter(RIGHT),
-                "Fat Mass",
-                "F3"
+                "Fat Mass"
             );
 
             var softVerticesColliderRadius = new PhysicsParameterGroup(
                 NewColliderRadiusParameter(LEFT),
                 NewColliderRadiusParameter(RIGHT),
-                "Fat Collider Radius",
-                "F3"
+                "Fat Collider Radius"
             )
             {
                 useRealMass = true,
@@ -409,15 +414,13 @@ namespace TittyMagic
             var softVerticesColliderAdditionalNormalOffset = new PhysicsParameterGroup(
                 NewColliderAdditionalNormalOffsetParameter(LEFT),
                 NewColliderAdditionalNormalOffsetParameter(RIGHT),
-                "Fat Collider Depth",
-                "F3"
+                "Fat Collider Depth"
             );
 
             var softVerticesDistanceLimit = new PhysicsParameterGroup(
                 NewDistanceLimitParameter(LEFT),
                 NewDistanceLimitParameter(RIGHT),
-                "Fat Distance Limit",
-                "F3"
+                "Fat Distance Limit"
             )
             {
                 useRealMass = true,
@@ -426,23 +429,20 @@ namespace TittyMagic
             var softVerticesBackForce = new PhysicsParameterGroup(
                 NewBackForceParameter(LEFT),
                 NewBackForceParameter(RIGHT),
-                "Fat Back Force",
-                "F2"
+                "Fat Back Force"
             );
             softVerticesBackForce.SetLinearCurvesAroundMidpoint(null, slope: 0.027f);
 
             var softVerticesBackForceMaxForce = new PhysicsParameterGroup(
                 NewBackForceMaxForceParameter(LEFT),
                 NewBackForceMaxForceParameter(RIGHT),
-                "Fat Bk Force Max Force",
-                "F2"
+                "Fat Bk Force Max Force"
             );
 
             var softVerticesBackForceThresholdDistance = new PhysicsParameterGroup(
                 NewBackForceThresholdDistanceParameter(LEFT),
                 NewBackForceThresholdDistanceParameter(RIGHT),
-                "Fat Bk Force Threshold",
-                "F3"
+                "Fat Bk Force Threshold"
             );
 
             parameterGroups = new Dictionary<string, PhysicsParameterGroup>
