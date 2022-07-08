@@ -87,5 +87,13 @@ namespace TittyMagic
 
             Debug.Log(result);
         }
+
+        public static void LogEvery(string str, int every = 1)
+        {
+            if(Calc.RoundToDecimals(Time.unscaledTime, 10f) % every == 0)
+            {
+                Debug.Log($"DebugUpdate: {str}");
+            }
+        }
     }
 }
