@@ -41,11 +41,12 @@ namespace TittyMagic.UI
 
             if(_parameterGroup.requiresRecalibration)
             {
-                CreateRecalibrateButton(true, spacing: 363);
+                CreateApplyOnlyToLeftBreastToggle(true, spacing: 298);
+                CreateRecalibrateButton(true); // 363
             }
             else
             {
-                _elements["rightSideMargin"] = _script.NewSpacer(430, true);
+                CreateApplyOnlyToLeftBreastToggle(true, spacing: 363);
             }
 
             foreach(var storable in _parameterGroup.groupMultiplierStorables)
@@ -80,6 +81,15 @@ namespace TittyMagic.UI
             var textField = UIHelpers.TitleTextField(_script, _title, _parameterGroup.displayName, 62, rightSide);
             textField.UItext.fontSize = 32;
             _elements[_title.name] = textField;
+        }
+
+        private void CreateApplyOnlyToLeftBreastToggle(bool rightSide, int spacing)
+        {
+            var storable = _parameterGroup.offsetOnlyLeftBreastJsb;
+            AddSpacer(storable.name, spacing, rightSide);
+            var toggle = _script.CreateToggle(storable, rightSide);
+            toggle.label = "Apply Only To Left Breast";
+            _elements[storable.name] = toggle;
         }
 
         private void CreateRecalibrateButton(bool rightSide, int spacing = 0)

@@ -23,6 +23,7 @@ namespace TittyMagic
 
         public bool useRealMass { get; set; }
         public bool requiresRecalibration { get; set; }
+        public JSONStorableBool offsetOnlyLeftBreastJsb { get; }
 
         private readonly PhysicsParameter _left;
         private readonly PhysicsParameter _right;
@@ -39,6 +40,39 @@ namespace TittyMagic
             _left = left;
             _right = right;
             this.displayName = displayName;
+            offsetOnlyLeftBreastJsb = new JSONStorableBool("offsetOnlyLeftBreast", false);
+        }
+
+        public void SetOffsetCallbackFunctions()
+        {
+            CreateOffsetCallbackPair(_left, _right);
+            if(_left.groupMultiplierParams != null)
+            {
+                foreach(var kvp in _left.groupMultiplierParams)
+                {
+                    CreateOffsetCallbackPair(kvp.Value, _right.groupMultiplierParams[kvp.Key]);
+                }
+            }
+        }
+
+        private void CreateOffsetCallbackPair(PhysicsParameter left, PhysicsParameter right)
+        {
+            left.offsetJsf.setCallbackFunction = value =>
+            {
+                left.UpdateOffsetValue(value);
+                if(!offsetOnlyLeftBreastJsb.val)
+                {
+                    right.UpdateOffsetValue(value);
+                }
+            };
+
+            offsetOnlyLeftBreastJsb.setCallbackFunction = value =>
+            {
+                if(!value)
+                {
+                    right.UpdateOffsetValue(left.offsetJsf.val);
+                }
+            };
         }
 
         public void UpdateValue(float massValue, float softness, float quickness)
@@ -123,7 +157,6 @@ namespace TittyMagic
             this.valueJsf = valueJsf;
             this.baseValueJsf = baseValueJsf ?? new JSONStorableFloat(Intl.BASE_VALUE, 0, valueJsf.min, valueJsf.max);
             this.offsetJsf = offsetJsf ?? new JSONStorableFloat(Intl.OFFSET, 0, -valueJsf.max, valueJsf.max);
-            this.offsetJsf.setCallbackFunction = UpdateOffsetValue;
         }
 
         public void UpdateValue(float massValue, float softness, float quickness)
@@ -150,8 +183,9 @@ namespace TittyMagic
             offsetJsf.max = baseValueJsf.max - baseValueJsf.val;
         }
 
-        private void UpdateOffsetValue(float value)
+        public void UpdateOffsetValue(float value)
         {
+            offsetJsf.valNoCallback = value;
             float newValue = _additiveAdjustedValue + value + baseValueJsf.val;
             valueJsf.val = newValue;
             sync?.Invoke(newValue);

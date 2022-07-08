@@ -248,6 +248,14 @@ namespace TittyMagic
                 requiresRecalibration = true,
             };
 
+            centerOfGravityPercent.SetOffsetCallbackFunctions();
+            spring.SetOffsetCallbackFunctions();
+            damper.SetOffsetCallbackFunctions();
+            positionSpringZ.SetOffsetCallbackFunctions();
+            positionDamperZ.SetOffsetCallbackFunctions();
+            targetRotationY.SetOffsetCallbackFunctions();
+            targetRotationX.SetOffsetCallbackFunctions();
+
             parameterGroups = new Dictionary<string, PhysicsParameterGroup>
             {
                 { CENTER_OF_GRAVITY_PERCENT, centerOfGravityPercent },

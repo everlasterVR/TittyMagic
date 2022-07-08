@@ -445,6 +445,16 @@ namespace TittyMagic
                 "Fat Bk Force Threshold"
             );
 
+            softVerticesSpring.SetOffsetCallbackFunctions();
+            softVerticesDamper.SetOffsetCallbackFunctions();
+            softVerticesMass.SetOffsetCallbackFunctions();
+            softVerticesBackForce.SetOffsetCallbackFunctions();
+            softVerticesBackForceMaxForce.SetOffsetCallbackFunctions();
+            softVerticesBackForceThresholdDistance.SetOffsetCallbackFunctions();
+            softVerticesColliderRadius.SetOffsetCallbackFunctions();
+            softVerticesColliderAdditionalNormalOffset.SetOffsetCallbackFunctions();
+            softVerticesDistanceLimit.SetOffsetCallbackFunctions();
+
             parameterGroups = new Dictionary<string, PhysicsParameterGroup>
             {
                 { SOFT_VERTICES_SPRING, softVerticesSpring },
