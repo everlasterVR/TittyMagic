@@ -183,12 +183,19 @@ namespace TittyMagic
                 NewCenterOfGravityParameter(true, softPhysicsEnabled),
                 NewCenterOfGravityParameter(false, softPhysicsEnabled),
                 "Center Of Gravity"
-            );
+            )
+            {
+                requiresRecalibration = true,
+            };
+
             var spring = new PhysicsParameterGroup(
                 NewSpringParameter(true),
                 NewSpringParameter(false),
                 "Spring"
-            );
+            )
+            {
+                requiresRecalibration = true,
+            };
             spring.SetLinearCurvesAroundMidpoint(slope: 0.135f);
 
             var damper = new PhysicsParameterGroup(
@@ -205,7 +212,10 @@ namespace TittyMagic
                 NewPositionSpringZParameter(true),
                 NewPositionSpringZParameter(false),
                 "In/Out Spring"
-            );
+            )
+            {
+                requiresRecalibration = true,
+            };
             positionSpringZ.SetLinearCurvesAroundMidpoint(slope: 0.33f);
 
             var positionDamperZ = new PhysicsParameterGroup(
@@ -221,12 +231,19 @@ namespace TittyMagic
                 NewTargetRotationYParameter(true),
                 NewTargetRotationYParameter(false),
                 "Right/Left Angle Target"
-            );
+            )
+            {
+                requiresRecalibration = true,
+            };
+
             var targetRotationX = new PhysicsParameterGroup(
                 NewTargetRotationXParameter(true),
                 NewTargetRotationXParameter(false),
                 "Up/Down Angle Target"
-            );
+            )
+            {
+                requiresRecalibration = true,
+            };
 
             parameterGroups = new Dictionary<string, PhysicsParameterGroup>
             {

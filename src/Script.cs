@@ -67,7 +67,7 @@ namespace TittyMagic
         public JSONStorableFloat quicknessJsf { get; private set; }
         public JSONStorableAction configureHardColliders { get; private set; }
 
-        public bool needsRecalibration { get; set; }
+        public bool recalibrationNeeded { get; set; }
         public bool initDone { get; private set; }
 
         private bool _loadingFromJson;
@@ -488,7 +488,7 @@ namespace TittyMagic
 
         public void RecalibrateOnNavigation()
         {
-            if(needsRecalibration)
+            if(recalibrationNeeded)
             {
                 StartCoroutine(DeferBeginRefresh(refreshMass: true, waitForListeners: true));
             }
@@ -584,7 +584,7 @@ namespace TittyMagic
         )
         {
             _waiting = true;
-            needsRecalibration = false;
+            recalibrationNeeded = false;
             if(useNewMass == null)
             {
                 useNewMass = autoUpdateJsb.val;

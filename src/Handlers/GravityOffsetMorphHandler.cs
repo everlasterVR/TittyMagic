@@ -20,7 +20,7 @@ namespace TittyMagic
         {
             _script = script;
             offsetMorphingJsf = script.NewJSONStorableFloat("gravityOffsetMorphing", 1.00f, 0.00f, 2.00f);
-            offsetMorphingJsf.setCallbackFunction = value => _script.needsRecalibration = true;
+            offsetMorphingJsf.setCallbackFunction = value => _script.recalibrationNeeded = true;
         }
 
         public void LoadSettings() =>

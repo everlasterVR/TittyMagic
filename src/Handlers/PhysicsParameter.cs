@@ -22,6 +22,7 @@ namespace TittyMagic
         }
 
         public bool useRealMass { get; set; }
+        public bool requiresRecalibration { get; set; }
 
         private readonly PhysicsParameter _left;
         private readonly PhysicsParameter _right;
