@@ -110,16 +110,16 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(SOFT_VERTICES_SPRING, new JSONStorableFloat(VALUE, 0, 0, 500))
             {
-                config = new StaticPhysicsConfig(500f, 500f, 62f),
+                config = new StaticPhysicsConfig(400f, 400f, 55f),
                 valueFormat = "F0",
             };
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                { MAIN, new StaticPhysicsConfig(5f, 5f, 1f) },
-                { OUTER, new StaticPhysicsConfig(5f, 5f, 1f) },
-                { AREOLA, new StaticPhysicsConfig(2.29f, 1.30f, 2.29f) },
-                { NIPPLE, new StaticPhysicsConfig(2.29f, 1.30f, 2.29f) },
+                { MAIN, new StaticPhysicsConfig(4.2f, 4.2f, 1f) },
+                { OUTER, new StaticPhysicsConfig(4.2f, 4.2f, 1f) },
+                { AREOLA, new StaticPhysicsConfig(4.2f, 4.2f, 1f) },
+                { NIPPLE, new StaticPhysicsConfig(2.6f, 1.6f, 2.1f) },
             };
 
             parameter.groupMultiplierParams = allGroups.ToDictionary(
@@ -139,7 +139,7 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(SOFT_VERTICES_DAMPER, new JSONStorableFloat(VALUE, 0, 0, 10))
             {
-                config = new StaticPhysicsConfig(10.0f, 10.0f, 0.90f),
+                config = new StaticPhysicsConfig(6.0f, 6.0f, 1.2f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(-0.75f, -0.90f, -0.45f),
                 slownessOffsetConfig = new StaticPhysicsConfig(1.125f, 1.35f, 0.675f),
                 valueFormat = "F2",
@@ -149,8 +149,8 @@ namespace TittyMagic
             {
                 { MAIN, new StaticPhysicsConfig(1f, 1f, 1f) },
                 { OUTER, new StaticPhysicsConfig(1f, 1f, 1f) },
-                { AREOLA, new StaticPhysicsConfig(1.81f, 1.22f, 1.81f) },
-                { NIPPLE, new StaticPhysicsConfig(1.81f, 1.22f, 1.81f) },
+                { AREOLA, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { NIPPLE, new StaticPhysicsConfig(2.0f, 1.4f, 1.7f) },
             };
 
             parameter.groupMultiplierParams = allGroups.ToDictionary(
@@ -170,7 +170,7 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(SOFT_VERTICES_MASS, new JSONStorableFloat(VALUE, 0, 0.05f, 0.5f))
             {
-                config = new StaticPhysicsConfig(0.050f, 0.130f, 0.085f),
+                config = new StaticPhysicsConfig(0.062f, 0.170f, 0.105f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(0.000f, -0.048f, -0.028f),
                 slownessOffsetConfig = new StaticPhysicsConfig(0.012f, 0.060f, 0.040f),
                 valueFormat = "F3",
@@ -180,8 +180,8 @@ namespace TittyMagic
             {
                 { MAIN, new StaticPhysicsConfig(1f, 1f, 1f) },
                 { OUTER, new StaticPhysicsConfig(1f, 1f, 1f) },
-                { AREOLA, new StaticPhysicsConfig(1f, 1f, 1f) },
-                { NIPPLE, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { AREOLA, new StaticPhysicsConfig(0.9f, 0.9f, 0.9f) },
+                { NIPPLE, new StaticPhysicsConfig(0.8f, 0.8f, 0.8f) },
             };
 
             parameter.groupMultiplierParams = allGroups.ToDictionary(
@@ -208,9 +208,9 @@ namespace TittyMagic
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
                 { MAIN, new StaticPhysicsConfig(1f, 1f, 1f) },
-                { OUTER, new StaticPhysicsConfig(1f, 1f, 1f) },
-                { AREOLA, new StaticPhysicsConfig(1f, 1f, 1f) },
-                { NIPPLE, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { OUTER, new StaticPhysicsConfig(0.89f, 0.89f, 0.89f) },
+                { AREOLA, new StaticPhysicsConfig(0.89f, 0.89f, 0.89f) },
+                { NIPPLE, new StaticPhysicsConfig(0.78f, 0.78f, 0.78f) },
             };
 
             parameter.groupMultiplierParams = allGroups.ToDictionary(
@@ -269,8 +269,8 @@ namespace TittyMagic
             {
                 { MAIN, new StaticPhysicsConfig(1f, 1f, 1f) },
                 { OUTER, new StaticPhysicsConfig(1f, 1f, 1f) },
-                { AREOLA, new StaticPhysicsConfig(1f, 1f, 1f) },
-                { NIPPLE, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { AREOLA, new StaticPhysicsConfig(0.75f, 0.75f, 0.75f) },
+                { NIPPLE, new StaticPhysicsConfig(0.5f, 0.5f, 0.5f) },
             };
 
             parameter.groupMultiplierParams = allGroups.ToDictionary(
@@ -290,7 +290,7 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(SOFT_VERTICES_BACK_FORCE, new JSONStorableFloat(VALUE, 0, 0, 50))
             {
-                config = new StaticPhysicsConfig(50f, 55.6f, 9.3f),
+                config = new StaticPhysicsConfig(29f, 35f, 2f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(-2.6f, -4f, -2.33f),
                 slownessOffsetConfig = new StaticPhysicsConfig(0.8f, 1.33f, 0.77f),
                 valueFormat = "F2",
@@ -300,8 +300,8 @@ namespace TittyMagic
             {
                 { MAIN, new StaticPhysicsConfig(1f, 1f, 1f) },
                 { OUTER, new StaticPhysicsConfig(1f, 1f, 1f) },
-                { AREOLA, new StaticPhysicsConfig(1f, 1f, 1f) },
-                { NIPPLE, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { AREOLA, new StaticPhysicsConfig(0.33f, 0.33f, 0.33f) },
+                { NIPPLE, new StaticPhysicsConfig(0.10f, 0.10f, 0.10f) },
             };
 
             parameter.groupMultiplierParams = allGroups.ToDictionary(
@@ -358,8 +358,8 @@ namespace TittyMagic
             {
                 { MAIN, new StaticPhysicsConfig(1f, 1f, 1f) },
                 { OUTER, new StaticPhysicsConfig(1f, 1f, 1f) },
-                { AREOLA, new StaticPhysicsConfig(1f, 1f, 1f) },
-                { NIPPLE, new StaticPhysicsConfig(1f, 1f, 1f) },
+                { AREOLA, new StaticPhysicsConfig(0.6f, 0.6f, 0.6f) },
+                { NIPPLE, new StaticPhysicsConfig(0.6f, 0.6f, 0.6f) },
             };
 
             parameter.groupMultiplierParams = allGroups.ToDictionary(
@@ -385,6 +385,7 @@ namespace TittyMagic
             softVerticesSpring.SetLinearCurvesAroundMidpoint(null, slope: 0.41f);
             softVerticesSpring.SetLinearCurvesAroundMidpoint(MAIN, slope: 0);
             softVerticesSpring.SetLinearCurvesAroundMidpoint(OUTER, slope: 0);
+            softVerticesSpring.SetLinearCurvesAroundMidpoint(AREOLA, slope: 0);
 
             var softVerticesDamper = new PhysicsParameterGroup(
                 NewDamperParameter(LEFT),

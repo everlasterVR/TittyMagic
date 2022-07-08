@@ -100,7 +100,7 @@ namespace TittyMagic
             new PhysicsParameter(CENTER_OF_GRAVITY_PERCENT, new JSONStorableFloat(VALUE, 0, 0, 1))
             {
                 config = softPhysicsEnabled
-                    ? new StaticPhysicsConfig(0.350f, 0.480f, 0.560f)
+                    ? new StaticPhysicsConfig(0.450f, 0.580f, 0.660f)
                     : new StaticPhysicsConfig(0.525f, 0.750f, 0.900f),
                 valueFormat = "F2",
                 sync = left
@@ -111,7 +111,7 @@ namespace TittyMagic
         private PhysicsParameter NewSpringParameter(bool left) =>
             new PhysicsParameter(SPRING, new JSONStorableFloat(VALUE, 0, 10, 200))
             {
-                config = new StaticPhysicsConfig(82f, 96f, 45f),
+                config = new StaticPhysicsConfig(72f, 84f, 45f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(20f, 24f, 18f),
                 slownessOffsetConfig = new StaticPhysicsConfig(-13f, -16f, -12f),
                 valueFormat = "F0",
@@ -124,14 +124,14 @@ namespace TittyMagic
             new PhysicsParameter(DAMPER, new JSONStorableFloat(VALUE, 0, 0, 10))
             {
                 config = softPhysicsEnabled
-                    ? new StaticPhysicsConfig(2.4f, 2.8f, 0.9f)
-                    : new StaticPhysicsConfig(1.8f, 2.1f, 0.675f),
+                    ? new StaticPhysicsConfig(1.2f, 1.4f, 0.45f)
+                    : new StaticPhysicsConfig(0.9f, 1.05f, 0.35f),
                 quicknessOffsetConfig = softPhysicsEnabled
-                    ? new StaticPhysicsConfig(-0.6f, -0.75f, -0.4f)
-                    : new StaticPhysicsConfig(-0.45f, -0.56f, -0.3f),
+                    ? new StaticPhysicsConfig(-0.3f, -0.375f, -0.2f)
+                    : new StaticPhysicsConfig(-0.225f, -0.28f, -0.15f),
                 slownessOffsetConfig = softPhysicsEnabled
-                    ? new StaticPhysicsConfig(0.4f, 0.5f, 0.27f)
-                    : new StaticPhysicsConfig(0.3f, 0.38f, 0.2f),
+                    ? new StaticPhysicsConfig(0.2f, 0.25f, 0.135f)
+                    : new StaticPhysicsConfig(0.15f, 0.19f, 0.1f),
                 valueFormat = "F2",
                 sync = left
                     ? (Action<float>) (value => SyncJointDamper(_jointLeft, _pectoralRbLeft, value))
