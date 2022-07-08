@@ -257,25 +257,31 @@ namespace TittyMagic
             };
         }
 
+        #region *** Sync functions ***
+
         // Reimplements AdjustJoints.cs method SyncMass
         private static void SyncMass(Rigidbody rb, float value)
         {
-            if(Math.Abs(rb.mass - value) > 0.001f)
+            if(Math.Abs(rb.mass - value) <= 0.001f)
             {
-                rb.mass = value;
-                rb.WakeUp();
+                return;
             }
+
+            rb.mass = value;
+            rb.WakeUp();
         }
 
         // Reimplements AdjustJoints.cs method SyncCenterOfGravity
         private void SyncCenterOfGravity(Rigidbody rb, float value)
         {
             var newCenterOfMass = Vector3.Lerp(_breastControl.lowCenterOfGravity, _breastControl.highCenterOfGravity, value);
-            if(rb.centerOfMass != newCenterOfMass)
+            if(Calc.VectorEqualWithin(100f, rb.centerOfMass, newCenterOfMass))
             {
-                rb.centerOfMass = newCenterOfMass;
-                rb.WakeUp();
+                return;
             }
+
+            rb.centerOfMass = newCenterOfMass;
+            rb.WakeUp();
         }
 
         private void SyncJointSpring(ConfigurableJoint joint, Rigidbody rb, float spring)
@@ -284,6 +290,10 @@ namespace TittyMagic
             float scalePow = Mathf.Pow(1.7f, _breastControl.scale - 1f);
 
             float scaledSpring = spring * scalePow;
+            if(Mathf.Abs(joint.slerpDrive.positionSpring - scaledSpring) <= 1)
+            {
+                return;
+            }
 
             var slerpDrive = joint.slerpDrive;
             slerpDrive.positionSpring = scaledSpring;
@@ -315,6 +325,10 @@ namespace TittyMagic
             float scalePow = Mathf.Pow(1.7f, _breastControl.scale - 1f);
 
             float scaledDamper = damper * scalePow;
+            if(Mathf.Abs(joint.slerpDrive.positionDamper - scaledDamper) <= 0.01f)
+            {
+                return;
+            }
 
             var slerpDrive = joint.slerpDrive;
             slerpDrive.positionDamper = scaledDamper;
@@ -344,6 +358,11 @@ namespace TittyMagic
         private static void SyncJointPositionZDriveSpring(ConfigurableJoint joint, Rigidbody rb, float spring)
         {
             var zDrive = joint.zDrive;
+            if(Mathf.Abs(zDrive.positionSpring - spring) <= 1)
+            {
+                return;
+            }
+
             zDrive.positionSpring = spring;
             joint.zDrive = zDrive;
             rb.WakeUp();
@@ -353,6 +372,11 @@ namespace TittyMagic
         private static void SyncJointPositionZDriveDamper(ConfigurableJoint joint, Rigidbody rb, float damper)
         {
             var zDrive = joint.zDrive;
+            if(Mathf.Abs(zDrive.positionDamper - damper) <= 1)
+            {
+                return;
+            }
+
             zDrive.positionDamper = damper;
             joint.zDrive = zDrive;
             rb.WakeUp();
@@ -362,9 +386,15 @@ namespace TittyMagic
         // Circumvents default invertJoint2RotationX = true
         private void SyncTargetRotationXLeft(float targetRotationX)
         {
-            _breastControl.smoothedJoint2TargetRotation.x = targetRotationX;
+            var currentRotation = _breastControl.smoothedJoint2TargetRotation;
+            if(Mathf.Abs(currentRotation.x - targetRotationX) <= 0.01f)
+            {
+                return;
+            }
+
+            currentRotation.x = targetRotationX;
             var dazBone = _jointLeft.GetComponent<DAZBone>();
-            var rotation = _breastControl.smoothedJoint2TargetRotation;
+            var rotation = currentRotation;
             rotation.x = -rotation.x;
             dazBone.baseJointRotation = rotation;
         }
@@ -372,18 +402,30 @@ namespace TittyMagic
         // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
         private void SyncTargetRotationYLeft(float targetRotationY)
         {
-            _breastControl.smoothedJoint2TargetRotation.y = targetRotationY;
+            var currentRotation = _breastControl.smoothedJoint2TargetRotation;
+            if(Mathf.Abs(currentRotation.y - targetRotationY) <= 0.01f)
+            {
+                return;
+            }
+
+            currentRotation.y = targetRotationY;
             var dazBone = _jointLeft.GetComponent<DAZBone>();
-            var rotation = _breastControl.smoothedJoint2TargetRotation;
+            var rotation = currentRotation;
             dazBone.baseJointRotation = rotation;
         }
 
         // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
         private void SyncTargetRotationXRight(float targetRotationX)
         {
-            _breastControl.smoothedJoint1TargetRotation.x = targetRotationX;
+            var currentRotation = _breastControl.smoothedJoint1TargetRotation;
+            if(Mathf.Abs(currentRotation.x - targetRotationX) <= 0.01f)
+            {
+                return;
+            }
+
+            currentRotation.x = targetRotationX;
             var dazBone = _jointRight.GetComponent<DAZBone>();
-            var rotation = _breastControl.smoothedJoint1TargetRotation;
+            var rotation = currentRotation;
             rotation.x = -rotation.x;
             dazBone.baseJointRotation = rotation;
         }
@@ -391,11 +433,19 @@ namespace TittyMagic
         // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
         private void SyncTargetRotationYRight(float targetRotationY)
         {
-            _breastControl.smoothedJoint1TargetRotation.y = targetRotationY;
+            var currentRotation = _breastControl.smoothedJoint1TargetRotation;
+            if(Mathf.Abs(currentRotation.y - targetRotationY) <= 0.01f)
+            {
+                return;
+            }
+
+            currentRotation.y = targetRotationY;
             var dazBone = _jointRight.GetComponent<DAZBone>();
-            var rotation = _breastControl.smoothedJoint1TargetRotation;
+            var rotation = currentRotation;
             dazBone.baseJointRotation = rotation;
         }
+
+        #endregion *** Sync functions ***
 
         public void UpdatePhysics(float softnessAmount, float quicknessAmount) =>
             parameterGroups.Values
