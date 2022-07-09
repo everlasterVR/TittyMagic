@@ -21,6 +21,7 @@ namespace TittyMagic
         public JSONStorableFloat baseForceJsf { get; private set; }
 
         private Dictionary<string, Dictionary<string, Scaler>> _scalingConfigs;
+        private Dictionary<string, Dictionary<string, float>> _defaultsConfigs;
 
         private const string COLLIDER_FORCE = "ColliderForce";
         private const string COLLIDER_RADIUS = "ColliderRadius";
@@ -51,6 +52,7 @@ namespace TittyMagic
             enabledJsb.setCallbackFunction = SyncUseHardColliders;
 
             CreateScalingConfigs();
+            CreateDefaultsConfigs();
             colliderConfigs = new List<ColliderConfigGroup>
             {
                 NewColliderConfigGroup("Pectoral1"),
@@ -120,11 +122,11 @@ namespace TittyMagic
                     "Pectoral3", new Dictionary<string, Scaler>
                     {
                         { COLLIDER_FORCE, new Scaler(0) },
-                        { COLLIDER_RADIUS, new Scaler(-0.12f, 0, 40) },
-                        { COLLIDER_LENGTH, new Scaler(-0.16f, 0, 40) },
+                        { COLLIDER_RADIUS, new Scaler(-0.22f, 0, 40) },
+                        { COLLIDER_LENGTH, new Scaler(-0.26f, 0, 40) },
                         { COLLIDER_CENTER_X, new Scaler(0.13f, 0, 40) },
                         { COLLIDER_CENTER_Y, new Scaler(0.13f, 0, 40) },
-                        { COLLIDER_CENTER_Z, new Scaler(-0.20f, 0, 40) },
+                        { COLLIDER_CENTER_Z, new Scaler(-0.40f, 0, 40) },
                     }
                 },
                 {
@@ -142,11 +144,48 @@ namespace TittyMagic
                     "Pectoral5", new Dictionary<string, Scaler>
                     {
                         { COLLIDER_FORCE, new Scaler(0) },
-                        { COLLIDER_RADIUS, new Scaler(-0.96f, 0, 40) },
-                        { COLLIDER_LENGTH, new Scaler(-0.19f, 0, 40) },
-                        { COLLIDER_CENTER_X, new Scaler(-0.40f, 0, 40) },
-                        { COLLIDER_CENTER_Y, new Scaler(0.59f, 0, 40) },
-                        { COLLIDER_CENTER_Z, new Scaler(-0.17f, 0, 40) },
+                        { COLLIDER_RADIUS, new Scaler(-0.80f, 0, 40) },
+                        { COLLIDER_LENGTH, new Scaler(-0.30f, 0, 40) },
+                        { COLLIDER_CENTER_X, new Scaler(-0.50f, 0, 40) },
+                        { COLLIDER_CENTER_Y, new Scaler(0.80f, 0, 40) },
+                        { COLLIDER_CENTER_Z, new Scaler(-0.35f, 0, 40) },
+                    }
+                },
+            };
+        }
+
+        private void CreateDefaultsConfigs()
+        {
+            _defaultsConfigs = new Dictionary<string, Dictionary<string, float>>
+            {
+                {
+                    "Pectoral1", new Dictionary<string, float>
+                    {
+                        { COLLIDER_FORCE, 0.5f },
+                    }
+                },
+                {
+                    "Pectoral2", new Dictionary<string, float>
+                    {
+                        { COLLIDER_FORCE, 0.5f },
+                    }
+                },
+                {
+                    "Pectoral3", new Dictionary<string, float>
+                    {
+                        { COLLIDER_FORCE, 0.25f },
+                    }
+                },
+                {
+                    "Pectoral4", new Dictionary<string, float>
+                    {
+                        { COLLIDER_FORCE, 0.5f },
+                    }
+                },
+                {
+                    "Pectoral5", new Dictionary<string, float>
+                    {
+                        { COLLIDER_FORCE, 0.25f },
                     }
                 },
             };
@@ -157,6 +196,7 @@ namespace TittyMagic
             var configLeft = NewColliderConfig("l" + id);
             var configRight = NewColliderConfig("r" + id);
             var scalingConfig = _scalingConfigs[id];
+            var defaultsConfig = _defaultsConfigs[id];
             var colliderConfigGroup = new ColliderConfigGroup(
                 id,
                 configLeft,
@@ -169,7 +209,7 @@ namespace TittyMagic
                 scalingConfig[COLLIDER_CENTER_Z]
             )
             {
-                forceJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_FORCE, 0.50f, 0.01f, 1.00f),
+                forceJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_FORCE, defaultsConfig[COLLIDER_FORCE], 0.01f, 1.00f),
                 radiusJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_RADIUS, 0, -1f, 1f),
                 lengthJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_LENGTH, 0, -1f, 1f),
                 rightJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_X, 0, -1f, 1f),
