@@ -109,7 +109,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewSpringParameter(bool left) =>
-            new PhysicsParameter(SPRING, new JSONStorableFloat(VALUE, 0, 10, 200))
+            new PhysicsParameter(SPRING, new JSONStorableFloat(VALUE, 0, 10, 100))
             {
                 config = new StaticPhysicsConfig(72f, 84f, 45f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(20f, 24f, 18f),
