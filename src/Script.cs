@@ -479,11 +479,7 @@ namespace TittyMagic
             RecalibrateOnNavigation();
             colliderVisualizer.ShowPreviewsJSON.val = false;
             colliderVisualizer.enabled = false;
-
-            if(_tabs.activeWindow.Id() == mainWindow.Id() && mainWindow.nestedWindowActive)
-            {
-                mainWindow.nestedWindow.ClosePopups();
-            }
+            mainWindow.nestedWindow.ClosePopups();
         }
 
         public void RecalibrateOnNavigation()
