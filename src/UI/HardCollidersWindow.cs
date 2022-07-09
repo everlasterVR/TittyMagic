@@ -250,6 +250,11 @@ namespace TittyMagic.UI
 
         public void ClosePopups()
         {
+            if(_elements == null)
+            {
+                return;
+            }
+
             foreach(var element in _elements)
             {
                 var uiDynamicPopup = element.Value as UIDynamicPopup;

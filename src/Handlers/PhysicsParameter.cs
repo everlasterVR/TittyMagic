@@ -45,33 +45,34 @@ namespace TittyMagic
 
         public void SetOffsetCallbackFunctions()
         {
-            CreateOffsetCallbackPair(_left, _right);
+            CreateOffsetPairCallback(_left, _right);
             if(_left.groupMultiplierParams != null)
             {
                 foreach(var kvp in _left.groupMultiplierParams)
                 {
-                    CreateOffsetCallbackPair(kvp.Value, _right.groupMultiplierParams[kvp.Key]);
+                    CreateOffsetPairCallback(kvp.Value, _right.groupMultiplierParams[kvp.Key]);
                 }
             }
+
+            offsetOnlyLeftBreastJsb.setCallbackFunction = value =>
+            {
+                _right.UpdateOffsetValue(value ? 0 : _left.offsetJsf.val);
+                if(_right.groupMultiplierParams != null)
+                {
+                    foreach(var kvp in _right.groupMultiplierParams)
+                    {
+                        kvp.Value.UpdateOffsetValue(value ? 0 : _left.groupMultiplierParams[kvp.Key].offsetJsf.val);
+                    }
+                }
+            };
         }
 
-        private void CreateOffsetCallbackPair(PhysicsParameter left, PhysicsParameter right)
+        private void CreateOffsetPairCallback(PhysicsParameter left, PhysicsParameter right)
         {
             left.offsetJsf.setCallbackFunction = value =>
             {
                 left.UpdateOffsetValue(value);
-                if(!offsetOnlyLeftBreastJsb.val)
-                {
-                    right.UpdateOffsetValue(value);
-                }
-            };
-
-            offsetOnlyLeftBreastJsb.setCallbackFunction = value =>
-            {
-                if(!value)
-                {
-                    right.UpdateOffsetValue(left.offsetJsf.val);
-                }
+                right.UpdateOffsetValue(offsetOnlyLeftBreastJsb.val ? 0 : value);
             };
         }
 
@@ -138,7 +139,7 @@ namespace TittyMagic
         protected JSONStorableFloat baseValueJsf { get; }
         internal JSONStorableFloat offsetJsf { get; }
 
-        private float _additiveAdjustedValue = 0;
+        protected float _additiveAdjustedValue;
         public bool dependOnPhysicsRate { get; set; }
 
         public StaticPhysicsConfig config { get; set; }
@@ -350,7 +351,9 @@ namespace TittyMagic
 
         public void Sync()
         {
-            sync?.Invoke(baseValueJsf.val);
+            float value = _additiveAdjustedValue + offsetJsf.val + baseValueJsf.val;
+            valueJsf.val = value;
+            sync?.Invoke(value);
         }
     }
 }
