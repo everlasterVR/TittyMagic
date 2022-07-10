@@ -109,7 +109,7 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(SOFT_VERTICES_SPRING, new JSONStorableFloat(VALUE, 0, 0, 500))
             {
-                config = new StaticPhysicsConfig(95f, 70f, 65f)
+                config = new StaticPhysicsConfig(90f, 60f, 50f)
                 {
                     softnessCurve = x => Curves.Exponential1(x, 1.9f, 1.74f, 1.17f),
                 },
@@ -126,18 +126,18 @@ namespace TittyMagic
                     }
                 },
                 {
-                    OUTER, new StaticPhysicsConfig(9.20f, 9.00f, 2.05f)
+                    OUTER, new StaticPhysicsConfig(9.20f, 9.00f, 2.00f)
                     {
                         softnessCurve = groupSoftnessCurve,
                     }
                 },
                 {
-                    AREOLA, new StaticPhysicsConfig(9.60f, 9.40f, 2.10f)
+                    AREOLA, new StaticPhysicsConfig(9.60f, 9.40f, 2.00f)
                     {
                         softnessCurve = groupSoftnessCurve,
                     }
                 },
-                { NIPPLE, new StaticPhysicsConfig(9.60f, 9.40f, 2.20f) },
+                { NIPPLE, new StaticPhysicsConfig(9.60f, 9.40f, 2.00f) },
             };
 
             parameter.groupMultiplierParams = allGroups.ToDictionary(
@@ -158,12 +158,12 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(SOFT_VERTICES_DAMPER, new JSONStorableFloat(VALUE, 0, 0, 5.00f))
             {
-                config = new StaticPhysicsConfig(1.10f, 0.75f, 0.40f)
+                config = new StaticPhysicsConfig(1.15f, 1.30f, 0.55f)
                 {
                     softnessCurve = x => Curves.Exponential1(x, 1.90f, 1.74f, 1.17f),
                 },
-                quicknessOffsetConfig = new StaticPhysicsConfig(-0.30f, -0.50f, -0.05f),
-                slownessOffsetConfig = new StaticPhysicsConfig(0.30f, 0.50f, 0.05f),
+                quicknessOffsetConfig = new StaticPhysicsConfig(-0.40f, -0.45f, -0.20f),
+                slownessOffsetConfig = new StaticPhysicsConfig(0.40f, 0.45f, 0.20f),
                 valueFormat = "F2",
             };
 
@@ -192,7 +192,7 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(SOFT_VERTICES_MASS, new JSONStorableFloat(VALUE, 0, 0.001f, 0.200f))
             {
-                config = new StaticPhysicsConfig(0.040f, 0.090f, 0.105f)
+                config = new StaticPhysicsConfig(0.040f, 0.090f, 0.130f)
                 {
                     softnessCurve = x => Curves.Exponential1(x, 2.3f, 1.74f, 1.17f),
                 },
@@ -203,8 +203,8 @@ namespace TittyMagic
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                { MAIN, new StaticPhysicsConfig(1.12f, 1.12f, 1.12f) },
-                { OUTER, new StaticPhysicsConfig(0.90f, 0.90f, 0.90f) },
+                { MAIN, new StaticPhysicsConfig(1.12f, 1.12f, 0.98f) },
+                { OUTER, new StaticPhysicsConfig(0.82f, 0.82f, 0.82f) },
                 { AREOLA, new StaticPhysicsConfig(0.90f, 0.90f, 0.90f) },
                 { NIPPLE, new StaticPhysicsConfig(0.75f, 0.75f, 0.75f) },
             };
