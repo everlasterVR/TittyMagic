@@ -684,14 +684,12 @@ namespace TittyMagic
             UpdateDynamicPhysics(roll: 0, pitch: 0);
             UpdateDynamicMorphs(roll: 0, pitch: 0);
 
-            _softnessAmount = CalculateSoftnessAmount(softnessJsf.val);
-            _quicknessAmount = CalculateQuicknessAmount(quicknessJsf.val);
-
             if(refreshMass)
             {
                 yield return RefreshMass(useNewMass);
             }
 
+            SetMorphingExtraMultipliers();
             UpdateStaticPhysics();
 
             yield return CalibrateNipplesTracking();
@@ -738,8 +736,6 @@ namespace TittyMagic
             {
                 mainPhysicsHandler.massJsf.defaultVal = mainPhysicsHandler.massJsf.val;
             }
-
-            SetMorphingExtraMultipliers();
         }
 
         private void SetMorphingExtraMultipliers()
