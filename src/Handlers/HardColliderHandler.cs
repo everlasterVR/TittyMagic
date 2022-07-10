@@ -21,7 +21,6 @@ namespace TittyMagic
         public JSONStorableFloat baseForceJsf { get; private set; }
 
         private Dictionary<string, Dictionary<string, Scaler>> _scalingConfigs;
-        private Dictionary<string, Dictionary<string, float>> _defaultsConfigs;
 
         private const string COLLIDER_FORCE = "ColliderForce";
         private const string COLLIDER_RADIUS = "ColliderRadius";
@@ -52,7 +51,6 @@ namespace TittyMagic
             enabledJsb.setCallbackFunction = SyncUseHardColliders;
 
             CreateScalingConfigs();
-            CreateDefaultsConfigs();
             colliderConfigs = new List<ColliderConfigGroup>
             {
                 NewColliderConfigGroup("Pectoral1"),
@@ -99,7 +97,7 @@ namespace TittyMagic
                 {
                     "Pectoral1", new Dictionary<string, Scaler>
                     {
-                        { COLLIDER_FORCE, new Scaler(0) },
+                        { COLLIDER_FORCE, new Scaler(-0.008f) },
                         { COLLIDER_RADIUS, new Scaler(-0.34f, 0, 40) },
                         { COLLIDER_LENGTH, new Scaler(0.38f, 0, 40) },
                         { COLLIDER_CENTER_X, new Scaler(-0.43f, 0, 40) },
@@ -110,7 +108,7 @@ namespace TittyMagic
                 {
                     "Pectoral2", new Dictionary<string, Scaler>
                     {
-                        { COLLIDER_FORCE, new Scaler(0) },
+                        { COLLIDER_FORCE, new Scaler(-0.016f) },
                         { COLLIDER_RADIUS, new Scaler(0.03f, 0, 40) },
                         { COLLIDER_LENGTH, new Scaler(0.20f, 0, 40) },
                         { COLLIDER_CENTER_X, new Scaler(0.37f, 0, 40) },
@@ -121,7 +119,7 @@ namespace TittyMagic
                 {
                     "Pectoral3", new Dictionary<string, Scaler>
                     {
-                        { COLLIDER_FORCE, new Scaler(0) },
+                        { COLLIDER_FORCE, new Scaler(-0.008f) },
                         { COLLIDER_RADIUS, new Scaler(-0.22f, 0, 40) },
                         { COLLIDER_LENGTH, new Scaler(-0.26f, 0, 40) },
                         { COLLIDER_CENTER_X, new Scaler(0.13f, 0, 40) },
@@ -132,7 +130,7 @@ namespace TittyMagic
                 {
                     "Pectoral4", new Dictionary<string, Scaler>
                     {
-                        { COLLIDER_FORCE, new Scaler(0) },
+                        { COLLIDER_FORCE, new Scaler(-0.008f) },
                         { COLLIDER_RADIUS, new Scaler(-0.26f, 0, 40) },
                         { COLLIDER_LENGTH, new Scaler(-0.63f, 0, 40) },
                         { COLLIDER_CENTER_X, new Scaler(-0.39f, 0, 40) },
@@ -143,7 +141,7 @@ namespace TittyMagic
                 {
                     "Pectoral5", new Dictionary<string, Scaler>
                     {
-                        { COLLIDER_FORCE, new Scaler(0) },
+                        { COLLIDER_FORCE, new Scaler(-0.0016f) },
                         { COLLIDER_RADIUS, new Scaler(-0.85f, 0, 40) },
                         { COLLIDER_LENGTH, new Scaler(-0.30f, 0, 40) },
                         { COLLIDER_CENTER_X, new Scaler(-0.60f, 0, 40) },
@@ -154,49 +152,11 @@ namespace TittyMagic
             };
         }
 
-        private void CreateDefaultsConfigs()
-        {
-            _defaultsConfigs = new Dictionary<string, Dictionary<string, float>>
-            {
-                {
-                    "Pectoral1", new Dictionary<string, float>
-                    {
-                        { COLLIDER_FORCE, 0.3f },
-                    }
-                },
-                {
-                    "Pectoral2", new Dictionary<string, float>
-                    {
-                        { COLLIDER_FORCE, 0.25f },
-                    }
-                },
-s                {
-                    "Pectoral3", new Dictionary<string, float>
-                    {
-                        { COLLIDER_FORCE, 0.25f },
-                    }
-                },
-                {
-                    "Pectoral4", new Dictionary<string, float>
-                    {
-                        { COLLIDER_FORCE, 0.60f },
-                    }
-                },
-                {
-                    "Pectoral5", new Dictionary<string, float>
-                    {
-                        { COLLIDER_FORCE, 0.25f },
-                    }
-                },
-            };
-        }
-
         private ColliderConfigGroup NewColliderConfigGroup(string id)
         {
             var configLeft = NewColliderConfig("l" + id);
             var configRight = NewColliderConfig("r" + id);
             var scalingConfig = _scalingConfigs[id];
-            var defaultsConfig = _defaultsConfigs[id];
             var colliderConfigGroup = new ColliderConfigGroup(
                 id,
                 configLeft,
@@ -209,7 +169,7 @@ s                {
                 scalingConfig[COLLIDER_CENTER_Z]
             )
             {
-                forceJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_FORCE, defaultsConfig[COLLIDER_FORCE], 0.01f, 1.00f),
+                forceJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_FORCE, 0.50f, 0.01f, 1.00f),
                 radiusJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_RADIUS, 0, -1f, 1f),
                 lengthJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_LENGTH, 0, -1f, 1f),
                 rightJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_X, 0, -1f, 1f),
