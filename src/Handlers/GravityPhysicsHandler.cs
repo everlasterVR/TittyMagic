@@ -54,29 +54,32 @@ namespace TittyMagic
         private static Dictionary<string, DynamicPhysicsConfig> NewCenterOfGravityConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
             {
-                { Direction.BACK, new DynamicPhysicsConfig(-0.071f, -0.053f, isNegative: true, multiplyInvertedMass: true) },
-                { Direction.FORWARD, new DynamicPhysicsConfig(0.141f, 0.106f, isNegative: false, multiplyInvertedMass: true) },
+                { Direction.BACK, new DynamicPhysicsConfig(-0.150f, -0.225f, isNegative: true, multiplyInvertedMass: true) },
+                { Direction.FORWARD, new DynamicPhysicsConfig(0.150f, 0.225f, isNegative: false, multiplyInvertedMass: true) },
             };
 
         private static Dictionary<string, DynamicPhysicsConfig> NewSpringConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
             {
-                { Direction.BACK, new DynamicPhysicsConfig(-30.0f, -20f, isNegative: true) },
-                { Direction.FORWARD, new DynamicPhysicsConfig(-20.0f, -13.33f, isNegative: true) },
+                { Direction.UP, new DynamicPhysicsConfig(-60.0f, -10f, isNegative: true) },
+                { Direction.BACK, new DynamicPhysicsConfig(-60.0f, -10f, isNegative: true) },
+                { Direction.FORWARD, new DynamicPhysicsConfig(-60.0f, -10f, isNegative: true) },
+                { Direction.LEFT, new DynamicPhysicsConfig(-60.0f, -10f, isNegative: true) },
+                { Direction.RIGHT, new DynamicPhysicsConfig(-60.0f, -10f, isNegative: true) },
             };
 
         private static Dictionary<string, DynamicPhysicsConfig> NewPositionSpringZConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
             {
-                { Direction.BACK, new DynamicPhysicsConfig(-320f, -230f, isNegative: true) },
-                { Direction.FORWARD, new DynamicPhysicsConfig(-500f, -400f, isNegative: true) },
+                { Direction.BACK, new DynamicPhysicsConfig(-420f, -315f, isNegative: true) },
+                { Direction.FORWARD, new DynamicPhysicsConfig(-420f, -315f, isNegative: true) },
             };
 
         private static Dictionary<string, DynamicPhysicsConfig> NewPositionDamperZConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
             {
-                { Direction.BACK, new DynamicPhysicsConfig(-15f, 5f, isNegative: true, multiplyInvertedMass: true) },
-                { Direction.FORWARD, new DynamicPhysicsConfig(0f, 0f) },
+                { Direction.BACK, new DynamicPhysicsConfig(-8f, 0f, isNegative: true, multiplyInvertedMass: true) },
+                { Direction.FORWARD, new DynamicPhysicsConfig(-8f, 0f) },
             };
 
         private static Dictionary<string, DynamicPhysicsConfig> NewPositionTargetRotationXConfigs() =>

@@ -127,7 +127,8 @@ namespace TittyMagic
         protected JSONStorableFloat baseValueJsf { get; }
         internal JSONStorableFloat offsetJsf { get; }
 
-        protected float additiveAdjustedValue;
+        protected readonly Dictionary<string, float> gravityAdjustments;
+        protected readonly Dictionary<string, float> forceAdjustments;
         public bool dependOnPhysicsRate { get; set; }
 
         public StaticPhysicsConfig config { get; set; }
@@ -146,12 +147,14 @@ namespace TittyMagic
             this.valueJsf = valueJsf;
             this.baseValueJsf = baseValueJsf ?? new JSONStorableFloat(Intl.BASE_VALUE, 0, valueJsf.min, valueJsf.max);
             this.offsetJsf = offsetJsf ?? new JSONStorableFloat(Intl.OFFSET, 0, -valueJsf.max, valueJsf.max);
+            gravityAdjustments = new Dictionary<string, float>();
+            forceAdjustments = new Dictionary<string, float>();
         }
 
         public void UpdateValue(float massValue, float softness, float quickness)
         {
             baseValueJsf.val = NewBaseValue(massValue, softness, quickness);
-            float newValue = additiveAdjustedValue + offsetJsf.val + baseValueJsf.val;
+            float newValue = gravityAdjustments.Values.Sum() + offsetJsf.val + baseValueJsf.val;
             valueJsf.val = newValue;
             sync?.Invoke(newValue);
 
@@ -175,7 +178,7 @@ namespace TittyMagic
         public void UpdateOffsetValue(float value)
         {
             offsetJsf.valNoCallback = value;
-            float newValue = additiveAdjustedValue + value + baseValueJsf.val;
+            float newValue = gravityAdjustments.Values.Sum() + value + baseValueJsf.val;
             valueJsf.val = newValue;
             sync?.Invoke(newValue);
 
@@ -214,14 +217,6 @@ namespace TittyMagic
             return dependOnPhysicsRate ? Utils.PhysicsRateMultiplier() * value : value;
         }
 
-        private void AddValue(float value)
-        {
-            additiveAdjustedValue = value;
-            float newValue = additiveAdjustedValue + offsetJsf.val + baseValueJsf.val;
-            valueJsf.val = newValue;
-            sync?.Invoke(newValue);
-        }
-
         public void UpdateGravityValue(string direction, float effect, float massValue, float softness)
         {
             if(gravityPhysicsConfigs == null || !gravityPhysicsConfigs.ContainsKey(direction))
@@ -231,17 +226,20 @@ namespace TittyMagic
 
             var dpConfig = gravityPhysicsConfigs[direction];
             float gravityValue = NewGravityValue(dpConfig, effect, massValue, softness);
+
+            float newValue = offsetJsf.val + baseValueJsf.val;
             if(dpConfig.additive)
             {
-                AddValue(gravityValue);
+                gravityAdjustments[direction] = gravityValue;
+                newValue += gravityAdjustments.Values.Sum() + forceAdjustments.Values.Sum();
             }
             else
             {
                 baseValueJsf.val = gravityValue;
-                float newValue = offsetJsf.val + baseValueJsf.val;
-                valueJsf.val = newValue;
-                sync?.Invoke(newValue);
             }
+
+            valueJsf.val = newValue;
+            sync.Invoke(newValue);
         }
 
         private static float NewGravityValue(DynamicPhysicsConfig dpConfig, float effect, float massValue, float softness)
@@ -263,8 +261,11 @@ namespace TittyMagic
             }
 
             var dpConfig = forcePhysicsConfigs[direction];
-            float value = NewForceValue(dpConfig, effect, massValue);
-            AddValue(value);
+            float forceValue = NewForceValue(dpConfig, effect, massValue);
+            forceAdjustments[direction] = forceValue;
+            float newValue = gravityAdjustments.Values.Sum() + forceAdjustments.Values.Sum() + offsetJsf.val + baseValueJsf.val;
+            valueJsf.val = newValue;
+            sync.Invoke(newValue);
         }
 
         private static float NewForceValue(DynamicPhysicsConfig dpConfig, float effect, float massValue)
@@ -327,7 +328,7 @@ namespace TittyMagic
 
         public void Sync()
         {
-            float value = additiveAdjustedValue + offsetJsf.val + baseValueJsf.val;
+            float value = gravityAdjustments.Values.Sum() + forceAdjustments.Values.Sum() + offsetJsf.val + baseValueJsf.val;
             valueJsf.val = value;
             sync?.Invoke(value);
         }
