@@ -26,5 +26,9 @@ namespace TittyMagic
             const float c = 2.8f;
             return a / Mathf.Sqrt(mass + b) - c;
         }
+
+        // https://www.desmos.com/calculator/2nzb2miloz
+        public static float Exponential1(float x, float b, float p, float q) =>
+            (1 - b) * Mathf.Pow(x, p) + b * Mathf.Pow(x, q);
     }
 }

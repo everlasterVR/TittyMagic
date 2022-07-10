@@ -110,15 +110,34 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(SOFT_VERTICES_SPRING, new JSONStorableFloat(VALUE, 0, 0, 500))
             {
-                config = new StaticPhysicsConfig(410f, 410f, 86f),
+                config = new StaticPhysicsConfig(410f, 410f, 86f)
+                {
+                    softnessCurve = x => Curves.Exponential1(x, 2.3f, 1.74f, 1.17f),
+                },
                 valueFormat = "F0",
             };
 
+            Func<float, float> groupSoftnessCurve = x => Curves.Exponential1(x, 3.03f, 1.74f, 1.17f);
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                { MAIN, new StaticPhysicsConfig(2.2f, 2.2f, 0.9f) },
-                { OUTER, new StaticPhysicsConfig(2.2f, 2.2f, 1.12f) },
-                { AREOLA, new StaticPhysicsConfig(3.2f, 3.2f, 2.24f) },
+                {
+                    MAIN, new StaticPhysicsConfig(2.2f, 2.2f, 0.9f)
+                    {
+                        softnessCurve = groupSoftnessCurve,
+                    }
+                },
+                {
+                    OUTER, new StaticPhysicsConfig(2.2f, 2.2f, 1.12f)
+                    {
+                        softnessCurve = groupSoftnessCurve,
+                    }
+                },
+                {
+                    AREOLA, new StaticPhysicsConfig(3.2f, 3.2f, 2.24f)
+                    {
+                        softnessCurve = groupSoftnessCurve,
+                    }
+                },
                 { NIPPLE, new StaticPhysicsConfig(3.5f, 3.5f, 2.50f) },
             };
 
@@ -139,7 +158,10 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(SOFT_VERTICES_DAMPER, new JSONStorableFloat(VALUE, 0, 0, 10))
             {
-                config = new StaticPhysicsConfig(6.0f, 6.0f, 1.0f),
+                config = new StaticPhysicsConfig(6.0f, 6.0f, 1.0f)
+                {
+                    softnessCurve = x => Curves.Exponential1(x, 3.03f, 1.74f, 1.17f),
+                },
                 quicknessOffsetConfig = new StaticPhysicsConfig(-0.75f, -0.90f, -0.45f),
                 slownessOffsetConfig = new StaticPhysicsConfig(1.125f, 1.35f, 0.675f),
                 valueFormat = "F2",
@@ -290,7 +312,10 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(SOFT_VERTICES_BACK_FORCE, new JSONStorableFloat(VALUE, 0, 0, 50))
             {
-                config = new StaticPhysicsConfig(29f, 35f, 3.6f),
+                config = new StaticPhysicsConfig(29f, 35f, 3.6f)
+                {
+                    softnessCurve = x => Curves.Exponential1(x, 3.03f, 1.74f, 1.17f),
+                },
                 quicknessOffsetConfig = new StaticPhysicsConfig(-2.6f, -4f, -2.33f),
                 slownessOffsetConfig = new StaticPhysicsConfig(0.8f, 1.33f, 0.77f),
                 valueFormat = "F2",
@@ -382,10 +407,6 @@ namespace TittyMagic
                 NewSpringParameter(RIGHT),
                 "Fat Spring"
             );
-            softVerticesSpring.SetLinearCurvesAroundMidpoint(null, slope: 0.41f);
-            softVerticesSpring.SetLinearCurvesAroundMidpoint(MAIN, slope: 0);
-            softVerticesSpring.SetLinearCurvesAroundMidpoint(OUTER, slope: 0);
-            softVerticesSpring.SetLinearCurvesAroundMidpoint(AREOLA, slope: 0);
 
             var softVerticesDamper = new PhysicsParameterGroup(
                 NewDamperParameter(LEFT),
@@ -395,7 +416,6 @@ namespace TittyMagic
             {
                 dependOnPhysicsRate = true,
             };
-            softVerticesDamper.SetLinearCurvesAroundMidpoint(null, slope: 0.082f);
 
             var softVerticesMass = new PhysicsParameterGroup(
                 NewSoftVerticesMassParameter(LEFT),
@@ -432,7 +452,6 @@ namespace TittyMagic
                 NewBackForceParameter(RIGHT),
                 "Fat Back Force"
             );
-            softVerticesBackForce.SetLinearCurvesAroundMidpoint(null, slope: 0.027f);
 
             var softVerticesBackForceMaxForce = new PhysicsParameterGroup(
                 NewBackForceMaxForceParameter(LEFT),

@@ -88,18 +88,6 @@ namespace TittyMagic
             _right.UpdateNippleValue(massValue, softness, nippleErection);
         }
 
-        public void SetLinearCurvesAroundMidpoint(float slope, float cutoff = 0.6285f)
-        {
-            _left.SetLinearCurvesAroundMidpoint(null, slope, cutoff);
-            _right.SetLinearCurvesAroundMidpoint(null, slope, cutoff);
-        }
-
-        public void SetLinearCurvesAroundMidpoint(string group, float slope, float cutoff = 0.6285f)
-        {
-            _left.SetLinearCurvesAroundMidpoint(group, slope, cutoff);
-            _right.SetLinearCurvesAroundMidpoint(group, slope, cutoff);
-        }
-
         public void SetGravityPhysicsConfigs(
             Dictionary<string, DynamicPhysicsConfig> leftConfigs,
             Dictionary<string, DynamicPhysicsConfig> rightConfigs
@@ -289,18 +277,6 @@ namespace TittyMagic
 
             bool inRange = dpConfig.isNegative ? value < 0 : value > 0;
             return inRange ? value : 0;
-        }
-
-        public void SetLinearCurvesAroundMidpoint(string group, float slope, float cutoff)
-        {
-            if(group == null)
-            {
-                config.SetLinearCurvesAroundMidpoint(slope, cutoff);
-            }
-            else if(groupMultiplierParams != null && groupMultiplierParams.ContainsKey(group))
-            {
-                groupMultiplierParams[group].config.SetLinearCurvesAroundMidpoint(slope, cutoff);
-            }
         }
 
         public List<JSONStorableFloat> GetGroupMultiplierStorables()

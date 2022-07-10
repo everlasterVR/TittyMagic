@@ -111,7 +111,10 @@ namespace TittyMagic
         private PhysicsParameter NewSpringParameter(bool left) =>
             new PhysicsParameter(SPRING, new JSONStorableFloat(VALUE, 0, 10, 100))
             {
-                config = new StaticPhysicsConfig(65f, 77f, 36f),
+                config = new StaticPhysicsConfig(65f, 77f, 36f)
+                {
+                    softnessCurve = x => Curves.Exponential1(x, 2.97f, 1.74f, 1.17f),
+                },
                 quicknessOffsetConfig = new StaticPhysicsConfig(20f, 24f, 18f),
                 slownessOffsetConfig = new StaticPhysicsConfig(-13f, -16f, -12f),
                 valueFormat = "F0",
@@ -125,6 +128,9 @@ namespace TittyMagic
             {
                 config = softPhysicsEnabled
                     ? new StaticPhysicsConfig(1.2f, 1.4f, 0.45f)
+                    {
+                        softnessCurve = x => Curves.Exponential1(x, 2.65f, 1.74f, 1.17f),
+                    }
                     : new StaticPhysicsConfig(0.9f, 1.05f, 0.35f),
                 quicknessOffsetConfig = softPhysicsEnabled
                     ? new StaticPhysicsConfig(-0.3f, -0.375f, -0.2f)
@@ -141,7 +147,10 @@ namespace TittyMagic
         private PhysicsParameter NewPositionSpringZParameter(bool left) =>
             new PhysicsParameter(POSITION_SPRING_Z, new JSONStorableFloat(VALUE, 0, 0, 1000))
             {
-                config = new StaticPhysicsConfig(650f, 750f, 250f),
+                config = new StaticPhysicsConfig(650f, 750f, 250f)
+                {
+                    softnessCurve = x => Curves.Exponential1(x, 2.4f, 1.74f, 1.17f),
+                },
                 quicknessOffsetConfig = new StaticPhysicsConfig(90, 110, 50f),
                 slownessOffsetConfig = new StaticPhysicsConfig(-60, -70, -33f),
                 valueFormat = "F0",
@@ -197,8 +206,6 @@ namespace TittyMagic
             {
                 requiresRecalibration = true,
             };
-            spring.SetLinearCurvesAroundMidpoint(slope: 0.135f);
-
             var damper = new PhysicsParameterGroup(
                 NewDamperParameter(true, softPhysicsEnabled),
                 NewDamperParameter(false, softPhysicsEnabled),
@@ -207,7 +214,6 @@ namespace TittyMagic
             {
                 dependOnPhysicsRate = true,
             };
-            damper.SetLinearCurvesAroundMidpoint(slope: 0.2f);
 
             var positionSpringZ = new PhysicsParameterGroup(
                 NewPositionSpringZParameter(true),
@@ -217,7 +223,6 @@ namespace TittyMagic
             {
                 requiresRecalibration = true,
             };
-            positionSpringZ.SetLinearCurvesAroundMidpoint(slope: 0.33f);
 
             var positionDamperZ = new PhysicsParameterGroup(
                 NewPositionDamperZParameter(true),
