@@ -97,7 +97,7 @@ namespace TittyMagic
         }
 
         private PhysicsParameter NewCenterOfGravityParameter(bool left, bool softPhysicsEnabled) =>
-            new PhysicsParameter(CENTER_OF_GRAVITY_PERCENT, new JSONStorableFloat(VALUE, 0, 0, 1))
+            new PhysicsParameter(CENTER_OF_GRAVITY_PERCENT, new JSONStorableFloat(VALUE, 0, 0, 1.00f))
             {
                 config = softPhysicsEnabled
                     ? new StaticPhysicsConfig(0.450f, 0.580f, 0.660f)
@@ -124,7 +124,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewDamperParameter(bool left, bool softPhysicsEnabled) =>
-            new PhysicsParameter(DAMPER, new JSONStorableFloat(VALUE, 0, 0, 10))
+            new PhysicsParameter(DAMPER, new JSONStorableFloat(VALUE, 0, 0, 10.00f))
             {
                 config = softPhysicsEnabled
                     ? new StaticPhysicsConfig(1.2f, 1.4f, 0.45f)
@@ -170,7 +170,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewTargetRotationYParameter(bool left) =>
-            new PhysicsParameter(TARGET_ROTATION_Y, new JSONStorableFloat(VALUE, 0, -20, 20))
+            new PhysicsParameter(TARGET_ROTATION_Y, new JSONStorableFloat(VALUE, 0, -20.00f, 20.00f))
             {
                 sync = left
                     ? (Action<float>) SyncTargetRotationYLeft
@@ -179,7 +179,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewTargetRotationXParameter(bool left) =>
-            new PhysicsParameter(TARGET_ROTATION_X, new JSONStorableFloat(VALUE, 0, -20, 20))
+            new PhysicsParameter(TARGET_ROTATION_X, new JSONStorableFloat(VALUE, 0, -20.00f, 20.00f))
             {
                 sync = left
                     ? (Action<float>) SyncTargetRotationXLeft
