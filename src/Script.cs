@@ -669,7 +669,7 @@ namespace TittyMagic
 
             SetBreastsUseGravity(false);
 
-            yield return new WaitForSeconds(0.33f);
+            yield return new WaitForSeconds(0.5f);
             UpdateDynamicPhysics(roll: 0, pitch: 0);
             UpdateDynamicMorphs(roll: 0, pitch: 0);
 
@@ -763,12 +763,11 @@ namespace TittyMagic
         {
             _calibrating = true;
             StartCoroutine(SimulateUprightPhysics());
-            yield return new WaitForSeconds(0.5f);
 
             float duration = 0;
-            const float interval = 0.1f;
+            const float interval = 0.05f;
             while(
-                duration < 2f &&
+                duration < 1.5f &&
                 !_trackLeftNipple.CalibrationDone() &&
                 !_trackRightNipple.CalibrationDone()
             )

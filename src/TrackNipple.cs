@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 
 namespace TittyMagic
@@ -20,6 +21,9 @@ namespace TittyMagic
         private const int SMOOTH_UPDATES_COUNT = 4;
         private readonly float[] _zDiffs = new float[SMOOTH_UPDATES_COUNT];
 
+        private Vector3[] _nippleCalibrationVectors = new Vector3[3];
+        private Vector3[] _pectoralCalibrationVectors = new Vector3[3];
+
         public TrackNipple(Rigidbody chestRb, Rigidbody pectoralRb)
         {
             _chestRb = chestRb;
@@ -28,23 +32,49 @@ namespace TittyMagic
 
         public bool CalibrationDone()
         {
-            bool positionCalibrated = Calc.VectorEqualWithin(
-                1000000f,
-                _neutralRelativePosition,
-                Calc.RelativePosition(_chestRb, getNipplePosition())
-            );
-            bool pectoralPositionCalibrated = Calc.VectorEqualWithin(
-                1000000f,
-                _neutralRelativePectoralPosition,
-                Calc.RelativePosition(_chestRb, _pectoralRb.position)
-            );
-            return positionCalibrated && pectoralPositionCalibrated;
+            if(_nippleCalibrationVectors[_nippleCalibrationVectors.Length - 1] == Vector3.zero)
+            {
+                return false;
+            }
+
+            bool result = CheckNipple() && CheckPectoral();
+            if(result)
+            {
+                _nippleCalibrationVectors = new Vector3[3];
+                _pectoralCalibrationVectors = new Vector3[3];
+            }
+
+            return result;
+        }
+
+        private bool CheckNipple()
+        {
+            var newPos = Calc.RelativePosition(_chestRb, getNipplePosition());
+            return Calc.VectorEqualWithin(1000f, _nippleCalibrationVectors[0], newPos)
+                && Calc.VectorEqualWithin(1000f, _nippleCalibrationVectors[1], newPos)
+                && Calc.VectorEqualWithin(1000f, _nippleCalibrationVectors[2], newPos);
+        }
+
+        private bool CheckPectoral()
+        {
+            var newPos = Calc.RelativePosition(_chestRb, _pectoralRb.position);
+            return Calc.VectorEqualWithin(1000f, _pectoralCalibrationVectors[0], newPos)
+                && Calc.VectorEqualWithin(1000f, _pectoralCalibrationVectors[1], newPos)
+                && Calc.VectorEqualWithin(1000f, _pectoralCalibrationVectors[2], newPos);
         }
 
         public void Calibrate()
         {
-            _neutralRelativePosition = Calc.RelativePosition(_chestRb, getNipplePosition());
-            _neutralRelativePectoralPosition = Calc.RelativePosition(_chestRb, _pectoralRb.position);
+            _nippleCalibrationVectors.Unshift(Calc.RelativePosition(_chestRb, getNipplePosition()));
+            _pectoralCalibrationVectors.Unshift(Calc.RelativePosition(_chestRb, _pectoralRb.position));
+            _neutralRelativePosition = _nippleCalibrationVectors[_nippleCalibrationVectors.Length - 1];
+            _neutralRelativePectoralPosition = _pectoralCalibrationVectors[_pectoralCalibrationVectors.Length - 1];
+        }
+
+        private static void Unshift<T>(T[] array, T value)
+        {
+            Array.Copy(array, 0, array, 1, array.Length - 1);
+            array[0] = value;
         }
 
         public void UpdateAnglesAndDepthDiff()

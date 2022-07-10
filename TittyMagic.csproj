@@ -85,6 +85,7 @@
     <Compile Include="src\AtomScaleListener.cs" />
     <Compile Include="src\BreastVolumeCalculator.cs" />
     <Compile Include="src\BreastMorphListener.cs" />
+    <Compile Include="src\Extensions\ArrayExtension.cs" />
     <Compile Include="src\Extensions\MVRScriptExtension.cs" />
     <Compile Include="src\Extensions\StringExtension.cs" />
     <Compile Include="src\Extensions\UIDynamicExtension.cs" />

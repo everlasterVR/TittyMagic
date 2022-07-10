@@ -22,6 +22,7 @@ vam-collider-editor\src\NameHelper.cs
 vam-collider-editor\src\UIPopupExtensions.cs
 src\Components\Bindings.cs
 src\Components\SettingsMonitor.cs
+src\Extensions\ArrayExtension.cs
 src\Extensions\MVRScriptExtension.cs
 src\Extensions\StringExtension.cs
 src\Extensions\UIDynamicExtension.cs
