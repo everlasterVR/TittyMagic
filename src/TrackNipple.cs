@@ -18,9 +18,6 @@ namespace TittyMagic
         public float angleX { get; private set; }
         public float depthDiff { get; private set; }
 
-        private const int SMOOTH_UPDATES_COUNT = 4;
-        private readonly float[] _zDiffs = new float[SMOOTH_UPDATES_COUNT];
-
         private Vector3[] _nippleCalibrationVectors = new Vector3[3];
         private Vector3[] _pectoralCalibrationVectors = new Vector3[3];
 
@@ -71,12 +68,6 @@ namespace TittyMagic
             _neutralRelativePectoralPosition = _pectoralCalibrationVectors[_pectoralCalibrationVectors.Length - 1];
         }
 
-        private static void Unshift<T>(T[] array, T value)
-        {
-            Array.Copy(array, 0, array, 1, array.Length - 1);
-            array[0] = value;
-        }
-
         public void UpdateAnglesAndDepthDiff()
         {
             var relativePos = Calc.RelativePosition(_chestRb, getNipplePosition());
@@ -89,15 +80,7 @@ namespace TittyMagic
                 new Vector2(relativePos.z, relativePos.x)
             );
 
-            depthDiff = ExpAverageDepthDiff();
-        }
-
-        private float ExpAverageDepthDiff()
-        {
-            Array.Copy(_zDiffs, 0, _zDiffs, 1, _zDiffs.Length - 1);
-            var relativePectoralPos = Calc.RelativePosition(_chestRb, _pectoralRb.position);
-            _zDiffs[0] = (_neutralRelativePectoralPosition - relativePectoralPos).z;
-            return Calc.ExponentialMovingAverage(_zDiffs, 0.75f)[0];
+            depthDiff = (_neutralRelativePectoralPosition - Calc.RelativePosition(_chestRb, _pectoralRb.position)).z;
         }
 
         public void ResetAnglesAndDepthDiff()
