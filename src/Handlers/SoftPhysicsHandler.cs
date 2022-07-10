@@ -109,7 +109,7 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(SOFT_VERTICES_SPRING, new JSONStorableFloat(VALUE, 0, 0, 500))
             {
-                config = new StaticPhysicsConfig(85f, 60f, 55f)
+                config = new StaticPhysicsConfig(95f, 70f, 65f)
                 {
                     softnessCurve = x => Curves.Exponential1(x, 1.9f, 1.74f, 1.17f),
                 },
@@ -158,7 +158,7 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(SOFT_VERTICES_DAMPER, new JSONStorableFloat(VALUE, 0, 0, 5.00f))
             {
-                config = new StaticPhysicsConfig(1.30f, 0.91f, 0.84f)
+                config = new StaticPhysicsConfig(1.10f, 0.75f, 0.40f)
                 {
                     softnessCurve = x => Curves.Exponential1(x, 1.90f, 1.74f, 1.17f),
                 },
@@ -192,7 +192,7 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(SOFT_VERTICES_MASS, new JSONStorableFloat(VALUE, 0, 0.001f, 0.200f))
             {
-                config = new StaticPhysicsConfig(0.040f, 0.090f, 0.090f)
+                config = new StaticPhysicsConfig(0.040f, 0.090f, 0.105f)
                 {
                     softnessCurve = x => Curves.Exponential1(x, 2.3f, 1.74f, 1.17f),
                 },
@@ -315,7 +315,7 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(SOFT_VERTICES_BACK_FORCE, new JSONStorableFloat(VALUE, 0, 0, 50.00f))
             {
-                config = new StaticPhysicsConfig(4.00f, 12.00f, 0.80f)
+                config = new StaticPhysicsConfig(5.00f, 16.00f, 1.00f)
                 {
                     softnessCurve = x => Curves.Exponential1(x, 3.03f, 1.74f, 1.17f),
                 },

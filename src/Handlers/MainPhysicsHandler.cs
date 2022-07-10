@@ -111,7 +111,7 @@ namespace TittyMagic
         private PhysicsParameter NewSpringParameter(bool left) =>
             new PhysicsParameter(SPRING, new JSONStorableFloat(VALUE, 0, 10, 100))
             {
-                config = new StaticPhysicsConfig(55f, 65f, 45f)
+                config = new StaticPhysicsConfig(58f, 48f, 45f)
                 {
                     softnessCurve = x => Curves.Exponential1(x, 1.9f, 1.74f, 1.17f),
                 },
