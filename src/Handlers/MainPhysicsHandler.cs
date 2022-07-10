@@ -100,8 +100,8 @@ namespace TittyMagic
             new PhysicsParameter(CENTER_OF_GRAVITY_PERCENT, new JSONStorableFloat(VALUE, 0, 0, 1.00f))
             {
                 config = softPhysicsEnabled
-                    ? new StaticPhysicsConfig(0.450f, 0.580f, 0.660f)
-                    : new StaticPhysicsConfig(0.525f, 0.750f, 0.900f),
+                    ? new StaticPhysicsConfig(0.45f, 0.57f, 0.67f)
+                    : new StaticPhysicsConfig(0.45f, 0.67f, 0.77f),
                 valueFormat = "F2",
                 sync = left
                     ? (Action<float>) (value => SyncCenterOfGravity(_pectoralRbLeft, value))
@@ -111,9 +111,9 @@ namespace TittyMagic
         private PhysicsParameter NewSpringParameter(bool left) =>
             new PhysicsParameter(SPRING, new JSONStorableFloat(VALUE, 0, 10, 100))
             {
-                config = new StaticPhysicsConfig(65f, 77f, 36f)
+                config = new StaticPhysicsConfig(55f, 65f, 45f)
                 {
-                    softnessCurve = x => Curves.Exponential1(x, 2.97f, 1.74f, 1.17f),
+                    softnessCurve = x => Curves.Exponential1(x, 1.9f, 1.74f, 1.17f),
                 },
                 quicknessOffsetConfig = new StaticPhysicsConfig(20f, 24f, 18f),
                 slownessOffsetConfig = new StaticPhysicsConfig(-13f, -16f, -12f),
@@ -127,16 +127,16 @@ namespace TittyMagic
             new PhysicsParameter(DAMPER, new JSONStorableFloat(VALUE, 0, 0, 10.00f))
             {
                 config = softPhysicsEnabled
-                    ? new StaticPhysicsConfig(1.2f, 1.4f, 0.45f)
+                    ? new StaticPhysicsConfig(1.20f, 1.00f, 0.45f)
                     {
                         softnessCurve = x => Curves.Exponential1(x, 2.65f, 1.74f, 1.17f),
                     }
-                    : new StaticPhysicsConfig(0.9f, 1.05f, 0.35f),
+                    : new StaticPhysicsConfig(0.90f, 1.05f, 0.35f),
                 quicknessOffsetConfig = softPhysicsEnabled
-                    ? new StaticPhysicsConfig(-0.3f, -0.375f, -0.2f)
-                    : new StaticPhysicsConfig(-0.225f, -0.28f, -0.15f),
+                    ? new StaticPhysicsConfig(-0.30f, -0.38f, -0.20f)
+                    : new StaticPhysicsConfig(-0.23f, -0.28f, -0.15f),
                 slownessOffsetConfig = softPhysicsEnabled
-                    ? new StaticPhysicsConfig(0.2f, 0.25f, 0.135f)
+                    ? new StaticPhysicsConfig(0.20f, 0.25f, 0.14f)
                     : new StaticPhysicsConfig(0.15f, 0.19f, 0.1f),
                 valueFormat = "F2",
                 sync = left

@@ -209,19 +209,23 @@ namespace TittyMagic.UI
         private void AddSpacer(string name, int height, bool rightSide) =>
             _elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
 
-        public List<UIDynamicSlider> GetSliders() => _elements.Aggregate(
-            new List<UIDynamicSlider>(),
-            (list, element) =>
+        public List<UIDynamicSlider> GetSliders()
+        {
+            var sliders = new List<UIDynamicSlider>();
+            if(_elements != null)
             {
-                var uiDynamicSlider = element.Value as UIDynamicSlider;
-                if(uiDynamicSlider != null)
+                foreach(var element in _elements)
                 {
-                    list.Add(uiDynamicSlider);
+                    var uiDynamicSlider = element.Value as UIDynamicSlider;
+                    if(uiDynamicSlider != null)
+                    {
+                        sliders.Add(uiDynamicSlider);
+                    }
                 }
-
-                return list;
             }
-        );
+
+            return sliders;
+        }
 
         public IEnumerable<UIDynamicSlider> GetSlidersForRefresh()
         {

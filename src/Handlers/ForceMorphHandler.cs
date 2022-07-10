@@ -28,7 +28,8 @@ namespace TittyMagic
         public JSONStorableFloat leftRightJsf { get; }
 
         public float upDownExtraMultiplier { get; set; }
-        public float forwardBackExtraMultiplier { get; set; }
+        public float forwardExtraMultiplier { get; set; }
+        public float backExtraMultiplier { get; set; }
         public float leftRightExtraMultiplier { get; set; }
 
         private float upMultiplier => baseJsf.val * upJsf.val;
@@ -178,7 +179,7 @@ namespace TittyMagic
 
         private void AdjustForwardMorphs()
         {
-            float multiplier = Curves.QuadraticRegression(forwardMultiplier) * forwardBackExtraMultiplier;
+            float multiplier = Curves.QuadraticRegression(forwardMultiplier) * forwardExtraMultiplier;
             float effectZLeft = CalculateZEffect(_trackLeftNipple.depthDiff, multiplier);
             float effectZRight = CalculateZEffect(_trackRightNipple.depthDiff, multiplier);
             float depthDiffCenter = (_trackLeftNipple.depthDiff + _trackRightNipple.depthDiff) / 2;
@@ -220,7 +221,7 @@ namespace TittyMagic
 
         private void AdjustBackMorphs()
         {
-            float multiplier = Curves.QuadraticRegression(backMultiplier) * forwardBackExtraMultiplier;
+            float multiplier = Curves.QuadraticRegression(backMultiplier) * backExtraMultiplier;
             float effectZLeft = CalculateZEffect(_trackLeftNipple.depthDiff, multiplier);
             float effectZRight = CalculateZEffect(_trackRightNipple.depthDiff, multiplier);
             float depthDiffCenter = (_trackLeftNipple.depthDiff + _trackRightNipple.depthDiff) / 2;

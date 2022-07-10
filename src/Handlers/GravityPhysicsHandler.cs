@@ -82,8 +82,8 @@ namespace TittyMagic
         private static Dictionary<string, DynamicPhysicsConfig> NewPositionTargetRotationXConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
             {
-                { Direction.DOWN, new DynamicPhysicsConfig(-20f, -12f, isNegative: true, additive: false) },
-                { Direction.UP, new DynamicPhysicsConfig(25, 15f, additive: false) },
+                { Direction.DOWN, new DynamicPhysicsConfig(-16f, -12f, isNegative: true, additive: false) },
+                { Direction.UP, new DynamicPhysicsConfig(22, 13f, additive: false) },
             };
 
         private static Dictionary<string, DynamicPhysicsConfig> NewPositionTargetRotationYConfigs() =>

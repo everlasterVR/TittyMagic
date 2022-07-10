@@ -27,6 +27,8 @@ namespace TittyMagic
 
         private float _softnessAmount;
         private float _quicknessAmount;
+        private static float SoftnessAmount(float val) => val / 100f;
+        private static float QuicknessAmount(float val) => 2 * val / 100 - 1;
 
         private TrackNipple _trackLeftNipple;
         private TrackNipple _trackRightNipple;
@@ -183,7 +185,6 @@ namespace TittyMagic
             SetupStorables();
             CreateNavigation();
             NavigateToWindow(mainWindow, PostNavigateToMainWindow);
-            InitializeValuesAppliedByListeners();
 
             if(!_loadingFromJson)
             {
@@ -258,12 +259,6 @@ namespace TittyMagic
             offsetMorphHandler.LoadSettings();
         }
 
-        private void InitializeValuesAppliedByListeners()
-        {
-            _softnessAmount = CalculateSoftnessAmount(softnessJsf.val);
-            _quicknessAmount = CalculateQuicknessAmount(quicknessJsf.val);
-        }
-
         // https://github.com/vam-community/vam-plugins-interop-specs/blob/main/keybindings.md
         private IEnumerator SubscribeToKeybindings()
         {
@@ -327,19 +322,23 @@ namespace TittyMagic
 
             softnessJsf.setCallbackFunction = value =>
             {
-                if(Math.Abs(CalculateSoftnessAmount(value) - _softnessAmount) > 0.001f)
+                if(Mathf.Abs(value - _softnessAmount) > 0.001f)
                 {
+                    _softnessAmount = SoftnessAmount(value);
                     RefreshFromSliderChanged();
                 }
             };
+            _softnessAmount = SoftnessAmount(softnessJsf.val);
 
             quicknessJsf.setCallbackFunction = value =>
             {
-                if(Math.Abs(CalculateQuicknessAmount(value) - _quicknessAmount) > 0.001f)
+                if(Mathf.Abs(value - _quicknessAmount) > 0.001f)
                 {
+                    _quicknessAmount = QuicknessAmount(value);
                     RefreshFromSliderChanged();
                 }
             };
+            _quicknessAmount = QuicknessAmount(quicknessJsf.val);
 
             nippleMorphHandler.nippleErectionJsf.setCallbackFunction = value =>
             {
@@ -411,10 +410,6 @@ namespace TittyMagic
                 elements[configureHardColliders.name].SetActiveStyle(hardColliderHandler.enabledJsb.val, true);
             }
         }
-
-        private static float CalculateSoftnessAmount(float val) => Mathf.Pow(val / 100f, 0.67f);
-
-        private static float CalculateQuicknessAmount(float val) => 2 * val / 100 - 1;
 
         private void RefreshFromSliderChanged(bool refreshMass = false)
         {
@@ -636,9 +631,6 @@ namespace TittyMagic
                 yield return new WaitForSeconds(0.1f);
             }
 
-            _softnessAmount = CalculateSoftnessAmount(softnessJsf.val);
-            _quicknessAmount = CalculateQuicknessAmount(quicknessJsf.val);
-
             yield return Refresh(refreshMass, useNewMass.Value);
         }
 
@@ -662,9 +654,6 @@ namespace TittyMagic
                 mainPhysicsHandler.UpdateMassValueAndAmounts(useNewMass, _breastVolumeCalculator.Calculate(_atomScaleListener.scale));
                 SetMorphingExtraMultipliers();
             }
-
-            _softnessAmount = CalculateSoftnessAmount(softnessJsf.val);
-            _quicknessAmount = CalculateQuicknessAmount(quicknessJsf.val);
 
             UpdateStaticPhysics();
             UpdateDynamicPhysics(roll: 0, pitch: 0);
@@ -740,12 +729,14 @@ namespace TittyMagic
 
         private void SetMorphingExtraMultipliers()
         {
-            float softnessMultiplier = Mathf.Lerp(0.5f, 1.14f, _softnessAmount);
             float mass = mainPhysicsHandler.realMassAmount;
 
-            forceMorphHandler.upDownExtraMultiplier = softnessMultiplier * Curves.MorphingCurve(mass);
-            forceMorphHandler.forwardBackExtraMultiplier = softnessMultiplier * Curves.MorphingCurve(mass);
-            forceMorphHandler.leftRightExtraMultiplier = softnessMultiplier * Curves.MorphingCurve(mass);
+            forceMorphHandler.upDownExtraMultiplier =
+                Curves.Exponential1(_softnessAmount, 2.00f, 1.86f, 1.15f, m: 1.11f, s: 0.22f) * Curves.MorphingCurve(mass);
+            forceMorphHandler.forwardExtraMultiplier = Mathf.Lerp(1.00f, 1.20f, _softnessAmount) * Curves.DepthMorphingCurve(mass);
+            forceMorphHandler.backExtraMultiplier = Mathf.Lerp(0.80f, 1.00f, _softnessAmount) * Curves.DepthMorphingCurve(mass);
+            forceMorphHandler.leftRightExtraMultiplier =
+                Curves.Exponential1(_softnessAmount, 2.00f, 1.86f, 1.15f, m: 1.11f, s: 0.22f) * Curves.MorphingCurve(mass);
 
             offsetMorphHandler.upDownExtraMultiplier = 1.16f - mass;
         }

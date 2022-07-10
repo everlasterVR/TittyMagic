@@ -144,11 +144,11 @@ namespace TittyMagic
                     "Pectoral5", new Dictionary<string, Scaler>
                     {
                         { COLLIDER_FORCE, new Scaler(0) },
-                        { COLLIDER_RADIUS, new Scaler(-0.80f, 0, 40) },
+                        { COLLIDER_RADIUS, new Scaler(-0.85f, 0, 40) },
                         { COLLIDER_LENGTH, new Scaler(-0.30f, 0, 40) },
-                        { COLLIDER_CENTER_X, new Scaler(-0.50f, 0, 40) },
-                        { COLLIDER_CENTER_Y, new Scaler(0.80f, 0, 40) },
-                        { COLLIDER_CENTER_Z, new Scaler(-0.35f, 0, 40) },
+                        { COLLIDER_CENTER_X, new Scaler(-0.60f, 0, 40) },
+                        { COLLIDER_CENTER_Y, new Scaler(0.70f, 0, 40) },
+                        { COLLIDER_CENTER_Z, new Scaler(-0.45f, 0, 40) },
                     }
                 },
             };
@@ -161,16 +161,16 @@ namespace TittyMagic
                 {
                     "Pectoral1", new Dictionary<string, float>
                     {
-                        { COLLIDER_FORCE, 0.5f },
+                        { COLLIDER_FORCE, 0.3f },
                     }
                 },
                 {
                     "Pectoral2", new Dictionary<string, float>
                     {
-                        { COLLIDER_FORCE, 0.5f },
+                        { COLLIDER_FORCE, 0.25f },
                     }
                 },
-                {
+s                {
                     "Pectoral3", new Dictionary<string, float>
                     {
                         { COLLIDER_FORCE, 0.25f },
@@ -179,7 +179,7 @@ namespace TittyMagic
                 {
                     "Pectoral4", new Dictionary<string, float>
                     {
-                        { COLLIDER_FORCE, 0.5f },
+                        { COLLIDER_FORCE, 0.60f },
                     }
                 },
                 {

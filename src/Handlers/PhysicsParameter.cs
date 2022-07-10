@@ -127,7 +127,7 @@ namespace TittyMagic
         protected JSONStorableFloat baseValueJsf { get; }
         internal JSONStorableFloat offsetJsf { get; }
 
-        protected float _additiveAdjustedValue;
+        protected float additiveAdjustedValue;
         public bool dependOnPhysicsRate { get; set; }
 
         public StaticPhysicsConfig config { get; set; }
@@ -151,7 +151,7 @@ namespace TittyMagic
         public void UpdateValue(float massValue, float softness, float quickness)
         {
             baseValueJsf.val = NewBaseValue(massValue, softness, quickness);
-            float newValue = _additiveAdjustedValue + offsetJsf.val + baseValueJsf.val;
+            float newValue = additiveAdjustedValue + offsetJsf.val + baseValueJsf.val;
             valueJsf.val = newValue;
             sync?.Invoke(newValue);
 
@@ -175,7 +175,7 @@ namespace TittyMagic
         public void UpdateOffsetValue(float value)
         {
             offsetJsf.valNoCallback = value;
-            float newValue = _additiveAdjustedValue + value + baseValueJsf.val;
+            float newValue = additiveAdjustedValue + value + baseValueJsf.val;
             valueJsf.val = newValue;
             sync?.Invoke(newValue);
 
@@ -216,8 +216,8 @@ namespace TittyMagic
 
         private void AddValue(float value)
         {
-            _additiveAdjustedValue = value;
-            float newValue = _additiveAdjustedValue + offsetJsf.val + baseValueJsf.val;
+            additiveAdjustedValue = value;
+            float newValue = additiveAdjustedValue + offsetJsf.val + baseValueJsf.val;
             valueJsf.val = newValue;
             sync?.Invoke(newValue);
         }
@@ -327,7 +327,7 @@ namespace TittyMagic
 
         public void Sync()
         {
-            float value = _additiveAdjustedValue + offsetJsf.val + baseValueJsf.val;
+            float value = additiveAdjustedValue + offsetJsf.val + baseValueJsf.val;
             valueJsf.val = value;
             sync?.Invoke(value);
         }

@@ -8,6 +8,8 @@ namespace TittyMagic.Configs
         private readonly float _maxMminS; // value at max mass and min softness
         private readonly float _minMmaxS; // value at min mass and max softness
 
+        private static readonly Func<float, float> _softnessBaseCurve = x => Curves.Exponential1(x, 6.44f, 1.27f, 1.15f);
+
         public Func<float, float> massCurve { get; set; }
         public Func<float, float> softnessCurve { get; set; }
 
@@ -21,7 +23,7 @@ namespace TittyMagic.Configs
         public float Calculate(float mass, float softness)
         {
             float effectiveMass = massCurve?.Invoke(mass) ?? mass;
-            float effectiveSoftness = softnessCurve?.Invoke(softness) ?? softness;
+            float effectiveSoftness = softnessCurve?.Invoke(_softnessBaseCurve(softness)) ?? _softnessBaseCurve(softness);
             return ProportionalSum(effectiveMass, effectiveSoftness);
         }
 

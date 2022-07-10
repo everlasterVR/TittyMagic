@@ -27,8 +27,16 @@ namespace TittyMagic
             return a / Mathf.Sqrt(mass + b) - c;
         }
 
-        // https://www.desmos.com/calculator/2nzb2miloz
-        public static float Exponential1(float x, float b, float p, float q) =>
-            (1 - b) * Mathf.Pow(x, p) + b * Mathf.Pow(x, q);
+        public static float DepthMorphingCurve(float mass)
+        {
+            const float a = 10.1f;
+            const float b = 2.86f;
+            const float c = 2.36f;
+            return a / Mathf.Sqrt(mass + b) - c;
+        }
+
+        // https://www.desmos.com/calculator/9iy1ftweij
+        public static float Exponential1(float x, float b, float p, float q, float m = 1, float s = 0) =>
+            m * ((1 - b) * Mathf.Pow(x + s, p) + b * Mathf.Pow(x + s, q));
     }
 }
