@@ -15,10 +15,12 @@ namespace TittyMagic.UI
         private readonly JSONStorableString _infoText;
         private float _offsetWhenCalibrated;
 
+        public string id { get; }
         public UIDynamicButton parentButton { private get; set; }
 
-        public ParameterWindow(Script script, PhysicsParameterGroup parameterGroup, UnityAction onReturnToParent) : base(script)
+        public ParameterWindow(Script script, string id, PhysicsParameterGroup parameterGroup, UnityAction onReturnToParent) : base(script)
         {
+            this.id = id;
             _parameterGroup = parameterGroup;
             buildAction = BuildSelf;
             closeAction = ActionsOnClose;

@@ -360,22 +360,22 @@ namespace TittyMagic
         {
             _tabs = new Tabs(this);
             _tabs.CreateNavigationButton(
-                mainWindow.Id(),
+                mainWindow,
                 "Control",
                 () => NavigateToWindow(mainWindow)
             );
             _tabs.CreateNavigationButton(
-                physicsWindow.Id(),
+                physicsWindow,
                 "Physics Params",
                 () => NavigateToWindow(physicsWindow)
             );
             _tabs.CreateNavigationButton(
-                morphingWindow.Id(),
+                morphingWindow,
                 "Morph Multipliers",
                 () => NavigateToWindow(morphingWindow)
             );
             _tabs.CreateNavigationButton(
-                gravityWindow.Id(),
+                gravityWindow,
                 "Gravity Multipliers",
                 () => NavigateToWindow(gravityWindow)
             );
@@ -384,8 +384,7 @@ namespace TittyMagic
         private void NavigateToWindow(IWindow window)
         {
             _tabs.activeWindow?.Clear();
-            _tabs.ActivateTab(window.Id());
-            _tabs.activeWindow = window;
+            _tabs.ActivateTab(window);
             window.Rebuild();
         }
 
@@ -440,7 +439,7 @@ namespace TittyMagic
             softPhysicsHandler.ReverseSyncSoftPhysicsOn();
             softPhysicsHandler.ReverseSyncSyncAllowSelfCollision();
 
-            if(_tabs.activeWindow.Id() == mainWindow.Id() && mainWindow.GetActiveNestedWindow() != null)
+            if(_tabs.activeWindow == mainWindow && mainWindow.GetActiveNestedWindow() != null)
             {
                 colliderVisualizer.ShowPreviewsJSON.val = true;
                 colliderVisualizer.enabled = true;

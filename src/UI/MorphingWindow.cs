@@ -12,7 +12,6 @@ namespace TittyMagic.UI
 
         public MorphingWindow(Script script) : base(script)
         {
-            id = 3;
             buildAction = BuildSelf;
 
             _forceMorphingMultipliersHeader = new JSONStorableString("forceMorphingMultipliersHeader", "");

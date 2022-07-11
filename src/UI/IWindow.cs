@@ -4,8 +4,6 @@ namespace TittyMagic.UI
 {
     internal interface IWindow
     {
-        int Id();
-
         Dictionary<string, UIDynamic> GetElements();
 
         IWindow GetActiveNestedWindow();

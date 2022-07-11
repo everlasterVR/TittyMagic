@@ -14,7 +14,6 @@ namespace TittyMagic.UI
 
         public GravityWindow(Script script) : base(script)
         {
-            id = 4;
             buildAction = BuildSelf;
             closeAction = ActionsOnClose;
 

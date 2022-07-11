@@ -9,13 +9,10 @@ namespace TittyMagic.UI
         protected Action buildAction;
         protected Action closeAction;
 
-        public int Id() => id;
-        protected int id;
-
         public Dictionary<string, UIDynamic> GetElements() => elements;
         protected Dictionary<string, UIDynamic> elements;
 
-        protected readonly Dictionary<string, IWindow> nestedWindows;
+        protected readonly List<IWindow> nestedWindows;
 
         public IWindow GetActiveNestedWindow() => activeNestedWindow;
         protected IWindow activeNestedWindow;
@@ -24,7 +21,7 @@ namespace TittyMagic.UI
         {
             this.script = script;
             elements = new Dictionary<string, UIDynamic>();
-            nestedWindows = new Dictionary<string, IWindow>();
+            nestedWindows = new List<IWindow>();
         }
 
         public void Rebuild()

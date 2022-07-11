@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace TittyMagic.UI
@@ -9,18 +10,18 @@ namespace TittyMagic.UI
 
         public MainWindow(Script script) : base(script)
         {
-            id = 1;
             buildAction = BuildSelf;
             _title = new JSONStorableString("title", "");
             if(Gender.isFemale)
             {
-                var hardCollidersWindow = new HardCollidersWindow(script,
+                nestedWindows.Add(new HardCollidersWindow(
+                    script,
                     () =>
                     {
                         activeNestedWindow = null;
                         buildAction();
-                    });
-                nestedWindows[$"{hardCollidersWindow.Id()}"] = hardCollidersWindow;
+                    }
+                ));
             }
         }
 
@@ -160,7 +161,7 @@ namespace TittyMagic.UI
             button.AddListener(() =>
             {
                 ClearSelf();
-                activeNestedWindow = nestedWindows["0"];
+                activeNestedWindow = nestedWindows.First();
                 activeNestedWindow.Rebuild();
             });
 

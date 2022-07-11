@@ -11,7 +11,6 @@ namespace TittyMagic.UI
 
         public PhysicsWindow(Script script) : base(script)
         {
-            id = 2;
             buildAction = BuildSelf;
 
             _jointPhysicsParamsHeader = new JSONStorableString("mainPhysicsParamsHeader", "");
@@ -31,20 +30,31 @@ namespace TittyMagic.UI
                 buildAction();
             };
 
-            script.mainPhysicsHandler.parameterGroups.Keys.ToList()
-                .ForEach(key => nestedWindows[key] = new ParameterWindow(
-                    script,
-                    script.mainPhysicsHandler.parameterGroups[key],
-                    onReturnToParent
-                ));
+            foreach(var kvp in script.mainPhysicsHandler.parameterGroups)
+            {
+                nestedWindows.Add(
+                    new ParameterWindow(
+                        script,
+                        kvp.Key,
+                        script.mainPhysicsHandler.parameterGroups[kvp.Key],
+                        onReturnToParent
+                    )
+                );
+            }
+
             if(Gender.isFemale)
             {
-                script.softPhysicsHandler.parameterGroups.Keys.ToList()
-                    .ForEach(key => nestedWindows[key] = new ParameterWindow(
-                        script,
-                        script.softPhysicsHandler.parameterGroups[key],
-                        onReturnToParent
-                    ));
+                foreach(var kvp in script.softPhysicsHandler.parameterGroups)
+                {
+                    nestedWindows.Add(
+                        new ParameterWindow(
+                            script,
+                            kvp.Key,
+                            script.softPhysicsHandler.parameterGroups[kvp.Key],
+                            onReturnToParent
+                        )
+                    );
+                }
             }
         }
 
@@ -86,14 +96,14 @@ namespace TittyMagic.UI
             button.height = 52;
             button.buttonText.alignment = TextAnchor.MiddleLeft;
 
+            var nestedWindow = (ParameterWindow) nestedWindows.Find(window => ((ParameterWindow) window).id == key);
             button.AddListener(() =>
             {
                 ClearSelf();
-                activeNestedWindow = nestedWindows[key];
+                activeNestedWindow = nestedWindow;
                 activeNestedWindow.Rebuild();
             });
 
-            var nestedWindow = (ParameterWindow) nestedWindows[key];
             nestedWindow.parentButton = button;
             button.label = nestedWindow.ParamButtonLabel();
             elements[key] = button;
