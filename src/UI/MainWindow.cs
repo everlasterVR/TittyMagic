@@ -171,7 +171,7 @@ namespace TittyMagic.UI
         public IEnumerable<UIDynamicSlider> GetSlidersForRefresh()
         {
             var sliders = new List<UIDynamicSlider>();
-            if(elements != null)
+            if(elements.Any())
             {
                 sliders.Add(elements[script.mainPhysicsHandler.massJsf.name] as UIDynamicSlider);
                 sliders.Add(elements[script.softnessJsf.name] as UIDynamicSlider);

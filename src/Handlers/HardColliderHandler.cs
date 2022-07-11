@@ -291,7 +291,7 @@ namespace TittyMagic
             config.syncInProgress = true;
 
             var elements = ((HardCollidersWindow) _script.mainWindow.GetActiveNestedWindow())?.colliderSectionElements;
-            if(elements != null)
+            if(elements != null && elements.Any())
             {
                 yield return new WaitForSecondsRealtime(0.1f);
                 var slider = (UIDynamicSlider) elements[config.forceJsf.name];
@@ -349,7 +349,7 @@ namespace TittyMagic
             _combinedSyncInProgress = true;
 
             var elements = _script.mainWindow?.GetActiveNestedWindow()?.GetElements();
-            if(elements != null)
+            if(elements != null && elements.Any())
             {
                 yield return new WaitForSecondsRealtime(0.1f);
                 var slider = (UIDynamicSlider) elements[baseForceJsf.name];

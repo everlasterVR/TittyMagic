@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TittyMagic.UI
 {
@@ -43,7 +44,7 @@ namespace TittyMagic.UI
         public List<UIDynamicSlider> GetSliders()
         {
             var sliders = new List<UIDynamicSlider>();
-            if(elements != null)
+            if(elements.Any())
             {
                 foreach(var element in elements)
                 {
@@ -60,7 +61,7 @@ namespace TittyMagic.UI
 
         public void ClosePopups()
         {
-            if(elements == null)
+            if(!elements.Any())
             {
                 return;
             }
