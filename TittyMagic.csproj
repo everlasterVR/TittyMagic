@@ -125,6 +125,7 @@
     <Compile Include="src\UI\SliderClickMonitor.cs" />
     <Compile Include="src\UI\UIHelpers.cs" />
     <Compile Include="src\UI\IWindow.cs" />
+    <Compile Include="src\UI\WindowBase.cs" />
     <Compile Include="src\Utils\Calc.cs" />
     <Compile Include="src\Utils\Curves.cs" />
     <Compile Include="src\Utils\FrequencyRunner.cs" />

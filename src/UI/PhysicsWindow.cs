@@ -4,25 +4,15 @@ using UnityEngine.Events;
 
 namespace TittyMagic.UI
 {
-    internal class PhysicsWindow : IWindow
+    internal class PhysicsWindow : WindowBase
     {
-        private readonly Script _script;
-
-        private Dictionary<string, UIDynamic> _elements;
-        private readonly Dictionary<string, IWindow> _nestedWindows;
-
-        public IWindow GetActiveNestedWindow() => _activeNestedWindow;
-        private IWindow _activeNestedWindow;
-
         private readonly JSONStorableString _jointPhysicsParamsHeader;
         private readonly JSONStorableString _softPhysicsParamsHeader;
 
-        public int Id() => 2;
-
-        public PhysicsWindow(Script script)
+        public PhysicsWindow(Script script) : base(script)
         {
-            _script = script;
-            _nestedWindows = new Dictionary<string, IWindow>();
+            id = 2;
+            buildAction = BuildSelf;
 
             _jointPhysicsParamsHeader = new JSONStorableString("mainPhysicsParamsHeader", "");
             if(Gender.isFemale)
@@ -37,109 +27,76 @@ namespace TittyMagic.UI
         {
             UnityAction onReturnToParent = () =>
             {
-                _activeNestedWindow = null;
-                RebuildSelf();
+                activeNestedWindow = null;
+                buildAction();
             };
 
-            _script.mainPhysicsHandler.parameterGroups.Keys.ToList()
-                .ForEach(key => _nestedWindows[key] = new ParameterWindow(
-                    _script,
-                    _script.mainPhysicsHandler.parameterGroups[key],
+            script.mainPhysicsHandler.parameterGroups.Keys.ToList()
+                .ForEach(key => nestedWindows[key] = new ParameterWindow(
+                    script,
+                    script.mainPhysicsHandler.parameterGroups[key],
                     onReturnToParent
                 ));
             if(Gender.isFemale)
             {
-                _script.softPhysicsHandler.parameterGroups.Keys.ToList()
-                    .ForEach(key => _nestedWindows[key] = new ParameterWindow(
-                        _script,
-                        _script.softPhysicsHandler.parameterGroups[key],
+                script.softPhysicsHandler.parameterGroups.Keys.ToList()
+                    .ForEach(key => nestedWindows[key] = new ParameterWindow(
+                        script,
+                        script.softPhysicsHandler.parameterGroups[key],
                         onReturnToParent
                     ));
             }
         }
 
-        public void Rebuild()
+        private void BuildSelf()
         {
-            if(_activeNestedWindow != null)
-            {
-                _activeNestedWindow.Rebuild();
-            }
-            else
-            {
-                RebuildSelf();
-            }
-        }
-
-        private void RebuildSelf()
-        {
-            _elements = new Dictionary<string, UIDynamic>();
+            elements = new Dictionary<string, UIDynamic>();
 
             CreateHeader(_jointPhysicsParamsHeader, "Joint Physics Parameters", false);
-            _script.mainPhysicsHandler?.parameterGroups.ToList()
+            script.mainPhysicsHandler?.parameterGroups.ToList()
                 .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, false));
 
             if(Gender.isFemale)
             {
                 CreateHeader(_softPhysicsParamsHeader, "Soft Physics Parameters", true);
                 CreateAllowSelfCollisionToggle(true);
-                _script.softPhysicsHandler.parameterGroups.ToList()
+                script.softPhysicsHandler.parameterGroups.ToList()
                     .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, true));
             }
         }
 
         private void CreateAllowSelfCollisionToggle(bool rightSide)
         {
-            var storable = _script.softPhysicsHandler.allowSelfCollision;
-            var toggle = _script.CreateToggle(storable, rightSide);
+            var storable = script.softPhysicsHandler.allowSelfCollision;
+            var toggle = script.CreateToggle(storable, rightSide);
             toggle.height = 52;
             toggle.label = "Breast Soft Physics Self Collide";
-            _elements[storable.name] = toggle;
+            elements[storable.name] = toggle;
         }
 
         private void CreateHeader(JSONStorableString storable, string text, bool rightSide, int spacing = 0)
         {
-            _elements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
-            _elements[storable.name] = UIHelpers.HeaderTextField(_script, storable, text, rightSide);
+            elements[$"{storable.name}Spacer"] = script.NewSpacer(spacing, rightSide);
+            elements[storable.name] = UIHelpers.HeaderTextField(script, storable, text, rightSide);
         }
 
         private void CreateParamButton(string key, PhysicsParameterGroup param, bool rightSide)
         {
-            var button = _script.CreateButton("  " + param.displayName, rightSide);
+            var button = script.CreateButton("  " + param.displayName, rightSide);
             button.height = 52;
             button.buttonText.alignment = TextAnchor.MiddleLeft;
 
             button.AddListener(() =>
             {
                 ClearSelf();
-                _activeNestedWindow = _nestedWindows[key];
-                _activeNestedWindow.Rebuild();
+                activeNestedWindow = nestedWindows[key];
+                activeNestedWindow.Rebuild();
             });
 
-            var nestedWindow = (ParameterWindow) _nestedWindows[key];
+            var nestedWindow = (ParameterWindow) nestedWindows[key];
             nestedWindow.parentButton = button;
             button.label = nestedWindow.ParamButtonLabel();
-            _elements[key] = button;
+            elements[key] = button;
         }
-
-        public List<UIDynamicSlider> GetSliders() => null;
-
-        public void Clear()
-        {
-            if(_activeNestedWindow != null)
-            {
-                _activeNestedWindow.Clear();
-            }
-            else
-            {
-                ClearSelf();
-            }
-        }
-
-        public void ClosePopups()
-        {
-        }
-
-        private void ClearSelf() =>
-            _elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
     }
 }

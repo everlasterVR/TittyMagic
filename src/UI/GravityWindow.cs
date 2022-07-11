@@ -5,24 +5,18 @@ using UnityEngine.UI;
 
 namespace TittyMagic.UI
 {
-    internal class GravityWindow : IWindow
+    internal class GravityWindow : WindowBase
     {
-        private readonly Script _script;
-
-        private Dictionary<string, UIDynamic> _elements;
-
-        public IWindow GetActiveNestedWindow() => null;
-
         private readonly JSONStorableString _gravityPhysicsMultipliersHeader;
         private readonly JSONStorableString _gravityPhysicsMultipliersInfoText;
         private readonly JSONStorableString _offsetMorphingInfoText;
         private readonly JSONStorableString _otherSettingsHeader;
 
-        public int Id() => 4;
-
-        public GravityWindow(Script script)
+        public GravityWindow(Script script) : base(script)
         {
-            _script = script;
+            id = 4;
+            buildAction = BuildSelf;
+            closeAction = ActionsOnClose;
 
             _gravityPhysicsMultipliersHeader = new JSONStorableString("gravityPhysicsMultipliersHeader", "");
             _gravityPhysicsMultipliersInfoText = new JSONStorableString("gravityPhysicsMultipliersInfoText", "");
@@ -46,20 +40,20 @@ namespace TittyMagic.UI
                 "Compensates for the droop caused by Down gravity.";
         }
 
-        public void Rebuild()
+        private void BuildSelf()
         {
-            _elements = new Dictionary<string, UIDynamic>();
+            elements = new Dictionary<string, UIDynamic>();
 
             CreateHeader(_gravityPhysicsMultipliersHeader, "Breast Gravity", false);
             CreateGravityPhysicsInfoTextArea(false);
 
             CreateRecalibrateButton(true, spacing: 5);
             var baseSlider = CreateBaseMultiplierSlider(true);
-            CreateMultiplierSlider(_script.gravityPhysicsHandler.upJsf, "Up", true, spacing: 5);
-            CreateMultiplierSlider(_script.gravityPhysicsHandler.downJsf, "Down", true);
-            CreateMultiplierSlider(_script.gravityPhysicsHandler.forwardJsf, "Forward", true);
-            CreateMultiplierSlider(_script.gravityPhysicsHandler.backJsf, "Back", true);
-            CreateMultiplierSlider(_script.gravityPhysicsHandler.leftRightJsf, "Left / Right", true);
+            CreateMultiplierSlider(script.gravityPhysicsHandler.upJsf, "Up", true, spacing: 5);
+            CreateMultiplierSlider(script.gravityPhysicsHandler.downJsf, "Down", true);
+            CreateMultiplierSlider(script.gravityPhysicsHandler.forwardJsf, "Forward", true);
+            CreateMultiplierSlider(script.gravityPhysicsHandler.backJsf, "Back", true);
+            CreateMultiplierSlider(script.gravityPhysicsHandler.leftRightJsf, "Left / Right", true);
 
             CreateHeader(_otherSettingsHeader, "Other", false);
             CreateOffsetMorphingInfoTextArea(true, spacing: 50);
@@ -72,39 +66,39 @@ namespace TittyMagic.UI
         private void CreateHeader(JSONStorableString storable, string text, bool rightSide, int spacing = 0)
         {
             AddSpacer(storable.name, spacing, rightSide);
-            _elements[storable.name] = UIHelpers.HeaderTextField(_script, storable, text, rightSide);
+            elements[storable.name] = UIHelpers.HeaderTextField(script, storable, text, rightSide);
         }
 
         private void CreateRecalibrateButton(bool rightSide, int spacing = 0)
         {
-            var storable = _script.recalibratePhysics;
+            var storable = script.recalibratePhysics;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var button = _script.CreateButton("Recalibrate Physics", rightSide);
+            var button = script.CreateButton("Recalibrate Physics", rightSide);
             storable.RegisterButton(button);
             button.height = 52;
-            _elements[storable.name] = button;
+            elements[storable.name] = button;
         }
 
         private UIDynamicSlider CreateBaseMultiplierSlider(bool rightSide, int spacing = 0)
         {
-            var storable = _script.gravityPhysicsHandler.baseJsf;
+            var storable = script.gravityPhysicsHandler.baseJsf;
             AddSpacer(storable.name, spacing, rightSide);
-            var slider = _script.CreateSlider(storable, rightSide);
+            var slider = script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "Base Multiplier";
-            _elements[storable.name] = slider;
+            elements[storable.name] = slider;
             return slider;
         }
 
         private void CreateMultiplierSlider(JSONStorableFloat storable, string label, bool rightSide, int spacing = 0)
         {
             AddSpacer(storable.name, spacing, rightSide);
-            var slider = _script.CreateSlider(storable, rightSide);
+            var slider = script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = label;
             slider.AddListener((float value) => UpdateSliderColor(storable));
-            _elements[storable.name] = slider;
+            elements[storable.name] = slider;
         }
 
         private void CreateGravityPhysicsInfoTextArea(bool rightSide, int spacing = 0)
@@ -112,22 +106,22 @@ namespace TittyMagic.UI
             var storable = _gravityPhysicsMultipliersInfoText;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var textField = _script.CreateTextField(storable, rightSide);
+            var textField = script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.height = 825;
             textField.backgroundColor = Color.clear;
-            _elements[storable.name] = textField;
+            elements[storable.name] = textField;
         }
 
         private void CreateOffsetMorphingSlider(bool rightSide, int spacing = 0)
         {
-            var storable = _script.offsetMorphHandler.offsetMorphingJsf;
+            var storable = script.offsetMorphHandler.offsetMorphingJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var slider = _script.CreateSlider(storable, rightSide);
+            var slider = script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "Down Offset Morphing";
-            _elements[storable.name] = slider;
+            elements[storable.name] = slider;
         }
 
         private void CreateOffsetMorphingInfoTextArea(bool rightSide, int spacing = 0)
@@ -135,32 +129,29 @@ namespace TittyMagic.UI
             var storable = _offsetMorphingInfoText;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var textField = _script.CreateTextField(storable, rightSide);
+            var textField = script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.height = 115;
             textField.backgroundColor = Color.clear;
-            _elements[storable.name] = textField;
+            elements[storable.name] = textField;
         }
-
-        private void AddSpacer(string name, int height, bool rightSide) =>
-            _elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
 
         private void UpdateAllSliderColors(float value)
         {
-            UpdateSliderColor(_script.gravityPhysicsHandler.upJsf);
-            UpdateSliderColor(_script.gravityPhysicsHandler.downJsf);
-            UpdateSliderColor(_script.gravityPhysicsHandler.forwardJsf);
-            UpdateSliderColor(_script.gravityPhysicsHandler.backJsf);
-            UpdateSliderColor(_script.gravityPhysicsHandler.leftRightJsf);
+            UpdateSliderColor(script.gravityPhysicsHandler.upJsf);
+            UpdateSliderColor(script.gravityPhysicsHandler.downJsf);
+            UpdateSliderColor(script.gravityPhysicsHandler.forwardJsf);
+            UpdateSliderColor(script.gravityPhysicsHandler.backJsf);
+            UpdateSliderColor(script.gravityPhysicsHandler.leftRightJsf);
         }
 
         private void UpdateSliderColor(JSONStorableFloat storable)
         {
-            var slider = (UIDynamicSlider) _elements[storable.name];
+            var slider = (UIDynamicSlider) elements[storable.name];
             var images = slider.slider.gameObject.transform.GetComponentsInChildren<Image>();
             var fillImage = images.First(image => image.name == "Fill");
             var handleImage = images.First(image => image.name == "Handle");
-            var color = MultiplierSliderColor(_script.gravityPhysicsHandler.baseJsf.val * storable.val);
+            var color = MultiplierSliderColor(script.gravityPhysicsHandler.baseJsf.val * storable.val);
             fillImage.color = color;
             handleImage.color = color;
         }
@@ -170,31 +161,7 @@ namespace TittyMagic.UI
                 ? Color.Lerp(new Color(1, 1, 1, 0.25f), Color.white, value)
                 : Color.Lerp(Color.white, new Color(1.0f, 0.2f, 0.2f), (value - 1) / 3);
 
-        public List<UIDynamicSlider> GetSliders()
-        {
-            var sliders = new List<UIDynamicSlider>();
-            if(_elements != null)
-            {
-                sliders.Add(_elements[_script.gravityPhysicsHandler.baseJsf.name] as UIDynamicSlider);
-                sliders.Add(_elements[_script.gravityPhysicsHandler.upJsf.name] as UIDynamicSlider);
-                sliders.Add(_elements[_script.gravityPhysicsHandler.downJsf.name] as UIDynamicSlider);
-                sliders.Add(_elements[_script.gravityPhysicsHandler.forwardJsf.name] as UIDynamicSlider);
-                sliders.Add(_elements[_script.gravityPhysicsHandler.backJsf.name] as UIDynamicSlider);
-                sliders.Add(_elements[_script.gravityPhysicsHandler.leftRightJsf.name] as UIDynamicSlider);
-                sliders.Add(_elements[_script.offsetMorphHandler.offsetMorphingJsf.name] as UIDynamicSlider);
-            }
-
-            return sliders;
-        }
-
-        public void Clear()
-        {
-            _elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
-            _script.RecalibrateOnNavigation();
-        }
-
-        public void ClosePopups()
-        {
-        }
+        private void ActionsOnClose() =>
+            script.RecalibrateOnNavigation();
     }
 }

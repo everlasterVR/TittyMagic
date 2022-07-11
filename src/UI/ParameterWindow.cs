@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
@@ -7,17 +6,10 @@ using UnityEngine.UI;
 
 namespace TittyMagic.UI
 {
-    internal class ParameterWindow : IWindow
+    internal class ParameterWindow : WindowBase
     {
-        private readonly Script _script;
         private readonly PhysicsParameterGroup _parameterGroup;
         private readonly UnityAction _returnToParent;
-
-        private Dictionary<string, UIDynamic> _elements;
-
-        public IWindow GetActiveNestedWindow() => null;
-
-        public int Id() => 0;
 
         private readonly JSONStorableString _title;
         private readonly JSONStorableString _infoText;
@@ -25,10 +17,11 @@ namespace TittyMagic.UI
 
         public UIDynamicButton parentButton { private get; set; }
 
-        public ParameterWindow(Script script, PhysicsParameterGroup parameterGroup, UnityAction onReturnToParent)
+        public ParameterWindow(Script script, PhysicsParameterGroup parameterGroup, UnityAction onReturnToParent) : base(script)
         {
-            _script = script;
             _parameterGroup = parameterGroup;
+            buildAction = BuildSelf;
+            closeAction = ActionsOnClose;
             _returnToParent = () =>
             {
                 Clear();
@@ -39,10 +32,8 @@ namespace TittyMagic.UI
             _infoText = new JSONStorableString("infoText", "");
         }
 
-        public void Rebuild()
+        private void BuildSelf()
         {
-            _elements = new Dictionary<string, UIDynamic>();
-
             CreateBackButton(_returnToParent, false);
 
             CreateTitle(false);
@@ -73,7 +64,7 @@ namespace TittyMagic.UI
 
         private void CreateBackButton(UnityAction backButtonListener, bool rightSide)
         {
-            var button = _script.CreateButton("Return", rightSide);
+            var button = script.CreateButton("Return", rightSide);
 
             button.textColor = Color.white;
             var colors = button.button.colors;
@@ -83,37 +74,37 @@ namespace TittyMagic.UI
             button.button.colors = colors;
 
             button.AddListener(backButtonListener);
-            _elements["backButton"] = button;
+            elements["backButton"] = button;
         }
 
         private void CreateTitle(bool rightSide)
         {
-            var textField = UIHelpers.TitleTextField(_script, _title, _parameterGroup.displayName, 62, rightSide);
+            var textField = UIHelpers.TitleTextField(script, _title, _parameterGroup.displayName, 62, rightSide);
             textField.UItext.fontSize = 32;
-            _elements[_title.name] = textField;
+            elements[_title.name] = textField;
         }
 
         private void CreateApplyOnlyToLeftBreastToggle(bool rightSide, int spacing)
         {
             var storable = _parameterGroup.offsetOnlyLeftBreastJsb;
             AddSpacer(storable.name, spacing, rightSide);
-            var toggle = _script.CreateToggle(storable, rightSide);
+            var toggle = script.CreateToggle(storable, rightSide);
             toggle.label = "Apply Only To Left Breast";
-            _elements[storable.name] = toggle;
+            elements[storable.name] = toggle;
         }
 
         private void CreateRecalibrateButton(bool rightSide, int spacing = 0)
         {
-            var storable = _script.recalibratePhysics;
+            var storable = script.recalibratePhysics;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var button = _script.CreateButton("Recalibrate Physics", rightSide);
+            var button = script.CreateButton("Recalibrate Physics", rightSide);
             storable.RegisterButton(button);
             button.height = 52;
 
             button.button.onClick.AddListener(() => _offsetWhenCalibrated = _parameterGroup.offsetJsf.val);
 
-            _elements[storable.name] = button;
+            elements[storable.name] = button;
         }
 
         private void CreateInfoTextArea(bool rightSide, int spacing = 0)
@@ -122,11 +113,11 @@ namespace TittyMagic.UI
             storable.val = _parameterGroup.infoText;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var textField = _script.CreateTextField(storable, rightSide);
+            var textField = script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.height = 288;
             textField.backgroundColor = Color.clear;
-            _elements[storable.name] = textField;
+            elements[storable.name] = textField;
         }
 
         private void CreateCurrentValueSlider(bool rightSide, int spacing = 0)
@@ -134,7 +125,7 @@ namespace TittyMagic.UI
             var storable = _parameterGroup.currentValueJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var slider = _script.CreateSlider(storable, rightSide);
+            var slider = script.CreateSlider(storable, rightSide);
             slider.valueFormat = _parameterGroup.valueFormat;
             slider.SetActiveStyle(false);
             slider.slider.interactable = false;
@@ -143,14 +134,14 @@ namespace TittyMagic.UI
 
             slider.slider.onValueChanged.AddListener(SyncAllMultiplierSliderValues);
 
-            _elements[storable.name] = slider;
+            elements[storable.name] = slider;
         }
 
         private void CreateMultiplierSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
         {
             AddSpacer(storable.name, spacing, rightSide);
 
-            var slider = _script.CreateSlider(storable, rightSide);
+            var slider = script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.SetActiveStyle(false);
             slider.slider.interactable = false;
@@ -163,14 +154,14 @@ namespace TittyMagic.UI
 
             SyncMultiplierSliderText(slider, storable.name, storable.val);
 
-            _elements[storable.name] = slider;
+            elements[storable.name] = slider;
         }
 
         private void SyncAllMultiplierSliderValues(float value)
         {
             foreach(var storable in _parameterGroup.groupMultiplierStorables)
             {
-                var uiDynamicSlider = _elements[storable.name] as UIDynamicSlider;
+                var uiDynamicSlider = elements[storable.name] as UIDynamicSlider;
                 if(uiDynamicSlider != null)
                 {
                     SyncMultiplierSliderText(uiDynamicSlider, storable.name, storable.val);
@@ -194,7 +185,7 @@ namespace TittyMagic.UI
             var storable = _parameterGroup.offsetJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var slider = _script.CreateSlider(storable, rightSide);
+            var slider = script.CreateSlider(storable, rightSide);
             slider.valueFormat = _parameterGroup.valueFormat;
 
             slider.slider.onValueChanged.AddListener(value =>
@@ -202,11 +193,11 @@ namespace TittyMagic.UI
                 parentButton.label = ParamButtonLabel();
                 if(_parameterGroup.requiresRecalibration)
                 {
-                    _script.recalibrationNeeded = Math.Abs(value - _offsetWhenCalibrated) > 0.01f;
+                    script.recalibrationNeeded = Math.Abs(value - _offsetWhenCalibrated) > 0.01f;
                 }
             });
 
-            _elements[storable.name] = slider;
+            elements[storable.name] = slider;
             _offsetWhenCalibrated = storable.val;
         }
 
@@ -214,12 +205,12 @@ namespace TittyMagic.UI
         {
             AddSpacer(storable.name, spacing, rightSide);
 
-            var slider = _script.CreateSlider(storable, rightSide);
+            var slider = script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
 
             slider.slider.onValueChanged.AddListener(value => parentButton.label = ParamButtonLabel());
 
-            _elements[storable.name] = slider;
+            elements[storable.name] = slider;
         }
 
         public string ParamButtonLabel()
@@ -233,19 +224,7 @@ namespace TittyMagic.UI
             return label;
         }
 
-        private void AddSpacer(string name, int height, bool rightSide) =>
-            _elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
-
-        public List<UIDynamicSlider> GetSliders() => null;
-
-        public void Clear()
-        {
-            _elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
-            _script.RecalibrateOnNavigation();
-        }
-
-        public void ClosePopups()
-        {
-        }
+        private void ActionsOnClose()
+            => script.RecalibrateOnNavigation();
     }
 }

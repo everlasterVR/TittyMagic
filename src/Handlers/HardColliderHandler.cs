@@ -348,8 +348,7 @@ namespace TittyMagic
         {
             _combinedSyncInProgress = true;
 
-            var hardCollidersWindow = _script.mainWindow?.GetActiveNestedWindow() as HardCollidersWindow;
-            var elements = hardCollidersWindow?.GetElements();
+            var elements = _script.mainWindow?.GetActiveNestedWindow()?.GetElements();
             if(elements != null)
             {
                 yield return new WaitForSecondsRealtime(0.1f);

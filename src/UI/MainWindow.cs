@@ -3,56 +3,29 @@ using UnityEngine;
 
 namespace TittyMagic.UI
 {
-    internal class MainWindow : IWindow
+    internal class MainWindow : WindowBase
     {
-        private readonly Script _script;
-
-        public Dictionary<string, UIDynamic> GetElements() => _elements;
-        private Dictionary<string, UIDynamic> _elements;
-
-        private readonly Dictionary<string, IWindow> _nestedWindows;
-
-        public IWindow GetActiveNestedWindow() => _activeNestedWindow;
-        private IWindow _activeNestedWindow;
-
         private readonly JSONStorableString _title;
 
-        public int Id() => 1;
-
-        public MainWindow(Script script)
+        public MainWindow(Script script) : base(script)
         {
-            _script = script;
-            _nestedWindows = new Dictionary<string, IWindow>();
-
+            id = 1;
+            buildAction = BuildSelf;
             _title = new JSONStorableString("title", "");
             if(Gender.isFemale)
             {
                 var hardCollidersWindow = new HardCollidersWindow(script,
                     () =>
                     {
-                        _activeNestedWindow = null;
-                        RebuildSelf();
+                        activeNestedWindow = null;
+                        buildAction();
                     });
-                _nestedWindows[$"{hardCollidersWindow.Id()}"] = hardCollidersWindow;
+                nestedWindows[$"{hardCollidersWindow.Id()}"] = hardCollidersWindow;
             }
         }
 
-        public void Rebuild()
+        private void BuildSelf()
         {
-            if(_activeNestedWindow != null)
-            {
-                _activeNestedWindow.Rebuild();
-            }
-            else
-            {
-                RebuildSelf();
-            }
-        }
-
-        private void RebuildSelf()
-        {
-            _elements = new Dictionary<string, UIDynamic>();
-
             CreateTitleTextField(false);
             CreateRecalibratingTextField(true);
             CreateCalculateMassButton(true, spacing: 54);
@@ -76,109 +49,109 @@ namespace TittyMagic.UI
                 CreateConfigureHardCollidersButton(true, spacing: 15);
             }
 
-            _elements[_script.autoUpdateJsb.name].AddListener(value =>
-                _elements[_script.mainPhysicsHandler.massJsf.name].SetActiveStyle(!value, true)
+            elements[script.autoUpdateJsb.name].AddListener(value =>
+                elements[script.mainPhysicsHandler.massJsf.name].SetActiveStyle(!value, true)
             );
-            _elements[_script.mainPhysicsHandler.massJsf.name].SetActiveStyle(!_script.autoUpdateJsb.val, true);
+            elements[script.mainPhysicsHandler.massJsf.name].SetActiveStyle(!script.autoUpdateJsb.val, true);
         }
 
         private void CreateTitleTextField(bool rightSide)
         {
             var textField = UIHelpers.TitleTextField(
-                _script,
+                script,
                 _title,
                 $"{"\n".Size(12)}{nameof(TittyMagic)}    {Script.VERSION}",
                 100,
                 rightSide
             );
             textField.UItext.fontSize = 40;
-            _elements[_title.name] = textField;
+            elements[_title.name] = textField;
         }
 
         private void CreateAutoUpdateMassToggle(bool rightSide, int spacing = 0)
         {
-            var storable = _script.autoUpdateJsb;
+            var storable = script.autoUpdateJsb;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var toggle = _script.CreateToggle(storable, rightSide);
+            var toggle = script.CreateToggle(storable, rightSide);
             toggle.height = 52;
             toggle.label = "Auto-Update Mass";
-            _elements[storable.name] = toggle;
+            elements[storable.name] = toggle;
         }
 
         private void CreateSoftPhysicsOnToggle(bool rightSide, int spacing = 0)
         {
-            var storable = _script.softPhysicsHandler.softPhysicsOn;
+            var storable = script.softPhysicsHandler.softPhysicsOn;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var toggle = _script.CreateToggle(storable, rightSide);
+            var toggle = script.CreateToggle(storable, rightSide);
             toggle.height = 52;
             toggle.label = "Soft Physics Enabled";
-            _elements[storable.name] = toggle;
+            elements[storable.name] = toggle;
         }
 
         private void CreateRecalibratingTextField(bool rightSide, int spacing = 0)
         {
-            var storable = _script.statusInfo;
+            var storable = script.statusInfo;
             AddSpacer(storable.name, spacing, rightSide);
-            _elements[storable.name] = UIHelpers.NotificationTextField(_script, storable, 32, rightSide);
+            elements[storable.name] = UIHelpers.NotificationTextField(script, storable, 32, rightSide);
         }
 
         private void CreateCalculateMassButton(bool rightSide, int spacing = 0)
         {
-            var storable = _script.calculateBreastMass;
+            var storable = script.calculateBreastMass;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var button = _script.CreateButton("Calculate Breast Mass", rightSide);
+            var button = script.CreateButton("Calculate Breast Mass", rightSide);
             storable.RegisterButton(button);
             button.height = 53;
-            _elements[storable.name] = button;
+            elements[storable.name] = button;
         }
 
         private void CreateMassSlider(bool rightSide, int spacing = 0)
         {
-            var storable = _script.mainPhysicsHandler.massJsf;
+            var storable = script.mainPhysicsHandler.massJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var slider = _script.CreateSlider(storable, rightSide);
+            var slider = script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F3";
             slider.label = "Breast Mass";
             slider.AddSliderClickMonitor();
-            _elements[storable.name] = slider;
+            elements[storable.name] = slider;
         }
 
         private void CreateSoftnessSlider(bool rightSide, int spacing = 0)
         {
-            var storable = _script.softnessJsf;
+            var storable = script.softnessJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var slider = _script.CreateSlider(storable, rightSide);
+            var slider = script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F0";
             slider.slider.wholeNumbers = true;
             slider.label = "Breast Softness";
             slider.AddSliderClickMonitor();
-            _elements[storable.name] = slider;
+            elements[storable.name] = slider;
         }
 
         private void CreateQuicknessSlider(bool rightSide, int spacing = 0)
         {
-            var storable = _script.quicknessJsf;
+            var storable = script.quicknessJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var slider = _script.CreateSlider(storable, rightSide);
+            var slider = script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F0";
             slider.slider.wholeNumbers = true;
             slider.label = "Breast Quickness";
             slider.AddSliderClickMonitor();
-            _elements[storable.name] = slider;
+            elements[storable.name] = slider;
         }
 
         private void CreateConfigureHardCollidersButton(bool rightSide, int spacing = 0)
         {
-            var storable = _script.configureHardColliders;
+            var storable = script.configureHardColliders;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var button = _script.CreateButton(storable.name, rightSide);
+            var button = script.CreateButton(storable.name, rightSide);
             storable.RegisterButton(button);
             button.buttonText.alignment = TextAnchor.MiddleLeft;
             button.label = "  Configure Hard Colliders...";
@@ -187,64 +160,24 @@ namespace TittyMagic.UI
             button.AddListener(() =>
             {
                 ClearSelf();
-                _activeNestedWindow = _nestedWindows["0"];
-                _activeNestedWindow.Rebuild();
+                activeNestedWindow = nestedWindows["0"];
+                activeNestedWindow.Rebuild();
             });
 
-            _elements[storable.name] = button;
-        }
-
-        private void AddSpacer(string name, int height, bool rightSide) =>
-            _elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
-
-        public List<UIDynamicSlider> GetSliders()
-        {
-            var sliders = new List<UIDynamicSlider>();
-            if(_elements != null)
-            {
-                foreach(var element in _elements)
-                {
-                    var uiDynamicSlider = element.Value as UIDynamicSlider;
-                    if(uiDynamicSlider != null)
-                    {
-                        sliders.Add(uiDynamicSlider);
-                    }
-                }
-            }
-
-            return sliders;
+            elements[storable.name] = button;
         }
 
         public IEnumerable<UIDynamicSlider> GetSlidersForRefresh()
         {
             var sliders = new List<UIDynamicSlider>();
-            if(_elements != null)
+            if(elements != null)
             {
-                sliders.Add(_elements[_script.mainPhysicsHandler.massJsf.name] as UIDynamicSlider);
-                sliders.Add(_elements[_script.softnessJsf.name] as UIDynamicSlider);
-                sliders.Add(_elements[_script.quicknessJsf.name] as UIDynamicSlider);
+                sliders.Add(elements[script.mainPhysicsHandler.massJsf.name] as UIDynamicSlider);
+                sliders.Add(elements[script.softnessJsf.name] as UIDynamicSlider);
+                sliders.Add(elements[script.quicknessJsf.name] as UIDynamicSlider);
             }
 
             return sliders;
         }
-
-        public void Clear()
-        {
-            if(_activeNestedWindow != null)
-            {
-                _activeNestedWindow.Clear();
-            }
-            else
-            {
-                ClearSelf();
-            }
-        }
-
-        public void ClosePopups()
-        {
-        }
-
-        private void ClearSelf() =>
-            _elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
     }
 }
