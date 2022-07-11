@@ -1,19 +1,19 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace TittyMagic.UI
 {
     internal class MainWindow : IWindow
     {
         private readonly Script _script;
-        private Dictionary<string, UIDynamic> _elements;
 
         public Dictionary<string, UIDynamic> GetElements() => _elements;
+        private Dictionary<string, UIDynamic> _elements;
 
-        public HardCollidersWindow nestedWindow { get; }
-        public bool nestedWindowActive { get; private set; }
+        private readonly Dictionary<string, IWindow> _nestedWindows;
+
+        public IWindow GetActiveNestedWindow() => _activeNestedWindow;
+        private IWindow _activeNestedWindow;
 
         private readonly JSONStorableString _title;
 
@@ -22,15 +22,34 @@ namespace TittyMagic.UI
         public MainWindow(Script script)
         {
             _script = script;
-            _title = new JSONStorableString("title", "");
+            _nestedWindows = new Dictionary<string, IWindow>();
 
+            _title = new JSONStorableString("title", "");
             if(Gender.isFemale)
             {
-                nestedWindow = new HardCollidersWindow(script);
+                var hardCollidersWindow = new HardCollidersWindow(script,
+                    () =>
+                    {
+                        _activeNestedWindow = null;
+                        RebuildSelf();
+                    });
+                _nestedWindows[$"{hardCollidersWindow.Id()}"] = hardCollidersWindow;
             }
         }
 
         public void Rebuild()
+        {
+            if(_activeNestedWindow != null)
+            {
+                _activeNestedWindow.Rebuild();
+            }
+            else
+            {
+                RebuildSelf();
+            }
+        }
+
+        private void RebuildSelf()
         {
             _elements = new Dictionary<string, UIDynamic>();
 
@@ -56,6 +75,11 @@ namespace TittyMagic.UI
             {
                 CreateConfigureHardCollidersButton(true, spacing: 15);
             }
+
+            _elements[_script.autoUpdateJsb.name].AddListener(value =>
+                _elements[_script.mainPhysicsHandler.massJsf.name].SetActiveStyle(!value, true)
+            );
+            _elements[_script.mainPhysicsHandler.massJsf.name].SetActiveStyle(!_script.autoUpdateJsb.val, true);
         }
 
         private void CreateTitleTextField(bool rightSide)
@@ -160,42 +184,14 @@ namespace TittyMagic.UI
             button.label = "  Configure Hard Colliders...";
             button.height = 52;
 
-            UnityAction returnCallback = () =>
-            {
-                ClearNestedWindow();
-                Rebuild();
-                _script.PostNavigateToMainWindow();
-            };
-
             button.AddListener(() =>
             {
                 ClearSelf();
-                nestedWindowActive = true;
-                nestedWindow.Rebuild(returnCallback);
-                PostNavigateToHardCollidersWindow();
+                _activeNestedWindow = _nestedWindows["0"];
+                _activeNestedWindow.Rebuild();
             });
 
             _elements[storable.name] = button;
-        }
-
-        private void PostNavigateToHardCollidersWindow()
-        {
-            _script.colliderVisualizer.enabled = true;
-            _script.colliderVisualizer.ShowPreviewsJSON.val = true;
-            _script.hardColliderHandler.SyncAllOffsets();
-            AddColliderPopupChangeHandler();
-        }
-
-        private void AddColliderPopupChangeHandler()
-        {
-            var elements = nestedWindow.GetElements();
-            var element = elements[_script.hardColliderHandler.colliderGroupsJsc.name];
-            var uiDynamicPopup = element as UIDynamicPopup;
-            if(uiDynamicPopup != null)
-            {
-                uiDynamicPopup.popup.onValueChangeHandlers += nestedWindow.OnColliderPopupValueChanged;
-                nestedWindow.RebuildColliderSection(_script.hardColliderHandler.colliderGroupsJsc.val);
-            }
         }
 
         private void AddSpacer(string name, int height, bool rightSide) =>
@@ -234,9 +230,9 @@ namespace TittyMagic.UI
 
         public void Clear()
         {
-            if(nestedWindowActive)
+            if(_activeNestedWindow != null)
             {
-                ClearNestedWindow();
+                _activeNestedWindow.Clear();
             }
             else
             {
@@ -244,17 +240,11 @@ namespace TittyMagic.UI
             }
         }
 
+        public void ClosePopups()
+        {
+        }
+
         private void ClearSelf() =>
             _elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
-
-        private void ClearNestedWindow()
-        {
-            nestedWindow.Clear();
-            nestedWindowActive = false;
-        }
-
-        public void ActionsOnWindowClosed()
-        {
-        }
     }
 }

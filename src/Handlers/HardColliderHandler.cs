@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SimpleJSON;
 using TittyMagic.Configs;
+using TittyMagic.UI;
 using UnityEngine;
 using static TittyMagic.ParamName;
 
@@ -289,7 +290,7 @@ namespace TittyMagic
         {
             config.syncInProgress = true;
 
-            var elements = _script.mainWindow?.nestedWindow?.GetColliderSectionElements();
+            var elements = ((HardCollidersWindow) _script.mainWindow.GetActiveNestedWindow())?.colliderSectionElements;
             if(elements != null)
             {
                 yield return new WaitForSecondsRealtime(0.1f);
@@ -347,7 +348,8 @@ namespace TittyMagic
         {
             _combinedSyncInProgress = true;
 
-            var elements = _script.mainWindow?.nestedWindow?.GetElements();
+            var hardCollidersWindow = _script.mainWindow?.GetActiveNestedWindow() as HardCollidersWindow;
+            var elements = hardCollidersWindow?.GetElements();
             if(elements != null)
             {
                 yield return new WaitForSecondsRealtime(0.1f);

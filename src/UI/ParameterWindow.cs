@@ -7,12 +7,17 @@ using UnityEngine.UI;
 
 namespace TittyMagic.UI
 {
-    internal class ParameterWindow
+    internal class ParameterWindow : IWindow
     {
         private readonly Script _script;
         private readonly PhysicsParameterGroup _parameterGroup;
+        private readonly UnityAction _returnToParent;
 
         private Dictionary<string, UIDynamic> _elements;
+
+        public IWindow GetActiveNestedWindow() => null;
+
+        public int Id() => 0;
 
         private readonly JSONStorableString _title;
         private readonly JSONStorableString _infoText;
@@ -20,20 +25,25 @@ namespace TittyMagic.UI
 
         public UIDynamicButton parentButton { private get; set; }
 
-        public ParameterWindow(Script script, PhysicsParameterGroup parameterGroup)
+        public ParameterWindow(Script script, PhysicsParameterGroup parameterGroup, UnityAction onReturnToParent)
         {
             _script = script;
             _parameterGroup = parameterGroup;
+            _returnToParent = () =>
+            {
+                Clear();
+                onReturnToParent();
+            };
 
             _title = new JSONStorableString("title", "");
             _infoText = new JSONStorableString("infoText", "");
         }
 
-        public void Rebuild(UnityAction backButtonListener)
+        public void Rebuild()
         {
             _elements = new Dictionary<string, UIDynamic>();
 
-            CreateBackButton(backButtonListener, false);
+            CreateBackButton(_returnToParent, false);
 
             CreateTitle(false);
             CreateInfoTextArea(false);
@@ -226,10 +236,16 @@ namespace TittyMagic.UI
         private void AddSpacer(string name, int height, bool rightSide) =>
             _elements[$"{name}Spacer"] = _script.NewSpacer(height, rightSide);
 
+        public List<UIDynamicSlider> GetSliders() => null;
+
         public void Clear()
         {
             _elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
             _script.RecalibrateOnNavigation();
+        }
+
+        public void ClosePopups()
+        {
         }
     }
 }

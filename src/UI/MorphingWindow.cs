@@ -8,9 +8,10 @@ namespace TittyMagic.UI
     internal class MorphingWindow : IWindow
     {
         private readonly Script _script;
+
         private Dictionary<string, UIDynamic> _elements;
 
-        public Dictionary<string, UIDynamic> GetElements() => _elements;
+        public IWindow GetActiveNestedWindow() => null;
 
         private readonly JSONStorableString _forceMorphingMultipliersHeader;
         private readonly JSONStorableString _forceMorphingMultipliersInfoText;
@@ -146,7 +147,7 @@ namespace TittyMagic.UI
         public void Clear() =>
             _elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
 
-        public void ActionsOnWindowClosed()
+        public void ClosePopups()
         {
         }
     }

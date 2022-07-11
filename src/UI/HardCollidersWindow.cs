@@ -6,14 +6,19 @@ using Image = UnityEngine.UI.Image;
 
 namespace TittyMagic.UI
 {
-    internal class HardCollidersWindow
+    internal class HardCollidersWindow : IWindow
     {
         private readonly Script _script;
-        private Dictionary<string, UIDynamic> _elements;
-        private Dictionary<string, UIDynamic> _colliderSectionElements;
+        private readonly UnityAction _returnToParent;
 
+        private Dictionary<string, UIDynamic> _elements;
         public Dictionary<string, UIDynamic> GetElements() => _elements;
-        public Dictionary<string, UIDynamic> GetColliderSectionElements() => _colliderSectionElements;
+
+        public IWindow GetActiveNestedWindow() => null;
+
+        public Dictionary<string, UIDynamic> colliderSectionElements { get; private set; }
+
+        public int Id() => 0;
 
         private readonly JSONStorableString _title;
         private readonly JSONStorableString _baseForceInfoText;
@@ -24,9 +29,14 @@ namespace TittyMagic.UI
         private readonly JSONStorableString _centerHeaderText;
         private readonly JSONStorableString _centerInfoText;
 
-        public HardCollidersWindow(Script script)
+        public HardCollidersWindow(Script script, UnityAction onReturnToParent)
         {
             _script = script;
+            _returnToParent = () =>
+            {
+                Clear();
+                onReturnToParent();
+            };
 
             _title = new JSONStorableString("hardCollidersTitle", "");
             _baseForceInfoText = new JSONStorableString("hardCollidersBaseForceInfoText", "");
@@ -54,11 +64,11 @@ namespace TittyMagic.UI
                 "\n\nCombined with the size and chape, the position determines how well the collider fits inside the breast.";
         }
 
-        public void Rebuild(UnityAction backButtonListener)
+        public void Rebuild()
         {
             _elements = new Dictionary<string, UIDynamic>();
 
-            CreateBackButton(backButtonListener, false);
+            CreateBackButton(false);
             CreateTitle(false);
             CreateColliderGroupChooser(true);
 
@@ -72,9 +82,14 @@ namespace TittyMagic.UI
             CreateShowHardCollidersChooser(false, spacing: 35);
             CreateXRayVisualizationToggle(false);
             AddShowPreviewsPopupChangeHandler();
+
+            _script.colliderVisualizer.enabled = true;
+            _script.colliderVisualizer.ShowPreviewsJSON.val = true;
+            _script.hardColliderHandler.SyncAllOffsets();
+            AddColliderPopupChangeHandler();
         }
 
-        private void CreateBackButton(UnityAction backButtonListener, bool rightSide)
+        private void CreateBackButton(bool rightSide)
         {
             var button = _script.CreateButton("Return", rightSide);
 
@@ -85,7 +100,7 @@ namespace TittyMagic.UI
             colors.pressedColor = Color.grey;
             button.button.colors = colors;
 
-            button.AddListener(backButtonListener);
+            button.AddListener(_returnToParent);
             _elements["backButton"] = button;
         }
 
@@ -175,7 +190,7 @@ namespace TittyMagic.UI
 
         // ReSharper disable MemberCanBePrivate.Global
         public List<UIDynamicSlider> GetSliders() => GetSliders(_elements);
-        public List<UIDynamicSlider> GetColliderSectionSliders() => GetSliders(_colliderSectionElements);
+        public List<UIDynamicSlider> GetColliderSectionSliders() => GetSliders(colliderSectionElements);
 
         // ReSharper restore MemberCanBePrivate.Global
 
@@ -192,26 +207,6 @@ namespace TittyMagic.UI
                 return list;
             }
         );
-
-        public void Clear()
-        {
-            GetSliders().ForEach(slider => Object.Destroy(slider.GetSliderClickMonitor()));
-            _elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
-            ClearColliderSection();
-            RemoveColliderPopupChangeHandler();
-            RemoveShowPreviewsPopupChangeHandler();
-            _script.colliderVisualizer.ShowPreviewsJSON.val = false;
-            _script.colliderVisualizer.enabled = false;
-        }
-
-        private void ClearColliderSection()
-        {
-            GetColliderSectionSliders()
-                .ForEach(slider => Object.Destroy(slider.GetSliderClickMonitor()));
-            _colliderSectionElements
-                .ToList()
-                .ForEach(element => _script.RemoveElement(element.Value));
-        }
 
         private void RemoveColliderPopupChangeHandler()
         {
@@ -248,23 +243,6 @@ namespace TittyMagic.UI
             }
         }
 
-        public void ClosePopups()
-        {
-            if(_elements == null)
-            {
-                return;
-            }
-
-            foreach(var element in _elements)
-            {
-                var uiDynamicPopup = element.Value as UIDynamicPopup;
-                if(uiDynamicPopup != null)
-                {
-                    uiDynamicPopup.popup.visible = false;
-                }
-            }
-        }
-
         private void OnShowPreviewsPopupValueChanged(string value)
         {
             var popupElement = _elements[_script.colliderVisualizer.GroupsJSON.name];
@@ -277,15 +255,15 @@ namespace TittyMagic.UI
             _elements[_script.colliderVisualizer.XRayPreviewsJSON.name].SetActiveStyle(value != "Off");
         }
 
-        public void OnColliderPopupValueChanged(string value)
+        private void OnColliderPopupValueChanged(string value)
         {
             ClearColliderSection();
             RebuildColliderSection(value);
         }
 
-        public void RebuildColliderSection(string colliderId)
+        private void RebuildColliderSection(string colliderId)
         {
-            _colliderSectionElements = new Dictionary<string, UIDynamic>();
+            colliderSectionElements = new Dictionary<string, UIDynamic>();
             if(colliderId == HardColliderHandler.ALL_OPTION)
             {
                 CreateBaseForceInfoTextArea(true, spacing: 15);
@@ -316,100 +294,100 @@ namespace TittyMagic.UI
         private void CreateBaseForceInfoTextArea(bool rightSide, int spacing = 0)
         {
             var storable = _baseForceInfoText;
-            _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
+            colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
 
             var textField = _script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.height = 120;
-            _colliderSectionElements[storable.name] = textField;
+            colliderSectionElements[storable.name] = textField;
         }
 
         private void CreateHardCollidersInfoTextArea(bool rightSide, int spacing = 0)
         {
             var storable = _mainInfoText;
-            _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
+            colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
 
             var textField = _script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.height = 450;
             textField.backgroundColor = Color.clear;
-            _colliderSectionElements[storable.name] = textField;
+            colliderSectionElements[storable.name] = textField;
         }
 
         private void CreateSelectColliderTextArea(bool rightSide, int spacing = 0)
         {
             var storable = _selectColliderText;
-            _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
+            colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
 
             var textField = _script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.UItext.alignment = TextAnchor.UpperCenter;
             textField.height = 100;
             textField.backgroundColor = Color.clear;
-            _colliderSectionElements[storable.name] = textField;
+            colliderSectionElements[storable.name] = textField;
         }
 
         private void CreateColliderForceSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
         {
-            _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
+            colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "Collision Force Multiplier";
             slider.AddSliderClickMonitor();
             slider.AddListener((float value) => UpdateSliderColor(storable));
-            _colliderSectionElements[storable.name] = slider;
+            colliderSectionElements[storable.name] = slider;
         }
 
         private void CreateColliderRadiusSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
         {
-            _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
+            colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "Radius";
-            _colliderSectionElements[storable.name] = slider;
+            colliderSectionElements[storable.name] = slider;
         }
 
         private void CreateColliderLengthSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
         {
-            _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
+            colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "Length";
-            _colliderSectionElements[storable.name] = slider;
+            colliderSectionElements[storable.name] = slider;
         }
 
         private void CreateColliderRightSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
         {
-            _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
+            colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "X Offset";
-            _colliderSectionElements[storable.name] = slider;
+            colliderSectionElements[storable.name] = slider;
         }
 
         private void CreateColliderUpSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
         {
-            _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
+            colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "Y Offset";
-            _colliderSectionElements[storable.name] = slider;
+            colliderSectionElements[storable.name] = slider;
         }
 
         private void CreateColliderLookSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
         {
-            _colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
+            colliderSectionElements[$"{storable.name}Spacer"] = _script.NewSpacer(spacing, rightSide);
             var slider = _script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "Z Offset";
-            _colliderSectionElements[storable.name] = slider;
+            colliderSectionElements[storable.name] = slider;
         }
 
         private void UpdateAllSliderColors(float value)
         {
             foreach(var config in _script.hardColliderHandler.colliderConfigs)
             {
-                if(_colliderSectionElements.ContainsKey(config.forceJsf.name))
+                if(colliderSectionElements.ContainsKey(config.forceJsf.name))
                 {
                     UpdateSliderColor(config.forceJsf);
                 }
@@ -418,7 +396,7 @@ namespace TittyMagic.UI
 
         private void UpdateSliderColor(JSONStorableFloat storable)
         {
-            var slider = (UIDynamicSlider) _colliderSectionElements[storable.name];
+            var slider = (UIDynamicSlider) colliderSectionElements[storable.name];
             var images = slider.slider.gameObject.transform.GetComponentsInChildren<Image>();
             var fillImage = images.First(image => image.name == "Fill");
             var handleImage = images.First(image => image.name == "Handle");
@@ -445,6 +423,54 @@ namespace TittyMagic.UI
             }
 
             return Color.Lerp(new Color(1.0f, 0.6f, 0.2f), new Color(1.0f, 0.2f, 0.2f), Mathf.InverseLerp(2 / 3f, 1, value));
+        }
+
+        public void Clear()
+        {
+            GetSliders().ForEach(slider => Object.Destroy(slider.GetSliderClickMonitor()));
+            _elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
+            ClearColliderSection();
+            RemoveColliderPopupChangeHandler();
+            RemoveShowPreviewsPopupChangeHandler();
+            _script.colliderVisualizer.ShowPreviewsJSON.val = false;
+            _script.colliderVisualizer.enabled = false;
+        }
+
+        private void ClearColliderSection()
+        {
+            GetColliderSectionSliders()
+                .ForEach(slider => Object.Destroy(slider.GetSliderClickMonitor()));
+            colliderSectionElements
+                .ToList()
+                .ForEach(element => _script.RemoveElement(element.Value));
+        }
+
+        public void ClosePopups()
+        {
+            if(_elements == null)
+            {
+                return;
+            }
+
+            foreach(var element in _elements)
+            {
+                var uiDynamicPopup = element.Value as UIDynamicPopup;
+                if(uiDynamicPopup != null)
+                {
+                    uiDynamicPopup.popup.visible = false;
+                }
+            }
+        }
+
+        private void AddColliderPopupChangeHandler()
+        {
+            var element = _elements[_script.hardColliderHandler.colliderGroupsJsc.name];
+            var uiDynamicPopup = element as UIDynamicPopup;
+            if(uiDynamicPopup != null)
+            {
+                uiDynamicPopup.popup.onValueChangeHandlers += OnColliderPopupValueChanged;
+                RebuildColliderSection(_script.hardColliderHandler.colliderGroupsJsc.val);
+            }
         }
     }
 }

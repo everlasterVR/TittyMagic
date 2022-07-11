@@ -7,12 +7,12 @@ namespace TittyMagic.UI
     internal class PhysicsWindow : IWindow
     {
         private readonly Script _script;
+
         private Dictionary<string, UIDynamic> _elements;
+        private readonly Dictionary<string, IWindow> _nestedWindows;
 
-        public Dictionary<string, UIDynamic> GetElements() => _elements;
-
-        public Dictionary<string, ParameterWindow> nestedWindows { get; private set; }
-        private string _activeNestedWindowKey;
+        public IWindow GetActiveNestedWindow() => _activeNestedWindow;
+        private IWindow _activeNestedWindow;
 
         private readonly JSONStorableString _jointPhysicsParamsHeader;
         private readonly JSONStorableString _softPhysicsParamsHeader;
@@ -22,6 +22,7 @@ namespace TittyMagic.UI
         public PhysicsWindow(Script script)
         {
             _script = script;
+            _nestedWindows = new Dictionary<string, IWindow>();
 
             _jointPhysicsParamsHeader = new JSONStorableString("mainPhysicsParamsHeader", "");
             if(Gender.isFemale)
@@ -34,24 +35,42 @@ namespace TittyMagic.UI
 
         private void CreateParameterWindows()
         {
-            nestedWindows = new Dictionary<string, ParameterWindow>();
+            UnityAction onReturnToParent = () =>
+            {
+                _activeNestedWindow = null;
+                RebuildSelf();
+            };
 
             _script.mainPhysicsHandler.parameterGroups.Keys.ToList()
-                .ForEach(key => nestedWindows[key] = new ParameterWindow(
+                .ForEach(key => _nestedWindows[key] = new ParameterWindow(
                     _script,
-                    _script.mainPhysicsHandler.parameterGroups[key]
+                    _script.mainPhysicsHandler.parameterGroups[key],
+                    onReturnToParent
                 ));
             if(Gender.isFemale)
             {
                 _script.softPhysicsHandler.parameterGroups.Keys.ToList()
-                    .ForEach(key => nestedWindows[key] = new ParameterWindow(
+                    .ForEach(key => _nestedWindows[key] = new ParameterWindow(
                         _script,
-                        _script.softPhysicsHandler.parameterGroups[key]
+                        _script.softPhysicsHandler.parameterGroups[key],
+                        onReturnToParent
                     ));
             }
         }
 
         public void Rebuild()
+        {
+            if(_activeNestedWindow != null)
+            {
+                _activeNestedWindow.Rebuild();
+            }
+            else
+            {
+                RebuildSelf();
+            }
+        }
+
+        private void RebuildSelf()
         {
             _elements = new Dictionary<string, UIDynamic>();
 
@@ -89,29 +108,26 @@ namespace TittyMagic.UI
             button.height = 52;
             button.buttonText.alignment = TextAnchor.MiddleLeft;
 
-            UnityAction returnCallback = () =>
-            {
-                ClearNestedWindow(key);
-                Rebuild();
-            };
-
             button.AddListener(() =>
             {
                 ClearSelf();
-                _activeNestedWindowKey = key;
-                nestedWindows[key].Rebuild(returnCallback);
+                _activeNestedWindow = _nestedWindows[key];
+                _activeNestedWindow.Rebuild();
             });
 
-            nestedWindows[key].parentButton = button;
-            button.label = nestedWindows[key].ParamButtonLabel();
+            var nestedWindow = (ParameterWindow) _nestedWindows[key];
+            nestedWindow.parentButton = button;
+            button.label = nestedWindow.ParamButtonLabel();
             _elements[key] = button;
         }
 
+        public List<UIDynamicSlider> GetSliders() => null;
+
         public void Clear()
         {
-            if(_activeNestedWindowKey != null)
+            if(_activeNestedWindow != null)
             {
-                ClearNestedWindow(_activeNestedWindowKey);
+                _activeNestedWindow.Clear();
             }
             else
             {
@@ -119,17 +135,11 @@ namespace TittyMagic.UI
             }
         }
 
+        public void ClosePopups()
+        {
+        }
+
         private void ClearSelf() =>
             _elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
-
-        private void ClearNestedWindow(string key)
-        {
-            nestedWindows[key].Clear();
-            _activeNestedWindowKey = null;
-        }
-
-        public void ActionsOnWindowClosed()
-        {
-        }
     }
 }

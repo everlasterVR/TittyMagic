@@ -55,10 +55,10 @@ namespace TittyMagic
         private Tabs _tabs;
 
         // ReSharper disable MemberCanBePrivate.Global
-        public MainWindow mainWindow { get; private set; }
-        public MorphingWindow morphingWindow { get; private set; }
-        public GravityWindow gravityWindow { get; private set; }
-        public PhysicsWindow physicsWindow { get; private set; }
+        public IWindow mainWindow { get; private set; }
+        public IWindow morphingWindow { get; private set; }
+        public IWindow gravityWindow { get; private set; }
+        public IWindow physicsWindow { get; private set; }
 
         // ReSharper restore MemberCanBePrivate.Global
         public JSONStorableAction recalibratePhysics { get; private set; }
@@ -184,7 +184,7 @@ namespace TittyMagic
 
             SetupStorables();
             CreateNavigation();
-            NavigateToWindow(mainWindow, PostNavigateToMainWindow);
+            NavigateToWindow(mainWindow);
 
             if(!_loadingFromJson)
             {
@@ -362,7 +362,7 @@ namespace TittyMagic
             _tabs.CreateNavigationButton(
                 mainWindow.Id(),
                 "Control",
-                () => NavigateToWindow(mainWindow, PostNavigateToMainWindow)
+                () => NavigateToWindow(mainWindow)
             );
             _tabs.CreateNavigationButton(
                 physicsWindow.Id(),
@@ -381,25 +381,12 @@ namespace TittyMagic
             );
         }
 
-        private void NavigateToWindow(IWindow window, Action postNavigateAction = null)
+        private void NavigateToWindow(IWindow window)
         {
             _tabs.activeWindow?.Clear();
-            _tabs.activeWindow?.ActionsOnWindowClosed();
             _tabs.ActivateTab(window.Id());
             _tabs.activeWindow = window;
             window.Rebuild();
-
-            postNavigateAction?.Invoke();
-        }
-
-        public void PostNavigateToMainWindow()
-        {
-            var elements = _tabs.activeWindow.GetElements();
-
-            elements[autoUpdateJsb.name].AddListener(value =>
-                elements[mainPhysicsHandler.massJsf.name].SetActiveStyle(!value, true)
-            );
-            elements[mainPhysicsHandler.massJsf.name].SetActiveStyle(!autoUpdateJsb.val, true);
         }
 
         private void RefreshFromSliderChanged(bool refreshMass = false)
@@ -453,7 +440,7 @@ namespace TittyMagic
             softPhysicsHandler.ReverseSyncSoftPhysicsOn();
             softPhysicsHandler.ReverseSyncSyncAllowSelfCollision();
 
-            if(_tabs.activeWindow.Id() == mainWindow.Id() && mainWindow.nestedWindowActive)
+            if(_tabs.activeWindow.Id() == mainWindow.Id() && mainWindow.GetActiveNestedWindow() != null)
             {
                 colliderVisualizer.ShowPreviewsJSON.val = true;
                 colliderVisualizer.enabled = true;
@@ -465,7 +452,7 @@ namespace TittyMagic
             RecalibrateOnNavigation();
             colliderVisualizer.ShowPreviewsJSON.val = false;
             colliderVisualizer.enabled = false;
-            mainWindow.nestedWindow?.ClosePopups();
+            mainWindow.GetActiveNestedWindow()?.ClosePopups();
         }
 
         public void RecalibrateOnNavigation()
@@ -572,7 +559,7 @@ namespace TittyMagic
                 useNewMass = autoUpdateJsb.val;
             }
 
-            if(!_refreshQueued && !mainWindow.GetSlidersForRefresh().Any(slider => slider.IsClickDown()))
+            if(!_refreshQueued && !((MainWindow) mainWindow).GetSlidersForRefresh().Any(slider => slider.IsClickDown()))
             {
                 if(_refreshInProgress)
                 {
@@ -603,7 +590,7 @@ namespace TittyMagic
                 while(
                     _breastMorphListener.Changed() ||
                     _atomScaleListener.Changed() ||
-                    mainWindow.GetSlidersForRefresh().Any(slider => slider.IsClickDown())
+                    ((MainWindow) mainWindow).GetSlidersForRefresh().Any(slider => slider.IsClickDown())
                 )
                 {
                     yield return new WaitForSeconds(0.1f);

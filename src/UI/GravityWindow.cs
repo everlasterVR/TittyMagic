@@ -8,9 +8,10 @@ namespace TittyMagic.UI
     internal class GravityWindow : IWindow
     {
         private readonly Script _script;
+
         private Dictionary<string, UIDynamic> _elements;
 
-        public Dictionary<string, UIDynamic> GetElements() => _elements;
+        public IWindow GetActiveNestedWindow() => null;
 
         private readonly JSONStorableString _gravityPhysicsMultipliersHeader;
         private readonly JSONStorableString _gravityPhysicsMultipliersInfoText;
@@ -186,12 +187,14 @@ namespace TittyMagic.UI
             return sliders;
         }
 
-        public void Clear() =>
-            _elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
-
-        public void ActionsOnWindowClosed()
+        public void Clear()
         {
+            _elements.ToList().ForEach(element => _script.RemoveElement(element.Value));
             _script.RecalibrateOnNavigation();
+        }
+
+        public void ClosePopups()
+        {
         }
     }
 }

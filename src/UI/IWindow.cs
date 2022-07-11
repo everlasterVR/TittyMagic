@@ -4,14 +4,16 @@ namespace TittyMagic.UI
 {
     internal interface IWindow
     {
-        Dictionary<string, UIDynamic> GetElements();
-
         int Id();
+
+        IWindow GetActiveNestedWindow();
 
         void Rebuild();
 
+        List<UIDynamicSlider> GetSliders();
+
         void Clear();
 
-        void ActionsOnWindowClosed();
+        void ClosePopups();
     }
 }
