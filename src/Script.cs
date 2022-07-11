@@ -400,15 +400,6 @@ namespace TittyMagic
                 elements[mainPhysicsHandler.massJsf.name].SetActiveStyle(!value, true)
             );
             elements[mainPhysicsHandler.massJsf.name].SetActiveStyle(!autoUpdateJsb.val, true);
-
-            if(Gender.isFemale)
-            {
-                elements[hardColliderHandler.enabledJsb.name].AddListener(value =>
-                    elements[configureHardColliders.name].SetActiveStyle(value, true)
-                );
-
-                elements[configureHardColliders.name].SetActiveStyle(hardColliderHandler.enabledJsb.val, true);
-            }
         }
 
         private void RefreshFromSliderChanged(bool refreshMass = false)

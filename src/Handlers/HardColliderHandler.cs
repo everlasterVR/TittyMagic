@@ -16,7 +16,6 @@ namespace TittyMagic
         private bool _originalUseAuxBreastColliders;
 
         public JSONStorableStringChooser colliderGroupsJsc { get; private set; }
-        public JSONStorableBool enabledJsb { get; private set; }
         public List<ColliderConfigGroup> colliderConfigs { get; private set; }
         public JSONStorableFloat baseForceJsf { get; private set; }
 
@@ -41,14 +40,10 @@ namespace TittyMagic
             _geometry.useAdvancedColliders = true;
             _originalUseAuxBreastColliders = _geometry.useAuxBreastColliders;
 
-            enabledJsb = _script.NewJSONStorableBool("useHardColliders", true, register: Gender.isFemale);
             if(!Gender.isFemale)
             {
-                enabledJsb.val = false;
                 return;
             }
-
-            enabledJsb.setCallbackFunction = SyncUseHardColliders;
 
             CreateScalingConfigs();
             colliderConfigs = new List<ColliderConfigGroup>
@@ -87,7 +82,8 @@ namespace TittyMagic
             baseForceJsf = _script.NewJSONStorableFloat("combinedColliderForce", 0.50f, 0.01f, 1.00f);
             baseForceJsf.setCallbackFunction = SyncHardColliderBaseMass;
 
-            SyncUseHardColliders(enabledJsb.val);
+            SyncHardColliderBaseMass(baseForceJsf.val);
+            SyncAllOffsets();
         }
 
         private void CreateScalingConfigs()
@@ -202,24 +198,6 @@ namespace TittyMagic
                 autoCollider.jointCollider != null && autoCollider.jointCollider.name == collider.name);
         }
 
-        private void SyncUseHardColliders(bool value)
-        {
-            if(!enabled)
-            {
-                return;
-            }
-
-            colliderConfigs.ForEach(config => config.SetEnabled(value));
-
-            if(value)
-            {
-                SyncHardColliderBaseMass(0);
-            }
-
-            SyncSizeAuto();
-        }
-
-        // todo enabled check necessary?
         private void SyncHardColliderRadius(ColliderConfigGroup config)
         {
             if(!enabled)
@@ -437,16 +415,7 @@ namespace TittyMagic
 
         private void RestoreDefaults()
         {
-            colliderConfigs.ForEach(config =>
-            {
-                if(!enabledJsb.val)
-                {
-                    config.SetEnabled(true);
-                }
-
-                config.RestoreDefaults();
-            });
-
+            colliderConfigs.ForEach(config => config.RestoreDefaults());
             StartCoroutine(DeferRestoreDefaultMass());
             _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
         }
@@ -483,7 +452,8 @@ namespace TittyMagic
                 return;
             }
 
-            SyncUseHardColliders(enabledJsb.val);
+            SyncHardColliderBaseMass(baseForceJsf.val);
+            SyncAllOffsets();
         }
 
         private void OnDisable()

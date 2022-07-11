@@ -50,8 +50,7 @@ namespace TittyMagic.UI
 
             if(Gender.isFemale)
             {
-                CreateUseAuxBreastCollidersToggle(false, spacing: 15);
-                CreateConfigureHardCollidersButton(false);
+                CreateConfigureHardCollidersButton(false, spacing: 15);
             }
         }
 
@@ -146,17 +145,6 @@ namespace TittyMagic.UI
             _elements[storable.name] = slider;
         }
 
-        private void CreateUseAuxBreastCollidersToggle(bool rightSide, int spacing = 0)
-        {
-            var storable = _script.hardColliderHandler.enabledJsb;
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var toggle = _script.CreateToggle(storable, rightSide);
-            toggle.height = 52;
-            toggle.label = "Use Hard Colliders";
-            _elements[storable.name] = toggle;
-        }
-
         private void CreateConfigureHardCollidersButton(bool rightSide, int spacing = 0)
         {
             var storable = _script.configureHardColliders;
@@ -165,7 +153,7 @@ namespace TittyMagic.UI
             var button = _script.CreateButton(storable.name, rightSide);
             storable.RegisterButton(button);
             button.buttonText.alignment = TextAnchor.MiddleLeft;
-            button.label = "  Configure...";
+            button.label = "  Configure Hard Colliders...";
             button.height = 52;
 
             UnityAction returnCallback = () =>

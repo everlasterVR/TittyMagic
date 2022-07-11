@@ -115,19 +115,12 @@ namespace TittyMagic.Configs
         }
 
         public bool HasRigidbodies() => _left.HasRigidbody() && _right.HasRigidbody();
-
-        public void SetEnabled(bool value)
-        {
-            _left.SetEnabled(value);
-            _right.SetEnabled(value);
-        }
     }
 
     internal class ColliderConfig
     {
         private readonly AutoCollider _autoCollider;
         private readonly Collider _collider;
-        private readonly CapsuleLineSphereCollider _capsulelineSphereCollider;
 
         public string visualizerEditableId { get; }
 
@@ -135,8 +128,10 @@ namespace TittyMagic.Configs
         {
             _autoCollider = autoCollider;
             _autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.None;
+
             _collider = _autoCollider.jointCollider;
-            _capsulelineSphereCollider = _collider.GetComponent<CapsuleLineSphereCollider>();
+            _collider.enabled = true;
+            _collider.GetComponent<CapsuleLineSphereCollider>().enabled = true;
 
             this.visualizerEditableId = visualizerEditableId;
         }
@@ -189,11 +184,5 @@ namespace TittyMagic.Configs
         }
 
         public bool HasRigidbody() => _collider.attachedRigidbody != null;
-
-        public void SetEnabled(bool value)
-        {
-            _collider.enabled = value;
-            _capsulelineSphereCollider.enabled = value;
-        }
     }
 }
