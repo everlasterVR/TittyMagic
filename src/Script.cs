@@ -465,7 +465,7 @@ namespace TittyMagic
             RecalibrateOnNavigation();
             colliderVisualizer.ShowPreviewsJSON.val = false;
             colliderVisualizer.enabled = false;
-            mainWindow.nestedWindow.ClosePopups();
+            mainWindow.nestedWindow?.ClosePopups();
         }
 
         public void RecalibrateOnNavigation()
