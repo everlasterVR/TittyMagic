@@ -50,27 +50,29 @@ namespace TittyMagic.UI
             _elements = new Dictionary<string, UIDynamic>();
 
             CreateHeader(_gravityPhysicsMultipliersHeader, "Breast Gravity", false);
-            CreateRecalibrateButton(true, spacing: 62);
+            CreateGravityPhysicsInfoTextArea(false);
 
-            var baseSlider = CreateBaseMultiplierSlider(false);
+            CreateRecalibrateButton(true, spacing: 5);
+            var baseSlider = CreateBaseMultiplierSlider(true);
+            CreateMultiplierSlider(_script.gravityPhysicsHandler.upJsf, "Up", true, spacing: 5);
+            CreateMultiplierSlider(_script.gravityPhysicsHandler.downJsf, "Down", true);
+            CreateMultiplierSlider(_script.gravityPhysicsHandler.forwardJsf, "Forward", true);
+            CreateMultiplierSlider(_script.gravityPhysicsHandler.backJsf, "Back", true);
+            CreateMultiplierSlider(_script.gravityPhysicsHandler.leftRightJsf, "Left / Right", true);
 
-            CreateMultiplierSlider(_script.gravityPhysicsHandler.upJsf, "Up", false, spacing: 5);
-            CreateMultiplierSlider(_script.gravityPhysicsHandler.downJsf, "Down", false);
-            CreateMultiplierSlider(_script.gravityPhysicsHandler.forwardJsf, "Forward", false);
-            CreateMultiplierSlider(_script.gravityPhysicsHandler.backJsf, "Back", false);
-            CreateMultiplierSlider(_script.gravityPhysicsHandler.leftRightJsf, "Left/Right", false);
-            CreateGravityPhysicsInfoTextArea(true, spacing: 62);
+            CreateHeader(_otherSettingsHeader, "Other", false);
+            CreateOffsetMorphingInfoTextArea(true, spacing: 50);
+            CreateOffsetMorphingSlider(false);
 
             baseSlider.AddListener(UpdateAllSliderColors);
             UpdateAllSliderColors(0);
-
-            CreateHeader(_otherSettingsHeader, "Other", false);
-            CreateOffsetMorphingSlider(false);
-            CreateOffsetMorphingInfoTextArea(true, spacing: 62);
         }
 
-        private void CreateHeader(JSONStorableString storable, string text, bool rightSide) =>
+        private void CreateHeader(JSONStorableString storable, string text, bool rightSide, int spacing = 0)
+        {
+            AddSpacer(storable.name, spacing, rightSide);
             _elements[storable.name] = UIHelpers.HeaderTextField(_script, storable, text, rightSide);
+        }
 
         private void CreateRecalibrateButton(bool rightSide, int spacing = 0)
         {
@@ -111,7 +113,7 @@ namespace TittyMagic.UI
 
             var textField = _script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
-            textField.height = 670;
+            textField.height = 825;
             textField.backgroundColor = Color.clear;
             _elements[storable.name] = textField;
         }

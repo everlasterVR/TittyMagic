@@ -38,19 +38,23 @@ namespace TittyMagic.UI
             CreateRecalibratingTextField(true);
             CreateCalculateMassButton(true, spacing: 54);
             CreateAutoUpdateMassToggle(true);
-            CreateMassSlider(false);
+            CreateMassSlider(true);
 
             if(Gender.isFemale)
             {
-                CreateSoftPhysicsOnToggle(false, spacing: 15);
+                CreateSoftPhysicsOnToggle(true, spacing: 15);
+                CreateSoftnessSlider(true);
+            }
+            else
+            {
+                CreateSoftnessSlider(true, spacing: 15);
             }
 
-            CreateSoftnessSlider(false);
-            CreateQuicknessSlider(true, spacing: Gender.isFemale ? 80 : 0);
+            CreateQuicknessSlider(true);
 
             if(Gender.isFemale)
             {
-                CreateConfigureHardCollidersButton(false, spacing: 15);
+                CreateConfigureHardCollidersButton(true, spacing: 15);
             }
         }
 

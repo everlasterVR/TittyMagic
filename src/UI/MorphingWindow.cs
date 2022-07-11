@@ -12,8 +12,8 @@ namespace TittyMagic.UI
 
         public Dictionary<string, UIDynamic> GetElements() => _elements;
 
-        private readonly JSONStorableString _dynamicMorphingMultipliersHeader;
-        private readonly JSONStorableString _dynamicMorphingMultipliersInfoText;
+        private readonly JSONStorableString _forceMorphingMultipliersHeader;
+        private readonly JSONStorableString _forceMorphingMultipliersInfoText;
         private readonly JSONStorableString _otherSettingsHeader;
 
         public int Id() => 3;
@@ -22,12 +22,12 @@ namespace TittyMagic.UI
         {
             _script = script;
 
-            _dynamicMorphingMultipliersHeader = new JSONStorableString("dynamicMorphingMultipliersHeader", "");
-            _dynamicMorphingMultipliersInfoText = new JSONStorableString("dynamicMorphingMultipliersInfoText", "");
+            _forceMorphingMultipliersHeader = new JSONStorableString("forceMorphingMultipliersHeader", "");
+            _forceMorphingMultipliersInfoText = new JSONStorableString("forceMorphingMultipliersInfoText", "");
             _otherSettingsHeader = new JSONStorableString("otherSettingsHeader", "");
 
             //TODO
-            _dynamicMorphingMultipliersInfoText.val = "\n".Size(12) +
+            _forceMorphingMultipliersInfoText.val = "\n".Size(12) +
                 "Adjust the amount of breast morphing due to forces including gravity.\n" +
                 "\n" +
                 "Breasts morph up/down, left/right and forward/back.";
@@ -37,21 +37,21 @@ namespace TittyMagic.UI
         {
             _elements = new Dictionary<string, UIDynamic>();
 
-            CreateHeader(_dynamicMorphingMultipliersHeader, "Directional Force Morphing", false);
+            CreateHeader(_forceMorphingMultipliersHeader, "Directional Force Morphing", false);
+            CreateMorphingInfoTextArea(false);
 
-            var baseSlider = CreateBaseMultiplierSlider(false);
-
-            CreateMultiplierSlider(_script.forceMorphHandler.upJsf, "Up", false, spacing: 5);
-            CreateMultiplierSlider(_script.forceMorphHandler.downJsf, "Down", false);
-            CreateMultiplierSlider(_script.forceMorphHandler.forwardJsf, "Forward", false);
-            CreateMultiplierSlider(_script.forceMorphHandler.backJsf, "Back", false);
-            CreateMultiplierSlider(_script.forceMorphHandler.leftRightJsf, "Left / Right", false);
-
-            baseSlider.AddListener(UpdateAllSliderColors);
-            UpdateAllSliderColors(0);
+            var baseSlider = CreateBaseMultiplierSlider(true, spacing: 72);
+            CreateMultiplierSlider(_script.forceMorphHandler.upJsf, "Up", true, spacing: 5);
+            CreateMultiplierSlider(_script.forceMorphHandler.downJsf, "Down", true);
+            CreateMultiplierSlider(_script.forceMorphHandler.forwardJsf, "Forward", true);
+            CreateMultiplierSlider(_script.forceMorphHandler.backJsf, "Back", true);
+            CreateMultiplierSlider(_script.forceMorphHandler.leftRightJsf, "Left / Right", true);
 
             CreateHeader(_otherSettingsHeader, "Other", false);
             CreateNippleErectionSlider(false);
+
+            baseSlider.AddListener(UpdateAllSliderColors);
+            UpdateAllSliderColors(0);
         }
 
         private void CreateHeader(JSONStorableString storable, string text, bool rightSide) =>
@@ -78,14 +78,15 @@ namespace TittyMagic.UI
             _elements[storable.name] = slider;
         }
 
-        private void CreateMultiplierTextArea(JSONStorableString storable, bool rightSide, int spacing = 0)
+        private void CreateMorphingInfoTextArea(bool rightSide, int spacing = 0)
         {
+            var storable = _forceMorphingMultipliersInfoText;
             AddSpacer(storable.name, spacing, rightSide);
 
             var textField = _script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.backgroundColor = Color.clear;
-            textField.height = 120;
+            textField.height = 825;
             _elements[storable.name] = textField;
         }
 
