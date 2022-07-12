@@ -466,7 +466,7 @@ namespace TittyMagic
         {
             try
             {
-                if(!initDone || _waiting)
+                if(!initDone || _waiting || containingAtom.grabFreezePhysics && containingAtom.mainController.isGrabbing)
                 {
                     return;
                 }
