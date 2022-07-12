@@ -18,7 +18,6 @@ namespace TittyMagic
         private readonly TrackNipple _trackLeftNipple;
         private readonly TrackNipple _trackRightNipple;
 
-        private float _mass;
         private float _pitchMultiplier;
         private float _rollMultiplier;
 
@@ -105,15 +104,10 @@ namespace TittyMagic
             //TODO
         }
 
-        public void Update(
-            float roll,
-            float pitch,
-            float mass
-        )
+        public void Update(float roll, float pitch)
         {
             _rollMultiplier = 1;
             _pitchMultiplier = 1;
-            _mass = mass;
 
             AdjustUpDownPhysics();
             AdjustDepthPhysics();
@@ -239,11 +233,12 @@ namespace TittyMagic
 
         private void UpdatePhysics(string direction, float effect)
         {
+            float mass = _script.mainPhysicsHandler.realMassAmount;
             _mainParamGroups.ForEach(paramGroup =>
-                paramGroup.UpdateForceValue(direction, effect, _mass));
+                paramGroup.UpdateForceValue(direction, effect, mass));
 
             // _softParamGroups.ForEach(paramGroup =>
-            //     paramGroup.UpdateForceValue(direction, effect, _mass));
+            //     paramGroup.UpdateForceValue(direction, effect, mass));
         }
     }
 }

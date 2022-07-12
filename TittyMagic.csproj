@@ -110,7 +110,7 @@
     <Compile Include="src\Components\Bindings.cs" />
     <Compile Include="src\Components\SettingsMonitor.cs" />
     <Compile Include="src\Handlers\GravityPhysicsHandler.cs" />
-    <Compile Include="src\Handlers\NippleErectionMorphHandler.cs" />
+    <Compile Include="src\Handlers\NippleErectionHandler.cs" />
     <Compile Include="src\Handlers\ForceMorphHandler.cs" />
     <Compile Include="src\Handlers\MainPhysicsHandler.cs" />
     <Compile Include="src\Script.cs" />

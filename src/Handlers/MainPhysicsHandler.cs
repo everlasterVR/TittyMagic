@@ -12,6 +12,7 @@ namespace TittyMagic
 {
     internal class MainPhysicsHandler
     {
+        private readonly Script _script;
         private readonly AdjustJoints _breastControl;
         private readonly ConfigurableJoint _jointLeft;
         private readonly ConfigurableJoint _jointRight;
@@ -34,12 +35,13 @@ namespace TittyMagic
         public JSONStorableFloat massJsf { get; }
 
         public MainPhysicsHandler(
-            MVRScript script,
+            Script script,
             AdjustJoints breastControl,
             Rigidbody pectoralRbLeft,
             Rigidbody pectoralRbRight
         )
         {
+            _script = script;
             _breastControl = breastControl;
             _jointLeft = _breastControl.joint2;
             _jointRight = _breastControl.joint1;
@@ -60,7 +62,7 @@ namespace TittyMagic
 
             SaveOriginalPhysicsAndSetPluginDefaults();
 
-            massJsf = script.NewJSONStorableFloat("breastMass", 0.1f, 0.1f, 3f);
+            massJsf = _script.NewJSONStorableFloat("breastMass", 0.1f, 0.1f, 3f);
         }
 
         public void UpdateMassValueAndAmounts(bool useNewMass, float volume)
@@ -85,9 +87,9 @@ namespace TittyMagic
             SyncMass(_pectoralRbRight, massJsf.val);
         }
 
-        public void LoadSettings(bool softPhysicsEnabled)
+        public void LoadSettings()
         {
-            SetupPhysicsParameterGroups(softPhysicsEnabled);
+            SetupPhysicsParameterGroups();
 
             var texts = CreateInfoTexts();
             foreach(var param in parameterGroups)
@@ -187,8 +189,10 @@ namespace TittyMagic
                 valueFormat = "F2",
             };
 
-        private void SetupPhysicsParameterGroups(bool softPhysicsEnabled)
+        private void SetupPhysicsParameterGroups()
         {
+            bool softPhysicsEnabled = _script.settingsMonitor.softPhysicsEnabled;
+
             var centerOfGravityPercent = new PhysicsParameterGroup(
                 NewCenterOfGravityParameter(true, softPhysicsEnabled),
                 NewCenterOfGravityParameter(false, softPhysicsEnabled),
@@ -437,22 +441,30 @@ namespace TittyMagic
 
         #endregion *** Sync functions ***
 
-        public void UpdatePhysics(float softnessAmount, float quicknessAmount) =>
+        public void UpdatePhysics()
+        {
+            float softness = _script.softnessAmount;
+            float quickness = _script.quicknessAmount;
             parameterGroups.Values
                 .Where(paramGroup => paramGroup.hasStaticConfig)
                 .ToList()
-                .ForEach(paramGroup => UpdateParam(paramGroup, softnessAmount, quicknessAmount));
+                .ForEach(paramGroup => UpdateParam(paramGroup, softness, quickness));
+        }
 
-        public void UpdateRateDependentPhysics(float softnessAmount, float quicknessAmount) =>
+        public void UpdateRateDependentPhysics()
+        {
+            float softness = _script.softnessAmount;
+            float quickness = _script.quicknessAmount;
             parameterGroups.Values
                 .Where(paramGroup => paramGroup.hasStaticConfig && paramGroup.dependOnPhysicsRate)
                 .ToList()
-                .ForEach(paramGroup => UpdateParam(paramGroup, softnessAmount, quicknessAmount));
+                .ForEach(paramGroup => UpdateParam(paramGroup, softness, quickness));
+        }
 
-        private void UpdateParam(PhysicsParameterGroup paramGroup, float softnessAmount, float quicknessAmount)
+        private void UpdateParam(PhysicsParameterGroup paramGroup, float softness, float quickness)
         {
             float massValue = paramGroup.useRealMass ? realMassAmount : massAmount;
-            paramGroup.UpdateValue(massValue, softnessAmount, quicknessAmount);
+            paramGroup.UpdateValue(massValue, softness, quickness);
         }
 
         public void SaveOriginalPhysicsAndSetPluginDefaults()

@@ -82,7 +82,7 @@ namespace TittyMagic.UI
 
         private void CreateNippleErectionSlider(bool rightSide, int spacing = 0)
         {
-            var storable = script.nippleMorphHandler.nippleErectionJsf;
+            var storable = script.nippleErectionHandler.nippleErectionJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = script.CreateSlider(storable, rightSide);

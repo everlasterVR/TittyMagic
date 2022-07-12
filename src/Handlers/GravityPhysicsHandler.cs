@@ -10,9 +10,6 @@ namespace TittyMagic
         private readonly Script _script;
         private List<PhysicsParameterGroup> _paramGroups;
 
-        private float _mass;
-        private float _softness;
-
         public JSONStorableFloat baseJsf { get; }
         public JSONStorableFloat upJsf { get; }
         public JSONStorableFloat downJsf { get; }
@@ -107,16 +104,8 @@ namespace TittyMagic
             paramGroups[TARGET_ROTATION_Y].SetGravityPhysicsConfigs(NewPositionTargetRotationYConfigs(), NewPositionTargetRotationYConfigs());
         }
 
-        public void Update(
-            float roll,
-            float pitch,
-            float mass,
-            float amount
-        )
+        public void Update(float roll, float pitch)
         {
-            _mass = mass;
-            _softness = amount;
-
             float smoothRoll = Calc.SmoothStep(roll);
             float smoothPitch = 2 * Calc.SmoothStep(pitch);
 
@@ -211,8 +200,12 @@ namespace TittyMagic
             }
         }
 
-        private void UpdatePhysics(string direction, float effect) =>
+        private void UpdatePhysics(string direction, float effect)
+        {
+            float mass = _script.mainPhysicsHandler.massAmount;
+            float softness = _script.softnessAmount;
             _paramGroups.ForEach(paramGroup =>
-                paramGroup.UpdateGravityValue(direction, effect, _mass, _softness));
+                paramGroup.UpdateGravityValue(direction, effect, mass, softness));
+        }
     }
 }

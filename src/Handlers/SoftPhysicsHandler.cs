@@ -11,6 +11,7 @@ namespace TittyMagic
 {
     internal class SoftPhysicsHandler
     {
+        private readonly Script _script;
         private readonly DAZPhysicsMesh _breastPhysicsMesh;
         private readonly List<string> _breastPhysicsMeshFloatParamNames;
         private Dictionary<string, float> _originalBreastPhysicsMeshFloats;
@@ -30,11 +31,12 @@ namespace TittyMagic
         public JSONStorableBool softPhysicsOn { get; }
         public JSONStorableBool allowSelfCollision { get; }
 
-        public SoftPhysicsHandler(MVRScript script)
+        public SoftPhysicsHandler(Script script)
         {
+            _script = script;
             if(Gender.isFemale)
             {
-                _breastPhysicsMesh = (DAZPhysicsMesh) script.containingAtom.GetStorableByID("BreastPhysicsMesh");
+                _breastPhysicsMesh = (DAZPhysicsMesh) _script.containingAtom.GetStorableByID("BreastPhysicsMesh");
                 _breastPhysicsMeshFloatParamNames = _breastPhysicsMesh.GetFloatParamNames();
 
                 var groups = _breastPhysicsMesh.softVerticesGroups;
@@ -61,10 +63,10 @@ namespace TittyMagic
                 };
             }
 
-            softPhysicsOn = script.NewJSONStorableBool(SOFT_PHYSICS_ON, Gender.isFemale, register: Gender.isFemale);
+            softPhysicsOn = _script.NewJSONStorableBool(SOFT_PHYSICS_ON, Gender.isFemale, register: Gender.isFemale);
             softPhysicsOn.setCallbackFunction = SyncSoftPhysicsOn;
 
-            allowSelfCollision = script.NewJSONStorableBool(ALLOW_SELF_COLLISION, Gender.isFemale, register: Gender.isFemale);
+            allowSelfCollision = _script.NewJSONStorableBool(ALLOW_SELF_COLLISION, Gender.isFemale, register: Gender.isFemale);
             allowSelfCollision.setCallbackFunction = SyncAllowSelfCollision;
 
             if(!Gender.isFemale)
@@ -620,59 +622,50 @@ namespace TittyMagic
 
         #endregion *** Sync functions ***
 
-        public void UpdatePhysics(
-            float massAmount,
-            float realMassAmount,
-            float softnessAmount,
-            float quicknessAmount
-        )
+        public void UpdatePhysics()
         {
-            if(!Gender.isFemale)
+            if(!_script.settingsMonitor.softPhysicsEnabled)
             {
                 return;
             }
 
+            float softness = _script.softnessAmount;
+            float quickness = _script.quicknessAmount;
             parameterGroups.Values
                 .ToList()
                 .ForEach(paramGroup =>
                 {
-                    float massValue = paramGroup.useRealMass ? realMassAmount : massAmount;
-                    paramGroup.UpdateValue(massValue, softnessAmount, quicknessAmount);
+                    float mass = paramGroup.useRealMass ? _script.mainPhysicsHandler.realMassAmount : _script.mainPhysicsHandler.massAmount;
+                    paramGroup.UpdateValue(mass, softness, quickness);
                 });
         }
 
-        public void UpdateRateDependentPhysics(
-            float massAmount,
-            float realMassAmount,
-            float softnessAmount,
-            float quicknessAmount
-        )
+        public void UpdateRateDependentPhysics()
         {
-            if(!Gender.isFemale)
+            if(!_script.settingsMonitor.softPhysicsEnabled)
             {
                 return;
             }
 
+            float softness = _script.softnessAmount;
+            float quickness = _script.quicknessAmount;
             parameterGroups.Values
                 .Where(paramGroup => paramGroup.dependOnPhysicsRate)
                 .ToList()
                 .ForEach(paramGroup =>
                 {
-                    float massValue = paramGroup.useRealMass ? realMassAmount : massAmount;
-                    paramGroup.UpdateValue(massValue, softnessAmount, quicknessAmount);
+                    float mass = paramGroup.useRealMass ? _script.mainPhysicsHandler.realMassAmount : _script.mainPhysicsHandler.massAmount;
+                    paramGroup.UpdateValue(mass, softness, quickness);
                 });
         }
 
-        public void UpdateNipplePhysics(float massAmount, float softnessAmount, float nippleErection)
+        public void UpdateNipplePhysics(float nippleErection)
         {
-            if(!Gender.isFemale)
-            {
-                return;
-            }
-
+            float mass = _script.mainPhysicsHandler.massAmount;
+            float softness = _script.softnessAmount;
             parameterGroups.Values
                 .ToList()
-                .ForEach(paramGroup => paramGroup.UpdateNippleValue(massAmount, softnessAmount, nippleErection));
+                .ForEach(paramGroup => paramGroup.UpdateNippleValue(mass, softness, nippleErection));
         }
 
         public void SaveOriginalPhysicsAndSetPluginDefaults()

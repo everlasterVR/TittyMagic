@@ -8,9 +8,6 @@ namespace TittyMagic
     {
         private readonly Script _script;
 
-        private float _mass;
-        private float _softness;
-
         private Dictionary<string, List<MorphConfig>> _configSets;
 
         public JSONStorableFloat offsetMorphingJsf { get; }
@@ -72,16 +69,8 @@ namespace TittyMagic
             return configs;
         }
 
-        public void Update(
-            float roll,
-            float pitch,
-            float mass,
-            float softness
-        )
+        public void Update(float roll, float pitch)
         {
-            _softness = softness;
-            _mass = mass;
-
             float smoothRoll = Calc.SmoothStep(roll);
             float smoothPitch = 2 * Calc.SmoothStep(pitch);
 
@@ -123,14 +112,18 @@ namespace TittyMagic
             }
         }
 
-        private void UpdateMorphs(string configSetName, float effect) =>
-            _configSets[configSetName].ForEach(config => UpdateValue(config, effect));
+        private void UpdateMorphs(string configSetName, float effect)
+        {
+            float mass = _script.mainPhysicsHandler.realMassAmount;
+            float softness = _script.softnessAmount;
+            _configSets[configSetName].ForEach(config => UpdateValue(config, effect, mass, softness));
+        }
 
-        private void UpdateValue(MorphConfig config, float effect)
+        private static void UpdateValue(MorphConfig config, float effect, float mass, float softness)
         {
             float value =
-                _softness * config.softnessMultiplier * effect +
-                _mass * config.massMultiplier * effect;
+                softness * config.softnessMultiplier * effect +
+                mass * config.massMultiplier * effect;
             bool inRange = config.isNegative ? value < 0 : value > 0;
             config.morph.morphValue = inRange ? Calc.RoundToDecimals(value, 1000f) : 0;
         }

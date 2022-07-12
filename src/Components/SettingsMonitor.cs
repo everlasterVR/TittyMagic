@@ -94,7 +94,8 @@ namespace TittyMagic
             float value = Time.fixedDeltaTime;
             if(Math.Abs(value - _fixedDeltaTime) > 0.001f)
             {
-                _script.UpdateRateDependentPhysics();
+                _script.mainPhysicsHandler.UpdateRateDependentPhysics();
+                _script.softPhysicsHandler.UpdateRateDependentPhysics();
             }
 
             _fixedDeltaTime = value;

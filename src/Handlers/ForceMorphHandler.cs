@@ -13,8 +13,6 @@ namespace TittyMagic
         private readonly TrackNipple _trackLeftNipple;
         private readonly TrackNipple _trackRightNipple;
 
-        private const float SOFTNESS = 0.62f;
-        private float _mass;
         private float _pitchMultiplier;
         private float _rollMultiplier;
 
@@ -90,15 +88,10 @@ namespace TittyMagic
                 .ToList();
         }
 
-        public void Update(
-            float roll,
-            float pitch,
-            float mass
-        )
+        public void Update(float roll, float pitch)
         {
             _rollMultiplier = CalculateRollMultiplier(roll);
             _pitchMultiplier = CalculatePitchMultiplier(pitch, roll);
-            _mass = mass;
 
             AdjustUpMorphs();
             AdjustDownMorphs();
@@ -312,14 +305,18 @@ namespace TittyMagic
         // https://www.desmos.com/calculator/ykxswso5ie
         private static float Curve(float effect) => Calc.InverseSmoothStep(effect, 10, 0.8f, 0f);
 
-        private void UpdateMorphs(string configSetName, float effect) =>
-            _configSets[configSetName].ForEach(config => UpdateValue(config, effect));
+        private void UpdateMorphs(string configSetName, float effect)
+        {
+            float mass = _script.mainPhysicsHandler.realMassAmount;
+            const float softness = 0.62f;
+            _configSets[configSetName].ForEach(config => UpdateValue(config, effect, mass, softness));
+        }
 
-        private void UpdateValue(MorphConfig config, float effect)
+        private static void UpdateValue(MorphConfig config, float effect, float mass, float softness)
         {
             float value =
-                SOFTNESS * config.softnessMultiplier * effect / 2 +
-                _mass * config.massMultiplier * effect / 2;
+                softness * config.softnessMultiplier * effect / 2 +
+                mass * config.massMultiplier * effect / 2;
 
             bool inRange = config.isNegative ? value < 0 : value > 0;
             config.morph.morphValue = inRange ? Calc.RoundToDecimals(value, 1000f) : 0;
