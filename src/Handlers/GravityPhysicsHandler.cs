@@ -76,8 +76,8 @@ namespace TittyMagic
             {
                 {
                     Direction.UP, new DynamicPhysicsConfig(
-                        -60.0f,
-                        -10f,
+                        -72.0f,
+                        -12f,
                         isNegative: true,
                         multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE
@@ -85,32 +85,35 @@ namespace TittyMagic
                 },
                 {
                     Direction.BACK, new DynamicPhysicsConfig(
-                        -60.0f,
-                        -10f,
+                        -48.0f,
+                        -8f,
                         isNegative: true,
                         multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE
                     )
                 },
                 {
-                    Direction.FORWARD, new DynamicPhysicsConfig(-60.0f,
-                        -10f,
+                    Direction.FORWARD, new DynamicPhysicsConfig(
+                        -48.0f,
+                        -8f,
                         isNegative: true,
                         multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE
                     )
                 },
                 {
-                    Direction.LEFT, new DynamicPhysicsConfig(-60.0f,
-                        -10f,
+                    Direction.LEFT, new DynamicPhysicsConfig(
+                        -48.0f,
+                        -8f,
                         isNegative: true,
                         multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE
                     )
                 },
                 {
-                    Direction.RIGHT, new DynamicPhysicsConfig(-60.0f,
-                        -10f,
+                    Direction.RIGHT, new DynamicPhysicsConfig(
+                        -48.0f,
+                        -8f,
                         isNegative: true,
                         multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE
@@ -122,7 +125,8 @@ namespace TittyMagic
             new Dictionary<string, DynamicPhysicsConfig>
             {
                 {
-                    Direction.BACK, new DynamicPhysicsConfig(-420f,
+                    Direction.BACK, new DynamicPhysicsConfig(
+                        -420f,
                         -315f,
                         isNegative: true,
                         multiplyInvertedMass: false,
@@ -130,7 +134,8 @@ namespace TittyMagic
                     )
                 },
                 {
-                    Direction.FORWARD, new DynamicPhysicsConfig(-420f,
+                    Direction.FORWARD, new DynamicPhysicsConfig(
+                        -420f,
                         -315f,
                         isNegative: true,
                         multiplyInvertedMass: false,
@@ -143,7 +148,8 @@ namespace TittyMagic
             new Dictionary<string, DynamicPhysicsConfig>
             {
                 {
-                    Direction.BACK, new DynamicPhysicsConfig(-8f,
+                    Direction.BACK, new DynamicPhysicsConfig(
+                        -8f,
                         0f,
                         isNegative: true,
                         multiplyInvertedMass: true,
@@ -151,7 +157,8 @@ namespace TittyMagic
                     )
                 },
                 {
-                    Direction.FORWARD, new DynamicPhysicsConfig(-8f,
+                    Direction.FORWARD, new DynamicPhysicsConfig(
+                        -8f,
                         0f,
                         isNegative: false,
                         multiplyInvertedMass: false,
@@ -164,7 +171,8 @@ namespace TittyMagic
             new Dictionary<string, DynamicPhysicsConfig>
             {
                 {
-                    Direction.DOWN, new DynamicPhysicsConfig(-16f,
+                    Direction.DOWN, new DynamicPhysicsConfig(
+                        -16f,
                         -12f,
                         isNegative: true,
                         multiplyInvertedMass: false,
@@ -172,7 +180,8 @@ namespace TittyMagic
                     )
                 },
                 {
-                    Direction.UP, new DynamicPhysicsConfig(22,
+                    Direction.UP, new DynamicPhysicsConfig(
+                        22,
                         13f,
                         isNegative: false,
                         multiplyInvertedMass: false,
@@ -185,7 +194,8 @@ namespace TittyMagic
             new Dictionary<string, DynamicPhysicsConfig>
             {
                 {
-                    Direction.LEFT, new DynamicPhysicsConfig(16f,
+                    Direction.LEFT, new DynamicPhysicsConfig(
+                        16f,
                         12f,
                         isNegative: false,
                         multiplyInvertedMass: false,
@@ -193,7 +203,8 @@ namespace TittyMagic
                     )
                 },
                 {
-                    Direction.RIGHT, new DynamicPhysicsConfig(-16f,
+                    Direction.RIGHT, new DynamicPhysicsConfig(
+                        -16f,
                         -12f,
                         isNegative: true,
                         multiplyInvertedMass: false,
