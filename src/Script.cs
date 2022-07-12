@@ -724,8 +724,8 @@ namespace TittyMagic
             {
                 // simulate gravityPhysics when upright
                 gravityPhysicsHandler.Update(0, 0, mainPhysicsHandler.massAmount, _softnessAmount);
-                forcePhysicsHandler.Update(0, 0, mainPhysicsHandler.massAmount);
-                offsetMorphHandler.Update(0, 0, mainPhysicsHandler.massAmount, _softnessAmount);
+                forcePhysicsHandler.Update(0, 0, mainPhysicsHandler.realMassAmount);
+                offsetMorphHandler.Update(0, 0, mainPhysicsHandler.realMassAmount, _softnessAmount);
 
                 // simulate force of gravity when upright
                 var force = _chestTransform.up * -Physics.gravity.magnitude;
