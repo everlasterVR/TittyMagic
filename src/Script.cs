@@ -254,6 +254,7 @@ namespace TittyMagic
         {
             mainPhysicsHandler.LoadSettings();
             softPhysicsHandler.LoadSettings();
+            nippleErectionHandler.LoadSettings();
             gravityPhysicsHandler.LoadSettings();
             forcePhysicsHandler.LoadSettings();
             forceMorphHandler.LoadSettings();

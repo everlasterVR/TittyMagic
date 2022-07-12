@@ -51,46 +51,155 @@ namespace TittyMagic
         private static Dictionary<string, DynamicPhysicsConfig> NewCenterOfGravityConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
             {
-                { Direction.BACK, new DynamicPhysicsConfig(-0.150f, -0.225f, isNegative: true, multiplyInvertedMass: true) },
-                { Direction.FORWARD, new DynamicPhysicsConfig(0.150f, 0.225f, isNegative: false, multiplyInvertedMass: true) },
+                {
+                    Direction.BACK, new DynamicPhysicsConfig(
+                        -0.150f,
+                        -0.225f,
+                        isNegative: true,
+                        multiplyInvertedMass: true,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
+                {
+                    Direction.FORWARD, new DynamicPhysicsConfig(
+                        0.150f,
+                        0.225f,
+                        isNegative: false,
+                        multiplyInvertedMass: true,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
             };
 
         private static Dictionary<string, DynamicPhysicsConfig> NewSpringConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
             {
-                { Direction.UP, new DynamicPhysicsConfig(-60.0f, -10f, isNegative: true) },
-                { Direction.BACK, new DynamicPhysicsConfig(-60.0f, -10f, isNegative: true) },
-                { Direction.FORWARD, new DynamicPhysicsConfig(-60.0f, -10f, isNegative: true) },
-                { Direction.LEFT, new DynamicPhysicsConfig(-60.0f, -10f, isNegative: true) },
-                { Direction.RIGHT, new DynamicPhysicsConfig(-60.0f, -10f, isNegative: true) },
+                {
+                    Direction.UP, new DynamicPhysicsConfig(
+                        -60.0f,
+                        -10f,
+                        isNegative: true,
+                        multiplyInvertedMass: false,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
+                {
+                    Direction.BACK, new DynamicPhysicsConfig(
+                        -60.0f,
+                        -10f,
+                        isNegative: true,
+                        multiplyInvertedMass: false,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
+                {
+                    Direction.FORWARD, new DynamicPhysicsConfig(-60.0f,
+                        -10f,
+                        isNegative: true,
+                        multiplyInvertedMass: false,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
+                {
+                    Direction.LEFT, new DynamicPhysicsConfig(-60.0f,
+                        -10f,
+                        isNegative: true,
+                        multiplyInvertedMass: false,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
+                {
+                    Direction.RIGHT, new DynamicPhysicsConfig(-60.0f,
+                        -10f,
+                        isNegative: true,
+                        multiplyInvertedMass: false,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
             };
 
         private static Dictionary<string, DynamicPhysicsConfig> NewPositionSpringZConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
             {
-                { Direction.BACK, new DynamicPhysicsConfig(-420f, -315f, isNegative: true) },
-                { Direction.FORWARD, new DynamicPhysicsConfig(-420f, -315f, isNegative: true) },
+                {
+                    Direction.BACK, new DynamicPhysicsConfig(-420f,
+                        -315f,
+                        isNegative: true,
+                        multiplyInvertedMass: false,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
+                {
+                    Direction.FORWARD, new DynamicPhysicsConfig(-420f,
+                        -315f,
+                        isNegative: true,
+                        multiplyInvertedMass: false,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
             };
 
         private static Dictionary<string, DynamicPhysicsConfig> NewPositionDamperZConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
             {
-                { Direction.BACK, new DynamicPhysicsConfig(-8f, 0f, isNegative: true, multiplyInvertedMass: true) },
-                { Direction.FORWARD, new DynamicPhysicsConfig(-8f, 0f) },
+                {
+                    Direction.BACK, new DynamicPhysicsConfig(-8f,
+                        0f,
+                        isNegative: true,
+                        multiplyInvertedMass: true,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
+                {
+                    Direction.FORWARD, new DynamicPhysicsConfig(-8f,
+                        0f,
+                        isNegative: false,
+                        multiplyInvertedMass: false,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
             };
 
         private static Dictionary<string, DynamicPhysicsConfig> NewPositionTargetRotationXConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
             {
-                { Direction.DOWN, new DynamicPhysicsConfig(-16f, -12f, isNegative: true, additive: false) },
-                { Direction.UP, new DynamicPhysicsConfig(22, 13f, additive: false) },
+                {
+                    Direction.DOWN, new DynamicPhysicsConfig(-16f,
+                        -12f,
+                        isNegative: true,
+                        multiplyInvertedMass: false,
+                        applyMethod: ApplyMethod.DIRECT
+                    )
+                },
+                {
+                    Direction.UP, new DynamicPhysicsConfig(22,
+                        13f,
+                        isNegative: false,
+                        multiplyInvertedMass: false,
+                        applyMethod: ApplyMethod.DIRECT
+                    )
+                },
             };
 
         private static Dictionary<string, DynamicPhysicsConfig> NewPositionTargetRotationYConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
             {
-                { Direction.LEFT, new DynamicPhysicsConfig(16f, 12f, additive: false) },
-                { Direction.RIGHT, new DynamicPhysicsConfig(-16f, -12f, isNegative: true, additive: false) },
+                {
+                    Direction.LEFT, new DynamicPhysicsConfig(16f,
+                        12f,
+                        isNegative: false,
+                        multiplyInvertedMass: false,
+                        applyMethod: ApplyMethod.DIRECT
+                    )
+                },
+                {
+                    Direction.RIGHT, new DynamicPhysicsConfig(-16f,
+                        -12f,
+                        isNegative: true,
+                        multiplyInvertedMass: false,
+                        applyMethod: ApplyMethod.DIRECT
+                    )
+                },
             };
 
         private void SetupGravityPhysicsConfigs()
@@ -205,7 +314,8 @@ namespace TittyMagic
             float mass = _script.mainPhysicsHandler.massAmount;
             float softness = _script.softnessAmount;
             _paramGroups.ForEach(paramGroup =>
-                paramGroup.UpdateGravityValue(direction, effect, mass, softness));
+                paramGroup.UpdateGravityValue(direction, effect, mass, softness)
+            );
         }
     }
 }

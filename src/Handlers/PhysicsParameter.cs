@@ -48,9 +48,9 @@ namespace TittyMagic
             CreateOffsetPairCallback(_left, _right);
             if(_left.groupMultiplierParams != null)
             {
-                foreach(var kvp in _left.groupMultiplierParams)
+                foreach(var param in _left.groupMultiplierParams)
                 {
-                    CreateOffsetPairCallback(kvp.Value, _right.groupMultiplierParams[kvp.Key]);
+                    CreateOffsetPairCallback(param.Value, _right.groupMultiplierParams[param.Key]);
                 }
             }
 
@@ -59,9 +59,9 @@ namespace TittyMagic
                 _right.UpdateOffsetValue(value ? 0 : _left.offsetJsf.val);
                 if(_right.groupMultiplierParams != null)
                 {
-                    foreach(var kvp in _right.groupMultiplierParams)
+                    foreach(var param in _right.groupMultiplierParams)
                     {
-                        kvp.Value.UpdateOffsetValue(value ? 0 : _left.groupMultiplierParams[kvp.Key].offsetJsf.val);
+                        param.Value.UpdateOffsetValue(value ? 0 : _left.groupMultiplierParams[param.Key].offsetJsf.val);
                     }
                 }
             };
@@ -76,16 +76,34 @@ namespace TittyMagic
             };
         }
 
+        private void CreateOffsetPairCallback(SoftGroupPhysicsParameter left, SoftGroupPhysicsParameter right)
+        {
+            left.offsetJsf.setCallbackFunction = value =>
+            {
+                left.UpdateOffsetValue(value);
+                right.UpdateOffsetValue(offsetOnlyLeftBreastJsb.val ? 0 : value);
+            };
+        }
+
         public void UpdateValue(float massValue, float softness, float quickness)
         {
             _left.UpdateValue(massValue, softness, quickness);
             _right.UpdateValue(massValue, softness, quickness);
         }
 
-        public void UpdateNippleValue(float massValue, float softness, float nippleErection)
+        public void SetNippleErectionConfigs(
+            Dictionary<string, DynamicPhysicsConfig> leftConfigs,
+            Dictionary<string, DynamicPhysicsConfig> rightConfigs
+        )
         {
-            _left.UpdateNippleValue(massValue, softness, nippleErection);
-            _right.UpdateNippleValue(massValue, softness, nippleErection);
+            _left.SetNippleErectionConfigs(leftConfigs);
+            _right.SetNippleErectionConfigs(rightConfigs);
+        }
+
+        public void UpdateNippleErectionGroupValues(float massValue, float softness, float nippleErection)
+        {
+            _left.UpdateNippleErectionGroupValues(massValue, softness, nippleErection);
+            _right.UpdateNippleErectionGroupValues(massValue, softness, nippleErection);
         }
 
         public void SetGravityPhysicsConfigs(
@@ -121,14 +139,14 @@ namespace TittyMagic
 
     internal class PhysicsParameter
     {
-        // ReSharper disable once UnusedAutoPropertyAccessor.Global MemberCanBePrivate.Global
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global MemberCanBePrivate.Global MemberCanBeProtected.Global
         public string id { get; }
         protected internal JSONStorableFloat valueJsf { get; }
         protected JSONStorableFloat baseValueJsf { get; }
         internal JSONStorableFloat offsetJsf { get; }
 
-        protected readonly Dictionary<string, float> gravityAdjustments;
-        protected readonly Dictionary<string, float> forceAdjustments;
+        private readonly Dictionary<string, float> _additiveGravityAdjustments;
+        protected readonly Dictionary<string, float> additiveForceAdjustments;
         public bool dependOnPhysicsRate { get; set; }
 
         public StaticPhysicsConfig config { get; set; }
@@ -147,18 +165,33 @@ namespace TittyMagic
             this.valueJsf = valueJsf;
             this.baseValueJsf = baseValueJsf ?? new JSONStorableFloat(Intl.BASE_VALUE, 0, valueJsf.min, valueJsf.max);
             this.offsetJsf = offsetJsf ?? new JSONStorableFloat(Intl.OFFSET, 0, -valueJsf.max, valueJsf.max);
-            gravityAdjustments = new Dictionary<string, float>();
-            forceAdjustments = new Dictionary<string, float>();
+            _additiveGravityAdjustments = new Dictionary<string, float>();
+            additiveForceAdjustments = new Dictionary<string, float>();
+        }
+
+        private void Sync()
+        {
+            float value = offsetJsf.val + baseValueJsf.val;
+            if(gravityPhysicsConfigs != null)
+            {
+                value += _additiveGravityAdjustments.Values.Sum();
+            }
+
+            if(forcePhysicsConfigs != null)
+            {
+                value += additiveForceAdjustments.Values.Sum();
+            }
+
+            valueJsf.val = value;
+            sync?.Invoke(value);
+            offsetJsf.min = -(baseValueJsf.val - baseValueJsf.min);
+            offsetJsf.max = baseValueJsf.max - baseValueJsf.val;
         }
 
         public void UpdateValue(float massValue, float softness, float quickness)
         {
             baseValueJsf.val = NewBaseValue(massValue, softness, quickness);
-            float newValue = gravityAdjustments.Values.Sum() + offsetJsf.val + baseValueJsf.val;
-            valueJsf.val = newValue;
-            sync?.Invoke(newValue);
-
-            UpdateOffsetJsfMinMax();
+            Sync();
 
             if(groupMultiplierParams != null)
             {
@@ -169,18 +202,10 @@ namespace TittyMagic
             }
         }
 
-        protected void UpdateOffsetJsfMinMax()
-        {
-            offsetJsf.min = -(baseValueJsf.val - baseValueJsf.min);
-            offsetJsf.max = baseValueJsf.max - baseValueJsf.val;
-        }
-
         public void UpdateOffsetValue(float value)
         {
             offsetJsf.valNoCallback = value;
-            float newValue = gravityAdjustments.Values.Sum() + value + baseValueJsf.val;
-            valueJsf.val = newValue;
-            sync?.Invoke(newValue);
+            Sync();
 
             if(groupMultiplierParams != null)
             {
@@ -191,15 +216,27 @@ namespace TittyMagic
             }
         }
 
-        public void UpdateNippleValue(float massValue, float softness, float nippleErection)
+        public void SetNippleErectionConfigs(Dictionary<string, DynamicPhysicsConfig> configs)
         {
-            if(groupMultiplierParams != null && groupMultiplierParams.ContainsKey(SoftColliderGroup.NIPPLE))
+            foreach(var kvp in configs)
             {
-                groupMultiplierParams[SoftColliderGroup.NIPPLE].UpdateNippleValue(massValue, softness, nippleErection);
+                var groupMultiplierParam = groupMultiplierParams[kvp.Key];
+                groupMultiplierParam.nippleErectionConfig = kvp.Value;
             }
         }
 
-        private float NewBaseValue(float massValue, float softness, float quickness)
+        public void UpdateNippleErectionGroupValues(float massValue, float softness, float nippleErection)
+        {
+            if(groupMultiplierParams != null)
+            {
+                groupMultiplierParams
+                    .Where(param => param.Key == SoftColliderGroup.NIPPLE)
+                    .ToList()
+                    .ForEach(param => param.Value.UpdateNippleErectionValue(massValue, softness, nippleErection));
+            }
+        }
+
+        protected float NewBaseValue(float massValue, float softness, float quickness)
         {
             float value = config.Calculate(massValue, softness);
             if(quicknessOffsetConfig != null && quickness > 0)
@@ -227,19 +264,18 @@ namespace TittyMagic
             var dpConfig = gravityPhysicsConfigs[direction];
             float gravityValue = NewGravityValue(dpConfig, effect, massValue, softness);
 
-            float newValue = offsetJsf.val + baseValueJsf.val;
-            if(dpConfig.additive)
+            switch(dpConfig.applyMethod)
             {
-                gravityAdjustments[direction] = gravityValue;
-                newValue += gravityAdjustments.Values.Sum() + forceAdjustments.Values.Sum();
-            }
-            else
-            {
-                baseValueJsf.val = gravityValue;
+                case ApplyMethod.ADDITIVE:
+                    _additiveGravityAdjustments[direction] = gravityValue;
+                    break;
+
+                case ApplyMethod.DIRECT:
+                    baseValueJsf.val = gravityValue;
+                    break;
             }
 
-            valueJsf.val = newValue;
-            sync.Invoke(newValue);
+            Sync();
         }
 
         private static float NewGravityValue(DynamicPhysicsConfig dpConfig, float effect, float massValue, float softness)
@@ -262,8 +298,8 @@ namespace TittyMagic
 
             var dpConfig = forcePhysicsConfigs[direction];
             float forceValue = NewForceValue(dpConfig, effect, massValue);
-            forceAdjustments[direction] = forceValue;
-            float newValue = gravityAdjustments.Values.Sum() + forceAdjustments.Values.Sum() + offsetJsf.val + baseValueJsf.val;
+            additiveForceAdjustments[direction] = forceValue;
+            float newValue = _additiveGravityAdjustments.Values.Sum() + additiveForceAdjustments.Values.Sum() + offsetJsf.val + baseValueJsf.val;
             valueJsf.val = newValue;
             sync.Invoke(newValue);
         }
@@ -305,32 +341,69 @@ namespace TittyMagic
 
     internal class SoftGroupPhysicsParameter : PhysicsParameter
     {
+        public DynamicPhysicsConfig nippleErectionConfig { get; set; }
+        private float _nippleErectionMultiplier = 1;
+
         public SoftGroupPhysicsParameter(string id, JSONStorableFloat valueJsf, JSONStorableFloat baseValueJsf, JSONStorableFloat offsetJsf)
             : base(id, valueJsf, baseValueJsf, offsetJsf)
         {
         }
 
-        public new void UpdateNippleValue(float massValue, float softness, float nippleErection)
-        {
-            baseValueJsf.val = NewNippleValue(massValue, softness, nippleErection);
-            float newValue = offsetJsf.val + baseValueJsf.val;
-            valueJsf.val = newValue;
-            sync?.Invoke(newValue);
-
-            UpdateOffsetJsfMinMax();
-        }
-
-        private float NewNippleValue(float massValue, float softness, float nippleErection)
-        {
-            float value = config.Calculate(massValue, softness);
-            return value + 1.25f * nippleErection;
-        }
-
         public void Sync()
         {
-            float value = gravityAdjustments.Values.Sum() + forceAdjustments.Values.Sum() + offsetJsf.val + baseValueJsf.val;
+            float baseValue = _nippleErectionMultiplier * baseValueJsf.val;
+            float value = offsetJsf.val + baseValue;
+            if(forcePhysicsConfigs != null)
+            {
+                value += additiveForceAdjustments.Values.Sum();
+            }
+
             valueJsf.val = value;
             sync?.Invoke(value);
+            offsetJsf.min = -(baseValue - baseValueJsf.min);
+            offsetJsf.max = baseValueJsf.max - baseValue;
+        }
+
+        public new void UpdateValue(float massValue, float softness, float quickness)
+        {
+            baseValueJsf.val = NewBaseValue(massValue, softness, quickness);
+            Sync();
+        }
+
+        public new void UpdateOffsetValue(float value)
+        {
+            offsetJsf.valNoCallback = value;
+            Sync();
+        }
+
+        public void UpdateNippleErectionValue(float massValue, float softness, float nippleErection)
+        {
+            if(nippleErectionConfig == null)
+            {
+                return;
+            }
+
+            float nippleErectionValue = NewNippleErectionValue(massValue, softness, nippleErection);
+            switch(nippleErectionConfig.applyMethod)
+            {
+                case ApplyMethod.MULTIPLICATIVE:
+                    _nippleErectionMultiplier = 1 + nippleErectionValue;
+                    break;
+            }
+
+            Sync();
+        }
+
+        private float NewNippleErectionValue(float massValue, float softness, float effect)
+        {
+            float mass = nippleErectionConfig.multiplyInvertedMass ? 1 - massValue : massValue;
+            float value =
+                nippleErectionConfig.baseMultiplier * effect +
+                softness * nippleErectionConfig.softnessMultiplier * effect +
+                mass * nippleErectionConfig.massMultiplier * effect;
+
+            bool inRange = nippleErectionConfig.isNegative ? value < 0 : value > 0;
+            return inRange ? value : 0;
         }
     }
 }
