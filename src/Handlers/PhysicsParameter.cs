@@ -230,7 +230,7 @@ namespace TittyMagic
             if(groupMultiplierParams != null)
             {
                 groupMultiplierParams
-                    .Where(param => param.Key == SoftColliderGroup.NIPPLE)
+                    .Where(param => param.Key == SoftColliderGroup.NIPPLE || param.Key == SoftColliderGroup.AREOLA)
                     .ToList()
                     .ForEach(param => param.Value.UpdateNippleErectionValue(massValue, softness, nippleErection));
             }

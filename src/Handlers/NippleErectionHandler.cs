@@ -41,6 +41,18 @@ namespace TittyMagic
                         baseMultiplier = 0.5f,
                     }
                 },
+                {
+                    SoftColliderGroup.AREOLA, new DynamicPhysicsConfig(
+                        0f,
+                        0.25f,
+                        isNegative: false,
+                        multiplyInvertedMass: true,
+                        applyMethod: ApplyMethod.MULTIPLICATIVE
+                    )
+                    {
+                        baseMultiplier = 0.25f,
+                    }
+                },
             };
 
         private static Dictionary<string, DynamicPhysicsConfig> NewDamperConfigs() =>
@@ -56,6 +68,18 @@ namespace TittyMagic
                     )
                     {
                         baseMultiplier = 0.5f,
+                    }
+                },
+                {
+                    SoftColliderGroup.AREOLA, new DynamicPhysicsConfig(
+                        0f,
+                        0.25f,
+                        isNegative: false,
+                        multiplyInvertedMass: true,
+                        applyMethod: ApplyMethod.MULTIPLICATIVE
+                    )
+                    {
+                        baseMultiplier = 0.25f,
                     }
                 },
             };
