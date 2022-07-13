@@ -23,6 +23,7 @@ namespace TittyMagic
 
         public bool useRealMass { get; set; }
         public bool requiresRecalibration { get; set; }
+        public bool invertRight { get; set; }
         public JSONStorableBool offsetOnlyLeftBreastJsb { get; }
 
         public PhysicsParameter left { get; }
@@ -67,7 +68,8 @@ namespace TittyMagic
             left.offsetJsf.setCallbackFunction = value =>
             {
                 left.UpdateOffsetValue(value);
-                right.UpdateOffsetValue(offsetOnlyLeftBreastJsb.val ? 0 : value);
+                float rightValue = invertRight ? -value : value;
+                right.UpdateOffsetValue(offsetOnlyLeftBreastJsb.val ? 0 : rightValue);
             };
         }
 
@@ -263,10 +265,6 @@ namespace TittyMagic
             {
                 case ApplyMethod.ADDITIVE:
                     _additiveGravityAdjustments[direction] = gravityValue;
-                    break;
-
-                case ApplyMethod.DIRECT:
-                    baseValueJsf.val = gravityValue;
                     break;
             }
 

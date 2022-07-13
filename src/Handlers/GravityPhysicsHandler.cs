@@ -176,7 +176,7 @@ namespace TittyMagic
                         -12f,
                         isNegative: true,
                         multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.DIRECT
+                        applyMethod: ApplyMethod.ADDITIVE
                     )
                 },
                 {
@@ -185,7 +185,7 @@ namespace TittyMagic
                         13f,
                         isNegative: false,
                         multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.DIRECT
+                        applyMethod: ApplyMethod.ADDITIVE
                     )
                 },
             };
@@ -195,20 +195,20 @@ namespace TittyMagic
             {
                 {
                     Direction.LEFT, new DynamicPhysicsConfig(
-                        16f,
-                        12f,
-                        isNegative: false,
-                        multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.DIRECT
-                    )
-                },
-                {
-                    Direction.RIGHT, new DynamicPhysicsConfig(
                         -16f,
                         -12f,
                         isNegative: true,
                         multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.DIRECT
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
+                {
+                    Direction.RIGHT, new DynamicPhysicsConfig(
+                        16f,
+                        12f,
+                        isNegative: false,
+                        multiplyInvertedMass: false,
+                        applyMethod: ApplyMethod.ADDITIVE
                     )
                 },
             };

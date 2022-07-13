@@ -244,6 +244,7 @@ namespace TittyMagic
             )
             {
                 requiresRecalibration = true,
+                invertRight = true,
             };
 
             var targetRotationX = new PhysicsParameterGroup(
@@ -401,7 +402,6 @@ namespace TittyMagic
         }
 
         // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
-        // Circumvents default invertJoint2RotationX = true
         private void SyncTargetRotationXLeft(float targetRotationX)
         {
             _breastControl.smoothedJoint2TargetRotation.x = targetRotationX;
@@ -414,7 +414,7 @@ namespace TittyMagic
         // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
         private void SyncTargetRotationYLeft(float targetRotationY)
         {
-            _breastControl.smoothedJoint2TargetRotation.y = targetRotationY;
+            _breastControl.smoothedJoint2TargetRotation.y = -targetRotationY;
             var dazBone = _jointLeft.GetComponent<DAZBone>();
             var rotation = _breastControl.smoothedJoint2TargetRotation;
             dazBone.baseJointRotation = rotation;
@@ -433,7 +433,7 @@ namespace TittyMagic
         // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
         private void SyncTargetRotationYRight(float targetRotationY)
         {
-            _breastControl.smoothedJoint1TargetRotation.y = targetRotationY;
+            _breastControl.smoothedJoint1TargetRotation.y = -targetRotationY;
             var dazBone = _jointRight.GetComponent<DAZBone>();
             var rotation = _breastControl.smoothedJoint1TargetRotation;
             dazBone.baseJointRotation = rotation;
@@ -543,18 +543,16 @@ namespace TittyMagic
                 $"";
 
             texts[TARGET_ROTATION_X] =
-                $"Determines the vertical angle of the breast relative to the person." +
-                $" Negative values pull breasts down, positive values pull up." +
+                $"Determines the vertical angle of breasts." +
+                $" Negative values pull breasts down, positive values push them up." +
                 $"\n\n" +
-                $"The offset shifts the center around which the final value is calculated" +
+                $"The offset shifts the center around which the final angle is calculated" +
                 $" based on chest angle (see Gravity Multipliers).";
 
             texts[TARGET_ROTATION_Y] =
-                $"Determines the horizontal angle of the breast relative to the person." +
-                $" Negative values pull breasts together, positive values pull outward." +
+                $"Determines the horizontal angle of breasts." +
                 $"\n\n" +
-                $"The offset shifts the center around which the final value is calculated" +
-                $" based on chest angle (see Gravity Multipliers).";
+                $"Negative values push breasts apart, positive values pull them together.";
 
             return texts;
         }
