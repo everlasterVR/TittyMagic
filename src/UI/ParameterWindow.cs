@@ -9,6 +9,7 @@ namespace TittyMagic.UI
     internal class ParameterWindow : WindowBase
     {
         private readonly PhysicsParameterGroup _parameterGroup;
+        private readonly PhysicsParameter _parameter;
         private readonly UnityAction _returnToParent;
 
         private readonly JSONStorableString _title;
@@ -22,6 +23,7 @@ namespace TittyMagic.UI
         {
             this.id = id;
             _parameterGroup = parameterGroup;
+            _parameter = _parameterGroup.left;
             buildAction = BuildSelf;
             closeAction = ActionsOnClose;
             _returnToParent = () =>
@@ -40,7 +42,7 @@ namespace TittyMagic.UI
 
             CreateTitle(false);
             CreateInfoTextArea(false);
-            CreateCurrentValueSlider(false);
+            CreateCurrentValueSlider(_parameter.valueJsf, false);
 
             if(_parameterGroup.requiresRecalibration)
             {
@@ -52,13 +54,13 @@ namespace TittyMagic.UI
                 CreateApplyOnlyToLeftBreastToggle(true, spacing: 363);
             }
 
-            foreach(var storable in _parameterGroup.groupMultiplierStorables)
+            foreach(var storable in _parameter.GetGroupMultiplierStorables())
             {
                 CreateMultiplierSlider(storable, false);
             }
 
             CreateOffsetSlider(true);
-            foreach(var storable in _parameterGroup.groupOffsetStorables)
+            foreach(var storable in _parameter.GetGroupOffsetStorables())
             {
                 CreateMultiplierOffsetSlider(storable, true);
             }
@@ -104,7 +106,7 @@ namespace TittyMagic.UI
             storable.RegisterButton(button);
             button.height = 52;
 
-            button.button.onClick.AddListener(() => _offsetWhenCalibrated = _parameterGroup.offsetJsf.val);
+            button.button.onClick.AddListener(() => _offsetWhenCalibrated = _parameter.offsetJsf.val);
 
             elements[storable.name] = button;
         }
@@ -122,13 +124,12 @@ namespace TittyMagic.UI
             elements[storable.name] = textField;
         }
 
-        private void CreateCurrentValueSlider(bool rightSide, int spacing = 0)
+        private void CreateCurrentValueSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
         {
-            var storable = _parameterGroup.currentValueJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = script.CreateSlider(storable, rightSide);
-            slider.valueFormat = _parameterGroup.valueFormat;
+            slider.valueFormat = _parameter.valueFormat;
             slider.SetActiveStyle(false);
             slider.slider.interactable = false;
             slider.quickButtonsEnabled = false;
@@ -161,7 +162,7 @@ namespace TittyMagic.UI
 
         private void SyncAllMultiplierSliderValues(float value)
         {
-            foreach(var storable in _parameterGroup.groupMultiplierStorables)
+            foreach(var storable in _parameter.GetGroupMultiplierStorables())
             {
                 var uiDynamicSlider = elements[storable.name] as UIDynamicSlider;
                 if(uiDynamicSlider != null)
@@ -174,7 +175,7 @@ namespace TittyMagic.UI
         private void SyncMultiplierSliderText(UIDynamicSlider slider, string label, float value)
         {
             var textFromFloat = slider.sliderValueTextFromFloat;
-            string currentValue = (value * _parameterGroup.currentValueJsf.val).ToString(_parameterGroup.valueFormat);
+            string currentValue = (value * _parameter.valueJsf.val).ToString(_parameter.valueFormat);
             if(textFromFloat.UIInputField != null)
             {
                 slider.label = $"{label}: {slider.slider.value:F2}";
@@ -184,11 +185,11 @@ namespace TittyMagic.UI
 
         private void CreateOffsetSlider(bool rightSide, int spacing = 0)
         {
-            var storable = _parameterGroup.offsetJsf;
+            var storable = _parameter.offsetJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = script.CreateSlider(storable, rightSide);
-            slider.valueFormat = _parameterGroup.valueFormat;
+            slider.valueFormat = _parameter.valueFormat;
 
             slider.slider.onValueChanged.AddListener(value =>
             {
@@ -218,7 +219,7 @@ namespace TittyMagic.UI
         public string ParamButtonLabel()
         {
             string label = $"  {_parameterGroup.displayName}";
-            if(_parameterGroup.offsetJsf.val != 0 || _parameterGroup.groupOffsetStorables.Any(jsf => jsf.val != 0))
+            if(_parameter.offsetJsf.val != 0 || _parameter.GetGroupOffsetStorables().Any(jsf => jsf.val != 0))
             {
                 label += " *".Bold();
             }

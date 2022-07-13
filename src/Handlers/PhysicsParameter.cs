@@ -13,11 +13,11 @@ namespace TittyMagic
 
         public bool dependOnPhysicsRate
         {
-            get { return _left.dependOnPhysicsRate && _right.dependOnPhysicsRate; }
+            get { return left.dependOnPhysicsRate && right.dependOnPhysicsRate; }
             set
             {
-                _left.dependOnPhysicsRate = value;
-                _right.dependOnPhysicsRate = value;
+                left.dependOnPhysicsRate = value;
+                right.dependOnPhysicsRate = value;
             }
         }
 
@@ -25,49 +25,44 @@ namespace TittyMagic
         public bool requiresRecalibration { get; set; }
         public JSONStorableBool offsetOnlyLeftBreastJsb { get; }
 
-        private readonly PhysicsParameter _left;
-        private readonly PhysicsParameter _right;
+        public PhysicsParameter left { get; }
+        public PhysicsParameter right { get; }
 
-        public string valueFormat => _left.valueFormat;
-        public bool hasStaticConfig => _left.config != null && _right.config != null;
-        public JSONStorableFloat currentValueJsf => _left.valueJsf;
-        public JSONStorableFloat offsetJsf => _left.offsetJsf;
-        public List<JSONStorableFloat> groupMultiplierStorables => _left.GetGroupMultiplierStorables();
-        public List<JSONStorableFloat> groupOffsetStorables => _left.GetGroupOffsetStorables();
+        public bool hasStaticConfig => left.config != null && right.config != null;
 
         public PhysicsParameterGroup(PhysicsParameter left, PhysicsParameter right, string displayName)
         {
-            _left = left;
-            _right = right;
+            this.left = left;
+            this.right = right;
             this.displayName = displayName;
             offsetOnlyLeftBreastJsb = new JSONStorableBool("offsetOnlyLeftBreast", false);
         }
 
         public void SetOffsetCallbackFunctions()
         {
-            CreateOffsetPairCallback(_left, _right);
-            if(_left.groupMultiplierParams != null)
+            CreateOffsetPairCallback();
+            if(left.groupMultiplierParams != null)
             {
-                foreach(var param in _left.groupMultiplierParams)
+                foreach(var param in left.groupMultiplierParams)
                 {
-                    CreateOffsetPairCallback(param.Value, _right.groupMultiplierParams[param.Key]);
+                    CreateOffsetPairCallback(param.Value, right.groupMultiplierParams[param.Key]);
                 }
             }
 
             offsetOnlyLeftBreastJsb.setCallbackFunction = value =>
             {
-                _right.UpdateOffsetValue(value ? 0 : _left.offsetJsf.val);
-                if(_right.groupMultiplierParams != null)
+                right.UpdateOffsetValue(value ? 0 : left.offsetJsf.val);
+                if(right.groupMultiplierParams != null)
                 {
-                    foreach(var param in _right.groupMultiplierParams)
+                    foreach(var param in right.groupMultiplierParams)
                     {
-                        param.Value.UpdateOffsetValue(value ? 0 : _left.groupMultiplierParams[param.Key].offsetJsf.val);
+                        param.Value.UpdateOffsetValue(value ? 0 : left.groupMultiplierParams[param.Key].offsetJsf.val);
                     }
                 }
             };
         }
 
-        private void CreateOffsetPairCallback(PhysicsParameter left, PhysicsParameter right)
+        private void CreateOffsetPairCallback()
         {
             left.offsetJsf.setCallbackFunction = value =>
             {
@@ -76,19 +71,19 @@ namespace TittyMagic
             };
         }
 
-        private void CreateOffsetPairCallback(SoftGroupPhysicsParameter left, SoftGroupPhysicsParameter right)
+        private void CreateOffsetPairCallback(SoftGroupPhysicsParameter leftGroupParam, SoftGroupPhysicsParameter rightGroupParam)
         {
-            left.offsetJsf.setCallbackFunction = value =>
+            leftGroupParam.offsetJsf.setCallbackFunction = value =>
             {
-                left.UpdateOffsetValue(value);
-                right.UpdateOffsetValue(offsetOnlyLeftBreastJsb.val ? 0 : value);
+                leftGroupParam.UpdateOffsetValue(value);
+                rightGroupParam.UpdateOffsetValue(offsetOnlyLeftBreastJsb.val ? 0 : value);
             };
         }
 
         public void UpdateValue(float massValue, float softness, float quickness)
         {
-            _left.UpdateValue(massValue, softness, quickness);
-            _right.UpdateValue(massValue, softness, quickness);
+            left.UpdateValue(massValue, softness, quickness);
+            right.UpdateValue(massValue, softness, quickness);
         }
 
         public void SetNippleErectionConfigs(
@@ -96,14 +91,14 @@ namespace TittyMagic
             Dictionary<string, DynamicPhysicsConfig> rightConfigs
         )
         {
-            _left.SetNippleErectionConfigs(leftConfigs);
-            _right.SetNippleErectionConfigs(rightConfigs);
+            left.SetNippleErectionConfigs(leftConfigs);
+            right.SetNippleErectionConfigs(rightConfigs);
         }
 
         public void UpdateNippleErectionGroupValues(float massValue, float softness, float nippleErection)
         {
-            _left.UpdateNippleErectionGroupValues(massValue, softness, nippleErection);
-            _right.UpdateNippleErectionGroupValues(massValue, softness, nippleErection);
+            left.UpdateNippleErectionGroupValues(massValue, softness, nippleErection);
+            right.UpdateNippleErectionGroupValues(massValue, softness, nippleErection);
         }
 
         public void SetGravityPhysicsConfigs(
@@ -111,14 +106,14 @@ namespace TittyMagic
             Dictionary<string, DynamicPhysicsConfig> rightConfigs
         )
         {
-            _left.gravityPhysicsConfigs = leftConfigs;
-            _right.gravityPhysicsConfigs = rightConfigs;
+            left.gravityPhysicsConfigs = leftConfigs;
+            right.gravityPhysicsConfigs = rightConfigs;
         }
 
         public void UpdateGravityValue(string direction, float effect, float massValue, float softness)
         {
-            _left.UpdateGravityValue(direction, effect, massValue, softness);
-            _right.UpdateGravityValue(direction, effect, massValue, softness);
+            left.UpdateGravityValue(direction, effect, massValue, softness);
+            right.UpdateGravityValue(direction, effect, massValue, softness);
         }
 
         public void SetForcePhysicsConfigs(
@@ -126,14 +121,14 @@ namespace TittyMagic
             Dictionary<string, DynamicPhysicsConfig> rightConfigs
         )
         {
-            _left.forcePhysicsConfigs = leftConfigs;
-            _right.forcePhysicsConfigs = rightConfigs;
+            left.forcePhysicsConfigs = leftConfigs;
+            right.forcePhysicsConfigs = rightConfigs;
         }
 
         public void UpdateForceValue(string direction, float effect, float massValue)
         {
-            _left.UpdateForceValue(direction, effect, massValue);
-            _right.UpdateForceValue(direction, effect, massValue);
+            left.UpdateForceValue(direction, effect, massValue);
+            right.UpdateForceValue(direction, effect, massValue);
         }
     }
 
@@ -327,7 +322,7 @@ namespace TittyMagic
             return list;
         }
 
-        public List<JSONStorableFloat> GetGroupOffsetStorables()
+        public IEnumerable<JSONStorableFloat> GetGroupOffsetStorables()
         {
             var list = new List<JSONStorableFloat>();
             if(groupMultiplierParams != null)
