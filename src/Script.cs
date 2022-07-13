@@ -748,11 +748,20 @@ namespace TittyMagic
         public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
         {
             var jsonClass = base.GetJSON(includePhysical, includeAppearance, forceStore);
+            AddBreastMassToJson(jsonClass);
             jsonClass["originalMainPhysics"] = mainPhysicsHandler.Serialize();
             jsonClass["originalHardColliders"] = hardColliderHandler.Serialize();
             jsonClass["originalSoftPhysics"] = softPhysicsHandler.Serialize();
             needsStore = true;
             return jsonClass;
+        }
+
+        private void AddBreastMassToJson(JSONClass jsonClass)
+        {
+            if(jsonClass.HasKey(autoUpdateJsb.name) && !jsonClass[autoUpdateJsb.name].AsBool)
+            {
+                jsonClass[mainPhysicsHandler.massJsf.name].AsFloat = mainPhysicsHandler.massJsf.val;
+            }
         }
 
         public override void RestoreFromJSON(
