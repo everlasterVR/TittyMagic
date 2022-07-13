@@ -428,10 +428,18 @@ namespace TittyMagic
             softPhysicsHandler.ReverseSyncSoftPhysicsOn();
             softPhysicsHandler.ReverseSyncSyncAllowSelfCollision();
 
-            if(_tabs.activeWindow == mainWindow && mainWindow.GetActiveNestedWindow() != null)
+            if(_tabs.activeWindow == mainWindow)
             {
-                colliderVisualizer.ShowPreviewsJSON.val = true;
-                colliderVisualizer.enabled = true;
+                if(mainWindow.GetActiveNestedWindow() != null)
+                {
+                    colliderVisualizer.ShowPreviewsJSON.val = true;
+                    colliderVisualizer.enabled = true;
+                }
+            }
+            else if(_tabs.activeWindow == physicsWindow)
+            {
+                var parameterWindow = physicsWindow.GetActiveNestedWindow() as ParameterWindow;
+                parameterWindow?.SyncAllMultiplierSliderValues();
             }
         }
 

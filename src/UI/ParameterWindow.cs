@@ -135,7 +135,7 @@ namespace TittyMagic.UI
             slider.quickButtonsEnabled = false;
             slider.defaultButtonEnabled = false;
 
-            slider.slider.onValueChanged.AddListener(SyncAllMultiplierSliderValues);
+            slider.slider.onValueChanged.AddListener(_ => SyncAllMultiplierSliderValues());
 
             elements[storable.name] = slider;
         }
@@ -153,26 +153,26 @@ namespace TittyMagic.UI
             var uiInputField = slider.sliderValueTextFromFloat.UIInputField;
             uiInputField.contentType = InputField.ContentType.Standard;
 
-            slider.slider.onValueChanged.AddListener(value => SyncMultiplierSliderText(slider, storable.name, value));
+            slider.slider.onValueChanged.AddListener(value => SyncMultiplierSliderValue(slider, storable.name, value));
 
-            SyncMultiplierSliderText(slider, storable.name, storable.val);
+            SyncMultiplierSliderValue(slider, storable.name, storable.val);
 
             elements[storable.name] = slider;
         }
 
-        private void SyncAllMultiplierSliderValues(float value)
+        public void SyncAllMultiplierSliderValues()
         {
             foreach(var storable in _parameter.GetGroupMultiplierStorables())
             {
                 var uiDynamicSlider = elements[storable.name] as UIDynamicSlider;
                 if(uiDynamicSlider != null)
                 {
-                    SyncMultiplierSliderText(uiDynamicSlider, storable.name, storable.val);
+                    SyncMultiplierSliderValue(uiDynamicSlider, storable.name, storable.val);
                 }
             }
         }
 
-        private void SyncMultiplierSliderText(UIDynamicSlider slider, string label, float value)
+        private void SyncMultiplierSliderValue(UIDynamicSlider slider, string label, float value)
         {
             var textFromFloat = slider.sliderValueTextFromFloat;
             string currentValue = (value * _parameter.valueJsf.val).ToString(_parameter.valueFormat);
