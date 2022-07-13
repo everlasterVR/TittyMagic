@@ -435,8 +435,24 @@ namespace TittyMagic
         {
             RecalibrateOnNavigation();
             colliderVisualizer.ShowPreviewsJSON.val = false;
-            colliderVisualizer.enabled = false;
-            mainWindow.GetActiveNestedWindow()?.ClosePopups();
+
+            try
+            {
+                colliderVisualizer.enabled = false;
+            }
+            catch(Exception e)
+            {
+                LogError($"Failed to disable collider visualizer. {e}");
+            }
+
+            try
+            {
+                mainWindow.GetActiveNestedWindow()?.ClosePopups();
+            }
+            catch(Exception e)
+            {
+                LogError($"Failed to close popups in collider configuration window. {e}");
+            }
         }
 
         public void RecalibrateOnNavigation()
