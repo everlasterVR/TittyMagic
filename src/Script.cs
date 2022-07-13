@@ -320,27 +320,23 @@ namespace TittyMagic
                 }
             };
 
-            mainPhysicsHandler.massJsf.setCallbackFunction = _ => RefreshFromSliderChanged(refreshMass: true);
+            mainPhysicsHandler.massJsf.setCallbackFunction = _ => StartCoroutine(DeferBeginRefresh(refreshMass: true));
 
             softnessJsf.setCallbackFunction = value =>
             {
                 if(Mathf.Abs(value - softnessAmount) > 0.001f)
                 {
-                    softnessAmount = SoftnessAmount(value);
-                    RefreshFromSliderChanged();
+                    StartCoroutine(DeferBeginRefresh(refreshMass: false));
                 }
             };
-            softnessAmount = SoftnessAmount(softnessJsf.val);
 
             quicknessJsf.setCallbackFunction = value =>
             {
                 if(Mathf.Abs(value - quicknessAmount) > 0.001f)
                 {
-                    quicknessAmount = QuicknessAmount(value);
-                    RefreshFromSliderChanged();
+                    StartCoroutine(DeferBeginRefresh(refreshMass: false));
                 }
             };
-            quicknessAmount = QuicknessAmount(quicknessJsf.val);
 
             configureHardColliders = new JSONStorableAction("configureHardColliders", () => { });
         }
@@ -375,14 +371,6 @@ namespace TittyMagic
             _tabs.activeWindow?.Clear();
             _tabs.ActivateTab(window);
             window.Rebuild();
-        }
-
-        private void RefreshFromSliderChanged(bool refreshMass = false)
-        {
-            if(!_loadingFromJson)
-            {
-                StartCoroutine(DeferBeginRefresh(refreshMass));
-            }
         }
 
         private void Update()
@@ -515,32 +503,38 @@ namespace TittyMagic
             bool? useNewMass = null
         )
         {
-            _waiting = true;
-            recalibrationNeeded = false;
-            if(useNewMass == null)
-            {
-                useNewMass = autoUpdateJsb.val;
-            }
-
-            if(!_refreshQueued && !((MainWindow) mainWindow).GetSlidersForRefresh().Any(slider => slider.IsClickDown()))
-            {
-                if(_refreshInProgress)
-                {
-                    _refreshQueued = true;
-                }
-
-                while(_refreshInProgress)
-                {
-                    yield return null;
-                }
-            }
-            else if(_refreshInProgress)
+            if(_loadingFromJson)
             {
                 yield break;
             }
 
+            _waiting = true;
+            recalibrationNeeded = false;
+
+            if(_refreshInProgress)
+            {
+                if(!_refreshQueued && !((MainWindow) mainWindow).GetSlidersForRefresh().Any(slider => slider.IsClickDown()))
+                {
+                    _refreshQueued = true;
+                }
+                else
+                {
+                    yield break;
+                }
+            }
+
+            while(_refreshInProgress)
+            {
+                yield return null;
+            }
+
             _refreshQueued = false;
             _refreshInProgress = true;
+
+            if(useNewMass == null)
+            {
+                useNewMass = autoUpdateJsb.val;
+            }
 
             PreRefresh(refreshMass, useNewMass.Value);
 
@@ -572,6 +566,9 @@ namespace TittyMagic
                 yield return new WaitForSeconds(0.1f);
             }
 
+            softnessAmount = SoftnessAmount(softnessJsf.val);
+            quicknessAmount = QuicknessAmount(quicknessJsf.val);
+
             yield return Refresh(refreshMass, useNewMass.Value);
         }
 
@@ -593,14 +590,11 @@ namespace TittyMagic
             if(refreshMass)
             {
                 mainPhysicsHandler.UpdateMassValueAndAmounts(useNewMass, _breastVolumeCalculator.Calculate(_atomScaleListener.scale));
-                SetMorphingExtraMultipliers();
             }
 
             mainPhysicsHandler.UpdatePhysics();
             softPhysicsHandler.UpdatePhysics();
             nippleErectionHandler.Update();
-            UpdateDynamicPhysics(roll: 0, pitch: 0);
-            UpdateDynamicMorphs(roll: 0, pitch: 0);
         }
 
         private IEnumerator Refresh(bool refreshMass, bool useNewMass)
@@ -613,18 +607,15 @@ namespace TittyMagic
             SetBreastsUseGravity(false);
 
             yield return new WaitForSeconds(0.5f);
-            UpdateDynamicPhysics(roll: 0, pitch: 0);
-            UpdateDynamicMorphs(roll: 0, pitch: 0);
-
             if(refreshMass)
             {
                 yield return RefreshMass(useNewMass);
             }
 
-            SetMorphingExtraMultipliers();
             mainPhysicsHandler.UpdatePhysics();
             softPhysicsHandler.UpdatePhysics();
             nippleErectionHandler.Update();
+            SetMorphingExtraMultipliers();
 
             yield return CalibrateNipplesTracking();
 
@@ -641,7 +632,11 @@ namespace TittyMagic
                 settingsMonitor.enabled = true;
             }
 
-            _waiting = false;
+            if(!_refreshQueued)
+            {
+                _waiting = false;
+            }
+
             _refreshInProgress = false;
             statusInfo.val = "";
             initDone = true;
@@ -686,14 +681,13 @@ namespace TittyMagic
             offsetMorphHandler.upDownExtraMultiplier = 1.16f - mass;
         }
 
-        private IEnumerator SimulateUprightPhysics()
+        private IEnumerator SimulateUprightPose()
         {
             while(_calibrating)
             {
                 // simulate gravityPhysics when upright
-                gravityPhysicsHandler.Update(0, 0);
-                forcePhysicsHandler.Update(0, 0);
-                offsetMorphHandler.Update(0, 0);
+                UpdateDynamicPhysics(roll: 0, pitch: 0);
+                UpdateDynamicMorphs(roll: 0, pitch: 0);
 
                 // simulate force of gravity when upright
                 var force = _chestTransform.up * -Physics.gravity.magnitude;
@@ -707,7 +701,7 @@ namespace TittyMagic
         private IEnumerator CalibrateNipplesTracking()
         {
             _calibrating = true;
-            StartCoroutine(SimulateUprightPhysics());
+            StartCoroutine(SimulateUprightPose());
 
             float duration = 0;
             const float interval = 0.05f;
