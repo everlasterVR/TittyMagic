@@ -389,7 +389,7 @@ namespace TittyMagic
             }
         }
 
-        public JSONClass Serialize()
+        public JSONClass GetOriginalsJSON()
         {
             var jsonClass = new JSONClass();
             if(Gender.isFemale)

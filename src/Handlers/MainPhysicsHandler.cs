@@ -494,7 +494,7 @@ namespace TittyMagic
             }
         }
 
-        public JSONClass Serialize()
+        public JSONClass GetOriginalsJSON()
         {
             var jsonClass = new JSONClass();
             jsonClass["breastControlFloats"] = JSONUtils.JSONArrayFromDictionary(_originalBreastControlFloats);

@@ -759,9 +759,9 @@ namespace TittyMagic
         {
             var jsonClass = base.GetJSON(includePhysical, includeAppearance, forceStore);
             AddBreastMassToJson(jsonClass);
-            jsonClass["originalMainPhysics"] = mainPhysicsHandler.Serialize();
-            jsonClass["originalHardColliders"] = hardColliderHandler.Serialize();
-            jsonClass["originalSoftPhysics"] = softPhysicsHandler.Serialize();
+            jsonClass["originalMainPhysics"] = mainPhysicsHandler.GetOriginalsJSON();
+            jsonClass["originalHardColliders"] = hardColliderHandler.GetOriginalsJSON();
+            jsonClass["originalSoftPhysics"] = softPhysicsHandler.GetOriginalsJSON();
             needsStore = true;
             return jsonClass;
         }
@@ -808,11 +808,10 @@ namespace TittyMagic
             }
 
             base.RestoreFromJSON(jsonClass, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
-            StartCoroutine(DeferBeginRefresh(refreshMass: true));
 
-            if(jsonClass.HasKey("autoUpdateMass") && jsonClass.HasKey("breastMass") && !jsonClass["autoUpdateMass"].AsBool)
+            if(jsonClass.HasKey(autoUpdateJsb.name) && !jsonClass[autoUpdateJsb.name].AsBool && jsonClass.HasKey(mainPhysicsHandler.massJsf.name))
             {
-                mainPhysicsHandler.massJsf.defaultVal = jsonClass["breastMass"].AsFloat;
+                mainPhysicsHandler.massJsf.defaultVal = jsonClass[mainPhysicsHandler.massJsf.name].AsFloat;
             }
 
             if(jsonClass.HasKey("originalMainPhysics"))
@@ -831,6 +830,8 @@ namespace TittyMagic
             }
 
             _loadingFromJson = false;
+
+            StartCoroutine(DeferBeginRefresh(refreshMass: true));
         }
 
         private void OnRemoveAtom(Atom atom)
