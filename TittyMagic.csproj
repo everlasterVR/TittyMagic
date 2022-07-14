@@ -177,6 +177,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="package.sh" />
+    <Content Include="todo.md" />
     <Content Include="vam-collider-editor\.editorconfig" />
     <Content Include="vam-collider-editor\README.md" />
   </ItemGroup>
