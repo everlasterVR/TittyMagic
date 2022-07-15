@@ -37,22 +37,6 @@ namespace TittyMagic.UI
             return inputField;
         }
 
-        public static UIDynamic NewSpacer(
-            this MVRScript script,
-            float height,
-            bool rightSide = false
-        )
-        {
-            if(height <= 0)
-            {
-                return null;
-            }
-
-            var spacer = script.CreateSpacer(rightSide);
-            spacer.height = height;
-            return spacer;
-        }
-
         public static HorizontalLayoutGroup CreateHorizontalLayoutGroup(RectTransform uiContent)
         {
             var verticalLayoutGroup = uiContent.GetComponent<VerticalLayoutGroup>();

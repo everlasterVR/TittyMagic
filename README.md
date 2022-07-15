@@ -2,7 +2,9 @@
 
 Adjustment of breast physics, morphs and colliders for improved realism and customization.
 
-Releases: https://hub.virtamate.com/resources/tittymagic.4067/
+**Download**: https://hub.virtamate.com/resources/tittymagic.4067/
+
+**Support me at**: https://patreon.com/everlaster
 
 ## Development and contributing
 

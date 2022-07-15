@@ -1,6 +1,6 @@
 #!/bin/bash
 creator_name=everlaster
-plugin_name=${PWD##*/}
+plugin_name=TittyMagic
 package_version=$1
 plugin_version=$2
 

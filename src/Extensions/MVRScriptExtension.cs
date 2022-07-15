@@ -44,6 +44,22 @@ public static class MVRScriptExtension
         .Instantiate(script.manager.configurableColorPickerPrefab)
         .GetComponent<UIDynamicColorPicker>();
 
+    public static UIDynamic NewSpacer(
+        this MVRScript script,
+        float height,
+        bool rightSide = false
+    )
+    {
+        if(height <= 0)
+        {
+            return null;
+        }
+
+        var spacer = script.CreateSpacer(rightSide);
+        spacer.height = height;
+        return spacer;
+    }
+
     public static void RemoveElement(this MVRScript script, UIDynamic element)
     {
         var textField = element as UIDynamicTextField;
