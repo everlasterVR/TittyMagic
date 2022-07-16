@@ -100,7 +100,7 @@ namespace TittyMagic
             var multiplierJsf = new JSONStorableFloat($"{group} {MULTIPLIER}", 1, 0, max);
             var currentJsf = new JSONStorableFloat($"{group} {CURRENT_VALUE}", 1, 0, max);
             var offsetJsf = new JSONStorableFloat($"{group} {MULTIPLIER} {OFFSET}", 0, -max, max);
-            return new SoftGroupPhysicsParameter(group, multiplierJsf, currentJsf, offsetJsf)
+            return new SoftGroupPhysicsParameter(multiplierJsf, currentJsf, offsetJsf)
             {
                 config = config,
                 sync = value => syncCallback(baseValueJsf.val * value, _softVerticesGroups[side][group]),
@@ -109,7 +109,7 @@ namespace TittyMagic
 
         private PhysicsParameter NewSpringParameter(string side)
         {
-            var parameter = new PhysicsParameter(SOFT_VERTICES_SPRING, new JSONStorableFloat(VALUE, 0, 0, 500))
+            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 500))
             {
                 config = new StaticPhysicsConfig(180f, 120f, 100f)
                 {
@@ -158,7 +158,7 @@ namespace TittyMagic
 
         private PhysicsParameter NewDamperParameter(string side)
         {
-            var parameter = new PhysicsParameter(SOFT_VERTICES_DAMPER, new JSONStorableFloat(VALUE, 0, 0, 5.00f))
+            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 5.00f))
             {
                 config = new StaticPhysicsConfig(1.15f, 1.30f, 0.55f)
                 {
@@ -192,7 +192,7 @@ namespace TittyMagic
 
         private PhysicsParameter NewSoftVerticesMassParameter(string side)
         {
-            var parameter = new PhysicsParameter(SOFT_VERTICES_MASS, new JSONStorableFloat(VALUE, 0, 0.001f, 0.200f))
+            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0.001f, 0.200f))
             {
                 config = new StaticPhysicsConfig(0.040f, 0.090f, 0.130f)
                 {
@@ -226,7 +226,7 @@ namespace TittyMagic
 
         private PhysicsParameter NewColliderRadiusParameter(string side)
         {
-            var parameter = new PhysicsParameter(SOFT_VERTICES_COLLIDER_RADIUS, new JSONStorableFloat(VALUE, 0, 0, 0.040f))
+            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 0.040f))
             {
                 config = new StaticPhysicsConfig(0.020f, 0.035f, 0.024f),
                 valueFormat = "F3",
@@ -255,7 +255,7 @@ namespace TittyMagic
 
         private PhysicsParameter NewColliderAdditionalNormalOffsetParameter(string side)
         {
-            var parameter = new PhysicsParameter(SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, new JSONStorableFloat(VALUE, 0, -0.010f, 0.010f))
+            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, -0.010f, 0.010f))
             {
                 config = new StaticPhysicsConfig(0.001f, 0.001f, 0.001f),
                 valueFormat = "F3",
@@ -284,7 +284,7 @@ namespace TittyMagic
 
         private PhysicsParameter NewDistanceLimitParameter(string side)
         {
-            var parameter = new PhysicsParameter(SOFT_VERTICES_DISTANCE_LIMIT, new JSONStorableFloat(VALUE, 0, 0, 0.100f))
+            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 0.100f))
             {
                 config = new StaticPhysicsConfig(0.020f, 0.068f, 0.028f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(0.000f, 0.000f, 0.024f),
@@ -315,7 +315,7 @@ namespace TittyMagic
 
         private PhysicsParameter NewBackForceParameter(string side)
         {
-            var parameter = new PhysicsParameter(SOFT_VERTICES_BACK_FORCE, new JSONStorableFloat(VALUE, 0, 0, 50.00f))
+            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 50.00f))
             {
                 config = new StaticPhysicsConfig(5.00f, 16.00f, 1.00f)
                 {
@@ -349,7 +349,7 @@ namespace TittyMagic
 
         private PhysicsParameter NewBackForceMaxForceParameter(string side)
         {
-            var parameter = new PhysicsParameter(SOFT_VERTICES_BACK_FORCE_MAX_FORCE, new JSONStorableFloat(VALUE, 0, 0, 50.00f))
+            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 50.00f))
             {
                 config = new StaticPhysicsConfig(50.00f, 50.00f, 50.00f),
                 valueFormat = "F2",
@@ -378,7 +378,7 @@ namespace TittyMagic
 
         private PhysicsParameter NewBackForceThresholdDistanceParameter(string side)
         {
-            var parameter = new PhysicsParameter(SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE, new JSONStorableFloat(VALUE, 0, 0, 0.030f))
+            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 0.030f))
             {
                 config = new StaticPhysicsConfig(0.001f, 0.001f, 0.001f),
                 valueFormat = "F3",
@@ -408,12 +408,14 @@ namespace TittyMagic
         private void SetupPhysicsParameterGroups()
         {
             var softVerticesSpring = new PhysicsParameterGroup(
+                SOFT_VERTICES_SPRING,
                 NewSpringParameter(LEFT),
                 NewSpringParameter(RIGHT),
                 "Fat Spring"
             );
 
             var softVerticesDamper = new PhysicsParameterGroup(
+                SOFT_VERTICES_DAMPER,
                 NewDamperParameter(LEFT),
                 NewDamperParameter(RIGHT),
                 "Fat Damper"
@@ -423,12 +425,14 @@ namespace TittyMagic
             };
 
             var softVerticesMass = new PhysicsParameterGroup(
+                SOFT_VERTICES_MASS,
                 NewSoftVerticesMassParameter(LEFT),
                 NewSoftVerticesMassParameter(RIGHT),
                 "Fat Mass"
             );
 
             var softVerticesColliderRadius = new PhysicsParameterGroup(
+                SOFT_VERTICES_COLLIDER_RADIUS,
                 NewColliderRadiusParameter(LEFT),
                 NewColliderRadiusParameter(RIGHT),
                 "Fat Collider Radius"
@@ -438,12 +442,14 @@ namespace TittyMagic
             };
 
             var softVerticesColliderAdditionalNormalOffset = new PhysicsParameterGroup(
+                SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET,
                 NewColliderAdditionalNormalOffsetParameter(LEFT),
                 NewColliderAdditionalNormalOffsetParameter(RIGHT),
                 "Fat Collider Depth"
             );
 
             var softVerticesDistanceLimit = new PhysicsParameterGroup(
+                SOFT_VERTICES_DISTANCE_LIMIT,
                 NewDistanceLimitParameter(LEFT),
                 NewDistanceLimitParameter(RIGHT),
                 "Fat Distance Limit"
@@ -453,18 +459,21 @@ namespace TittyMagic
             };
 
             var softVerticesBackForce = new PhysicsParameterGroup(
+                SOFT_VERTICES_BACK_FORCE,
                 NewBackForceParameter(LEFT),
                 NewBackForceParameter(RIGHT),
                 "Fat Back Force"
             );
 
             var softVerticesBackForceMaxForce = new PhysicsParameterGroup(
+                SOFT_VERTICES_BACK_FORCE_MAX_FORCE,
                 NewBackForceMaxForceParameter(LEFT),
                 NewBackForceMaxForceParameter(RIGHT),
                 "Fat Bk Force Max Force"
             );
 
             var softVerticesBackForceThresholdDistance = new PhysicsParameterGroup(
+                SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE,
                 NewBackForceThresholdDistanceParameter(LEFT),
                 NewBackForceThresholdDistanceParameter(RIGHT),
                 "Fat Bk Force Threshold"

@@ -8,6 +8,8 @@ namespace TittyMagic
 {
     internal class PhysicsParameterGroup
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global MemberCanBePrivate.Global MemberCanBeProtected.Global
+        public string id { get; }
         public string displayName { get; }
         public string infoText { get; set; }
 
@@ -31,8 +33,9 @@ namespace TittyMagic
 
         public bool hasStaticConfig => left.config != null && right.config != null;
 
-        public PhysicsParameterGroup(PhysicsParameter left, PhysicsParameter right, string displayName)
+        public PhysicsParameterGroup(string id, PhysicsParameter left, PhysicsParameter right, string displayName)
         {
+            this.id = id;
             this.left = left;
             this.right = right;
             this.displayName = displayName;
@@ -136,8 +139,6 @@ namespace TittyMagic
 
     internal class PhysicsParameter
     {
-        // ReSharper disable once UnusedAutoPropertyAccessor.Global MemberCanBePrivate.Global MemberCanBeProtected.Global
-        public string id { get; }
         protected internal JSONStorableFloat valueJsf { get; }
         protected JSONStorableFloat baseValueJsf { get; }
         internal JSONStorableFloat offsetJsf { get; }
@@ -156,9 +157,8 @@ namespace TittyMagic
 
         public Dictionary<string, SoftGroupPhysicsParameter> groupMultiplierParams { get; set; }
 
-        public PhysicsParameter(string id, JSONStorableFloat valueJsf, JSONStorableFloat baseValueJsf = null, JSONStorableFloat offsetJsf = null)
+        public PhysicsParameter(JSONStorableFloat valueJsf, JSONStorableFloat baseValueJsf = null, JSONStorableFloat offsetJsf = null)
         {
-            this.id = id;
             this.valueJsf = valueJsf;
             this.baseValueJsf = baseValueJsf ?? new JSONStorableFloat(Intl.BASE_VALUE, 0, valueJsf.min, valueJsf.max);
             this.offsetJsf = offsetJsf ?? new JSONStorableFloat(Intl.OFFSET, 0, -valueJsf.max, valueJsf.max);
@@ -337,8 +337,8 @@ namespace TittyMagic
         public DynamicPhysicsConfig nippleErectionConfig { get; set; }
         private float _nippleErectionMultiplier = 1;
 
-        public SoftGroupPhysicsParameter(string id, JSONStorableFloat valueJsf, JSONStorableFloat baseValueJsf, JSONStorableFloat offsetJsf)
-            : base(id, valueJsf, baseValueJsf, offsetJsf)
+        public SoftGroupPhysicsParameter(JSONStorableFloat valueJsf, JSONStorableFloat baseValueJsf, JSONStorableFloat offsetJsf)
+            : base(valueJsf, baseValueJsf, offsetJsf)
         {
         }
 

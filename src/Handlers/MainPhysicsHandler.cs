@@ -99,7 +99,7 @@ namespace TittyMagic
         }
 
         private PhysicsParameter NewCenterOfGravityParameter(bool left, bool softPhysicsEnabled) =>
-            new PhysicsParameter(CENTER_OF_GRAVITY_PERCENT, new JSONStorableFloat(VALUE, 0, 0, 1.00f))
+            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 1.00f))
             {
                 config = softPhysicsEnabled
                     ? new StaticPhysicsConfig(0.45f, 0.57f, 0.67f)
@@ -111,7 +111,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewSpringParameter(bool left) =>
-            new PhysicsParameter(SPRING, new JSONStorableFloat(VALUE, 0, 10, 100))
+            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 10, 100))
             {
                 config = new StaticPhysicsConfig(58f, 48f, 45f)
                 {
@@ -126,7 +126,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewDamperParameter(bool left, bool softPhysicsEnabled) =>
-            new PhysicsParameter(DAMPER, new JSONStorableFloat(VALUE, 0, 0, 10.00f))
+            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 10.00f))
             {
                 config = softPhysicsEnabled
                     ? new StaticPhysicsConfig(1.20f, 1.00f, 0.45f)
@@ -147,7 +147,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewPositionSpringZParameter(bool left) =>
-            new PhysicsParameter(POSITION_SPRING_Z, new JSONStorableFloat(VALUE, 0, 0, 1000))
+            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 1000))
             {
                 config = new StaticPhysicsConfig(650f, 750f, 250f)
                 {
@@ -162,7 +162,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewPositionDamperZParameter(bool left) =>
-            new PhysicsParameter(POSITION_DAMPER_Z, new JSONStorableFloat(VALUE, 0, 0, 100))
+            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 100))
             {
                 config = new StaticPhysicsConfig(10f, 15f, 4f),
                 valueFormat = "F0",
@@ -172,7 +172,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewTargetRotationYParameter(bool left) =>
-            new PhysicsParameter(TARGET_ROTATION_Y, new JSONStorableFloat(VALUE, 0, -20.00f, 20.00f))
+            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, -20.00f, 20.00f))
             {
                 sync = left
                     ? (Action<float>) SyncTargetRotationYLeft
@@ -181,7 +181,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewTargetRotationXParameter(bool left) =>
-            new PhysicsParameter(TARGET_ROTATION_X, new JSONStorableFloat(VALUE, 0, -20.00f, 20.00f))
+            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, -20.00f, 20.00f))
             {
                 sync = left
                     ? (Action<float>) SyncTargetRotationXLeft
@@ -194,6 +194,7 @@ namespace TittyMagic
             bool softPhysicsEnabled = _script.settingsMonitor.softPhysicsEnabled;
 
             var centerOfGravityPercent = new PhysicsParameterGroup(
+                CENTER_OF_GRAVITY_PERCENT,
                 NewCenterOfGravityParameter(true, softPhysicsEnabled),
                 NewCenterOfGravityParameter(false, softPhysicsEnabled),
                 "Center Of Gravity"
@@ -203,6 +204,7 @@ namespace TittyMagic
             };
 
             var spring = new PhysicsParameterGroup(
+                SPRING,
                 NewSpringParameter(true),
                 NewSpringParameter(false),
                 "Spring"
@@ -211,6 +213,7 @@ namespace TittyMagic
                 requiresRecalibration = true,
             };
             var damper = new PhysicsParameterGroup(
+                DAMPER,
                 NewDamperParameter(true, softPhysicsEnabled),
                 NewDamperParameter(false, softPhysicsEnabled),
                 "Damper"
@@ -220,6 +223,7 @@ namespace TittyMagic
             };
 
             var positionSpringZ = new PhysicsParameterGroup(
+                POSITION_SPRING_Z,
                 NewPositionSpringZParameter(true),
                 NewPositionSpringZParameter(false),
                 "In/Out Spring"
@@ -229,6 +233,7 @@ namespace TittyMagic
             };
 
             var positionDamperZ = new PhysicsParameterGroup(
+                POSITION_DAMPER_Z,
                 NewPositionDamperZParameter(true),
                 NewPositionDamperZParameter(false),
                 "In/Out Damper"
@@ -238,6 +243,7 @@ namespace TittyMagic
             };
 
             var targetRotationY = new PhysicsParameterGroup(
+                TARGET_ROTATION_Y,
                 NewTargetRotationYParameter(true),
                 NewTargetRotationYParameter(false),
                 "Right/Left Angle Target"
@@ -248,6 +254,7 @@ namespace TittyMagic
             };
 
             var targetRotationX = new PhysicsParameterGroup(
+                TARGET_ROTATION_X,
                 NewTargetRotationXParameter(true),
                 NewTargetRotationXParameter(false),
                 "Up/Down Angle Target"
@@ -294,7 +301,7 @@ namespace TittyMagic
         private void SyncCenterOfGravity(Rigidbody rb, float value)
         {
             var newCenterOfMass = Vector3.Lerp(_breastControl.lowCenterOfGravity, _breastControl.highCenterOfGravity, value);
-            if(Calc.VectorEqualWithin(1/100f, rb.centerOfMass, newCenterOfMass))
+            if(Calc.VectorEqualWithin(1 / 100f, rb.centerOfMass, newCenterOfMass))
             {
                 return;
             }
