@@ -294,7 +294,7 @@ namespace TittyMagic
         private void SyncCenterOfGravity(Rigidbody rb, float value)
         {
             var newCenterOfMass = Vector3.Lerp(_breastControl.lowCenterOfGravity, _breastControl.highCenterOfGravity, value);
-            if(Calc.VectorEqualWithin(100f, rb.centerOfMass, newCenterOfMass))
+            if(Calc.VectorEqualWithin(1/100f, rb.centerOfMass, newCenterOfMass))
             {
                 return;
             }

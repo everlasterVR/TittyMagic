@@ -83,8 +83,8 @@ namespace TittyMagic
             return sum / positions.Count;
         }
 
-        private static bool EqualWithin(float roundFactor, float v1, float v2) =>
-            Mathf.Abs(v1 - v2) < 1 / roundFactor;
+        private static bool EqualWithin(float diff, float v1, float v2) =>
+            Mathf.Abs(v1 - v2) < diff;
 
         // ReSharper disable once UnusedMember.Global
         public static bool DeviatesAtLeast(float v1, float v2, int percent)
@@ -102,10 +102,10 @@ namespace TittyMagic
             return result;
         }
 
-        public static bool VectorEqualWithin(float roundFactor, Vector3 v1, Vector3 v2) =>
-            EqualWithin(roundFactor, v1.x, v2.x) &&
-            EqualWithin(roundFactor, v1.y, v2.y) &&
-            EqualWithin(roundFactor, v1.z, v2.z);
+        public static bool VectorEqualWithin(float diff, Vector3 v1, Vector3 v2) =>
+            EqualWithin(diff, v1.x, v2.x) &&
+            EqualWithin(diff, v1.y, v2.y) &&
+            EqualWithin(diff, v1.z, v2.z);
 
         public static float[] ExponentialMovingAverage(float[] source, float k)
         {
