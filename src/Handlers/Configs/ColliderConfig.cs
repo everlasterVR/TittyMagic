@@ -10,7 +10,7 @@ namespace TittyMagic.Configs
         private const float DEFAULT_MASS = 0.04f;
 
         public string id { get; }
-        public string visualizerEditableId => _left.visualizerEditableId;
+        public string visualizerEditableId => left.visualizerEditableId;
         public bool syncInProgress { get; set; }
 
         //TODO scale by breast mass and softness
@@ -21,8 +21,8 @@ namespace TittyMagic.Configs
         private readonly Scaler _upOffsetScaler;
         private readonly Scaler _lookOffsetScaler;
 
-        private readonly ColliderConfig _left;
-        private readonly ColliderConfig _right;
+        public ColliderConfig left { get; }
+        public ColliderConfig right { get; }
 
         public JSONStorableFloat forceJsf { get; set; }
         public JSONStorableFloat radiusJsf { get; set; }
@@ -44,8 +44,8 @@ namespace TittyMagic.Configs
         )
         {
             this.id = id;
-            _left = left;
-            _right = right;
+            this.left = left;
+            this.right = right;
             _baseRbMassScaler = baseRbMassScaler;
             _radiusScaler = radiusScaler;
             _lengthScaler = lengthScaler;
@@ -57,132 +57,132 @@ namespace TittyMagic.Configs
         public void UpdateRigidbodyMass(float combinedMultiplier)
         {
             float baseMass = _baseRbMassScaler.Scale(DEFAULT_MASS);
-            _left.UpdateRigidbodyMass(baseMass * combinedMultiplier);
-            _right.UpdateRigidbodyMass(baseMass * combinedMultiplier);
+            left.UpdateRigidbodyMass(baseMass * combinedMultiplier);
+            right.UpdateRigidbodyMass(baseMass * combinedMultiplier);
         }
 
         public void RestoreDefaultMass()
         {
-            _left.UpdateRigidbodyMass(DEFAULT_MASS);
-            _right.UpdateRigidbodyMass(DEFAULT_MASS);
+            left.UpdateRigidbodyMass(DEFAULT_MASS);
+            right.UpdateRigidbodyMass(DEFAULT_MASS);
         }
 
         public void UpdateRadius()
         {
             float radius = _radiusScaler.Scale(radiusJsf.val);
-            _left.UpdateRadius(-radius);
-            _right.UpdateRadius(-radius);
+            left.UpdateRadius(-radius);
+            right.UpdateRadius(-radius);
         }
 
         public void UpdateLength()
         {
             float length = _lengthScaler.Scale(lengthJsf.val);
-            _left.UpdateLength(-length);
-            _right.UpdateLength(-length);
+            left.UpdateLength(-length);
+            right.UpdateLength(-length);
         }
 
         public void UpdateRightOffset()
         {
-            float right = _rightOffsetScaler.Scale(rightJsf.val);
-            _left.UpdateRightOffset(-right);
-            _right.UpdateRightOffset(right);
+            float rightOffset = _rightOffsetScaler.Scale(rightJsf.val);
+            left.UpdateRightOffset(-rightOffset);
+            right.UpdateRightOffset(rightOffset);
         }
 
         public void UpdateUpOffset()
         {
             float up = _upOffsetScaler.Scale(upJsf.val);
-            _left.UpdateUpOffset(-up);
-            _right.UpdateUpOffset(-up);
+            left.UpdateUpOffset(-up);
+            right.UpdateUpOffset(-up);
         }
 
         public void UpdateLookOffset()
         {
             float look = _lookOffsetScaler.Scale(lookJsf.val);
-            _left.UpdateLookOffset(-look);
-            _right.UpdateLookOffset(-look);
+            left.UpdateLookOffset(-look);
+            right.UpdateLookOffset(-look);
         }
 
         public void AutoColliderSizeSet()
         {
-            _left.AutoColliderSizeSet();
-            _right.AutoColliderSizeSet();
+            left.AutoColliderSizeSet();
+            right.AutoColliderSizeSet();
         }
 
         public void RestoreDefaults()
         {
-            _left.RestoreDefaults();
-            _right.RestoreDefaults();
+            left.RestoreDefaults();
+            right.RestoreDefaults();
         }
 
-        public bool HasRigidbodies() => _left.HasRigidbody() && _right.HasRigidbody();
+        public bool HasRigidbodies() => left.HasRigidbody() && right.HasRigidbody();
     }
 
     internal class ColliderConfig
     {
-        private readonly AutoCollider _autoCollider;
-        private readonly Collider _collider;
+        public AutoCollider autoCollider { get; }
+        public Collider collider { get; }
 
         public string visualizerEditableId { get; }
 
         public ColliderConfig(AutoCollider autoCollider, string visualizerEditableId)
         {
-            _autoCollider = autoCollider;
-            _autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.None;
+            this.autoCollider = autoCollider;
+            this.autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.None;
 
-            _collider = _autoCollider.jointCollider;
-            _collider.enabled = true;
-            _collider.GetComponent<CapsuleLineSphereCollider>().enabled = true;
+            collider = this.autoCollider.jointCollider;
+            collider.enabled = true;
+            collider.GetComponent<CapsuleLineSphereCollider>().enabled = true;
 
             this.visualizerEditableId = visualizerEditableId;
         }
 
         public void UpdateRigidbodyMass(float mass) =>
-            _collider.attachedRigidbody.mass = mass;
+            collider.attachedRigidbody.mass = mass;
 
         public void UpdateRadius(float offset)
         {
-            _autoCollider.autoRadiusBuffer = offset;
+            autoCollider.autoRadiusBuffer = offset;
         }
 
         public void UpdateLength(float offset)
         {
-            _autoCollider.autoLengthBuffer = offset;
+            autoCollider.autoLengthBuffer = offset;
         }
 
         public void UpdateRightOffset(float offset)
         {
-            _autoCollider.colliderRightOffset = offset;
+            autoCollider.colliderRightOffset = offset;
         }
 
         public void UpdateUpOffset(float offset)
         {
-            _autoCollider.colliderUpOffset = offset;
+            autoCollider.colliderUpOffset = offset;
         }
 
         public void UpdateLookOffset(float offset)
         {
-            _autoCollider.colliderLookOffset = offset;
+            autoCollider.colliderLookOffset = offset;
         }
 
         public void RestoreDefaults()
         {
-            _autoCollider.autoRadiusBuffer = 0;
-            _autoCollider.autoLengthBuffer = 0;
-            _autoCollider.colliderRightOffset = 0;
-            _autoCollider.colliderUpOffset = 0;
-            _autoCollider.colliderLookOffset = 0;
-            _autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.Always;
-            _autoCollider.AutoColliderSizeSet(true);
-            _autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.MorphChangeOnly;
+            autoCollider.autoRadiusBuffer = 0;
+            autoCollider.autoLengthBuffer = 0;
+            autoCollider.colliderRightOffset = 0;
+            autoCollider.colliderUpOffset = 0;
+            autoCollider.colliderLookOffset = 0;
+            autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.Always;
+            autoCollider.AutoColliderSizeSet(true);
+            autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.MorphChangeOnly;
         }
 
         public void AutoColliderSizeSet()
         {
-            _autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.Always;
-            _autoCollider.AutoColliderSizeSet(true);
-            _autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.None;
+            autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.Always;
+            autoCollider.AutoColliderSizeSet(true);
+            autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.None;
         }
 
-        public bool HasRigidbody() => _collider.attachedRigidbody != null;
+        public bool HasRigidbody() => collider.attachedRigidbody != null;
     }
 }

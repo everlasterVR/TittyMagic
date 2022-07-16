@@ -490,6 +490,8 @@ namespace TittyMagic
                 statusInfo.val = $"pitch: {RoundToDecimals(pitch, 1000f)}" +
                     $"\nangleY {RoundToDecimals(_trackLeftNipple.angleY, 1000f)}" +
                     $"\nangleX {RoundToDecimals(_trackLeftNipple.angleX, 1000f)}";
+
+                ((MainWindow) mainWindow).UpdateCollidersDebugInfo("Pectoral1");
 #endif
 
                 UpdateDynamicPhysics(roll, pitch);

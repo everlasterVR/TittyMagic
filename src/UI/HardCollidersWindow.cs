@@ -255,8 +255,6 @@ namespace TittyMagic.UI
             }
             else
             {
-                _selectColliderText.val = "";
-
                 var colliderConfigGroup = script.hardColliderHandler.colliderConfigs
                     .Find(config => config.visualizerEditableId == colliderId);
 
@@ -305,7 +303,7 @@ namespace TittyMagic.UI
             var textField = script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.UItext.alignment = TextAnchor.UpperCenter;
-            textField.height = 100;
+            textField.height = 250;
             textField.backgroundColor = Color.clear;
             colliderSectionElements[storable.name] = textField;
         }
@@ -447,6 +445,22 @@ namespace TittyMagic.UI
         {
             script.colliderVisualizer.ShowPreviewsJSON.val = false;
             script.colliderVisualizer.enabled = false;
+        }
+
+        public void UpdateCollidersDebugInfo(string configId)
+        {
+            var debugColliderConfigGroup = script.hardColliderHandler.colliderConfigs.Find(config => config.id == configId);
+            var debugColliderConfig = debugColliderConfigGroup.left;
+            var capsuleCollider = (CapsuleCollider) debugColliderConfig.autoCollider.jointCollider;
+            var center = capsuleCollider.center;
+            var position = Calc.RelativePosition(debugColliderConfig.autoCollider.jointRB, center);
+            _selectColliderText.val = $"{configId}" +
+                $"\n{Calc.RoundToDecimals(center.x, 1000f)}" +
+                $" {Calc.RoundToDecimals(center.y, 1000f)}" +
+                $" {Calc.RoundToDecimals(center.z, 1000f)}" +
+                $"\n{Calc.RoundToDecimals(position.x, 1000f)}" +
+                $" {Calc.RoundToDecimals(position.y, 1000f)}" +
+                $" {Calc.RoundToDecimals(position.z, 1000f)}";
         }
     }
 }

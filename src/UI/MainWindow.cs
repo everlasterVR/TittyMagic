@@ -180,5 +180,13 @@ namespace TittyMagic.UI
 
             return sliders;
         }
+
+        public void UpdateCollidersDebugInfo(string configId)
+        {
+            if(activeNestedWindow != null)
+            {
+                ((HardCollidersWindow) activeNestedWindow).UpdateCollidersDebugInfo(configId);
+            }
+        }
     }
 }
