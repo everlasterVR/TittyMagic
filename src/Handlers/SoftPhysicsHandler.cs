@@ -19,9 +19,6 @@ namespace TittyMagic
         private bool _originalAllowSelfCollision;
         private bool _originalAutoFatColliderRadius;
 
-        //Group name -> Value
-        private Dictionary<string, bool> _originalGroupsUseParentSettings;
-
         //Left/Right -> Group name -> Group
         private readonly Dictionary<string, Dictionary<string, DAZPhysicsMeshSoftVerticesGroup>> _softVerticesGroups;
 
@@ -671,7 +668,6 @@ namespace TittyMagic
         public void SaveOriginalPhysicsAndSetPluginDefaults()
         {
             _originalBreastPhysicsMeshFloats = new Dictionary<string, float>();
-            _originalGroupsUseParentSettings = new Dictionary<string, bool>();
             if(_breastPhysicsMesh != null)
             {
                 _originalSoftPhysicsOn = _breastPhysicsMesh.on;
@@ -684,10 +680,8 @@ namespace TittyMagic
                 _originalAutoFatColliderRadius = _breastPhysicsMesh.softVerticesUseAutoColliderRadius;
                 _breastPhysicsMesh.softVerticesUseAutoColliderRadius = false;
 
-                // prevent settings in F Breast Physics 2 from having effect
                 foreach(var group in _breastPhysicsMesh.softVerticesGroups)
                 {
-                    _originalGroupsUseParentSettings[group.name] = group.useParentSettings;
                     group.useParentSettings = false;
                 }
 
@@ -713,7 +707,7 @@ namespace TittyMagic
 
             foreach(var group in _breastPhysicsMesh.softVerticesGroups)
             {
-                group.useParentSettings = _originalGroupsUseParentSettings[group.name];
+                group.useParentSettings = true;
             }
 
             foreach(string jsonParamName in _breastPhysicsMeshFloatParamNames)
@@ -737,7 +731,6 @@ namespace TittyMagic
             jsonClass[ALLOW_SELF_COLLISION].AsBool = _originalAllowSelfCollision;
             jsonClass["breastPhysicsMeshFloats"] = JSONUtils.JSONArrayFromDictionary(_originalBreastPhysicsMeshFloats);
             jsonClass[SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS].AsBool = _originalAutoFatColliderRadius;
-            jsonClass["groupsUseParentSettings"] = JSONUtils.JSONArrayFromDictionary(_originalGroupsUseParentSettings);
             return jsonClass;
         }
 
@@ -792,15 +785,6 @@ namespace TittyMagic
                 foreach(JSONClass jc in breastPhysicsMeshFloats)
                 {
                     _originalBreastPhysicsMeshFloats[jc["id"].Value] = jc["value"].AsFloat;
-                }
-            }
-
-            if(jsonClass.HasKey("groupsUseParentSettings"))
-            {
-                var groupsUseParentSettings = jsonClass["groupsUseParentSettings"].AsArray;
-                foreach(JSONClass jc in groupsUseParentSettings)
-                {
-                    _originalGroupsUseParentSettings[jc["id"].Value] = jc["value"].AsBool;
                 }
             }
         }
