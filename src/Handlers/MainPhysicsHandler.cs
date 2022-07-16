@@ -111,7 +111,7 @@ namespace TittyMagic
             };
 
         private PhysicsParameter NewSpringParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 10, 100))
+            new PhysicsParameter(new JSONStorableFloat(VALUE, 10, 10, 100))
             {
                 config = new StaticPhysicsConfig(58f, 48f, 45f)
                 {
@@ -174,6 +174,7 @@ namespace TittyMagic
         private PhysicsParameter NewTargetRotationYParameter(bool left) =>
             new PhysicsParameter(new JSONStorableFloat(VALUE, 0, -20.00f, 20.00f))
             {
+                config = new StaticPhysicsConfig(0, 0, 0),
                 sync = left
                     ? (Action<float>) SyncTargetRotationYLeft
                     : (Action<float>) SyncTargetRotationYRight,
@@ -183,6 +184,7 @@ namespace TittyMagic
         private PhysicsParameter NewTargetRotationXParameter(bool left) =>
             new PhysicsParameter(new JSONStorableFloat(VALUE, 0, -20.00f, 20.00f))
             {
+                config = new StaticPhysicsConfig(0, 0, 0),
                 sync = left
                     ? (Action<float>) SyncTargetRotationXLeft
                     : (Action<float>) SyncTargetRotationXRight,
@@ -501,7 +503,15 @@ namespace TittyMagic
             }
         }
 
-        public JSONClass GetOriginalsJSON()
+        public JSONClass GetJSON()
+        {
+            var jsonClass = new JSONClass();
+            jsonClass["originals"] = OriginalsJSON();
+            jsonClass["parameters"] = ParametersJSONArray();
+            return jsonClass;
+        }
+
+        private JSONClass OriginalsJSON()
         {
             var jsonClass = new JSONClass();
             jsonClass["breastControlFloats"] = JSONUtils.JSONArrayFromDictionary(_originalBreastControlFloats);
@@ -510,13 +520,41 @@ namespace TittyMagic
             return jsonClass;
         }
 
-        public void RestoreFromJSON(JSONClass originalJson)
+        private JSONArray ParametersJSONArray()
+        {
+            var jsonArray = new JSONArray();
+            foreach(var group in parameterGroups)
+            {
+                var groupJsonClass = group.Value.GetJSON();
+                if(groupJsonClass != null)
+                {
+                    jsonArray.Add(groupJsonClass);
+                }
+            }
+
+            return jsonArray;
+        }
+
+        public void RestoreFromJSON(JSONClass jsonClass)
+        {
+            if(jsonClass.HasKey("originals"))
+            {
+                RestoreOriginalsFromJSON(jsonClass["originals"].AsObject);
+            }
+
+            if(jsonClass.HasKey("parameters"))
+            {
+                RestoreParametersFromJSON(jsonClass["parameters"].AsArray);
+            }
+        }
+
+        private void RestoreOriginalsFromJSON(JSONClass originalJson)
         {
             if(originalJson.HasKey("breastControlFloats"))
             {
                 var breastControlFloats = originalJson["breastControlFloats"].AsArray;
-                foreach(JSONClass json in breastControlFloats)
-                    _originalBreastControlFloats[json["paramName"].Value] = json["value"].AsFloat;
+                foreach(JSONClass jc in breastControlFloats)
+                    _originalBreastControlFloats[jc["id"].Value] = jc["value"].AsFloat;
             }
 
             if(originalJson.HasKey("pectoralRbLeftDetectCollisions"))
@@ -527,6 +565,14 @@ namespace TittyMagic
             if(originalJson.HasKey("pectoralRbRightDetectCollisions"))
             {
                 _originalPectoralRbRightDetectCollisions = originalJson["pectoralRbRightDetectCollisions"].AsBool;
+            }
+        }
+
+        private void RestoreParametersFromJSON(JSONArray jsonArray)
+        {
+            foreach(JSONClass jc in jsonArray)
+            {
+                parameterGroups[jc["id"].Value].RestoreFromJSON(jc);
             }
         }
 

@@ -77,7 +77,7 @@ namespace TittyMagic
             0.01666667f / Time.fixedDeltaTime;
 
         // ReSharper disable once UnusedMember.Global
-        public static void DumpObjectToLog(object obj)
+        public static string ObjectPropertiesString(object obj)
         {
             string result = "";
             foreach(PropertyDescriptor descriptor in TypeDescriptor.GetProperties(obj))
@@ -85,7 +85,7 @@ namespace TittyMagic
                 result += $"{descriptor.Name} = {descriptor.GetValue(obj)}\n";
             }
 
-            Debug.Log(result);
+            return result;
         }
 
         public static void LogEvery(string str, int every = 1)

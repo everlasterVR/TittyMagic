@@ -765,9 +765,13 @@ namespace TittyMagic
         {
             var jsonClass = base.GetJSON(includePhysical, includeAppearance, forceStore);
             AddBreastMassToJson(jsonClass);
-            jsonClass["originalMainPhysics"] = mainPhysicsHandler.GetOriginalsJSON();
-            jsonClass["originalHardColliders"] = hardColliderHandler.GetOriginalsJSON();
-            jsonClass["originalSoftPhysics"] = softPhysicsHandler.GetOriginalsJSON();
+            jsonClass["mainPhysics"] = mainPhysicsHandler.GetJSON();
+            jsonClass["hardColliders"] = hardColliderHandler.GetOriginalsJSON();
+            if(Gender.isFemale)
+            {
+                jsonClass["softPhysics"] = softPhysicsHandler.GetJSON();
+            }
+
             needsStore = true;
             return jsonClass;
         }
@@ -820,19 +824,19 @@ namespace TittyMagic
                 mainPhysicsHandler.massJsf.defaultVal = jsonClass[mainPhysicsHandler.massJsf.name].AsFloat;
             }
 
-            if(jsonClass.HasKey("originalMainPhysics"))
+            if(jsonClass.HasKey("mainPhysics"))
             {
-                mainPhysicsHandler.RestoreFromJSON(jsonClass["originalMainPhysics"].AsObject);
+                mainPhysicsHandler.RestoreFromJSON(jsonClass["mainPhysics"].AsObject);
             }
 
-            if(jsonClass.HasKey("originalHardColliders"))
+            if(jsonClass.HasKey("hardColliders"))
             {
-                hardColliderHandler.RestoreFromJSON(jsonClass["originalHardColliders"].AsObject);
+                hardColliderHandler.RestoreFromJSON(jsonClass["hardColliders"].AsObject);
             }
 
-            if(jsonClass.HasKey("originalSoftPhysics"))
+            if(jsonClass.HasKey("softPhysics"))
             {
-                softPhysicsHandler.RestoreFromJSON(jsonClass["originalSoftPhysics"].AsObject);
+                softPhysicsHandler.RestoreFromJSON(jsonClass["softPhysics"].AsObject);
             }
 
             _loadingFromJson = false;

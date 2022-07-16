@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SimpleJSON;
 using TittyMagic.Configs;
 using UnityEngine;
 
@@ -135,13 +136,34 @@ namespace TittyMagic
             left.UpdateForceValue(direction, effect, massValue);
             right.UpdateForceValue(direction, effect, massValue);
         }
+
+        public JSONClass GetJSON()
+        {
+            var jsonClass = new JSONClass();
+            var leftJson = left.GetJSON();
+            if(leftJson != null)
+            {
+                jsonClass["id"] = id;
+                jsonClass["left"] = leftJson;
+            }
+
+            return jsonClass.Keys.Any() ? jsonClass : null;
+        }
+
+        public void RestoreFromJSON(JSONClass jsonClass)
+        {
+            if(jsonClass.HasKey("left"))
+            {
+                left.RestoreFromJSON(jsonClass["left"].AsObject);
+            }
+        }
     }
 
     internal class PhysicsParameter
     {
-        protected internal JSONStorableFloat valueJsf { get; }
-        protected JSONStorableFloat baseValueJsf { get; }
-        internal JSONStorableFloat offsetJsf { get; }
+        public JSONStorableFloat valueJsf { get; }
+        public JSONStorableFloat baseValueJsf { get; }
+        public JSONStorableFloat offsetJsf { get; }
 
         private readonly Dictionary<string, float> _additiveGravityAdjustments;
         protected readonly Dictionary<string, float> additiveForceAdjustments;
@@ -160,7 +182,7 @@ namespace TittyMagic
         public PhysicsParameter(JSONStorableFloat valueJsf, JSONStorableFloat baseValueJsf = null, JSONStorableFloat offsetJsf = null)
         {
             this.valueJsf = valueJsf;
-            this.baseValueJsf = baseValueJsf ?? new JSONStorableFloat(Intl.BASE_VALUE, 0, valueJsf.min, valueJsf.max);
+            this.baseValueJsf = baseValueJsf ?? new JSONStorableFloat(Intl.BASE_VALUE, valueJsf.val, valueJsf.min, valueJsf.max);
             this.offsetJsf = offsetJsf ?? new JSONStorableFloat(Intl.OFFSET, 0, -valueJsf.max, valueJsf.max);
             _additiveGravityAdjustments = new Dictionary<string, float>();
             additiveForceAdjustments = new Dictionary<string, float>();
@@ -181,6 +203,10 @@ namespace TittyMagic
 
             valueJsf.val = value;
             sync?.Invoke(value);
+        }
+
+        protected void UpdateOffsetMinMax()
+        {
             offsetJsf.min = -(baseValueJsf.val - baseValueJsf.min);
             offsetJsf.max = baseValueJsf.max - baseValueJsf.val;
         }
@@ -189,6 +215,7 @@ namespace TittyMagic
         {
             baseValueJsf.val = NewBaseValue(massValue, softness, quickness);
             Sync();
+            UpdateOffsetMinMax();
 
             if(groupMultiplierParams != null)
             {
@@ -330,6 +357,47 @@ namespace TittyMagic
 
             return list;
         }
+
+        public JSONClass GetJSON()
+        {
+            var jsonClass = new JSONClass();
+            if(offsetJsf.val != 0)
+            {
+                jsonClass["offset"].AsFloat = offsetJsf.val;
+            }
+
+            if(groupMultiplierParams != null)
+            {
+                foreach(var param in groupMultiplierParams)
+                {
+                    if(param.Value.offsetJsf.val != 0)
+                    {
+                        jsonClass[$"{param.Key}Offset"].AsFloat = param.Value.offsetJsf.val;
+                    }
+                }
+            }
+
+            return jsonClass.Keys.Any() ? jsonClass : null;
+        }
+
+        public void RestoreFromJSON(JSONClass jsonClass)
+        {
+            if(jsonClass.HasKey("offset"))
+            {
+                offsetJsf.val = jsonClass["offset"].AsFloat;
+            }
+
+            if(groupMultiplierParams != null)
+            {
+                foreach(var param in groupMultiplierParams)
+                {
+                    if(jsonClass.HasKey($"{param.Key}Offset"))
+                    {
+                        param.Value.offsetJsf.val = jsonClass[$"{param.Key}Offset"].AsFloat;
+                    }
+                }
+            }
+        }
     }
 
     internal class SoftGroupPhysicsParameter : PhysicsParameter
@@ -353,14 +421,13 @@ namespace TittyMagic
 
             valueJsf.val = value;
             sync?.Invoke(value);
-            offsetJsf.min = -(baseValue - baseValueJsf.min);
-            offsetJsf.max = baseValueJsf.max - baseValue;
         }
 
         public new void UpdateValue(float massValue, float softness, float quickness)
         {
             baseValueJsf.val = NewBaseValue(massValue, softness, quickness);
             Sync();
+            UpdateOffsetMinMax();
         }
 
         public new void UpdateOffsetValue(float value)

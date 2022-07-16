@@ -722,54 +722,94 @@ namespace TittyMagic
             }
         }
 
-        public JSONClass GetOriginalsJSON()
+        public JSONClass GetJSON()
         {
             var jsonClass = new JSONClass();
-            if(Gender.isFemale)
-            {
-                jsonClass[SOFT_PHYSICS_ON].AsBool = _originalSoftPhysicsOn;
-                jsonClass[ALLOW_SELF_COLLISION].AsBool = _originalAllowSelfCollision;
-                jsonClass["breastPhysicsMeshFloats"] = JSONUtils.JSONArrayFromDictionary(_originalBreastPhysicsMeshFloats);
-                jsonClass[SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS].AsBool = _originalAutoFatColliderRadius;
-                jsonClass["groupsUseParentSettings"] = JSONUtils.JSONArrayFromDictionary(_originalGroupsUseParentSettings);
-            }
-
+            jsonClass["originals"] = OriginalsJSON();
+            jsonClass["parameters"] = ParametersJSONArray();
             return jsonClass;
         }
 
-        public void RestoreFromJSON(JSONClass originalJson)
+        private JSONClass OriginalsJSON()
         {
-            if(originalJson.HasKey(SOFT_PHYSICS_ON))
-            {
-                _originalSoftPhysicsOn = originalJson[SOFT_PHYSICS_ON].AsBool;
-            }
+            var jsonClass = new JSONClass();
+            jsonClass[SOFT_PHYSICS_ON].AsBool = _originalSoftPhysicsOn;
+            jsonClass[ALLOW_SELF_COLLISION].AsBool = _originalAllowSelfCollision;
+            jsonClass["breastPhysicsMeshFloats"] = JSONUtils.JSONArrayFromDictionary(_originalBreastPhysicsMeshFloats);
+            jsonClass[SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS].AsBool = _originalAutoFatColliderRadius;
+            jsonClass["groupsUseParentSettings"] = JSONUtils.JSONArrayFromDictionary(_originalGroupsUseParentSettings);
+            return jsonClass;
+        }
 
-            if(originalJson.HasKey(ALLOW_SELF_COLLISION))
+        private JSONArray ParametersJSONArray()
+        {
+            var jsonArray = new JSONArray();
+            foreach(var group in parameterGroups)
             {
-                _originalAllowSelfCollision = originalJson[ALLOW_SELF_COLLISION].AsBool;
-            }
-
-            if(originalJson.HasKey(SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS))
-            {
-                _originalAutoFatColliderRadius = originalJson[SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS].AsBool;
-            }
-
-            if(originalJson.HasKey("breastPhysicsMeshFloats"))
-            {
-                var breastPhysicsMeshFloats = originalJson["breastPhysicsMeshFloats"].AsArray;
-                foreach(JSONClass json in breastPhysicsMeshFloats)
+                var groupJsonClass = group.Value.GetJSON();
+                if(groupJsonClass != null)
                 {
-                    _originalBreastPhysicsMeshFloats[json["paramName"].Value] = json["value"].AsFloat;
+                    jsonArray.Add(groupJsonClass);
                 }
             }
 
-            if(originalJson.HasKey("groupsUseParentSettings"))
+            return jsonArray;
+        }
+
+        public void RestoreFromJSON(JSONClass jsonClass)
+        {
+            if(jsonClass.HasKey("originals"))
             {
-                var groupsUseParentSettings = originalJson["groupsUseParentSettings"].AsArray;
-                foreach(JSONClass json in groupsUseParentSettings)
+                RestoreOriginalsFromJSON(jsonClass["originals"].AsObject);
+            }
+
+            if(jsonClass.HasKey("parameters"))
+            {
+                RestoreParametersFromJSON(jsonClass["parameters"].AsArray);
+            }
+        }
+
+        private void RestoreOriginalsFromJSON(JSONClass jsonClass)
+        {
+            if(jsonClass.HasKey(SOFT_PHYSICS_ON))
+            {
+                _originalSoftPhysicsOn = jsonClass[SOFT_PHYSICS_ON].AsBool;
+            }
+
+            if(jsonClass.HasKey(ALLOW_SELF_COLLISION))
+            {
+                _originalAllowSelfCollision = jsonClass[ALLOW_SELF_COLLISION].AsBool;
+            }
+
+            if(jsonClass.HasKey(SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS))
+            {
+                _originalAutoFatColliderRadius = jsonClass[SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS].AsBool;
+            }
+
+            if(jsonClass.HasKey("breastPhysicsMeshFloats"))
+            {
+                var breastPhysicsMeshFloats = jsonClass["breastPhysicsMeshFloats"].AsArray;
+                foreach(JSONClass jc in breastPhysicsMeshFloats)
                 {
-                    _originalGroupsUseParentSettings[json["paramName"].Value] = json["value"].AsBool;
+                    _originalBreastPhysicsMeshFloats[jc["id"].Value] = jc["value"].AsFloat;
                 }
+            }
+
+            if(jsonClass.HasKey("groupsUseParentSettings"))
+            {
+                var groupsUseParentSettings = jsonClass["groupsUseParentSettings"].AsArray;
+                foreach(JSONClass jc in groupsUseParentSettings)
+                {
+                    _originalGroupsUseParentSettings[jc["id"].Value] = jc["value"].AsBool;
+                }
+            }
+        }
+
+        private void RestoreParametersFromJSON(JSONArray jsonArray)
+        {
+            foreach(JSONClass jc in jsonArray)
+            {
+                parameterGroups[jc["id"].Value].RestoreFromJSON(jc);
             }
         }
 

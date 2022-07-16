@@ -11,7 +11,7 @@ namespace TittyMagic
             foreach(var kvp in dictionary)
             {
                 var entry = new JSONClass();
-                entry["paramName"] = kvp.Key;
+                entry["id"] = kvp.Key;
                 entry["value"].AsFloat = kvp.Value;
                 jsonArray.Add(entry);
             }
@@ -25,7 +25,7 @@ namespace TittyMagic
             foreach(var kvp in dictionary)
             {
                 var entry = new JSONClass();
-                entry["paramName"] = kvp.Key;
+                entry["id"] = kvp.Key;
                 entry["value"].AsBool = kvp.Value;
                 jsonArray.Add(entry);
             }
