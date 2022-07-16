@@ -711,14 +711,14 @@ namespace TittyMagic
             _breastPhysicsMesh.allowSelfCollision = _originalAllowSelfCollision;
             _breastPhysicsMesh.softVerticesUseAutoColliderRadius = _originalAutoFatColliderRadius;
 
-            foreach(string jsonParamName in _breastPhysicsMeshFloatParamNames)
-            {
-                _breastPhysicsMesh.GetFloatJSONParam(jsonParamName).val = _originalBreastPhysicsMeshFloats[jsonParamName];
-            }
-
             foreach(var group in _breastPhysicsMesh.softVerticesGroups)
             {
                 group.useParentSettings = _originalGroupsUseParentSettings[group.name];
+            }
+
+            foreach(string jsonParamName in _breastPhysicsMeshFloatParamNames)
+            {
+                _breastPhysicsMesh.GetFloatJSONParam(jsonParamName).val = _originalBreastPhysicsMeshFloats[jsonParamName];
             }
         }
 
