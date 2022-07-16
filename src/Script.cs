@@ -222,8 +222,6 @@ namespace TittyMagic
             {
                 colliderVisualizer.GroupsJSON.choices.Remove(option);
             }
-
-            colliderVisualizer.enabled = false;
         }
 
         private IEnumerator DeferSetupTrackFemaleNipples()
@@ -421,7 +419,6 @@ namespace TittyMagic
                 if(mainWindow.GetActiveNestedWindow() != null)
                 {
                     colliderVisualizer.ShowPreviewsJSON.val = true;
-                    colliderVisualizer.enabled = true;
                 }
             }
             else if(_tabs.activeWindow == physicsWindow)
@@ -438,11 +435,11 @@ namespace TittyMagic
 
             try
             {
-                colliderVisualizer.enabled = false;
+                colliderVisualizer.DestroyAllPreviews();
             }
             catch(Exception e)
             {
-                LogError($"Failed to disable collider visualizer. {e}");
+                LogError($"Failed to destroy collider visualizer previews. {e}");
             }
 
             try
