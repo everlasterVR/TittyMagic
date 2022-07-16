@@ -36,6 +36,7 @@ cp -r local/Morphs/* $morphs_dir/
 # Update version info
 sed -i "s/v0\.0\.0/v$plugin_version/g" publish/meta.json
 sed -i "s/v0\.0\.0/v$plugin_version/g" $publish_dir/src/Script.cs
+sed -i "s/#define/\/\/#define/g" $publish_dir/src/Script.cs
 
 # hide .cs files (plugin is loaded with .cslist)
 for file in $(find $publish_dir -type f -name "*.cs"); do

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#define DEBUG_ON
+using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -484,6 +485,12 @@ namespace TittyMagic
                 var rotation = _chestTransform.rotation;
                 float roll = Roll(rotation);
                 float pitch = Pitch(rotation);
+
+#if DEBUG_ON
+                statusInfo.val = $"pitch: {RoundToDecimals(pitch, 1000f)}" +
+                    $"\nangleY {RoundToDecimals(_trackLeftNipple.angleY, 1000f)}" +
+                    $"\nangleX {RoundToDecimals(_trackLeftNipple.angleX, 1000f)}";
+#endif
 
                 UpdateDynamicPhysics(roll, pitch);
                 UpdateDynamicMorphs(roll, pitch);

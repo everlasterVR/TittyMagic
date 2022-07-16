@@ -29,7 +29,7 @@ namespace TittyMagic.UI
         {
             CreateTitleTextField(false);
             CreateRecalibratingTextField(true);
-            CreateCalculateMassButton(true, spacing: 54);
+            CreateCalculateMassButton(true);
             CreateAutoUpdateMassToggle(true);
             CreateMassSlider(true);
 
@@ -95,7 +95,7 @@ namespace TittyMagic.UI
         {
             var storable = script.statusInfo;
             AddSpacer(storable.name, spacing, rightSide);
-            elements[storable.name] = UIHelpers.NotificationTextField(script, storable, 32, rightSide);
+            elements[storable.name] = UIHelpers.NotificationTextField(script, storable, 100, rightSide);
         }
 
         private void CreateCalculateMassButton(bool rightSide, int spacing = 0)
