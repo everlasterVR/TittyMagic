@@ -18,7 +18,7 @@ namespace TittyMagic
             _timeSinceLastCheck += Time.unscaledDeltaTime;
             if(_timeSinceLastCheck >= _frequency)
             {
-                _timeSinceLastCheck -= _frequency;
+                _timeSinceLastCheck = 0;
                 return action();
             }
 
