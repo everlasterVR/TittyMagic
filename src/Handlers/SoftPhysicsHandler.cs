@@ -108,10 +108,11 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 500))
             {
-                config = new StaticPhysicsConfig(180f, 120f, 100f)
-                {
-                    softnessCurve = x => Curves.Exponential1(x, 1.9f, 1.74f, 1.17f),
-                },
+                config = new StaticPhysicsConfig(
+                    180f,
+                    x => -0.33f * x,
+                    x => -0.44f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
+                ),
                 valueFormat = "F0",
             };
 
@@ -119,24 +120,33 @@ namespace TittyMagic
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
                 {
-                    MAIN, new StaticPhysicsConfig(3.80f, 3.70f, 1.00f)
-                    {
-                        softnessCurve = groupSoftnessCurve,
-                    }
+                    MAIN, new StaticPhysicsConfig(
+                        3.80f,
+                        x => -0.03f * x,
+                        x => (1 / 3.80f - 1) * groupSoftnessCurve(x)
+                    )
                 },
                 {
-                    OUTER, new StaticPhysicsConfig(4.60f, 4.50f, 1.00f)
-                    {
-                        softnessCurve = groupSoftnessCurve,
-                    }
+                    OUTER, new StaticPhysicsConfig(
+                        4.60f,
+                        x => -0.03f * x,
+                        x => (1 / 4.60f - 1) * groupSoftnessCurve(x)
+                    )
                 },
                 {
-                    AREOLA, new StaticPhysicsConfig(4.80f, 4.70f, 1.00f)
-                    {
-                        softnessCurve = groupSoftnessCurve,
-                    }
+                    AREOLA, new StaticPhysicsConfig(
+                        4.80f,
+                        x => -0.03f * x,
+                        x => (1 / 4.80f - 1) * groupSoftnessCurve(x)
+                    )
                 },
-                { NIPPLE, new StaticPhysicsConfig(4.80f, 4.70f, 2.00f) },
+                {
+                    NIPPLE, new StaticPhysicsConfig(
+                        4.80f,
+                        x => -0.03f * x,
+                        x => (1 / 2.40f - 1) * groupSoftnessCurve(x)
+                    )
+                },
             };
 
             parameter.groupMultiplierParams = allGroups.ToDictionary(
@@ -157,21 +167,48 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 5.00f))
             {
-                config = new StaticPhysicsConfig(1.15f, 1.30f, 0.55f)
-                {
-                    softnessCurve = x => Curves.Exponential1(x, 1.90f, 1.74f, 1.17f),
-                },
-                quicknessOffsetConfig = new StaticPhysicsConfig(-0.40f, -0.45f, -0.20f),
-                slownessOffsetConfig = new StaticPhysicsConfig(0.40f, 0.45f, 0.20f),
+                config = new StaticPhysicsConfig(
+                    1.15f,
+                    x => 0.13f * x,
+                    x => -0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
+                ),
+                quicknessOffsetConfig = new StaticPhysicsConfig(
+                    -0.40f,
+                    x => 0.13f * x,
+                    x => -0.50f * x
+                ),
+                slownessOffsetConfig = new StaticPhysicsConfig(
+                    0.40f,
+                    x => 0.13f * x,
+                    x => -0.50f * x
+                ),
                 valueFormat = "F2",
             };
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                { MAIN, new StaticPhysicsConfig(1.00f, 1.00f, 1.00f) },
-                { OUTER, new StaticPhysicsConfig(1.20f, 1.20f, 1.02f) },
-                { AREOLA, new StaticPhysicsConfig(2.40f, 2.40f, 1.05f) },
-                { NIPPLE, new StaticPhysicsConfig(2.80f, 2.80f, 2.20f) },
+                { MAIN, new StaticPhysicsConfig(1.00f) },
+                {
+                    OUTER, new StaticPhysicsConfig(
+                        1.20f,
+                        null,
+                        x => -0.15f * x
+                    )
+                },
+                {
+                    AREOLA, new StaticPhysicsConfig(
+                        2.40f,
+                        null,
+                        x => -0.56f * x
+                    )
+                },
+                {
+                    NIPPLE, new StaticPhysicsConfig(
+                        2.80f,
+                        null,
+                        x => -0.22f * x
+                    )
+                },
             };
 
             parameter.groupMultiplierParams = allGroups.ToDictionary(
@@ -191,21 +228,36 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0.001f, 0.200f))
             {
-                config = new StaticPhysicsConfig(0.040f, 0.090f, 0.130f)
-                {
-                    softnessCurve = x => Curves.Exponential1(x, 2.3f, 1.74f, 1.17f),
-                },
-                quicknessOffsetConfig = new StaticPhysicsConfig(0.000f, -0.048f, -0.028f),
-                slownessOffsetConfig = new StaticPhysicsConfig(0.012f, 0.060f, 0.040f),
+                config = new StaticPhysicsConfig(
+                    0.040f,
+                    x => 1.25f * x,
+                    x => 2.25f * Curves.Exponential1(x, 2.30f, 1.74f, 1.17f)
+                ),
+                quicknessOffsetConfig = new StaticPhysicsConfig(
+                    -0.012f,
+                    x => 4.00f * x,
+                    x => 2.33f * x
+                ),
+                slownessOffsetConfig = new StaticPhysicsConfig(
+                    0.012f,
+                    x => 4.00f * x,
+                    x => 2.33f * x
+                ),
                 valueFormat = "F3",
             };
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                { MAIN, new StaticPhysicsConfig(1.12f, 1.12f, 0.98f) },
-                { OUTER, new StaticPhysicsConfig(0.82f, 0.82f, 0.82f) },
-                { AREOLA, new StaticPhysicsConfig(0.90f, 0.90f, 0.90f) },
-                { NIPPLE, new StaticPhysicsConfig(0.75f, 0.75f, 0.75f) },
+                {
+                    MAIN, new StaticPhysicsConfig(
+                        1.12f,
+                        null,
+                        x => -0.13f * x
+                    )
+                },
+                { OUTER, new StaticPhysicsConfig(0.82f) },
+                { AREOLA, new StaticPhysicsConfig(0.90f) },
+                { NIPPLE, new StaticPhysicsConfig(0.75f) },
             };
 
             parameter.groupMultiplierParams = allGroups.ToDictionary(
@@ -225,16 +277,20 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 0.040f))
             {
-                config = new StaticPhysicsConfig(0.020f, 0.035f, 0.024f),
+                config = new StaticPhysicsConfig(
+                    0.020f,
+                    x => 0.75f * x,
+                    x => 0.20f * x
+                ),
                 valueFormat = "F3",
             };
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                { MAIN, new StaticPhysicsConfig(1.00f, 1.00f, 1.00f) },
-                { OUTER, new StaticPhysicsConfig(0.89f, 0.89f, 0.89f) },
-                { AREOLA, new StaticPhysicsConfig(1.20f, 1.20f, 1.20f) },
-                { NIPPLE, new StaticPhysicsConfig(1.00f, 1.00f, 1.00f) },
+                { MAIN, new StaticPhysicsConfig(1.00f) },
+                { OUTER, new StaticPhysicsConfig(0.89f) },
+                { AREOLA, new StaticPhysicsConfig(1.20f) },
+                { NIPPLE, new StaticPhysicsConfig(0.00f) },
             };
 
             parameter.groupMultiplierParams = allGroups.ToDictionary(
@@ -254,16 +310,16 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, -0.010f, 0.010f))
             {
-                config = new StaticPhysicsConfig(0.001f, 0.001f, 0.001f),
+                config = new StaticPhysicsConfig(0.001f),
                 valueFormat = "F3",
             };
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                { MAIN, new StaticPhysicsConfig(1.00f, 1.00f, 1.00f) },
-                { OUTER, new StaticPhysicsConfig(1.00f, 1.00f, 1.00f) },
-                { AREOLA, new StaticPhysicsConfig(1.00f, 1.00f, 1.00f) },
-                { NIPPLE, new StaticPhysicsConfig(1.00f, 1.00f, 1.00f) },
+                { MAIN, new StaticPhysicsConfig(1.00f) },
+                { OUTER, new StaticPhysicsConfig(1.00f) },
+                { AREOLA, new StaticPhysicsConfig(1.00f) },
+                { NIPPLE, new StaticPhysicsConfig(1.00f) },
             };
 
             parameter.groupMultiplierParams = allGroups.ToDictionary(
@@ -283,18 +339,30 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 0.100f))
             {
-                config = new StaticPhysicsConfig(0.020f, 0.068f, 0.028f),
-                quicknessOffsetConfig = new StaticPhysicsConfig(0.000f, 0.000f, 0.024f),
-                slownessOffsetConfig = new StaticPhysicsConfig(0.000f, 0.000f, -0.008f),
+                config = new StaticPhysicsConfig(
+                    0.020f,
+                    x => 2.4f * x,
+                    x => 0.4f * x
+                ),
+                quicknessOffsetConfig = new StaticPhysicsConfig(
+                    0.000f,
+                    null,
+                    _ => 0.024f
+                ),
+                slownessOffsetConfig = new StaticPhysicsConfig(
+                    0.000f,
+                    null,
+                    _ => -0.008f
+                ),
                 valueFormat = "F3",
             };
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                { MAIN, new StaticPhysicsConfig(1.00f, 1.00f, 1.00f) },
-                { OUTER, new StaticPhysicsConfig(1.00f, 1.00f, 1.00f) },
-                { AREOLA, new StaticPhysicsConfig(1.10f, 1.10f, 1.10f) },
-                { NIPPLE, new StaticPhysicsConfig(1.20f, 1.20f, 1.20f) },
+                { MAIN, new StaticPhysicsConfig(1.00f) },
+                { OUTER, new StaticPhysicsConfig(1.00f) },
+                { AREOLA, new StaticPhysicsConfig(1.10f) },
+                { NIPPLE, new StaticPhysicsConfig(1.20f) },
             };
 
             parameter.groupMultiplierParams = allGroups.ToDictionary(
@@ -314,21 +382,43 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 50.00f))
             {
-                config = new StaticPhysicsConfig(5.00f, 16.00f, 1.00f)
-                {
-                    softnessCurve = x => Curves.Exponential1(x, 3.03f, 1.74f, 1.17f),
-                },
-                quicknessOffsetConfig = new StaticPhysicsConfig(-2.6f, -4f, -2.33f),
-                slownessOffsetConfig = new StaticPhysicsConfig(0.8f, 1.33f, 0.77f),
+                config = new StaticPhysicsConfig(
+                    5.00f,
+                    x => 2.20f * x,
+                    x => (1 / 5f - 1) * Curves.Exponential1(x, 3.03f, 1.74f, 1.17f)
+                ),
+                quicknessOffsetConfig = new StaticPhysicsConfig(
+                    -2.6f,
+                    x => -0.35f * x,
+                    x => -0.11f * x
+                ),
+                //TODO curves similar to quickness?
+                slownessOffsetConfig = new StaticPhysicsConfig(
+                    0.8f,
+                    x => 0.66f * x,
+                    x => -0.04f * x
+                ),
                 valueFormat = "F2",
             };
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                { MAIN, new StaticPhysicsConfig(1.00f, 1.00f, 1.00f) },
-                { OUTER, new StaticPhysicsConfig(1.00f, 1.00f, 1.00f) },
-                { AREOLA, new StaticPhysicsConfig(0.25f, 0.25f, 1.00f) },
-                { NIPPLE, new StaticPhysicsConfig(0.08f, 0.08f, 1.00f) },
+                { MAIN, new StaticPhysicsConfig(1.00f) },
+                { OUTER, new StaticPhysicsConfig(1.00f) },
+                {
+                    AREOLA, new StaticPhysicsConfig(
+                        0.25f,
+                        null,
+                        x => (1 / 0.25f - 1) * x
+                    )
+                },
+                {
+                    NIPPLE, new StaticPhysicsConfig(
+                        0.08f,
+                        null,
+                        x => (1 / 0.08f - 1) * x
+                    )
+                },
             };
 
             parameter.groupMultiplierParams = allGroups.ToDictionary(
@@ -348,16 +438,16 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 50.00f))
             {
-                config = new StaticPhysicsConfig(50.00f, 50.00f, 50.00f),
+                config = new StaticPhysicsConfig(50.00f),
                 valueFormat = "F2",
             };
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                { MAIN, new StaticPhysicsConfig(1.00f, 1.00f, 1.00f) },
-                { OUTER, new StaticPhysicsConfig(1.00f, 1.00f, 1.00f) },
-                { AREOLA, new StaticPhysicsConfig(1.00f, 1.00f, 1.00f) },
-                { NIPPLE, new StaticPhysicsConfig(1.00f, 1.00f, 1.00f) },
+                { MAIN, new StaticPhysicsConfig(1.00f) },
+                { OUTER, new StaticPhysicsConfig(1.00f) },
+                { AREOLA, new StaticPhysicsConfig(1.00f) },
+                { NIPPLE, new StaticPhysicsConfig(1.00f) },
             };
 
             parameter.groupMultiplierParams = allGroups.ToDictionary(
@@ -377,16 +467,16 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 0.030f))
             {
-                config = new StaticPhysicsConfig(0.001f, 0.001f, 0.001f),
+                config = new StaticPhysicsConfig(0.001f),
                 valueFormat = "F3",
             };
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                { MAIN, new StaticPhysicsConfig(1.00f, 1.00f, 1.00f) },
-                { OUTER, new StaticPhysicsConfig(0.00f, 0.00f, 0.00f) },
-                { AREOLA, new StaticPhysicsConfig(1.00f, 1.00f, 1.00f) },
-                { NIPPLE, new StaticPhysicsConfig(0.00f, 0.00f, 0.00f) },
+                { MAIN, new StaticPhysicsConfig(1.00f) },
+                { OUTER, new StaticPhysicsConfig(0.00f) },
+                { AREOLA, new StaticPhysicsConfig(1.00f) },
+                { NIPPLE, new StaticPhysicsConfig(0.00f) },
             };
 
             parameter.groupMultiplierParams = allGroups.ToDictionary(

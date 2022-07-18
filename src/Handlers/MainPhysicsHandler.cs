@@ -102,8 +102,16 @@ namespace TittyMagic
             new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 1.00f))
             {
                 config = softPhysicsEnabled
-                    ? new StaticPhysicsConfig(0.45f, 0.57f, 0.67f)
-                    : new StaticPhysicsConfig(0.45f, 0.67f, 0.77f),
+                    ? new StaticPhysicsConfig(
+                        0.45f,
+                        x => 0.27f * x,
+                        x => 0.48f * x
+                    )
+                    : new StaticPhysicsConfig(
+                        0.45f,
+                        x => 0.48f * x,
+                        x => 0.71f * x
+                    ),
                 valueFormat = "F2",
                 sync = left
                     ? (Action<float>) (value => SyncCenterOfGravity(_pectoralRbLeft, value))
@@ -113,12 +121,21 @@ namespace TittyMagic
         private PhysicsParameter NewSpringParameter(bool left) =>
             new PhysicsParameter(new JSONStorableFloat(VALUE, 10, 10, 100))
             {
-                config = new StaticPhysicsConfig(58f, 48f, 45f)
-                {
-                    softnessCurve = x => Curves.Exponential1(x, 1.9f, 1.74f, 1.17f),
-                },
-                quicknessOffsetConfig = new StaticPhysicsConfig(20f, 24f, 18f),
-                slownessOffsetConfig = new StaticPhysicsConfig(-13f, -16f, -12f),
+                config = new StaticPhysicsConfig(
+                    58f,
+                    x => -0.17f * x,
+                    x => -0.23f * Curves.Exponential1(x, 1.9f, 1.74f, 1.17f)
+                ),
+                quicknessOffsetConfig = new StaticPhysicsConfig(
+                    20f,
+                    x => 0.20f * x,
+                    x => -0.10f * x
+                ),
+                slownessOffsetConfig = new StaticPhysicsConfig(
+                    -13f,
+                    x => 0.20f * x,
+                    x => -0.10f * x
+                ),
                 valueFormat = "F0",
                 sync = left
                     ? (Action<float>) (value => SyncJointSpring(_jointLeft, _pectoralRbLeft, value))
@@ -129,17 +146,38 @@ namespace TittyMagic
             new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 10.00f))
             {
                 config = softPhysicsEnabled
-                    ? new StaticPhysicsConfig(1.20f, 1.00f, 0.45f)
-                    {
-                        softnessCurve = x => Curves.Exponential1(x, 2.65f, 1.74f, 1.17f),
-                    }
-                    : new StaticPhysicsConfig(0.90f, 1.05f, 0.35f),
+                    ? new StaticPhysicsConfig(
+                        1.20f,
+                        x => -0.17f * x,
+                        x => -0.62f * Curves.Exponential1(x, 2.65f, 1.74f, 1.17f)
+                    )
+                    : new StaticPhysicsConfig(
+                        0.90f,
+                        x => 0.17f * x,
+                        x => -0.61f * x
+                    ),
                 quicknessOffsetConfig = softPhysicsEnabled
-                    ? new StaticPhysicsConfig(-0.30f, -0.38f, -0.20f)
-                    : new StaticPhysicsConfig(-0.23f, -0.28f, -0.15f),
+                    ? new StaticPhysicsConfig(
+                        -0.30f,
+                        x => 0.27f * x,
+                        x => -0.33f * x
+                    )
+                    : new StaticPhysicsConfig(
+                        -0.23f,
+                        x => 0.27f * x,
+                        x => -0.33f * x
+                    ),
                 slownessOffsetConfig = softPhysicsEnabled
-                    ? new StaticPhysicsConfig(0.20f, 0.25f, 0.14f)
-                    : new StaticPhysicsConfig(0.15f, 0.19f, 0.1f),
+                    ? new StaticPhysicsConfig(
+                        0.20f,
+                        x => 0.25f * x,
+                        x => -0.30f * x
+                    )
+                    : new StaticPhysicsConfig(
+                        0.15f,
+                        x => 0.25f * x,
+                        x => -0.30f * x
+                    ),
                 valueFormat = "F2",
                 sync = left
                     ? (Action<float>) (value => SyncJointDamper(_jointLeft, _pectoralRbLeft, value))
@@ -149,12 +187,21 @@ namespace TittyMagic
         private PhysicsParameter NewPositionSpringZParameter(bool left) =>
             new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 1000))
             {
-                config = new StaticPhysicsConfig(650f, 750f, 250f)
-                {
-                    softnessCurve = x => Curves.Exponential1(x, 2.4f, 1.74f, 1.17f),
-                },
-                quicknessOffsetConfig = new StaticPhysicsConfig(90, 110, 50f),
-                slownessOffsetConfig = new StaticPhysicsConfig(-60, -70, -33f),
+                config = new StaticPhysicsConfig(
+                    650f,
+                    x => 0.15f * x,
+                    x => -0.62f * Curves.Exponential1(x, 2.4f, 1.74f, 1.17f)
+                ),
+                quicknessOffsetConfig = new StaticPhysicsConfig(
+                    90,
+                    x => 0.22f * x,
+                    x => -0.44f * x
+                ),
+                slownessOffsetConfig = new StaticPhysicsConfig(
+                    -60,
+                    x => 0.22f * x,
+                    x => -0.44f * x
+                ),
                 valueFormat = "F0",
                 sync = left
                     ? (Action<float>) (value => SyncJointPositionZDriveSpring(_jointLeft, _pectoralRbLeft, value))
@@ -164,7 +211,11 @@ namespace TittyMagic
         private PhysicsParameter NewPositionDamperZParameter(bool left) =>
             new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 100))
             {
-                config = new StaticPhysicsConfig(10f, 15f, 4f),
+                config = new StaticPhysicsConfig(
+                    10f,
+                    x => 0.50f * x,
+                    x => -0.60f * x
+                ),
                 valueFormat = "F0",
                 sync = left
                     ? (Action<float>) (value => SyncJointPositionZDriveDamper(_jointLeft, _pectoralRbLeft, value))
@@ -174,7 +225,7 @@ namespace TittyMagic
         private PhysicsParameter NewTargetRotationYParameter(bool left) =>
             new PhysicsParameter(new JSONStorableFloat(VALUE, 0, -20.00f, 20.00f))
             {
-                config = new StaticPhysicsConfig(0, 0, 0),
+                config = new StaticPhysicsConfig(0.00f),
                 sync = left
                     ? (Action<float>) SyncTargetRotationYLeft
                     : (Action<float>) SyncTargetRotationYRight,
@@ -184,7 +235,7 @@ namespace TittyMagic
         private PhysicsParameter NewTargetRotationXParameter(bool left) =>
             new PhysicsParameter(new JSONStorableFloat(VALUE, 0, -20.00f, 20.00f))
             {
-                config = new StaticPhysicsConfig(0, 0, 0),
+                config = new StaticPhysicsConfig(0.00f),
                 sync = left
                     ? (Action<float>) SyncTargetRotationXLeft
                     : (Action<float>) SyncTargetRotationXRight,

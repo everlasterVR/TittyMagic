@@ -29,7 +29,7 @@ namespace TittyMagic
         public float softnessAmount { get; private set; }
         public float quicknessAmount { get; private set; }
 
-        private static float SoftnessAmount(float val) => val / 100f;
+        private static float SoftnessAmount(float val) => Curves.SoftnessBaseCurve(val / 100f);
         private static float QuicknessAmount(float val) => 2 * val / 100 - 1;
 
         private TrackNipple _trackLeftNipple;

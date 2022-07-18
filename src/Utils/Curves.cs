@@ -35,6 +35,8 @@ namespace TittyMagic
             return a / Mathf.Sqrt(mass + b) - c;
         }
 
+        public static float SoftnessBaseCurve(float softness) => Exponential1(softness, 6.44f, 1.27f, 1.15f);
+
         // https://www.desmos.com/calculator/9iy1ftweij
         public static float Exponential1(float x, float b, float p, float q, float m = 1, float s = 0) =>
             m * ((1 - b) * Mathf.Pow(x + s, p) + b * Mathf.Pow(x + s, q));
