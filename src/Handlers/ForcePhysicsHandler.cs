@@ -11,6 +11,7 @@ namespace TittyMagic
         private readonly Script _script;
 
         private List<PhysicsParameterGroup> _mainParamGroups;
+        private List<PhysicsParameterGroup> _softParamGroups;
 
         private readonly TrackNipple _trackLeftNipple;
         private readonly TrackNipple _trackRightNipple;
@@ -57,7 +58,9 @@ namespace TittyMagic
         public void LoadSettings()
         {
             SetupMainForcePhysicsConfigs();
+            SetupSoftForcePhysicsConfigs();
             _mainParamGroups = _script.mainPhysicsHandler.parameterGroups.Values.ToList();
+            _softParamGroups = _script.softPhysicsHandler.parameterGroups.Values.ToList();
         }
 
         private static Dictionary<string, DynamicPhysicsConfig> NewCenterOfGravityConfigs() =>
@@ -186,6 +189,35 @@ namespace TittyMagic
             paramGroups[SPRING].SetForcePhysicsConfigs(NewSpringConfigs(), NewSpringConfigs());
             paramGroups[DAMPER].SetForcePhysicsConfigs(NewDamperConfigs(), NewDamperConfigs());
             paramGroups[POSITION_DAMPER_Z].SetForcePhysicsConfigs(NewPositionDamperZConfigs(), NewPositionDamperZConfigs());
+        }
+
+        private static Dictionary<string, DynamicPhysicsConfig> NewSoftVerticesBackForceConfigs() =>
+            new Dictionary<string, DynamicPhysicsConfig>
+            {
+                {
+                    Direction.BACK, new DynamicPhysicsConfig(
+                        0f,
+                        -22f,
+                        isNegative: true,
+                        multiplyInvertedMass: true,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
+                {
+                    Direction.FORWARD, new DynamicPhysicsConfig(
+                        0f,
+                        -22f,
+                        isNegative: true,
+                        multiplyInvertedMass: true,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
+            };
+
+        private void SetupSoftForcePhysicsConfigs()
+        {
+            var paramGroups = _script.softPhysicsHandler.parameterGroups;
+            paramGroups[SOFT_VERTICES_BACK_FORCE].SetForcePhysicsConfigs(NewSoftVerticesBackForceConfigs(), NewSoftVerticesBackForceConfigs());
         }
 
         public void Update()
@@ -360,22 +392,26 @@ namespace TittyMagic
         {
             float mass = _script.mainPhysicsHandler.realMassAmount;
             _mainParamGroups.ForEach(group => group.left.UpdateForceValue(direction, effect, mass));
+            _softParamGroups.ForEach(group => group.left.UpdateForceValue(direction, effect, mass));
         }
 
         private void UpdateRightPhysics(string direction, float effect)
         {
             float mass = _script.mainPhysicsHandler.realMassAmount;
             _mainParamGroups.ForEach(group => group.right.UpdateForceValue(direction, effect, mass));
+            _softParamGroups.ForEach(group => group.right.UpdateForceValue(direction, effect, mass));
         }
 
         private void ResetLeftPhysics(string direction)
         {
             _mainParamGroups.ForEach(group => group.left.ResetForceValue(direction));
+            _softParamGroups.ForEach(group => group.left.ResetForceValue(direction));
         }
 
         private void ResetRightPhysics(string direction)
         {
             _mainParamGroups.ForEach(group => group.right.ResetForceValue(direction));
+            _softParamGroups.ForEach(group => group.right.ResetForceValue(direction));
         }
     }
 }

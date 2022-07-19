@@ -383,7 +383,7 @@ namespace TittyMagic
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 50.00f))
             {
                 config = new StaticPhysicsConfig(
-                    5.00f,
+                    5.50f,
                     x => 2.20f * x,
                     x => (1 / 5f - 1) * Curves.Exponential1(x, 3.03f, 1.74f, 1.17f)
                 ),
