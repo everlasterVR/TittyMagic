@@ -133,6 +133,29 @@ namespace TittyMagic
                 },
             };
 
+        private static Dictionary<string, DynamicPhysicsConfig> NewDamperConfigs() =>
+            new Dictionary<string, DynamicPhysicsConfig>
+            {
+                {
+                    Direction.BACK, new DynamicPhysicsConfig(
+                        0.5f,
+                        0.5f,
+                        isNegative: false,
+                        multiplyInvertedMass: true,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
+                {
+                    Direction.FORWARD, new DynamicPhysicsConfig(
+                        -0.25f,
+                        -0.25f,
+                        isNegative: true,
+                        multiplyInvertedMass: true,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
+            };
+
         private static Dictionary<string, DynamicPhysicsConfig> NewPositionDamperZConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
             {
@@ -161,6 +184,7 @@ namespace TittyMagic
             var paramGroups = _script.mainPhysicsHandler.parameterGroups;
             paramGroups[CENTER_OF_GRAVITY_PERCENT].SetForcePhysicsConfigs(NewCenterOfGravityConfigs(), NewCenterOfGravityConfigs());
             paramGroups[SPRING].SetForcePhysicsConfigs(NewSpringConfigs(), NewSpringConfigs());
+            paramGroups[DAMPER].SetForcePhysicsConfigs(NewDamperConfigs(), NewDamperConfigs());
             paramGroups[POSITION_DAMPER_Z].SetForcePhysicsConfigs(NewPositionDamperZConfigs(), NewPositionDamperZConfigs());
         }
 

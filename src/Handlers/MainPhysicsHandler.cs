@@ -153,7 +153,7 @@ namespace TittyMagic
                     )
                     : new StaticPhysicsConfig(
                         0.90f,
-                        x => 0.17f * x,
+                        x => -0.17f * x,
                         x => -0.61f * x
                     ),
                 quicknessOffsetConfig = softPhysicsEnabled
