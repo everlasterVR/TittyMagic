@@ -48,86 +48,13 @@ namespace TittyMagic
             _paramGroups = _script.mainPhysicsHandler.parameterGroups.Values.ToList();
         }
 
-        private static Dictionary<string, DynamicPhysicsConfig> NewCenterOfGravityConfigs() =>
-            new Dictionary<string, DynamicPhysicsConfig>
-            {
-                {
-                    Direction.BACK, new DynamicPhysicsConfig(
-                        -0.150f,
-                        -0.225f,
-                        isNegative: true,
-                        multiplyInvertedMass: true,
-                        applyMethod: ApplyMethod.ADDITIVE
-                    )
-                },
-                {
-                    Direction.FORWARD, new DynamicPhysicsConfig(
-                        0.150f,
-                        0.225f,
-                        isNegative: false,
-                        multiplyInvertedMass: true,
-                        applyMethod: ApplyMethod.ADDITIVE
-                    )
-                },
-            };
-
-        private static Dictionary<string, DynamicPhysicsConfig> NewSpringConfigs() =>
-            new Dictionary<string, DynamicPhysicsConfig>
-            {
-                {
-                    Direction.UP, new DynamicPhysicsConfig(
-                        -72.0f,
-                        -12f,
-                        isNegative: true,
-                        multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.ADDITIVE
-                    )
-                },
-                {
-                    Direction.BACK, new DynamicPhysicsConfig(
-                        -48.0f,
-                        -8f,
-                        isNegative: true,
-                        multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.ADDITIVE
-                    )
-                },
-                {
-                    Direction.FORWARD, new DynamicPhysicsConfig(
-                        -48.0f,
-                        -8f,
-                        isNegative: true,
-                        multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.ADDITIVE
-                    )
-                },
-                {
-                    Direction.LEFT, new DynamicPhysicsConfig(
-                        -48.0f,
-                        -8f,
-                        isNegative: true,
-                        multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.ADDITIVE
-                    )
-                },
-                {
-                    Direction.RIGHT, new DynamicPhysicsConfig(
-                        -48.0f,
-                        -8f,
-                        isNegative: true,
-                        multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.ADDITIVE
-                    )
-                },
-            };
-
         private static Dictionary<string, DynamicPhysicsConfig> NewPositionSpringZConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
             {
                 {
                     Direction.BACK, new DynamicPhysicsConfig(
-                        -420f,
-                        -315f,
+                        -300f,
+                        -200f,
                         isNegative: true,
                         multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE
@@ -135,32 +62,9 @@ namespace TittyMagic
                 },
                 {
                     Direction.FORWARD, new DynamicPhysicsConfig(
-                        -420f,
-                        -315f,
+                        -300f,
+                        -200f,
                         isNegative: true,
-                        multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.ADDITIVE
-                    )
-                },
-            };
-
-        private static Dictionary<string, DynamicPhysicsConfig> NewPositionDamperZConfigs() =>
-            new Dictionary<string, DynamicPhysicsConfig>
-            {
-                {
-                    Direction.BACK, new DynamicPhysicsConfig(
-                        -8f,
-                        0f,
-                        isNegative: true,
-                        multiplyInvertedMass: true,
-                        applyMethod: ApplyMethod.ADDITIVE
-                    )
-                },
-                {
-                    Direction.FORWARD, new DynamicPhysicsConfig(
-                        -8f,
-                        0f,
-                        isNegative: false,
                         multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE
                     )
@@ -216,10 +120,7 @@ namespace TittyMagic
         private void SetupGravityPhysicsConfigs()
         {
             var paramGroups = _script.mainPhysicsHandler.parameterGroups;
-            paramGroups[CENTER_OF_GRAVITY_PERCENT].SetGravityPhysicsConfigs(NewCenterOfGravityConfigs(), NewCenterOfGravityConfigs());
-            paramGroups[SPRING].SetGravityPhysicsConfigs(NewSpringConfigs(), NewSpringConfigs());
             paramGroups[POSITION_SPRING_Z].SetGravityPhysicsConfigs(NewPositionSpringZConfigs(), NewPositionSpringZConfigs());
-            paramGroups[POSITION_DAMPER_Z].SetGravityPhysicsConfigs(NewPositionDamperZConfigs(), NewPositionDamperZConfigs());
             paramGroups[TARGET_ROTATION_X].SetGravityPhysicsConfigs(NewPositionTargetRotationXConfigs(), NewPositionTargetRotationXConfigs());
             paramGroups[TARGET_ROTATION_Y].SetGravityPhysicsConfigs(NewPositionTargetRotationYConfigs(), NewPositionTargetRotationYConfigs());
         }

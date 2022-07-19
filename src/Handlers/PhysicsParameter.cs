@@ -131,12 +131,6 @@ namespace TittyMagic
             right.forcePhysicsConfigs = rightConfigs;
         }
 
-        public void UpdateForceValue(string direction, float effect, float massValue)
-        {
-            left.UpdateForceValue(direction, effect, massValue);
-            right.UpdateForceValue(direction, effect, massValue);
-        }
-
         public JSONClass GetJSON()
         {
             var jsonClass = new JSONClass();
@@ -311,17 +305,22 @@ namespace TittyMagic
 
         public void UpdateForceValue(string direction, float effect, float massValue)
         {
-            if(!forcePhysicsConfigs.ContainsKey(direction))
+            if(forcePhysicsConfigs == null || !forcePhysicsConfigs.ContainsKey(direction))
             {
                 return;
             }
 
             var dpConfig = forcePhysicsConfigs[direction];
             float forceValue = NewForceValue(dpConfig, effect, massValue);
-            additiveForceAdjustments[direction] = forceValue;
-            float newValue = _additiveGravityAdjustments.Values.Sum() + additiveForceAdjustments.Values.Sum() + offsetJsf.val + baseValueJsf.val;
-            valueJsf.val = newValue;
-            sync.Invoke(newValue);
+
+            switch(dpConfig.applyMethod)
+            {
+                case ApplyMethod.ADDITIVE:
+                    additiveForceAdjustments[direction] = forceValue;
+                    break;
+            }
+
+            Sync();
         }
 
         private static float NewForceValue(DynamicPhysicsConfig dpConfig, float effect, float massValue)
@@ -334,6 +333,22 @@ namespace TittyMagic
 
             bool inRange = dpConfig.isNegative ? value < 0 : value > 0;
             return inRange ? value : 0;
+        }
+
+        public void ResetForceValue(string direction)
+        {
+            if(forcePhysicsConfigs == null || !forcePhysicsConfigs.ContainsKey(direction))
+            {
+                return;
+            }
+
+            var dpConfig = forcePhysicsConfigs[direction];
+            switch(dpConfig.applyMethod)
+            {
+                case ApplyMethod.ADDITIVE:
+                    additiveForceAdjustments[direction] = 0;
+                    break;
+            }
         }
 
         public List<JSONStorableFloat> GetGroupMultiplierStorables()

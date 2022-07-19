@@ -506,7 +506,7 @@ namespace TittyMagic
 
         private void UpdateDynamicPhysics(float roll, float pitch)
         {
-            forcePhysicsHandler.Update(roll, pitch);
+            forcePhysicsHandler.Update();
             gravityPhysicsHandler.Update(roll, pitch);
         }
 
@@ -637,7 +637,7 @@ namespace TittyMagic
             mainPhysicsHandler.UpdatePhysics();
             softPhysicsHandler.UpdatePhysics();
             nippleErectionHandler.Update();
-            SetMorphingExtraMultipliers();
+            SetExtraMultipliers();
 
             yield return CalibrateNipplesTracking();
 
@@ -689,7 +689,7 @@ namespace TittyMagic
             }
         }
 
-        private void SetMorphingExtraMultipliers()
+        private void SetExtraMultipliers()
         {
             float mass = mainPhysicsHandler.realMassAmount;
 
@@ -701,6 +701,11 @@ namespace TittyMagic
                 Curves.Exponential1(softnessAmount, 1.73f, 1.68f, 0.88f, m: 0.93f, s: 0.56f) * Curves.MorphingCurve(mass);
 
             offsetMorphHandler.upDownExtraMultiplier = 1.16f - mass;
+
+            forcePhysicsHandler.upDownExtraMultiplier = 1;
+            forcePhysicsHandler.forwardExtraMultiplier = 1;
+            forcePhysicsHandler.backExtraMultiplier = 1;
+            forcePhysicsHandler.leftRightExtraMultiplier = 1;
         }
 
         private IEnumerator SimulateUprightPose()

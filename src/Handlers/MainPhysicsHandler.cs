@@ -188,9 +188,9 @@ namespace TittyMagic
             new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 1000))
             {
                 config = new StaticPhysicsConfig(
-                    650f,
+                    540f,
                     x => 0.15f * x,
-                    x => -0.62f * Curves.Exponential1(x, 2.4f, 1.74f, 1.17f)
+                    x => -0.60f * Curves.Exponential1(x, 2.4f, 1.74f, 1.17f)
                 ),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
                     90,
