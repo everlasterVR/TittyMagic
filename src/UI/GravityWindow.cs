@@ -41,8 +41,6 @@ namespace TittyMagic.UI
 
         private void BuildSelf()
         {
-            elements = new Dictionary<string, UIDynamic>();
-
             CreateHeader(_gravityPhysicsMultipliersHeader, "Breast Gravity", false);
             CreateGravityPhysicsInfoTextArea(false);
 

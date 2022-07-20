@@ -9,6 +9,12 @@ namespace TittyMagic.UI
         private readonly JSONStorableString _jointPhysicsParamsHeader;
         private readonly JSONStorableString _softPhysicsParamsHeader;
 
+        private UnityAction onReturnToParent => () =>
+        {
+            activeNestedWindow = null;
+            buildAction();
+        };
+
         public PhysicsWindow(Script script) : base(script)
         {
             buildAction = BuildSelf;
@@ -19,16 +25,12 @@ namespace TittyMagic.UI
                 _softPhysicsParamsHeader = new JSONStorableString("softPhysicsParamsHeader", "");
             }
 
+            nestedWindows.Add(new OverviewWindow(script, onReturnToParent));
             CreateParameterWindows();
         }
 
         private void CreateParameterWindows()
         {
-            UnityAction onReturnToParent = () =>
-            {
-                activeNestedWindow = null;
-                buildAction();
-            };
 
             foreach(var kvp in script.mainPhysicsHandler.parameterGroups)
             {
@@ -60,9 +62,8 @@ namespace TittyMagic.UI
 
         private void BuildSelf()
         {
-            elements = new Dictionary<string, UIDynamic>();
-
             CreateHeader(_jointPhysicsParamsHeader, "Joint Physics Parameters", false);
+            CreateOverviewButton(false);
             script.mainPhysicsHandler?.parameterGroups.ToList()
                 .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, false));
 
@@ -96,7 +97,7 @@ namespace TittyMagic.UI
             button.height = 52;
             button.buttonText.alignment = TextAnchor.MiddleLeft;
 
-            var nestedWindow = (ParameterWindow) nestedWindows.Find(window => ((ParameterWindow) window).id == key);
+            var nestedWindow = (ParameterWindow) nestedWindows.Find(window => (window as ParameterWindow)?.id == key);
             button.AddListener(() =>
             {
                 ClearSelf();
@@ -107,6 +108,23 @@ namespace TittyMagic.UI
             nestedWindow.parentButton = button;
             button.label = nestedWindow.ParamButtonLabel();
             elements[key] = button;
+        }
+
+        private void CreateOverviewButton(bool rightSide)
+        {
+            var button = script.CreateButton("  Overview", rightSide);
+            button.height = 52;
+            button.buttonText.alignment = TextAnchor.MiddleLeft;
+
+            var nestedWindow = (OverviewWindow) nestedWindows.Find(window => (window as OverviewWindow)?.id == "Overview");
+            button.AddListener(() =>
+            {
+                ClearSelf();
+                activeNestedWindow = nestedWindow;
+                activeNestedWindow.Rebuild();
+            });
+
+            elements["Overview"] = button;
         }
     }
 }

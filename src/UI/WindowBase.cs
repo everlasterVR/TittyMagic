@@ -11,7 +11,7 @@ namespace TittyMagic.UI
         protected Action closeAction;
 
         public Dictionary<string, UIDynamic> GetElements() => elements;
-        protected Dictionary<string, UIDynamic> elements;
+        protected readonly Dictionary<string, UIDynamic> elements;
 
         protected readonly List<IWindow> nestedWindows;
 
