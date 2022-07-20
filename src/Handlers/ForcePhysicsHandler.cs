@@ -32,7 +32,7 @@ namespace TittyMagic
         public float leftRightExtraMultiplier { get; set; }
 
         private float upMultiplier => baseJsf.val * upJsf.val;
-        public float downMultiplier => baseJsf.val * downJsf.val;
+        private float downMultiplier => baseJsf.val * downJsf.val;
         private float forwardMultiplier => baseJsf.val * forwardJsf.val;
         private float backMultiplier => baseJsf.val * backJsf.val;
         private float leftRightMultiplier => baseJsf.val * leftRightJsf.val;
@@ -144,7 +144,7 @@ namespace TittyMagic
                         0.5f,
                         0.5f,
                         isNegative: false,
-                        multiplyInvertedMass: true,
+                        multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE
                     )
                 },
@@ -153,7 +153,7 @@ namespace TittyMagic
                         -0.25f,
                         -0.25f,
                         isNegative: true,
-                        multiplyInvertedMass: true,
+                        multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE
                     )
                 },
@@ -191,6 +191,29 @@ namespace TittyMagic
             paramGroups[POSITION_DAMPER_Z].SetForcePhysicsConfigs(NewPositionDamperZConfigs(), NewPositionDamperZConfigs());
         }
 
+        private static Dictionary<string, DynamicPhysicsConfig> NewSoftVerticesSpringConfigs() =>
+            new Dictionary<string, DynamicPhysicsConfig>
+            {
+                {
+                    Direction.BACK, new DynamicPhysicsConfig(
+                        0f,
+                        -100f,
+                        isNegative: true,
+                        multiplyInvertedMass: false,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
+                {
+                    Direction.FORWARD, new DynamicPhysicsConfig(
+                        0f,
+                        200f,
+                        isNegative: false,
+                        multiplyInvertedMass: false,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
+            };
+
         private static Dictionary<string, DynamicPhysicsConfig> NewSoftVerticesBackForceConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
             {
@@ -199,7 +222,7 @@ namespace TittyMagic
                         0f,
                         -22f,
                         isNegative: true,
-                        multiplyInvertedMass: true,
+                        multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE
                     )
                 },
@@ -208,7 +231,7 @@ namespace TittyMagic
                         0f,
                         -22f,
                         isNegative: true,
-                        multiplyInvertedMass: true,
+                        multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE
                     )
                 },
@@ -217,6 +240,7 @@ namespace TittyMagic
         private void SetupSoftForcePhysicsConfigs()
         {
             var paramGroups = _script.softPhysicsHandler.parameterGroups;
+            paramGroups[SOFT_VERTICES_SPRING].SetForcePhysicsConfigs(NewSoftVerticesSpringConfigs(), NewSoftVerticesSpringConfigs());
             paramGroups[SOFT_VERTICES_BACK_FORCE].SetForcePhysicsConfigs(NewSoftVerticesBackForceConfigs(), NewSoftVerticesBackForceConfigs());
         }
 
