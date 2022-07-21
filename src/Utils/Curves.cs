@@ -39,6 +39,8 @@ namespace TittyMagic
 
         public static float PositionSpringZCurve(float x) => Exponential1(x, 1.93f, 2.1f, 0.85f, m: 0.98f);
 
+        public static float ForcePhysicsMassCurve(float x) => Exponential1(x, 1.91f, 1.7f, 0.82f);
+
         public static float ForcePhysicsSoftnessCurve(float x) => Exponential1(x, 1.91f, 1.7f, 0.82f);
 
         // https://www.desmos.com/calculator/9iy1ftweij

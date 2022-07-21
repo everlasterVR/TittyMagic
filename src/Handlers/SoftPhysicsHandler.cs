@@ -110,8 +110,9 @@ namespace TittyMagic
             {
                 config = new StaticPhysicsConfig(
                     180f,
-                    x => -0.33f * x,
-                    x => -0.44f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
+                    multiplyInvertedMass: false,
+                    massCurve: null, // x => -0.33f * x,
+                    softnessCurve: x => -0.60f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
                 ),
                 valueFormat = "F0",
             };
@@ -122,29 +123,33 @@ namespace TittyMagic
                 {
                     MAIN, new StaticPhysicsConfig(
                         3.80f,
-                        x => -0.03f * x,
-                        x => (1 / 3.80f - 1) * groupSoftnessCurve(x)
+                        multiplyInvertedMass: false,
+                        massCurve: null,
+                        softnessCurve: x => (1 / 3.80f - 1) * groupSoftnessCurve(x)
                     )
                 },
                 {
                     OUTER, new StaticPhysicsConfig(
                         4.60f,
-                        x => -0.03f * x,
-                        x => (1 / 4.60f - 1) * groupSoftnessCurve(x)
+                        multiplyInvertedMass: false,
+                        massCurve: null,
+                        softnessCurve: x => (1 / 4.60f - 1) * groupSoftnessCurve(x)
                     )
                 },
                 {
                     AREOLA, new StaticPhysicsConfig(
                         4.80f,
-                        x => -0.03f * x,
-                        x => (1 / 4.80f - 1) * groupSoftnessCurve(x)
+                        multiplyInvertedMass: false,
+                        massCurve: null,
+                        softnessCurve: x => (1 / 4.80f - 1) * groupSoftnessCurve(x)
                     )
                 },
                 {
                     NIPPLE, new StaticPhysicsConfig(
                         4.80f,
-                        x => -0.03f * x,
-                        x => (1 / 2.40f - 1) * groupSoftnessCurve(x)
+                        multiplyInvertedMass: false,
+                        massCurve: null,
+                        softnessCurve: x => (1 / 2.40f - 1) * groupSoftnessCurve(x)
                     )
                 },
             };
@@ -169,18 +174,21 @@ namespace TittyMagic
             {
                 config = new StaticPhysicsConfig(
                     1.15f,
-                    x => 0.13f * x,
-                    x => -0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
+                    multiplyInvertedMass: false,
+                    massCurve: null,
+                    softnessCurve: x => -0.67f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
                 ),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
                     -0.40f,
-                    x => 0.13f * x,
-                    x => -0.50f * x
+                    multiplyInvertedMass: false,
+                    massCurve: null,
+                    softnessCurve: x => -0.50f * x
                 ),
                 slownessOffsetConfig = new StaticPhysicsConfig(
                     0.40f,
-                    x => 0.13f * x,
-                    x => -0.50f * x
+                    multiplyInvertedMass: false,
+                    massCurve: null,
+                    softnessCurve: x => -0.50f * x
                 ),
                 valueFormat = "F2",
             };
@@ -191,22 +199,25 @@ namespace TittyMagic
                 {
                     OUTER, new StaticPhysicsConfig(
                         1.20f,
-                        null,
-                        x => -0.15f * x
+                        multiplyInvertedMass: false,
+                        massCurve: null,
+                        softnessCurve: x => -0.15f * x
                     )
                 },
                 {
                     AREOLA, new StaticPhysicsConfig(
                         2.40f,
-                        null,
-                        x => -0.56f * x
+                        multiplyInvertedMass: false,
+                        massCurve: null,
+                        softnessCurve: x => -0.56f * x
                     )
                 },
                 {
                     NIPPLE, new StaticPhysicsConfig(
                         2.80f,
-                        null,
-                        x => -0.22f * x
+                        multiplyInvertedMass: false,
+                        massCurve: null,
+                        softnessCurve: x => -0.22f * x
                     )
                 },
             };
@@ -229,19 +240,22 @@ namespace TittyMagic
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0.001f, 0.200f))
             {
                 config = new StaticPhysicsConfig(
-                    0.040f,
-                    x => 1.25f * x,
-                    x => 2.25f * Curves.Exponential1(x, 2.30f, 1.74f, 1.17f)
+                    0.060f,
+                    multiplyInvertedMass: true,
+                    massCurve: x => -0.50f * x,
+                    softnessCurve: x => 2.00f * Curves.Exponential1(x, 2.30f, 1.74f, 1.17f)
                 ),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
                     -0.012f,
-                    x => 4.00f * x,
-                    x => 2.33f * x
+                    multiplyInvertedMass: true,
+                    massCurve: x => -0.67f * x,
+                    softnessCurve: x => 2.33f * x
                 ),
                 slownessOffsetConfig = new StaticPhysicsConfig(
                     0.012f,
-                    x => 4.00f * x,
-                    x => 2.33f * x
+                    multiplyInvertedMass: true,
+                    massCurve: x => -0.67f * x,
+                    softnessCurve: x => 2.33f * x
                 ),
                 valueFormat = "F3",
             };
@@ -251,8 +265,9 @@ namespace TittyMagic
                 {
                     MAIN, new StaticPhysicsConfig(
                         1.12f,
-                        null,
-                        x => -0.13f * x
+                        multiplyInvertedMass: false,
+                        massCurve: null,
+                        softnessCurve: x => -0.13f * x
                     )
                 },
                 { OUTER, new StaticPhysicsConfig(0.82f) },
@@ -279,8 +294,9 @@ namespace TittyMagic
             {
                 config = new StaticPhysicsConfig(
                     0.020f,
-                    x => 0.75f * x,
-                    x => 0.20f * x
+                    multiplyInvertedMass: false,
+                    massCurve: x => 0.75f * x,
+                    softnessCurve: x => 0.20f * x
                 ),
                 valueFormat = "F3",
             };
@@ -341,18 +357,21 @@ namespace TittyMagic
             {
                 config = new StaticPhysicsConfig(
                     0.020f,
-                    x => 2.4f * x,
-                    x => 0.4f * x
+                    multiplyInvertedMass: false,
+                    massCurve: x => 2.4f * x,
+                    softnessCurve: x => 0.4f * x
                 ),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
                     0.000f,
-                    null,
-                    _ => 0.024f
+                    multiplyInvertedMass: false,
+                    massCurve: null,
+                    softnessCurve: _ => 0.024f
                 ),
                 slownessOffsetConfig = new StaticPhysicsConfig(
                     0.000f,
-                    null,
-                    _ => -0.008f
+                    multiplyInvertedMass: false,
+                    massCurve: null,
+                    softnessCurve: _ => -0.008f
                 ),
                 valueFormat = "F3",
             };
@@ -384,19 +403,22 @@ namespace TittyMagic
             {
                 config = new StaticPhysicsConfig(
                     5.50f,
-                    x => 2.20f * x,
-                    x => (1 / 5f - 1) * Curves.Exponential1(x, 3.03f, 1.74f, 1.17f)
+                    multiplyInvertedMass: false,
+                    massCurve: x => 2.20f * x,
+                    softnessCurve: x => (1 / 5f - 1) * Curves.Exponential1(x, 3.03f, 1.74f, 1.17f)
                 ),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
                     -2.6f,
-                    x => -0.35f * x,
-                    x => -0.11f * x
+                    multiplyInvertedMass: false,
+                    massCurve: x => -0.35f * x,
+                    softnessCurve: x => -0.11f * x
                 ),
                 //TODO curves similar to quickness?
                 slownessOffsetConfig = new StaticPhysicsConfig(
                     0.8f,
-                    x => 0.66f * x,
-                    x => -0.04f * x
+                    multiplyInvertedMass: false,
+                    massCurve: x => 0.66f * x,
+                    softnessCurve: x => -0.04f * x
                 ),
                 valueFormat = "F2",
             };
@@ -408,15 +430,17 @@ namespace TittyMagic
                 {
                     AREOLA, new StaticPhysicsConfig(
                         0.25f,
-                        null,
-                        x => (1 / 0.25f - 1) * x
+                        multiplyInvertedMass: false,
+                        massCurve: null,
+                        softnessCurve: x => (1 / 0.25f - 1) * x
                     )
                 },
                 {
                     NIPPLE, new StaticPhysicsConfig(
                         0.08f,
-                        null,
-                        x => (1 / 0.08f - 1) * x
+                        multiplyInvertedMass: false,
+                        massCurve: null,
+                        softnessCurve: x => (1 / 0.08f - 1) * x
                     )
                 },
             };

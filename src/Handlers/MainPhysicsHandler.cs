@@ -104,13 +104,15 @@ namespace TittyMagic
                 config = softPhysicsEnabled
                     ? new StaticPhysicsConfig(
                         0.45f,
-                        x => 0.27f * x,
-                        x => 0.48f * x
+                        multiplyInvertedMass: false,
+                        massCurve: x => 0.27f * x,
+                        softnessCurve: x => 0.64f * x
                     )
                     : new StaticPhysicsConfig(
                         0.45f,
-                        x => 0.48f * x,
-                        x => 0.71f * x
+                        multiplyInvertedMass: false,
+                        massCurve: x => 0.48f * x,
+                        softnessCurve: x => 0.95f * x
                     ),
                 valueFormat = "F2",
                 sync = left
@@ -123,18 +125,21 @@ namespace TittyMagic
             {
                 config = new StaticPhysicsConfig(
                     58f,
-                    x => -0.17f * x,
-                    x => -0.23f * Curves.Exponential1(x, 1.9f, 1.74f, 1.17f)
+                    multiplyInvertedMass: false,
+                    massCurve: null,
+                    softnessCurve: x => -0.30f * Curves.Exponential1(x, 1.9f, 1.74f, 1.17f)
                 ),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
                     20f,
-                    x => 0.20f * x,
-                    x => -0.10f * x
+                    multiplyInvertedMass: false,
+                    massCurve: null,
+                    softnessCurve: x => -0.10f * x
                 ),
                 slownessOffsetConfig = new StaticPhysicsConfig(
                     -13f,
-                    x => 0.20f * x,
-                    x => -0.10f * x
+                    multiplyInvertedMass: false,
+                    massCurve: null,
+                    softnessCurve: x => -0.10f * x
                 ),
                 valueFormat = "F0",
                 sync = left
@@ -147,36 +152,42 @@ namespace TittyMagic
             {
                 config = softPhysicsEnabled
                     ? new StaticPhysicsConfig(
-                        1.20f,
-                        x => -0.17f * x,
-                        x => -0.62f * Curves.Exponential1(x, 2.65f, 1.74f, 1.17f)
+                        1.05f,
+                        multiplyInvertedMass: false,
+                        massCurve: x => 0.25f * x,
+                        softnessCurve: x => -0.50f * Curves.Exponential1(x, 2.65f, 1.74f, 1.17f)
                     )
                     : new StaticPhysicsConfig(
-                        0.90f,
-                        x => -0.17f * x,
-                        x => -0.61f * x
+                        0.79f,
+                        multiplyInvertedMass: false,
+                        massCurve: x => 0.19f * x,
+                        softnessCurve: x => -0.38f * x
                     ),
                 quicknessOffsetConfig = softPhysicsEnabled
                     ? new StaticPhysicsConfig(
                         -0.30f,
-                        x => 0.27f * x,
-                        x => -0.33f * x
+                        multiplyInvertedMass: false,
+                        massCurve: null,
+                        softnessCurve: x => -0.33f * x
                     )
                     : new StaticPhysicsConfig(
                         -0.23f,
-                        x => 0.27f * x,
-                        x => -0.33f * x
+                        multiplyInvertedMass: false,
+                        massCurve: null,
+                        softnessCurve: x => -0.33f * x
                     ),
                 slownessOffsetConfig = softPhysicsEnabled
                     ? new StaticPhysicsConfig(
                         0.20f,
-                        x => 0.25f * x,
-                        x => -0.30f * x
+                        multiplyInvertedMass: false,
+                        massCurve: null,
+                        softnessCurve: x => -0.30f * x
                     )
                     : new StaticPhysicsConfig(
                         0.15f,
-                        x => 0.25f * x,
-                        x => -0.30f * x
+                        multiplyInvertedMass: false,
+                        massCurve: null,
+                        softnessCurve: x => -0.30f * x
                     ),
                 valueFormat = "F2",
                 sync = left
@@ -189,18 +200,21 @@ namespace TittyMagic
             {
                 config = new StaticPhysicsConfig(
                     540f,
-                    x => 0.15f * x,
-                    x => -0.60f * Curves.Exponential1(x, 2.4f, 1.74f, 1.17f)
+                    multiplyInvertedMass: false,
+                    massCurve: null,
+                    softnessCurve: x => -0.80f * Curves.Exponential1(x, 2.4f, 1.74f, 1.17f)
                 ),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
                     90,
-                    x => 0.22f * x,
-                    x => -0.44f * x
+                    multiplyInvertedMass: false,
+                    massCurve: null,
+                    softnessCurve: x => -0.44f * x
                 ),
                 slownessOffsetConfig = new StaticPhysicsConfig(
                     -60,
-                    x => 0.22f * x,
-                    x => -0.44f * x
+                    multiplyInvertedMass: false,
+                    massCurve: null,
+                    softnessCurve: x => -0.44f * x
                 ),
                 valueFormat = "F0",
                 sync = left
@@ -212,9 +226,10 @@ namespace TittyMagic
             new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 100))
             {
                 config = new StaticPhysicsConfig(
-                    10f,
-                    x => 0.50f * x,
-                    x => -0.60f * x
+                    8f,
+                    multiplyInvertedMass: false,
+                    massCurve: null,
+                    softnessCurve: null
                 ),
                 valueFormat = "F0",
                 sync = left
@@ -265,6 +280,7 @@ namespace TittyMagic
             {
                 requiresRecalibration = true,
             };
+
             var damper = new PhysicsParameterGroup(
                 DAMPER,
                 NewDamperParameter(true, softPhysicsEnabled),
