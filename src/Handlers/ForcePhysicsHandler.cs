@@ -415,15 +415,17 @@ namespace TittyMagic
         private void UpdateLeftPhysics(string direction, float effect)
         {
             float mass = _script.mainPhysicsHandler.realMassAmount;
-            _mainParamGroups.ForEach(group => group.left.UpdateForceValue(direction, effect, mass));
-            _softParamGroups.ForEach(group => group.left.UpdateForceValue(direction, effect, mass));
+            float softness = _script.softnessAmount;
+            _mainParamGroups.ForEach(group => group.left.UpdateForceValue(direction, effect, mass, softness));
+            _softParamGroups.ForEach(group => group.left.UpdateForceValue(direction, effect, mass, softness));
         }
 
         private void UpdateRightPhysics(string direction, float effect)
         {
             float mass = _script.mainPhysicsHandler.realMassAmount;
-            _mainParamGroups.ForEach(group => group.right.UpdateForceValue(direction, effect, mass));
-            _softParamGroups.ForEach(group => group.right.UpdateForceValue(direction, effect, mass));
+            float softness = _script.softnessAmount;
+            _mainParamGroups.ForEach(group => group.right.UpdateForceValue(direction, effect, mass, softness));
+            _softParamGroups.ForEach(group => group.right.UpdateForceValue(direction, effect, mass, softness));
         }
 
         private void ResetLeftPhysics(string direction)

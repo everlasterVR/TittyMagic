@@ -292,7 +292,7 @@ namespace TittyMagic
             Sync();
         }
 
-        public void UpdateForceValue(string direction, float effect, float massValue)
+        public void UpdateForceValue(string direction, float effect, float massValue, float softness)
         {
             if(forcePhysicsConfigs == null || !forcePhysicsConfigs.ContainsKey(direction))
             {
@@ -300,7 +300,7 @@ namespace TittyMagic
             }
 
             var dpConfig = forcePhysicsConfigs[direction];
-            float forceValue = dpConfig.Calculate(effect, massValue, 0.62f);
+            float forceValue = dpConfig.Calculate(effect, massValue, softness);
 
             switch(dpConfig.applyMethod)
             {
