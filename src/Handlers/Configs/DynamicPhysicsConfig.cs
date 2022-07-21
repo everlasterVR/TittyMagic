@@ -1,3 +1,5 @@
+using System;
+
 namespace TittyMagic.Configs
 {
     internal class DynamicPhysicsConfig
@@ -8,13 +10,17 @@ namespace TittyMagic.Configs
         public float massMultiplier { get; }
         public bool multiplyInvertedMass { get; }
         public string applyMethod { get; }
+        private readonly Func<float, float> _massCurve;
+        private readonly Func<float, float> _softnessCurve;
 
         public DynamicPhysicsConfig(
             float softnessMultiplier,
             float massMultiplier,
             bool isNegative,
             bool multiplyInvertedMass,
-            string applyMethod
+            string applyMethod,
+            Func<float, float> massCurve = null,
+            Func<float, float> softnessCurve = null
         )
         {
             this.softnessMultiplier = softnessMultiplier;
@@ -22,14 +28,16 @@ namespace TittyMagic.Configs
             this.isNegative = isNegative;
             this.multiplyInvertedMass = multiplyInvertedMass;
             this.applyMethod = applyMethod;
+            _massCurve = massCurve ?? (x => x);
+            _softnessCurve = softnessCurve ?? (x => x);
         }
 
         public float Calculate(float effect, float massValue, float softness)
         {
             float mass = multiplyInvertedMass ? 1 - massValue : massValue;
             float value =
-                softness * softnessMultiplier * effect +
-                mass * massMultiplier * effect;
+                _softnessCurve(softness) * softnessMultiplier * effect +
+                _massCurve(mass) * massMultiplier * effect;
 
             bool inRange = isNegative ? value < 0 : value > 0;
             return inRange ? value : 0;

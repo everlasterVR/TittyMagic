@@ -37,6 +37,8 @@ namespace TittyMagic
 
         public static float SoftnessBaseCurve(float softness) => Exponential1(softness, 6.44f, 1.27f, 1.15f);
 
+        public static float PositionSpringZCurve(float x) => Exponential1(x, 1.93f, 2.1f, 0.85f, m: 0.98f);
+
         // https://www.desmos.com/calculator/9iy1ftweij
         public static float Exponential1(float x, float b, float p, float q, float m = 1, float s = 0) =>
             m * ((1 - b) * Mathf.Pow(x + s, p) + b * Mathf.Pow(x + s, q));

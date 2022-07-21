@@ -53,20 +53,24 @@ namespace TittyMagic
             {
                 {
                     Direction.BACK, new DynamicPhysicsConfig(
-                        -300f,
-                        -200f,
+                        -75f,
+                        -150f,
                         isNegative: true,
                         multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        massCurve: Curves.PositionSpringZCurve,
+                        softnessCurve: Curves.PositionSpringZCurve
                     )
                 },
                 {
                     Direction.FORWARD, new DynamicPhysicsConfig(
-                        -300f,
-                        -200f,
+                        -75f,
+                        -150f,
                         isNegative: true,
                         multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        massCurve: Curves.PositionSpringZCurve,
+                        softnessCurve: Curves.PositionSpringZCurve
                     )
                 },
             };
