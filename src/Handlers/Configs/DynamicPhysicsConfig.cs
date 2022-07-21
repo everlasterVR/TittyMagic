@@ -23,5 +23,16 @@ namespace TittyMagic.Configs
             this.multiplyInvertedMass = multiplyInvertedMass;
             this.applyMethod = applyMethod;
         }
+
+        public float Calculate(float effect, float massValue, float softness)
+        {
+            float mass = multiplyInvertedMass ? 1 - massValue : massValue;
+            float value =
+                softness * softnessMultiplier * effect +
+                mass * massMultiplier * effect;
+
+            bool inRange = isNegative ? value < 0 : value > 0;
+            return inRange ? value : 0;
+        }
     }
 }

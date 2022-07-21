@@ -280,7 +280,7 @@ namespace TittyMagic
             }
 
             var dpConfig = gravityPhysicsConfigs[direction];
-            float gravityValue = NewGravityValue(dpConfig, effect, massValue, softness);
+            float gravityValue = dpConfig.Calculate(effect, massValue, softness);
 
             switch(dpConfig.applyMethod)
             {
@@ -292,17 +292,6 @@ namespace TittyMagic
             Sync();
         }
 
-        private static float NewGravityValue(DynamicPhysicsConfig dpConfig, float effect, float massValue, float softness)
-        {
-            float mass = dpConfig.multiplyInvertedMass ? 1 - massValue : massValue;
-            float value =
-                softness * dpConfig.softnessMultiplier * effect +
-                mass * dpConfig.massMultiplier * effect;
-
-            bool inRange = dpConfig.isNegative ? value < 0 : value > 0;
-            return inRange ? value : 0;
-        }
-
         public void UpdateForceValue(string direction, float effect, float massValue)
         {
             if(forcePhysicsConfigs == null || !forcePhysicsConfigs.ContainsKey(direction))
@@ -311,7 +300,7 @@ namespace TittyMagic
             }
 
             var dpConfig = forcePhysicsConfigs[direction];
-            float forceValue = NewForceValue(dpConfig, effect, massValue);
+            float forceValue = dpConfig.Calculate(effect, massValue, 0.62f);
 
             switch(dpConfig.applyMethod)
             {
@@ -321,18 +310,6 @@ namespace TittyMagic
             }
 
             Sync();
-        }
-
-        private static float NewForceValue(DynamicPhysicsConfig dpConfig, float effect, float massValue)
-        {
-            const float softness = 0.62f;
-            float mass = dpConfig.multiplyInvertedMass ? 1 - massValue : massValue;
-            float value =
-                softness * dpConfig.softnessMultiplier * effect +
-                mass * dpConfig.massMultiplier * effect;
-
-            bool inRange = dpConfig.isNegative ? value < 0 : value > 0;
-            return inRange ? value : 0;
         }
 
         public void ResetForceValue(string direction)
