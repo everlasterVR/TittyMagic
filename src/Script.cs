@@ -558,7 +558,7 @@ namespace TittyMagic
                 useNewMass = autoUpdateJsb.val;
             }
 
-            PreRefresh(refreshMass, useNewMass.Value);
+            PreRefresh();
 
             if(!waitForListeners)
             {
@@ -594,7 +594,7 @@ namespace TittyMagic
             yield return Refresh(refreshMass, useNewMass.Value);
         }
 
-        private void PreRefresh(bool refreshMass, bool useNewMass)
+        private void PreRefresh()
         {
             bool mainToggleFrozen =
                 SuperController.singleton.freezeAnimationToggle != null &&
@@ -608,11 +608,6 @@ namespace TittyMagic
 
             _trackLeftNipple.ResetAnglesAndDepthDiff();
             _trackRightNipple.ResetAnglesAndDepthDiff();
-
-            if(refreshMass)
-            {
-                mainPhysicsHandler.UpdateMassValueAndAmounts(useNewMass, _breastVolumeCalculator.Calculate(_atomScaleListener.scale));
-            }
 
             mainPhysicsHandler.UpdatePhysics();
             softPhysicsHandler.UpdatePhysics();

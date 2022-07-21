@@ -47,17 +47,17 @@ namespace TittyMagic
         private bool CheckNipple()
         {
             var newPos = Calc.RelativePosition(_chestRb, getNipplePosition());
-            return Calc.VectorEqualWithin(1 / 2000f, _nippleCalibrationVectors[0], newPos)
-                && Calc.VectorEqualWithin(1 / 2000f, _nippleCalibrationVectors[1], newPos)
-                && Calc.VectorEqualWithin(1 / 2000f, _nippleCalibrationVectors[2], newPos);
+            return Calc.VectorEqualWithin(1 / 800f, _nippleCalibrationVectors[0], newPos)
+                && Calc.VectorEqualWithin(1 / 800f, _nippleCalibrationVectors[1], newPos)
+                && Calc.VectorEqualWithin(1 / 800f, _nippleCalibrationVectors[2], newPos);
         }
 
         private bool CheckPectoral()
         {
             var newPos = Calc.RelativePosition(_chestRb, _pectoralRb.position);
-            return Calc.VectorEqualWithin(1 / 1000f, _pectoralCalibrationVectors[0], newPos)
-                && Calc.VectorEqualWithin(1 / 1000f, _pectoralCalibrationVectors[1], newPos)
-                && Calc.VectorEqualWithin(1 / 1000f, _pectoralCalibrationVectors[2], newPos);
+            return Calc.VectorEqualWithin(1 / 800f, _pectoralCalibrationVectors[0], newPos)
+                && Calc.VectorEqualWithin(1 / 800f, _pectoralCalibrationVectors[1], newPos)
+                && Calc.VectorEqualWithin(1 / 800f, _pectoralCalibrationVectors[2], newPos);
         }
 
         public void Calibrate()
