@@ -14,8 +14,8 @@ namespace TittyMagic.Configs
         private readonly Func<float, float> _softnessCurve;
 
         public DynamicPhysicsConfig(
-            float softnessMultiplier,
             float massMultiplier,
+            float softnessMultiplier,
             bool isNegative,
             bool multiplyInvertedMass,
             string applyMethod,
@@ -23,8 +23,8 @@ namespace TittyMagic.Configs
             Func<float, float> softnessCurve = null
         )
         {
-            this.softnessMultiplier = softnessMultiplier;
             this.massMultiplier = massMultiplier;
+            this.softnessMultiplier = softnessMultiplier;
             this.isNegative = isNegative;
             this.multiplyInvertedMass = multiplyInvertedMass;
             this.applyMethod = applyMethod;

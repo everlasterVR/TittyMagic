@@ -31,8 +31,8 @@ namespace TittyMagic
             {
                 {
                     SoftColliderGroup.NIPPLE, new DynamicPhysicsConfig(
-                        0f,
-                        0.5f,
+                        massMultiplier: 0.5f,
+                        softnessMultiplier: 0.0f,
                         isNegative: false,
                         multiplyInvertedMass: true,
                         applyMethod: ApplyMethod.MULTIPLICATIVE
@@ -43,8 +43,8 @@ namespace TittyMagic
                 },
                 {
                     SoftColliderGroup.AREOLA, new DynamicPhysicsConfig(
-                        0f,
-                        0.25f,
+                        massMultiplier: 0.25f,
+                        softnessMultiplier: 0.00f,
                         isNegative: false,
                         multiplyInvertedMass: true,
                         applyMethod: ApplyMethod.MULTIPLICATIVE
@@ -60,8 +60,8 @@ namespace TittyMagic
             {
                 {
                     SoftColliderGroup.NIPPLE, new DynamicPhysicsConfig(
-                        0f,
-                        0.5f,
+                        massMultiplier: 0.5f,
+                        softnessMultiplier: 0.0f,
                         isNegative: false,
                         multiplyInvertedMass: true,
                         applyMethod: ApplyMethod.MULTIPLICATIVE
@@ -72,8 +72,8 @@ namespace TittyMagic
                 },
                 {
                     SoftColliderGroup.AREOLA, new DynamicPhysicsConfig(
-                        0f,
-                        0.25f,
+                        massMultiplier: 0.25f,
+                        softnessMultiplier: 0.00f,
                         isNegative: false,
                         multiplyInvertedMass: true,
                         applyMethod: ApplyMethod.MULTIPLICATIVE
