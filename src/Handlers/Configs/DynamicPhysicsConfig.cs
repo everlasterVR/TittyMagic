@@ -34,7 +34,8 @@ namespace TittyMagic.Configs
 
         public float Calculate(float effect, float massValue, float softness)
         {
-            float mass = multiplyInvertedMass ? 1 - massValue : massValue;
+            // hack. 1.5f because 3f is the max mass and massValue is actual mass / 2
+            float mass = multiplyInvertedMass ? 1.5f - massValue : massValue;
             float value =
                 _softnessCurve(softness) * softnessMultiplier * effect +
                 _massCurve(mass) * massMultiplier * effect;
