@@ -68,20 +68,22 @@ namespace TittyMagic
             {
                 {
                     Direction.BACK, new DynamicPhysicsConfig(
-                        -0.280f,
+                        -0.210f,
                         -0.420f,
                         isNegative: true,
                         multiplyInvertedMass: true,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
                 },
                 {
                     Direction.FORWARD, new DynamicPhysicsConfig(
-                        0.280f,
+                        0.210f,
                         0.420f,
                         isNegative: false,
                         multiplyInvertedMass: true,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
                 },
             };
@@ -91,47 +93,52 @@ namespace TittyMagic
             {
                 {
                     Direction.UP, new DynamicPhysicsConfig(
-                        -72.0f,
-                        -12f,
+                        -54.0f,
+                        -12.0f,
                         isNegative: true,
-                        multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        multiplyInvertedMass: true,
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
                 },
                 {
                     Direction.BACK, new DynamicPhysicsConfig(
-                        -24.0f,
-                        -4f,
+                        -18.0f,
+                        -4.0f,
                         isNegative: true,
-                        multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        multiplyInvertedMass: true,
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
                 },
                 {
                     Direction.FORWARD, new DynamicPhysicsConfig(
-                        -36.0f,
-                        -6f,
+                        -27.0f,
+                        -6.0f,
                         isNegative: true,
-                        multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        multiplyInvertedMass: true,
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
                 },
                 {
                     Direction.LEFT, new DynamicPhysicsConfig(
-                        -48.0f,
-                        -8f,
+                        -36.0f,
+                        -8.0f,
                         isNegative: true,
-                        multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        multiplyInvertedMass: true,
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
                 },
                 {
                     Direction.RIGHT, new DynamicPhysicsConfig(
-                        -48.0f,
-                        -8f,
+                        -36.0f,
+                        -8.0f,
                         isNegative: true,
-                        multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        multiplyInvertedMass: true,
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
                 },
             };
@@ -141,20 +148,22 @@ namespace TittyMagic
             {
                 {
                     Direction.BACK, new DynamicPhysicsConfig(
-                        0.5f,
-                        0.5f,
+                        0.37f,
+                        0.50f,
                         isNegative: false,
                         multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
                 },
                 {
                     Direction.FORWARD, new DynamicPhysicsConfig(
-                        -0.25f,
-                        -0.25f,
-                        isNegative: true,
+                        0.37f,
+                        0.50f,
+                        isNegative: false,
                         multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
                 },
             };
@@ -164,20 +173,22 @@ namespace TittyMagic
             {
                 {
                     Direction.BACK, new DynamicPhysicsConfig(
-                        -12f,
+                        -9f,
                         0f,
                         isNegative: true,
                         multiplyInvertedMass: true,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
                 },
                 {
                     Direction.FORWARD, new DynamicPhysicsConfig(
-                        -12f,
+                        -9f,
                         0f,
                         isNegative: false,
                         multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
                 },
             };
