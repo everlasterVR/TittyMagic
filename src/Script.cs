@@ -608,6 +608,8 @@ namespace TittyMagic
 
             _trackLeftNipple.ResetAnglesAndDepthDiff();
             _trackRightNipple.ResetAnglesAndDepthDiff();
+            UpdateDynamicPhysics(0, 0);
+            UpdateDynamicMorphs(0, 0);
 
             mainPhysicsHandler.UpdatePhysics();
             softPhysicsHandler.UpdatePhysics();
