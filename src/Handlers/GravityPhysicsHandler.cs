@@ -48,6 +48,56 @@ namespace TittyMagic
             _paramGroups = _script.mainPhysicsHandler.parameterGroups.Values.ToList();
         }
 
+        private static Dictionary<string, DynamicPhysicsConfig> NewSpringConfigs() =>
+            new Dictionary<string, DynamicPhysicsConfig>
+            {
+                {
+                    Direction.UP, new DynamicPhysicsConfig(
+                        massMultiplier: -12.0f,
+                        softnessMultiplier: -54.0f,
+                        isNegative: true,
+                        multiplyInvertedMass: true,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
+                {
+                    Direction.BACK, new DynamicPhysicsConfig(
+                        massMultiplier: -9.0f,
+                        softnessMultiplier: -40.5f,
+                        isNegative: true,
+                        multiplyInvertedMass: true,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
+                {
+                    Direction.FORWARD, new DynamicPhysicsConfig(
+                        massMultiplier: -9.0f,
+                        softnessMultiplier: -40.5f,
+                        isNegative: true,
+                        multiplyInvertedMass: true,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
+                {
+                    Direction.LEFT, new DynamicPhysicsConfig(
+                        massMultiplier: -8.0f,
+                        softnessMultiplier: -36.0f,
+                        isNegative: true,
+                        multiplyInvertedMass: true,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
+                {
+                    Direction.RIGHT, new DynamicPhysicsConfig(
+                        massMultiplier: -8.0f,
+                        softnessMultiplier: -36.0f,
+                        isNegative: true,
+                        multiplyInvertedMass: true,
+                        applyMethod: ApplyMethod.ADDITIVE
+                    )
+                },
+            };
+
         private static Dictionary<string, DynamicPhysicsConfig> NewPositionSpringZConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
             {
@@ -124,6 +174,7 @@ namespace TittyMagic
         private void SetupGravityPhysicsConfigs()
         {
             var paramGroups = _script.mainPhysicsHandler.parameterGroups;
+            paramGroups[SPRING].SetGravityPhysicsConfigs(NewSpringConfigs(), NewSpringConfigs());
             paramGroups[POSITION_SPRING_Z].SetGravityPhysicsConfigs(NewPositionSpringZConfigs(), NewPositionSpringZConfigs());
             paramGroups[TARGET_ROTATION_X].SetGravityPhysicsConfigs(NewPositionTargetRotationXConfigs(), NewPositionTargetRotationXConfigs());
             paramGroups[TARGET_ROTATION_Y].SetGravityPhysicsConfigs(NewPositionTargetRotationYConfigs(), NewPositionTargetRotationYConfigs());
