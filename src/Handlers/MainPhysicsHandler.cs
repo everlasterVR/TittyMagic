@@ -32,6 +32,9 @@ namespace TittyMagic
         public float realMassAmount { get; private set; }
         public float massAmount { get; private set; }
 
+        // hack. 1.5f because 3f is the max mass and massValue is actual mass / 2
+        public static float InvertMass(float x) => 1.5f - x;
+
         public JSONStorableFloat massJsf { get; }
 
         public MainPhysicsHandler(
@@ -104,13 +107,11 @@ namespace TittyMagic
                 config = softPhysicsEnabled
                     ? new StaticPhysicsConfig(
                         0.45f,
-                        multiplyInvertedMass: false,
                         massCurve: x => 0.27f * x,
                         softnessCurve: x => 0.64f * x
                     )
                     : new StaticPhysicsConfig(
                         0.45f,
-                        multiplyInvertedMass: false,
                         massCurve: x => 0.48f * x,
                         softnessCurve: x => 0.95f * x
                     ),
@@ -125,19 +126,16 @@ namespace TittyMagic
             {
                 config = new StaticPhysicsConfig(
                     58f,
-                    multiplyInvertedMass: false,
                     massCurve: null,
                     softnessCurve: x => -0.30f * Curves.Exponential1(x, 1.9f, 1.74f, 1.17f)
                 ),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
                     20f,
-                    multiplyInvertedMass: false,
                     massCurve: null,
                     softnessCurve: x => -0.10f * x
                 ),
                 slownessOffsetConfig = new StaticPhysicsConfig(
                     -13f,
-                    multiplyInvertedMass: false,
                     massCurve: null,
                     softnessCurve: x => -0.10f * x
                 ),
@@ -152,40 +150,34 @@ namespace TittyMagic
             {
                 config = softPhysicsEnabled
                     ? new StaticPhysicsConfig(
-                        1.05f,
-                        multiplyInvertedMass: false,
-                        massCurve: x => 0.25f * x,
+                        0.90f,
+                        massCurve: x => 0.50f * Mathf.Pow(x / 1.5f, 3),
                         softnessCurve: x => -0.50f * Curves.Exponential1(x, 2.65f, 1.74f, 1.17f)
                     )
                     : new StaticPhysicsConfig(
                         0.79f,
-                        multiplyInvertedMass: false,
                         massCurve: x => 0.19f * x,
                         softnessCurve: x => -0.38f * x
                     ),
                 quicknessOffsetConfig = softPhysicsEnabled
                     ? new StaticPhysicsConfig(
                         -0.30f,
-                        multiplyInvertedMass: false,
                         massCurve: null,
                         softnessCurve: x => -0.33f * x
                     )
                     : new StaticPhysicsConfig(
                         -0.23f,
-                        multiplyInvertedMass: false,
                         massCurve: null,
                         softnessCurve: x => -0.33f * x
                     ),
                 slownessOffsetConfig = softPhysicsEnabled
                     ? new StaticPhysicsConfig(
                         0.20f,
-                        multiplyInvertedMass: false,
                         massCurve: null,
                         softnessCurve: x => -0.30f * x
                     )
                     : new StaticPhysicsConfig(
                         0.15f,
-                        multiplyInvertedMass: false,
                         massCurve: null,
                         softnessCurve: x => -0.30f * x
                     ),
@@ -199,20 +191,17 @@ namespace TittyMagic
             new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 1000))
             {
                 config = new StaticPhysicsConfig(
-                    540f,
-                    multiplyInvertedMass: false,
-                    massCurve: null,
-                    softnessCurve: x => -0.80f * Curves.Exponential1(x, 2.4f, 1.74f, 1.17f)
+                    460f,
+                    massCurve: x => -0.50f * Curves.Exponential1(InvertMass(x), 2.15f, 3.0f, 3.03f, m: 0.29f), //
+                    softnessCurve: x => -0.30f * Curves.Exponential1(x, 1.9f, 1.74f, 1.17f)
                 ),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
                     90,
-                    multiplyInvertedMass: false,
                     massCurve: null,
                     softnessCurve: x => -0.44f * x
                 ),
                 slownessOffsetConfig = new StaticPhysicsConfig(
                     -60,
-                    multiplyInvertedMass: false,
                     massCurve: null,
                     softnessCurve: x => -0.44f * x
                 ),
@@ -227,7 +216,6 @@ namespace TittyMagic
             {
                 config = new StaticPhysicsConfig(
                     8f,
-                    multiplyInvertedMass: false,
                     massCurve: null,
                     softnessCurve: null
                 ),

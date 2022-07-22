@@ -18,7 +18,7 @@ namespace TittyMagic
             float q = 1
         ) => a * Mathf.Pow(x, p) + b * Mathf.Pow(x, q) + c * x;
 
-        //https://www.desmos.com/calculator/fe1ym6cf8u
+        // https://www.desmos.com/calculator/fe1ym6cf8u
         public static float MorphingCurve(float mass)
         {
             const float a = 10.4f;
@@ -27,6 +27,7 @@ namespace TittyMagic
             return a / Mathf.Sqrt(mass + b) - c;
         }
 
+        // https://www.desmos.com/calculator/eicoieuczv
         public static float DepthMorphingCurve(float mass)
         {
             const float a = 10.1f;
@@ -36,8 +37,6 @@ namespace TittyMagic
         }
 
         public static float SoftnessBaseCurve(float softness) => Exponential1(softness, 6.44f, 1.27f, 1.15f);
-
-        public static float PositionSpringZCurve(float x) => Exponential1(x, 1.93f, 2.1f, 0.85f, m: 0.98f);
 
         public static float ForcePhysicsMassCurve(float x) => Exponential1(x, 1.91f, 1.7f, 0.82f);
 

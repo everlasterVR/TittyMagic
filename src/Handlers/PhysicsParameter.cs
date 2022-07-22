@@ -435,7 +435,7 @@ namespace TittyMagic
                 return;
             }
 
-            float nippleErectionValue = NewNippleErectionValue(massValue, softness, nippleErection);
+            float nippleErectionValue = nippleErectionConfig.CalculateNippleGroupValue(nippleErection, massValue, softness);
             switch(nippleErectionConfig.applyMethod)
             {
                 case ApplyMethod.MULTIPLICATIVE:
@@ -444,18 +444,6 @@ namespace TittyMagic
             }
 
             Sync();
-        }
-
-        private float NewNippleErectionValue(float massValue, float softness, float effect)
-        {
-            float mass = nippleErectionConfig.multiplyInvertedMass ? 1 - massValue : massValue;
-            float value =
-                nippleErectionConfig.baseMultiplier * effect +
-                softness * nippleErectionConfig.softnessMultiplier * effect +
-                mass * nippleErectionConfig.massMultiplier * effect;
-
-            bool inRange = nippleErectionConfig.isNegative ? value < 0 : value > 0;
-            return inRange ? value : 0;
         }
     }
 }

@@ -34,8 +34,8 @@ namespace TittyMagic
                         massMultiplier: 0.5f,
                         softnessMultiplier: 0.0f,
                         isNegative: false,
-                        multiplyInvertedMass: true,
-                        applyMethod: ApplyMethod.MULTIPLICATIVE
+                        applyMethod: ApplyMethod.MULTIPLICATIVE,
+                        massCurve: MainPhysicsHandler.InvertMass
                     )
                     {
                         baseMultiplier = 0.5f,
@@ -46,8 +46,8 @@ namespace TittyMagic
                         massMultiplier: 0.25f,
                         softnessMultiplier: 0.00f,
                         isNegative: false,
-                        multiplyInvertedMass: true,
-                        applyMethod: ApplyMethod.MULTIPLICATIVE
+                        applyMethod: ApplyMethod.MULTIPLICATIVE,
+                        massCurve: MainPhysicsHandler.InvertMass
                     )
                     {
                         baseMultiplier = 0.25f,
@@ -63,8 +63,8 @@ namespace TittyMagic
                         massMultiplier: 0.5f,
                         softnessMultiplier: 0.0f,
                         isNegative: false,
-                        multiplyInvertedMass: true,
-                        applyMethod: ApplyMethod.MULTIPLICATIVE
+                        applyMethod: ApplyMethod.MULTIPLICATIVE,
+                        massCurve: MainPhysicsHandler.InvertMass
                     )
                     {
                         baseMultiplier = 0.5f,
@@ -75,8 +75,8 @@ namespace TittyMagic
                         massMultiplier: 0.25f,
                         softnessMultiplier: 0.00f,
                         isNegative: false,
-                        multiplyInvertedMass: true,
-                        applyMethod: ApplyMethod.MULTIPLICATIVE
+                        applyMethod: ApplyMethod.MULTIPLICATIVE,
+                        massCurve: MainPhysicsHandler.InvertMass
                     )
                     {
                         baseMultiplier = 0.25f,

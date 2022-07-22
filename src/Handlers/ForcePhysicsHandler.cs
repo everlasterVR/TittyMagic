@@ -71,8 +71,8 @@ namespace TittyMagic
                         massMultiplier: -0.420f,
                         softnessMultiplier: -0.210f,
                         isNegative: true,
-                        multiplyInvertedMass: true,
                         applyMethod: ApplyMethod.ADDITIVE,
+                        massCurve: MainPhysicsHandler.InvertMass,
                         softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
                 },
@@ -81,8 +81,8 @@ namespace TittyMagic
                         massMultiplier: 0.420f,
                         softnessMultiplier: 0.210f,
                         isNegative: false,
-                        multiplyInvertedMass: true,
                         applyMethod: ApplyMethod.ADDITIVE,
+                        massCurve: MainPhysicsHandler.InvertMass,
                         softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
                 },
@@ -96,7 +96,6 @@ namespace TittyMagic
                         massMultiplier: 0.50f,
                         softnessMultiplier: 0.37f,
                         isNegative: false,
-                        multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE,
                         softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
@@ -106,7 +105,6 @@ namespace TittyMagic
                         massMultiplier: 0.50f,
                         softnessMultiplier: 0.37f,
                         isNegative: false,
-                        multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE,
                         softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
@@ -121,7 +119,6 @@ namespace TittyMagic
                         massMultiplier: 0f,
                         softnessMultiplier: -9f,
                         isNegative: true,
-                        multiplyInvertedMass: true,
                         applyMethod: ApplyMethod.ADDITIVE,
                         softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
@@ -131,7 +128,6 @@ namespace TittyMagic
                         massMultiplier: 0f,
                         softnessMultiplier: -9f,
                         isNegative: false,
-                        multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE,
                         softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
@@ -154,9 +150,7 @@ namespace TittyMagic
                         massMultiplier: -100f,
                         softnessMultiplier: 0f,
                         isNegative: true,
-                        multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.ADDITIVE,
-                        softnessCurve: Curves.ForcePhysicsMassCurve
+                        applyMethod: ApplyMethod.ADDITIVE
                     )
                 },
                 {
@@ -164,9 +158,7 @@ namespace TittyMagic
                         massMultiplier: 200f,
                         softnessMultiplier: 0f,
                         isNegative: false,
-                        multiplyInvertedMass: false,
-                        applyMethod: ApplyMethod.ADDITIVE,
-                        softnessCurve: Curves.ForcePhysicsMassCurve
+                        applyMethod: ApplyMethod.ADDITIVE
                     )
                 },
             };
@@ -179,7 +171,6 @@ namespace TittyMagic
                         massMultiplier: -14f,
                         softnessMultiplier: 0f,
                         isNegative: true,
-                        multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE,
                         massCurve: Curves.ForcePhysicsMassCurve
                     )
@@ -189,7 +180,6 @@ namespace TittyMagic
                         massMultiplier: -14f,
                         softnessMultiplier: 0f,
                         isNegative: true,
-                        multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE,
                         massCurve: Curves.ForcePhysicsMassCurve
                     )

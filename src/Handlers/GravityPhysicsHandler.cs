@@ -56,8 +56,8 @@ namespace TittyMagic
                         massMultiplier: -12.0f,
                         softnessMultiplier: -54.0f,
                         isNegative: true,
-                        multiplyInvertedMass: true,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        massCurve: MainPhysicsHandler.InvertMass
                     )
                 },
                 {
@@ -65,8 +65,8 @@ namespace TittyMagic
                         massMultiplier: -9.0f,
                         softnessMultiplier: -40.5f,
                         isNegative: true,
-                        multiplyInvertedMass: true,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        massCurve: MainPhysicsHandler.InvertMass
                     )
                 },
                 {
@@ -74,8 +74,8 @@ namespace TittyMagic
                         massMultiplier: -9.0f,
                         softnessMultiplier: -40.5f,
                         isNegative: true,
-                        multiplyInvertedMass: true,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        massCurve: MainPhysicsHandler.InvertMass
                     )
                 },
                 {
@@ -83,8 +83,8 @@ namespace TittyMagic
                         massMultiplier: -8.0f,
                         softnessMultiplier: -36.0f,
                         isNegative: true,
-                        multiplyInvertedMass: true,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        massCurve: MainPhysicsHandler.InvertMass
                     )
                 },
                 {
@@ -92,8 +92,8 @@ namespace TittyMagic
                         massMultiplier: -8.0f,
                         softnessMultiplier: -36.0f,
                         isNegative: true,
-                        multiplyInvertedMass: true,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        massCurve: MainPhysicsHandler.InvertMass
                     )
                 },
             };
@@ -103,24 +103,20 @@ namespace TittyMagic
             {
                 {
                     Direction.BACK, new DynamicPhysicsConfig(
-                        massMultiplier: -150f,
-                        softnessMultiplier: -75f,
+                        massMultiplier: -210f,
+                        softnessMultiplier: -132f,
                         isNegative: true,
-                        multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE,
-                        massCurve: Curves.PositionSpringZCurve,
-                        softnessCurve: Curves.PositionSpringZCurve
+                        massCurve: x => Curves.Exponential1(x / 1.5f, 1.88f, 1.25f, 0.60f) // https://www.desmos.com/calculator/rwwurxpchx
                     )
                 },
                 {
                     Direction.FORWARD, new DynamicPhysicsConfig(
-                        massMultiplier: -150f,
-                        softnessMultiplier: -75f,
+                        massMultiplier: -210f,
+                        softnessMultiplier: -132f,
                         isNegative: true,
-                        multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE,
-                        massCurve: Curves.PositionSpringZCurve,
-                        softnessCurve: Curves.PositionSpringZCurve
+                        massCurve: x => Curves.Exponential1(x / 1.5f, 1.88f, 1.25f, 0.60f) // https://www.desmos.com/calculator/rwwurxpchx
                     )
                 },
             };
@@ -133,7 +129,6 @@ namespace TittyMagic
                         massMultiplier: -12f,
                         softnessMultiplier: -16f,
                         isNegative: true,
-                        multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE
                     )
                 },
@@ -142,7 +137,6 @@ namespace TittyMagic
                         massMultiplier: 13f,
                         softnessMultiplier: 22,
                         isNegative: false,
-                        multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE
                     )
                 },
@@ -156,7 +150,6 @@ namespace TittyMagic
                         massMultiplier: -12f,
                         softnessMultiplier: -16f,
                         isNegative: true,
-                        multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE
                     )
                 },
@@ -165,7 +158,6 @@ namespace TittyMagic
                         massMultiplier: 12f,
                         softnessMultiplier: 16f,
                         isNegative: false,
-                        multiplyInvertedMass: false,
                         applyMethod: ApplyMethod.ADDITIVE
                     )
                 },
