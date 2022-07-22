@@ -125,18 +125,16 @@ namespace TittyMagic
             new PhysicsParameter(new JSONStorableFloat(VALUE, 10, 10, 100))
             {
                 config = new StaticPhysicsConfig(
-                    58f,
-                    massCurve: null,
-                    softnessCurve: x => -0.30f * Curves.Exponential1(x, 1.9f, 1.74f, 1.17f)
+                    38f,
+                    massCurve: x => 0.25f * x,
+                    softnessCurve: x => 0.20f * x
                 ),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
                     20f,
-                    massCurve: null,
                     softnessCurve: x => -0.10f * x
                 ),
                 slownessOffsetConfig = new StaticPhysicsConfig(
                     -13f,
-                    massCurve: null,
                     softnessCurve: x => -0.10f * x
                 ),
                 valueFormat = "F0",
@@ -150,9 +148,10 @@ namespace TittyMagic
             {
                 config = softPhysicsEnabled
                     ? new StaticPhysicsConfig(
-                        0.90f,
-                        massCurve: x => 0.50f * Mathf.Pow(x / 1.5f, 3),
-                        softnessCurve: x => -0.50f * Curves.Exponential1(x, 2.65f, 1.74f, 1.17f)
+                        0.80f,
+                        // https://www.desmos.com/calculator/cz7o7u8v6w
+                        massCurve: x => 1.60f * Curves.Exponential1(x, 2.15f, 3.0f, 3.03f, m: 0.29f),
+                        softnessCurve: x => -0.67f * Curves.Exponential1(x, 1.9f, 1.74f, 1.17f)
                     )
                     : new StaticPhysicsConfig(
                         0.79f,
@@ -162,23 +161,19 @@ namespace TittyMagic
                 quicknessOffsetConfig = softPhysicsEnabled
                     ? new StaticPhysicsConfig(
                         -0.30f,
-                        massCurve: null,
                         softnessCurve: x => -0.33f * x
                     )
                     : new StaticPhysicsConfig(
                         -0.23f,
-                        massCurve: null,
                         softnessCurve: x => -0.33f * x
                     ),
                 slownessOffsetConfig = softPhysicsEnabled
                     ? new StaticPhysicsConfig(
                         0.20f,
-                        massCurve: null,
                         softnessCurve: x => -0.30f * x
                     )
                     : new StaticPhysicsConfig(
                         0.15f,
-                        massCurve: null,
                         softnessCurve: x => -0.30f * x
                     ),
                 valueFormat = "F2",
@@ -192,17 +187,16 @@ namespace TittyMagic
             {
                 config = new StaticPhysicsConfig(
                     460f,
-                    massCurve: x => -0.50f * Curves.Exponential1(InvertMass(x), 2.15f, 3.0f, 3.03f, m: 0.29f), //
+                    // https://www.desmos.com/calculator/cz7o7u8v6w
+                    massCurve: x => -0.50f * Curves.Exponential1(InvertMass(x), 2.15f, 3.0f, 3.03f, m: 0.29f),
                     softnessCurve: x => -0.30f * Curves.Exponential1(x, 1.9f, 1.74f, 1.17f)
                 ),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
                     90,
-                    massCurve: null,
                     softnessCurve: x => -0.44f * x
                 ),
                 slownessOffsetConfig = new StaticPhysicsConfig(
                     -60,
-                    massCurve: null,
                     softnessCurve: x => -0.44f * x
                 ),
                 valueFormat = "F0",
@@ -214,11 +208,7 @@ namespace TittyMagic
         private PhysicsParameter NewPositionDamperZParameter(bool left) =>
             new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 100))
             {
-                config = new StaticPhysicsConfig(
-                    8f,
-                    massCurve: null,
-                    softnessCurve: null
-                ),
+                config = new StaticPhysicsConfig(8f),
                 valueFormat = "F0",
                 sync = left
                     ? (Action<float>) (value => SyncJointPositionZDriveDamper(_jointLeft, _pectoralRbLeft, value))

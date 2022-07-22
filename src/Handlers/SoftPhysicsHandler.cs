@@ -110,40 +110,35 @@ namespace TittyMagic
             {
                 config = new StaticPhysicsConfig(
                     180f,
-                    massCurve: null, // x => -0.33f * x,
-                    softnessCurve: x => -0.60f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
+                    softnessCurve: x => -0.62f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
                 ),
                 valueFormat = "F0",
             };
 
-            Func<float, float> groupSoftnessCurve = x => Curves.Exponential1(x, 3.03f, 1.74f, 1.17f);
+            Func<float, float> groupSoftnessCurve = x => Curves.Exponential1(x, 1.90f, 1.74f, 1.17f);
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
                 {
                     MAIN, new StaticPhysicsConfig(
                         3.80f,
-                        massCurve: null,
                         softnessCurve: x => (1 / 3.80f - 1) * groupSoftnessCurve(x)
                     )
                 },
                 {
                     OUTER, new StaticPhysicsConfig(
                         4.60f,
-                        massCurve: null,
                         softnessCurve: x => (1 / 4.60f - 1) * groupSoftnessCurve(x)
                     )
                 },
                 {
                     AREOLA, new StaticPhysicsConfig(
                         4.80f,
-                        massCurve: null,
                         softnessCurve: x => (1 / 4.80f - 1) * groupSoftnessCurve(x)
                     )
                 },
                 {
                     NIPPLE, new StaticPhysicsConfig(
                         4.80f,
-                        massCurve: null,
                         softnessCurve: x => (1 / 2.40f - 1) * groupSoftnessCurve(x)
                     )
                 },
@@ -167,19 +162,13 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 5.00f))
             {
-                config = new StaticPhysicsConfig(
-                    1.15f,
-                    massCurve: null,
-                    softnessCurve: x => -0.67f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
-                ),
+                config = new StaticPhysicsConfig(1.00f),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
                     -0.40f,
-                    massCurve: null,
                     softnessCurve: x => -0.50f * x
                 ),
                 slownessOffsetConfig = new StaticPhysicsConfig(
                     0.40f,
-                    massCurve: null,
                     softnessCurve: x => -0.50f * x
                 ),
                 valueFormat = "F2",
@@ -191,21 +180,18 @@ namespace TittyMagic
                 {
                     OUTER, new StaticPhysicsConfig(
                         1.20f,
-                        massCurve: null,
                         softnessCurve: x => -0.15f * x
                     )
                 },
                 {
                     AREOLA, new StaticPhysicsConfig(
                         2.40f,
-                        massCurve: null,
                         softnessCurve: x => -0.56f * x
                     )
                 },
                 {
                     NIPPLE, new StaticPhysicsConfig(
                         2.80f,
-                        massCurve: null,
                         softnessCurve: x => -0.22f * x
                     )
                 },
@@ -226,21 +212,18 @@ namespace TittyMagic
 
         private PhysicsParameter NewSoftVerticesMassParameter(string side)
         {
-            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0.001f, 0.200f))
+            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0.001f, 0.300f))
             {
                 config = new StaticPhysicsConfig(
-                    0.060f,
-                    massCurve: x => -0.50f * MainPhysicsHandler.InvertMass(x),
-                    softnessCurve: x => 2.00f * Curves.Exponential1(x, 2.30f, 1.74f, 1.17f)
+                    0.050f,
+                    softnessCurve: x => 1.40f * Curves.Exponential1(x, 2.30f, 1.74f, 1.17f)
                 ),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
                     -0.012f,
-                    massCurve: x => -0.67f * MainPhysicsHandler.InvertMass(x),
                     softnessCurve: x => 2.33f * x
                 ),
                 slownessOffsetConfig = new StaticPhysicsConfig(
                     0.012f,
-                    massCurve: x => -0.67f * MainPhysicsHandler.InvertMass(x),
                     softnessCurve: x => 2.33f * x
                 ),
                 valueFormat = "F3",
@@ -251,7 +234,6 @@ namespace TittyMagic
                 {
                     MAIN, new StaticPhysicsConfig(
                         1.12f,
-                        massCurve: null,
                         softnessCurve: x => -0.13f * x
                     )
                 },
@@ -346,12 +328,10 @@ namespace TittyMagic
                 ),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
                     0.000f,
-                    massCurve: null,
                     softnessCurve: _ => 0.024f
                 ),
                 slownessOffsetConfig = new StaticPhysicsConfig(
                     0.000f,
-                    massCurve: null,
                     softnessCurve: _ => -0.008f
                 ),
                 valueFormat = "F3",
@@ -408,14 +388,12 @@ namespace TittyMagic
                 {
                     AREOLA, new StaticPhysicsConfig(
                         0.25f,
-                        massCurve: null,
                         softnessCurve: x => (1 / 0.25f - 1) * x
                     )
                 },
                 {
                     NIPPLE, new StaticPhysicsConfig(
                         0.08f,
-                        massCurve: null,
                         softnessCurve: x => (1 / 0.08f - 1) * x
                     )
                 },

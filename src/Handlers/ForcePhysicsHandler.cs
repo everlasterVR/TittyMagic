@@ -147,16 +147,16 @@ namespace TittyMagic
             {
                 {
                     Direction.BACK, new DynamicPhysicsConfig(
-                        massMultiplier: -100f,
-                        softnessMultiplier: 0f,
+                        massMultiplier: 0f,
+                        softnessMultiplier: -50f,
                         isNegative: true,
                         applyMethod: ApplyMethod.ADDITIVE
                     )
                 },
                 {
                     Direction.FORWARD, new DynamicPhysicsConfig(
-                        massMultiplier: 200f,
-                        softnessMultiplier: 0f,
+                        massMultiplier: 0f,
+                        softnessMultiplier: 100f,
                         isNegative: false,
                         applyMethod: ApplyMethod.ADDITIVE
                     )
