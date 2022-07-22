@@ -127,7 +127,7 @@ namespace TittyMagic
                     Direction.FORWARD, new DynamicPhysicsConfig(
                         massMultiplier: 0f,
                         softnessMultiplier: -9f,
-                        isNegative: false,
+                        isNegative: true,
                         applyMethod: ApplyMethod.ADDITIVE,
                         softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
