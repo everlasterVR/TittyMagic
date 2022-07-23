@@ -106,14 +106,14 @@ namespace TittyMagic
             {
                 config = softPhysicsEnabled
                     ? new StaticPhysicsConfig(
-                        0.45f,
-                        massCurve: x => 0.27f * x,
-                        softnessCurve: x => 0.64f * x
+                        0.50f,
+                        massCurve: x => 0.30f * x,
+                        softnessCurve: x => 0.10f * x
                     )
                     : new StaticPhysicsConfig(
-                        0.45f,
-                        massCurve: x => 0.48f * x,
-                        softnessCurve: x => 0.95f * x
+                        0.50f,
+                        massCurve: x => 0.45f * x,
+                        softnessCurve: x => 0.15f * x
                     ),
                 valueFormat = "F2",
                 sync = left
