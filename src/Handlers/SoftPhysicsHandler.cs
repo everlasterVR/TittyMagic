@@ -162,7 +162,11 @@ namespace TittyMagic
         {
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 5.00f))
             {
-                config = new StaticPhysicsConfig(1.00f),
+                config = new StaticPhysicsConfig(
+                    0.70f,
+                    massCurve: x => 0.50f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
+                    softnessCurve: x => -0.67f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
+                ),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
                     -0.40f,
                     softnessCurve: x => -0.50f * x
@@ -179,20 +183,20 @@ namespace TittyMagic
                 { MAIN, new StaticPhysicsConfig(1.00f) },
                 {
                     OUTER, new StaticPhysicsConfig(
-                        1.20f,
-                        softnessCurve: x => -0.15f * x
+                        1.00f,
+                        softnessCurve: x => 0.20f * Curves.DeemphasizeMiddle(x)
                     )
                 },
                 {
                     AREOLA, new StaticPhysicsConfig(
-                        2.40f,
-                        softnessCurve: x => -0.56f * x
+                        1.25f,
+                        softnessCurve: x => 1.00f * Curves.DeemphasizeMiddle(x)
                     )
                 },
                 {
                     NIPPLE, new StaticPhysicsConfig(
-                        2.80f,
-                        softnessCurve: x => -0.22f * x
+                        1.40f,
+                        softnessCurve: x => 1.00f * Curves.DeemphasizeMiddle(x)
                     )
                 },
             };
@@ -233,13 +237,28 @@ namespace TittyMagic
             {
                 {
                     MAIN, new StaticPhysicsConfig(
-                        1.12f,
-                        softnessCurve: x => -0.13f * x
+                        1.00f,
+                        softnessCurve: x => 0.13f * Curves.DeemphasizeMiddle(x)
                     )
                 },
-                { OUTER, new StaticPhysicsConfig(0.82f) },
-                { AREOLA, new StaticPhysicsConfig(0.90f) },
-                { NIPPLE, new StaticPhysicsConfig(0.75f) },
+                {
+                    OUTER, new StaticPhysicsConfig(
+                        1.00f,
+                        softnessCurve: x => -0.20f * Curves.DeemphasizeMiddle(x)
+                    )
+                },
+                {
+                    AREOLA, new StaticPhysicsConfig(
+                        1.00f,
+                        softnessCurve: x => -0.12f * Curves.DeemphasizeMiddle(x)
+                    )
+                },
+                {
+                    NIPPLE, new StaticPhysicsConfig(
+                        1.00f,
+                        softnessCurve: x => -0.25f * Curves.DeemphasizeMiddle(x)
+                    )
+                },
             };
 
             parameter.groupMultiplierParams = allGroups.ToDictionary(

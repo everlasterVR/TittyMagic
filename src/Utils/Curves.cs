@@ -42,8 +42,18 @@ namespace TittyMagic
 
         public static float ForcePhysicsSoftnessCurve(float x) => Exponential1(x, 1.91f, 1.7f, 0.82f);
 
-        // https://www.desmos.com/calculator/9iy1ftweij
-        public static float Exponential1(float x, float b, float p, float q, float m = 1, float s = 0) =>
-            m * ((1 - b) * Mathf.Pow(x + s, p) + b * Mathf.Pow(x + s, q));
+        // https://www.desmos.com/calculator/b8hxt91gkf
+        public static float DeemphasizeMiddle(float x) => Exponential1(x, 3.00f, 3.53f, 1.22f, a: 1.20f, m: 0.72f);
+
+        // https://www.desmos.com/calculator/uejk7yri1f
+        public static float Exponential1(float x, float b, float p, float q, float a = 1, float m = 1, float s = 0) =>
+            m * ((1 - b) * Mathf.Pow(a * x + s, p) + b * Mathf.Pow(a * x + s, q));
+
+        // https://www.desmos.com/calculator/6pxtrvvyby
+        public static float Exponential2(float x, float c, float s = 0)
+        {
+            float baseValue = (2 - c) * (x + s) - 1 + c / 2;
+            return c / (1 + c / 3) + baseValue * baseValue;
+        }
     }
 }
