@@ -2,7 +2,6 @@
 using TittyMagic.Configs;
 using UnityEngine;
 using static TittyMagic.ParamName;
-using static TittyMagic.GravityEffectCalc;
 
 namespace TittyMagic
 {
@@ -19,17 +18,15 @@ namespace TittyMagic
         private float _pitchMultiplier;
         private float _rollMultiplier;
 
+        // ReSharper disable MemberCanBePrivate.Global
         public JSONStorableFloat baseJsf { get; }
         public JSONStorableFloat upJsf { get; }
         public JSONStorableFloat downJsf { get; }
         public JSONStorableFloat forwardJsf { get; }
         public JSONStorableFloat backJsf { get; }
-        public JSONStorableFloat leftRightJsf { get; }
 
-        public float upDownExtraMultiplier { get; set; }
-        public float forwardExtraMultiplier { get; set; }
-        public float backExtraMultiplier { get; set; }
-        public float leftRightExtraMultiplier { get; set; }
+        public JSONStorableFloat leftRightJsf { get; }
+        // ReSharper restore MemberCanBePrivate.Global
 
         private float upMultiplier => baseJsf.val * upJsf.val;
         private float downMultiplier => baseJsf.val * downJsf.val;
@@ -207,7 +204,7 @@ namespace TittyMagic
 
         private void AdjustLeftRightPhysics()
         {
-            float multiplier = 0.5f * Curves.QuadraticRegression(leftRightMultiplier) * leftRightExtraMultiplier;
+            float multiplier = 0.5f * Curves.QuadraticRegression(leftRightMultiplier);
             float effectXLeft = CalculateXEffect(_trackLeftNipple.angleX, multiplier);
             float effectXRight = CalculateXEffect(_trackRightNipple.angleX, multiplier);
 
@@ -240,7 +237,7 @@ namespace TittyMagic
 
         private void AdjustUpPhysics()
         {
-            float multiplier = 0.5f * Curves.QuadraticRegression(upMultiplier) * upDownExtraMultiplier;
+            float multiplier = 0.5f * Curves.QuadraticRegression(upMultiplier);
             float effectYLeft = CalculateYEffect(_trackLeftNipple.angleY, multiplier);
             float effectYRight = CalculateYEffect(_trackRightNipple.angleY, multiplier);
 
@@ -267,7 +264,7 @@ namespace TittyMagic
 
         private void AdjustDownPhysics()
         {
-            float multiplier = 0.5f * Curves.QuadraticRegression(downMultiplier) * upDownExtraMultiplier;
+            float multiplier = 0.5f * Curves.QuadraticRegression(downMultiplier);
             float effectYLeft = CalculateYEffect(_trackLeftNipple.angleY, multiplier);
             float effectYRight = CalculateYEffect(_trackRightNipple.angleY, multiplier);
 
@@ -294,7 +291,7 @@ namespace TittyMagic
 
         private void AdjustForwardPhysics()
         {
-            float multiplier = Curves.QuadraticRegression(forwardMultiplier) * forwardExtraMultiplier;
+            float multiplier = Curves.QuadraticRegression(forwardMultiplier);
             float effectZLeft = CalculateZEffect(_trackLeftNipple.depthDiff, multiplier);
             float effectZRight = CalculateZEffect(_trackRightNipple.depthDiff, multiplier);
 
@@ -321,7 +318,7 @@ namespace TittyMagic
 
         private void AdjustBackPhysics()
         {
-            float multiplier = Curves.QuadraticRegression(backMultiplier) * backExtraMultiplier;
+            float multiplier = Curves.QuadraticRegression(backMultiplier);
             float effectZLeft = CalculateZEffect(_trackLeftNipple.depthDiff, multiplier);
             float effectZRight = CalculateZEffect(_trackRightNipple.depthDiff, multiplier);
 

@@ -691,18 +691,19 @@ namespace TittyMagic
             float mass = mainPhysicsHandler.realMassAmount;
 
             forceMorphHandler.upDownExtraMultiplier =
-                Curves.Exponential1(softnessAmount, 1.73f, 1.68f, 0.88f, m: 0.93f, s: 0.56f) * Curves.MorphingCurve(mass);
-            forceMorphHandler.forwardExtraMultiplier = Mathf.Lerp(1.00f, 1.20f, softnessAmount) * Curves.DepthMorphingCurve(mass);
-            forceMorphHandler.backExtraMultiplier = Mathf.Lerp(0.80f, 1.00f, softnessAmount) * Curves.DepthMorphingCurve(mass);
+                Curves.Exponential1(softnessAmount, 1.73f, 1.68f, 0.88f, m: 0.93f, s: 0.56f)
+                * Curves.MorphingCurve(mass);
+            forceMorphHandler.forwardExtraMultiplier =
+                Mathf.Lerp(1.00f, 1.20f, softnessAmount)
+                * Curves.DepthMorphingCurve(mass);
+            forceMorphHandler.backExtraMultiplier =
+                Mathf.Lerp(0.80f, 1.00f, softnessAmount)
+                * Curves.DepthMorphingCurve(mass);
             forceMorphHandler.leftRightExtraMultiplier =
-                Curves.Exponential1(softnessAmount, 1.73f, 1.68f, 0.88f, m: 0.93f, s: 0.56f) * Curves.MorphingCurve(mass);
+                Curves.Exponential1(softnessAmount, 1.73f, 1.68f, 0.88f, m: 0.93f, s: 0.56f)
+                * Curves.MorphingCurve(mass);
 
             offsetMorphHandler.upDownExtraMultiplier = 1.16f - mass;
-
-            forcePhysicsHandler.upDownExtraMultiplier = 1;
-            forcePhysicsHandler.forwardExtraMultiplier = 1;
-            forcePhysicsHandler.backExtraMultiplier = 1;
-            forcePhysicsHandler.leftRightExtraMultiplier = 1;
         }
 
         private IEnumerator SimulateUprightPose()
