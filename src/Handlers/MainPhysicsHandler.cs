@@ -31,6 +31,7 @@ namespace TittyMagic
 
         public float realMassAmount { get; private set; }
         public float massAmount { get; private set; }
+        public float normalizedInvertedMass => Mathf.InverseLerp(0, 1.45f, InvertMass(massAmount));
 
         // hack. 1.5f because 3f is the max mass and massValue is actual mass / 2
         public static float InvertMass(float x) => 1.5f - x;

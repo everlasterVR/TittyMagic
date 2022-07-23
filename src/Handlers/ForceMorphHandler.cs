@@ -15,6 +15,7 @@ namespace TittyMagic
 
         private float _pitchMultiplier;
         private float _rollMultiplier;
+        public float _leanBackFixerMultiplier;
 
         private Dictionary<string, List<MorphConfig>> _configSets;
 
@@ -92,6 +93,7 @@ namespace TittyMagic
         {
             _rollMultiplier = CalculateRollMultiplier(roll);
             _pitchMultiplier = CalculatePitchMultiplier(pitch, roll);
+            _leanBackFixerMultiplier = CalculateLeanBackFixerMultiplier(pitch, roll);
 
             AdjustUpMorphs();
             AdjustDownMorphs();
@@ -214,7 +216,7 @@ namespace TittyMagic
 
         private void AdjustBackMorphs()
         {
-            float multiplier = Curves.QuadraticRegression(backMultiplier) * backExtraMultiplier;
+            float multiplier = _leanBackFixerMultiplier * Curves.QuadraticRegression(backMultiplier) * backExtraMultiplier;
             float effectZLeft = CalculateZEffect(_trackLeftNipple.depthDiff, multiplier);
             float effectZRight = CalculateZEffect(_trackRightNipple.depthDiff, multiplier);
             float depthDiffCenter = (_trackLeftNipple.depthDiff + _trackRightNipple.depthDiff) / 2;
@@ -287,11 +289,24 @@ namespace TittyMagic
             }
         }
 
+        private static float CalculateRollMultiplier(float roll) =>
+            Mathf.Lerp(1.25f, 1f, Mathf.Abs(roll));
+
         private static float CalculatePitchMultiplier(float pitch, float roll) =>
             Mathf.Lerp(0.72f, 1f, CalculateDiffFromHorizontal(pitch, roll)); // same for upright and upside down
 
-        private static float CalculateRollMultiplier(float roll) =>
-            Mathf.Lerp(1.25f, 1f, Mathf.Abs(roll));
+        private float CalculateLeanBackFixerMultiplier(float pitch, float roll)
+        {
+            if(pitch < -0.5f || pitch > 0)
+            {
+                return 1;
+            }
+
+            float diff = 4 * Mathf.Abs(-0.25f - pitch);
+            float minTarget1 = Mathf.Lerp(0.25f, 1.00f, _script.mainPhysicsHandler.normalizedInvertedMass);
+            float minTarget2 = Mathf.Lerp(minTarget1, 1.00f, Mathf.Abs(roll * roll));
+            return Mathf.Lerp(minTarget2, 1.00f, diff);
+        }
 
         private float CalculateYEffect(float angle, float multiplier) =>
             multiplier * Curve(_pitchMultiplier * Mathf.Abs(angle) / 75);
