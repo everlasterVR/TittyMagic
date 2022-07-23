@@ -103,20 +103,20 @@ namespace TittyMagic
             {
                 {
                     Direction.BACK, new DynamicPhysicsConfig(
-                        massMultiplier: -210f,
-                        softnessMultiplier: -132f,
+                        massMultiplier: -225f,
+                        softnessMultiplier: -150f,
                         isNegative: true,
                         applyMethod: ApplyMethod.ADDITIVE,
-                        massCurve: x => Curves.Exponential1(x / 1.5f, 1.88f, 1.25f, 0.60f) // https://www.desmos.com/calculator/rwwurxpchx
+                        massCurve: MainPhysicsHandler.InvertMass
                     )
                 },
                 {
                     Direction.FORWARD, new DynamicPhysicsConfig(
-                        massMultiplier: -210f,
-                        softnessMultiplier: -132f,
+                        massMultiplier: -225f,
+                        softnessMultiplier: -150f,
                         isNegative: true,
                         applyMethod: ApplyMethod.ADDITIVE,
-                        massCurve: x => Curves.Exponential1(x / 1.5f, 1.88f, 1.25f, 0.60f) // https://www.desmos.com/calculator/rwwurxpchx
+                        massCurve: MainPhysicsHandler.InvertMass
                     )
                 },
             };
