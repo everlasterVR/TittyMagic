@@ -122,6 +122,12 @@ namespace TittyMagic
             right.UpdateGravityValue(direction, effect, massValue, softness);
         }
 
+        public void ResetGravityValue(string direction)
+        {
+            left.ResetGravityValue(direction);
+            right.ResetGravityValue(direction);
+        }
+
         public void SetForcePhysicsConfigs(
             Dictionary<string, DynamicPhysicsConfig> leftConfigs,
             Dictionary<string, DynamicPhysicsConfig> rightConfigs
@@ -286,6 +292,24 @@ namespace TittyMagic
             {
                 case ApplyMethod.ADDITIVE:
                     _additiveGravityAdjustments[direction] = gravityValue;
+                    break;
+            }
+
+            Sync();
+        }
+
+        public void ResetGravityValue(string direction)
+        {
+            if(gravityPhysicsConfigs == null || !gravityPhysicsConfigs.ContainsKey(direction))
+            {
+                return;
+            }
+
+            var dpConfig = gravityPhysicsConfigs[direction];
+            switch(dpConfig.applyMethod)
+            {
+                case ApplyMethod.ADDITIVE:
+                    _additiveGravityAdjustments[direction] = 0;
                     break;
             }
 

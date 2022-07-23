@@ -191,11 +191,13 @@ namespace TittyMagic
             // left
             if(roll >= 0)
             {
+                ResetPhysics(Direction.RIGHT);
                 UpdatePhysics(Direction.LEFT, effect);
             }
             // right
             else
             {
+                ResetPhysics(Direction.LEFT);
                 UpdatePhysics(Direction.RIGHT, effect);
             }
         }
@@ -213,6 +215,10 @@ namespace TittyMagic
             {
                 UpdatePhysics(Direction.UP, effect);
             }
+            else
+            {
+                ResetPhysics(Direction.UP);
+            }
         }
 
         private void AdjustDownPhysics(float pitch, float roll)
@@ -227,6 +233,10 @@ namespace TittyMagic
             else if(pitch >= -1 && pitch < 0)
             {
                 UpdatePhysics(Direction.DOWN, effect);
+            }
+            else
+            {
+                ResetPhysics(Direction.DOWN);
             }
         }
 
@@ -247,6 +257,10 @@ namespace TittyMagic
                     UpdatePhysics(Direction.FORWARD, effect);
                 }
             }
+            else
+            {
+                ResetPhysics(Direction.FORWARD);
+            }
         }
 
         private void AdjustBackPhysics(float pitch, float roll)
@@ -266,6 +280,10 @@ namespace TittyMagic
                     UpdatePhysics(Direction.BACK, effect);
                 }
             }
+            else
+            {
+                ResetPhysics(Direction.BACK);
+            }
         }
 
         private void UpdatePhysics(string direction, float effect)
@@ -276,5 +294,8 @@ namespace TittyMagic
                 paramGroup.UpdateGravityValue(direction, effect, mass, softness)
             );
         }
+
+        private void ResetPhysics(string direction) =>
+            _paramGroups.ForEach(paramGroup => paramGroup.ResetGravityValue(direction));
     }
 }
