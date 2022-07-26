@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,28 +7,14 @@ namespace TittyMagic.UI
 {
     internal class MorphingWindow : WindowBase
     {
-        private readonly JSONStorableString _forceMorphingMultipliersHeader;
-        private readonly JSONStorableString _forceMorphingMultipliersInfoText;
-        private readonly JSONStorableString _otherSettingsHeader;
-
         public MorphingWindow(Script script) : base(script)
         {
             buildAction = BuildSelf;
-
-            _forceMorphingMultipliersHeader = new JSONStorableString("forceMorphingMultipliersHeader", "");
-            _forceMorphingMultipliersInfoText = new JSONStorableString("forceMorphingMultipliersInfoText", "");
-            _otherSettingsHeader = new JSONStorableString("otherSettingsHeader", "");
-
-            //TODO
-            _forceMorphingMultipliersInfoText.val = "\n".Size(12) +
-                "Adjust the amount of breast morphing due to forces including gravity.\n" +
-                "\n" +
-                "Breasts morph up/down, left/right and forward/back.";
         }
 
         private void BuildSelf()
         {
-            CreateHeader(_forceMorphingMultipliersHeader, "Directional Force Morphing", false);
+            CreateForceMorphingHeader(false);
             CreateMorphingInfoTextArea(false);
 
             var baseSlider = CreateBaseMultiplierSlider(true, spacing: 72);
@@ -37,15 +24,19 @@ namespace TittyMagic.UI
             CreateMultiplierSlider(script.forceMorphHandler.backJsf, "Back", true);
             CreateMultiplierSlider(script.forceMorphHandler.leftRightJsf, "Left / Right", true);
 
-            CreateHeader(_otherSettingsHeader, "Other", false);
+            CreateOtherSettingsHeader(false);
             CreateNippleErectionSlider(false);
+            CreateNippleErectionInfoTextArea(true, spacing: 50);
 
             baseSlider.AddListener(UpdateAllSliderColors);
             UpdateAllSliderColors(0);
         }
 
-        private void CreateHeader(JSONStorableString storable, string text, bool rightSide) =>
-            elements[storable.name] = UIHelpers.HeaderTextField(script, storable, text, rightSide);
+        private void CreateForceMorphingHeader(bool rightSide)
+        {
+            var storable = new JSONStorableString("forceMorphingHeader", "");
+            elements[storable.name] = UIHelpers.HeaderTextField(script, storable, "Directional Force Morphing", rightSide);
+        }
 
         private UIDynamicSlider CreateBaseMultiplierSlider(bool rightSide, int spacing = 0)
         {
@@ -70,7 +61,20 @@ namespace TittyMagic.UI
 
         private void CreateMorphingInfoTextArea(bool rightSide, int spacing = 0)
         {
-            var storable = _forceMorphingMultipliersInfoText;
+            var sb = new StringBuilder();
+            sb.Append("\n".Size(12));
+            sb.Append("Adjust how much breast shape is changed dynamically with morphs.");
+            sb.Append("\n\n");
+            sb.Append("Morphing is based on how much the nipple's position deviates");
+            sb.Append(" from its neutral position. The neutral position is where the nipple is when");
+            sb.Append(" the person is standing up and each breast experiences just the force of gravity.");
+            sb.Append("\n\n");
+            sb.Append("Anything that causes the nipple to move will cause morphing:");
+            sb.Append(" collision, gravity or any kind of animation.");
+            sb.Append("\n\n");
+            sb.Append("Too high multipliers for up, down and left/right directions can");
+            sb.Append(" prevent breasts from returning to their neutral shape normally.");
+            var storable = new JSONStorableString("forceMorphingMultipliersInfoText", sb.ToString());
             AddSpacer(storable.name, spacing, rightSide);
 
             var textField = script.CreateTextField(storable, rightSide);
@@ -78,6 +82,12 @@ namespace TittyMagic.UI
             textField.backgroundColor = Color.clear;
             textField.height = 825;
             elements[storable.name] = textField;
+        }
+
+        private void CreateOtherSettingsHeader(bool rightSide)
+        {
+            var storable = new JSONStorableString("otherSettingsHeader", "");
+            elements[storable.name] = UIHelpers.HeaderTextField(script, storable, "Other", rightSide);
         }
 
         private void CreateNippleErectionSlider(bool rightSide, int spacing = 0)
@@ -89,6 +99,21 @@ namespace TittyMagic.UI
             slider.valueFormat = "F2";
             slider.label = "Nipple Erection";
             elements[storable.name] = slider;
+        }
+
+        private void CreateNippleErectionInfoTextArea(bool rightSide, int spacing = 0)
+        {
+            var sb = new StringBuilder();
+            sb.Append("\n".Size(12));
+            sb.Append("Expand nipples with morphs and harden their physics.");
+            var storable = new JSONStorableString("nippleErectionInfoText", sb.ToString());
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var textField = script.CreateTextField(storable, rightSide);
+            textField.UItext.fontSize = 28;
+            textField.height = 115;
+            textField.backgroundColor = Color.clear;
+            elements[storable.name] = textField;
         }
 
         private void UpdateAllSliderColors(float value)

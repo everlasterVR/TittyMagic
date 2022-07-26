@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace TittyMagic.UI
@@ -29,10 +30,13 @@ namespace TittyMagic.UI
         {
             CreateTitleTextField(false);
             CreateRecalibratingTextField(true);
+
+            CreateBreastMassInfoTextField(false);
             CreateCalculateMassButton(true);
             CreateAutoUpdateMassToggle(true);
             CreateMassSlider(true);
 
+            CreateSoftPhysicsInfoTextField(false);
             if(Gender.isFemale)
             {
                 CreateSoftPhysicsOnToggle(true, spacing: 15);
@@ -45,6 +49,7 @@ namespace TittyMagic.UI
 
             CreateQuicknessSlider(true);
 
+            CreateHardCollidersInfoTextField(false);
             if(Gender.isFemale)
             {
                 CreateConfigureHardCollidersButton(true, spacing: 15);
@@ -69,33 +74,29 @@ namespace TittyMagic.UI
             elements[_title.name] = textField;
         }
 
-        private void CreateAutoUpdateMassToggle(bool rightSide, int spacing = 0)
-        {
-            var storable = script.autoUpdateJsb;
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var toggle = script.CreateToggle(storable, rightSide);
-            toggle.height = 52;
-            toggle.label = "Auto-Update Mass";
-            elements[storable.name] = toggle;
-        }
-
-        private void CreateSoftPhysicsOnToggle(bool rightSide, int spacing = 0)
-        {
-            var storable = script.softPhysicsHandler.softPhysicsOn;
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var toggle = script.CreateToggle(storable, rightSide);
-            toggle.height = 52;
-            toggle.label = "Soft Physics Enabled";
-            elements[storable.name] = toggle;
-        }
-
         private void CreateRecalibratingTextField(bool rightSide, int spacing = 0)
         {
             var storable = script.statusInfo;
             AddSpacer(storable.name, spacing, rightSide);
             elements[storable.name] = UIHelpers.NotificationTextField(script, storable, 100, rightSide);
+        }
+
+        private void CreateBreastMassInfoTextField(bool rightSide, int spacing = 0)
+        {
+            var sb = new StringBuilder();
+            sb.Append("<b><i>Breast mass</i></b> is based on breast volume");
+            sb.Append(", and determines the values of other physics parameters to best fit the estimated volume.");
+            sb.Append("\n\n");
+            sb.Append("<b><i>Auto-Update Mass</i></b> can be disabled to control mass manually");
+            sb.Append(", and to prevent unwanted freezing when using other plugins that animate morphs.");
+            var storable = new JSONStorableString("breastMassInfoText", sb.ToString());
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var textField = script.CreateTextField(storable, rightSide);
+            textField.UItext.fontSize = 28;
+            textField.backgroundColor = Color.clear;
+            textField.height = 355;
+            elements[storable.name] = textField;
         }
 
         private void CreateCalculateMassButton(bool rightSide, int spacing = 0)
@@ -109,6 +110,17 @@ namespace TittyMagic.UI
             elements[storable.name] = button;
         }
 
+        private void CreateAutoUpdateMassToggle(bool rightSide, int spacing = 0)
+        {
+            var storable = script.autoUpdateJsb;
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var toggle = script.CreateToggle(storable, rightSide);
+            toggle.height = 52;
+            toggle.label = "Auto-Update Mass";
+            elements[storable.name] = toggle;
+        }
+
         private void CreateMassSlider(bool rightSide, int spacing = 0)
         {
             var storable = script.mainPhysicsHandler.massJsf;
@@ -119,6 +131,35 @@ namespace TittyMagic.UI
             slider.label = "Breast Mass";
             slider.AddSliderClickMonitor();
             elements[storable.name] = slider;
+        }
+
+        private void CreateSoftPhysicsInfoTextField(bool rightSide, int spacing = 0)
+        {
+            var sb = new StringBuilder();
+            sb.Append("<b><i>Breast softness</i></b> simulates implants at low values");
+            sb.Append(" and natural breasts at high values.");
+            sb.Append("\n\n");
+            sb.Append("<b><i>Breast quickness</i></b> offsets physics settings");
+            sb.Append(", causing slow motion at low values, and more normal behavior at high values.");
+            var storable = new JSONStorableString("softPhysicsInfoText", sb.ToString());
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var textField = script.CreateTextField(storable, rightSide);
+            textField.UItext.fontSize = 28;
+            textField.backgroundColor = Color.clear;
+            textField.height = 285;
+            elements[storable.name] = textField;
+        }
+
+        private void CreateSoftPhysicsOnToggle(bool rightSide, int spacing = 0)
+        {
+            var storable = script.softPhysicsHandler.softPhysicsOn;
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var toggle = script.CreateToggle(storable, rightSide);
+            toggle.height = 52;
+            toggle.label = "Soft Physics Enabled";
+            elements[storable.name] = toggle;
         }
 
         private void CreateSoftnessSlider(bool rightSide, int spacing = 0)
@@ -145,6 +186,20 @@ namespace TittyMagic.UI
             slider.label = "Breast Quickness";
             slider.AddSliderClickMonitor();
             elements[storable.name] = slider;
+        }
+
+        private void CreateHardCollidersInfoTextField(bool rightSide, int spacing = 0)
+        {
+            var sb = new StringBuilder();
+            sb.Append("<b><i>Hard colliders</i></b> cause breasts to move when touched, and help them maintain their volume and shape.");
+            var storable = new JSONStorableString("hardCollidersInfoText", sb.ToString());
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var textField = script.CreateTextField(storable, rightSide);
+            textField.UItext.fontSize = 28;
+            textField.backgroundColor = Color.clear;
+            textField.height = 250;
+            elements[storable.name] = textField;
         }
 
         private void CreateConfigureHardCollidersButton(bool rightSide, int spacing = 0)

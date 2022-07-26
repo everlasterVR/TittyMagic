@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,41 +8,15 @@ namespace TittyMagic.UI
 {
     internal class GravityWindow : WindowBase
     {
-        private readonly JSONStorableString _gravityPhysicsMultipliersHeader;
-        private readonly JSONStorableString _gravityPhysicsMultipliersInfoText;
-        private readonly JSONStorableString _offsetMorphingInfoText;
-        private readonly JSONStorableString _otherSettingsHeader;
-
         public GravityWindow(Script script) : base(script)
         {
             buildAction = BuildSelf;
             closeAction = ActionsOnClose;
-
-            _gravityPhysicsMultipliersHeader = new JSONStorableString("gravityPhysicsMultipliersHeader", "");
-            _gravityPhysicsMultipliersInfoText = new JSONStorableString("gravityPhysicsMultipliersInfoText", "");
-            _otherSettingsHeader = new JSONStorableString("otherSettingsHeader", "");
-            _offsetMorphingInfoText = new JSONStorableString("offsetMorphingInfoText", "");
-
-            _gravityPhysicsMultipliersInfoText.val = "\n".Size(12) +
-                "Adjust the effect of gravity on breasts." +
-                "\n\n".Size(24) +
-                "Which slider takes effect depends on the person's orientation: " +
-                "e.g. Up gravity is applied when upside down (breasts \"fall up\" more heavily)." +
-                "\n\n".Size(24) +
-                "Low values maintain the shape better, and make breasts easier to move." +
-                "\n\n".Size(24) +
-                "High values add weight, causing breasts to deform more and fall in the direction of gravity more quickly." +
-                "\n\n".Size(24) +
-                "Adjusting the sliders lets you preview the effect in real time. " +
-                "The final result requires a recalibration - click the button or navigate away from this view.";
-
-            _offsetMorphingInfoText.val = "\n".Size(12) +
-                "Compensates for the droop caused by Down gravity.";
         }
 
         private void BuildSelf()
         {
-            CreateHeader(_gravityPhysicsMultipliersHeader, "Breast Gravity", false);
+            CreateBreastGravityHeader(false);
             CreateGravityPhysicsInfoTextArea(false);
 
             CreateRecalibrateButton(true, spacing: 5);
@@ -52,18 +27,18 @@ namespace TittyMagic.UI
             CreateMultiplierSlider(script.gravityPhysicsHandler.backJsf, "Back", true);
             CreateMultiplierSlider(script.gravityPhysicsHandler.leftRightJsf, "Left / Right", true);
 
-            CreateHeader(_otherSettingsHeader, "Other", false);
-            CreateOffsetMorphingInfoTextArea(true, spacing: 50);
+            CreateOtherSettingsHeader(false);
             CreateOffsetMorphingSlider(false);
+            CreateOffsetMorphingInfoTextArea(true, spacing: 50);
 
             baseSlider.AddListener(UpdateAllSliderColors);
             UpdateAllSliderColors(0);
         }
 
-        private void CreateHeader(JSONStorableString storable, string text, bool rightSide, int spacing = 0)
+        private void CreateBreastGravityHeader(bool rightSide)
         {
-            AddSpacer(storable.name, spacing, rightSide);
-            elements[storable.name] = UIHelpers.HeaderTextField(script, storable, text, rightSide);
+            var storable = new JSONStorableString("breastGravityHeader", "");
+            elements[storable.name] = UIHelpers.HeaderTextField(script, storable, "Breast Gravity", rightSide);
         }
 
         private void CreateRecalibrateButton(bool rightSide, int spacing = 0)
@@ -100,7 +75,18 @@ namespace TittyMagic.UI
 
         private void CreateGravityPhysicsInfoTextArea(bool rightSide, int spacing = 0)
         {
-            var storable = _gravityPhysicsMultipliersInfoText;
+            var sb = new StringBuilder();
+            sb.Append("\n".Size(12));
+            sb.Append("Adjust the effect of gravity on breasts.");
+            sb.Append("\n\n");
+            sb.Append("Which slider takes effect depends on the person's orientation.");
+            sb.Append("\n\n");
+            sb.Append("The higher the multiplier, the more heavily breasts will fall in that direction.");
+            sb.Append(" This feeds into directional force morphing, causing breasts to deform more.");
+            sb.Append("\n\n");
+            sb.Append("Adjusting the sliders lets you preview the effect, but the final result requires a recalibration.");
+            sb.Append(" Recalibrate with the button or by navigating away from this window.");
+            var storable = new JSONStorableString("gravityPhysicsMultipliersInfoText", sb.ToString());
             AddSpacer(storable.name, spacing, rightSide);
 
             var textField = script.CreateTextField(storable, rightSide);
@@ -108,6 +94,13 @@ namespace TittyMagic.UI
             textField.height = 825;
             textField.backgroundColor = Color.clear;
             elements[storable.name] = textField;
+        }
+
+        private void CreateOtherSettingsHeader(bool rightSide, int spacing = 0)
+        {
+            var storable = new JSONStorableString("otherSettingsHeader", "");
+            AddSpacer(storable.name, spacing, rightSide);
+            elements[storable.name] = UIHelpers.HeaderTextField(script, storable, "Other", rightSide);
         }
 
         private void CreateOffsetMorphingSlider(bool rightSide, int spacing = 0)
@@ -123,7 +116,10 @@ namespace TittyMagic.UI
 
         private void CreateOffsetMorphingInfoTextArea(bool rightSide, int spacing = 0)
         {
-            var storable = _offsetMorphingInfoText;
+            var sb = new StringBuilder();
+            sb.Append("\n".Size(12));
+            sb.Append("Compensate for the droop caused by Down gravity.");
+            var storable = new JSONStorableString("offsetMorphingInfoText", sb.ToString());
             AddSpacer(storable.name, spacing, rightSide);
 
             var textField = script.CreateTextField(storable, rightSide);
