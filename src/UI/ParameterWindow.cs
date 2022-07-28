@@ -12,7 +12,6 @@ namespace TittyMagic.UI
         private readonly PhysicsParameter _parameter;
         private readonly UnityAction _returnToParent;
 
-        private readonly JSONStorableString _title;
         private readonly JSONStorableString _infoText;
         private float _offsetWhenCalibrated;
 
@@ -32,37 +31,34 @@ namespace TittyMagic.UI
                 onReturnToParent();
             };
 
-            _title = new JSONStorableString("title", "");
             _infoText = new JSONStorableString("infoText", "");
         }
 
         private void BuildSelf()
         {
             CreateBackButton(_returnToParent, false);
-
-            CreateTitle(false);
-            CreateInfoTextArea(false);
-            CreateCurrentValueSlider(_parameter.valueJsf, false);
-
             if(_parameterGroup.requiresRecalibration)
             {
-                CreateApplyOnlyToLeftBreastToggle(true, spacing: 298);
-                CreateRecalibrateButton(true); // 363
+                CreateRecalibrateButton(true);
             }
             else
             {
-                CreateApplyOnlyToLeftBreastToggle(true, spacing: 363);
+                AddSpacer("upperRightSpacer", 50, true);
             }
 
-            foreach(var storable in _parameter.GetGroupMultiplierStorables())
-            {
-                CreateMultiplierSlider(storable, false);
-            }
+            CreateTitle(false);
+            CreateApplyOnlyToLeftBreastToggle(true);
 
-            CreateOffsetSlider(true);
-            foreach(var storable in _parameter.GetGroupOffsetStorables())
+            CreateInfoTextArea(false);
+            CreateOffsetSlider(true, spacing: 10);
+            CreateCurrentValueSlider(true);
+
+            if(_parameter.groupMultiplierParams != null)
             {
-                CreateMultiplierOffsetSlider(storable, true);
+                CreateColliderGroupSection(SoftColliderGroup.MAIN, false);
+                CreateColliderGroupSection(SoftColliderGroup.AREOLA, true);
+                CreateColliderGroupSection(SoftColliderGroup.OUTER, false);
+                CreateColliderGroupSection(SoftColliderGroup.NIPPLE, true);
             }
         }
 
@@ -83,12 +79,13 @@ namespace TittyMagic.UI
 
         private void CreateTitle(bool rightSide)
         {
-            var textField = UIHelpers.TitleTextField(script, _title, _parameterGroup.displayName, 62, rightSide);
+            var storable = new JSONStorableString("title", "");
+            var textField = UIHelpers.HeaderTextField(script, storable, _parameterGroup.displayName, rightSide);
             textField.UItext.fontSize = 32;
-            elements[_title.name] = textField;
+            elements[storable.name] = textField;
         }
 
-        private void CreateApplyOnlyToLeftBreastToggle(bool rightSide, int spacing)
+        private void CreateApplyOnlyToLeftBreastToggle(bool rightSide, int spacing = 0)
         {
             var storable = _parameterGroup.offsetOnlyLeftBreastJsb;
             AddSpacer(storable.name, spacing, rightSide);
@@ -119,68 +116,9 @@ namespace TittyMagic.UI
 
             var textField = script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
-            textField.height = 288;
+            textField.height = 268;
             textField.backgroundColor = Color.clear;
             elements[storable.name] = textField;
-        }
-
-        private void CreateCurrentValueSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
-        {
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var slider = script.CreateSlider(storable, rightSide);
-            slider.valueFormat = _parameter.valueFormat;
-            slider.SetActiveStyle(false);
-            slider.slider.interactable = false;
-            slider.quickButtonsEnabled = false;
-            slider.defaultButtonEnabled = false;
-
-            slider.slider.onValueChanged.AddListener(_ => SyncAllMultiplierSliderValues());
-
-            elements[storable.name] = slider;
-        }
-
-        private void CreateMultiplierSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
-        {
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var slider = script.CreateSlider(storable, rightSide);
-            slider.valueFormat = "F2";
-            slider.SetActiveStyle(false);
-            slider.slider.interactable = false;
-            slider.quickButtonsEnabled = false;
-            slider.defaultButtonEnabled = false;
-            var uiInputField = slider.sliderValueTextFromFloat.UIInputField;
-            uiInputField.contentType = InputField.ContentType.Standard;
-
-            slider.slider.onValueChanged.AddListener(value => SyncMultiplierSliderValue(slider, storable.name, value));
-
-            SyncMultiplierSliderValue(slider, storable.name, storable.val);
-
-            elements[storable.name] = slider;
-        }
-
-        public void SyncAllMultiplierSliderValues()
-        {
-            foreach(var storable in _parameter.GetGroupMultiplierStorables())
-            {
-                var uiDynamicSlider = elements[storable.name] as UIDynamicSlider;
-                if(uiDynamicSlider != null)
-                {
-                    SyncMultiplierSliderValue(uiDynamicSlider, storable.name, storable.val);
-                }
-            }
-        }
-
-        private void SyncMultiplierSliderValue(UIDynamicSlider slider, string label, float value)
-        {
-            var textFromFloat = slider.sliderValueTextFromFloat;
-            string currentValue = (value * _parameter.valueJsf.val).ToString(_parameter.valueFormat);
-            if(textFromFloat.UIInputField != null)
-            {
-                slider.label = $"{label}: {slider.slider.value:F2}";
-                textFromFloat.UIInputField.text = currentValue;
-            }
         }
 
         private void CreateOffsetSlider(bool rightSide, int spacing = 0)
@@ -204,13 +142,87 @@ namespace TittyMagic.UI
             _offsetWhenCalibrated = storable.val;
         }
 
+        private void CreateCurrentValueSlider(bool rightSide, int spacing = 0)
+        {
+            var storable = _parameter.valueJsf;
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var slider = script.CreateSlider(storable, rightSide);
+            slider.valueFormat = _parameter.valueFormat;
+            slider.SetActiveStyle(false);
+            slider.slider.interactable = false;
+            slider.quickButtonsEnabled = false;
+            slider.defaultButtonEnabled = false;
+
+            slider.slider.onValueChanged.AddListener(_ => SyncAllMultiplierSliderValues());
+
+            elements[storable.name] = slider;
+        }
+
+        private void CreateColliderGroupSection(string group, bool rightSide)
+        {
+            var groupParam = _parameter.GetGroupParam(group);
+            CreateGroupsHeader(group + " Colliders", rightSide);
+            CreateMultiplierOffsetSlider(groupParam.offsetJsf, rightSide);
+            CreateMultiplierSlider(groupParam.valueJsf, rightSide);
+        }
+
+        private void CreateGroupsHeader(string text, bool rightSide)
+        {
+            var storable = new JSONStorableString(text + "Header", "");
+            elements[storable.name] = UIHelpers.HeaderTextField(script, storable, text, rightSide);
+        }
+
+        private void CreateMultiplierSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
+        {
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var slider = script.CreateSlider(storable, rightSide);
+            slider.valueFormat = "F2";
+            slider.SetActiveStyle(false);
+            slider.slider.interactable = false;
+            slider.quickButtonsEnabled = false;
+            slider.defaultButtonEnabled = false;
+            var uiInputField = slider.sliderValueTextFromFloat.UIInputField;
+            uiInputField.contentType = InputField.ContentType.Standard;
+
+            slider.slider.onValueChanged.AddListener(value => SyncMultiplierSliderLabel(slider, value));
+
+            SyncMultiplierSliderLabel(slider, storable.val);
+
+            elements[storable.name] = slider;
+        }
+
+        public void SyncAllMultiplierSliderValues()
+        {
+            foreach(var storable in _parameter.GetGroupMultiplierStorables())
+            {
+                var uiDynamicSlider = elements[storable.name] as UIDynamicSlider;
+                if(uiDynamicSlider != null)
+                {
+                    SyncMultiplierSliderLabel(uiDynamicSlider, storable.val);
+                }
+            }
+        }
+
+        private void SyncMultiplierSliderLabel(UIDynamicSlider slider, float value)
+        {
+            var textFromFloat = slider.sliderValueTextFromFloat;
+            string currentValue = (value * _parameter.valueJsf.val).ToString(_parameter.valueFormat);
+            if(textFromFloat.UIInputField != null)
+            {
+                slider.label = $"Multiplier: {slider.slider.value:F2}              →";
+                textFromFloat.UIInputField.text = currentValue;
+            }
+        }
+
         private void CreateMultiplierOffsetSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
         {
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
-
+            slider.label = "Multiplier Offset";
             slider.slider.onValueChanged.AddListener(value => parentButton.label = ParamButtonLabel());
 
             elements[storable.name] = slider;

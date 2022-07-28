@@ -19,8 +19,8 @@ namespace TittyMagic.UI
             CreateBreastGravityHeader(false);
             CreateGravityPhysicsInfoTextArea(false);
 
-            CreateRecalibrateButton(true, spacing: 5);
-            var baseSlider = CreateBaseMultiplierSlider(true);
+            CreateRecalibrateButton(true);
+            var baseSlider = CreateBaseMultiplierSlider(true, spacing: 5);
             CreateMultiplierSlider(script.gravityPhysicsHandler.upJsf, "Up", true, spacing: 5);
             CreateMultiplierSlider(script.gravityPhysicsHandler.downJsf, "Down", true);
             CreateMultiplierSlider(script.gravityPhysicsHandler.forwardJsf, "Forward", true);

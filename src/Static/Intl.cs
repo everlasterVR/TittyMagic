@@ -4,7 +4,6 @@ namespace TittyMagic
     public static class Intl
     {
         public const string BASE = "Base";
-        public const string BASE_MULTIPLIER = BASE + " " + MULTIPLIER;
         public const string BASE_VALUE = BASE + " " + VALUE;
         public const string CURRENT = "Current";
         public const string CURRENT_VALUE = CURRENT + " " + VALUE;

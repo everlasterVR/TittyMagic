@@ -352,6 +352,16 @@ namespace TittyMagic
             }
         }
 
+        public SoftGroupPhysicsParameter GetGroupParam(string group)
+        {
+            if(groupMultiplierParams == null)
+            {
+                return null;
+            }
+
+            return groupMultiplierParams[group];
+        }
+
         public List<JSONStorableFloat> GetGroupMultiplierStorables()
         {
             var list = new List<JSONStorableFloat>();
