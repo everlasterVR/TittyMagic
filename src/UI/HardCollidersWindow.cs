@@ -110,8 +110,6 @@ namespace TittyMagic.UI
             sb.Append("\n\n");
             sb.Append("The closer the collider matches the volume of the breast, the more");
             sb.Append(" accurately it responds to touch.");
-            sb.Append("\n\n");
-            sb.Append("Use the preview visualization to ensure there's not too much volume protruding out.");
 
             _colliderInfoText.val = sb.ToString();
             elements[$"{_colliderInfoText.name}Spacer"] = script.NewSpacer(spacing, rightSide);

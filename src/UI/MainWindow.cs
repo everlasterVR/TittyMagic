@@ -37,22 +37,17 @@ namespace TittyMagic.UI
             CreateMassSlider(true);
 
             CreateSoftPhysicsInfoTextField(false);
+            CreateSoftnessSlider(true, spacing: 15);
+            CreateQuicknessSlider(true);
             if(Gender.isFemale)
             {
-                CreateSoftPhysicsOnToggle(true, spacing: 15);
-                CreateSoftnessSlider(true);
-            }
-            else
-            {
-                CreateSoftnessSlider(true, spacing: 15);
+                CreateSoftPhysicsOnToggle(true);
             }
 
-            CreateQuicknessSlider(true);
-
-            CreateHardCollidersInfoTextField(false);
             if(Gender.isFemale)
             {
                 CreateConfigureHardCollidersButton(true, spacing: 15);
+                CreateHardCollidersInfoTextField(true);
             }
 
             elements[script.autoUpdateJsb.name].AddListener(value =>
@@ -95,7 +90,7 @@ namespace TittyMagic.UI
             var textField = script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.backgroundColor = Color.clear;
-            textField.height = 355;
+            textField.height = 290;
             elements[storable.name] = textField;
         }
 
