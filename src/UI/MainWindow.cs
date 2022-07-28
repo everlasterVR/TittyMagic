@@ -84,8 +84,8 @@ namespace TittyMagic.UI
         private void CreateBreastMassInfoTextField(bool rightSide, int spacing = 0)
         {
             var sb = new StringBuilder();
-            sb.Append("<b><i>Breast mass</i></b> is based on breast volume");
-            sb.Append(", and determines the values of other physics parameters to best fit the estimated volume.");
+            sb.Append("<b><i>Breast mass</i></b> is based on breast size. Mass adjusts");
+            sb.Append(" the values of other physics parameters to best suit the size.");
             sb.Append("\n\n");
             sb.Append("<b><i>Auto-Update Mass</i></b> can be disabled to control mass manually");
             sb.Append(", and to prevent unwanted freezing when using other plugins that animate morphs.");
@@ -139,8 +139,8 @@ namespace TittyMagic.UI
             sb.Append("<b><i>Breast softness</i></b> simulates implants at low values");
             sb.Append(" and natural breasts at high values.");
             sb.Append("\n\n");
-            sb.Append("<b><i>Breast quickness</i></b> offsets physics settings");
-            sb.Append(", causing slow motion at low values, and more normal behavior at high values.");
+            sb.Append("<b><i>Breast quickness</i></b> causes slow motion at low values");
+            sb.Append(" and realistically responsive behavior at high values.");
             var storable = new JSONStorableString("softPhysicsInfoText", sb.ToString());
             AddSpacer(storable.name, spacing, rightSide);
 
@@ -191,7 +191,8 @@ namespace TittyMagic.UI
         private void CreateHardCollidersInfoTextField(bool rightSide, int spacing = 0)
         {
             var sb = new StringBuilder();
-            sb.Append("<b><i>Hard colliders</i></b> cause breasts to move when touched, and help them maintain their volume and shape.");
+            sb.Append("<b><i>Hard colliders</i></b> make breasts both easier to move");
+            sb.Append(" when touched and better at maintaining their volume and shape.");
             var storable = new JSONStorableString("hardCollidersInfoText", sb.ToString());
             AddSpacer(storable.name, spacing, rightSide);
 

@@ -63,11 +63,11 @@ namespace TittyMagic.UI
         {
             var sb = new StringBuilder();
             sb.Append("\n".Size(12));
-            sb.Append("Adjust how much breast shape is changed dynamically with morphs.");
+            sb.Append("Adjust how much breast shape is dynamically adjusted with morphs.");
             sb.Append("\n\n");
-            sb.Append("Morphing is based on how much the nipple's position deviates");
-            sb.Append(" from its neutral position. The neutral position is where the nipple is when");
-            sb.Append(" the person is standing up and each breast experiences just the force of gravity.");
+            sb.Append("The amount of morphing is based nipple's movement away from its");
+            sb.Append(" neutral position. The neutral position is where the nipple is when");
+            sb.Append(" the person is standing up and only the force of gravity is applied.");
             sb.Append("\n\n");
             sb.Append("Anything that causes the nipple to move will cause morphing:");
             sb.Append(" collision, gravity or any kind of animation.");

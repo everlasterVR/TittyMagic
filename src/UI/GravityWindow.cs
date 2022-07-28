@@ -79,10 +79,12 @@ namespace TittyMagic.UI
             sb.Append("\n".Size(12));
             sb.Append("Adjust the effect of gravity on breasts.");
             sb.Append("\n\n");
-            sb.Append("Which slider takes effect depends on the person's orientation.");
+            sb.Append("Which slider takes effect depends on the person's orientation (or pose).");
+            sb.Append(" For example, <i>Up</i> gravity is applied when the person is upside down");
+            sb.Append(" and gravity pulls breasts <i>up</i> relative to the chest.");
             sb.Append("\n\n");
-            sb.Append("The higher the multiplier, the more heavily breasts will fall in that direction.");
-            sb.Append(" This feeds into directional force morphing, causing breasts to deform more.");
+            sb.Append("Breast gravity feeds into directional force morphing: the more breasts are");
+            sb.Append(" pulled by gravity, the more they will morph as well.");
             sb.Append("\n\n");
             sb.Append("Adjusting the sliders lets you preview the effect, but the final result requires a recalibration.");
             sb.Append(" Recalibrate with the button or by navigating away from this window.");
