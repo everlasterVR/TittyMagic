@@ -105,7 +105,7 @@ namespace TittyMagic.UI
         {
             var sb = new StringBuilder();
             sb.Append("\n".Size(12));
-            sb.Append("Expand nipples with morphs and harden their physics.");
+            sb.Append("Expand nipple morphs and harden nipple physics.");
             var storable = new JSONStorableString("nippleErectionInfoText", sb.ToString());
             AddSpacer(storable.name, spacing, rightSide);
 
