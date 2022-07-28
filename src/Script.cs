@@ -211,8 +211,8 @@ namespace TittyMagic
                 new Group("Left breast", @"lPectoral\d"),
             };
             colliderVisualizer.Init(this, groups);
-            colliderVisualizer.PreviewOpacityJSON.val = 1;
-            colliderVisualizer.PreviewOpacityJSON.defaultVal = 1;
+            colliderVisualizer.PreviewOpacityJSON.val = 0.67f;
+            colliderVisualizer.PreviewOpacityJSON.defaultVal = 0.67f;
             colliderVisualizer.SelectedPreviewOpacityJSON.val = 1;
             colliderVisualizer.SelectedPreviewOpacityJSON.defaultVal = 1;
             colliderVisualizer.GroupsJSON.val = "Left breast";

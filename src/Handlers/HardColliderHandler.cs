@@ -19,6 +19,7 @@ namespace TittyMagic
         public JSONStorableStringChooser colliderGroupsJsc { get; private set; }
         public List<ColliderConfigGroup> colliderConfigs { get; private set; }
         public JSONStorableFloat baseForceJsf { get; private set; }
+        public JSONStorableBool highlightAllJsb { get; private set; }
 
         private Dictionary<string, Dictionary<string, Scaler>> _scalingConfigs;
 
@@ -28,8 +29,6 @@ namespace TittyMagic
         private const string COLLIDER_CENTER_X = "ColliderCenterX";
         private const string COLLIDER_CENTER_Y = "ColliderCenterY";
         private const string COLLIDER_CENTER_Z = "ColliderCenterZ";
-
-        public const string ALL_OPTION = "All";
 
         private bool _combinedSyncInProgress;
 
@@ -57,22 +56,21 @@ namespace TittyMagic
             };
 
             var options = colliderConfigs.Select(c => c.visualizerEditableId).ToList();
-            options.Insert(0, ALL_OPTION);
             var displayOptions = colliderConfigs.Select(c => c.id).ToList();
-            displayOptions.Insert(0, ALL_OPTION);
             colliderGroupsJsc = new JSONStorableStringChooser(
                 "colliderGroup",
                 options,
                 displayOptions,
-                ALL_OPTION,
+                "",
                 "Collider"
             );
             colliderGroupsJsc.setCallbackFunction = value =>
             {
-                _script.colliderVisualizer.PreviewOpacityJSON.val = value == ALL_OPTION ? 1 : 0.67f;
-                _script.colliderVisualizer.EditablesJSON.val = value == ALL_OPTION ? "" : value;
+                _script.colliderVisualizer.EditablesJSON.val = value;
                 SyncSizeAuto();
             };
+            colliderGroupsJsc.val = options[0];
+
             _script.colliderVisualizer.GroupsJSON.setJSONCallbackFunction = jsc =>
             {
                 _script.colliderVisualizer.SelectedPreviewOpacityJSON.val = jsc.val == "Off" ? 0 : 1;
@@ -82,6 +80,8 @@ namespace TittyMagic
 
             baseForceJsf = _script.NewJSONStorableFloat("combinedColliderForce", 0.50f, 0.01f, 1.00f);
             baseForceJsf.setCallbackFunction = SyncHardColliderBaseMass;
+            highlightAllJsb = _script.NewJSONStorableBool("highlightAll", false, register: false);
+            highlightAllJsb.setCallbackFunction = value => _script.colliderVisualizer.PreviewOpacityJSON.val = value ? 1.00f : 0.67f;
 
             SyncHardColliderBaseMass(baseForceJsf.val);
             SyncAllOffsets();

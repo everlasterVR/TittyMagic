@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
 using Image = UnityEngine.UI.Image;
@@ -12,14 +13,7 @@ namespace TittyMagic.UI
 
         public Dictionary<string, UIDynamic> colliderSectionElements { get; }
 
-        private readonly JSONStorableString _title;
-        private readonly JSONStorableString _baseForceInfoText;
-        private readonly JSONStorableString _mainInfoText;
-        private readonly JSONStorableString _selectColliderText;
-        private readonly JSONStorableString _scalingHeaderText;
-        private readonly JSONStorableString _scalingInfoText;
-        private readonly JSONStorableString _centerHeaderText;
-        private readonly JSONStorableString _centerInfoText;
+        private readonly JSONStorableString _colliderInfoText;
 
         public HardCollidersWindow(Script script, UnityAction onReturnToParent) : base(script)
         {
@@ -32,31 +26,7 @@ namespace TittyMagic.UI
                 Clear();
                 onReturnToParent();
             };
-
-            _title = new JSONStorableString("hardCollidersTitle", "");
-            _baseForceInfoText = new JSONStorableString("hardCollidersBaseForceInfoText", "");
-            _mainInfoText = new JSONStorableString("hardCollidersInfoText", "");
-            _selectColliderText = new JSONStorableString("selectColliderText", "");
-            _scalingHeaderText = new JSONStorableString("colliderScalingHeaderText", "");
-            _scalingInfoText = new JSONStorableString("colliderScalingInfoText", "");
-            _centerHeaderText = new JSONStorableString("colliderCenterHeaderText", "");
-            _centerInfoText = new JSONStorableString("colliderCenterInfoText", "");
-
-            _baseForceInfoText.val = "\n".Size(12) +
-                "Base force multiplier combined with the collider's own force multiplier produce the total force for that collider.";
-            _mainInfoText.val = "\n".Size(12) +
-                "Hard colliders make breasts move as a uniform shape when touched." +
-                "\n\nThey make breasts both easier to move and better at maintaining their volume." +
-                "\n\nThe end result also depends on collision force, collider size and shape," +
-                " but also on the amount of morphing and on breast physics settings." +
-                "\n\nThey have almost no impact on animation that doesn't involve collision.";
-            _selectColliderText.val = "Select a collider above to continue.";
-            _scalingInfoText.val = "\n".Size(12) +
-                "Adjust the size and shape of the selected collider." +
-                "\n\nThe closer the collider is to the skin, the more easily it will react to touch.";
-            _centerInfoText.val = "\n".Size(12) +
-                "Adjust the position of the selected collider." +
-                "\n\nCombined with the size and chape, the position determines how well the collider fits inside the breast.";
+            _colliderInfoText = new JSONStorableString("colliderInfoText", "");
         }
 
         private void BuildSelf()
@@ -67,13 +37,11 @@ namespace TittyMagic.UI
 
             CreateCombinedColliderForceSlider(false, spacing: 8);
 
-            CreateHeader(_scalingHeaderText, "Scaling Offsets", false);
-            CreateScalingInfoTextArea(false);
-            CreateHeader(_centerHeaderText, "Center Offsets", false, spacing: 10);
-            CreateCenterInfoTextArea(false);
+            CreateScalingInfoTextArea(false, spacing: 10);
 
-            CreateShowHardCollidersChooser(false, spacing: 35);
+            CreateShowHardCollidersChooser(false, spacing: 10);
             CreateXRayVisualizationToggle(false);
+            CreateHighlightAllToggle(false);
             AddShowPreviewsPopupChangeHandler();
 
             script.colliderVisualizer.enabled = true;
@@ -99,9 +67,10 @@ namespace TittyMagic.UI
 
         private void CreateTitle(bool rightSide)
         {
-            var textField = UIHelpers.TitleTextField(script, _title, "Configure Hard Colliders", 62, rightSide);
+            var storable = new JSONStorableString("hardCollidersTitle", "");
+            var textField = UIHelpers.TitleTextField(script, storable, "Configure Hard Colliders", 62, rightSide);
             textField.UItext.fontSize = 32;
-            elements[_title.name] = textField;
+            elements[storable.name] = textField;
         }
 
         private void CreateColliderGroupChooser(bool rightSide, int spacing = 0)
@@ -122,37 +91,36 @@ namespace TittyMagic.UI
 
             var slider = script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
-            slider.label = "Base Force Multiplier";
+            slider.label = "Base Collision Force";
             slider.AddSliderClickMonitor();
             elements[storable.name] = slider;
         }
 
-        private void CreateHeader(JSONStorableString storable, string text, bool rightSide, int spacing = 0)
-        {
-            elements[$"{storable.name}Spacer"] = script.NewSpacer(spacing, rightSide);
-            elements[storable.name] = UIHelpers.HeaderTextField(script, storable, text, rightSide);
-        }
-
         private void CreateScalingInfoTextArea(bool rightSide, int spacing = 0)
         {
-            var storable = _scalingInfoText;
-            elements[$"{storable.name}Spacer"] = script.NewSpacer(spacing, rightSide);
+            var sb = new StringBuilder();
+            sb.Append("<b><i>Collision force</i></b> determines how easily collision");
+            sb.Append(" causes breasts to move.");
+            sb.Append("\n\n");
+            sb.Append("<b><i>Radius</i></b> and <b><i>length</i></b> adjust the size and");
+            sb.Append(" shape of the selected collider.");
+            sb.Append("\n\n");
+            sb.Append("<b><i>X, Y and Z offsets</i></b> can be used to modify the position");
+            sb.Append(" of the selected collider.");
+            sb.Append("\n\n");
+            sb.Append("The closer the collider matches the volume of the breast, the more");
+            sb.Append(" accurately it responds to touch.");
+            sb.Append("\n\n");
+            sb.Append("Use the preview visualization to ensure there's not too much volume protruding out.");
 
-            var textField = script.CreateTextField(storable, rightSide);
+            _colliderInfoText.val = sb.ToString();
+            elements[$"{_colliderInfoText.name}Spacer"] = script.NewSpacer(spacing, rightSide);
+
+            var textField = script.CreateTextField(_colliderInfoText, rightSide);
             textField.UItext.fontSize = 28;
-            textField.height = 187;
-            elements[storable.name] = textField;
-        }
-
-        private void CreateCenterInfoTextArea(bool rightSide, int spacing = 0)
-        {
-            var storable = _centerInfoText;
-            elements[$"{storable.name}Spacer"] = script.NewSpacer(spacing, rightSide);
-
-            var textField = script.CreateTextField(storable, rightSide);
-            textField.UItext.fontSize = 28;
-            textField.height = 222;
-            elements[storable.name] = textField;
+            textField.height = 550;
+            textField.backgroundColor = Color.clear;
+            elements[_colliderInfoText.name] = textField;
         }
 
         private void CreateShowHardCollidersChooser(bool rightSide, int spacing = 0)
@@ -178,6 +146,19 @@ namespace TittyMagic.UI
             var toggle = script.CreateToggle(storable, rightSide);
             toggle.height = 52;
             toggle.label = "Use XRay Previews";
+
+            elements[storable.name] = toggle;
+        }
+
+        private void CreateHighlightAllToggle(bool rightSide, int spacing = 0)
+        {
+            var storable = script.hardColliderHandler.highlightAllJsb;
+            elements[$"{storable.name}Spacer"] = script.NewSpacer(spacing, rightSide);
+
+            var toggle = script.CreateToggle(storable, rightSide);
+            toggle.height = 52;
+            toggle.label = "Highlight All Colliders";
+
             elements[storable.name] = toggle;
         }
 
@@ -215,6 +196,7 @@ namespace TittyMagic.UI
             }
 
             elements[script.colliderVisualizer.XRayPreviewsJSON.name].SetActiveStyle(value != "Off");
+            elements[script.hardColliderHandler.highlightAllJsb.name].SetActiveStyle(value != "Off");
         }
 
         private void RemoveColliderPopupChangeHandler()
@@ -247,65 +229,20 @@ namespace TittyMagic.UI
 
         private void RebuildColliderSection(string colliderId)
         {
-            if(colliderId == HardColliderHandler.ALL_OPTION)
-            {
-                CreateBaseForceInfoTextArea(true, spacing: 15);
-                CreateHardCollidersInfoTextArea(true, spacing: 50);
-                CreateSelectColliderTextArea(true, spacing: 15);
-            }
-            else
-            {
-                var colliderConfigGroup = script.hardColliderHandler.colliderConfigs
-                    .Find(config => config.visualizerEditableId == colliderId);
+            var colliderConfigGroup = script.hardColliderHandler.colliderConfigs
+                .Find(config => config.visualizerEditableId == colliderId);
 
-                CreateColliderForceSlider(colliderConfigGroup.forceJsf, true, spacing: 15);
-                CreateColliderRadiusSlider(colliderConfigGroup.radiusJsf, true, spacing: 15);
-                CreateColliderLengthSlider(colliderConfigGroup.lengthJsf, true);
+            CreateColliderForceSlider(colliderConfigGroup.forceJsf, true, spacing: 15);
+            CreateColliderRadiusSlider(colliderConfigGroup.radiusJsf, true, spacing: 15);
+            CreateColliderLengthSlider(colliderConfigGroup.lengthJsf, true);
 
-                CreateColliderRightSlider(colliderConfigGroup.rightJsf, true, spacing: 15);
-                CreateColliderUpSlider(colliderConfigGroup.upJsf, true);
-                CreateColliderLookSlider(colliderConfigGroup.lookJsf, true);
+            CreateColliderRightSlider(colliderConfigGroup.rightJsf, true, spacing: 15);
+            CreateColliderUpSlider(colliderConfigGroup.upJsf, true);
+            CreateColliderLookSlider(colliderConfigGroup.lookJsf, true);
 
-                var baseSlider = elements[script.hardColliderHandler.baseForceJsf.name];
-                baseSlider.AddListener(UpdateAllSliderColors);
-                UpdateAllSliderColors(0);
-            }
-        }
-
-        private void CreateBaseForceInfoTextArea(bool rightSide, int spacing = 0)
-        {
-            var storable = _baseForceInfoText;
-            colliderSectionElements[$"{storable.name}Spacer"] = script.NewSpacer(spacing, rightSide);
-
-            var textField = script.CreateTextField(storable, rightSide);
-            textField.UItext.fontSize = 28;
-            textField.height = 120;
-            colliderSectionElements[storable.name] = textField;
-        }
-
-        private void CreateHardCollidersInfoTextArea(bool rightSide, int spacing = 0)
-        {
-            var storable = _mainInfoText;
-            colliderSectionElements[$"{storable.name}Spacer"] = script.NewSpacer(spacing, rightSide);
-
-            var textField = script.CreateTextField(storable, rightSide);
-            textField.UItext.fontSize = 28;
-            textField.height = 450;
-            textField.backgroundColor = Color.clear;
-            colliderSectionElements[storable.name] = textField;
-        }
-
-        private void CreateSelectColliderTextArea(bool rightSide, int spacing = 0)
-        {
-            var storable = _selectColliderText;
-            colliderSectionElements[$"{storable.name}Spacer"] = script.NewSpacer(spacing, rightSide);
-
-            var textField = script.CreateTextField(storable, rightSide);
-            textField.UItext.fontSize = 28;
-            textField.UItext.alignment = TextAnchor.UpperCenter;
-            textField.height = 250;
-            textField.backgroundColor = Color.clear;
-            colliderSectionElements[storable.name] = textField;
+            var baseSlider = elements[script.hardColliderHandler.baseForceJsf.name];
+            baseSlider.AddListener(UpdateAllSliderColors);
+            UpdateAllSliderColors(0);
         }
 
         private void CreateColliderForceSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
@@ -454,7 +391,7 @@ namespace TittyMagic.UI
             var capsuleCollider = (CapsuleCollider) debugColliderConfig.autoCollider.jointCollider;
             var center = capsuleCollider.center;
             var position = Calc.RelativePosition(debugColliderConfig.autoCollider.jointRB, center);
-            _selectColliderText.val = $"{configId}" +
+            _colliderInfoText.val = $"{configId}" +
                 $"\n{Calc.RoundToDecimals(center.x, 1000f)}" +
                 $" {Calc.RoundToDecimals(center.y, 1000f)}" +
                 $" {Calc.RoundToDecimals(center.z, 1000f)}" +
