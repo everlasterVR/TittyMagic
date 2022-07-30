@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using SimpleJSON;
 using TittyMagic.Configs;
 using UnityEngine;
@@ -626,36 +627,81 @@ namespace TittyMagic
 
         private static Dictionary<string, string> CreateInfoTexts()
         {
-            var texts = new Dictionary<string, string>();
+            Func<string> centerOfGravityInfoText = () =>
+            {
+                var sb = new StringBuilder();
+                sb.Append("The position of the pectoral joint's center of mass.");
+                sb.Append("\n\n");
+                sb.Append("At 0, the center of mass is inside the chest at the pectoral joint. At 1, it is at the nipple.");
+                sb.Append(" Between about 0.5 and 0.8, the center of mass is within the bulk of the breast volume.");
+                return sb.ToString();
+            };
 
-            texts[CENTER_OF_GRAVITY_PERCENT] =
-                $"";
+            Func<string> springInfoText = () =>
+            {
+                var sb = new StringBuilder();
+                sb.Append("The magnitude of the spring that pushes the pectoral joint towards its angle target.");
+                sb.Append("\n\n");
+                sb.Append("The angle target is defined by the Up/Down and Left/Right Angle Target parameters.");
+                return sb.ToString();
+            };
 
-            texts[SPRING] =
-                $"";
+            Func<string> damperInfoText = () =>
+            {
+                var sb = new StringBuilder();
+                sb.Append("The magnitude of the damper that reduces oscillation around the joint angle target.");
+                sb.Append("\n\n");
+                sb.Append("The higher the damper, the quicker breasts will stop swinging.");
+                return sb.ToString();
+            };
 
-            texts[DAMPER] =
-                $"";
+            Func<string> positionSpringZInfoText = () =>
+            {
+                var sb = new StringBuilder();
+                sb.Append("The magnitude of the spring that pushes the pectoral joint towards its position target along the Z axis.");
+                sb.Append("\n\n");
+                sb.Append("Directional force morphing along the forward-back axis depends on In/Out Spring being suitably low");
+                sb.Append(" for the given breast mass.");
+                return sb.ToString();
+            };
 
-            texts[POSITION_SPRING_Z] =
-                $"";
+            Func<string> positionDamperZInfoText = () =>
+            {
+                var sb = new StringBuilder();
+                sb.Append("The magnitude of the damper that reduces oscillation around the joint position target along the Z axis.");
+                return sb.ToString();
+            };
 
-            texts[POSITION_DAMPER_Z] =
-                $"";
+            Func<string> targetRotationXInfoText = () =>
+            {
+                var sb = new StringBuilder();
+                sb.Append("The vertical target angle of the pectoral joint.");
+                sb.Append(" Negative values pull breasts down, positive values push them up.");
+                sb.Append("\n\n");
+                sb.Append("The offset shifts the center around which the final angle is calculated");
+                sb.Append(" based on chest angle (see Gravity Multipliers)");
+                return sb.ToString();
+            };
 
-            texts[TARGET_ROTATION_X] =
-                $"Determines the vertical angle of breasts." +
-                $" Negative values pull breasts down, positive values push them up." +
-                $"\n\n" +
-                $"The offset shifts the center around which the final angle is calculated" +
-                $" based on chest angle (see Gravity Multipliers).";
+            Func<string> targetRotationYInfoText = () =>
+            {
+                var sb = new StringBuilder();
+                sb.Append("The horizontal target angle of the pectoral joint.");
+                sb.Append("\n\n");
+                sb.Append("Negative values push breasts apart, positive values pull them together.");
+                return sb.ToString();
+            };
 
-            texts[TARGET_ROTATION_Y] =
-                $"Determines the horizontal angle of breasts." +
-                $"\n\n" +
-                $"Negative values push breasts apart, positive values pull them together.";
-
-            return texts;
+            return new Dictionary<string, string>()
+            {
+                { CENTER_OF_GRAVITY_PERCENT, centerOfGravityInfoText() },
+                { SPRING, springInfoText() },
+                { DAMPER, damperInfoText() },
+                { POSITION_SPRING_Z, positionSpringZInfoText() },
+                { POSITION_DAMPER_Z, positionDamperZInfoText() },
+                { TARGET_ROTATION_X, targetRotationXInfoText() },
+                { TARGET_ROTATION_Y, targetRotationYInfoText() },
+            };
         }
     }
 }

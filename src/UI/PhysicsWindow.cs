@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -25,7 +25,6 @@ namespace TittyMagic.UI
                 _softPhysicsParamsHeader = new JSONStorableString("softPhysicsParamsHeader", "");
             }
 
-            nestedWindows.Add(new OverviewWindow(script, onReturnToParent));
             CreateParameterWindows();
         }
 
@@ -63,13 +62,15 @@ namespace TittyMagic.UI
         private void BuildSelf()
         {
             CreateHeader(_jointPhysicsParamsHeader, "Joint Physics Parameters", false);
-            CreateOverviewButton(false);
+            CreateJointPhysicsInfoTextArea(false);
+
             script.mainPhysicsHandler?.parameterGroups.ToList()
                 .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, false));
 
             if(Gender.isFemale)
             {
                 CreateHeader(_softPhysicsParamsHeader, "Soft Physics Parameters", true);
+                CreateSoftPhysicsInfoTextArea(true);
                 CreateAllowSelfCollisionToggle(true);
                 script.softPhysicsHandler.parameterGroups.ToList()
                     .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, true));
@@ -91,6 +92,34 @@ namespace TittyMagic.UI
             elements[storable.name] = UIHelpers.HeaderTextField(script, storable, text, rightSide);
         }
 
+        private void CreateJointPhysicsInfoTextArea(bool rightSide, int spacing = 0)
+        {
+            var sb = new StringBuilder();
+            sb.Append("The pectoral joint gives breasts their primary physical properties.");
+            var storable = new JSONStorableString("jointPhysicsInfoText", sb.ToString());
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var textField = script.CreateTextField(storable, rightSide);
+            textField.UItext.fontSize = 28;
+            textField.height = 100;
+            textField.backgroundColor = Color.clear;
+            elements[storable.name] = textField;
+        }
+
+        private void CreateSoftPhysicsInfoTextArea(bool rightSide, int spacing = 0)
+        {
+            var sb = new StringBuilder();
+            sb.Append("Physics of each breast's soft tissue is simulated with 111 small colliders and their associated joints.");
+            var storable = new JSONStorableString("softPhysicsInfoText", sb.ToString());
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var textField = script.CreateTextField(storable, rightSide);
+            textField.UItext.fontSize = 28;
+            textField.height = 100;
+            textField.backgroundColor = Color.clear;
+            elements[storable.name] = textField;
+        }
+
         private void CreateParamButton(string key, PhysicsParameterGroup param, bool rightSide)
         {
             var button = script.CreateButton("  " + param.displayName, rightSide);
@@ -108,23 +137,6 @@ namespace TittyMagic.UI
             nestedWindow.parentButton = button;
             button.label = nestedWindow.ParamButtonLabel();
             elements[key] = button;
-        }
-
-        private void CreateOverviewButton(bool rightSide)
-        {
-            var button = script.CreateButton("  Overview", rightSide);
-            button.height = 52;
-            button.buttonText.alignment = TextAnchor.MiddleLeft;
-
-            var nestedWindow = (OverviewWindow) nestedWindows.Find(window => (window as OverviewWindow)?.id == "Overview");
-            button.AddListener(() =>
-            {
-                ClearSelf();
-                activeNestedWindow = nestedWindow;
-                activeNestedWindow.Rebuild();
-            });
-
-            elements["Overview"] = button;
         }
     }
 }
