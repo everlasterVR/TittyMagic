@@ -688,7 +688,7 @@ namespace TittyMagic
                 var sb = new StringBuilder();
                 sb.Append("The horizontal target angle of the pectoral joint.");
                 sb.Append("\n\n");
-                sb.Append("Negative values push breasts apart, positive values pull them together.");
+                sb.Append("A negative offset pulls breasts apart, while a positive offset pushes them together.");
                 return sb.ToString();
             };
 
