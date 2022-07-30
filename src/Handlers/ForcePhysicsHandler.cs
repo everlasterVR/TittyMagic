@@ -356,7 +356,7 @@ namespace TittyMagic
             multiplier * Curve(Mathf.Abs(distance) * 8);
 
         // https://www.desmos.com/calculator/ykxswso5ie
-        private static float Curve(float effect) => Calc.InverseSmoothStep(effect, 10, 0.8f, 0f);
+        private static float Curve(float effect) => Curves.InverseSmoothStep(effect, 10, 0.8f, 0f);
 
         private void UpdateLeftPhysics(string direction, float effect)
         {

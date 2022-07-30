@@ -318,7 +318,7 @@ namespace TittyMagic
             multiplier * Curve(_rollMultiplier * Mathf.Abs(angle) / 60);
 
         // https://www.desmos.com/calculator/ykxswso5ie
-        private static float Curve(float effect) => Calc.InverseSmoothStep(effect, 10, 0.8f, 0f);
+        private static float Curve(float effect) => Curves.InverseSmoothStep(effect, 10, 0.8f, 0f);
 
         private void UpdateMorphs(string configSetName, float effect)
         {

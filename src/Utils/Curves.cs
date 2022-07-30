@@ -57,5 +57,41 @@ namespace TittyMagic
             float baseValue = (2 - c) * (x + s) - 1 + c / 2;
             return c / (1 + c / 3) + baseValue * baseValue;
         }
+
+        // https://www.desmos.com/calculator/crrr1uryep
+        // ReSharper disable once UnusedMember.Global
+        public static float InverseSmoothStep(float value, float b, float curvature, float midpoint)
+        {
+            float result;
+            if(value < 0)
+            {
+                result = 0;
+            }
+            else if(value > b)
+            {
+                result = 1;
+            }
+            else
+            {
+                float s = curvature < -2.99f ? -2.99f : curvature > 0.99f ? 0.99f : curvature;
+                float p = midpoint * b;
+                p = p < 0 ? 0 : p > b ? b : p;
+                float c = 2 / (1 - s) - p / b;
+
+                if(value < p)
+                {
+                    result = F1(value, b, p, c);
+                }
+                else
+                {
+                    result = 1 - F1(b - value, b, b - p, c);
+                }
+            }
+
+            return result;
+        }
+
+        private static float F1(float value, float b, float n, float c) =>
+            Mathf.Pow(value, c) / (b * Mathf.Pow(n, c - 1));
     }
 }

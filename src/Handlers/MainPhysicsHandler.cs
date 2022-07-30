@@ -149,10 +149,11 @@ namespace TittyMagic
             {
                 config = softPhysicsEnabled
                     ? new StaticPhysicsConfig(
-                        0.80f,
-                        // https://www.desmos.com/calculator/cz7o7u8v6w
-                        massCurve: x => 1.60f * Curves.Exponential1(x, 2.15f, 3.0f, 3.03f, m: 0.29f),
-                        softnessCurve: x => -0.67f * Curves.Exponential1(x, 1.9f, 1.74f, 1.17f)
+                        1.20f,
+                        // https://www.desmos.com/calculator/y3akvzgr1s
+                        massCurve: x => 1.35f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.30f, 0.60f),
+                        // https://www.desmos.com/calculator/nxyosar9o6
+                        softnessCurve: x => -0.80f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f)
                     )
                     : new StaticPhysicsConfig(
                         0.79f,
