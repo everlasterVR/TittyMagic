@@ -504,7 +504,6 @@ namespace TittyMagic
             float softness = _script.softnessAmount;
             float quickness = _script.quicknessAmount;
             parameterGroups.Values
-                .Where(paramGroup => paramGroup.hasStaticConfig)
                 .ToList()
                 .ForEach(paramGroup => UpdateParam(paramGroup, softness, quickness));
         }
@@ -514,7 +513,7 @@ namespace TittyMagic
             float softness = _script.softnessAmount;
             float quickness = _script.quicknessAmount;
             parameterGroups.Values
-                .Where(paramGroup => paramGroup.hasStaticConfig && paramGroup.dependOnPhysicsRate)
+                .Where(paramGroup => paramGroup.dependOnPhysicsRate)
                 .ToList()
                 .ForEach(paramGroup => UpdateParam(paramGroup, softness, quickness));
         }

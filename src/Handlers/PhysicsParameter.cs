@@ -32,8 +32,6 @@ namespace TittyMagic
         public PhysicsParameter left { get; }
         public PhysicsParameter right { get; }
 
-        public bool hasStaticConfig => left.config != null && right.config != null;
-
         public PhysicsParameterGroup(string id, PhysicsParameter left, PhysicsParameter right, string displayName)
         {
             this.id = id;
