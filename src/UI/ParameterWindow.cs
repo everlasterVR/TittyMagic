@@ -12,7 +12,6 @@ namespace TittyMagic.UI
         private readonly PhysicsParameter _parameter;
         private readonly UnityAction _returnToParent;
 
-        private readonly JSONStorableString _infoText;
         private float _offsetWhenCalibrated;
 
         public string id { get; }
@@ -30,8 +29,6 @@ namespace TittyMagic.UI
                 Clear();
                 onReturnToParent();
             };
-
-            _infoText = new JSONStorableString("infoText", "");
         }
 
         private void BuildSelf()
@@ -110,8 +107,7 @@ namespace TittyMagic.UI
 
         private void CreateInfoTextArea(bool rightSide, int spacing = 0)
         {
-            var storable = _infoText;
-            storable.val = _parameterGroup.infoText;
+            var storable = new JSONStorableString("infoText", _parameterGroup.infoText);
             AddSpacer(storable.name, spacing, rightSide);
 
             var textField = script.CreateTextField(storable, rightSide);
@@ -162,15 +158,15 @@ namespace TittyMagic.UI
         private void CreateColliderGroupSection(string group, bool rightSide)
         {
             var groupParam = _parameter.GetGroupParam(group);
-            CreateGroupsHeader(group + " Colliders", rightSide);
+            CreateGroupHeader(group, rightSide);
             CreateMultiplierOffsetSlider(groupParam.offsetJsf, rightSide);
             CreateMultiplierSlider(groupParam.valueJsf, rightSide);
         }
 
-        private void CreateGroupsHeader(string text, bool rightSide)
+        private void CreateGroupHeader(string group, bool rightSide)
         {
-            var storable = new JSONStorableString(text + "Header", "");
-            elements[storable.name] = UIHelpers.HeaderTextField(script, storable, text, rightSide);
+            var storable = new JSONStorableString(group + "Header", "");
+            elements[storable.name] = UIHelpers.HeaderTextField(script, storable, group, rightSide);
         }
 
         private void CreateMultiplierSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
