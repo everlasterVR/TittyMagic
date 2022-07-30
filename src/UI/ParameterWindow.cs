@@ -53,8 +53,8 @@ namespace TittyMagic.UI
             if(_parameter.groupMultiplierParams != null)
             {
                 CreateColliderGroupSection(SoftColliderGroup.MAIN, false);
-                CreateColliderGroupSection(SoftColliderGroup.AREOLA, true);
-                CreateColliderGroupSection(SoftColliderGroup.OUTER, false);
+                CreateColliderGroupSection(SoftColliderGroup.OUTER, true);
+                CreateColliderGroupSection(SoftColliderGroup.AREOLA, false);
                 CreateColliderGroupSection(SoftColliderGroup.NIPPLE, true);
             }
         }
