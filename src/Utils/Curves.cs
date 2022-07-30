@@ -45,6 +45,8 @@ namespace TittyMagic
         // https://www.desmos.com/calculator/b8hxt91gkf
         public static float DeemphasizeMiddle(float x) => Exponential1(x, 3.00f, 3.53f, 1.22f, a: 1.20f, m: 0.72f);
 
+        public static float TargetRotationCurve(float x) => Exponential1(x, 3.00f, 1.35f, 1.00f);
+
         // https://www.desmos.com/calculator/uejk7yri1f
         public static float Exponential1(float x, float b, float p, float q, float a = 1, float m = 1, float s = 0) =>
             m * ((1 - b) * Mathf.Pow(a * x + s, p) + b * Mathf.Pow(a * x + s, q));

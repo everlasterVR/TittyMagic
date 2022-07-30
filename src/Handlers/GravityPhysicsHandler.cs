@@ -126,18 +126,22 @@ namespace TittyMagic
             {
                 {
                     Direction.DOWN, new DynamicPhysicsConfig(
-                        massMultiplier: -12f,
-                        softnessMultiplier: -16f,
+                        massMultiplier: -9f,
+                        softnessMultiplier: -13f,
                         isNegative: true,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        massCurve: Curves.TargetRotationCurve,
+                        softnessCurve: Curves.TargetRotationCurve
                     )
                 },
                 {
                     Direction.UP, new DynamicPhysicsConfig(
-                        massMultiplier: 13f,
-                        softnessMultiplier: 22,
+                        massMultiplier: 9.75f,
+                        softnessMultiplier: 17.90f,
                         isNegative: false,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        massCurve: Curves.TargetRotationCurve,
+                        softnessCurve: Curves.TargetRotationCurve
                     )
                 },
             };
@@ -147,18 +151,22 @@ namespace TittyMagic
             {
                 {
                     Direction.LEFT, new DynamicPhysicsConfig(
-                        massMultiplier: -12f,
-                        softnessMultiplier: -16f,
+                        massMultiplier: -9f,
+                        softnessMultiplier: -13f,
                         isNegative: true,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        massCurve: Curves.TargetRotationCurve,
+                        softnessCurve: Curves.TargetRotationCurve
                     )
                 },
                 {
                     Direction.RIGHT, new DynamicPhysicsConfig(
-                        massMultiplier: 12f,
-                        softnessMultiplier: 16f,
+                        massMultiplier: -9f,
+                        softnessMultiplier: -13f,
                         isNegative: false,
-                        applyMethod: ApplyMethod.ADDITIVE
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        massCurve: Curves.TargetRotationCurve,
+                        softnessCurve: Curves.TargetRotationCurve
                     )
                 },
             };
