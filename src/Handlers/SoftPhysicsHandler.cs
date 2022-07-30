@@ -276,12 +276,12 @@ namespace TittyMagic
 
         private PhysicsParameter NewColliderRadiusParameter(string side)
         {
-            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 0.040f))
+            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 0.060f))
             {
                 config = new StaticPhysicsConfig(
-                    0.020f,
-                    massCurve: x => 0.75f * x,
-                    softnessCurve: x => 0.20f * x
+                    0.016f,
+                    massCurve: x => 1.54f * Curves.Exponential1(2 / 3f * x, 1.42f, 4.25f, 1.17f),
+                    softnessCurve: x => 0.18f * x
                 ),
                 valueFormat = "F3",
             };
@@ -289,8 +289,8 @@ namespace TittyMagic
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
                 { MAIN, new StaticPhysicsConfig(1.00f) },
-                { OUTER, new StaticPhysicsConfig(0.89f) },
-                { AREOLA, new StaticPhysicsConfig(1.20f) },
+                { OUTER, new StaticPhysicsConfig(1.00f) },
+                { AREOLA, new StaticPhysicsConfig(1.15f) },
                 { NIPPLE, new StaticPhysicsConfig(0.00f) },
             };
 
