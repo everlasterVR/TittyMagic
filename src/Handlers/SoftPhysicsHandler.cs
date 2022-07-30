@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using SimpleJSON;
 using TittyMagic.Configs;
 using static TittyMagic.ParamName;
@@ -886,36 +887,81 @@ namespace TittyMagic
 
         private static Dictionary<string, string> CreateInfoTexts()
         {
-            var texts = new Dictionary<string, string>();
+            Func<string> springText = () =>
+            {
+                var sb = new StringBuilder();
+                sb.Append("");
+                return sb.ToString();
+            };
 
-            texts[SOFT_VERTICES_SPRING] =
-                $"";
+            Func<string> damperText = () =>
+            {
+                var sb = new StringBuilder();
+                sb.Append("");
+                return sb.ToString();
+            };
 
-            texts[SOFT_VERTICES_DAMPER] =
-                $"";
+            Func<string> massText = () =>
+            {
+                var sb = new StringBuilder();
+                sb.Append("");
+                return sb.ToString();
+            };
 
-            texts[SOFT_VERTICES_MASS] =
-                $"";
+            Func<string> backForceText = () =>
+            {
+                var sb = new StringBuilder();
+                sb.Append("");
+                return sb.ToString();
+            };
 
-            texts[SOFT_VERTICES_BACK_FORCE] =
-                $"";
+            Func<string> backForceThresholdDistanceText = () =>
+            {
+                var sb = new StringBuilder();
+                sb.Append("");
+                return sb.ToString();
+            };
 
-            texts[SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE] =
-                $"";
+            Func<string> backForceMaxForceText = () =>
+            {
+                var sb = new StringBuilder();
+                sb.Append("");
+                return sb.ToString();
+            };
 
-            texts[SOFT_VERTICES_BACK_FORCE_MAX_FORCE] =
-                $"";
+            Func<string> colliderRadiusText = () =>
+            {
+                var sb = new StringBuilder();
+                sb.Append("");
+                return sb.ToString();
+            };
 
-            texts[SOFT_VERTICES_COLLIDER_RADIUS] =
-                $"";
+            Func<string> colliderAdditionalNormalOffsetText = () =>
+            {
+                var sb = new StringBuilder();
+                sb.Append("");
+                return sb.ToString();
+            };
 
-            texts[SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET] =
-                $"";
+            Func<string> distanceLimitText = () =>
+            {
+                var sb = new StringBuilder();
+                sb.Append("");
+                return sb.ToString();
+            };
 
-            texts[SOFT_VERTICES_DISTANCE_LIMIT] =
-                $"";
-
-            return texts;
+            return new Dictionary<string, string>()
+            {
+                { SOFT_VERTICES_SPRING, springText() },
+                { SOFT_VERTICES_DAMPER, damperText() },
+                { SOFT_VERTICES_MASS, massText() },
+                { SOFT_VERTICES_BACK_FORCE, backForceText() },
+                { SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE, backForceThresholdDistanceText() },
+                { SOFT_VERTICES_BACK_FORCE_MAX_FORCE, backForceMaxForceText() },
+                { SOFT_VERTICES_COLLIDER_RADIUS, colliderRadiusText() },
+                { SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, colliderAdditionalNormalOffsetText() },
+                { SOFT_VERTICES_DISTANCE_LIMIT, distanceLimitText() },
+            };
         }
     }
 }

@@ -627,55 +627,55 @@ namespace TittyMagic
 
         private static Dictionary<string, string> CreateInfoTexts()
         {
-            Func<string> centerOfGravityInfoText = () =>
+            Func<string> centerOfGravityText = () =>
             {
                 var sb = new StringBuilder();
-                sb.Append("The position of the pectoral joint's center of mass.");
+                sb.Append("Position of the pectoral joint's center of mass.");
                 sb.Append("\n\n");
                 sb.Append("At 0, the center of mass is inside the chest at the pectoral joint. At 1, it is at the nipple.");
                 sb.Append(" Between about 0.5 and 0.8, the center of mass is within the bulk of the breast volume.");
                 return sb.ToString();
             };
 
-            Func<string> springInfoText = () =>
+            Func<string> springText = () =>
             {
                 var sb = new StringBuilder();
-                sb.Append("The magnitude of the spring that pushes the pectoral joint towards its angle target.");
+                sb.Append("Magnitude of the spring that pushes the pectoral joint towards its angle target.");
                 sb.Append("\n\n");
                 sb.Append("The angle target is defined by the Up/Down and Left/Right Angle Target parameters.");
                 return sb.ToString();
             };
 
-            Func<string> damperInfoText = () =>
+            Func<string> damperText = () =>
             {
                 var sb = new StringBuilder();
-                sb.Append("The magnitude of the damper that reduces oscillation around the joint angle target.");
+                sb.Append("Magnitude of the damper that reduces oscillation around the joint angle target.");
                 sb.Append("\n\n");
                 sb.Append("The higher the damper, the quicker breasts will stop swinging.");
                 return sb.ToString();
             };
 
-            Func<string> positionSpringZInfoText = () =>
+            Func<string> positionSpringZText = () =>
             {
                 var sb = new StringBuilder();
-                sb.Append("The magnitude of the spring that pushes the pectoral joint towards its position target along the Z axis.");
+                sb.Append("Magnitude of the spring that pushes the pectoral joint towards its position target along the Z axis.");
                 sb.Append("\n\n");
                 sb.Append("Directional force morphing along the forward-back axis depends on In/Out Spring being suitably low");
                 sb.Append(" for the given breast mass.");
                 return sb.ToString();
             };
 
-            Func<string> positionDamperZInfoText = () =>
+            Func<string> positionDamperZText = () =>
             {
                 var sb = new StringBuilder();
-                sb.Append("The magnitude of the damper that reduces oscillation around the joint position target along the Z axis.");
+                sb.Append("Magnitude of the damper that reduces oscillation around the joint position target along the Z axis.");
                 return sb.ToString();
             };
 
-            Func<string> targetRotationXInfoText = () =>
+            Func<string> targetRotationXText = () =>
             {
                 var sb = new StringBuilder();
-                sb.Append("The vertical target angle of the pectoral joint.");
+                sb.Append("Vertical target angle of the pectoral joint.");
                 sb.Append(" Negative values pull breasts down, positive values push them up.");
                 sb.Append("\n\n");
                 sb.Append("The offset shifts the center around which the final angle is calculated");
@@ -683,10 +683,10 @@ namespace TittyMagic
                 return sb.ToString();
             };
 
-            Func<string> targetRotationYInfoText = () =>
+            Func<string> targetRotationYText = () =>
             {
                 var sb = new StringBuilder();
-                sb.Append("The horizontal target angle of the pectoral joint.");
+                sb.Append("Horizontal target angle of the pectoral joint.");
                 sb.Append("\n\n");
                 sb.Append("A negative offset pulls breasts apart, while a positive offset pushes them together.");
                 return sb.ToString();
@@ -694,13 +694,13 @@ namespace TittyMagic
 
             return new Dictionary<string, string>()
             {
-                { CENTER_OF_GRAVITY_PERCENT, centerOfGravityInfoText() },
-                { SPRING, springInfoText() },
-                { DAMPER, damperInfoText() },
-                { POSITION_SPRING_Z, positionSpringZInfoText() },
-                { POSITION_DAMPER_Z, positionDamperZInfoText() },
-                { TARGET_ROTATION_X, targetRotationXInfoText() },
-                { TARGET_ROTATION_Y, targetRotationYInfoText() },
+                { CENTER_OF_GRAVITY_PERCENT, centerOfGravityText() },
+                { SPRING, springText() },
+                { DAMPER, damperText() },
+                { POSITION_SPRING_Z, positionSpringZText() },
+                { POSITION_DAMPER_Z, positionDamperZText() },
+                { TARGET_ROTATION_X, targetRotationXText() },
+                { TARGET_ROTATION_Y, targetRotationYText() },
             };
         }
     }
