@@ -81,7 +81,10 @@ namespace TittyMagic
             SetupPhysicsParameterGroups();
 
             var texts = CreateInfoTexts();
-            parameterGroups.ForEach(param => param.Value.infoText = texts[param.Key]);
+            foreach(var param in parameterGroups)
+            {
+                param.Value.infoText = texts[param.Key];
+            }
         }
 
         #region *** Parameter setup ***
@@ -890,63 +893,85 @@ namespace TittyMagic
             Func<string> springText = () =>
             {
                 var sb = new StringBuilder();
-                sb.Append("");
+                sb.Append("Magnitude of the spring that holds each soft joint in its target position.");
+                sb.Append("\n\n");
+                sb.Append("Low fat spring makes breast fat soft and slow. High fat spring makes it rigid and");
+                sb.Append(" quick to return to its normal shape.");
                 return sb.ToString();
             };
 
             Func<string> damperText = () =>
             {
                 var sb = new StringBuilder();
-                sb.Append("");
+                sb.Append("Magnitude of the damper that reduces oscillation of each soft joint around");
+                sb.Append(" its target position.");
+                sb.Append("\n\n");
+                sb.Append("Low fat damper makes breast fat jiggle more easily.");
                 return sb.ToString();
             };
 
             Func<string> massText = () =>
             {
                 var sb = new StringBuilder();
-                sb.Append("");
+                sb.Append("Mass of each soft joint.");
+                sb.Append("\n\n");
+                sb.Append("Higher mass makes the breast tissue more dense. The value is an absolute value,");
+                sb.Append(" so increasing breast size while keeping fat mass the same reduces density.");
                 return sb.ToString();
             };
 
             Func<string> backForceText = () =>
             {
                 var sb = new StringBuilder();
-                sb.Append("");
+                sb.Append("Force applied to the pectoral joint based on movement of each soft joint.");
+                sb.Append("\n\n");
+                sb.Append("Low back force (not 0) helps move the breast with collision, and adds a dampening effect.");
+                sb.Append(" High force can create a feedback loop that spirals out of control.");
                 return sb.ToString();
             };
 
             Func<string> backForceThresholdDistanceText = () =>
             {
                 var sb = new StringBuilder();
-                sb.Append("");
+                sb.Append("Minimum distance each soft joint needs to move for back force to be applied.");
+                sb.Append("\n\n");
+                sb.Append("Ensures that small movements of soft joints don't cause the whole breast");
+                sb.Append(" to move. Along with Fat Bk Force Threshold, this can be used to prevent");
+                sb.Append(" an out of control feedback loop.");
                 return sb.ToString();
             };
 
             Func<string> backForceMaxForceText = () =>
             {
                 var sb = new StringBuilder();
-                sb.Append("");
+                sb.Append("Upper limit on the magnitude of back force.");
+                sb.Append("\n\n");
+                sb.Append("Along with Fat Bk Force Threshold, this can be used to prevent an out of control feedback loop.");
                 return sb.ToString();
             };
 
             Func<string> colliderRadiusText = () =>
             {
                 var sb = new StringBuilder();
-                sb.Append("");
+                sb.Append("Radius of each soft collider.");
+                sb.Append("\n\n");
+                sb.Append("Since the number of soft colliders is fixed, the radius scales with breast size.");
                 return sb.ToString();
             };
 
             Func<string> colliderAdditionalNormalOffsetText = () =>
             {
                 var sb = new StringBuilder();
-                sb.Append("");
+                sb.Append("Offset of soft collider positions relative to skin surface.");
+                sb.Append("\n\n");
+                sb.Append("Negative values pull colliders out from the breast, positive values push them into the breast.");
                 return sb.ToString();
             };
 
             Func<string> distanceLimitText = () =>
             {
                 var sb = new StringBuilder();
-                sb.Append("");
+                sb.Append("The maximum distance each soft joint can move away from its target position.");
                 return sb.ToString();
             };
 
