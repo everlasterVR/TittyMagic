@@ -14,6 +14,7 @@ namespace TittyMagic
     internal class MainPhysicsHandler
     {
         private readonly Script _script;
+        private BreastVolumeCalculator _breastVolumeCalculator;
         private readonly AdjustJoints _breastControl;
         private readonly ConfigurableJoint _jointLeft;
         private readonly ConfigurableJoint _jointRight;
@@ -42,16 +43,16 @@ namespace TittyMagic
         public MainPhysicsHandler(
             Script script,
             AdjustJoints breastControl,
-            Rigidbody pectoralRbLeft,
-            Rigidbody pectoralRbRight
+            BreastVolumeCalculator breastVolumeCalculator
         )
         {
             _script = script;
             _breastControl = breastControl;
             _jointLeft = _breastControl.joint2;
             _jointRight = _breastControl.joint1;
-            _pectoralRbLeft = pectoralRbLeft;
-            _pectoralRbRight = pectoralRbRight;
+            _breastVolumeCalculator = breastVolumeCalculator;
+            _pectoralRbLeft = _jointLeft.GetComponent<Rigidbody>();
+            _pectoralRbRight = _jointRight.GetComponent<Rigidbody>();
 
             _adjustJointsFloatParamNames = new List<string>
             {
@@ -68,8 +69,9 @@ namespace TittyMagic
             SaveOriginalPhysicsAndSetPluginDefaults();
         }
 
-        public void UpdateMassValueAndAmounts(float volume)
+        public void UpdateMassValueAndAmounts()
         {
+            float volume = _breastVolumeCalculator.Calculate(_script.atomScaleListener.scale);
             massParameterGroup.UpdateValue(volume);
             realMassAmount = massParameterGroup.left.baseValueJsf.val / 2;
             massAmount = massParameterGroup.left.valueJsf.val / 2;

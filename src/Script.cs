@@ -16,15 +16,13 @@ namespace TittyMagic
     {
         public const string VERSION = "v0.0.0";
 
+        public static GenerateDAZMorphsControlUI morphsControlUI { get; private set; }
         private Bindings _customBindings;
         private FrequencyRunner _listenersCheckRunner;
 
-        private Rigidbody _chestRb;
         private Transform _chestTransform;
         private Rigidbody _pectoralRbLeft;
         private Rigidbody _pectoralRbRight;
-
-        private DAZSkinV2 _skin;
 
         public float softnessAmount { get; private set; }
         public float quicknessAmount { get; private set; }
@@ -36,9 +34,8 @@ namespace TittyMagic
         private TrackNipple _trackRightNipple;
         public SettingsMonitor settingsMonitor { get; private set; }
 
-        private AtomScaleListener _atomScaleListener;
+        public AtomScaleListener atomScaleListener { get; private set; }
         private BreastMorphListener _breastMorphListener;
-        private BreastVolumeCalculator _breastVolumeCalculator;
 
         public MainPhysicsHandler mainPhysicsHandler { get; private set; }
         public HardColliderHandler hardColliderHandler { get; private set; }
@@ -122,20 +119,19 @@ namespace TittyMagic
 
             morphsControlUI = Gender.isFemale ? geometry.morphsControlUI : geometry.morphsControlUIOtherGender;
             var rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
-            _chestRb = rigidbodies.Find(rb => rb.name == "chest");
-            _chestTransform = _chestRb.transform;
+            var chestRb = rigidbodies.Find(rb => rb.name == "chest");
+            _chestTransform = chestRb.transform;
 
             var breastControl = (AdjustJoints) containingAtom.GetStorableByID(Gender.isFemale ? "BreastControl" : "PectoralControl");
             _pectoralRbLeft = breastControl.joint2.GetComponent<Rigidbody>();
             _pectoralRbRight = breastControl.joint1.GetComponent<Rigidbody>();
 
-            _atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
-            _skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
-            _breastVolumeCalculator = new BreastVolumeCalculator(_skin, _chestRb);
+            atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
+            var skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
 
             SetupColliderVisualizer();
 
-            mainPhysicsHandler = new MainPhysicsHandler(this, breastControl, _pectoralRbLeft, _pectoralRbRight);
+            mainPhysicsHandler = new MainPhysicsHandler(this, breastControl, new BreastVolumeCalculator(skin, chestRb));
             hardColliderHandler = gameObject.AddComponent<HardColliderHandler>();
             hardColliderHandler.Init();
 
@@ -144,8 +140,8 @@ namespace TittyMagic
             offsetMorphHandler = new GravityOffsetMorphHandler(this);
             nippleErectionHandler = new NippleErectionHandler(this);
 
-            _trackLeftNipple = new TrackNipple(_chestRb, _pectoralRbLeft);
-            _trackRightNipple = new TrackNipple(_chestRb, _pectoralRbRight);
+            _trackLeftNipple = new TrackNipple(chestRb, _pectoralRbLeft);
+            _trackRightNipple = new TrackNipple(chestRb, _pectoralRbRight);
 
             settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
             settingsMonitor.Init();
@@ -157,10 +153,10 @@ namespace TittyMagic
             else
             {
                 _trackLeftNipple.getNipplePosition = () => AveragePosition(
-                    VertexIndexGroup.LEFT_BREAST_CENTER.Select(i => _skin.rawSkinnedWorkingVerts[i]).ToList()
+                    VertexIndexGroup.LEFT_BREAST_CENTER.Select(i => skin.rawSkinnedWorkingVerts[i]).ToList()
                 );
                 _trackRightNipple.getNipplePosition = () => AveragePosition(
-                    VertexIndexGroup.RIGHT_BREAST_CENTER.Select(i => _skin.rawSkinnedWorkingVerts[i]).ToList()
+                    VertexIndexGroup.RIGHT_BREAST_CENTER.Select(i => skin.rawSkinnedWorkingVerts[i]).ToList()
                 );
             }
 
@@ -462,7 +458,7 @@ namespace TittyMagic
                 }
 
                 bool morphsOrScaleChanged = _listenersCheckRunner.Run(() =>
-                    _breastMorphListener.Changed() || _atomScaleListener.Changed()
+                    _breastMorphListener.Changed() || atomScaleListener.Changed()
                 );
                 if(morphsOrScaleChanged && autoUpdateJsb.val && !_waiting)
                 {
@@ -542,7 +538,7 @@ namespace TittyMagic
 
                 while(
                     _breastMorphListener.Changed() ||
-                    _atomScaleListener.Changed() ||
+                    atomScaleListener.Changed() ||
                     sliders.Any(slider => slider.IsClickDown())
                 )
                 {
@@ -639,7 +635,7 @@ namespace TittyMagic
                 yield return new WaitForSeconds(interval);
                 duration += interval;
 
-                mainPhysicsHandler.UpdateMassValueAndAmounts(_breastVolumeCalculator.Calculate(_atomScaleListener.scale));
+                mainPhysicsHandler.UpdateMassValueAndAmounts();
                 mainPhysicsHandler.UpdatePhysics();
             }
         }

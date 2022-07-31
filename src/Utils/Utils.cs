@@ -7,7 +7,6 @@ namespace TittyMagic
     internal static class Utils
     {
         public static string morphsPath { get; set; }
-        public static GenerateDAZMorphsControlUI morphsControlUI { get; set; }
 
         public static void LogError(string message, string name = "") =>
             SuperController.LogError(Format(message, name));
@@ -28,7 +27,7 @@ namespace TittyMagic
         public static DAZMorph GetMorph(string file)
         {
             string uid = $"{morphsPath}/{file}.vmi";
-            var dazMorph = morphsControlUI.GetMorphByUid(uid);
+            var dazMorph = Script.morphsControlUI.GetMorphByUid(uid);
             if(dazMorph == null)
             {
                 LogError($"Morph with uid '{uid}' not found!");

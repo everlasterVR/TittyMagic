@@ -6,20 +6,15 @@ namespace TittyMagic.UI
 {
     public static class UIHelpers
     {
-        public static Color darkOffGrayViolet = new Color(0.26f, 0.20f, 0.26f);
         public static Color darkerGray = new Color(0.4f, 0.4f, 0.4f);
-        public static Color lightPink = new Color(1f, 0.925f, 0.925f);
-        public static Color offGrayRed = new Color(0.45f, 0.4f, 0.4f);
-        public static Color offGrayViolet = new Color(0.80f, 0.75f, 0.80f);
         public static Color sliderGray = new Color(0, 0, 0, 0.498f);
         public static Color funkyCyan = new Color(0.596f, 1.000f, 0.780f);
-        public static Color titleGreen = new Color(0.285f, 0.690f, 0.489f);
-        public static Color paleCyan = new Color32(195, 231, 212, 255);
-        public static Color evenPalerCyan = new Color32(206, 228, 216, 255);
 
+        // ReSharper disable once UnusedMember.Global
         public static Color defaultBtnNormalColor = new Color(0.8392157f, 0.8392157f, 0.8392157f);
         public static Color defaultBtnHighlightedColor = new Color(0.7f, 0.7f, 0.7f);
         public static Color defaultBtnPressedColor = Color.gray;
+        // ReSharper disable once UnusedMember.Global
         public static Color defaultBtnDisabledColor = Color.gray;
 
         // ReSharper disable once UnusedMember.Global
