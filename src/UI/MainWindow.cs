@@ -34,7 +34,6 @@ namespace TittyMagic.UI
             CreateSoftnessInfoTextField(false, spacing: 35);
             CreateQuicknessInfoTextField(false);
             CreateBreastMassInfoTextField(false, spacing: 10);
-            CreateHardCollidersInfoTextField(false, spacing: 10);
 
             CreateRecalibrateButton(true);
             CreateSoftPhysicsOnToggle(true, spacing: 15);
@@ -47,6 +46,7 @@ namespace TittyMagic.UI
 
             if(Gender.isFemale)
             {
+                CreateHardCollidersInfoTextField(false, spacing: 10);
                 CreateConfigureHardCollidersButton(true, spacing: 15);
             }
         }

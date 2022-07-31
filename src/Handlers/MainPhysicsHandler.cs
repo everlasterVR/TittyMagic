@@ -649,9 +649,13 @@ namespace TittyMagic
                 sb.Append("Mass of the pectoral joint.");
                 sb.Append("\n\n");
                 sb.Append("Since mass represents breast size, other physics parameters are adjusted based on its value.");
-                sb.Append("\n\n");
-                sb.Append("Fat Collider Radius and Fat Distance Limit are adjusted using the mass estimated from");
-                sb.Append(" volume, the rest are adjusted using the actual mass value that includes the offset.");
+                if(Gender.isFemale)
+                {
+                    sb.Append("\n\n");
+                    sb.Append("Fat Collider Radius and Fat Distance Limit are adjusted using the mass estimated from");
+                    sb.Append(" volume, the rest are adjusted using the actual mass value that includes the offset.");
+                }
+
                 return sb.ToString();
             };
 
