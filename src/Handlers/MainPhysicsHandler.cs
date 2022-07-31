@@ -96,20 +96,14 @@ namespace TittyMagic
                     : (Action<float>) (value => SyncMass(_pectoralRbRight, value)),
             };
 
-        private PhysicsParameter NewCenterOfGravityParameter(bool left, bool softPhysicsEnabled) =>
+        private PhysicsParameter NewCenterOfGravityParameter(bool left) =>
             new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 1.00f))
             {
-                config = softPhysicsEnabled
-                    ? new StaticPhysicsConfig(
-                        0.50f,
-                        massCurve: x => 0.30f * x,
-                        softnessCurve: x => 0.10f * x
-                    )
-                    : new StaticPhysicsConfig(
-                        0.50f,
-                        massCurve: x => 0.45f * x,
-                        softnessCurve: x => 0.15f * x
-                    ),
+                config = new StaticPhysicsConfig(
+                    0.50f,
+                    massCurve: x => 0.30f * x,
+                    softnessCurve: x => 0.10f * x
+                ),
                 valueFormat = "F2",
                 sync = left
                     ? (Action<float>) (value => SyncCenterOfGravity(_pectoralRbLeft, value))
@@ -142,19 +136,13 @@ namespace TittyMagic
         private PhysicsParameter NewDamperParameter(bool left, bool softPhysicsEnabled) =>
             new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 10.00f))
             {
-                config = softPhysicsEnabled
-                    ? new StaticPhysicsConfig(
-                        1.20f,
-                        // https://www.desmos.com/calculator/y3akvzgr1s
-                        massCurve: x => 1.35f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.30f, 0.60f),
-                        // https://www.desmos.com/calculator/nxyosar9o6
-                        softnessCurve: x => -0.80f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f)
-                    )
-                    : new StaticPhysicsConfig(
-                        0.79f,
-                        massCurve: x => 0.19f * x,
-                        softnessCurve: x => -0.38f * x
-                    ),
+                config = new StaticPhysicsConfig(
+                    1.20f,
+                    // https://www.desmos.com/calculator/y3akvzgr1s
+                    massCurve: x => 1.35f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.30f, 0.60f),
+                    // https://www.desmos.com/calculator/nxyosar9o6
+                    softnessCurve: x => -0.80f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f)
+                ),
                 quicknessOffsetConfig = softPhysicsEnabled
                     ? new StaticPhysicsConfig(
                         -0.30f,
@@ -248,8 +236,8 @@ namespace TittyMagic
 
             var centerOfGravityPercent = new PhysicsParameterGroup(
                 CENTER_OF_GRAVITY_PERCENT,
-                NewCenterOfGravityParameter(true, softPhysicsEnabled),
-                NewCenterOfGravityParameter(false, softPhysicsEnabled),
+                NewCenterOfGravityParameter(true),
+                NewCenterOfGravityParameter(false),
                 "Center Of Gravity"
             )
             {
