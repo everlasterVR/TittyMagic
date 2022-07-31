@@ -65,7 +65,6 @@ namespace TittyMagic
         // ReSharper restore MemberCanBePrivate.Global
         public JSONStorableAction recalibratePhysics { get; private set; }
         public JSONStorableAction calculateBreastMass { get; private set; }
-        public JSONStorableString statusInfo { get; private set; }
         public JSONStorableBool autoUpdateJsb { get; private set; }
         public JSONStorableFloat softnessJsf { get; private set; }
         public JSONStorableFloat quicknessJsf { get; private set; }
@@ -291,41 +290,33 @@ namespace TittyMagic
 
         private void SetupStorables()
         {
-            statusInfo = new JSONStorableString("recalibrating", "");
             autoUpdateJsb = this.NewJSONStorableBool("autoUpdateMass", true);
             softnessJsf = this.NewJSONStorableFloat("breastSoftness", 70f, 0f, 100f);
             quicknessJsf = this.NewJSONStorableFloat("breastQuickness", 70f, 0f, 100f);
 
             recalibratePhysics = new JSONStorableAction(
                 "recalibratePhysics",
-                () => StartCoroutine(DeferBeginRefresh(refreshMass: true, waitForListeners: true))
+                () => StartCoroutine(DeferBeginRefresh(refreshMass: false))
             );
 
             calculateBreastMass = new JSONStorableAction(
                 "calculateBreastMass",
-                () => StartCoroutine(
-                    DeferBeginRefresh(
-                        refreshMass: true,
-                        waitForListeners: true,
-                        useNewMass: true
-                    ))
+                () => StartCoroutine(DeferBeginRefresh(refreshMass: true))
             );
 
             autoUpdateJsb.setCallbackFunction = value =>
             {
                 if(value)
                 {
-                    StartCoroutine(DeferBeginRefresh(refreshMass: true, waitForListeners: true));
+                    StartCoroutine(DeferBeginRefresh(refreshMass: true));
                 }
             };
-
-            mainPhysicsHandler.massJsf.setCallbackFunction = _ => StartCoroutine(DeferBeginRefresh(refreshMass: true));
 
             softnessJsf.setCallbackFunction = value =>
             {
                 if(Mathf.Abs(value - softnessAmount) > 0.001f)
                 {
-                    StartCoroutine(DeferBeginRefresh(refreshMass: false));
+                    StartCoroutine(DeferBeginRefresh(refreshMass: false, waitForListeners: true));
                 }
             };
 
@@ -333,7 +324,7 @@ namespace TittyMagic
             {
                 if(Mathf.Abs(value - quicknessAmount) > 0.001f)
                 {
-                    StartCoroutine(DeferBeginRefresh(refreshMass: false));
+                    StartCoroutine(DeferBeginRefresh(refreshMass: false, waitForListeners: true));
                 }
             };
 
@@ -457,7 +448,7 @@ namespace TittyMagic
         {
             if(recalibrationNeeded)
             {
-                StartCoroutine(DeferBeginRefresh(refreshMass: true, waitForListeners: true));
+                StartCoroutine(DeferBeginRefresh(refreshMass: true));
             }
         }
 
@@ -475,7 +466,7 @@ namespace TittyMagic
                 );
                 if(morphsOrScaleChanged && autoUpdateJsb.val && !_waiting)
                 {
-                    StartCoroutine(DeferBeginRefresh(refreshMass: true));
+                    StartCoroutine(DeferBeginRefresh(refreshMass: true, waitForListeners: true));
                     return;
                 }
 
@@ -485,14 +476,6 @@ namespace TittyMagic
                 var rotation = _chestTransform.rotation;
                 float roll = Roll(rotation);
                 float pitch = Pitch(rotation);
-
-#if DEBUG_ON
-                statusInfo.val = $"pitch: {RoundToDecimals(pitch, 1000f)}" +
-                    $"\nangleY {RoundToDecimals(_trackLeftNipple.angleY, 1000f)}" +
-                    $"\nangleX {RoundToDecimals(_trackLeftNipple.angleX, 1000f)}";
-
-                ((MainWindow) mainWindow).UpdateCollidersDebugInfo("Pectoral1");
-#endif
 
                 UpdateDynamicPhysics(roll, pitch);
                 UpdateDynamicMorphs(roll, pitch);
@@ -519,11 +502,7 @@ namespace TittyMagic
         public void StartRefreshCoroutine(bool refreshMass, bool waitForListeners) =>
             StartCoroutine(DeferBeginRefresh(refreshMass, waitForListeners));
 
-        private IEnumerator DeferBeginRefresh(
-            bool refreshMass,
-            bool waitForListeners = false,
-            bool? useNewMass = null
-        )
+        private IEnumerator DeferBeginRefresh(bool refreshMass, bool waitForListeners = false)
         {
             if(_loadingFromJson)
             {
@@ -553,36 +532,21 @@ namespace TittyMagic
             _refreshQueued = false;
             _refreshInProgress = true;
 
-            if(useNewMass == null)
-            {
-                useNewMass = autoUpdateJsb.val;
-            }
-
             PreRefresh();
 
-            if(!waitForListeners)
+            var sliders = ((MainWindow) mainWindow).GetSlidersForRefresh();
+            if(waitForListeners)
             {
                 // ensure refresh actually begins only once listeners report no change
                 yield return new WaitForSeconds(0.33f);
-                float waited = 0.33f;
 
                 while(
                     _breastMorphListener.Changed() ||
                     _atomScaleListener.Changed() ||
-                    ((MainWindow) mainWindow).GetSlidersForRefresh().Any(slider => slider.IsClickDown())
+                    sliders.Any(slider => slider.IsClickDown())
                 )
                 {
                     yield return new WaitForSeconds(0.1f);
-                    waited += 0.1f;
-                    if(waited > 2)
-                    {
-                        statusInfo.val = "Waiting...";
-                    }
-                }
-
-                if(waited > 2)
-                {
-                    statusInfo.val = "Recalibrating";
                 }
 
                 yield return new WaitForSeconds(0.1f);
@@ -591,7 +555,7 @@ namespace TittyMagic
             softnessAmount = SoftnessAmount(softnessJsf.val);
             quicknessAmount = QuicknessAmount(quicknessJsf.val);
 
-            yield return Refresh(refreshMass, useNewMass.Value);
+            yield return Refresh(refreshMass);
         }
 
         private void PreRefresh()
@@ -616,7 +580,7 @@ namespace TittyMagic
             nippleErectionHandler.Update();
         }
 
-        private IEnumerator Refresh(bool refreshMass, bool useNewMass)
+        private IEnumerator Refresh(bool refreshMass)
         {
             if(settingsMonitor != null)
             {
@@ -628,7 +592,7 @@ namespace TittyMagic
             yield return new WaitForSeconds(0.5f);
             if(refreshMass)
             {
-                yield return RefreshMass(useNewMass);
+                yield return RefreshMass();
             }
 
             mainPhysicsHandler.UpdatePhysics();
@@ -657,7 +621,6 @@ namespace TittyMagic
             }
 
             _refreshInProgress = false;
-            statusInfo.val = "";
             initDone = true;
         }
 
@@ -667,7 +630,7 @@ namespace TittyMagic
             _pectoralRbRight.useGravity = value;
         }
 
-        private IEnumerator RefreshMass(bool useNewMass)
+        private IEnumerator RefreshMass()
         {
             float duration = 0;
             const float interval = 0.1f;
@@ -676,13 +639,8 @@ namespace TittyMagic
                 yield return new WaitForSeconds(interval);
                 duration += interval;
 
-                mainPhysicsHandler.UpdateMassValueAndAmounts(useNewMass, _breastVolumeCalculator.Calculate(_atomScaleListener.scale));
+                mainPhysicsHandler.UpdateMassValueAndAmounts(_breastVolumeCalculator.Calculate(_atomScaleListener.scale));
                 mainPhysicsHandler.UpdatePhysics();
-            }
-
-            if(autoUpdateJsb.val)
-            {
-                mainPhysicsHandler.massJsf.defaultVal = mainPhysicsHandler.massJsf.val;
             }
         }
 
@@ -767,7 +725,6 @@ namespace TittyMagic
         public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
         {
             var jsonClass = base.GetJSON(includePhysical, includeAppearance, forceStore);
-            AddBreastMassToJson(jsonClass);
             jsonClass["mainPhysics"] = mainPhysicsHandler.GetJSON();
             jsonClass["hardColliders"] = hardColliderHandler.GetOriginalsJSON();
             if(Gender.isFemale)
@@ -777,14 +734,6 @@ namespace TittyMagic
 
             needsStore = true;
             return jsonClass;
-        }
-
-        private void AddBreastMassToJson(JSONClass jsonClass)
-        {
-            if(jsonClass.HasKey(autoUpdateJsb.name) && !jsonClass[autoUpdateJsb.name].AsBool)
-            {
-                jsonClass[mainPhysicsHandler.massJsf.name].AsFloat = mainPhysicsHandler.massJsf.val;
-            }
         }
 
         public override void RestoreFromJSON(
@@ -821,11 +770,6 @@ namespace TittyMagic
             }
 
             base.RestoreFromJSON(jsonClass, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
-
-            if(jsonClass.HasKey(autoUpdateJsb.name) && !jsonClass[autoUpdateJsb.name].AsBool && jsonClass.HasKey(mainPhysicsHandler.massJsf.name))
-            {
-                mainPhysicsHandler.massJsf.defaultVal = jsonClass[mainPhysicsHandler.massJsf.name].AsFloat;
-            }
 
             if(jsonClass.HasKey("mainPhysics"))
             {

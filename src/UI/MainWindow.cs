@@ -8,11 +8,13 @@ namespace TittyMagic.UI
     internal class MainWindow : WindowBase
     {
         private readonly JSONStorableString _title;
+        private readonly PhysicsParameter _massParameter;
 
         public MainWindow(Script script) : base(script)
         {
             buildAction = BuildSelf;
             _title = new JSONStorableString("title", "");
+            _massParameter = script.mainPhysicsHandler.massParameterGroup.left;
             if(Gender.isFemale)
             {
                 nestedWindows.Add(new HardCollidersWindow(
@@ -29,31 +31,24 @@ namespace TittyMagic.UI
         private void BuildSelf()
         {
             CreateTitleTextField(false);
-            CreateRecalibratingTextField(true);
+            CreateSoftnessInfoTextField(false, spacing: 35);
+            CreateQuicknessInfoTextField(false);
+            CreateBreastMassInfoTextField(false, spacing: 10);
+            CreateHardCollidersInfoTextField(false, spacing: 10);
 
-            CreateBreastMassInfoTextField(false);
-            CreateCalculateMassButton(true);
-            CreateAutoUpdateMassToggle(true);
-            CreateMassSlider(true);
-
-            CreateSoftPhysicsInfoTextField(false);
-            CreateSoftnessSlider(true, spacing: 15);
+            CreateRecalibrateButton(true);
+            CreateSoftPhysicsOnToggle(true, spacing: 15);
+            CreateSoftnessSlider(true);
             CreateQuicknessSlider(true);
-            if(Gender.isFemale)
-            {
-                CreateSoftPhysicsOnToggle(true);
-            }
+            CreateCalculateMassButton(true, spacing: 15);
+            CreateAutoUpdateMassToggle(true);
+            CreateMassOffsetSlider(true);
+            CreateMassSlider(true);
 
             if(Gender.isFemale)
             {
                 CreateConfigureHardCollidersButton(true, spacing: 15);
-                CreateHardCollidersInfoTextField(true);
             }
-
-            elements[script.autoUpdateJsb.name].AddListener(value =>
-                elements[script.mainPhysicsHandler.massJsf.name].SetActiveStyle(!value, true)
-            );
-            elements[script.mainPhysicsHandler.massJsf.name].SetActiveStyle(!script.autoUpdateJsb.val, true);
         }
 
         private void CreateTitleTextField(bool rightSide)
@@ -69,28 +64,34 @@ namespace TittyMagic.UI
             elements[_title.name] = textField;
         }
 
-        private void CreateRecalibratingTextField(bool rightSide, int spacing = 0)
+        private void CreateRecalibrateButton(bool rightSide, int spacing = 0)
         {
-            var storable = script.statusInfo;
+            var storable = script.recalibratePhysics;
             AddSpacer(storable.name, spacing, rightSide);
-            elements[storable.name] = UIHelpers.NotificationTextField(script, storable, 100, rightSide);
+
+            var button = script.CreateButton("Recalibrate Physics", rightSide);
+            storable.RegisterButton(button);
+            button.height = 52;
+
+            elements[storable.name] = button;
         }
 
         private void CreateBreastMassInfoTextField(bool rightSide, int spacing = 0)
         {
             var sb = new StringBuilder();
-            sb.Append("<b><i>Breast mass</i></b> is based on breast size. Mass adjusts");
-            sb.Append(" the values of other physics parameters to best suit the size.");
+            sb.Append("<b><i>Breast mass</i></b> is estimated from volume. Since it represents size, other physics");
+            sb.Append(" parameters are adjusted based on its value. Calculating mass also recalibrates physics.");
             sb.Append("\n\n");
-            sb.Append("<b><i>Auto-Update Mass</i></b> can be disabled to control mass manually");
-            sb.Append(", and to prevent unwanted freezing when using other plugins that animate morphs.");
+            sb.Append("<b><i>Auto-update mass</i></b> enables calculating mass automatically when changes in breast");
+            sb.Append(" morphs are detected. Disabling it prevents repeated recalibration when using other plugins");
+            sb.Append(" that animate morphs.");
             var storable = new JSONStorableString("breastMassInfoText", sb.ToString());
             AddSpacer(storable.name, spacing, rightSide);
 
             var textField = script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.backgroundColor = Color.clear;
-            textField.height = 290;
+            textField.height = 400;
             elements[storable.name] = textField;
         }
 
@@ -116,33 +117,63 @@ namespace TittyMagic.UI
             elements[storable.name] = toggle;
         }
 
-        private void CreateMassSlider(bool rightSide, int spacing = 0)
+        private void CreateMassOffsetSlider(bool rightSide, int spacing = 0)
         {
-            var storable = script.mainPhysicsHandler.massJsf;
+            var storable = _massParameter.offsetJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = script.CreateSlider(storable, rightSide);
-            slider.valueFormat = "F3";
-            slider.label = "Breast Mass";
+            slider.valueFormat = _massParameter.valueFormat;
+            slider.label = "Breast Mass Offset";
+
+            slider.AddListener((float _) => script.StartRefreshCoroutine(refreshMass: true, waitForListeners: true));
             slider.AddSliderClickMonitor();
+
             elements[storable.name] = slider;
         }
 
-        private void CreateSoftPhysicsInfoTextField(bool rightSide, int spacing = 0)
+        private void CreateMassSlider(bool rightSide, int spacing = 0)
+        {
+            var storable = _massParameter.valueJsf;
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var slider = script.CreateSlider(storable, rightSide);
+            slider.valueFormat = _massParameter.valueFormat;
+            slider.SetActiveStyle(false);
+            slider.slider.interactable = false;
+            slider.quickButtonsEnabled = false;
+            slider.defaultButtonEnabled = false;
+            slider.label = "Breast Mass";
+            elements[storable.name] = slider;
+        }
+
+        private void CreateSoftnessInfoTextField(bool rightSide, int spacing = 0)
         {
             var sb = new StringBuilder();
             sb.Append("<b><i>Breast softness</i></b> simulates implants at low values");
             sb.Append(" and natural breasts at high values.");
-            sb.Append("\n\n");
-            sb.Append("<b><i>Breast quickness</i></b> causes slow motion at low values");
-            sb.Append(" and realistically responsive behavior at high values.");
-            var storable = new JSONStorableString("softPhysicsInfoText", sb.ToString());
+            var storable = new JSONStorableString("softnessInfoText", sb.ToString());
             AddSpacer(storable.name, spacing, rightSide);
 
             var textField = script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.backgroundColor = Color.clear;
-            textField.height = 285;
+            textField.height = 120;
+            elements[storable.name] = textField;
+        }
+
+        private void CreateQuicknessInfoTextField(bool rightSide, int spacing = 0)
+        {
+            var sb = new StringBuilder();
+            sb.Append("<b><i>Breast quickness</i></b> causes slow motion at low values");
+            sb.Append(" and realistically responsive behavior at high values.");
+            var storable = new JSONStorableString("quicknessInfoText", sb.ToString());
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var textField = script.CreateTextField(storable, rightSide);
+            textField.UItext.fontSize = 28;
+            textField.backgroundColor = Color.clear;
+            textField.height = 120;
             elements[storable.name] = textField;
         }
 
@@ -154,6 +185,11 @@ namespace TittyMagic.UI
             var toggle = script.CreateToggle(storable, rightSide);
             toggle.height = 52;
             toggle.label = "Soft Physics Enabled";
+            if(!Gender.isFemale)
+            {
+                toggle.SetActiveStyle(false, true);
+            }
+
             elements[storable.name] = toggle;
         }
 
@@ -194,7 +230,7 @@ namespace TittyMagic.UI
             var textField = script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.backgroundColor = Color.clear;
-            textField.height = 250;
+            textField.height = 160;
             elements[storable.name] = textField;
         }
 
@@ -219,25 +255,17 @@ namespace TittyMagic.UI
             elements[storable.name] = button;
         }
 
-        public IEnumerable<UIDynamicSlider> GetSlidersForRefresh()
+        public List<UIDynamicSlider> GetSlidersForRefresh()
         {
             var sliders = new List<UIDynamicSlider>();
             if(elements.Any())
             {
-                sliders.Add(elements[script.mainPhysicsHandler.massJsf.name] as UIDynamicSlider);
+                sliders.Add(elements[_massParameter.offsetJsf.name] as UIDynamicSlider);
                 sliders.Add(elements[script.softnessJsf.name] as UIDynamicSlider);
                 sliders.Add(elements[script.quicknessJsf.name] as UIDynamicSlider);
             }
 
             return sliders;
-        }
-
-        public void UpdateCollidersDebugInfo(string configId)
-        {
-            if(activeNestedWindow != null)
-            {
-                ((HardCollidersWindow) activeNestedWindow).UpdateCollidersDebugInfo(configId);
-            }
         }
     }
 }

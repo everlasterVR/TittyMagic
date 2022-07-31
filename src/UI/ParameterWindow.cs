@@ -43,6 +43,11 @@ namespace TittyMagic.UI
                 AddSpacer("upperRightSpacer", 50, true);
             }
 
+            if(id == ParamName.MASS)
+            {
+                CreateCalculateMassButton(true);
+            }
+
             CreateTitle(false);
             CreateApplyOnlyToLeftBreastToggle(true);
 
@@ -72,6 +77,17 @@ namespace TittyMagic.UI
 
             button.AddListener(backButtonListener);
             elements["backButton"] = button;
+        }
+
+        private void CreateCalculateMassButton(bool rightSide, int spacing = 0)
+        {
+            var storable = script.calculateBreastMass;
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var button = script.CreateButton("Calculate Breast Mass", rightSide);
+            storable.RegisterButton(button);
+            button.height = 53;
+            elements[storable.name] = button;
         }
 
         private void CreateTitle(bool rightSide)
@@ -112,7 +128,7 @@ namespace TittyMagic.UI
 
             var textField = script.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
-            textField.height = 268;
+            textField.height = id == ParamName.MASS ? 368 : 268;
             textField.backgroundColor = Color.clear;
             elements[storable.name] = textField;
         }

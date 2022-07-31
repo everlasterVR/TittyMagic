@@ -37,7 +37,7 @@ namespace TittyMagic
         // hack. 1.5f because 3f is the max mass and massValue is actual mass / 2
         public static float InvertMass(float x) => 1.5f - x;
 
-        public JSONStorableFloat massJsf { get; }
+        public MassParameterGroup massParameterGroup { get; private set; }
 
         public MainPhysicsHandler(
             Script script,
@@ -66,30 +66,13 @@ namespace TittyMagic
             };
 
             SaveOriginalPhysicsAndSetPluginDefaults();
-
-            massJsf = _script.NewJSONStorableFloat("breastMass", 0.1f, 0.1f, 3f);
         }
 
-        public void UpdateMassValueAndAmounts(bool useNewMass, float volume)
+        public void UpdateMassValueAndAmounts(float volume)
         {
-            float newMass = Mathf.Clamp(
-                Mathf.Pow(0.78f * volume, 1.5f),
-                massJsf.min,
-                massJsf.max
-            );
-            realMassAmount = newMass / 2;
-            if(useNewMass)
-            {
-                massAmount = realMassAmount;
-                massJsf.valNoCallback = newMass;
-            }
-            else
-            {
-                massAmount = massJsf.val / 2;
-            }
-
-            SyncMass(_pectoralRbLeft, massJsf.val);
-            SyncMass(_pectoralRbRight, massJsf.val);
+            massParameterGroup.UpdateValue(volume);
+            realMassAmount = massParameterGroup.left.baseValueJsf.val / 2;
+            massAmount = massParameterGroup.left.valueJsf.val / 2;
         }
 
         public void LoadSettings()
@@ -97,11 +80,21 @@ namespace TittyMagic
             SetupPhysicsParameterGroups();
 
             var texts = CreateInfoTexts();
+            massParameterGroup.infoText = texts[MASS];
             foreach(var param in parameterGroups)
             {
                 param.Value.infoText = texts[param.Key];
             }
         }
+
+        private MassParameter NewMassParameter(bool left) =>
+            new MassParameter(new JSONStorableFloat(VALUE, 0.100f, 0.100f, 3.000f))
+            {
+                valueFormat = "F3",
+                sync = left
+                    ? (Action<float>) (value => SyncMass(_pectoralRbLeft, value))
+                    : (Action<float>) (value => SyncMass(_pectoralRbRight, value)),
+            };
 
         private PhysicsParameter NewCenterOfGravityParameter(bool left, bool softPhysicsEnabled) =>
             new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 1.00f))
@@ -243,6 +236,16 @@ namespace TittyMagic
         {
             bool softPhysicsEnabled = _script.settingsMonitor.softPhysicsEnabled;
 
+            massParameterGroup = new MassParameterGroup(
+                MASS,
+                NewMassParameter(true),
+                NewMassParameter(false),
+                "Breast Mass"
+            )
+            {
+                requiresRecalibration = true,
+            };
+
             var centerOfGravityPercent = new PhysicsParameterGroup(
                 CENTER_OF_GRAVITY_PERCENT,
                 NewCenterOfGravityParameter(true, softPhysicsEnabled),
@@ -314,6 +317,7 @@ namespace TittyMagic
                 requiresRecalibration = true,
             };
 
+            massParameterGroup.SetOffsetCallbackFunctions();
             centerOfGravityPercent.SetOffsetCallbackFunctions();
             spring.SetOffsetCallbackFunctions();
             damper.SetOffsetCallbackFunctions();
@@ -571,6 +575,12 @@ namespace TittyMagic
         private JSONArray ParametersJSONArray()
         {
             var jsonArray = new JSONArray();
+            var massGroupJsonClass = massParameterGroup.GetJSON();
+            if(massGroupJsonClass != null)
+            {
+                jsonArray.Add(massGroupJsonClass);
+            }
+
             foreach(var group in parameterGroups)
             {
                 var groupJsonClass = group.Value.GetJSON();
@@ -620,12 +630,31 @@ namespace TittyMagic
         {
             foreach(JSONClass jc in jsonArray)
             {
-                parameterGroups[jc["id"].Value].RestoreFromJSON(jc);
+                string id = jc["id"].Value;
+                if(id == "mass")
+                {
+                    massParameterGroup.RestoreFromJSON(jc);
+                    continue;
+                }
+
+                parameterGroups[id].RestoreFromJSON(jc);
             }
         }
 
         private static Dictionary<string, string> CreateInfoTexts()
         {
+            Func<string> massText = () =>
+            {
+                var sb = new StringBuilder();
+                sb.Append("Mass of the pectoral joint.");
+                sb.Append("\n\n");
+                sb.Append("Since mass represents breast size, other physics parameters are adjusted based on its value.");
+                sb.Append("\n\n");
+                sb.Append("Fat Collider Radius and Fat Distance Limit are adjusted using the mass estimated from");
+                sb.Append(" volume, the rest are adjusted using the actual mass value that includes the offset.");
+                return sb.ToString();
+            };
+
             Func<string> centerOfGravityText = () =>
             {
                 var sb = new StringBuilder();
@@ -693,6 +722,7 @@ namespace TittyMagic
 
             return new Dictionary<string, string>()
             {
+                { MASS, massText() },
                 { CENTER_OF_GRAVITY_PERCENT, centerOfGravityText() },
                 { SPRING, springText() },
                 { DAMPER, damperText() },

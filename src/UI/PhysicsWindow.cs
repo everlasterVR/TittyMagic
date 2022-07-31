@@ -30,7 +30,14 @@ namespace TittyMagic.UI
 
         private void CreateParameterWindows()
         {
-
+            nestedWindows.Add(
+                new ParameterWindow(
+                    script,
+                    ParamName.MASS,
+                    script.mainPhysicsHandler.massParameterGroup,
+                    onReturnToParent
+                )
+            );
             foreach(var kvp in script.mainPhysicsHandler.parameterGroups)
             {
                 nestedWindows.Add(
@@ -64,6 +71,7 @@ namespace TittyMagic.UI
             CreateHeader(_jointPhysicsParamsHeader, "Joint Physics Parameters", false);
             CreateJointPhysicsInfoTextArea(false);
 
+            CreateParamButton(ParamName.MASS, script.mainPhysicsHandler.massParameterGroup, false);
             script.mainPhysicsHandler?.parameterGroups.ToList()
                 .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, false));
 
