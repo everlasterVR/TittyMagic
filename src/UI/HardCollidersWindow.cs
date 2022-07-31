@@ -32,6 +32,7 @@ namespace TittyMagic.UI
         private void BuildSelf()
         {
             CreateBackButton(false);
+            elements["backButton"].AddListener(_returnToParent);
             CreateTitle(false);
             CreateColliderGroupChooser(true);
 
@@ -48,21 +49,6 @@ namespace TittyMagic.UI
             script.colliderVisualizer.ShowPreviewsJSON.val = true;
             script.hardColliderHandler.SyncAllOffsets();
             AddColliderPopupChangeHandler();
-        }
-
-        private void CreateBackButton(bool rightSide)
-        {
-            var button = script.CreateButton("Return", rightSide);
-
-            button.textColor = Color.white;
-            var colors = button.button.colors;
-            colors.normalColor = UIHelpers.sliderGray;
-            colors.highlightedColor = Color.grey;
-            colors.pressedColor = Color.grey;
-            button.button.colors = colors;
-
-            button.AddListener(_returnToParent);
-            elements["backButton"] = button;
         }
 
         private void CreateTitle(bool rightSide)

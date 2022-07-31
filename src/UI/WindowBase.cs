@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace TittyMagic.UI
 {
@@ -25,6 +26,67 @@ namespace TittyMagic.UI
             nestedWindows = new List<IWindow>();
         }
 
+        #region Common elements
+
+        protected void AddSpacer(string name, int height, bool rightSide) =>
+            elements[$"{name}Spacer"] = script.NewSpacer(height, rightSide);
+
+        protected void CreateRecalibrateButton(bool rightSide, int spacing = 0)
+        {
+            var storable = script.recalibratePhysics;
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var button = script.CreateButton("Recalibrate Physics", rightSide);
+            storable.RegisterButton(button);
+            button.height = 52;
+            elements[storable.name] = button;
+        }
+
+        protected void CreateCalculateMassButton(bool rightSide, int spacing = 0)
+        {
+            var storable = script.calculateBreastMass;
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var button = script.CreateButton("Calculate Breast Mass", rightSide);
+            storable.RegisterButton(button);
+            button.height = 53;
+            elements[storable.name] = button;
+        }
+
+        protected void CreateBaseMultiplierSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
+        {
+            AddSpacer(storable.name, spacing, rightSide);
+            var slider = script.CreateSlider(storable, rightSide);
+            slider.valueFormat = "F2";
+            slider.label = "Base Multiplier";
+            elements[storable.name] = slider;
+        }
+
+        protected void CreateOtherSettingsHeader(bool rightSide, int spacing = 0)
+        {
+            var storable = new JSONStorableString("otherSettingsHeader", "");
+            AddSpacer(storable.name, spacing, rightSide);
+            elements[storable.name] = UIHelpers.HeaderTextField(script, storable, "Other", rightSide);
+        }
+
+        protected void CreateBackButton(bool rightSide)
+        {
+            var button = script.CreateButton("Return", rightSide);
+
+            button.textColor = Color.white;
+            var colors = button.button.colors;
+            colors.normalColor = UIHelpers.sliderGray;
+            colors.highlightedColor = Color.grey;
+            colors.pressedColor = Color.grey;
+            button.button.colors = colors;
+
+            elements["backButton"] = button;
+        }
+
+        #endregion Common elements
+
+        #region Life cycle
+
         public void Rebuild()
         {
             if(activeNestedWindow != null)
@@ -37,9 +99,6 @@ namespace TittyMagic.UI
                 buildAction();
             }
         }
-
-        protected void AddSpacer(string name, int height, bool rightSide) =>
-            elements[$"{name}Spacer"] = script.NewSpacer(height, rightSide);
 
         public List<UIDynamicSlider> GetSliders()
         {
@@ -92,5 +151,7 @@ namespace TittyMagic.UI
 
         protected void ClearSelf() =>
             elements.ToList().ForEach(element => script.RemoveElement(element.Value));
+
+        #endregion Life cycle
     }
 }

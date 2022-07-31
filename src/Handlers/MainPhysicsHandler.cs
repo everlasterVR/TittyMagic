@@ -14,7 +14,7 @@ namespace TittyMagic
     internal class MainPhysicsHandler
     {
         private readonly Script _script;
-        private BreastVolumeCalculator _breastVolumeCalculator;
+        private readonly BreastVolumeCalculator _breastVolumeCalculator;
         private readonly AdjustJoints _breastControl;
         private readonly ConfigurableJoint _jointLeft;
         private readonly ConfigurableJoint _jointRight;

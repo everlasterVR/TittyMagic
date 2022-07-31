@@ -33,10 +33,12 @@ namespace TittyMagic.UI
 
         private void BuildSelf()
         {
-            CreateBackButton(_returnToParent, false);
+            CreateBackButton(false);
+            elements["backButton"].AddListener(_returnToParent);
             if(_parameterGroup.requiresRecalibration)
             {
                 CreateRecalibrateButton(true);
+                elements[script.recalibratePhysics.name].AddListener(() => _offsetWhenCalibrated = _parameter.offsetJsf.val);
             }
             else
             {
@@ -64,32 +66,6 @@ namespace TittyMagic.UI
             }
         }
 
-        private void CreateBackButton(UnityAction backButtonListener, bool rightSide)
-        {
-            var button = script.CreateButton("Return", rightSide);
-
-            button.textColor = Color.white;
-            var colors = button.button.colors;
-            colors.normalColor = UIHelpers.sliderGray;
-            colors.highlightedColor = Color.grey;
-            colors.pressedColor = Color.grey;
-            button.button.colors = colors;
-
-            button.AddListener(backButtonListener);
-            elements["backButton"] = button;
-        }
-
-        private void CreateCalculateMassButton(bool rightSide, int spacing = 0)
-        {
-            var storable = script.calculateBreastMass;
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var button = script.CreateButton("Calculate Breast Mass", rightSide);
-            storable.RegisterButton(button);
-            button.height = 53;
-            elements[storable.name] = button;
-        }
-
         private void CreateTitle(bool rightSide)
         {
             var storable = new JSONStorableString("title", "");
@@ -105,20 +81,6 @@ namespace TittyMagic.UI
             var toggle = script.CreateToggle(storable, rightSide);
             toggle.label = "Apply Only To Left Breast";
             elements[storable.name] = toggle;
-        }
-
-        private void CreateRecalibrateButton(bool rightSide, int spacing = 0)
-        {
-            var storable = script.recalibratePhysics;
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var button = script.CreateButton("Recalibrate Physics", rightSide);
-            storable.RegisterButton(button);
-            button.height = 52;
-
-            button.button.onClick.AddListener(() => _offsetWhenCalibrated = _parameter.offsetJsf.val);
-
-            elements[storable.name] = button;
         }
 
         private void CreateInfoTextArea(bool rightSide, int spacing = 0)

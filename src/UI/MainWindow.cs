@@ -64,18 +64,6 @@ namespace TittyMagic.UI
             elements[_title.name] = textField;
         }
 
-        private void CreateRecalibrateButton(bool rightSide, int spacing = 0)
-        {
-            var storable = script.recalibratePhysics;
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var button = script.CreateButton("Recalibrate Physics", rightSide);
-            storable.RegisterButton(button);
-            button.height = 52;
-
-            elements[storable.name] = button;
-        }
-
         private void CreateBreastMassInfoTextField(bool rightSide, int spacing = 0)
         {
             var sb = new StringBuilder();
@@ -93,17 +81,6 @@ namespace TittyMagic.UI
             textField.backgroundColor = Color.clear;
             textField.height = 400;
             elements[storable.name] = textField;
-        }
-
-        private void CreateCalculateMassButton(bool rightSide, int spacing = 0)
-        {
-            var storable = script.calculateBreastMass;
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var button = script.CreateButton("Calculate Breast Mass", rightSide);
-            storable.RegisterButton(button);
-            button.height = 53;
-            elements[storable.name] = button;
         }
 
         private void CreateAutoUpdateMassToggle(bool rightSide, int spacing = 0)
