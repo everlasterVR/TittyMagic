@@ -284,6 +284,7 @@ namespace TittyMagic
             {
                 config = new StaticPhysicsConfig(
                     0.016f,
+                    // https://www.desmos.com/calculator/rotof03irg
                     massCurve: x => 1.54f * Curves.Exponential1(2 / 3f * x, 1.42f, 4.25f, 1.17f),
                     softnessCurve: x => 0.18f * x
                 ),
@@ -386,18 +387,20 @@ namespace TittyMagic
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 50.00f))
             {
                 config = new StaticPhysicsConfig(
-                    5.50f,
-                    massCurve: x => 2.20f * x,
-                    softnessCurve: x => (1 / 5f - 1) * Curves.Exponential1(x, 3.03f, 1.74f, 1.17f)
+                    15.00f,
+                    // https://www.desmos.com/calculator/hnhlbofgmz
+                    massCurve: x => 0.66f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.15f, 0.70f),
+                    // https://www.desmos.com/calculator/uwfattbhdg
+                    softnessCurve: x => -0.89f * Curves.Exponential1(x, 2.34f, 1.76f, 1.01f)
                 ),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
-                    -2.6f,
+                    -2.60f,
                     massCurve: x => -0.35f * x,
                     softnessCurve: x => -0.11f * x
                 ),
                 //TODO curves similar to quickness?
                 slownessOffsetConfig = new StaticPhysicsConfig(
-                    0.8f,
+                    0.80f,
                     massCurve: x => 0.66f * x,
                     softnessCurve: x => -0.04f * x
                 ),
@@ -475,9 +478,9 @@ namespace TittyMagic
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
                 { MAIN, new StaticPhysicsConfig(1.00f) },
-                { OUTER, new StaticPhysicsConfig(0.00f) },
+                { OUTER, new StaticPhysicsConfig(1.00f) },
                 { AREOLA, new StaticPhysicsConfig(1.00f) },
-                { NIPPLE, new StaticPhysicsConfig(0.00f) },
+                { NIPPLE, new StaticPhysicsConfig(1.00f) },
             };
 
             parameter.groupMultiplierParams = allGroups.ToDictionary(
