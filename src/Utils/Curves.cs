@@ -36,7 +36,7 @@ namespace TittyMagic
             return a / Mathf.Sqrt(mass + b) - c;
         }
 
-        public static float SoftnessBaseCurve(float softness) => Exponential1(softness, 6.44f, 1.27f, 1.15f);
+        public static float SoftnessBaseCurve(float x) => Exponential1(x, 6.44f, 1.27f, 1.15f);
 
         public static float ForcePhysicsMassCurve(float x) => Exponential1(x, 1.91f, 1.7f, 0.82f);
 
@@ -45,7 +45,11 @@ namespace TittyMagic
         // https://www.desmos.com/calculator/b8hxt91gkf
         public static float DeemphasizeMiddle(float x) => Exponential1(x, 3.00f, 3.53f, 1.22f, a: 1.20f, m: 0.72f);
 
-        public static float TargetRotationCurve(float x) => Exponential1(x, 3.00f, 1.35f, 1.00f);
+        // https://www.desmos.com/calculator/lofyvjzy6l
+        public static float TargetRotationMassCurve(float x) => Exponential1(2 / 3f * x, 4.00f, 0.96f, 0.78f);
+
+        // https://www.desmos.com/calculator/ldejemzr2a
+        public static float TargetRotationSoftnessCurve(float x) => Exponential1(x, 3.00f, 1.35f, 1.00f);
 
         // https://www.desmos.com/calculator/uejk7yri1f
         public static float Exponential1(float x, float b, float p, float q, float a = 1, float m = 1, float s = 0) =>

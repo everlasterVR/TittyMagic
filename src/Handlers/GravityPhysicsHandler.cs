@@ -126,22 +126,22 @@ namespace TittyMagic
             {
                 {
                     Direction.DOWN, new DynamicPhysicsConfig(
-                        massMultiplier: -9f,
-                        softnessMultiplier: -13f,
+                        massMultiplier: -8.00f,
+                        softnessMultiplier: -12.4f,
                         isNegative: true,
                         applyMethod: ApplyMethod.ADDITIVE,
-                        massCurve: Curves.TargetRotationCurve,
-                        softnessCurve: Curves.TargetRotationCurve
+                        massCurve: x => 1.5f * Curves.TargetRotationMassCurve(x),
+                        softnessCurve: Curves.TargetRotationSoftnessCurve
                     )
                 },
                 {
                     Direction.UP, new DynamicPhysicsConfig(
                         massMultiplier: 9.75f,
-                        softnessMultiplier: 17.90f,
+                        softnessMultiplier: 15.11f,
                         isNegative: false,
                         applyMethod: ApplyMethod.ADDITIVE,
-                        massCurve: Curves.TargetRotationCurve,
-                        softnessCurve: Curves.TargetRotationCurve
+                        massCurve: x => 1.5f * Curves.TargetRotationMassCurve(x),
+                        softnessCurve: Curves.TargetRotationSoftnessCurve
                     )
                 },
             };
@@ -151,22 +151,22 @@ namespace TittyMagic
             {
                 {
                     Direction.LEFT, new DynamicPhysicsConfig(
-                        massMultiplier: -9f,
-                        softnessMultiplier: -13f,
+                        massMultiplier: -8.00f,
+                        softnessMultiplier: -12.4f,
                         isNegative: true,
                         applyMethod: ApplyMethod.ADDITIVE,
-                        massCurve: Curves.TargetRotationCurve,
-                        softnessCurve: Curves.TargetRotationCurve
+                        massCurve: x => 1.5f * Curves.TargetRotationMassCurve(x),
+                        softnessCurve: Curves.TargetRotationSoftnessCurve
                     )
                 },
                 {
                     Direction.RIGHT, new DynamicPhysicsConfig(
-                        massMultiplier: -9f,
-                        softnessMultiplier: -13f,
+                        massMultiplier: -8.00f,
+                        softnessMultiplier: -12.4f,
                         isNegative: false,
                         applyMethod: ApplyMethod.ADDITIVE,
-                        massCurve: Curves.TargetRotationCurve,
-                        softnessCurve: Curves.TargetRotationCurve
+                        massCurve: x => 1.5f * Curves.TargetRotationMassCurve(x),
+                        softnessCurve: Curves.TargetRotationSoftnessCurve
                     )
                 },
             };
