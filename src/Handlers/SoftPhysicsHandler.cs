@@ -223,8 +223,9 @@ namespace TittyMagic
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0.001f, 0.300f))
             {
                 config = new StaticPhysicsConfig(
-                    0.050f,
-                    softnessCurve: x => 1.40f * Curves.Exponential1(x, 2.30f, 1.74f, 1.17f)
+                    0.040f,
+                    softnessCurve: x => 1.00f * Curves.Exponential1(x, 2.30f, 1.74f, 1.17f),
+                    massCurve: x => 2.25f * Curves.Exponential1(2 / 3f * x, 1.91f, 1.7f, 0.82f)
                 ),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
                     -0.012f,

@@ -38,9 +38,8 @@ namespace TittyMagic
 
         public static float SoftnessBaseCurve(float x) => Exponential1(x, 6.44f, 1.27f, 1.15f);
 
-        public static float ForcePhysicsMassCurve(float x) => Exponential1(x, 1.91f, 1.7f, 0.82f);
-
-        public static float ForcePhysicsSoftnessCurve(float x) => Exponential1(x, 1.91f, 1.7f, 0.82f);
+        // https://www.desmos.com/calculator/shbc4eckoe
+        public static float ForcePhysicsSoftnessCurve(float x) => Exponential1(x, 1.60f, 2.29f, 1.00f);
 
         // https://www.desmos.com/calculator/b8hxt91gkf
         public static float DeemphasizeMiddle(float x) => Exponential1(x, 3.00f, 3.53f, 1.22f, a: 1.20f, m: 0.72f);

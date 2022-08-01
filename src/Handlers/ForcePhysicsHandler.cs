@@ -165,20 +165,22 @@ namespace TittyMagic
             {
                 {
                     Direction.BACK, new DynamicPhysicsConfig(
-                        massMultiplier: -14f,
+                        massMultiplier: -20f,
                         softnessMultiplier: 0f,
                         isNegative: true,
                         applyMethod: ApplyMethod.ADDITIVE,
-                        massCurve: Curves.ForcePhysicsMassCurve
+                        // https://www.desmos.com/calculator/hnhlbofgmz
+                        massCurve: x => Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.15f, 0.70f)
                     )
                 },
                 {
                     Direction.FORWARD, new DynamicPhysicsConfig(
-                        massMultiplier: -14f,
+                        massMultiplier: -20f,
                         softnessMultiplier: 0f,
                         isNegative: true,
                         applyMethod: ApplyMethod.ADDITIVE,
-                        massCurve: Curves.ForcePhysicsMassCurve
+                        // https://www.desmos.com/calculator/hnhlbofgmz
+                        massCurve: x => Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.15f, 0.70f)
                     )
                 },
             };
