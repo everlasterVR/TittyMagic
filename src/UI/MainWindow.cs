@@ -35,11 +35,11 @@ namespace TittyMagic.UI
             CreateQuicknessInfoTextField(false);
             CreateBreastMassInfoTextField(false, spacing: 10);
 
-            CreateRecalibrateButton(true);
+            CreateRecalibrateButton(script.recalibratePhysics, true);
             CreateSoftPhysicsOnToggle(true, spacing: 15);
             CreateSoftnessSlider(true);
             CreateQuicknessSlider(true);
-            CreateCalculateMassButton(true, spacing: 15);
+            CreateRecalibrateButton(script.calculateBreastMass, true, spacing: 15);
             CreateAutoUpdateMassToggle(true);
             CreateMassOffsetSlider(true);
             CreateMassSlider(true);

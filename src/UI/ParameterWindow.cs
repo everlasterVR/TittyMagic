@@ -12,6 +12,7 @@ namespace TittyMagic.UI
         private readonly PhysicsParameter _parameter;
         private readonly UnityAction _returnToParent;
 
+        public JSONStorableAction recalibrationAction { get; }
         private float _offsetWhenCalibrated;
 
         public string id { get; }
@@ -24,6 +25,7 @@ namespace TittyMagic.UI
             _parameter = _parameterGroup.left;
             buildAction = BuildSelf;
             closeAction = ActionsOnClose;
+            recalibrationAction = id == ParamName.MASS ? script.calculateBreastMass : script.recalibratePhysics;
             _returnToParent = () =>
             {
                 Clear();
@@ -37,17 +39,12 @@ namespace TittyMagic.UI
             elements["backButton"].AddListener(_returnToParent);
             if(_parameterGroup.requiresRecalibration)
             {
-                CreateRecalibrateButton(true);
-                elements[script.recalibratePhysics.name].AddListener(() => _offsetWhenCalibrated = _parameter.offsetJsf.val);
+                CreateRecalibrateButton(recalibrationAction, true);
+                elements[recalibrationAction.name].AddListener(() => _offsetWhenCalibrated = _parameter.offsetJsf.val);
             }
             else
             {
                 AddSpacer("upperRightSpacer", 50, true);
-            }
-
-            if(id == ParamName.MASS)
-            {
-                CreateCalculateMassButton(true);
             }
 
             CreateTitle(false);
@@ -214,6 +211,6 @@ namespace TittyMagic.UI
         }
 
         private void ActionsOnClose()
-            => script.RecalibrateOnNavigation();
+            => script.RecalibrateOnNavigation(recalibrationAction);
     }
 }

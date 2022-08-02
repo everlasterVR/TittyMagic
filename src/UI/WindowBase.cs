@@ -31,25 +31,13 @@ namespace TittyMagic.UI
         protected void AddSpacer(string name, int height, bool rightSide) =>
             elements[$"{name}Spacer"] = script.NewSpacer(height, rightSide);
 
-        protected void CreateRecalibrateButton(bool rightSide, int spacing = 0)
+        protected void CreateRecalibrateButton(JSONStorableAction storable, bool rightSide, int spacing = 0)
         {
-            var storable = script.recalibratePhysics;
             AddSpacer(storable.name, spacing, rightSide);
-
-            var button = script.CreateButton("Recalibrate Physics", rightSide);
+            string label = storable == script.calculateBreastMass ? "Calculate Breast Mass" : "Recalibrate Physics";
+            var button = script.CreateButton(label, rightSide);
             storable.RegisterButton(button);
             button.height = 52;
-            elements[storable.name] = button;
-        }
-
-        protected void CreateCalculateMassButton(bool rightSide, int spacing = 0)
-        {
-            var storable = script.calculateBreastMass;
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var button = script.CreateButton("Calculate Breast Mass", rightSide);
-            storable.RegisterButton(button);
-            button.height = 53;
             elements[storable.name] = button;
         }
 
@@ -72,14 +60,12 @@ namespace TittyMagic.UI
         protected void CreateBackButton(bool rightSide)
         {
             var button = script.CreateButton("Return", rightSide);
-
             button.textColor = Color.white;
             var colors = button.button.colors;
             colors.normalColor = UIHelpers.sliderGray;
             colors.highlightedColor = Color.grey;
             colors.pressedColor = Color.grey;
             button.button.colors = colors;
-
             elements["backButton"] = button;
         }
 

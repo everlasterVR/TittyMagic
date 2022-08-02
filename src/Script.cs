@@ -173,13 +173,13 @@ namespace TittyMagic
             forceMorphHandler = new ForceMorphHandler(this, _trackLeftNipple, _trackRightNipple);
 
             LoadSettings();
+            SetupStorables();
 
             mainWindow = new MainWindow(this);
             morphingWindow = new MorphingWindow(this);
             gravityWindow = new GravityWindow(this);
             physicsWindow = new PhysicsWindow(this);
 
-            SetupStorables();
             CreateNavigation();
             NavigateToWindow(mainWindow);
 
@@ -418,7 +418,9 @@ namespace TittyMagic
 
         private void ActionsOnUIClosed()
         {
-            RecalibrateOnNavigation();
+            var activeParameterWindow = _tabs.activeWindow?.GetActiveNestedWindow() as ParameterWindow;
+            var recalibrationAction = activeParameterWindow != null ? activeParameterWindow.recalibrationAction : recalibratePhysics;
+            RecalibrateOnNavigation(recalibrationAction);
             colliderVisualizer.ShowPreviewsJSON.val = false;
 
             try
@@ -440,11 +442,11 @@ namespace TittyMagic
             }
         }
 
-        public void RecalibrateOnNavigation()
+        public void RecalibrateOnNavigation(JSONStorableAction recalibrationAction)
         {
             if(recalibrationNeeded)
             {
-                StartCoroutine(DeferBeginRefresh(refreshMass: true));
+                recalibrationAction.actionCallback();
             }
         }
 

@@ -19,7 +19,7 @@ namespace TittyMagic.UI
             CreateBreastGravityHeader(false);
             CreateGravityPhysicsInfoTextArea(false);
 
-            CreateRecalibrateButton(true);
+            CreateRecalibrateButton(script.recalibratePhysics, true);
             CreateBaseMultiplierSlider(script.gravityPhysicsHandler.baseJsf, true, spacing: 5);
             CreateMultiplierSlider(script.gravityPhysicsHandler.upJsf, "Up", true, spacing: 5);
             CreateMultiplierSlider(script.gravityPhysicsHandler.downJsf, "Down", true);
@@ -128,6 +128,6 @@ namespace TittyMagic.UI
                 : Color.Lerp(Color.white, new Color(1.0f, 0.2f, 0.2f), (value - 1) / 3);
 
         private void ActionsOnClose() =>
-            script.RecalibrateOnNavigation();
+            script.RecalibrateOnNavigation(script.recalibratePhysics);
     }
 }
