@@ -88,7 +88,7 @@ namespace TittyMagic
             highlightAllJsb = _script.NewJSONStorableBool("highlightAll", false, register: false);
             highlightAllJsb.setCallbackFunction = value => _script.colliderVisualizer.PreviewOpacityJSON.val = value ? 1.00f : 0.67f;
 
-            SyncHardColliderBaseMass(baseForceJsf.val);
+            SyncHardColliderBaseMass();
             SyncAllOffsets();
         }
 
@@ -321,7 +321,7 @@ namespace TittyMagic
             float timeout = Time.unscaledTime + 3f;
             while(!config.HasRigidbodies() && Time.unscaledTime < timeout)
             {
-                yield return new WaitForSecondsRealtime(0.3f);
+                yield return new WaitForSecondsRealtime(0.2f);
             }
 
             yield return new WaitForSecondsRealtime(0.1f);
@@ -332,9 +332,11 @@ namespace TittyMagic
             }
             else
             {
-                config.UpdateRigidbodyMass(baseForceJsf.val * config.forceJsf.val);
+                config.UpdateRigidbodyMass(1 / Utils.PhysicsRateMultiplier() * baseForceJsf.val * config.forceJsf.val);
             }
         }
+
+        public void SyncHardColliderBaseMass() => SyncHardColliderBaseMass(baseForceJsf.val);
 
         private void SyncHardColliderBaseMass(float value)
         {
@@ -390,7 +392,7 @@ namespace TittyMagic
             }
             else
             {
-                colliderConfigs.ForEach(config => config.UpdateRigidbodyMass(value * config.forceJsf.val));
+                colliderConfigs.ForEach(config => config.UpdateRigidbodyMass(1 / Utils.PhysicsRateMultiplier() * value * config.forceJsf.val));
             }
         }
 
