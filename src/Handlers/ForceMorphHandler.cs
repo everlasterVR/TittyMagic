@@ -15,7 +15,7 @@ namespace TittyMagic
 
         private float _pitchMultiplier;
         private float _rollMultiplier;
-        public float _leanBackFixerMultiplier;
+        private float _leanBackFixerMultiplier;
 
         private Dictionary<string, List<MorphConfig>> _configSets;
 
@@ -312,7 +312,7 @@ namespace TittyMagic
             multiplier * Curve(_pitchMultiplier * Mathf.Abs(angle) / 75);
 
         private static float CalculateZEffect(float distance, float multiplier) =>
-            multiplier * Curve(Mathf.Abs(distance) * 12);
+            multiplier * Curve(Mathf.Abs(distance) * 10.8f);
 
         private float CalculateXEffect(float angle, float multiplier) =>
             multiplier * Curve(_rollMultiplier * Mathf.Abs(angle) / 60);

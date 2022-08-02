@@ -102,9 +102,9 @@ namespace TittyMagic
             new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 1.00f))
             {
                 config = new StaticPhysicsConfig(
-                    0.50f,
-                    massCurve: x => 0.30f * x,
-                    softnessCurve: x => 0.10f * x
+                    0.60f,
+                    massCurve: x => 0.25f * x,
+                    softnessCurve: x => 0.08f * x
                 ),
                 valueFormat = "F2",
                 sync = left
@@ -173,10 +173,9 @@ namespace TittyMagic
             new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 1000))
             {
                 config = new StaticPhysicsConfig(
-                    635f,
-                    // https://www.desmos.com/calculator/cz7o7u8v6w
-                    massCurve: x => -0.29f * InvertMass(x),
-                    softnessCurve: x => -0.21f * Curves.Exponential1(x, 1.9f, 1.74f, 1.17f)
+                    720f,
+                    massCurve: x => -0.28f * InvertMass(x),
+                    softnessCurve: x => -0.17f * Curves.Exponential1(x, 1.9f, 1.74f, 1.17f)
                 ),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
                     90,

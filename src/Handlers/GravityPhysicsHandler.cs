@@ -103,8 +103,8 @@ namespace TittyMagic
             {
                 {
                     Direction.BACK, new DynamicPhysicsConfig(
-                        massMultiplier: -225f,
-                        softnessMultiplier: -150f,
+                        massMultiplier: -246f,
+                        softnessMultiplier: -164f,
                         isNegative: true,
                         applyMethod: ApplyMethod.ADDITIVE,
                         massCurve: MainPhysicsHandler.InvertMass
@@ -112,8 +112,8 @@ namespace TittyMagic
                 },
                 {
                     Direction.FORWARD, new DynamicPhysicsConfig(
-                        massMultiplier: -225f,
-                        softnessMultiplier: -150f,
+                        massMultiplier: -246f,
+                        softnessMultiplier: -164f,
                         isNegative: true,
                         applyMethod: ApplyMethod.ADDITIVE,
                         massCurve: MainPhysicsHandler.InvertMass
