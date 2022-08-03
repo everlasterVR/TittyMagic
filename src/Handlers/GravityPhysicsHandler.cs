@@ -126,8 +126,8 @@ namespace TittyMagic
             {
                 {
                     Direction.DOWN, new DynamicPhysicsConfig(
-                        massMultiplier: -8.00f,
-                        softnessMultiplier: -12.4f,
+                        massMultiplier: -7.20f,
+                        softnessMultiplier: -11.16f,
                         isNegative: true,
                         applyMethod: ApplyMethod.ADDITIVE,
                         massCurve: x => 1.5f * Curves.TargetRotationMassCurve(x),
@@ -136,8 +136,8 @@ namespace TittyMagic
                 },
                 {
                     Direction.UP, new DynamicPhysicsConfig(
-                        massMultiplier: 9.75f,
-                        softnessMultiplier: 15.11f,
+                        massMultiplier: 8.80f,
+                        softnessMultiplier: 13.60f,
                         isNegative: false,
                         applyMethod: ApplyMethod.ADDITIVE,
                         massCurve: x => 1.5f * Curves.TargetRotationMassCurve(x),
@@ -151,8 +151,8 @@ namespace TittyMagic
             {
                 {
                     Direction.LEFT, new DynamicPhysicsConfig(
-                        massMultiplier: -8.00f,
-                        softnessMultiplier: -12.4f,
+                        massMultiplier: -7.20f,
+                        softnessMultiplier: -11.16f,
                         isNegative: true,
                         applyMethod: ApplyMethod.ADDITIVE,
                         massCurve: x => 1.5f * Curves.TargetRotationMassCurve(x),
@@ -161,8 +161,8 @@ namespace TittyMagic
                 },
                 {
                     Direction.RIGHT, new DynamicPhysicsConfig(
-                        massMultiplier: -8.00f,
-                        softnessMultiplier: -12.4f,
+                        massMultiplier: -7.20f,
+                        softnessMultiplier: -11.16f,
                         isNegative: false,
                         applyMethod: ApplyMethod.ADDITIVE,
                         massCurve: x => 1.5f * Curves.TargetRotationMassCurve(x),
