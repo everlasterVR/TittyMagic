@@ -64,6 +64,9 @@ namespace TittyMagic
             return c / (1 + c / 3) + baseValue * baseValue;
         }
 
+        // https://www.desmos.com/calculator/ykxswso5ie
+        public static float ForceEffectCurve(float x) => InverseSmoothStep(x, 10, 0.8f, 0f);
+
         // https://www.desmos.com/calculator/crrr1uryep
         // ReSharper disable once UnusedMember.Global
         public static float InverseSmoothStep(float value, float b, float curvature, float midpoint)

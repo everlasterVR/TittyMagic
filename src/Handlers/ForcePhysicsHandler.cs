@@ -15,9 +15,6 @@ namespace TittyMagic
         private readonly TrackNipple _trackLeftNipple;
         private readonly TrackNipple _trackRightNipple;
 
-        private float _pitchMultiplier;
-        private float _rollMultiplier;
-
         // ReSharper disable MemberCanBePrivate.Global
         public JSONStorableFloat baseJsf { get; }
         public JSONStorableFloat upJsf { get; }
@@ -194,9 +191,6 @@ namespace TittyMagic
 
         public void Update()
         {
-            _rollMultiplier = 1;
-            _pitchMultiplier = 1;
-
             AdjustLeftRightPhysics();
             AdjustUpPhysics();
             AdjustDownPhysics();
@@ -345,20 +339,17 @@ namespace TittyMagic
             }
         }
 
-        private float CalculateXEffect(float angle, float multiplier) =>
+        private static float CalculateXEffect(float angle, float multiplier) =>
             // multiplier * _rollMultiplier * Mathf.Abs(angle) / 60;
-            multiplier * Curve(_rollMultiplier * Mathf.Abs(angle) / 40);
+            multiplier * Curves.ForceEffectCurve(Mathf.Abs(angle) / 40);
 
-        private float CalculateYEffect(float angle, float multiplier) =>
+        private static float CalculateYEffect(float angle, float multiplier) =>
             // multiplier * _pitchMultiplier * Mathf.Abs(angle) / 75;
-            multiplier * Curve(_pitchMultiplier * Mathf.Abs(angle) / 50);
+            multiplier * Curves.ForceEffectCurve(Mathf.Abs(angle) / 50);
 
         private static float CalculateZEffect(float distance, float multiplier) =>
             // multiplier * Mathf.Abs(distance) * 12;
-            multiplier * Curve(Mathf.Abs(distance) * 8);
-
-        // https://www.desmos.com/calculator/ykxswso5ie
-        private static float Curve(float effect) => Curves.InverseSmoothStep(effect, 10, 0.8f, 0f);
+            multiplier * Curves.ForceEffectCurve(Mathf.Abs(distance) * 8);
 
         private void UpdateLeftPhysics(string direction, float effect)
         {

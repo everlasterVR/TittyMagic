@@ -309,16 +309,13 @@ namespace TittyMagic
         }
 
         private float CalculateYEffect(float angle, float multiplier) =>
-            multiplier * Curve(_pitchMultiplier * Mathf.Abs(angle) / 75);
+            multiplier * Curves.ForceEffectCurve(_pitchMultiplier * Mathf.Abs(angle) / 75);
 
         private static float CalculateZEffect(float distance, float multiplier) =>
-            multiplier * Curve(Mathf.Abs(distance) * 10.8f);
+            multiplier * Curves.ForceEffectCurve(Mathf.Abs(distance) * 10.8f);
 
         private float CalculateXEffect(float angle, float multiplier) =>
-            multiplier * Curve(_rollMultiplier * Mathf.Abs(angle) / 60);
-
-        // https://www.desmos.com/calculator/ykxswso5ie
-        private static float Curve(float effect) => Curves.InverseSmoothStep(effect, 10, 0.8f, 0f);
+            multiplier * Curves.ForceEffectCurve(_rollMultiplier * Mathf.Abs(angle) / 60);
 
         private void UpdateMorphs(string configSetName, float effect)
         {
