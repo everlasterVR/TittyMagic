@@ -185,7 +185,7 @@ namespace TittyMagic
 
             if(!_loadingFromJson)
             {
-                StartCoroutine(DeferBeginRefresh(refreshMass: true));
+                calculateBreastMass.actionCallback();
             }
             else
             {
@@ -304,7 +304,7 @@ namespace TittyMagic
             {
                 if(value)
                 {
-                    StartCoroutine(DeferBeginRefresh(refreshMass: true));
+                    calculateBreastMass.actionCallback();
                 }
             };
 
@@ -532,10 +532,9 @@ namespace TittyMagic
 
             PreRefresh();
 
-            var sliders = ((MainWindow) mainWindow).GetSlidersForRefresh();
             if(waitForListeners)
             {
-                // ensure refresh actually begins only once listeners report no change
+                var sliders = ((MainWindow) mainWindow).GetSlidersForRefresh();
                 yield return new WaitForSeconds(0.33f);
 
                 while(
@@ -587,11 +586,8 @@ namespace TittyMagic
 
             SetBreastsUseGravity(false);
 
-            yield return new WaitForSeconds(0.5f);
-            if(refreshMass)
-            {
-                yield return RefreshMass();
-            }
+            yield return new WaitForSeconds(0.30f);
+            yield return MaybeRefreshMass(refreshMass);
 
             mainPhysicsHandler.UpdatePhysics();
             softPhysicsHandler.UpdatePhysics();
@@ -628,7 +624,7 @@ namespace TittyMagic
             _pectoralRbRight.useGravity = value;
         }
 
-        private IEnumerator RefreshMass()
+        private IEnumerator MaybeRefreshMass(bool refreshMass)
         {
             float duration = 0;
             const float interval = 0.1f;
@@ -637,8 +633,11 @@ namespace TittyMagic
                 yield return new WaitForSeconds(interval);
                 duration += interval;
 
-                mainPhysicsHandler.UpdateMassValueAndAmounts();
-                mainPhysicsHandler.UpdatePhysics();
+                if(refreshMass)
+                {
+                    mainPhysicsHandler.UpdateMassValueAndAmounts();
+                    mainPhysicsHandler.UpdatePhysics();
+                }
             }
         }
 
@@ -686,11 +685,7 @@ namespace TittyMagic
 
             float duration = 0;
             const float interval = 0.05f;
-            while(
-                duration < 1.5f &&
-                !_trackLeftNipple.CalibrationDone() &&
-                !_trackRightNipple.CalibrationDone()
-            )
+            while(duration < 1.20f)
             {
                 yield return new WaitForSeconds(interval);
                 duration += interval;
@@ -786,7 +781,7 @@ namespace TittyMagic
 
             _loadingFromJson = false;
 
-            StartCoroutine(DeferBeginRefresh(refreshMass: true));
+            calculateBreastMass.actionCallback();
         }
 
         private void OnRemoveAtom(Atom atom)
