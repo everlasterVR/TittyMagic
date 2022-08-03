@@ -18,15 +18,6 @@ namespace TittyMagic
             float q = 1
         ) => a * Mathf.Pow(x, p) + b * Mathf.Pow(x, q) + c * x;
 
-        // https://www.desmos.com/calculator/fe1ym6cf8u
-        public static float MorphingCurve(float mass)
-        {
-            const float a = 10.4f;
-            const float b = 2.5f;
-            const float c = 2.8f;
-            return a / Mathf.Sqrt(mass + b) - c;
-        }
-
         // https://www.desmos.com/calculator/eicoieuczv
         public static float DepthMorphingCurve(float mass)
         {
@@ -62,6 +53,17 @@ namespace TittyMagic
         {
             float baseValue = (2 - c) * (x + s) - 1 + c / 2;
             return c / (1 + c / 3) + baseValue * baseValue;
+        }
+
+        // https://www.desmos.com/calculator/mpmm8lzvs2
+        public static float MorphingCurve(float mass) => Exponential3(mass, 2.17f, 1.59f, 1.50f, 1.30f, 1.70f);
+
+        // https://www.desmos.com/calculator/mpmm8lzvs2
+        // ReSharper disable once MemberCanBePrivate.Global
+        public static float Exponential3(float x, float c, float s, float l, float q, float p)
+        {
+            float xToLimitPow = Mathf.Pow(x / l, q);
+            return c + s * Mathf.Pow(1 - xToLimitPow, p);
         }
 
         // https://www.desmos.com/calculator/ykxswso5ie

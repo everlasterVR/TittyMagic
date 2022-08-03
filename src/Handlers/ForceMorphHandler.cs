@@ -293,7 +293,7 @@ namespace TittyMagic
             Mathf.Lerp(1.25f, 1f, Mathf.Abs(roll));
 
         private static float CalculatePitchMultiplier(float pitch, float roll) =>
-            Mathf.Lerp(0.72f, 1f, CalculateDiffFromHorizontal(pitch, roll)); // same for upright and upside down
+            Mathf.Lerp(0.80f, 1f, CalculateDiffFromHorizontal(pitch, roll)); // same for upright and upside down
 
         private float CalculateLeanBackFixerMultiplier(float pitch, float roll)
         {
