@@ -25,7 +25,19 @@ namespace TittyMagic.UI
             _parameter = _parameterGroup.left;
             buildAction = BuildSelf;
             closeAction = ActionsOnClose;
-            recalibrationAction = id == ParamName.MASS ? script.calculateBreastMass : script.recalibratePhysics;
+            recalibrationAction = new JSONStorableAction("recalibrationAction",
+                () =>
+                {
+                    _offsetWhenCalibrated = _parameter.offsetJsf.val;
+                    if(id == ParamName.MASS)
+                    {
+                        script.calculateBreastMass.actionCallback();
+                    }
+                    else
+                    {
+                        script.recalibratePhysics.actionCallback();
+                    }
+                });
             _returnToParent = () =>
             {
                 Clear();
@@ -40,7 +52,6 @@ namespace TittyMagic.UI
             if(_parameterGroup.requiresRecalibration)
             {
                 CreateRecalibrateButton(recalibrationAction, true);
-                elements[recalibrationAction.name].AddListener(() => _offsetWhenCalibrated = _parameter.offsetJsf.val);
             }
             else
             {
