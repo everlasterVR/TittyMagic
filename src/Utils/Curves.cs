@@ -50,6 +50,9 @@ namespace TittyMagic
         // https://www.desmos.com/calculator/ldejemzr2a
         public static float TargetRotationSoftnessCurve(float x) => Exponential1(x, 3.00f, 1.35f, 1.00f);
 
+        // https://www.desmos.com/calculator/clksuexht8
+        public static float SpringZSoftnessCurve(float x) => Exponential1(x, 2.11f, 1.21f, 0.88f);
+
         // https://www.desmos.com/calculator/uejk7yri1f
         public static float Exponential1(float x, float b, float p, float q, float a = 1, float m = 1, float s = 0) =>
             m * ((1 - b) * Mathf.Pow(a * x + s, p) + b * Mathf.Pow(a * x + s, q));
