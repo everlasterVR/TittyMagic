@@ -669,8 +669,10 @@ namespace TittyMagic
                 UpdateDynamicPhysics(roll: 0, pitch: 0);
                 UpdateDynamicMorphs(roll: 0, pitch: 0);
 
+                // scale force to be correct for the given fps vs physics rate, for some reason this produces an accurate calibration result
+                float rateToPhysicsRateRatio = Time.deltaTime / Time.fixedDeltaTime;
                 // simulate force of gravity when upright
-                var force = _chestTransform.up * -Physics.gravity.magnitude;
+                var force = _chestTransform.up * (rateToPhysicsRateRatio * -Physics.gravity.magnitude);
                 _pectoralRbLeft.AddForce(force, ForceMode.Acceleration);
                 _pectoralRbRight.AddForce(force, ForceMode.Acceleration);
 
