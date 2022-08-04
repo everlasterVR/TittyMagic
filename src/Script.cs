@@ -593,12 +593,8 @@ namespace TittyMagic
             softPhysicsHandler.UpdatePhysics();
             nippleErectionHandler.Update();
             SetExtraMultipliers();
-            if(Gender.isFemale)
-            {
-                yield return hardColliderHandler.SyncAll();
-            }
 
-            yield return CalibrateNipplesTracking();
+            yield return CalibrateNipplesTrackingAndColliders();
 
             SetBreastsUseGravity(true);
 
@@ -680,7 +676,7 @@ namespace TittyMagic
             }
         }
 
-        private IEnumerator CalibrateNipplesTracking()
+        private IEnumerator CalibrateNipplesTrackingAndColliders()
         {
             _calibrating = true;
             StartCoroutine(SimulateUprightPose());
@@ -693,6 +689,11 @@ namespace TittyMagic
                 duration += interval;
                 _trackLeftNipple.Calibrate();
                 _trackRightNipple.Calibrate();
+            }
+
+            if(Gender.isFemale)
+            {
+                yield return hardColliderHandler.SyncAll();
             }
 
             _calibrating = false;

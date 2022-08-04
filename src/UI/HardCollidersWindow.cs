@@ -368,6 +368,7 @@ namespace TittyMagic.UI
             script.colliderVisualizer.enabled = false;
         }
 
+        // ReSharper disable once UnusedMember.Global
         public void UpdateCollidersDebugInfo(string configId)
         {
             var debugColliderConfigGroup = script.hardColliderHandler.colliderConfigs.Find(config => config.id == configId);
