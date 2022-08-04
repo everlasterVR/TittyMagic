@@ -21,7 +21,8 @@ namespace TittyMagic
         public JSONStorableFloat baseForceJsf { get; private set; }
         public JSONStorableBool highlightAllJsb { get; private set; }
 
-        private Dictionary<string, Dictionary<string, Scaler>> _scalingConfigs;
+        private Dictionary<string, Dictionary<string, Scaler>> _sliderScalers;
+        private Dictionary<string, Dictionary<string, StaticPhysicsConfig>> _multiplierConfigs;
 
         private const string COLLIDER_FORCE = "ColliderForce";
         private const string COLLIDER_RADIUS = "ColliderRadius";
@@ -45,7 +46,8 @@ namespace TittyMagic
                 return;
             }
 
-            CreateScalingConfigs();
+            CreateSliderScalers();
+            CreateMultiplierConfigs();
             colliderConfigs = new List<ColliderConfigGroup>
             {
                 NewColliderConfigGroup("Pectoral1"),
@@ -84,17 +86,14 @@ namespace TittyMagic
             _script.colliderVisualizer.XRayPreviewsJSON.setJSONCallbackFunction = _ => SyncSizeAuto();
 
             baseForceJsf = _script.NewJSONStorableFloat("combinedColliderForce", 0.50f, 0.01f, 1.00f);
-            baseForceJsf.setCallbackFunction = SyncHardColliderBaseMass;
+            baseForceJsf.setCallbackFunction = SyncHardCollidersBaseMass;
             highlightAllJsb = _script.NewJSONStorableBool("highlightAll", false, register: false);
             highlightAllJsb.setCallbackFunction = value => _script.colliderVisualizer.PreviewOpacityJSON.val = value ? 1.00f : 0.67f;
-
-            SyncHardColliderBaseMass();
-            SyncAllOffsets();
         }
 
-        private void CreateScalingConfigs()
+        private void CreateSliderScalers()
         {
-            _scalingConfigs = new Dictionary<string, Dictionary<string, Scaler>>
+            _sliderScalers = new Dictionary<string, Dictionary<string, Scaler>>
             {
                 {
                     "Pectoral1", new Dictionary<string, Scaler>
@@ -154,21 +153,72 @@ namespace TittyMagic
             };
         }
 
+        private void CreateMultiplierConfigs()
+        {
+            _multiplierConfigs = new Dictionary<string, Dictionary<string, StaticPhysicsConfig>>
+            {
+                {
+                    "Pectoral1", new Dictionary<string, StaticPhysicsConfig>
+                    {
+                        { COLLIDER_FORCE, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_RADIUS, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_LENGTH, new StaticPhysicsConfig(1.00f) },
+                    }
+                },
+                {
+                    "Pectoral2", new Dictionary<string, StaticPhysicsConfig>
+                    {
+                        { COLLIDER_FORCE, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_RADIUS, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_LENGTH, new StaticPhysicsConfig(1.00f) },
+                    }
+                },
+                {
+                    "Pectoral3", new Dictionary<string, StaticPhysicsConfig>
+                    {
+                        { COLLIDER_FORCE, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_RADIUS, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_LENGTH, new StaticPhysicsConfig(1.00f) },
+                    }
+                },
+                {
+                    "Pectoral4", new Dictionary<string, StaticPhysicsConfig>
+                    {
+                        { COLLIDER_FORCE, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_RADIUS, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_LENGTH, new StaticPhysicsConfig(1.00f) },
+                    }
+                },
+                {
+                    "Pectoral5", new Dictionary<string, StaticPhysicsConfig>
+                    {
+                        { COLLIDER_FORCE, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_RADIUS, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_LENGTH, new StaticPhysicsConfig(1.00f) },
+                    }
+                },
+            };
+        }
+
         private ColliderConfigGroup NewColliderConfigGroup(string id)
         {
             var configLeft = NewColliderConfig("l" + id);
             var configRight = NewColliderConfig("r" + id);
-            var scalingConfig = _scalingConfigs[id];
+            var sliderScalers = _sliderScalers[id];
+            var multiplierConfigs = _multiplierConfigs[id];
             var colliderConfigGroup = new ColliderConfigGroup(
                 id,
                 configLeft,
                 configRight,
-                scalingConfig[COLLIDER_FORCE],
-                scalingConfig[COLLIDER_RADIUS],
-                scalingConfig[COLLIDER_LENGTH],
-                scalingConfig[COLLIDER_CENTER_X],
-                scalingConfig[COLLIDER_CENTER_Y],
-                scalingConfig[COLLIDER_CENTER_Z]
+                multiplierConfigs[COLLIDER_FORCE],
+                multiplierConfigs[COLLIDER_RADIUS],
+                multiplierConfigs[COLLIDER_LENGTH],
+                sliderScalers[COLLIDER_FORCE],
+                sliderScalers[COLLIDER_RADIUS],
+                sliderScalers[COLLIDER_LENGTH],
+                sliderScalers[COLLIDER_CENTER_X],
+                sliderScalers[COLLIDER_CENTER_Y],
+                sliderScalers[COLLIDER_CENTER_Z]
             )
             {
                 forceJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_FORCE, 0.50f, 0.01f, 1.00f),
@@ -211,7 +261,7 @@ namespace TittyMagic
                 return;
             }
 
-            config.UpdateRadius();
+            config.UpdateRadius(_script.mainPhysicsHandler.normalizedMass, _script.softnessAmount);
             SyncSizeAuto();
         }
 
@@ -222,7 +272,7 @@ namespace TittyMagic
                 return;
             }
 
-            config.UpdateLength();
+            config.UpdateLength(_script.mainPhysicsHandler.normalizedMass, _script.softnessAmount);
             SyncSizeAuto();
         }
 
@@ -276,8 +326,8 @@ namespace TittyMagic
         {
             colliderConfigs.ForEach(config =>
             {
-                config.UpdateRadius();
-                config.UpdateLength();
+                config.UpdateRadius(_script.mainPhysicsHandler.normalizedMass, _script.softnessAmount);
+                config.UpdateLength(_script.mainPhysicsHandler.normalizedMass, _script.softnessAmount);
                 config.UpdateLookOffset();
                 config.UpdateUpOffset();
                 config.UpdateRightOffset();
@@ -332,13 +382,33 @@ namespace TittyMagic
             }
             else
             {
-                config.UpdateRigidbodyMass(1 / Utils.PhysicsRateMultiplier() * baseForceJsf.val * config.forceJsf.val);
+                config.UpdateRigidbodyMass(
+                    1 / Utils.PhysicsRateMultiplier() * baseForceJsf.val * config.forceJsf.val,
+                    _script.mainPhysicsHandler.normalizedMass,
+                    _script.softnessAmount
+                );
             }
         }
 
-        public void SyncHardColliderBaseMass() => SyncHardColliderBaseMass(baseForceJsf.val);
+        public IEnumerator SyncAll()
+        {
+            if(!enabled)
+            {
+                yield break;
+            }
 
-        private void SyncHardColliderBaseMass(float value)
+            while(_combinedSyncInProgress)
+            {
+                yield return null;
+            }
+
+            yield return DeferBeginSyncBaseMass();
+            SyncAllOffsets();
+        }
+
+        public void SyncHardCollidersBaseMass() => SyncHardCollidersBaseMass(0);
+
+        private void SyncHardCollidersBaseMass(float value)
         {
             if(!enabled)
             {
@@ -372,10 +442,10 @@ namespace TittyMagic
             }
 
             _combinedSyncInProgress = false;
-            yield return DeferSyncMassCombined(baseForceJsf.val);
+            yield return DeferSyncMassCombined();
         }
 
-        private IEnumerator DeferSyncMassCombined(float value)
+        private IEnumerator DeferSyncMassCombined()
         {
             // In case hard colliders are not enabled (yet)
             float timeout = Time.unscaledTime + 3f;
@@ -392,7 +462,11 @@ namespace TittyMagic
             }
             else
             {
-                colliderConfigs.ForEach(config => config.UpdateRigidbodyMass(1 / Utils.PhysicsRateMultiplier() * value * config.forceJsf.val));
+                colliderConfigs.ForEach(config => config.UpdateRigidbodyMass(
+                    1 / Utils.PhysicsRateMultiplier() * baseForceJsf.val * config.forceJsf.val,
+                    _script.mainPhysicsHandler.normalizedMass,
+                    _script.softnessAmount
+                ));
             }
         }
 
@@ -460,7 +534,7 @@ namespace TittyMagic
                 return;
             }
 
-            SyncHardColliderBaseMass(baseForceJsf.val);
+            SyncHardCollidersBaseMass(baseForceJsf.val);
             SyncAllOffsets();
         }
 

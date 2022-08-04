@@ -96,7 +96,7 @@ namespace TittyMagic
             {
                 _script.mainPhysicsHandler.UpdateRateDependentPhysics();
                 _script.softPhysicsHandler.UpdateRateDependentPhysics();
-                _script.hardColliderHandler.SyncHardColliderBaseMass();
+                _script.hardColliderHandler.SyncHardCollidersBaseMass();
             }
 
             _fixedDeltaTime = value;

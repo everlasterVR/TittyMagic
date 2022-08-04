@@ -13,13 +13,16 @@ namespace TittyMagic.Configs
         public string visualizerEditableId => left.visualizerEditableId;
         public bool syncInProgress { get; set; }
 
-        //TODO scale by breast mass and softness
         private readonly Scaler _baseRbMassScaler;
         private readonly Scaler _radiusScaler;
         private readonly Scaler _lengthScaler;
         private readonly Scaler _rightOffsetScaler;
         private readonly Scaler _upOffsetScaler;
         private readonly Scaler _lookOffsetScaler;
+
+        private readonly StaticPhysicsConfig _rbMassMultiplierConfig;
+        private readonly StaticPhysicsConfig _radiusMultiplierConfig;
+        private readonly StaticPhysicsConfig _lengthMultiplierConfig;
 
         public ColliderConfig left { get; }
         public ColliderConfig right { get; }
@@ -35,6 +38,9 @@ namespace TittyMagic.Configs
             string id,
             ColliderConfig left,
             ColliderConfig right,
+            StaticPhysicsConfig rbMassMultiplierConfig,
+            StaticPhysicsConfig radiusMultiplierConfig,
+            StaticPhysicsConfig lengthMultiplierConfig,
             Scaler baseRbMassScaler,
             Scaler radiusScaler,
             Scaler lengthScaler,
@@ -46,6 +52,9 @@ namespace TittyMagic.Configs
             this.id = id;
             this.left = left;
             this.right = right;
+            _rbMassMultiplierConfig = rbMassMultiplierConfig;
+            _radiusMultiplierConfig = radiusMultiplierConfig;
+            _lengthMultiplierConfig = lengthMultiplierConfig;
             _baseRbMassScaler = baseRbMassScaler;
             _radiusScaler = radiusScaler;
             _lengthScaler = lengthScaler;
@@ -54,11 +63,11 @@ namespace TittyMagic.Configs
             _lookOffsetScaler = lookOffsetScaler;
         }
 
-        public void UpdateRigidbodyMass(float combinedMultiplier)
+        public void UpdateRigidbodyMass(float combinedMultiplier, float massValue, float softness)
         {
-            float baseMass = _baseRbMassScaler.Scale(DEFAULT_MASS);
-            left.UpdateRigidbodyMass(baseMass * combinedMultiplier);
-            right.UpdateRigidbodyMass(baseMass * combinedMultiplier);
+            float rbMass = _rbMassMultiplierConfig.Calculate(massValue, softness) * combinedMultiplier * _baseRbMassScaler.Scale(DEFAULT_MASS);
+            left.UpdateRigidbodyMass(rbMass);
+            right.UpdateRigidbodyMass(rbMass);
         }
 
         public void RestoreDefaultMass()
@@ -67,16 +76,16 @@ namespace TittyMagic.Configs
             right.UpdateRigidbodyMass(DEFAULT_MASS);
         }
 
-        public void UpdateRadius()
+        public void UpdateRadius(float massValue, float softness)
         {
-            float radius = _radiusScaler.Scale(radiusJsf.val);
+            float radius = _radiusMultiplierConfig.Calculate(massValue, softness) * _radiusScaler.Scale(radiusJsf.val);
             left.UpdateRadius(-radius);
             right.UpdateRadius(-radius);
         }
 
-        public void UpdateLength()
+        public void UpdateLength(float massValue, float softness)
         {
-            float length = _lengthScaler.Scale(lengthJsf.val);
+            float length = _lengthMultiplierConfig.Calculate(massValue, softness) * _lengthScaler.Scale(lengthJsf.val);
             left.UpdateLength(-length);
             right.UpdateLength(-length);
         }
