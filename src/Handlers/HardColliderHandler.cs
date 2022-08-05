@@ -163,6 +163,9 @@ namespace TittyMagic
                         { COLLIDER_FORCE, new StaticPhysicsConfig(1.00f) },
                         { COLLIDER_RADIUS, new StaticPhysicsConfig(1.00f) },
                         { COLLIDER_LENGTH, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_CENTER_X, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_CENTER_Y, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_CENTER_Z, new StaticPhysicsConfig(1.00f) },
                     }
                 },
                 {
@@ -171,6 +174,9 @@ namespace TittyMagic
                         { COLLIDER_FORCE, new StaticPhysicsConfig(1.00f) },
                         { COLLIDER_RADIUS, new StaticPhysicsConfig(1.00f) },
                         { COLLIDER_LENGTH, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_CENTER_X, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_CENTER_Y, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_CENTER_Z, new StaticPhysicsConfig(1.00f) },
                     }
                 },
                 {
@@ -179,6 +185,9 @@ namespace TittyMagic
                         { COLLIDER_FORCE, new StaticPhysicsConfig(1.00f) },
                         { COLLIDER_RADIUS, new StaticPhysicsConfig(1.00f) },
                         { COLLIDER_LENGTH, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_CENTER_X, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_CENTER_Y, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_CENTER_Z, new StaticPhysicsConfig(1.00f) },
                     }
                 },
                 {
@@ -187,6 +196,9 @@ namespace TittyMagic
                         { COLLIDER_FORCE, new StaticPhysicsConfig(1.00f) },
                         { COLLIDER_RADIUS, new StaticPhysicsConfig(1.00f) },
                         { COLLIDER_LENGTH, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_CENTER_X, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_CENTER_Y, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_CENTER_Z, new StaticPhysicsConfig(1.00f) },
                     }
                 },
                 {
@@ -195,6 +207,9 @@ namespace TittyMagic
                         { COLLIDER_FORCE, new StaticPhysicsConfig(1.00f) },
                         { COLLIDER_RADIUS, new StaticPhysicsConfig(1.00f) },
                         { COLLIDER_LENGTH, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_CENTER_X, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_CENTER_Y, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_CENTER_Z, new StaticPhysicsConfig(1.00f) },
                     }
                 },
             };
@@ -213,6 +228,9 @@ namespace TittyMagic
                 multiplierConfigs[COLLIDER_FORCE],
                 multiplierConfigs[COLLIDER_RADIUS],
                 multiplierConfigs[COLLIDER_LENGTH],
+                multiplierConfigs[COLLIDER_CENTER_X],
+                multiplierConfigs[COLLIDER_CENTER_Y],
+                multiplierConfigs[COLLIDER_CENTER_Z],
                 sliderScalers[COLLIDER_FORCE],
                 sliderScalers[COLLIDER_RADIUS],
                 sliderScalers[COLLIDER_LENGTH],
@@ -283,7 +301,7 @@ namespace TittyMagic
                 return;
             }
 
-            config.UpdateLookOffset();
+            config.UpdateLookOffset(_script.mainPhysicsHandler.normalizedMass, _script.softnessAmount);
             SyncSizeAuto();
         }
 
@@ -294,7 +312,7 @@ namespace TittyMagic
                 return;
             }
 
-            config.UpdateUpOffset();
+            config.UpdateUpOffset(_script.mainPhysicsHandler.normalizedMass, _script.softnessAmount);
             SyncSizeAuto();
         }
 
@@ -305,7 +323,7 @@ namespace TittyMagic
                 return;
             }
 
-            config.UpdateRightOffset();
+            config.UpdateRightOffset(_script.mainPhysicsHandler.normalizedMass, _script.softnessAmount);
             SyncSizeAuto();
         }
 
@@ -324,13 +342,15 @@ namespace TittyMagic
 
         public void SyncAllOffsets()
         {
+            float mass = _script.mainPhysicsHandler.normalizedMass;
+            float softness = _script.softnessAmount;
             colliderConfigs.ForEach(config =>
             {
-                config.UpdateRadius(_script.mainPhysicsHandler.normalizedMass, _script.softnessAmount);
-                config.UpdateLength(_script.mainPhysicsHandler.normalizedMass, _script.softnessAmount);
-                config.UpdateLookOffset();
-                config.UpdateUpOffset();
-                config.UpdateRightOffset();
+                config.UpdateRadius(mass, softness);
+                config.UpdateLength(mass, softness);
+                config.UpdateLookOffset(mass, softness);
+                config.UpdateUpOffset(mass, softness);
+                config.UpdateRightOffset(mass, softness);
             });
             SyncSizeAuto();
         }
@@ -534,8 +554,7 @@ namespace TittyMagic
                 return;
             }
 
-            SyncHardCollidersBaseMass(baseForceJsf.val);
-            SyncAllOffsets();
+            StartCoroutine(SyncAll());
         }
 
         private void OnDisable()

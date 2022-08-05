@@ -23,6 +23,9 @@ namespace TittyMagic.Configs
         private readonly StaticPhysicsConfig _rbMassMultiplierConfig;
         private readonly StaticPhysicsConfig _radiusMultiplierConfig;
         private readonly StaticPhysicsConfig _lengthMultiplierConfig;
+        private readonly StaticPhysicsConfig _rightOffsetMultiplierConfig;
+        private readonly StaticPhysicsConfig _upOffsetMultiplierConfig;
+        private readonly StaticPhysicsConfig _lookOffsetMultiplierConfig;
 
         public ColliderConfig left { get; }
         public ColliderConfig right { get; }
@@ -41,6 +44,9 @@ namespace TittyMagic.Configs
             StaticPhysicsConfig rbMassMultiplierConfig,
             StaticPhysicsConfig radiusMultiplierConfig,
             StaticPhysicsConfig lengthMultiplierConfig,
+            StaticPhysicsConfig rightOffsetMultiplierConfig,
+            StaticPhysicsConfig upOffsetMultiplierConfig,
+            StaticPhysicsConfig lookOffsetMultiplierConfig,
             Scaler baseRbMassScaler,
             Scaler radiusScaler,
             Scaler lengthScaler,
@@ -55,6 +61,9 @@ namespace TittyMagic.Configs
             _rbMassMultiplierConfig = rbMassMultiplierConfig;
             _radiusMultiplierConfig = radiusMultiplierConfig;
             _lengthMultiplierConfig = lengthMultiplierConfig;
+            _rightOffsetMultiplierConfig = rightOffsetMultiplierConfig;
+            _upOffsetMultiplierConfig = upOffsetMultiplierConfig;
+            _lookOffsetMultiplierConfig = lookOffsetMultiplierConfig;
             _baseRbMassScaler = baseRbMassScaler;
             _radiusScaler = radiusScaler;
             _lengthScaler = lengthScaler;
@@ -90,23 +99,23 @@ namespace TittyMagic.Configs
             right.UpdateLength(-length);
         }
 
-        public void UpdateRightOffset()
+        public void UpdateRightOffset(float massValue, float softness)
         {
-            float rightOffset = _rightOffsetScaler.Scale(rightJsf.val);
+            float rightOffset = _rightOffsetMultiplierConfig.Calculate(massValue, softness) * _rightOffsetScaler.Scale(rightJsf.val);
             left.UpdateRightOffset(-rightOffset);
             right.UpdateRightOffset(rightOffset);
         }
 
-        public void UpdateUpOffset()
+        public void UpdateUpOffset(float massValue, float softness)
         {
-            float up = _upOffsetScaler.Scale(upJsf.val);
+            float up = _upOffsetMultiplierConfig.Calculate(massValue, softness) * _upOffsetScaler.Scale(upJsf.val);
             left.UpdateUpOffset(-up);
             right.UpdateUpOffset(-up);
         }
 
-        public void UpdateLookOffset()
+        public void UpdateLookOffset(float massValue, float softness)
         {
-            float look = _lookOffsetScaler.Scale(lookJsf.val);
+            float look = _lookOffsetMultiplierConfig.Calculate(massValue, softness) * _lookOffsetScaler.Scale(lookJsf.val);
             left.UpdateLookOffset(-look);
             right.UpdateLookOffset(-look);
         }
