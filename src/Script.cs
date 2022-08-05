@@ -694,6 +694,11 @@ namespace TittyMagic
             if(Gender.isFemale)
             {
                 yield return hardColliderHandler.SyncAll();
+                var window = mainWindow.GetActiveNestedWindow() as HardCollidersWindow;
+                if(window != null)
+                {
+                    window.UpdateCollidersDebugInfo("Pectoral1");
+                }
             }
 
             _calibrating = false;

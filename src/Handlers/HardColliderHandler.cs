@@ -21,8 +21,7 @@ namespace TittyMagic
         public JSONStorableFloat baseForceJsf { get; private set; }
         public JSONStorableBool highlightAllJsb { get; private set; }
 
-        private Dictionary<string, Dictionary<string, Scaler>> _sliderScalers;
-        private Dictionary<string, Dictionary<string, StaticPhysicsConfig>> _multiplierConfigs;
+        private Dictionary<string, Dictionary<string, Scaler>> _scalingConfigs;
 
         private const string COLLIDER_FORCE = "ColliderForce";
         private const string COLLIDER_RADIUS = "ColliderRadius";
@@ -46,8 +45,7 @@ namespace TittyMagic
                 return;
             }
 
-            CreateSliderScalers();
-            CreateMultiplierConfigs();
+            CreateScalingConfigs();
             colliderConfigs = new List<ColliderConfigGroup>
             {
                 NewColliderConfigGroup("Pectoral1"),
@@ -91,125 +89,153 @@ namespace TittyMagic
             highlightAllJsb.setCallbackFunction = value => _script.colliderVisualizer.PreviewOpacityJSON.val = value ? 1.00f : 0.67f;
         }
 
-        private void CreateSliderScalers()
+        private void CreateScalingConfigs()
         {
-            _sliderScalers = new Dictionary<string, Dictionary<string, Scaler>>
+            _scalingConfigs = new Dictionary<string, Dictionary<string, Scaler>>
             {
                 {
                     "Pectoral1", new Dictionary<string, Scaler>
                     {
-                        { COLLIDER_FORCE, new Scaler(-0.008f) },
-                        { COLLIDER_RADIUS, new Scaler(-0.34f, 0, 40) },
-                        { COLLIDER_LENGTH, new Scaler(0.38f, 0, 40) },
-                        { COLLIDER_CENTER_X, new Scaler(-0.43f, 0, 40) },
-                        { COLLIDER_CENTER_Y, new Scaler(0.23f, 0, 40) },
-                        { COLLIDER_CENTER_Z, new Scaler(-0.40f, 0, 40) },
+                        { COLLIDER_FORCE, new Scaler(
+                            offset: -0.008f,
+                            range: new float[] {0, 1}
+                        ) },
+                        { COLLIDER_RADIUS, new Scaler(
+                            offset: -0.34f,
+                            range: new float[] {0, 40}
+                        ) },
+                        { COLLIDER_LENGTH, new Scaler(
+                            offset: 0.38f,
+                            range: new float[] {0, 40}
+                        ) },
+                        { COLLIDER_CENTER_X, new Scaler(
+                            offset: -0.34f,
+                            range: new float[] {0, 40}
+                        ) },
+                        { COLLIDER_CENTER_Y, new Scaler(
+                            offset: 0.00f,
+                            range: new float[] {0, 40}
+                        ) },
+                        { COLLIDER_CENTER_Z, new Scaler(
+                            offset: -0.25f,
+                            range: new float[] {0, 40}
+                        ) },
                     }
                 },
                 {
                     "Pectoral2", new Dictionary<string, Scaler>
                     {
-                        { COLLIDER_FORCE, new Scaler(-0.016f) },
-                        { COLLIDER_RADIUS, new Scaler(0.03f, 0, 40) },
-                        { COLLIDER_LENGTH, new Scaler(0.20f, 0, 40) },
-                        { COLLIDER_CENTER_X, new Scaler(0.37f, 0, 40) },
-                        { COLLIDER_CENTER_Y, new Scaler(0.25f, 0, 40) },
-                        { COLLIDER_CENTER_Z, new Scaler(-0.82f, 0, 40) },
+                        { COLLIDER_FORCE, new Scaler(
+                            offset: -0.016f,
+                            range: new float[] {0, 1}
+                        ) },
+                        { COLLIDER_RADIUS, new Scaler(
+                            offset: 0.03f,
+                            range: new float[] {0, 40}
+                        ) },
+                        { COLLIDER_LENGTH, new Scaler(
+                            offset: 0.20f,
+                            range: new float[] {0, 40}
+                        ) },
+                        { COLLIDER_CENTER_X, new Scaler(
+                            offset: 0.37f,
+                            range: new float[] {0, 40}
+                        ) },
+                        { COLLIDER_CENTER_Y, new Scaler(
+                            offset: 0.25f,
+                            range: new float[] {0, 40}
+                        ) },
+                        { COLLIDER_CENTER_Z, new Scaler(
+                            offset: -0.82f,
+                            range: new float[] {0, 40}
+                        ) },
                     }
                 },
                 {
                     "Pectoral3", new Dictionary<string, Scaler>
                     {
-                        { COLLIDER_FORCE, new Scaler(-0.008f) },
-                        { COLLIDER_RADIUS, new Scaler(-0.22f, 0, 40) },
-                        { COLLIDER_LENGTH, new Scaler(-0.26f, 0, 40) },
-                        { COLLIDER_CENTER_X, new Scaler(0.13f, 0, 40) },
-                        { COLLIDER_CENTER_Y, new Scaler(0.13f, 0, 40) },
-                        { COLLIDER_CENTER_Z, new Scaler(-0.40f, 0, 40) },
+                        { COLLIDER_FORCE, new Scaler(
+                            offset: -0.008f,
+                            range: new float[] {0, 1}
+                        ) },
+                        { COLLIDER_RADIUS, new Scaler(
+                            offset: -0.22f,
+                            range: new float[] {0, 40}
+                        ) },
+                        { COLLIDER_LENGTH, new Scaler(
+                            offset: -0.26f,
+                            range: new float[] {0, 40}
+                        ) },
+                        { COLLIDER_CENTER_X, new Scaler(
+                            offset: 0.13f,
+                            range: new float[] {0, 40}
+                        ) },
+                        { COLLIDER_CENTER_Y, new Scaler(
+                            offset: 0.13f,
+                            range: new float[] {0, 40}
+                        ) },
+                        { COLLIDER_CENTER_Z, new Scaler(
+                            offset: -0.40f,
+                            range: new float[] {0, 40}
+                        ) },
                     }
                 },
                 {
                     "Pectoral4", new Dictionary<string, Scaler>
                     {
-                        { COLLIDER_FORCE, new Scaler(-0.008f) },
-                        { COLLIDER_RADIUS, new Scaler(-0.26f, 0, 40) },
-                        { COLLIDER_LENGTH, new Scaler(-0.63f, 0, 40) },
-                        { COLLIDER_CENTER_X, new Scaler(-0.39f, 0, 40) },
-                        { COLLIDER_CENTER_Y, new Scaler(0.05f, 0, 40) },
-                        { COLLIDER_CENTER_Z, new Scaler(-0.53f, 0, 40) },
+                        { COLLIDER_FORCE, new Scaler(
+                            offset: -0.008f,
+                            range: new float[] {0, 1}
+                        ) },
+                        { COLLIDER_RADIUS, new Scaler(
+                            offset: -0.26f,
+                            range: new float[] {0, 40}
+                        ) },
+                        { COLLIDER_LENGTH, new Scaler(
+                            offset: -0.63f,
+                            range: new float[] {0, 40}
+                        ) },
+                        { COLLIDER_CENTER_X, new Scaler(
+                            offset: -0.39f,
+                            range: new float[] {0, 40}
+                        ) },
+                        { COLLIDER_CENTER_Y, new Scaler(
+                            offset: 0.05f,
+                            range: new float[] {0, 40}
+                        ) },
+                        { COLLIDER_CENTER_Z, new Scaler(
+                            offset: -0.53f,
+                            range: new float[] {0, 40}
+                        ) },
                     }
                 },
                 {
                     "Pectoral5", new Dictionary<string, Scaler>
                     {
-                        { COLLIDER_FORCE, new Scaler(-0.0016f) },
-                        { COLLIDER_RADIUS, new Scaler(-0.85f, 0, 40) },
-                        { COLLIDER_LENGTH, new Scaler(-0.30f, 0, 40) },
-                        { COLLIDER_CENTER_X, new Scaler(-0.60f, 0, 40) },
-                        { COLLIDER_CENTER_Y, new Scaler(0.70f, 0, 40) },
-                        { COLLIDER_CENTER_Z, new Scaler(-0.45f, 0, 40) },
-                    }
-                },
-            };
-        }
-
-        private void CreateMultiplierConfigs()
-        {
-            _multiplierConfigs = new Dictionary<string, Dictionary<string, StaticPhysicsConfig>>
-            {
-                {
-                    "Pectoral1", new Dictionary<string, StaticPhysicsConfig>
-                    {
-                        { COLLIDER_FORCE, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_RADIUS, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_LENGTH, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_CENTER_X, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_CENTER_Y, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_CENTER_Z, new StaticPhysicsConfig(1.00f) },
-                    }
-                },
-                {
-                    "Pectoral2", new Dictionary<string, StaticPhysicsConfig>
-                    {
-                        { COLLIDER_FORCE, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_RADIUS, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_LENGTH, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_CENTER_X, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_CENTER_Y, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_CENTER_Z, new StaticPhysicsConfig(1.00f) },
-                    }
-                },
-                {
-                    "Pectoral3", new Dictionary<string, StaticPhysicsConfig>
-                    {
-                        { COLLIDER_FORCE, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_RADIUS, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_LENGTH, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_CENTER_X, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_CENTER_Y, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_CENTER_Z, new StaticPhysicsConfig(1.00f) },
-                    }
-                },
-                {
-                    "Pectoral4", new Dictionary<string, StaticPhysicsConfig>
-                    {
-                        { COLLIDER_FORCE, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_RADIUS, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_LENGTH, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_CENTER_X, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_CENTER_Y, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_CENTER_Z, new StaticPhysicsConfig(1.00f) },
-                    }
-                },
-                {
-                    "Pectoral5", new Dictionary<string, StaticPhysicsConfig>
-                    {
-                        { COLLIDER_FORCE, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_RADIUS, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_LENGTH, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_CENTER_X, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_CENTER_Y, new StaticPhysicsConfig(1.00f) },
-                        { COLLIDER_CENTER_Z, new StaticPhysicsConfig(1.00f) },
+                        { COLLIDER_FORCE, new Scaler(
+                            offset: -0.0016f,
+                            range: new float[] {0, 1}
+                        ) },
+                        { COLLIDER_RADIUS, new Scaler(
+                            offset: -0.85f,
+                            range: new float[] {0, 40}
+                        ) },
+                        { COLLIDER_LENGTH, new Scaler(
+                            offset: -0.30f,
+                            range: new float[] {0, 40}
+                        ) },
+                        { COLLIDER_CENTER_X, new Scaler(
+                            offset: -0.60f,
+                            range: new float[] {0, 40}
+                        ) },
+                        { COLLIDER_CENTER_Y, new Scaler(
+                            offset: 0.70f,
+                            range: new float[] {0, 40}
+                        ) },
+                        { COLLIDER_CENTER_Z, new Scaler(
+                            offset: -0.45f,
+                            range: new float[] {0, 40}
+                        ) },
                     }
                 },
             };
@@ -219,24 +245,17 @@ namespace TittyMagic
         {
             var configLeft = NewColliderConfig("l" + id);
             var configRight = NewColliderConfig("r" + id);
-            var sliderScalers = _sliderScalers[id];
-            var multiplierConfigs = _multiplierConfigs[id];
+            var scalingConfig = _scalingConfigs[id];
             var colliderConfigGroup = new ColliderConfigGroup(
                 id,
                 configLeft,
                 configRight,
-                multiplierConfigs[COLLIDER_FORCE],
-                multiplierConfigs[COLLIDER_RADIUS],
-                multiplierConfigs[COLLIDER_LENGTH],
-                multiplierConfigs[COLLIDER_CENTER_X],
-                multiplierConfigs[COLLIDER_CENTER_Y],
-                multiplierConfigs[COLLIDER_CENTER_Z],
-                sliderScalers[COLLIDER_FORCE],
-                sliderScalers[COLLIDER_RADIUS],
-                sliderScalers[COLLIDER_LENGTH],
-                sliderScalers[COLLIDER_CENTER_X],
-                sliderScalers[COLLIDER_CENTER_Y],
-                sliderScalers[COLLIDER_CENTER_Z]
+                scalingConfig[COLLIDER_FORCE],
+                scalingConfig[COLLIDER_RADIUS],
+                scalingConfig[COLLIDER_LENGTH],
+                scalingConfig[COLLIDER_CENTER_X],
+                scalingConfig[COLLIDER_CENTER_Y],
+                scalingConfig[COLLIDER_CENTER_Z]
             )
             {
                 forceJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_FORCE, 0.50f, 0.01f, 1.00f),

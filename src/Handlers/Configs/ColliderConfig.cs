@@ -13,19 +13,12 @@ namespace TittyMagic.Configs
         public string visualizerEditableId => left.visualizerEditableId;
         public bool syncInProgress { get; set; }
 
-        private readonly Scaler _baseRbMassScaler;
-        private readonly Scaler _radiusScaler;
-        private readonly Scaler _lengthScaler;
-        private readonly Scaler _rightOffsetScaler;
-        private readonly Scaler _upOffsetScaler;
-        private readonly Scaler _lookOffsetScaler;
-
-        private readonly StaticPhysicsConfig _rbMassMultiplierConfig;
-        private readonly StaticPhysicsConfig _radiusMultiplierConfig;
-        private readonly StaticPhysicsConfig _lengthMultiplierConfig;
-        private readonly StaticPhysicsConfig _rightOffsetMultiplierConfig;
-        private readonly StaticPhysicsConfig _upOffsetMultiplierConfig;
-        private readonly StaticPhysicsConfig _lookOffsetMultiplierConfig;
+        private readonly Scaler _baseRbMassSliderScaler;
+        private readonly Scaler _radiusSliderScaler;
+        private readonly Scaler _lengthSliderScaler;
+        private readonly Scaler _rightOffsetSliderScaler;
+        private readonly Scaler _upOffsetSliderScaler;
+        private readonly Scaler _lookOffsetSliderScaler;
 
         public ColliderConfig left { get; }
         public ColliderConfig right { get; }
@@ -41,40 +34,28 @@ namespace TittyMagic.Configs
             string id,
             ColliderConfig left,
             ColliderConfig right,
-            StaticPhysicsConfig rbMassMultiplierConfig,
-            StaticPhysicsConfig radiusMultiplierConfig,
-            StaticPhysicsConfig lengthMultiplierConfig,
-            StaticPhysicsConfig rightOffsetMultiplierConfig,
-            StaticPhysicsConfig upOffsetMultiplierConfig,
-            StaticPhysicsConfig lookOffsetMultiplierConfig,
-            Scaler baseRbMassScaler,
-            Scaler radiusScaler,
-            Scaler lengthScaler,
-            Scaler rightOffsetScaler,
-            Scaler upOffsetScaler,
-            Scaler lookOffsetScaler
+            Scaler baseRbMassSliderScaler,
+            Scaler radiusSliderScaler,
+            Scaler lengthSliderScaler,
+            Scaler rightOffsetSliderScaler,
+            Scaler upOffsetSliderScaler,
+            Scaler lookOffsetSliderScaler
         )
         {
             this.id = id;
             this.left = left;
             this.right = right;
-            _rbMassMultiplierConfig = rbMassMultiplierConfig;
-            _radiusMultiplierConfig = radiusMultiplierConfig;
-            _lengthMultiplierConfig = lengthMultiplierConfig;
-            _rightOffsetMultiplierConfig = rightOffsetMultiplierConfig;
-            _upOffsetMultiplierConfig = upOffsetMultiplierConfig;
-            _lookOffsetMultiplierConfig = lookOffsetMultiplierConfig;
-            _baseRbMassScaler = baseRbMassScaler;
-            _radiusScaler = radiusScaler;
-            _lengthScaler = lengthScaler;
-            _rightOffsetScaler = rightOffsetScaler;
-            _upOffsetScaler = upOffsetScaler;
-            _lookOffsetScaler = lookOffsetScaler;
+            _baseRbMassSliderScaler = baseRbMassSliderScaler;
+            _radiusSliderScaler = radiusSliderScaler;
+            _lengthSliderScaler = lengthSliderScaler;
+            _rightOffsetSliderScaler = rightOffsetSliderScaler;
+            _upOffsetSliderScaler = upOffsetSliderScaler;
+            _lookOffsetSliderScaler = lookOffsetSliderScaler;
         }
 
         public void UpdateRigidbodyMass(float combinedMultiplier, float massValue, float softness)
         {
-            float rbMass = _rbMassMultiplierConfig.Calculate(massValue, softness) * combinedMultiplier * _baseRbMassScaler.Scale(DEFAULT_MASS);
+            float rbMass = combinedMultiplier * _baseRbMassSliderScaler.Scale(DEFAULT_MASS, massValue, softness);
             left.UpdateRigidbodyMass(rbMass);
             right.UpdateRigidbodyMass(rbMass);
         }
@@ -87,35 +68,35 @@ namespace TittyMagic.Configs
 
         public void UpdateRadius(float massValue, float softness)
         {
-            float radius = _radiusMultiplierConfig.Calculate(massValue, softness) * _radiusScaler.Scale(radiusJsf.val);
+            float radius = _radiusSliderScaler.Scale(radiusJsf.val, massValue, softness);
             left.UpdateRadius(-radius);
             right.UpdateRadius(-radius);
         }
 
         public void UpdateLength(float massValue, float softness)
         {
-            float length = _lengthMultiplierConfig.Calculate(massValue, softness) * _lengthScaler.Scale(lengthJsf.val);
+            float length = _lengthSliderScaler.Scale(lengthJsf.val, massValue, softness);
             left.UpdateLength(-length);
             right.UpdateLength(-length);
         }
 
         public void UpdateRightOffset(float massValue, float softness)
         {
-            float rightOffset = _rightOffsetMultiplierConfig.Calculate(massValue, softness) * _rightOffsetScaler.Scale(rightJsf.val);
+            float rightOffset = _rightOffsetSliderScaler.Scale(rightJsf.val, massValue, softness);
             left.UpdateRightOffset(-rightOffset);
             right.UpdateRightOffset(rightOffset);
         }
 
         public void UpdateUpOffset(float massValue, float softness)
         {
-            float up = _upOffsetMultiplierConfig.Calculate(massValue, softness) * _upOffsetScaler.Scale(upJsf.val);
+            float up = _upOffsetSliderScaler.Scale(upJsf.val, massValue, softness);
             left.UpdateUpOffset(-up);
             right.UpdateUpOffset(-up);
         }
 
         public void UpdateLookOffset(float massValue, float softness)
         {
-            float look = _lookOffsetMultiplierConfig.Calculate(massValue, softness) * _lookOffsetScaler.Scale(lookJsf.val);
+            float look = _lookOffsetSliderScaler.Scale(lookJsf.val, massValue, softness);
             left.UpdateLookOffset(-look);
             right.UpdateLookOffset(-look);
         }

@@ -31,19 +31,21 @@ namespace TittyMagic.Configs
 
         public float Calculate(float effect, float mass, float softness)
         {
-            float value =
-                _softnessCurve(softness) * softnessMultiplier * effect +
-                _massCurve(mass) * massMultiplier * effect;
+            float value = effect * (
+                _softnessCurve(softness) * softnessMultiplier +
+                _massCurve(mass) * massMultiplier
+            );
 
             return LimitToRange(value);
         }
 
         public float CalculateNippleGroupValue(float effect, float mass, float softness)
         {
-            float value =
-                baseMultiplier * effect +
-                _softnessCurve(softness) * softnessMultiplier * effect +
-                _massCurve(mass) * massMultiplier * effect;
+            float value = effect * (
+                baseMultiplier +
+                _softnessCurve(softness) * softnessMultiplier +
+                _massCurve(mass) * massMultiplier
+            );
 
             return LimitToRange(value);
         }
