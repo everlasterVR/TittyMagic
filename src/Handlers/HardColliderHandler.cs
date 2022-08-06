@@ -102,23 +102,27 @@ namespace TittyMagic
                         ) },
                         { COLLIDER_RADIUS, new Scaler(
                             offset: -0.34f,
-                            range: new float[] {0, 40}
+                            range: new float[] {0, 40},
+                            massCurve: x => 0.12f * x
                         ) },
                         { COLLIDER_LENGTH, new Scaler(
                             offset: 0.38f,
-                            range: new float[] {0, 40}
+                            range: new float[] {0, 40},
+                            massCurve: x => 0.08f * x
                         ) },
                         { COLLIDER_CENTER_X, new Scaler(
-                            offset: -0.34f,
-                            range: new float[] {0, 40}
+                            offset: -0.14f,
+                            range: new float[] {0, 40},
+                            massCurve: x => -0.32f * x
                         ) },
                         { COLLIDER_CENTER_Y, new Scaler(
                             offset: 0.00f,
                             range: new float[] {0, 40}
                         ) },
                         { COLLIDER_CENTER_Z, new Scaler(
-                            offset: -0.25f,
-                            range: new float[] {0, 40}
+                            offset: -0.22f,
+                            range: new float[] {0, 40},
+                            massCurve: x => -0.32f * x
                         ) },
                     }
                 },

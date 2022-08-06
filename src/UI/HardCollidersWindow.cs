@@ -47,7 +47,6 @@ namespace TittyMagic.UI
 
             script.colliderVisualizer.enabled = true;
             script.colliderVisualizer.ShowPreviewsJSON.val = true;
-            script.hardColliderHandler.SyncAllOffsets();
             AddColliderPopupChangeHandler();
         }
 
