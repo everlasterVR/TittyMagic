@@ -103,7 +103,7 @@ namespace TittyMagic
                         { COLLIDER_RADIUS, new Scaler(
                             offset: -0.34f,
                             range: new float[] {0, 40},
-                            massCurve: x => 0.12f * x
+                            massCurve: x => 0.12f * Curves.InverseSmoothStep(x, 1.00f, 0.00f, 0.50f)
                         ) },
                         { COLLIDER_LENGTH, new Scaler(
                             offset: 0.38f,
@@ -120,9 +120,9 @@ namespace TittyMagic
                             range: new float[] {0, 40}
                         ) },
                         { COLLIDER_CENTER_Z, new Scaler(
-                            offset: -0.22f,
+                            offset: -0.23f,
                             range: new float[] {0, 40},
-                            massCurve: x => -0.32f * x
+                            massCurve: x => -0.38f * Curves.InverseSmoothStep(x, 1.00f, 0.12f, 0.08f)
                         ) },
                     }
                 },
@@ -134,24 +134,28 @@ namespace TittyMagic
                             range: new float[] {0, 1}
                         ) },
                         { COLLIDER_RADIUS, new Scaler(
-                            offset: 0.03f,
-                            range: new float[] {0, 40}
+                            offset: -0.15f,
+                            range: new float[] {0, 40},
+                            massCurve: x => -0.30f * Curves.InverseSmoothStep(x, 1.00f, 0.00f, 0.50f)
                         ) },
                         { COLLIDER_LENGTH, new Scaler(
                             offset: 0.20f,
-                            range: new float[] {0, 40}
+                            range: new float[] {0, 40},
+                            massCurve: x => 0.12f * x
                         ) },
                         { COLLIDER_CENTER_X, new Scaler(
                             offset: 0.37f,
-                            range: new float[] {0, 40}
+                            range: new float[] {0, 40},
+                            massCurve: x => -0.13f * x
                         ) },
                         { COLLIDER_CENTER_Y, new Scaler(
                             offset: 0.25f,
                             range: new float[] {0, 40}
                         ) },
                         { COLLIDER_CENTER_Z, new Scaler(
-                            offset: -0.82f,
-                            range: new float[] {0, 40}
+                            offset: -0.70f,
+                            range: new float[] {0, 40},
+                            massCurve: x => -0.18f * Curves.InverseSmoothStep(x, 1.00f, 0.40f, 0.06f)
                         ) },
                     }
                 },
@@ -159,16 +163,18 @@ namespace TittyMagic
                     "Pectoral3", new Dictionary<string, Scaler>
                     {
                         { COLLIDER_FORCE, new Scaler(
-                            offset: -0.008f,
+                            offset: 0.000f,
                             range: new float[] {0, 1}
                         ) },
                         { COLLIDER_RADIUS, new Scaler(
-                            offset: -0.22f,
-                            range: new float[] {0, 40}
+                            offset: 0.20f,
+                            range: new float[] {0, 40},
+                            massCurve: x => -0.85f * x
                         ) },
                         { COLLIDER_LENGTH, new Scaler(
-                            offset: -0.26f,
-                            range: new float[] {0, 40}
+                            offset: -0.33f,
+                            range: new float[] {0, 40},
+                            massCurve: x => -0.85f * x
                         ) },
                         { COLLIDER_CENTER_X, new Scaler(
                             offset: 0.13f,
@@ -176,11 +182,13 @@ namespace TittyMagic
                         ) },
                         { COLLIDER_CENTER_Y, new Scaler(
                             offset: 0.13f,
-                            range: new float[] {0, 40}
+                            range: new float[] {0, 40},
+                            massCurve: x => 0.25f * x
                         ) },
                         { COLLIDER_CENTER_Z, new Scaler(
-                            offset: -0.40f,
-                            range: new float[] {0, 40}
+                            offset: -0.70f,
+                            range: new float[] {0, 40},
+                            massCurve: x => 0.22f * x
                         ) },
                     }
                 },
@@ -188,28 +196,32 @@ namespace TittyMagic
                     "Pectoral4", new Dictionary<string, Scaler>
                     {
                         { COLLIDER_FORCE, new Scaler(
-                            offset: -0.008f,
+                            offset: -0.016f,
                             range: new float[] {0, 1}
                         ) },
                         { COLLIDER_RADIUS, new Scaler(
-                            offset: -0.26f,
-                            range: new float[] {0, 40}
+                            offset: 0.00f,
+                            range: new float[] {0, 40},
+                            massCurve: x => -0.30f * x
                         ) },
                         { COLLIDER_LENGTH, new Scaler(
                             offset: -0.63f,
-                            range: new float[] {0, 40}
+                            range: new float[] {0, 40},
+                            massCurve: x => -0.85f * x
                         ) },
                         { COLLIDER_CENTER_X, new Scaler(
                             offset: -0.39f,
-                            range: new float[] {0, 40}
+                            range: new float[] {0, 40},
+                            massCurve: x => 0.10f * x
                         ) },
                         { COLLIDER_CENTER_Y, new Scaler(
-                            offset: 0.05f,
+                            offset: 0.00f,
                             range: new float[] {0, 40}
                         ) },
                         { COLLIDER_CENTER_Z, new Scaler(
-                            offset: -0.53f,
-                            range: new float[] {0, 40}
+                            offset: -0.45f,
+                            range: new float[] {0, 40},
+                            massCurve: x => -0.40f * x
                         ) },
                     }
                 },
@@ -222,23 +234,28 @@ namespace TittyMagic
                         ) },
                         { COLLIDER_RADIUS, new Scaler(
                             offset: -0.85f,
-                            range: new float[] {0, 40}
+                            range: new float[] {0, 40},
+                            massCurve: x => -1.00f * x
                         ) },
                         { COLLIDER_LENGTH, new Scaler(
                             offset: -0.30f,
-                            range: new float[] {0, 40}
+                            range: new float[] {0, 40},
+                            massCurve: x => -1.00f * x
                         ) },
                         { COLLIDER_CENTER_X, new Scaler(
-                            offset: -0.60f,
-                            range: new float[] {0, 40}
+                            offset: -0.23f,
+                            range: new float[] {0, 40},
+                            massCurve: x => -0.80f * x
                         ) },
                         { COLLIDER_CENTER_Y, new Scaler(
-                            offset: 0.70f,
-                            range: new float[] {0, 40}
+                            offset: 1.02f,
+                            range: new float[] {0, 40},
+                            massCurve: x => 0.45f * x
                         ) },
                         { COLLIDER_CENTER_Z, new Scaler(
-                            offset: -0.45f,
-                            range: new float[] {0, 40}
+                            offset: -0.75f,
+                            range: new float[] {0, 40},
+                            massCurve: x => 0.05f * x
                         ) },
                     }
                 },
