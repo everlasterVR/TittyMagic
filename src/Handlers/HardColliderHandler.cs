@@ -97,7 +97,7 @@ namespace TittyMagic
                     "Pectoral1", new Dictionary<string, Scaler>
                     {
                         { COLLIDER_FORCE, new Scaler(
-                            offset: -0.008f,
+                            offset: 0.008f,
                             range: new float[] {0, 1}
                         ) },
                         { COLLIDER_RADIUS, new Scaler(
@@ -130,7 +130,7 @@ namespace TittyMagic
                     "Pectoral2", new Dictionary<string, Scaler>
                     {
                         { COLLIDER_FORCE, new Scaler(
-                            offset: -0.016f,
+                            offset: -0.004f,
                             range: new float[] {0, 1}
                         ) },
                         { COLLIDER_RADIUS, new Scaler(
@@ -163,7 +163,7 @@ namespace TittyMagic
                     "Pectoral3", new Dictionary<string, Scaler>
                     {
                         { COLLIDER_FORCE, new Scaler(
-                            offset: 0.000f,
+                            offset: 0.020f,
                             range: new float[] {0, 1}
                         ) },
                         { COLLIDER_RADIUS, new Scaler(
@@ -196,7 +196,7 @@ namespace TittyMagic
                     "Pectoral4", new Dictionary<string, Scaler>
                     {
                         { COLLIDER_FORCE, new Scaler(
-                            offset: -0.016f,
+                            offset: -0.004f,
                             range: new float[] {0, 1}
                         ) },
                         { COLLIDER_RADIUS, new Scaler(
@@ -229,7 +229,7 @@ namespace TittyMagic
                     "Pectoral5", new Dictionary<string, Scaler>
                     {
                         { COLLIDER_FORCE, new Scaler(
-                            offset: -0.0016f,
+                            offset: -0.004f,
                             range: new float[] {0, 1}
                         ) },
                         { COLLIDER_RADIUS, new Scaler(
