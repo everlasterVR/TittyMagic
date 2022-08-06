@@ -365,7 +365,7 @@ namespace TittyMagic
 
         public void SyncAllOffsets()
         {
-            float mass = _script.mainPhysicsHandler.normalizedMass;
+            float mass = _script.mainPhysicsHandler.normalizedRealMass;
             float softness = _script.softnessAmount;
             colliderConfigs.ForEach(config =>
             {
