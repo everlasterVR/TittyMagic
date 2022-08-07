@@ -6,5 +6,6 @@ obj/
 local/
 publish/
 vam-collider-editor/
+.mega
 *.fav
 todo.md
