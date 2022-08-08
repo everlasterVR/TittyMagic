@@ -122,7 +122,6 @@ namespace TittyMagic
 
             if(refreshNeeded)
             {
-                _script.LoadSettings();
                 _script.StartRefreshCoroutine(refreshMass: false, waitForListeners: false);
             }
         }
