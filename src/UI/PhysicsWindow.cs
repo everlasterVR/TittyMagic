@@ -6,9 +6,6 @@ namespace TittyMagic.UI
 {
     internal class PhysicsWindow : WindowBase
     {
-        private readonly JSONStorableString _jointPhysicsParamsHeader;
-        private readonly JSONStorableString _softPhysicsParamsHeader;
-
         private UnityAction onReturnToParent => () =>
         {
             activeNestedWindow = null;
@@ -18,13 +15,6 @@ namespace TittyMagic.UI
         public PhysicsWindow(Script script) : base(script)
         {
             buildAction = BuildSelf;
-
-            _jointPhysicsParamsHeader = new JSONStorableString("mainPhysicsParamsHeader", "");
-            if(Gender.isFemale)
-            {
-                _softPhysicsParamsHeader = new JSONStorableString("softPhysicsParamsHeader", "");
-            }
-
             CreateParameterWindows();
         }
 
@@ -68,17 +58,27 @@ namespace TittyMagic.UI
 
         private void BuildSelf()
         {
-            CreateHeader(_jointPhysicsParamsHeader, "Joint Physics Parameters", false);
+            CreateHeader(
+                new JSONStorableString("mainPhysicsParamsHeader", ""),
+                "Joint Physics Parameters",
+                false
+            );
             CreateJointPhysicsInfoTextArea(false);
 
             CreateParamButton(ParamName.MASS, script.mainPhysicsHandler.massParameterGroup, false);
             script.mainPhysicsHandler?.parameterGroups.ToList()
                 .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, false));
 
+            CreateHeader(
+                new JSONStorableString("softPhysicsParamsHeader", ""),
+                "Soft Physics Parameters",
+                true
+            );
+            CreateSoftPhysicsInfoTextArea(true);
+            CreateSoftPhysicsOnToggle(true);
+
             if(Gender.isFemale)
             {
-                CreateHeader(_softPhysicsParamsHeader, "Soft Physics Parameters", true);
-                CreateSoftPhysicsInfoTextArea(true);
                 CreateAllowSelfCollisionToggle(true);
                 script.softPhysicsHandler.parameterGroups.ToList()
                     .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, true));
@@ -117,7 +117,14 @@ namespace TittyMagic.UI
         private void CreateSoftPhysicsInfoTextArea(bool rightSide, int spacing = 0)
         {
             var sb = new StringBuilder();
-            sb.Append("Physics of each breast's soft tissue is simulated with 111 small colliders and their associated joints.");
+            if(Gender.isFemale)
+            {
+                sb.Append("Physics of each breast's soft tissue is simulated with 111 small colliders and their associated joints.");
+            }
+            else
+            {
+                sb.Append("Soft physics is not supported on a male character.");
+            }
             var storable = new JSONStorableString("softPhysicsInfoText", sb.ToString());
             AddSpacer(storable.name, spacing, rightSide);
 
@@ -126,6 +133,22 @@ namespace TittyMagic.UI
             textField.height = 100;
             textField.backgroundColor = Color.clear;
             elements[storable.name] = textField;
+        }
+
+        private void CreateSoftPhysicsOnToggle(bool rightSide, int spacing = 0)
+        {
+            var storable = script.softPhysicsHandler.softPhysicsOn;
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var toggle = script.CreateToggle(storable, rightSide);
+            toggle.height = 52;
+            toggle.label = "Soft Physics Enabled";
+            if(!Gender.isFemale)
+            {
+                toggle.SetActiveStyle(false, true);
+            }
+
+            elements[storable.name] = toggle;
         }
 
         private void CreateParamButton(string key, PhysicsParameterGroup param, bool rightSide)

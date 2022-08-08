@@ -36,8 +36,7 @@ namespace TittyMagic.UI
             CreateBreastMassInfoTextField(false, spacing: 10);
 
             CreateRecalibrateButton(script.recalibratePhysics, true);
-            CreateSoftPhysicsOnToggle(true, spacing: 15);
-            CreateSoftnessSlider(true);
+            CreateSoftnessSlider(true, spacing: 65);
             CreateQuicknessSlider(true);
             CreateRecalibrateButton(script.calculateBreastMass, true, spacing: 15);
             CreateAutoUpdateMassToggle(true);
@@ -152,22 +151,6 @@ namespace TittyMagic.UI
             textField.backgroundColor = Color.clear;
             textField.height = 120;
             elements[storable.name] = textField;
-        }
-
-        private void CreateSoftPhysicsOnToggle(bool rightSide, int spacing = 0)
-        {
-            var storable = script.softPhysicsHandler.softPhysicsOn;
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var toggle = script.CreateToggle(storable, rightSide);
-            toggle.height = 52;
-            toggle.label = "Soft Physics Enabled";
-            if(!Gender.isFemale)
-            {
-                toggle.SetActiveStyle(false, true);
-            }
-
-            elements[storable.name] = toggle;
         }
 
         private void CreateSoftnessSlider(bool rightSide, int spacing = 0)
