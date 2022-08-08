@@ -35,8 +35,8 @@ namespace TittyMagic
         // https://www.desmos.com/calculator/b8hxt91gkf
         public static float DeemphasizeMiddle(float x) => Exponential1(x, 3.00f, 3.53f, 1.22f, a: 1.20f, m: 0.72f);
 
-        // https://www.desmos.com/calculator/lofyvjzy6l
-        public static float TargetRotationMassCurve(float x) => Exponential1(2 / 3f * x, 4.00f, 0.96f, 0.78f);
+        // https://www.desmos.com/calculator/rvwvufzdtn
+        public static float TargetRotationMassCurve(float x) => Exponential1(2 / 3f * x, 4.00f, 0.75f, 0.61f);
 
         // https://www.desmos.com/calculator/ldejemzr2a
         public static float TargetRotationSoftnessCurve(float x) => Exponential1(x, 3.00f, 1.35f, 1.00f);
