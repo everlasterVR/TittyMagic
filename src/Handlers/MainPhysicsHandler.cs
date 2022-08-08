@@ -123,48 +123,24 @@ namespace TittyMagic
                     // https://www.desmos.com/calculator/nxyosar9o6
                     softnessCurve: x => -0.45f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f)
                 ),
-                quicknessOffsetConfig = new StaticPhysicsConfig(
-                    20f,
-                    softnessCurve: x => -0.10f * x
-                ),
-                slownessOffsetConfig = new StaticPhysicsConfig(
-                    -13f,
-                    softnessCurve: x => -0.10f * x
-                ),
+                quicknessOffsetConfig = new StaticPhysicsConfig(40f),
+                slownessOffsetConfig = new StaticPhysicsConfig(-20f),
                 valueFormat = "F0",
                 sync = left
                     ? (Action<float>) (value => SyncJointSpring(_jointLeft, _pectoralRbLeft, value))
                     : (Action<float>) (value => SyncJointSpring(_jointRight, _pectoralRbRight, value)),
             };
 
-        private PhysicsParameter NewDamperParameter(bool left, bool softPhysicsEnabled) =>
+        private PhysicsParameter NewDamperParameter(bool left) =>
             new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 10.00f))
             {
                 config = new StaticPhysicsConfig(
-                    1.20f,
+                    1.10f,
                     // https://www.desmos.com/calculator/y3akvzgr1s
                     massCurve: x => 1.35f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.30f, 0.60f),
                     // https://www.desmos.com/calculator/nxyosar9o6
                     softnessCurve: x => -0.80f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f)
                 ),
-                quicknessOffsetConfig = softPhysicsEnabled
-                    ? new StaticPhysicsConfig(
-                        -0.30f,
-                        softnessCurve: x => -0.33f * x
-                    )
-                    : new StaticPhysicsConfig(
-                        -0.23f,
-                        softnessCurve: x => -0.33f * x
-                    ),
-                slownessOffsetConfig = softPhysicsEnabled
-                    ? new StaticPhysicsConfig(
-                        0.20f,
-                        softnessCurve: x => -0.30f * x
-                    )
-                    : new StaticPhysicsConfig(
-                        0.15f,
-                        softnessCurve: x => -0.30f * x
-                    ),
                 valueFormat = "F2",
                 sync = left
                     ? (Action<float>) (value => SyncJointDamper(_jointLeft, _pectoralRbLeft, value))
@@ -177,15 +153,7 @@ namespace TittyMagic
                 config = new StaticPhysicsConfig(
                     690f,
                     massCurve: x => -0.25f * InvertMass(x),
-                    softnessCurve: x => -0.24f * Curves.SpringZSoftnessCurve(x)
-                ),
-                quicknessOffsetConfig = new StaticPhysicsConfig(
-                    90,
-                    softnessCurve: x => -0.44f * x
-                ),
-                slownessOffsetConfig = new StaticPhysicsConfig(
-                    -60,
-                    softnessCurve: x => -0.44f * x
+                    softnessCurve: x => -0.26f * Curves.SpringZSoftnessCurve(x)
                 ),
                 valueFormat = "F0",
                 sync = left
@@ -225,8 +193,6 @@ namespace TittyMagic
 
         private void SetupPhysicsParameterGroups()
         {
-            bool softPhysicsEnabled = _script.settingsMonitor.softPhysicsEnabled;
-
             massParameterGroup = new MassParameterGroup(
                 MASS,
                 NewMassParameter(true),
@@ -259,8 +225,8 @@ namespace TittyMagic
 
             var damper = new PhysicsParameterGroup(
                 DAMPER,
-                NewDamperParameter(true, softPhysicsEnabled),
-                NewDamperParameter(false, softPhysicsEnabled),
+                NewDamperParameter(true),
+                NewDamperParameter(false),
                 "Damper"
             )
             {

@@ -167,17 +167,19 @@ namespace TittyMagic
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 5.00f))
             {
                 config = new StaticPhysicsConfig(
-                    0.90f,
+                    0.85f,
                     massCurve: x => 0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
                     softnessCurve: x => -0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
                 ),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
-                    -0.40f,
-                    softnessCurve: x => -0.50f * x
+                    -0.15f,
+                    massCurve: x => -0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
+                    softnessCurve: x => 0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
                 ),
                 slownessOffsetConfig = new StaticPhysicsConfig(
-                    0.40f,
-                    softnessCurve: x => -0.50f * x
+                    0.15f,
+                    massCurve: x => 0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
+                    softnessCurve: x => -0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
                 ),
                 valueFormat = "F2",
             };
@@ -230,12 +232,12 @@ namespace TittyMagic
                     massCurve: x => 2.25f * Curves.Exponential1(2 / 3f * x, 1.91f, 1.7f, 0.82f)
                 ),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
-                    -0.012f,
-                    softnessCurve: x => 2.33f * x
+                    -0.022f,
+                    softnessCurve: x => 0.50f * x
                 ),
                 slownessOffsetConfig = new StaticPhysicsConfig(
-                    0.012f,
-                    softnessCurve: x => 2.33f * x
+                    0.066f,
+                    softnessCurve: x => 0.50f * x
                 ),
                 valueFormat = "F3",
             };
@@ -346,17 +348,17 @@ namespace TittyMagic
             var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 0.100f))
             {
                 config = new StaticPhysicsConfig(
-                    0.020f,
+                    0.019f,
                     massCurve: x => 2.4f * x,
                     softnessCurve: x => 0.4f * x
                 ),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
-                    0.000f,
-                    softnessCurve: _ => 0.024f
+                    0.003f,
+                    softnessCurve: _ => 4.0f
                 ),
                 slownessOffsetConfig = new StaticPhysicsConfig(
-                    0.000f,
-                    softnessCurve: _ => -0.008f
+                    -0.001f,
+                    softnessCurve: _ => 4.0f
                 ),
                 valueFormat = "F3",
             };
@@ -394,15 +396,14 @@ namespace TittyMagic
                     softnessCurve: x => -0.82f * Curves.Exponential1(x, 2.34f, 1.76f, 1.01f)
                 ),
                 quicknessOffsetConfig = new StaticPhysicsConfig(
-                    -2.60f,
-                    massCurve: x => -0.35f * x,
-                    softnessCurve: x => -0.11f * x
+                    -2.00f,
+                    massCurve: x => -0.90f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.00f, 0.50f),
+                    softnessCurve: x => 0.82f * Curves.Exponential1(x, 2.34f, 1.76f, 1.01f)
                 ),
-                //TODO curves similar to quickness?
                 slownessOffsetConfig = new StaticPhysicsConfig(
-                    0.80f,
-                    massCurve: x => 0.66f * x,
-                    softnessCurve: x => -0.04f * x
+                    2.00f,
+                    massCurve: x => 0.90f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.00f, 0.50f),
+                    softnessCurve: x => -0.82f * Curves.Exponential1(x, 2.34f, 1.76f, 1.01f)
                 ),
                 valueFormat = "F2",
             };
