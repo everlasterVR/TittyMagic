@@ -1,6 +1,6 @@
 # TittyMagic Virt-A-Mate Plugin
 
-Adjustment of breast physics, morphs and colliders for improved realism and customization.
+Improve breast physics with automatic settings, dynamic adjustments and complete customization.
 
 **Download**: https://hub.virtamate.com/resources/tittymagic.4067/
 
