@@ -794,6 +794,11 @@ namespace TittyMagic
 
         private void OnRemoveAtom(Atom atom)
         {
+            if(atom != containingAtom)
+            {
+                return;
+            }
+
             Destroy(settingsMonitor);
             Destroy(colliderVisualizer);
             Destroy(hardColliderHandler);
