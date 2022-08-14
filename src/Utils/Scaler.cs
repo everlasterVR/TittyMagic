@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace TittyMagic.Configs
 {
@@ -14,6 +13,7 @@ namespace TittyMagic.Configs
 
         public Scaler(
             float offset,
+            // ReSharper disable once SuggestBaseTypeForParameterInConstructor
             float[] range,
             Func<float, float> massCurve = null,
             Func<float, float> softnessCurve = null

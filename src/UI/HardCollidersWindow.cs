@@ -36,7 +36,7 @@ namespace TittyMagic.UI
             CreateTitle(false);
             CreateColliderGroupChooser(true);
 
-            CreateCombinedColliderForceSlider(false, spacing: 8);
+            CreateBaseCollisionForceSlider(false, spacing: 8);
 
             CreateScalingInfoTextArea(false, spacing: 10);
 
@@ -69,7 +69,7 @@ namespace TittyMagic.UI
             elements[storable.name] = chooser;
         }
 
-        private void CreateCombinedColliderForceSlider(bool rightSide, int spacing = 0)
+        private void CreateBaseCollisionForceSlider(bool rightSide, int spacing = 0)
         {
             var storable = script.hardColliderHandler.baseForceJsf;
             elements[$"{storable.name}Spacer"] = script.NewSpacer(spacing, rightSide);
@@ -215,7 +215,7 @@ namespace TittyMagic.UI
             var colliderConfigGroup = script.hardColliderHandler.colliderConfigs
                 .Find(config => config.visualizerEditableId == colliderId);
 
-            CreateColliderForceSlider(colliderConfigGroup.forceJsf, true, spacing: 15);
+            CreateCollisionForceSlider(colliderConfigGroup.forceJsf, true, spacing: 15);
             CreateColliderRadiusSlider(colliderConfigGroup.radiusJsf, true, spacing: 15);
             CreateColliderLengthSlider(colliderConfigGroup.lengthJsf, true);
 
@@ -228,7 +228,7 @@ namespace TittyMagic.UI
             UpdateAllSliderColors(0);
         }
 
-        private void CreateColliderForceSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
+        private void CreateCollisionForceSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
         {
             colliderSectionElements[$"{storable.name}Spacer"] = script.NewSpacer(spacing, rightSide);
             var slider = script.CreateSlider(storable, rightSide);
@@ -301,7 +301,7 @@ namespace TittyMagic.UI
             var images = slider.slider.gameObject.transform.GetComponentsInChildren<Image>();
             var fillImage = images.First(image => image.name == "Fill");
             var handleImage = images.First(image => image.name == "Handle");
-            var color = MultiplierSliderColor(script.hardColliderHandler.baseForceJsf.val * storable.val);
+            var color = MultiplierSliderColor(script.hardColliderHandler.baseForceJsf.val * storable.val / 1.5f);
             fillImage.color = color;
             handleImage.color = color;
         }

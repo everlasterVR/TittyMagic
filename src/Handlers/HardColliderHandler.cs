@@ -23,7 +23,7 @@ namespace TittyMagic
 
         private Dictionary<string, Dictionary<string, Scaler>> _scalingConfigs;
 
-        private const string COLLIDER_FORCE = "ColliderForce";
+        private const string COLLISION_FORCE = "CollisionForce";
         private const string COLLIDER_RADIUS = "ColliderRadius";
         private const string COLLIDER_LENGTH = "ColliderLength";
         private const string COLLIDER_CENTER_X = "ColliderCenterX";
@@ -83,9 +83,9 @@ namespace TittyMagic
             };
             _script.colliderVisualizer.XRayPreviewsJSON.setJSONCallbackFunction = _ => SyncSizeAuto();
 
-            baseForceJsf = _script.NewJSONStorableFloat("combinedColliderForce", 0.50f, 0.01f, 1.00f);
+            baseForceJsf = _script.NewJSONStorableFloat("baseCollisionForce", 0.75f, 0.01f, 1.50f);
             baseForceJsf.setCallbackFunction = SyncHardCollidersBaseMass;
-            highlightAllJsb = _script.NewJSONStorableBool("highlightAll", false, register: false);
+            highlightAllJsb = _script.NewJSONStorableBool("highlightAllColliders", false, register: false);
             highlightAllJsb.setCallbackFunction = value => _script.colliderVisualizer.PreviewOpacityJSON.val = value ? 1.00f : 0.67f;
         }
 
@@ -96,7 +96,7 @@ namespace TittyMagic
                 {
                     "Pectoral1", new Dictionary<string, Scaler>
                     {
-                        { COLLIDER_FORCE, new Scaler(
+                        { COLLISION_FORCE, new Scaler(
                             offset: 0.018f,
                             range: new float[] {0, 1},
                             softnessCurve: x => -0.010f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
@@ -130,7 +130,7 @@ namespace TittyMagic
                 {
                     "Pectoral2", new Dictionary<string, Scaler>
                     {
-                        { COLLIDER_FORCE, new Scaler(
+                        { COLLISION_FORCE, new Scaler(
                             offset: 0.006f,
                             range: new float[] {0, 1},
                             softnessCurve: x => -0.010f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
@@ -164,7 +164,7 @@ namespace TittyMagic
                 {
                     "Pectoral3", new Dictionary<string, Scaler>
                     {
-                        { COLLIDER_FORCE, new Scaler(
+                        { COLLISION_FORCE, new Scaler(
                             offset: 0.060f,
                             range: new float[] {0, 1},
                             softnessCurve: x => -0.040f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
@@ -200,7 +200,7 @@ namespace TittyMagic
                 {
                     "Pectoral4", new Dictionary<string, Scaler>
                     {
-                        { COLLIDER_FORCE, new Scaler(
+                        { COLLISION_FORCE, new Scaler(
                             offset: 0.006f,
                             range: new float[] {0, 1},
                             softnessCurve: x => -0.010f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
@@ -234,7 +234,7 @@ namespace TittyMagic
                 {
                     "Pectoral5", new Dictionary<string, Scaler>
                     {
-                        { COLLIDER_FORCE, new Scaler(
+                        { COLLISION_FORCE, new Scaler(
                             offset: -0.008f,
                             range: new float[] {0, 1}
                         ) },
@@ -277,7 +277,7 @@ namespace TittyMagic
                 id,
                 configLeft,
                 configRight,
-                scalingConfig[COLLIDER_FORCE],
+                scalingConfig[COLLISION_FORCE],
                 scalingConfig[COLLIDER_RADIUS],
                 scalingConfig[COLLIDER_LENGTH],
                 scalingConfig[COLLIDER_CENTER_X],
@@ -285,7 +285,7 @@ namespace TittyMagic
                 scalingConfig[COLLIDER_CENTER_Z]
             )
             {
-                forceJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_FORCE, 0.50f, 0.01f, 1.00f),
+                forceJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLISION_FORCE, 0.50f, 0.01f, 1.00f),
                 radiusJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_RADIUS, 0, -1f, 1f),
                 lengthJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_LENGTH, 0, -1f, 1f),
                 rightJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_X, 0, -1f, 1f),
