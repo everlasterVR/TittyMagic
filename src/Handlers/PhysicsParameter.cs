@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using SimpleJSON;
 using TittyMagic.Configs;
 using UnityEngine;
 
@@ -9,8 +8,6 @@ namespace TittyMagic
 {
     internal class PhysicsParameterGroup
     {
-        // ReSharper disable once UnusedAutoPropertyAccessor.Global MemberCanBePrivate.Global MemberCanBeProtected.Global
-        public string id { get; }
         public string displayName { get; }
         public string infoText { get; set; }
 
@@ -32,9 +29,8 @@ namespace TittyMagic
         public PhysicsParameter left { get; }
         public PhysicsParameter right { get; }
 
-        public PhysicsParameterGroup(string id, PhysicsParameter left, PhysicsParameter right, string displayName)
+        public PhysicsParameterGroup(PhysicsParameter left, PhysicsParameter right, string displayName)
         {
-            this.id = id;
             this.left = left;
             this.right = right;
             this.displayName = displayName;
@@ -134,32 +130,11 @@ namespace TittyMagic
             left.forcePhysicsConfigs = leftConfigs;
             right.forcePhysicsConfigs = rightConfigs;
         }
-
-        public JSONClass GetJSON()
-        {
-            var jsonClass = new JSONClass();
-            var leftJson = left.GetJSON();
-            if(leftJson != null)
-            {
-                jsonClass["id"] = id;
-                jsonClass["left"] = leftJson;
-            }
-
-            return jsonClass.Keys.Any() ? jsonClass : null;
-        }
-
-        public void RestoreFromJSON(JSONClass jsonClass)
-        {
-            if(jsonClass.HasKey("left"))
-            {
-                left.RestoreFromJSON(jsonClass["left"].AsObject);
-            }
-        }
     }
 
     internal class MassParameterGroup : PhysicsParameterGroup
     {
-        public MassParameterGroup(string id, PhysicsParameter left, PhysicsParameter right, string displayName) : base(id, left, right, displayName)
+        public MassParameterGroup(PhysicsParameter left, PhysicsParameter right, string displayName) : base(left, right, displayName)
         {
         }
 
@@ -207,13 +182,14 @@ namespace TittyMagic
         public string valueFormat { get; set; }
         public Action<float> sync { protected get; set; }
 
-        public Dictionary<string, SoftGroupPhysicsParameter> groupMultiplierParams { get; set; }
+        public Dictionary<string, SoftGroupPhysicsParameter> groupMultiplierParams { get; }
 
-        public PhysicsParameter(JSONStorableFloat valueJsf, JSONStorableFloat baseValueJsf = null, JSONStorableFloat offsetJsf = null)
+        public PhysicsParameter(JSONStorableFloat valueJsf, JSONStorableFloat baseValueJsf, JSONStorableFloat offsetJsf)
         {
             this.valueJsf = valueJsf;
-            this.baseValueJsf = baseValueJsf ?? new JSONStorableFloat(Intl.BASE_VALUE, valueJsf.val, valueJsf.min, valueJsf.max);
-            this.offsetJsf = offsetJsf ?? new JSONStorableFloat(Intl.OFFSET, 0, -valueJsf.max, valueJsf.max);
+            this.baseValueJsf = baseValueJsf;
+            this.offsetJsf = offsetJsf;
+            groupMultiplierParams = new Dictionary<string, SoftGroupPhysicsParameter>();
             _additiveGravityAdjustments = new Dictionary<string, float>();
             additiveForceAdjustments = new Dictionary<string, float>();
         }
@@ -413,52 +389,11 @@ namespace TittyMagic
 
             return list;
         }
-
-        public JSONClass GetJSON()
-        {
-            var jsonClass = new JSONClass();
-            if(offsetJsf.val != 0)
-            {
-                jsonClass["offset"].AsFloat = offsetJsf.val;
-            }
-
-            if(groupMultiplierParams != null)
-            {
-                foreach(var param in groupMultiplierParams)
-                {
-                    if(param.Value.offsetJsf.val != 0)
-                    {
-                        jsonClass[$"{param.Key}Offset"].AsFloat = param.Value.offsetJsf.val;
-                    }
-                }
-            }
-
-            return jsonClass.Keys.Any() ? jsonClass : null;
-        }
-
-        public void RestoreFromJSON(JSONClass jsonClass)
-        {
-            if(jsonClass.HasKey("offset"))
-            {
-                offsetJsf.val = jsonClass["offset"].AsFloat;
-            }
-
-            if(groupMultiplierParams != null)
-            {
-                foreach(var param in groupMultiplierParams)
-                {
-                    if(jsonClass.HasKey($"{param.Key}Offset"))
-                    {
-                        param.Value.offsetJsf.val = jsonClass[$"{param.Key}Offset"].AsFloat;
-                    }
-                }
-            }
-        }
     }
 
     internal class MassParameter : PhysicsParameter
     {
-        public MassParameter(JSONStorableFloat valueJsf, JSONStorableFloat baseValueJsf = null, JSONStorableFloat offsetJsf = null)
+        public MassParameter(JSONStorableFloat valueJsf, JSONStorableFloat baseValueJsf, JSONStorableFloat offsetJsf)
             : base(valueJsf, baseValueJsf, offsetJsf)
         {
         }

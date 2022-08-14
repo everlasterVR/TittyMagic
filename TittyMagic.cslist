@@ -44,8 +44,8 @@ src\Handlers\SoftPhysicsHandler.cs
 src\Static\ApplyMethod.cs
 src\Static\Direction.cs
 src\Static\Gender.cs
-src\Static\Intl.cs
 src\Static\ParamName.cs
+src\Static\Side.cs
 src\Static\SoftColliderGroup.cs
 src\Static\VertexIndexGroup.cs
 src\AtomScaleListener.cs

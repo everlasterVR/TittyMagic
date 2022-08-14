@@ -7,7 +7,7 @@ using SimpleJSON;
 using TittyMagic.Configs;
 using UnityEngine;
 using static TittyMagic.ParamName;
-using static TittyMagic.Intl;
+using static TittyMagic.Side;
 
 namespace TittyMagic
 {
@@ -16,10 +16,9 @@ namespace TittyMagic
         private readonly Script _script;
         private readonly BreastVolumeCalculator _breastVolumeCalculator;
         private readonly AdjustJoints _breastControl;
-        private readonly ConfigurableJoint _jointLeft;
-        private readonly ConfigurableJoint _jointRight;
-        private readonly Rigidbody _pectoralRbLeft;
-        private readonly Rigidbody _pectoralRbRight;
+        private readonly Dictionary<string, ConfigurableJoint> _joints;
+        private readonly Dictionary<string, Rigidbody> _pectoralRbs;
+        private readonly Dictionary<string, DAZBone> _dazBones;
 
         private readonly List<string> _adjustJointsFloatParamNames;
         private Dictionary<string, float> _originalBreastControlFloats;
@@ -50,11 +49,22 @@ namespace TittyMagic
         {
             _script = script;
             _breastControl = breastControl;
-            _jointLeft = _breastControl.joint2;
-            _jointRight = _breastControl.joint1;
             _breastVolumeCalculator = breastVolumeCalculator;
-            _pectoralRbLeft = _jointLeft.GetComponent<Rigidbody>();
-            _pectoralRbRight = _jointRight.GetComponent<Rigidbody>();
+            _joints = new Dictionary<string, ConfigurableJoint>
+            {
+                { LEFT, _breastControl.joint2 },
+                { RIGHT, _breastControl.joint1 },
+            };
+            _pectoralRbs = new Dictionary<string, Rigidbody>
+            {
+                { LEFT, _joints[LEFT].GetComponent<Rigidbody>() },
+                { RIGHT, _joints[RIGHT].GetComponent<Rigidbody>() },
+            };
+            _dazBones = new Dictionary<string, DAZBone>
+            {
+                { LEFT, _joints[LEFT].GetComponent<DAZBone>() },
+                { RIGHT, _joints[RIGHT].GetComponent<DAZBone>() },
+            };
 
             _adjustJointsFloatParamNames = new List<string>
             {
@@ -91,112 +101,122 @@ namespace TittyMagic
             }
         }
 
-        private MassParameter NewMassParameter(bool left) =>
-            new MassParameter(new JSONStorableFloat(VALUE, 0.100f, 0.100f, 3.000f))
-            {
-                valueFormat = "F3",
-                sync = left
-                    ? (Action<float>) (value => SyncMass(_pectoralRbLeft, value))
-                    : (Action<float>) (value => SyncMass(_pectoralRbRight, value)),
-            };
+        #region *** Parameter setup ***
 
-        private PhysicsParameter NewCenterOfGravityParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 1.00f))
-            {
-                config = new StaticPhysicsConfig(
-                    0.60f,
-                    massCurve: x => 0.25f * x,
-                    softnessCurve: x => 0.08f * x
-                ),
-                valueFormat = "F2",
-                sync = left
-                    ? (Action<float>) (value => SyncCenterOfGravity(_pectoralRbLeft, value))
-                    : (Action<float>) (value => SyncCenterOfGravity(_pectoralRbRight, value)),
-            };
+        private MassParameter NewMassParameter(string side)
+        {
+            string jsfName = $"{MASS}{(side == LEFT ? "" : side)}";
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.100f, 0.100f, 3.000f);
+            var parameter = new MassParameter(
+                valueJsf,
+                baseValueJsf: new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
+                offsetJsf: _script.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, register: side == LEFT)
+            );
+            parameter.valueFormat = "F3";
+            parameter.sync = value => SyncMass(_pectoralRbs[side], value);
+            return parameter;
+        }
 
-        private PhysicsParameter NewSpringParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat(VALUE, 10, 10, 100))
-            {
-                config = new StaticPhysicsConfig(
-                    70f,
-                    massCurve: x => 0.14f * x,
-                    // https://www.desmos.com/calculator/nxyosar9o6
-                    softnessCurve: x => -0.45f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f)
-                ),
-                quicknessOffsetConfig = new StaticPhysicsConfig(40f),
-                slownessOffsetConfig = new StaticPhysicsConfig(-20f),
-                valueFormat = "F0",
-                sync = left
-                    ? (Action<float>) (value => SyncJointSpring(_jointLeft, _pectoralRbLeft, value))
-                    : (Action<float>) (value => SyncJointSpring(_jointRight, _pectoralRbRight, value)),
-            };
+        private PhysicsParameter NewPhysicsParameter(string paramName, string side, float startingValue, float minValue, float maxValue)
+        {
+            string jsfName = $"{paramName}{(side == LEFT ? "" : side)}";
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", startingValue, minValue, maxValue);
+            return new PhysicsParameter(
+                valueJsf,
+                baseValueJsf: new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
+                offsetJsf: _script.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, register: side == LEFT)
+            );
+        }
 
-        private PhysicsParameter NewDamperParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 10.00f))
-            {
-                config = new StaticPhysicsConfig(
-                    1.10f,
-                    // https://www.desmos.com/calculator/y3akvzgr1s
-                    massCurve: x => 1.35f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.30f, 0.60f),
-                    // https://www.desmos.com/calculator/nxyosar9o6
-                    softnessCurve: x => -0.80f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f)
-                ),
-                valueFormat = "F2",
-                sync = left
-                    ? (Action<float>) (value => SyncJointDamper(_jointLeft, _pectoralRbLeft, value))
-                    : (Action<float>) (value => SyncJointDamper(_jointRight, _pectoralRbRight, value)),
-            };
+        private PhysicsParameter NewCenterOfGravityParameter(string side)
+        {
+            var parameter = NewPhysicsParameter(CENTER_OF_GRAVITY_PERCENT, side, 0, 0, 1.00f);
+            parameter.config = new StaticPhysicsConfig(
+                0.60f,
+                massCurve: x => 0.25f * x,
+                softnessCurve: x => 0.08f * x
+            );
+            parameter.valueFormat = "F2";
+            parameter.sync = value => SyncCenterOfGravity(_pectoralRbs[side], value);
+            return parameter;
+        }
 
-        private PhysicsParameter NewPositionSpringZParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 1000))
-            {
-                config = new StaticPhysicsConfig(
-                    690f,
-                    massCurve: x => -0.25f * InvertMass(x),
-                    softnessCurve: x => -0.26f * Curves.SpringZSoftnessCurve(x)
-                ),
-                valueFormat = "F0",
-                sync = left
-                    ? (Action<float>) (value => SyncJointPositionZDriveSpring(_jointLeft, _pectoralRbLeft, value))
-                    : (Action<float>) (value => SyncJointPositionZDriveSpring(_jointRight, _pectoralRbRight, value)),
-            };
+        private PhysicsParameter NewSpringParameter(string side)
+        {
+            var parameter = NewPhysicsParameter(SPRING, side, 10, 10, 100);
+            parameter.config = new StaticPhysicsConfig(
+                70f,
+                massCurve: x => 0.14f * x,
+                // https://www.desmos.com/calculator/nxyosar9o6
+                softnessCurve: x => -0.45f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f)
+            );
+            parameter.quicknessOffsetConfig = new StaticPhysicsConfig(40f);
+            parameter.slownessOffsetConfig = new StaticPhysicsConfig(-20f);
+            parameter.valueFormat = "F0";
+            parameter.sync = value => SyncJointSpring(_joints[side], _pectoralRbs[side], value);
+            return parameter;
+        }
 
-        private PhysicsParameter NewPositionDamperZParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 100))
-            {
-                config = new StaticPhysicsConfig(8f),
-                valueFormat = "F0",
-                sync = left
-                    ? (Action<float>) (value => SyncJointPositionZDriveDamper(_jointLeft, _pectoralRbLeft, value))
-                    : (Action<float>) (value => SyncJointPositionZDriveDamper(_jointRight, _pectoralRbRight, value)),
-            };
+        private PhysicsParameter NewDamperParameter(string side)
+        {
+            var parameter = NewPhysicsParameter(DAMPER, side, 0, 0, 10.00f);
+            parameter.config = new StaticPhysicsConfig(
+                1.10f,
+                // https://www.desmos.com/calculator/y3akvzgr1s
+                massCurve: x => 1.35f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.30f, 0.60f),
+                // https://www.desmos.com/calculator/nxyosar9o6
+                softnessCurve: x => -0.80f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f)
+            );
+            parameter.valueFormat = "F2";
+            parameter.sync = value => SyncJointDamper(_joints[side], _pectoralRbs[side], value);
+            return parameter;
+        }
 
-        private PhysicsParameter NewTargetRotationYParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, -20.00f, 20.00f))
-            {
-                config = new StaticPhysicsConfig(0.00f),
-                sync = left
-                    ? (Action<float>) SyncTargetRotationYLeft
-                    : (Action<float>) SyncTargetRotationYRight,
-                valueFormat = "F2",
-            };
+        private PhysicsParameter NewPositionSpringZParameter(string side)
+        {
+            var parameter = NewPhysicsParameter(POSITION_SPRING_Z, side, 0, 0, 1000);
+            parameter.config = new StaticPhysicsConfig(
+                690f,
+                massCurve: x => -0.25f * InvertMass(x),
+                softnessCurve: x => -0.26f * Curves.SpringZSoftnessCurve(x)
+            );
+            parameter.valueFormat = "F0";
+            parameter.sync = value => SyncJointPositionZDriveSpring(_joints[side], _pectoralRbs[side], value);
+            return parameter;
+        }
 
-        private PhysicsParameter NewTargetRotationXParameter(bool left) =>
-            new PhysicsParameter(new JSONStorableFloat(VALUE, 0, -20.00f, 20.00f))
-            {
-                config = new StaticPhysicsConfig(0.00f),
-                sync = left
-                    ? (Action<float>) SyncTargetRotationXLeft
-                    : (Action<float>) SyncTargetRotationXRight,
-                valueFormat = "F2",
-            };
+        private PhysicsParameter NewPositionDamperZParameter(string side)
+        {
+            var parameter = NewPhysicsParameter(POSITION_DAMPER_Z, side, 0, 0, 100);
+            parameter.config = new StaticPhysicsConfig(8f);
+            parameter.valueFormat = "F0";
+            parameter.sync = value => SyncJointPositionZDriveDamper(_joints[side], _pectoralRbs[side], value);
+            return parameter;
+        }
+
+        private PhysicsParameter NewTargetRotationYParameter(string side)
+        {
+            var parameter = NewPhysicsParameter(TARGET_ROTATION_Y, side, 0, -20.00f, 20.00f);
+            parameter.config = new StaticPhysicsConfig(0.00f);
+            parameter.valueFormat = "F2";
+            parameter.sync = value => SyncTargetRotationY(side, value);
+            return parameter;
+        }
+
+        private PhysicsParameter NewTargetRotationXParameter(string side)
+        {
+            var parameter = NewPhysicsParameter(TARGET_ROTATION_X, side, 0, -20.00f, 20.00f);
+            parameter.config = new StaticPhysicsConfig(0.00f);
+            parameter.valueFormat = "F2";
+            parameter.sync = value => SyncTargetRotationX(side, value);
+            return parameter;
+        }
 
         private void SetupPhysicsParameterGroups()
         {
             massParameterGroup = new MassParameterGroup(
-                MASS,
-                NewMassParameter(true),
-                NewMassParameter(false),
+                NewMassParameter(LEFT),
+                NewMassParameter(RIGHT),
                 "Breast Mass"
             )
             {
@@ -204,9 +224,8 @@ namespace TittyMagic
             };
 
             var centerOfGravityPercent = new PhysicsParameterGroup(
-                CENTER_OF_GRAVITY_PERCENT,
-                NewCenterOfGravityParameter(true),
-                NewCenterOfGravityParameter(false),
+                NewCenterOfGravityParameter(LEFT),
+                NewCenterOfGravityParameter(RIGHT),
                 "Center Of Gravity"
             )
             {
@@ -214,9 +233,8 @@ namespace TittyMagic
             };
 
             var spring = new PhysicsParameterGroup(
-                SPRING,
-                NewSpringParameter(true),
-                NewSpringParameter(false),
+                NewSpringParameter(LEFT),
+                NewSpringParameter(RIGHT),
                 "Spring"
             )
             {
@@ -224,9 +242,8 @@ namespace TittyMagic
             };
 
             var damper = new PhysicsParameterGroup(
-                DAMPER,
-                NewDamperParameter(true),
-                NewDamperParameter(false),
+                NewDamperParameter(LEFT),
+                NewDamperParameter(RIGHT),
                 "Damper"
             )
             {
@@ -234,9 +251,8 @@ namespace TittyMagic
             };
 
             var positionSpringZ = new PhysicsParameterGroup(
-                POSITION_SPRING_Z,
-                NewPositionSpringZParameter(true),
-                NewPositionSpringZParameter(false),
+                NewPositionSpringZParameter(LEFT),
+                NewPositionSpringZParameter(RIGHT),
                 "In/Out Spring"
             )
             {
@@ -244,9 +260,8 @@ namespace TittyMagic
             };
 
             var positionDamperZ = new PhysicsParameterGroup(
-                POSITION_DAMPER_Z,
-                NewPositionDamperZParameter(true),
-                NewPositionDamperZParameter(false),
+                NewPositionDamperZParameter(LEFT),
+                NewPositionDamperZParameter(RIGHT),
                 "In/Out Damper"
             )
             {
@@ -254,9 +269,8 @@ namespace TittyMagic
             };
 
             var targetRotationY = new PhysicsParameterGroup(
-                TARGET_ROTATION_Y,
-                NewTargetRotationYParameter(true),
-                NewTargetRotationYParameter(false),
+                NewTargetRotationYParameter(LEFT),
+                NewTargetRotationYParameter(RIGHT),
                 "Right/Left Angle Target"
             )
             {
@@ -265,9 +279,8 @@ namespace TittyMagic
             };
 
             var targetRotationX = new PhysicsParameterGroup(
-                TARGET_ROTATION_X,
-                NewTargetRotationXParameter(true),
-                NewTargetRotationXParameter(false),
+                NewTargetRotationXParameter(LEFT),
+                NewTargetRotationXParameter(RIGHT),
                 "Up/Down Angle Target"
             )
             {
@@ -294,6 +307,8 @@ namespace TittyMagic
                 { TARGET_ROTATION_Y, targetRotationY },
             };
         }
+
+        #endregion *** Parameter setup ***
 
         #region *** Sync functions ***
 
@@ -421,41 +436,39 @@ namespace TittyMagic
         }
 
         // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
-        private void SyncTargetRotationXLeft(float targetRotationX)
+        private void SyncTargetRotationX(string side, float targetRotationX)
         {
-            _breastControl.smoothedJoint2TargetRotation.x = targetRotationX;
-            var dazBone = _jointLeft.GetComponent<DAZBone>();
-            var rotation = _breastControl.smoothedJoint2TargetRotation;
-            rotation.x = -rotation.x;
-            dazBone.baseJointRotation = rotation;
+            if(side == LEFT)
+            {
+                _breastControl.smoothedJoint2TargetRotation.x = targetRotationX;
+                var rotation = _breastControl.smoothedJoint2TargetRotation;
+                rotation.x = -rotation.x;
+                _dazBones[side].baseJointRotation = rotation;
+            }
+            else if(side == RIGHT)
+            {
+                _breastControl.smoothedJoint1TargetRotation.x = targetRotationX;
+                var rotation = _breastControl.smoothedJoint1TargetRotation;
+                rotation.x = -rotation.x;
+                _dazBones[side].baseJointRotation = rotation;
+            }
         }
 
         // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
-        private void SyncTargetRotationYLeft(float targetRotationY)
+        private void SyncTargetRotationY(string side, float targetRotationY)
         {
-            _breastControl.smoothedJoint2TargetRotation.y = -targetRotationY;
-            var dazBone = _jointLeft.GetComponent<DAZBone>();
-            var rotation = _breastControl.smoothedJoint2TargetRotation;
-            dazBone.baseJointRotation = rotation;
-        }
-
-        // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
-        private void SyncTargetRotationXRight(float targetRotationX)
-        {
-            _breastControl.smoothedJoint1TargetRotation.x = targetRotationX;
-            var dazBone = _jointRight.GetComponent<DAZBone>();
-            var rotation = _breastControl.smoothedJoint1TargetRotation;
-            rotation.x = -rotation.x;
-            dazBone.baseJointRotation = rotation;
-        }
-
-        // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
-        private void SyncTargetRotationYRight(float targetRotationY)
-        {
-            _breastControl.smoothedJoint1TargetRotation.y = -targetRotationY;
-            var dazBone = _jointRight.GetComponent<DAZBone>();
-            var rotation = _breastControl.smoothedJoint1TargetRotation;
-            dazBone.baseJointRotation = rotation;
+            if(side == LEFT)
+            {
+                _breastControl.smoothedJoint2TargetRotation.y = -targetRotationY;
+                var rotation = _breastControl.smoothedJoint2TargetRotation;
+                _dazBones[side].baseJointRotation = rotation;
+            }
+            else if(side == RIGHT)
+            {
+                _breastControl.smoothedJoint1TargetRotation.y = -targetRotationY;
+                var rotation = _breastControl.smoothedJoint1TargetRotation;
+                _dazBones[side].baseJointRotation = rotation;
+            }
         }
 
         #endregion *** Sync functions ***
@@ -488,10 +501,10 @@ namespace TittyMagic
         public void SaveOriginalPhysicsAndSetPluginDefaults()
         {
             // disable pectoral collisions, they cause breasts to "jump" when touched
-            _originalPectoralRbLeftDetectCollisions = _pectoralRbLeft.detectCollisions;
-            _originalPectoralRbRightDetectCollisions = _pectoralRbRight.detectCollisions;
-            _pectoralRbLeft.detectCollisions = false;
-            _pectoralRbRight.detectCollisions = false;
+            _originalPectoralRbLeftDetectCollisions = _pectoralRbs[LEFT].detectCollisions;
+            _originalPectoralRbRightDetectCollisions = _pectoralRbs[RIGHT].detectCollisions;
+            _pectoralRbs[LEFT].detectCollisions = false;
+            _pectoralRbs[RIGHT].detectCollisions = false;
 
             _originalBreastControlFloats = new Dictionary<string, float>();
             foreach(string jsonParamName in _adjustJointsFloatParamNames)
@@ -504,23 +517,15 @@ namespace TittyMagic
 
         public void RestoreOriginalPhysics()
         {
-            _pectoralRbLeft.detectCollisions = _originalPectoralRbLeftDetectCollisions;
-            _pectoralRbRight.detectCollisions = _originalPectoralRbRightDetectCollisions;
+            _pectoralRbs[LEFT].detectCollisions = _originalPectoralRbLeftDetectCollisions;
+            _pectoralRbs[RIGHT].detectCollisions = _originalPectoralRbRightDetectCollisions;
             foreach(string jsonParamName in _adjustJointsFloatParamNames)
             {
                 _breastControl.GetFloatJSONParam(jsonParamName).val = _originalBreastControlFloats[jsonParamName];
             }
         }
 
-        public JSONClass GetJSON()
-        {
-            var jsonClass = new JSONClass();
-            jsonClass["originals"] = OriginalsJSON();
-            jsonClass["parameters"] = ParametersJSONArray();
-            return jsonClass;
-        }
-
-        private JSONClass OriginalsJSON()
+        public JSONClass GetOriginalsJSON()
         {
             var jsonClass = new JSONClass();
             jsonClass["breastControlFloats"] = JSONUtils.JSONArrayFromDictionary(_originalBreastControlFloats);
@@ -529,37 +534,11 @@ namespace TittyMagic
             return jsonClass;
         }
 
-        private JSONArray ParametersJSONArray()
-        {
-            var jsonArray = new JSONArray();
-            var massGroupJsonClass = massParameterGroup.GetJSON();
-            if(massGroupJsonClass != null)
-            {
-                jsonArray.Add(massGroupJsonClass);
-            }
-
-            foreach(var group in parameterGroups)
-            {
-                var groupJsonClass = group.Value.GetJSON();
-                if(groupJsonClass != null)
-                {
-                    jsonArray.Add(groupJsonClass);
-                }
-            }
-
-            return jsonArray;
-        }
-
         public void RestoreFromJSON(JSONClass jsonClass)
         {
             if(jsonClass.HasKey("originals"))
             {
                 RestoreOriginalsFromJSON(jsonClass["originals"].AsObject);
-            }
-
-            if(jsonClass.HasKey("parameters"))
-            {
-                RestoreParametersFromJSON(jsonClass["parameters"].AsArray);
             }
         }
 
@@ -580,21 +559,6 @@ namespace TittyMagic
             if(originalJson.HasKey("pectoralRbRightDetectCollisions"))
             {
                 _originalPectoralRbRightDetectCollisions = originalJson["pectoralRbRightDetectCollisions"].AsBool;
-            }
-        }
-
-        private void RestoreParametersFromJSON(JSONArray jsonArray)
-        {
-            foreach(JSONClass jc in jsonArray)
-            {
-                string id = jc["id"].Value;
-                if(id == "mass")
-                {
-                    massParameterGroup.RestoreFromJSON(jc);
-                    continue;
-                }
-
-                parameterGroups[id].RestoreFromJSON(jc);
             }
         }
 

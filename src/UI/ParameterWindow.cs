@@ -110,6 +110,7 @@ namespace TittyMagic.UI
 
             var slider = script.CreateSlider(storable, rightSide);
             slider.valueFormat = _parameter.valueFormat;
+            slider.label = "Offset";
 
             slider.slider.onValueChanged.AddListener(value =>
             {
@@ -131,6 +132,7 @@ namespace TittyMagic.UI
 
             var slider = script.CreateSlider(storable, rightSide);
             slider.valueFormat = _parameter.valueFormat;
+            slider.label = "Value";
             slider.SetActiveStyle(false);
             slider.slider.interactable = false;
             slider.quickButtonsEnabled = false;

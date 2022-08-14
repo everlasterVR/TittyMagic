@@ -6,7 +6,7 @@ using SimpleJSON;
 using TittyMagic.Configs;
 using static TittyMagic.ParamName;
 using static TittyMagic.SoftColliderGroup;
-using static TittyMagic.Intl;
+using static TittyMagic.Side;
 
 namespace TittyMagic
 {
@@ -89,35 +89,36 @@ namespace TittyMagic
 
         #region *** Parameter setup ***
 
-        private SoftGroupPhysicsParameter NewGroupParameter(
-            string side,
-            string group,
-            StaticPhysicsConfig config,
-            Action<float, DAZPhysicsMeshSoftVerticesGroup> syncCallback,
-            JSONStorableFloat baseValueJsf,
-            float max = 5
-        )
+        private PhysicsParameter NewPhysicsParameter(string paramName, string side, float startingValue, float minValue, float maxValue)
         {
-            var multiplierJsf = new JSONStorableFloat($"{group} {MULTIPLIER}", 1, 0, max);
-            var currentJsf = new JSONStorableFloat($"{group} {CURRENT_VALUE}", 1, 0, max);
-            var offsetJsf = new JSONStorableFloat($"{group} {MULTIPLIER} {OFFSET}", 0, -max, max);
-            return new SoftGroupPhysicsParameter(multiplierJsf, currentJsf, offsetJsf)
-            {
-                config = config,
-                sync = value => syncCallback(baseValueJsf.val * value, _softVerticesGroups[side][group]),
-            };
+            string jsfName = $"{paramName}{(side == LEFT ? "" : side)}";
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", startingValue, minValue, maxValue);
+            return new PhysicsParameter(
+                valueJsf,
+                baseValueJsf: new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
+                offsetJsf: _script.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, register: side == LEFT)
+            );
+        }
+
+        private SoftGroupPhysicsParameter NewSoftGroupPhysicsParameter(string paramName, string side, string group)
+        {
+            string jsfName = $"{paramName}{(side == LEFT ? "" : side)}{group}";
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 1, 0, 5);
+            return new SoftGroupPhysicsParameter(
+                valueJsf,
+                baseValueJsf: new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
+                offsetJsf: _script.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, register: side == LEFT)
+            );
         }
 
         private PhysicsParameter NewSpringParameter(string side)
         {
-            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 500))
-            {
-                config = new StaticPhysicsConfig(
-                    180f,
-                    softnessCurve: x => -0.62f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
-                ),
-                valueFormat = "F0",
-            };
+            var parameter = NewPhysicsParameter(SOFT_VERTICES_SPRING, side, 0, 0, 500);
+            parameter.config = new StaticPhysicsConfig(
+                180f,
+                softnessCurve: x => -0.62f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
+            );
+            parameter.valueFormat = "F0";
 
             Func<float, float> groupSoftnessCurve = x => Curves.Exponential1(x, 1.90f, 1.74f, 1.17f);
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
@@ -148,41 +149,36 @@ namespace TittyMagic
                 },
             };
 
-            parameter.groupMultiplierParams = allGroups.ToDictionary(
-                group => group,
-                group => NewGroupParameter(
-                    side,
-                    group,
-                    groupConfigs[group],
-                    SyncGroupSpring,
-                    parameter.valueJsf,
-                    max: group == NIPPLE ? 10 : 5
-                ));
+            foreach(string group in allGroups)
+            {
+                var groupParam = NewSoftGroupPhysicsParameter(SOFT_VERTICES_SPRING, side, group);
+                groupParam.config = groupConfigs[group];
+                groupParam.sync = value => SyncGroupSpring(parameter.valueJsf.val * value, _softVerticesGroups[side][group]);
+                parameter.groupMultiplierParams[group] = groupParam;
+            }
 
             return parameter;
         }
 
         private PhysicsParameter NewDamperParameter(string side)
         {
-            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 5.00f))
-            {
-                config = new StaticPhysicsConfig(
-                    0.85f,
-                    massCurve: x => 0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
-                    softnessCurve: x => -0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
-                ),
-                quicknessOffsetConfig = new StaticPhysicsConfig(
-                    -0.15f,
-                    massCurve: x => -0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
-                    softnessCurve: x => 0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
-                ),
-                slownessOffsetConfig = new StaticPhysicsConfig(
-                    0.15f,
-                    massCurve: x => 0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
-                    softnessCurve: x => -0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
-                ),
-                valueFormat = "F2",
-            };
+            var parameter = NewPhysicsParameter(SOFT_VERTICES_DAMPER, side, 0, 0, 5.00f);
+            parameter.config = new StaticPhysicsConfig(
+                0.85f,
+                massCurve: x => 0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
+                softnessCurve: x => -0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
+            );
+            parameter.quicknessOffsetConfig = new StaticPhysicsConfig(
+                -0.15f,
+                massCurve: x => -0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
+                softnessCurve: x => 0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
+            );
+            parameter.slownessOffsetConfig = new StaticPhysicsConfig(
+                0.15f,
+                massCurve: x => 0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
+                softnessCurve: x => -0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
+            );
+            parameter.valueFormat = "F2";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
@@ -207,40 +203,36 @@ namespace TittyMagic
                 },
             };
 
-            parameter.groupMultiplierParams = allGroups.ToDictionary(
-                group => group,
-                group => NewGroupParameter(
-                    side,
-                    group,
-                    groupConfigs[group],
-                    SyncGroupDamper,
-                    parameter.valueJsf
-                ));
+            foreach(string group in allGroups)
+            {
+                var groupParam = NewSoftGroupPhysicsParameter(SOFT_VERTICES_DAMPER, side, group);
+                groupParam.config = groupConfigs[group];
+                groupParam.sync = value => SyncGroupDamper(parameter.valueJsf.val * value, _softVerticesGroups[side][group]);
+                parameter.groupMultiplierParams[group] = groupParam;
+            }
 
             return parameter;
         }
 
         private PhysicsParameter NewSoftVerticesMassParameter(string side)
         {
-            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0.001f, 0.300f))
-            {
-                config = new StaticPhysicsConfig(
-                    0.040f,
-                    // https://www.desmos.com/calculator/inmadsqhj2
-                    softnessCurve: x => 1.00f * Curves.Exponential1(x, 2.30f, 1.74f, 1.17f),
-                    // https://www.desmos.com/calculator/gsyidpluyg
-                    massCurve: x => 2.25f * Curves.Exponential1(2 / 3f * x, 1.91f, 1.7f, 0.82f)
-                ),
-                quicknessOffsetConfig = new StaticPhysicsConfig(
-                    -0.022f,
-                    softnessCurve: x => 0.50f * x
-                ),
-                slownessOffsetConfig = new StaticPhysicsConfig(
-                    0.066f,
-                    softnessCurve: x => 0.50f * x
-                ),
-                valueFormat = "F3",
-            };
+            var parameter = NewPhysicsParameter(SOFT_VERTICES_MASS, side, 0, 0.001f, 0.300f);
+            parameter.config = new StaticPhysicsConfig(
+                0.040f,
+                // https://www.desmos.com/calculator/inmadsqhj2
+                softnessCurve: x => 1.00f * Curves.Exponential1(x, 2.30f, 1.74f, 1.17f),
+                // https://www.desmos.com/calculator/gsyidpluyg
+                massCurve: x => 2.25f * Curves.Exponential1(2 / 3f * x, 1.91f, 1.7f, 0.82f)
+            );
+            parameter.quicknessOffsetConfig = new StaticPhysicsConfig(
+                -0.022f,
+                softnessCurve: x => 0.50f * x
+            );
+            parameter.slownessOffsetConfig = new StaticPhysicsConfig(
+                0.066f,
+                softnessCurve: x => 0.50f * x
+            );
+            parameter.valueFormat = "F3";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
@@ -267,31 +259,27 @@ namespace TittyMagic
                 },
             };
 
-            parameter.groupMultiplierParams = allGroups.ToDictionary(
-                group => group,
-                group => NewGroupParameter(
-                    side,
-                    group,
-                    groupConfigs[group],
-                    SyncGroupMass,
-                    parameter.valueJsf
-                ));
+            foreach(string group in allGroups)
+            {
+                var groupParam = NewSoftGroupPhysicsParameter(SOFT_VERTICES_MASS, side, group);
+                groupParam.config = groupConfigs[group];
+                groupParam.sync = value => SyncGroupMass(parameter.valueJsf.val * value, _softVerticesGroups[side][group]);
+                parameter.groupMultiplierParams[group] = groupParam;
+            }
 
             return parameter;
         }
 
         private PhysicsParameter NewColliderRadiusParameter(string side)
         {
-            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 0.060f))
-            {
-                config = new StaticPhysicsConfig(
-                    0.016f,
-                    // https://www.desmos.com/calculator/rotof03irg
-                    massCurve: x => 1.54f * Curves.Exponential1(2 / 3f * x, 1.42f, 4.25f, 1.17f),
-                    softnessCurve: x => 0.18f * x
-                ),
-                valueFormat = "F3",
-            };
+            var parameter = NewPhysicsParameter(SOFT_VERTICES_COLLIDER_RADIUS, side, 0, 0, 0.060f);
+            parameter.config = new StaticPhysicsConfig(
+                0.016f,
+                // https://www.desmos.com/calculator/rotof03irg
+                massCurve: x => 1.54f * Curves.Exponential1(2 / 3f * x, 1.42f, 4.25f, 1.17f),
+                softnessCurve: x => 0.18f * x
+            );
+            parameter.valueFormat = "F3";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
@@ -301,26 +289,22 @@ namespace TittyMagic
                 { NIPPLE, new StaticPhysicsConfig(0.00f) },
             };
 
-            parameter.groupMultiplierParams = allGroups.ToDictionary(
-                group => group,
-                group => NewGroupParameter(
-                    side,
-                    group,
-                    groupConfigs[group],
-                    SyncGroupColliderRadius,
-                    parameter.valueJsf
-                ));
+            foreach(string group in allGroups)
+            {
+                var groupParam = NewSoftGroupPhysicsParameter(SOFT_VERTICES_COLLIDER_RADIUS, side, group);
+                groupParam.config = groupConfigs[group];
+                groupParam.sync = value => SyncGroupColliderRadius(parameter.valueJsf.val * value, _softVerticesGroups[side][group]);
+                parameter.groupMultiplierParams[group] = groupParam;
+            }
 
             return parameter;
         }
 
         private PhysicsParameter NewColliderAdditionalNormalOffsetParameter(string side)
         {
-            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, -0.010f, 0.010f))
-            {
-                config = new StaticPhysicsConfig(0.001f),
-                valueFormat = "F3",
-            };
+            var parameter = NewPhysicsParameter(SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, side, 0, -0.010f, 0.010f);
+            parameter.config = new StaticPhysicsConfig(0.001f);
+            parameter.valueFormat = "F3";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
@@ -330,38 +314,34 @@ namespace TittyMagic
                 { NIPPLE, new StaticPhysicsConfig(1.00f) },
             };
 
-            parameter.groupMultiplierParams = allGroups.ToDictionary(
-                group => group,
-                group => NewGroupParameter(
-                    side,
-                    group,
-                    groupConfigs[group],
-                    SyncGroupAdditionalNormalOffset,
-                    parameter.valueJsf
-                ));
+            foreach(string group in allGroups)
+            {
+                var groupParam = NewSoftGroupPhysicsParameter(SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, side, group);
+                groupParam.config = groupConfigs[group];
+                groupParam.sync = value => SyncGroupAdditionalNormalOffset(parameter.valueJsf.val * value, _softVerticesGroups[side][group]);
+                parameter.groupMultiplierParams[group] = groupParam;
+            }
 
             return parameter;
         }
 
         private PhysicsParameter NewDistanceLimitParameter(string side)
         {
-            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 0.100f))
-            {
-                config = new StaticPhysicsConfig(
-                    0.019f,
-                    massCurve: x => 2.4f * x,
-                    softnessCurve: x => 0.4f * x
-                ),
-                quicknessOffsetConfig = new StaticPhysicsConfig(
-                    0.003f,
-                    softnessCurve: _ => 4.0f
-                ),
-                slownessOffsetConfig = new StaticPhysicsConfig(
-                    -0.001f,
-                    softnessCurve: _ => 4.0f
-                ),
-                valueFormat = "F3",
-            };
+            var parameter = NewPhysicsParameter(SOFT_VERTICES_DISTANCE_LIMIT, side, 0, 0, 0.100f);
+            parameter.config = new StaticPhysicsConfig(
+                0.019f,
+                massCurve: x => 2.4f * x,
+                softnessCurve: x => 0.4f * x
+            );
+            parameter.quicknessOffsetConfig = new StaticPhysicsConfig(
+                0.003f,
+                softnessCurve: _ => 4.0f
+            );
+            parameter.slownessOffsetConfig = new StaticPhysicsConfig(
+                -0.001f,
+                softnessCurve: _ => 4.0f
+            );
+            parameter.valueFormat = "F3";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
@@ -371,42 +351,38 @@ namespace TittyMagic
                 { NIPPLE, new StaticPhysicsConfig(1.20f) },
             };
 
-            parameter.groupMultiplierParams = allGroups.ToDictionary(
-                group => group,
-                group => NewGroupParameter(
-                    side,
-                    group,
-                    groupConfigs[group],
-                    SyncGroupDistanceLimit,
-                    parameter.valueJsf
-                ));
+            foreach(string group in allGroups)
+            {
+                var groupParam = NewSoftGroupPhysicsParameter(SOFT_VERTICES_DISTANCE_LIMIT, side, group);
+                groupParam.config = groupConfigs[group];
+                groupParam.sync = value => SyncGroupDistanceLimit(parameter.valueJsf.val * value, _softVerticesGroups[side][group]);
+                parameter.groupMultiplierParams[group] = groupParam;
+            }
 
             return parameter;
         }
 
         private PhysicsParameter NewBackForceParameter(string side)
         {
-            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 50.00f))
-            {
-                config = new StaticPhysicsConfig(
-                    15.00f,
-                    // https://www.desmos.com/calculator/ww9lp03k6o
-                    massCurve: x => 0.90f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.00f, 0.50f),
-                    // https://www.desmos.com/calculator/uwfattbhdg
-                    softnessCurve: x => -0.82f * Curves.Exponential1(x, 2.34f, 1.76f, 1.01f)
-                ),
-                quicknessOffsetConfig = new StaticPhysicsConfig(
-                    -2.00f,
-                    massCurve: x => -0.90f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.00f, 0.50f),
-                    softnessCurve: x => 0.82f * Curves.Exponential1(x, 2.34f, 1.76f, 1.01f)
-                ),
-                slownessOffsetConfig = new StaticPhysicsConfig(
-                    2.00f,
-                    massCurve: x => 0.90f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.00f, 0.50f),
-                    softnessCurve: x => -0.82f * Curves.Exponential1(x, 2.34f, 1.76f, 1.01f)
-                ),
-                valueFormat = "F2",
-            };
+            var parameter = NewPhysicsParameter(SOFT_VERTICES_BACK_FORCE, side, 0, 0, 50.00f);
+            parameter.config = new StaticPhysicsConfig(
+                15.00f,
+                // https://www.desmos.com/calculator/ww9lp03k6o
+                massCurve: x => 0.90f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.00f, 0.50f),
+                // https://www.desmos.com/calculator/uwfattbhdg
+                softnessCurve: x => -0.82f * Curves.Exponential1(x, 2.34f, 1.76f, 1.01f)
+            );
+            parameter.quicknessOffsetConfig = new StaticPhysicsConfig(
+                -2.00f,
+                massCurve: x => -0.90f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.00f, 0.50f),
+                softnessCurve: x => 0.82f * Curves.Exponential1(x, 2.34f, 1.76f, 1.01f)
+            );
+            parameter.slownessOffsetConfig = new StaticPhysicsConfig(
+                2.00f,
+                massCurve: x => 0.90f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.00f, 0.50f),
+                softnessCurve: x => -0.82f * Curves.Exponential1(x, 2.34f, 1.76f, 1.01f)
+            );
+            parameter.valueFormat = "F2";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
@@ -426,26 +402,22 @@ namespace TittyMagic
                 },
             };
 
-            parameter.groupMultiplierParams = allGroups.ToDictionary(
-                group => group,
-                group => NewGroupParameter(
-                    side,
-                    group,
-                    groupConfigs[group],
-                    SyncGroupBackForce,
-                    parameter.valueJsf
-                ));
+            foreach(string group in allGroups)
+            {
+                var groupParam = NewSoftGroupPhysicsParameter(SOFT_VERTICES_BACK_FORCE, side, group);
+                groupParam.config = groupConfigs[group];
+                groupParam.sync = value => SyncGroupBackForce(parameter.valueJsf.val * value, _softVerticesGroups[side][group]);
+                parameter.groupMultiplierParams[group] = groupParam;
+            }
 
             return parameter;
         }
 
         private PhysicsParameter NewBackForceMaxForceParameter(string side)
         {
-            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 50.00f))
-            {
-                config = new StaticPhysicsConfig(50.00f),
-                valueFormat = "F2",
-            };
+            var parameter = NewPhysicsParameter(SOFT_VERTICES_BACK_FORCE_MAX_FORCE, side, 0, 0, 50.00f);
+            parameter.config = new StaticPhysicsConfig(50.00f);
+            parameter.valueFormat = "F2";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
@@ -455,26 +427,22 @@ namespace TittyMagic
                 { NIPPLE, new StaticPhysicsConfig(1.00f) },
             };
 
-            parameter.groupMultiplierParams = allGroups.ToDictionary(
-                group => group,
-                group => NewGroupParameter(
-                    side,
-                    group,
-                    groupConfigs[group],
-                    SyncGroupBackForceMaxForce,
-                    parameter.valueJsf
-                ));
+            foreach(string group in allGroups)
+            {
+                var groupParam = NewSoftGroupPhysicsParameter(SOFT_VERTICES_BACK_FORCE_MAX_FORCE, side, group);
+                groupParam.config = groupConfigs[group];
+                groupParam.sync = value => SyncGroupBackForceMaxForce(parameter.valueJsf.val * value, _softVerticesGroups[side][group]);
+                parameter.groupMultiplierParams[group] = groupParam;
+            }
 
             return parameter;
         }
 
         private PhysicsParameter NewBackForceThresholdDistanceParameter(string side)
         {
-            var parameter = new PhysicsParameter(new JSONStorableFloat(VALUE, 0, 0, 0.030f))
-            {
-                config = new StaticPhysicsConfig(0.001f),
-                valueFormat = "F3",
-            };
+            var parameter = NewPhysicsParameter(SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE, side, 0, 0, 0.030f);
+            parameter.config = new StaticPhysicsConfig(0.001f);
+            parameter.valueFormat = "F3";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
@@ -484,15 +452,13 @@ namespace TittyMagic
                 { NIPPLE, new StaticPhysicsConfig(1.00f) },
             };
 
-            parameter.groupMultiplierParams = allGroups.ToDictionary(
-                group => group,
-                group => NewGroupParameter(
-                    side,
-                    group,
-                    groupConfigs[group],
-                    SyncGroupBackForceThresholdDistance,
-                    parameter.valueJsf
-                ));
+            foreach(string group in allGroups)
+            {
+                var groupParam = NewSoftGroupPhysicsParameter(SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE, side, group);
+                groupParam.config = groupConfigs[group];
+                groupParam.sync = value => SyncGroupBackForceThresholdDistance(parameter.valueJsf.val * value, _softVerticesGroups[side][group]);
+                parameter.groupMultiplierParams[group] = groupParam;
+            }
 
             return parameter;
         }
@@ -500,14 +466,12 @@ namespace TittyMagic
         private void SetupPhysicsParameterGroups()
         {
             var softVerticesSpring = new PhysicsParameterGroup(
-                SOFT_VERTICES_SPRING,
                 NewSpringParameter(LEFT),
                 NewSpringParameter(RIGHT),
                 "Fat Spring"
             );
 
             var softVerticesDamper = new PhysicsParameterGroup(
-                SOFT_VERTICES_DAMPER,
                 NewDamperParameter(LEFT),
                 NewDamperParameter(RIGHT),
                 "Fat Damper"
@@ -517,14 +481,12 @@ namespace TittyMagic
             };
 
             var softVerticesMass = new PhysicsParameterGroup(
-                SOFT_VERTICES_MASS,
                 NewSoftVerticesMassParameter(LEFT),
                 NewSoftVerticesMassParameter(RIGHT),
                 "Fat Mass"
             );
 
             var softVerticesColliderRadius = new PhysicsParameterGroup(
-                SOFT_VERTICES_COLLIDER_RADIUS,
                 NewColliderRadiusParameter(LEFT),
                 NewColliderRadiusParameter(RIGHT),
                 "Fat Collider Radius"
@@ -534,14 +496,12 @@ namespace TittyMagic
             };
 
             var softVerticesColliderAdditionalNormalOffset = new PhysicsParameterGroup(
-                SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET,
                 NewColliderAdditionalNormalOffsetParameter(LEFT),
                 NewColliderAdditionalNormalOffsetParameter(RIGHT),
                 "Fat Collider Depth"
             );
 
             var softVerticesDistanceLimit = new PhysicsParameterGroup(
-                SOFT_VERTICES_DISTANCE_LIMIT,
                 NewDistanceLimitParameter(LEFT),
                 NewDistanceLimitParameter(RIGHT),
                 "Fat Distance Limit"
@@ -551,21 +511,18 @@ namespace TittyMagic
             };
 
             var softVerticesBackForce = new PhysicsParameterGroup(
-                SOFT_VERTICES_BACK_FORCE,
                 NewBackForceParameter(LEFT),
                 NewBackForceParameter(RIGHT),
                 "Fat Back Force"
             );
 
             var softVerticesBackForceMaxForce = new PhysicsParameterGroup(
-                SOFT_VERTICES_BACK_FORCE_MAX_FORCE,
                 NewBackForceMaxForceParameter(LEFT),
                 NewBackForceMaxForceParameter(RIGHT),
                 "Fat Bk Force Max Force"
             );
 
             var softVerticesBackForceThresholdDistance = new PhysicsParameterGroup(
-                SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE,
                 NewBackForceThresholdDistanceParameter(LEFT),
                 NewBackForceThresholdDistanceParameter(RIGHT),
                 "Fat Bk Force Threshold"
@@ -811,15 +768,7 @@ namespace TittyMagic
             }
         }
 
-        public JSONClass GetJSON()
-        {
-            var jsonClass = new JSONClass();
-            jsonClass["originals"] = OriginalsJSON();
-            jsonClass["parameters"] = ParametersJSONArray();
-            return jsonClass;
-        }
-
-        private JSONClass OriginalsJSON()
+        public JSONClass GetOriginalsJSON()
         {
             var jsonClass = new JSONClass();
             jsonClass[SOFT_PHYSICS_ON].AsBool = _originalSoftPhysicsOn;
@@ -829,31 +778,11 @@ namespace TittyMagic
             return jsonClass;
         }
 
-        private JSONArray ParametersJSONArray()
-        {
-            var jsonArray = new JSONArray();
-            foreach(var group in parameterGroups)
-            {
-                var groupJsonClass = group.Value.GetJSON();
-                if(groupJsonClass != null)
-                {
-                    jsonArray.Add(groupJsonClass);
-                }
-            }
-
-            return jsonArray;
-        }
-
         public void RestoreFromJSON(JSONClass jsonClass)
         {
             if(jsonClass.HasKey("originals"))
             {
                 RestoreOriginalsFromJSON(jsonClass["originals"].AsObject);
-            }
-
-            if(jsonClass.HasKey("parameters"))
-            {
-                RestoreParametersFromJSON(jsonClass["parameters"].AsArray);
             }
         }
 
@@ -881,14 +810,6 @@ namespace TittyMagic
                 {
                     _originalBreastPhysicsMeshFloats[jc["id"].Value] = jc["value"].AsFloat;
                 }
-            }
-        }
-
-        private void RestoreParametersFromJSON(JSONArray jsonArray)
-        {
-            foreach(JSONClass jc in jsonArray)
-            {
-                parameterGroups[jc["id"].Value].RestoreFromJSON(jc);
             }
         }
 

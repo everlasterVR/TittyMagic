@@ -726,12 +726,12 @@ namespace TittyMagic
         public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
         {
             var jsonClass = base.GetJSON(includePhysical, includeAppearance, forceStore);
-            jsonClass["mainPhysics"] = mainPhysicsHandler.GetJSON();
-            jsonClass["hardColliders"] = hardColliderHandler.GetOriginalsJSON();
+            jsonClass["originalMainPhysics"] = mainPhysicsHandler.GetOriginalsJSON();
             if(Gender.isFemale)
             {
-                jsonClass["softPhysics"] = softPhysicsHandler.GetJSON();
+                jsonClass["originalSoftPhysics"] = softPhysicsHandler.GetOriginalsJSON();
             }
+            jsonClass["originalHardColliders"] = hardColliderHandler.GetOriginalsJSON();
 
             needsStore = true;
             return jsonClass;
