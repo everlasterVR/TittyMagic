@@ -352,6 +352,13 @@ namespace TittyMagic
             try
             {
                 CheckUIOpenedOrClosed();
+#if DEBUG_ON
+                var window = mainWindow?.GetActiveNestedWindow() as HardCollidersWindow;
+                if(window != null)
+                {
+                    window.UpdateCollidersDebugInfo("Pectoral1");
+                }
+#endif
             }
             catch(Exception e)
             {
@@ -682,13 +689,7 @@ namespace TittyMagic
             if(Gender.isFemale)
             {
                 yield return hardColliderHandler.SyncAll();
-                var window = mainWindow.GetActiveNestedWindow() as HardCollidersWindow;
-                if(window != null)
-                {
-                    window.UpdateCollidersDebugInfo("Pectoral1");
-                }
             }
-
             _calibrating = false;
         }
 
