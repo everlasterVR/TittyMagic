@@ -205,12 +205,11 @@ namespace TittyMagic.UI
             button.label = "  Configure Hard Colliders...";
             button.height = 52;
 
-            button.AddListener(() =>
-            {
+            storable.actionCallback = () => {
                 ClearSelf();
                 activeNestedWindow = nestedWindows.First();
                 activeNestedWindow.Rebuild();
-            });
+            };
 
             elements[storable.name] = button;
         }

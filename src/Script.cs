@@ -51,7 +51,7 @@ namespace TittyMagic
 
         private JSONStorableString _pluginVersionStorable;
 
-        private Tabs _tabs;
+        public Tabs tabs;
 
         // ReSharper disable MemberCanBePrivate.Global
         public IWindow mainWindow { get; private set; }
@@ -93,7 +93,6 @@ namespace TittyMagic
                 }
 
                 StartCoroutine(DeferInit());
-                StartCoroutine(SubscribeToKeybindings());
             }
             catch(Exception e)
             {
@@ -193,6 +192,8 @@ namespace TittyMagic
             }
 
             SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
+
+            StartCoroutine(SubscribeToKeybindings());
             StartCoroutine(DeferSetPluginVersion());
         }
 
@@ -269,9 +270,7 @@ namespace TittyMagic
         public void OnBindingsListRequested(List<object> bindings)
         {
             _customBindings = gameObject.AddComponent<Bindings>();
-            _customBindings.Init(this);
-            bindings.Add(_customBindings.settings);
-            bindings.AddRange(_customBindings.onKeyDownActions);
+            _customBindings.Init(this, bindings);
         }
 
         private IEnumerator DeferSetPluginVersion()
@@ -327,35 +326,24 @@ namespace TittyMagic
             configureHardColliders = new JSONStorableAction("configureHardColliders", () => { });
         }
 
+        public void NavigateToMainWindow() => NavigateToWindow(mainWindow);
+        public void NavigateToPhysicsWindow() => NavigateToWindow(physicsWindow);
+        public void NavigateToMorphingWindow() => NavigateToWindow(morphingWindow);
+        public void NavigateToGravityWindow() => NavigateToWindow(gravityWindow);
+
         private void CreateNavigation()
         {
-            _tabs = new Tabs(this);
-            _tabs.CreateNavigationButton(
-                mainWindow,
-                "Control",
-                () => NavigateToWindow(mainWindow)
-            );
-            _tabs.CreateNavigationButton(
-                physicsWindow,
-                "Physics Params",
-                () => NavigateToWindow(physicsWindow)
-            );
-            _tabs.CreateNavigationButton(
-                morphingWindow,
-                "Morph Multipliers",
-                () => NavigateToWindow(morphingWindow)
-            );
-            _tabs.CreateNavigationButton(
-                gravityWindow,
-                "Gravity Multipliers",
-                () => NavigateToWindow(gravityWindow)
-            );
+            tabs = new Tabs(this);
+            tabs.CreateNavigationButton(mainWindow, "Control", NavigateToMainWindow);
+            tabs.CreateNavigationButton(physicsWindow, "Physics Params", NavigateToPhysicsWindow);
+            tabs.CreateNavigationButton(morphingWindow, "Morph Multipliers", NavigateToMorphingWindow);
+            tabs.CreateNavigationButton(gravityWindow, "Gravity Multipliers", NavigateToGravityWindow);
         }
 
         private void NavigateToWindow(IWindow window)
         {
-            _tabs.activeWindow?.Clear();
-            _tabs.ActivateTab(window);
+            tabs.activeWindow?.Clear();
+            tabs.ActivateTab(window);
             window.Rebuild();
         }
 
@@ -394,7 +382,7 @@ namespace TittyMagic
             var background = rightUIContent.parent.parent.parent.transform.GetComponent<Image>();
             background.color = new Color(0.85f, 0.85f, 0.85f);
 
-            while(_tabs?.activeWindow == null)
+            while(tabs?.activeWindow == null)
             {
                 yield return null;
             }
@@ -402,14 +390,14 @@ namespace TittyMagic
             softPhysicsHandler.ReverseSyncSoftPhysicsOn();
             softPhysicsHandler.ReverseSyncSyncAllowSelfCollision();
 
-            if(_tabs.activeWindow == mainWindow)
+            if(tabs.activeWindow == mainWindow)
             {
                 if(mainWindow.GetActiveNestedWindow() != null)
                 {
                     colliderVisualizer.ShowPreviewsJSON.val = true;
                 }
             }
-            else if(_tabs.activeWindow == physicsWindow)
+            else if(tabs.activeWindow == physicsWindow)
             {
                 var parameterWindow = physicsWindow.GetActiveNestedWindow() as ParameterWindow;
                 parameterWindow?.SyncAllMultiplierSliderValues();
@@ -418,7 +406,7 @@ namespace TittyMagic
 
         private void ActionsOnUIClosed()
         {
-            var activeParameterWindow = _tabs.activeWindow?.GetActiveNestedWindow() as ParameterWindow;
+            var activeParameterWindow = tabs.activeWindow?.GetActiveNestedWindow() as ParameterWindow;
             var recalibrationAction = activeParameterWindow != null ? activeParameterWindow.recalibrationAction : recalibratePhysics;
             RecalibrateOnNavigation(recalibrationAction);
             colliderVisualizer.ShowPreviewsJSON.val = false;

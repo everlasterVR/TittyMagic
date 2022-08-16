@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TittyMagic.UI;
 using UnityEngine;
 using static TittyMagic.Utils;
 
@@ -11,35 +12,80 @@ namespace TittyMagic
     {
         private Script _script;
 
-        public Dictionary<string, string> settings { get; set; }
-        public List<object> onKeyDownActions { get; set; }
-        public JSONStorableAction openUIAction { get; set; }
-
-        public void Init(Script script)
+        public void Init(Script script, List<object> bindings)
         {
             _script = script;
-            settings = new Dictionary<string, string>
+            bindings.Add(new Dictionary<string, string>
             {
                 { "Namespace", nameof(TittyMagic) },
-            };
-            onKeyDownActions = new List<object> { OpenUI() };
+            });
+            bindings.AddRange(new List<object>
+            {
+                new JSONStorableAction("OpenUI", OpenUI),
+                new JSONStorableAction("OpenUI_Control", OpenUIControl),
+                new JSONStorableAction("OpenUI_ConfigureHardColliders", OpenUIConfigureHardColliders),
+                new JSONStorableAction("OpenUI_PhysicsParams", OpenUIPhysicsParams),
+                new JSONStorableAction("OpenUI_MorphMultipliers", OpenUIMorphMultipliers),
+                new JSONStorableAction("OpenUI_GravityMultipliers", OpenUIGravityMultipliers),
+                new JSONStorableAction("AutoUpdateMassOn", () => _script.autoUpdateJsb.val = true),
+                new JSONStorableAction("AutoUpdateMassOff", () => _script.autoUpdateJsb.val = false),
+                new JSONStorableAction("CalculateBreastMass", _script.calculateBreastMass.actionCallback),
+                new JSONStorableAction("RecalibratePhysics", _script.recalibratePhysics.actionCallback),
+            });
         }
 
-        private object OpenUI()
+        private void OpenUI()
         {
-            openUIAction = new JSONStorableAction(nameof(OpenUI), () => ShowUI(() => StartCoroutine(SelectPluginUI())));
-            return openUIAction;
+            ShowMainHud();
+            StartCoroutine(SelectPluginUI());
         }
 
-        private void ShowUI(Action callback = null)
+        private void OpenUIControl()
+        {
+            ShowMainHud();
+            StartCoroutine(SelectPluginUI(postAction: _script.NavigateToMainWindow));
+        }
+
+        private void OpenUIPhysicsParams()
+        {
+            ShowMainHud();
+            StartCoroutine(SelectPluginUI(postAction: _script.NavigateToPhysicsWindow));
+        }
+
+        private void OpenUIMorphMultipliers()
+        {
+            ShowMainHud();
+            StartCoroutine(SelectPluginUI(postAction: _script.NavigateToMorphingWindow));
+        }
+
+        private void OpenUIGravityMultipliers()
+        {
+            ShowMainHud();
+            StartCoroutine(SelectPluginUI(postAction: _script.NavigateToGravityWindow));
+        }
+
+        private void OpenUIConfigureHardColliders()
+        {
+            ShowMainHud();
+            StartCoroutine(SelectPluginUI(postAction: () =>
+            {
+                _script.NavigateToMainWindow();
+                var hardCollidersWindow = _script.mainWindow.GetActiveNestedWindow() as HardCollidersWindow;
+                if(hardCollidersWindow == null)
+                {
+                    _script.configureHardColliders.actionCallback();
+                }
+            }));
+        }
+
+        private void ShowMainHud()
         {
             SuperController.singleton.SelectController(_script.containingAtom.freeControllers.First(), false, false);
             SuperController.singleton.ShowMainHUDMonitor();
-            callback?.Invoke();
         }
 
         // adapted from Timeline v4.3.1 (c) acidbubbles
-        private IEnumerator SelectPluginUI()
+        private IEnumerator SelectPluginUI(Action postAction = null)
         {
             if(SuperController.singleton.gameMode != SuperController.GameMode.Edit)
             {
@@ -67,6 +113,7 @@ namespace TittyMagic
                 if(_script.enabled)
                 {
                     _script.UITransform.gameObject.SetActive(true);
+                    postAction?.Invoke();
                 }
 
                 yield break;
