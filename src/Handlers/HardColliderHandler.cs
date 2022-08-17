@@ -294,11 +294,11 @@ namespace TittyMagic
             };
 
             colliderConfigGroup.forceJsf.setCallbackFunction = _ => SyncHardColliderMass(colliderConfigGroup);
-            colliderConfigGroup.radiusJsf.setCallbackFunction = _ => SyncHardColliderRadius(colliderConfigGroup);
-            colliderConfigGroup.lengthJsf.setCallbackFunction = _ => SyncHardColliderLength(colliderConfigGroup);
-            colliderConfigGroup.rightJsf.setCallbackFunction = _ => SyncHardColliderRightOffset(colliderConfigGroup);
-            colliderConfigGroup.upJsf.setCallbackFunction = _ => SyncHardColliderUpOffset(colliderConfigGroup);
-            colliderConfigGroup.lookJsf.setCallbackFunction = _ => SyncHardColliderLookOffset(colliderConfigGroup);
+            colliderConfigGroup.radiusJsf.setCallbackFunction = _ => SyncHardColliderDimensions(colliderConfigGroup);
+            colliderConfigGroup.lengthJsf.setCallbackFunction = _ => SyncHardColliderDimensions(colliderConfigGroup);
+            colliderConfigGroup.rightJsf.setCallbackFunction = _ => SyncHardColliderPosition(colliderConfigGroup);
+            colliderConfigGroup.upJsf.setCallbackFunction = _ => SyncHardColliderPosition(colliderConfigGroup);
+            colliderConfigGroup.lookJsf.setCallbackFunction = _ => SyncHardColliderPosition(colliderConfigGroup);
 
             return colliderConfigGroup;
         }
@@ -318,58 +318,25 @@ namespace TittyMagic
                 autoCollider.jointCollider != null && autoCollider.jointCollider.name == collider.name);
         }
 
-        private void SyncHardColliderRadius(ColliderConfigGroup config)
+        private void SyncHardColliderDimensions(ColliderConfigGroup config)
         {
             if(!enabled)
             {
                 return;
             }
 
-            config.UpdateRadius(_script.mainPhysicsHandler.normalizedMass, _script.softnessAmount);
+            config.UpdateDimensions(_script.mainPhysicsHandler.normalizedMass, _script.softnessAmount);
             SyncSizeAuto();
         }
 
-        private void SyncHardColliderLength(ColliderConfigGroup config)
+        private void SyncHardColliderPosition(ColliderConfigGroup config)
         {
             if(!enabled)
             {
                 return;
             }
 
-            config.UpdateLength(_script.mainPhysicsHandler.normalizedMass, _script.softnessAmount);
-            SyncSizeAuto();
-        }
-
-        private void SyncHardColliderLookOffset(ColliderConfigGroup config)
-        {
-            if(!enabled)
-            {
-                return;
-            }
-
-            config.UpdateLookOffset(_script.mainPhysicsHandler.normalizedMass, _script.softnessAmount);
-            SyncSizeAuto();
-        }
-
-        private void SyncHardColliderUpOffset(ColliderConfigGroup config)
-        {
-            if(!enabled)
-            {
-                return;
-            }
-
-            config.UpdateUpOffset(_script.mainPhysicsHandler.normalizedMass, _script.softnessAmount);
-            SyncSizeAuto();
-        }
-
-        private void SyncHardColliderRightOffset(ColliderConfigGroup config)
-        {
-            if(!enabled)
-            {
-                return;
-            }
-
-            config.UpdateRightOffset(_script.mainPhysicsHandler.normalizedMass, _script.softnessAmount);
+            config.UpdatePosition(_script.mainPhysicsHandler.normalizedMass, _script.softnessAmount);
             SyncSizeAuto();
         }
 
@@ -392,11 +359,8 @@ namespace TittyMagic
             float softness = _script.softnessAmount;
             colliderConfigs.ForEach(config =>
             {
-                config.UpdateRadius(mass, softness);
-                config.UpdateLength(mass, softness);
-                config.UpdateLookOffset(mass, softness);
-                config.UpdateUpOffset(mass, softness);
-                config.UpdateRightOffset(mass, softness);
+                config.UpdateDimensions(mass, softness);
+                config.UpdatePosition(mass, softness);
             });
             SyncSizeAuto();
         }

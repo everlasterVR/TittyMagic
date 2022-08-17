@@ -66,39 +66,21 @@ namespace TittyMagic.Configs
             right.UpdateRigidbodyMass(DEFAULT_MASS);
         }
 
-        public void UpdateRadius(float massValue, float softness)
+        public void UpdateDimensions(float massValue, float softness)
         {
-            float radius = _radiusSliderScaler.Scale(radiusJsf.val, massValue, softness);
-            left.UpdateRadius(-radius);
-            right.UpdateRadius(-radius);
+            float radius = -_radiusSliderScaler.Scale(radiusJsf.val, massValue, softness);
+            float length = -_lengthSliderScaler.Scale(lengthJsf.val, massValue, softness);
+            left.UpdateDimensions(radius, length);
+            right.UpdateDimensions(radius, length);
         }
 
-        public void UpdateLength(float massValue, float softness)
-        {
-            float length = _lengthSliderScaler.Scale(lengthJsf.val, massValue, softness);
-            left.UpdateLength(-length);
-            right.UpdateLength(-length);
-        }
-
-        public void UpdateRightOffset(float massValue, float softness)
+        public void UpdatePosition(float massValue, float softness)
         {
             float rightOffset = _rightOffsetSliderScaler.Scale(rightJsf.val, massValue, softness);
-            left.UpdateRightOffset(-rightOffset);
-            right.UpdateRightOffset(rightOffset);
-        }
-
-        public void UpdateUpOffset(float massValue, float softness)
-        {
-            float up = _upOffsetSliderScaler.Scale(upJsf.val, massValue, softness);
-            left.UpdateUpOffset(-up);
-            right.UpdateUpOffset(-up);
-        }
-
-        public void UpdateLookOffset(float massValue, float softness)
-        {
-            float look = _lookOffsetSliderScaler.Scale(lookJsf.val, massValue, softness);
-            left.UpdateLookOffset(-look);
-            right.UpdateLookOffset(-look);
+            float upOffset = -_upOffsetSliderScaler.Scale(upJsf.val, massValue, softness);
+            float lookOffset = -_lookOffsetSliderScaler.Scale(lookJsf.val, massValue, softness);
+            left.UpdatePosition(-rightOffset, upOffset, lookOffset);
+            right.UpdatePosition(rightOffset, upOffset, lookOffset);
         }
 
         public void AutoColliderSizeSet()
@@ -138,29 +120,17 @@ namespace TittyMagic.Configs
         public void UpdateRigidbodyMass(float mass) =>
             collider.attachedRigidbody.mass = mass;
 
-        public void UpdateRadius(float offset)
+        public void UpdateDimensions(float radiusOffset, float lengthOffset)
         {
-            autoCollider.autoRadiusBuffer = offset;
+            autoCollider.autoRadiusBuffer = radiusOffset;
+            autoCollider.autoLengthBuffer = lengthOffset;
         }
 
-        public void UpdateLength(float offset)
+        public void UpdatePosition(float rightOffset, float upOffset, float lookOffset)
         {
-            autoCollider.autoLengthBuffer = offset;
-        }
-
-        public void UpdateRightOffset(float offset)
-        {
-            autoCollider.colliderRightOffset = offset;
-        }
-
-        public void UpdateUpOffset(float offset)
-        {
-            autoCollider.colliderUpOffset = offset;
-        }
-
-        public void UpdateLookOffset(float offset)
-        {
-            autoCollider.colliderLookOffset = offset;
+            autoCollider.colliderRightOffset = rightOffset;
+            autoCollider.colliderUpOffset = upOffset;
+            autoCollider.colliderLookOffset = lookOffset;
         }
 
         public void RestoreDefaults()

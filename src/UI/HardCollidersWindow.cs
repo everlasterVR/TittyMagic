@@ -244,7 +244,7 @@ namespace TittyMagic.UI
             colliderSectionElements[$"{storable.name}Spacer"] = script.NewSpacer(spacing, rightSide);
             var slider = script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
-            slider.label = "Radius";
+            slider.label = "Radius Offset";
             colliderSectionElements[storable.name] = slider;
         }
 
@@ -253,7 +253,7 @@ namespace TittyMagic.UI
             colliderSectionElements[$"{storable.name}Spacer"] = script.NewSpacer(spacing, rightSide);
             var slider = script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
-            slider.label = "Length";
+            slider.label = "Length Offset";
             colliderSectionElements[storable.name] = slider;
         }
 
