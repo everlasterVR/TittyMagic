@@ -368,20 +368,20 @@ namespace TittyMagic.UI
         }
 
         // ReSharper disable once UnusedMember.Global
-        public void UpdateCollidersDebugInfo(string configId)
+        public void UpdateCollidersDebugInfo()
         {
-            var debugColliderConfigGroup = script.hardColliderHandler.colliderConfigs.Find(config => config.id == configId);
-            var debugColliderConfig = debugColliderConfigGroup.left;
-            var capsuleCollider = (CapsuleCollider) debugColliderConfig.autoCollider.jointCollider;
-            var center = capsuleCollider.center;
-            var position = Calc.RelativePosition(debugColliderConfig.autoCollider.jointRB, center);
-            _colliderInfoText.val = $"{configId}" +
-                $"\n{Calc.RoundToDecimals(center.x, 1000f)}" +
-                $" {Calc.RoundToDecimals(center.y, 1000f)}" +
-                $" {Calc.RoundToDecimals(center.z, 1000f)}" +
-                $"\n{Calc.RoundToDecimals(position.x, 1000f)}" +
-                $" {Calc.RoundToDecimals(position.y, 1000f)}" +
-                $" {Calc.RoundToDecimals(position.z, 1000f)}";
+            string text = "";
+            var configs = script.hardColliderHandler.colliderConfigs;
+            for(int i = 0; i < configs.Count; i++)
+            {
+                var config = configs[i].left;
+                text +=
+                    $"\n Pectoral{i+1} radius {Calc.RoundToDecimals(config.autoCollider.colliderRadius, 1000f)}" +
+                    // $"\n height {Calc.RoundToDecimals(config.autoCollider.colliderLength, 1000f)}" +
+                    $"\n";
+            }
+
+            _colliderInfoText.val = text;
         }
     }
 }

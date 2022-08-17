@@ -356,7 +356,7 @@ namespace TittyMagic
                 var window = mainWindow?.GetActiveNestedWindow() as HardCollidersWindow;
                 if(window != null)
                 {
-                    window.UpdateCollidersDebugInfo("Pectoral1");
+                    window.UpdateCollidersDebugInfo();
                 }
 #endif
             }

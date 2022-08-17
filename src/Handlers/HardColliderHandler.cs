@@ -97,32 +97,31 @@ namespace TittyMagic
                     "Pectoral1", new Dictionary<string, Scaler>
                     {
                         { COLLISION_FORCE, new Scaler(
-                            offset: 0.018f,
-                            range: new float[] {0, 1},
-                            softnessCurve: x => -0.010f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
+                            offset: 0.020f,
+                            range: new float[] {0, 1}
                         ) },
                         { COLLIDER_RADIUS, new Scaler(
                             offset: -0.34f,
                             range: new float[] {0, 40},
-                            massCurve: x => 0.12f * Curves.InverseSmoothStep(x, 1.00f, 0.00f, 0.50f)
+                            massCurve: x => 0.27f * Curves.InverseSmoothStep(x, 1.00f, 0.00f, 0.50f)
                         ) },
                         { COLLIDER_LENGTH, new Scaler(
                             offset: 0.00f,
                             range: new float[] {0, 40}
                         ) },
                         { COLLIDER_CENTER_X, new Scaler(
-                            offset: -0.14f,
+                            offset: -0.10f,
                             range: new float[] {0, 40},
-                            massCurve: x => -0.32f * x
+                            massCurve: x => -0.32f * Curves.InverseSmoothStep(x, 1.00f, 0.00f, 0.50f)
                         ) },
                         { COLLIDER_CENTER_Y, new Scaler(
-                            offset: 0.00f,
-                            range: new float[] {0, 40}
+                            offset: 0.30f,
+                            range: new float[] {0, 40},
+                            massCurve: x => 0.38f * Curves.InverseSmoothStep(x, 1.00f, 0.00f, 0.50f)
                         ) },
                         { COLLIDER_CENTER_Z, new Scaler(
-                            offset: -0.23f,
-                            range: new float[] {0, 40},
-                            massCurve: x => -0.38f * Curves.InverseSmoothStep(x, 1.00f, 0.12f, 0.08f)
+                            offset: -0.25f,
+                            range: new float[] {0, 40}
                         ) },
                     }
                 },
@@ -130,32 +129,33 @@ namespace TittyMagic
                     "Pectoral2", new Dictionary<string, Scaler>
                     {
                         { COLLISION_FORCE, new Scaler(
-                            offset: 0.006f,
+                            offset: 0.030f,
                             range: new float[] {0, 1},
-                            softnessCurve: x => -0.010f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
+                            softnessCurve: x => -0.020f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
                         ) },
                         { COLLIDER_RADIUS, new Scaler(
-                            offset: -0.15f,
+                            offset: -0.65f,
                             range: new float[] {0, 40},
-                            massCurve: x => -0.30f * Curves.InverseSmoothStep(x, 1.00f, 0.00f, 0.50f)
+                            massCurve: x => -0.18f * Curves.InverseSmoothStep(x, 1.00f, 0.00f, 0.50f)
                         ) },
                         { COLLIDER_LENGTH, new Scaler(
                             offset: 0.00f,
                             range: new float[] {0, 40}
                         ) },
                         { COLLIDER_CENTER_X, new Scaler(
-                            offset: 0.37f,
+                            offset: 1.06f,
                             range: new float[] {0, 40},
-                            massCurve: x => -0.13f * x
+                            massCurve: x => 0.48f * Curves.InverseSmoothStep(x, 1.00f, 0.00f, 0.50f)
                         ) },
                         { COLLIDER_CENTER_Y, new Scaler(
-                            offset: 0.25f,
-                            range: new float[] {0, 40}
+                            offset: -0.15f,
+                            range: new float[] {0, 40},
+                            massCurve: x => -0.11f * Curves.InverseSmoothStep(x, 1.00f, 0.00f, 0.50f)
                         ) },
                         { COLLIDER_CENTER_Z, new Scaler(
-                            offset: -0.70f,
+                            offset: -0.80f,
                             range: new float[] {0, 40},
-                            massCurve: x => -0.18f * Curves.InverseSmoothStep(x, 1.00f, 0.40f, 0.06f)
+                            massCurve: x => 0.03f * Curves.InverseSmoothStep(x, 1.00f, 0.00f, 0.50f)
                         ) },
                     }
                 },
@@ -163,48 +163,14 @@ namespace TittyMagic
                     "Pectoral3", new Dictionary<string, Scaler>
                     {
                         { COLLISION_FORCE, new Scaler(
-                            offset: 0.060f,
+                            offset: 0.020f,
                             range: new float[] {0, 1},
-                            softnessCurve: x => -0.040f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
+                            softnessCurve: x => -0.020f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
                         ) },
                         { COLLIDER_RADIUS, new Scaler(
-                            offset: 0.42f,
+                            offset: -0.12f,
                             range: new float[] {0, 40},
-                            massCurve: x => -0.85f * x,
-                            softnessCurve: x => -0.22f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
-                        ) },
-                        { COLLIDER_LENGTH, new Scaler(
-                            offset: 0.00f,
-                            range: new float[] {0, 40}
-                        ) },
-                        { COLLIDER_CENTER_X, new Scaler(
-                            offset: 0.13f,
-                            range: new float[] {0, 40}
-                        ) },
-                        { COLLIDER_CENTER_Y, new Scaler(
-                            offset: 0.13f,
-                            range: new float[] {0, 40},
-                            massCurve: x => 0.25f * x
-                        ) },
-                        { COLLIDER_CENTER_Z, new Scaler(
-                            offset: -0.40f,
-                            range: new float[] {0, 40},
-                            softnessCurve: x => -0.30f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
-                        ) },
-                    }
-                },
-                {
-                    "Pectoral4", new Dictionary<string, Scaler>
-                    {
-                        { COLLISION_FORCE, new Scaler(
-                            offset: 0.006f,
-                            range: new float[] {0, 1},
-                            softnessCurve: x => -0.010f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
-                        ) },
-                        { COLLIDER_RADIUS, new Scaler(
-                            offset: 0.00f,
-                            range: new float[] {0, 40},
-                            massCurve: x => -0.30f * x
+                            massCurve: x => -1.07f * Curves.InverseSmoothStep(x, 1.00f, 0.38f, 0.08f)
                         ) },
                         { COLLIDER_LENGTH, new Scaler(
                             offset: 0.00f,
@@ -213,16 +179,51 @@ namespace TittyMagic
                         { COLLIDER_CENTER_X, new Scaler(
                             offset: -0.39f,
                             range: new float[] {0, 40},
-                            massCurve: x => 0.10f * x
+                            massCurve: x => -0.12f * Curves.InverseSmoothStep(x, 1.00f, 0.50f, 0.00f)
                         ) },
                         { COLLIDER_CENTER_Y, new Scaler(
+                            offset: 0.12f,
+                            range: new float[] {0, 40},
+                            massCurve: x => 0.30f * Curves.InverseSmoothStep(x, 1.00f, 0.00f, 0.08f)
+                        ) },
+                        { COLLIDER_CENTER_Z, new Scaler(
+                            offset: -0.30f,
+                            range: new float[] {0, 40},
+                            massCurve: x => -0.42f * Curves.InverseSmoothStep(x, 1.00f, 0.00f, 0.08f)
+                        ) },
+                    }
+                },
+                {
+                    "Pectoral4", new Dictionary<string, Scaler>
+                    {
+                        { COLLISION_FORCE, new Scaler(
+                            offset: 0.010f,
+                            range: new float[] {0, 1},
+                            softnessCurve: x => -0.020f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
+                        ) },
+                        { COLLIDER_RADIUS, new Scaler(
+                            offset: -0.18f,
+                            range: new float[] {0, 40},
+                            massCurve: x => -0.75f * Curves.InverseSmoothStep(x, 1.00f, 0.38f, 0.08f)
+                        ) },
+                        { COLLIDER_LENGTH, new Scaler(
                             offset: 0.00f,
                             range: new float[] {0, 40}
                         ) },
-                        { COLLIDER_CENTER_Z, new Scaler(
+                        { COLLIDER_CENTER_X, new Scaler(
+                            offset: -0.46f,
+                            range: new float[] {0, 40},
+                            massCurve: x => 0.42f * Curves.InverseSmoothStep(x, 1.00f, 0.38f, 0.08f)
+                        ) },
+                        { COLLIDER_CENTER_Y, new Scaler(
                             offset: -0.45f,
                             range: new float[] {0, 40},
-                            massCurve: x => -0.40f * x
+                            massCurve: x => 0.55f * Curves.InverseSmoothStep(x, 1.00f, 0.38f, 0.08f)
+                        ) },
+                        { COLLIDER_CENTER_Z, new Scaler(
+                            offset: -0.34f,
+                            range: new float[] {0, 40},
+                            massCurve: x => 0.12f * Curves.InverseSmoothStep(x, 1.00f, 0.00f, 0.50f)
                         ) },
                     }
                 },
@@ -230,32 +231,33 @@ namespace TittyMagic
                     "Pectoral5", new Dictionary<string, Scaler>
                     {
                         { COLLISION_FORCE, new Scaler(
-                            offset: -0.008f,
-                            range: new float[] {0, 1}
+                            offset: 0.030f,
+                            range: new float[] {0, 1},
+                            softnessCurve: x => -0.055f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
                         ) },
                         { COLLIDER_RADIUS, new Scaler(
-                            offset: -0.85f,
+                            offset: -0.50f,
                             range: new float[] {0, 40},
-                            massCurve: x => -1.00f * x
+                            massCurve: x => -1.35f * Curves.InverseSmoothStep(x, 1.00f, 0.38f, 0.08f)
                         ) },
                         { COLLIDER_LENGTH, new Scaler(
                             offset: 0.00f,
                             range: new float[] {0, 40}
                         ) },
                         { COLLIDER_CENTER_X, new Scaler(
-                            offset: -0.23f,
+                            offset: -0.24f,
                             range: new float[] {0, 40},
-                            massCurve: x => -0.80f * x
+                            massCurve: x => -0.85f * Curves.InverseSmoothStep(x, 1.00f, 0.38f, 0.08f)
                         ) },
                         { COLLIDER_CENTER_Y, new Scaler(
-                            offset: 1.02f,
+                            offset: 0.75f,
                             range: new float[] {0, 40},
-                            massCurve: x => 0.45f * x
+                            massCurve: x => 0.47f * Curves.InverseSmoothStep(x, 1.00f, 0.00f, 0.50f)
                         ) },
                         { COLLIDER_CENTER_Z, new Scaler(
-                            offset: -0.75f,
+                            offset: -0.16f,
                             range: new float[] {0, 40},
-                            massCurve: x => 0.05f * x
+                            massCurve: x => 0.13f * Curves.InverseSmoothStep(x, 1.00f, 0.00f, 0.50f)
                         ) },
                     }
                 },
