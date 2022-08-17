@@ -107,9 +107,8 @@ namespace TittyMagic
                             massCurve: x => 0.12f * Curves.InverseSmoothStep(x, 1.00f, 0.00f, 0.50f)
                         ) },
                         { COLLIDER_LENGTH, new Scaler(
-                            offset: 0.38f,
-                            range: new float[] {0, 40},
-                            massCurve: x => 0.08f * x
+                            offset: 0.00f,
+                            range: new float[] {0, 40}
                         ) },
                         { COLLIDER_CENTER_X, new Scaler(
                             offset: -0.14f,
@@ -141,9 +140,8 @@ namespace TittyMagic
                             massCurve: x => -0.30f * Curves.InverseSmoothStep(x, 1.00f, 0.00f, 0.50f)
                         ) },
                         { COLLIDER_LENGTH, new Scaler(
-                            offset: 0.20f,
-                            range: new float[] {0, 40},
-                            massCurve: x => 0.12f * x
+                            offset: 0.00f,
+                            range: new float[] {0, 40}
                         ) },
                         { COLLIDER_CENTER_X, new Scaler(
                             offset: 0.37f,
@@ -176,10 +174,8 @@ namespace TittyMagic
                             softnessCurve: x => -0.22f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
                         ) },
                         { COLLIDER_LENGTH, new Scaler(
-                            offset: -0.11f,
-                            range: new float[] {0, 40},
-                            massCurve: x => -0.85f * x,
-                            softnessCurve: x => -0.22f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
+                            offset: 0.00f,
+                            range: new float[] {0, 40}
                         ) },
                         { COLLIDER_CENTER_X, new Scaler(
                             offset: 0.13f,
@@ -211,9 +207,8 @@ namespace TittyMagic
                             massCurve: x => -0.30f * x
                         ) },
                         { COLLIDER_LENGTH, new Scaler(
-                            offset: -0.63f,
-                            range: new float[] {0, 40},
-                            massCurve: x => -0.85f * x
+                            offset: 0.00f,
+                            range: new float[] {0, 40}
                         ) },
                         { COLLIDER_CENTER_X, new Scaler(
                             offset: -0.39f,
@@ -244,9 +239,8 @@ namespace TittyMagic
                             massCurve: x => -1.00f * x
                         ) },
                         { COLLIDER_LENGTH, new Scaler(
-                            offset: -0.30f,
-                            range: new float[] {0, 40},
-                            massCurve: x => -1.00f * x
+                            offset: 0.00f,
+                            range: new float[] {0, 40}
                         ) },
                         { COLLIDER_CENTER_X, new Scaler(
                             offset: -0.23f,
@@ -287,7 +281,7 @@ namespace TittyMagic
             {
                 forceJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLISION_FORCE, 0.50f, 0.01f, 1.00f),
                 radiusJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_RADIUS, 0, -1f, 1f),
-                lengthJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_LENGTH, 0, -1f, 1f),
+                lengthJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_LENGTH, 0, 0f, 5f),
                 rightJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_X, 0, -1f, 1f),
                 upJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_Y, 0, -1f, 1f),
                 lookJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_Z, 0, -1f, 1f),

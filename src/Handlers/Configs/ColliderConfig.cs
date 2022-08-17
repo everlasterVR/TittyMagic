@@ -123,7 +123,7 @@ namespace TittyMagic.Configs
         public void UpdateDimensions(float radiusOffset, float lengthOffset)
         {
             autoCollider.autoRadiusBuffer = radiusOffset;
-            autoCollider.autoLengthBuffer = lengthOffset;
+            autoCollider.autoLengthBuffer = lengthOffset + 2 * radiusOffset;
         }
 
         public void UpdatePosition(float rightOffset, float upOffset, float lookOffset)
