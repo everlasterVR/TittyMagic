@@ -15,11 +15,11 @@ namespace TittyMagic.UI
         private readonly Transform _leftGroupTransform;
         private readonly Transform _rightGroupTransform;
 
-        public Tabs(Script script)
+        public Tabs(Script script, RectTransform leftUIContent, RectTransform rightUIContent)
         {
             _script = script;
-            _leftGroupTransform = UIHelpers.CreateHorizontalLayoutGroup(_script.GetLeftUIContent()).transform;
-            _rightGroupTransform = UIHelpers.CreateHorizontalLayoutGroup(_script.GetRightUIContent()).transform;
+            _leftGroupTransform = UIHelpers.CreateHorizontalLayoutGroup(leftUIContent).transform;
+            _rightGroupTransform = UIHelpers.CreateHorizontalLayoutGroup(rightUIContent).transform;
             _tabButtons = new Dictionary<IWindow, NavigationButton>();
         }
 

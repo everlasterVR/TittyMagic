@@ -125,6 +125,7 @@ namespace TittyMagic.UI
             {
                 sb.Append("Soft physics is not supported on a male character.");
             }
+
             var storable = new JSONStorableString("softPhysicsInfoText", sb.ToString());
             AddSpacer(storable.name, spacing, rightSide);
 

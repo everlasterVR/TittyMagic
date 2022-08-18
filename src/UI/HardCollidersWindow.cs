@@ -77,7 +77,7 @@ namespace TittyMagic.UI
             var slider = script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "Base Collision Force";
-            slider.AddSliderClickMonitor();
+            slider.AddPointerUpDownListener();
             elements[storable.name] = slider;
         }
 
@@ -234,7 +234,7 @@ namespace TittyMagic.UI
             var slider = script.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "Collision Force Multiplier";
-            slider.AddSliderClickMonitor();
+            slider.AddPointerUpDownListener();
             slider.AddListener((float value) => UpdateSliderColor(storable));
             colliderSectionElements[storable.name] = slider;
         }
@@ -328,7 +328,7 @@ namespace TittyMagic.UI
 
         public new void Clear()
         {
-            GetSliders().ForEach(slider => Object.Destroy(slider.GetSliderClickMonitor()));
+            GetSliders().ForEach(slider => Object.Destroy(slider.GetPointerUpDownListener()));
 
             base.Clear();
             ClearColliderSection();
@@ -354,7 +354,7 @@ namespace TittyMagic.UI
         private void ClearColliderSection()
         {
             GetColliderSectionSliders()
-                .ForEach(slider => Object.Destroy(slider.GetSliderClickMonitor()));
+                .ForEach(slider => Object.Destroy(slider.GetPointerUpDownListener()));
             colliderSectionElements
                 .ToList()
                 .ForEach(element => script.RemoveElement(element.Value));
@@ -376,7 +376,7 @@ namespace TittyMagic.UI
             {
                 var config = configs[i].left;
                 text +=
-                    $"\n Pectoral{i+1} radius {Calc.RoundToDecimals(config.autoCollider.colliderRadius, 1000f)}" +
+                    $"\n Pectoral{i + 1} radius {Calc.RoundToDecimals(config.autoCollider.colliderRadius, 1000f)}" +
                     // $"\n height {Calc.RoundToDecimals(config.autoCollider.colliderLength, 1000f)}" +
                     $"\n";
             }

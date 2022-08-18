@@ -85,6 +85,8 @@
     <Compile Include="src\AtomScaleListener.cs" />
     <Compile Include="src\BreastVolumeCalculator.cs" />
     <Compile Include="src\BreastMorphListener.cs" />
+    <Compile Include="src\Components\UnityEventsListener.cs" />
+    <Compile Include="src\Components\PointerUpDownListener.cs" />
     <Compile Include="src\Extensions\ArrayExtension.cs" />
     <Compile Include="src\Extensions\MVRScriptExtension.cs" />
     <Compile Include="src\Extensions\StringExtension.cs" />
@@ -123,7 +125,6 @@
     <Compile Include="src\UI\ParameterWindow.cs" />
     <Compile Include="src\UI\Tabs.cs" />
     <Compile Include="src\UI\PhysicsWindow.cs" />
-    <Compile Include="src\UI\SliderClickMonitor.cs" />
     <Compile Include="src\UI\UIHelpers.cs" />
     <Compile Include="src\UI\IWindow.cs" />
     <Compile Include="src\UI\WindowBase.cs" />

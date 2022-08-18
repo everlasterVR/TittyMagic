@@ -51,7 +51,7 @@ namespace TittyMagic
 
         private JSONStorableString _pluginVersionStorable;
 
-        public Tabs tabs;
+        private Tabs _tabs;
 
         // ReSharper disable MemberCanBePrivate.Global
         public IWindow mainWindow { get; private set; }
@@ -76,7 +76,69 @@ namespace TittyMagic
         private bool _refreshQueued;
         private bool _calibrating;
         private bool _animationWasSetFrozen;
-        private bool _uiOpenPrevFrame;
+
+        private UnityEventsListener _uiEventsListener;
+
+        public override void InitUI()
+        {
+            base.InitUI();
+            if(UITransform == null || _uiEventsListener != null)
+            {
+                return;
+            }
+
+            _uiEventsListener = UITransform.gameObject.AddComponent<UnityEventsListener>();
+            _uiEventsListener.onDisable.AddListener(OnUIClosed);
+            _uiEventsListener.onEnable.AddListener(OnUIOpened);
+        }
+
+        private void OnUIClosed()
+        {
+            var activeParameterWindow = _tabs.activeWindow?.GetActiveNestedWindow() as ParameterWindow;
+            var recalibrationAction = activeParameterWindow != null ? activeParameterWindow.recalibrationAction : recalibratePhysics;
+            RecalibrateOnNavigation(recalibrationAction);
+            colliderVisualizer.ShowPreviewsJSON.val = false;
+
+            try
+            {
+                colliderVisualizer.DestroyAllPreviews();
+            }
+            catch(Exception e)
+            {
+                LogError($"Failed to destroy collider visualizer previews. {e}");
+            }
+
+            try
+            {
+                mainWindow.GetActiveNestedWindow()?.ClosePopups();
+            }
+            catch(Exception e)
+            {
+                LogError($"Failed to close popups in collider configuration window. {e}");
+            }
+        }
+
+        private void OnUIOpened()
+        {
+            var background = rightUIContent.parent.parent.parent.transform.GetComponent<Image>();
+            background.color = new Color(0.85f, 0.85f, 0.85f);
+
+            softPhysicsHandler.ReverseSyncSoftPhysicsOn();
+            softPhysicsHandler.ReverseSyncSyncAllowSelfCollision();
+
+            if(_tabs.activeWindow == mainWindow)
+            {
+                if(mainWindow.GetActiveNestedWindow() != null)
+                {
+                    colliderVisualizer.ShowPreviewsJSON.val = true;
+                }
+            }
+            else if(_tabs.activeWindow == physicsWindow)
+            {
+                var parameterWindow = physicsWindow.GetActiveNestedWindow() as ParameterWindow;
+                parameterWindow?.SyncAllMultiplierSliderValues();
+            }
+        }
 
         public override void Init()
         {
@@ -190,8 +252,6 @@ namespace TittyMagic
             {
                 initDone = true;
             }
-
-            SuperController.singleton.onAtomRemovedHandlers += OnRemoveAtom;
 
             StartCoroutine(SubscribeToKeybindings());
             StartCoroutine(DeferSetPluginVersion());
@@ -333,32 +393,30 @@ namespace TittyMagic
 
         private void CreateNavigation()
         {
-            tabs = new Tabs(this);
-            tabs.CreateNavigationButton(mainWindow, "Control", NavigateToMainWindow);
-            tabs.CreateNavigationButton(physicsWindow, "Physics Params", NavigateToPhysicsWindow);
-            tabs.CreateNavigationButton(morphingWindow, "Morph Multipliers", NavigateToMorphingWindow);
-            tabs.CreateNavigationButton(gravityWindow, "Gravity Multipliers", NavigateToGravityWindow);
+            _tabs = new Tabs(this, leftUIContent, rightUIContent);
+            _tabs.CreateNavigationButton(mainWindow, "Control", NavigateToMainWindow);
+            _tabs.CreateNavigationButton(physicsWindow, "Physics Params", NavigateToPhysicsWindow);
+            _tabs.CreateNavigationButton(morphingWindow, "Morph Multipliers", NavigateToMorphingWindow);
+            _tabs.CreateNavigationButton(gravityWindow, "Gravity Multipliers", NavigateToGravityWindow);
         }
 
         private void NavigateToWindow(IWindow window)
         {
-            tabs.activeWindow?.Clear();
-            tabs.ActivateTab(window);
+            _tabs.activeWindow?.Clear();
+            _tabs.ActivateTab(window);
             window.Rebuild();
         }
 
+#if DEBUG_ON
         private void Update()
         {
             try
             {
-                CheckUIOpenedOrClosed();
-#if DEBUG_ON
                 var window = mainWindow?.GetActiveNestedWindow() as HardCollidersWindow;
                 if(window != null)
                 {
                     window.UpdateCollidersDebugInfo();
                 }
-#endif
             }
             catch(Exception e)
             {
@@ -366,76 +424,7 @@ namespace TittyMagic
                 enabled = false;
             }
         }
-
-        private void CheckUIOpenedOrClosed()
-        {
-            bool uiOpen = UITransform.gameObject.activeInHierarchy;
-            if(uiOpen && !_uiOpenPrevFrame)
-            {
-                StartCoroutine(ActionsOnUIOpened());
-            }
-            else if(!uiOpen && _uiOpenPrevFrame)
-            {
-                ActionsOnUIClosed();
-            }
-
-            _uiOpenPrevFrame = uiOpen;
-        }
-
-        private IEnumerator ActionsOnUIOpened()
-        {
-            yield return new WaitForEndOfFrame();
-
-            var background = rightUIContent.parent.parent.parent.transform.GetComponent<Image>();
-            background.color = new Color(0.85f, 0.85f, 0.85f);
-
-            while(tabs?.activeWindow == null)
-            {
-                yield return null;
-            }
-
-            softPhysicsHandler.ReverseSyncSoftPhysicsOn();
-            softPhysicsHandler.ReverseSyncSyncAllowSelfCollision();
-
-            if(tabs.activeWindow == mainWindow)
-            {
-                if(mainWindow.GetActiveNestedWindow() != null)
-                {
-                    colliderVisualizer.ShowPreviewsJSON.val = true;
-                }
-            }
-            else if(tabs.activeWindow == physicsWindow)
-            {
-                var parameterWindow = physicsWindow.GetActiveNestedWindow() as ParameterWindow;
-                parameterWindow?.SyncAllMultiplierSliderValues();
-            }
-        }
-
-        private void ActionsOnUIClosed()
-        {
-            var activeParameterWindow = tabs.activeWindow?.GetActiveNestedWindow() as ParameterWindow;
-            var recalibrationAction = activeParameterWindow != null ? activeParameterWindow.recalibrationAction : recalibratePhysics;
-            RecalibrateOnNavigation(recalibrationAction);
-            colliderVisualizer.ShowPreviewsJSON.val = false;
-
-            try
-            {
-                colliderVisualizer.DestroyAllPreviews();
-            }
-            catch(Exception e)
-            {
-                LogError($"Failed to destroy collider visualizer previews. {e}");
-            }
-
-            try
-            {
-                mainWindow.GetActiveNestedWindow()?.ClosePopups();
-            }
-            catch(Exception e)
-            {
-                LogError($"Failed to close popups in collider configuration window. {e}");
-            }
-        }
+#endif
 
         public void RecalibrateOnNavigation(JSONStorableAction recalibrationAction)
         {
@@ -690,11 +679,9 @@ namespace TittyMagic
             {
                 yield return hardColliderHandler.SyncAll();
             }
+
             _calibrating = false;
         }
-
-        public RectTransform GetLeftUIContent() => leftUIContent;
-        public RectTransform GetRightUIContent() => rightUIContent;
 
         private string GetMorphsPath()
         {
@@ -720,6 +707,7 @@ namespace TittyMagic
             {
                 jsonClass["originalSoftPhysics"] = softPhysicsHandler.GetOriginalsJSON();
             }
+
             jsonClass["originalHardColliders"] = hardColliderHandler.GetOriginalsJSON();
 
             needsStore = true;
@@ -781,19 +769,6 @@ namespace TittyMagic
             calculateBreastMass.actionCallback();
         }
 
-        private void OnRemoveAtom(Atom atom)
-        {
-            if(atom != containingAtom)
-            {
-                return;
-            }
-
-            Destroy(settingsMonitor);
-            Destroy(colliderVisualizer);
-            Destroy(hardColliderHandler);
-            DestroyAllSliderClickMonitors();
-        }
-
         private void OnDestroy()
         {
             try
@@ -801,21 +776,16 @@ namespace TittyMagic
                 Destroy(settingsMonitor);
                 Destroy(colliderVisualizer);
                 Destroy(hardColliderHandler);
-                DestroyAllSliderClickMonitors();
-                SuperController.singleton.onAtomRemovedHandlers -= OnRemoveAtom;
+                mainWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
+                morphingWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
+                gravityWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
+                DestroyImmediate(_uiEventsListener);
                 SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
             }
             catch(Exception e)
             {
                 LogError($"OnDestroy: {e}");
             }
-        }
-
-        private void DestroyAllSliderClickMonitors()
-        {
-            mainWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
-            morphingWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
-            gravityWindow.GetSliders().ForEach(slider => Destroy(slider.GetSliderClickMonitor()));
         }
 
         public void OnEnable()

@@ -103,7 +103,7 @@ namespace TittyMagic.UI
             slider.label = "Breast Mass Offset";
 
             slider.AddListener((float _) => script.StartRefreshCoroutine(refreshMass: true, waitForListeners: true));
-            slider.AddSliderClickMonitor();
+            slider.AddPointerUpDownListener();
 
             elements[storable.name] = slider;
         }
@@ -162,7 +162,7 @@ namespace TittyMagic.UI
             slider.valueFormat = "F0";
             slider.slider.wholeNumbers = true;
             slider.label = "Breast Softness";
-            slider.AddSliderClickMonitor();
+            slider.AddPointerUpDownListener();
             elements[storable.name] = slider;
         }
 
@@ -175,7 +175,7 @@ namespace TittyMagic.UI
             slider.valueFormat = "F0";
             slider.slider.wholeNumbers = true;
             slider.label = "Breast Quickness";
-            slider.AddSliderClickMonitor();
+            slider.AddPointerUpDownListener();
             elements[storable.name] = slider;
         }
 
@@ -205,7 +205,8 @@ namespace TittyMagic.UI
             button.label = "  Configure Hard Colliders...";
             button.height = 52;
 
-            storable.actionCallback = () => {
+            storable.actionCallback = () =>
+            {
                 ClearSelf();
                 activeNestedWindow = nestedWindows.First();
                 activeNestedWindow.Rebuild();

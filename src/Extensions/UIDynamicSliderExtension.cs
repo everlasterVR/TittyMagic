@@ -2,22 +2,22 @@ using TittyMagic.UI;
 
 public static class UIDynamicSliderExtension
 {
-    public static void AddSliderClickMonitor(this UIDynamicSlider uiDynamicSlider) =>
-        uiDynamicSlider.slider.gameObject.AddComponent<SliderClickMonitor>();
+    public static void AddPointerUpDownListener(this UIDynamicSlider uiDynamicSlider) =>
+        uiDynamicSlider.slider.gameObject.AddComponent<PointerUpDownListener>();
 
-    public static SliderClickMonitor GetSliderClickMonitor(this UIDynamicSlider uiDynamicSlider)
+    public static PointerUpDownListener GetPointerUpDownListener(this UIDynamicSlider uiDynamicSlider)
     {
         if(uiDynamicSlider == null || uiDynamicSlider.slider == null)
         {
             return null;
         }
 
-        return uiDynamicSlider.slider.gameObject.GetComponent<SliderClickMonitor>();
+        return uiDynamicSlider.slider.gameObject.GetComponent<PointerUpDownListener>();
     }
 
     public static bool IsClickDown(this UIDynamicSlider uiDynamicSlider)
     {
-        var sliderClickMonitor = uiDynamicSlider.GetSliderClickMonitor();
+        var sliderClickMonitor = uiDynamicSlider.GetPointerUpDownListener();
         return sliderClickMonitor != null && sliderClickMonitor.isDown;
     }
 }
