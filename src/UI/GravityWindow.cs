@@ -10,29 +10,28 @@ namespace TittyMagic.UI
     {
         public GravityWindow(Script script) : base(script)
         {
-            buildAction = BuildSelf;
-            closeAction = ActionsOnClose;
-        }
+            buildAction = () =>
+            {
+                CreateBreastGravityHeader(false);
+                CreateGravityPhysicsInfoTextArea(false);
 
-        private void BuildSelf()
-        {
-            CreateBreastGravityHeader(false);
-            CreateGravityPhysicsInfoTextArea(false);
+                CreateRecalibrateButton(script.recalibratePhysics, true);
+                CreateBaseMultiplierSlider(script.gravityPhysicsHandler.baseJsf, true, spacing: 5);
+                CreateMultiplierSlider(script.gravityPhysicsHandler.upJsf, "Up", true, spacing: 5);
+                CreateMultiplierSlider(script.gravityPhysicsHandler.downJsf, "Down", true);
+                CreateMultiplierSlider(script.gravityPhysicsHandler.forwardJsf, "Forward", true);
+                CreateMultiplierSlider(script.gravityPhysicsHandler.backJsf, "Back", true);
+                CreateMultiplierSlider(script.gravityPhysicsHandler.leftRightJsf, "Left / Right", true);
 
-            CreateRecalibrateButton(script.recalibratePhysics, true);
-            CreateBaseMultiplierSlider(script.gravityPhysicsHandler.baseJsf, true, spacing: 5);
-            CreateMultiplierSlider(script.gravityPhysicsHandler.upJsf, "Up", true, spacing: 5);
-            CreateMultiplierSlider(script.gravityPhysicsHandler.downJsf, "Down", true);
-            CreateMultiplierSlider(script.gravityPhysicsHandler.forwardJsf, "Forward", true);
-            CreateMultiplierSlider(script.gravityPhysicsHandler.backJsf, "Back", true);
-            CreateMultiplierSlider(script.gravityPhysicsHandler.leftRightJsf, "Left / Right", true);
+                CreateOtherSettingsHeader(false);
+                CreateOffsetMorphingSlider(false);
+                CreateOffsetMorphingInfoTextArea(true, spacing: 50);
 
-            CreateOtherSettingsHeader(false);
-            CreateOffsetMorphingSlider(false);
-            CreateOffsetMorphingInfoTextArea(true, spacing: 50);
+                elements[script.gravityPhysicsHandler.baseJsf.name].AddListener(UpdateAllSliderColors);
+                UpdateAllSliderColors(0);
+            };
 
-            elements[script.gravityPhysicsHandler.baseJsf.name].AddListener(UpdateAllSliderColors);
-            UpdateAllSliderColors(0);
+            closeAction = () => script.RecalibrateOnNavigation(script.recalibratePhysics);
         }
 
         private void CreateBreastGravityHeader(bool rightSide)
@@ -126,8 +125,5 @@ namespace TittyMagic.UI
             value <= 1
                 ? Color.Lerp(new Color(1, 1, 1, 0.25f), Color.white, value)
                 : Color.Lerp(Color.white, new Color(1.0f, 0.2f, 0.2f), (value - 1) / 3);
-
-        private void ActionsOnClose() =>
-            script.RecalibrateOnNavigation(script.recalibratePhysics);
     }
 }

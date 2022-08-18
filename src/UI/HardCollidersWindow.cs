@@ -17,8 +17,33 @@ namespace TittyMagic.UI
 
         public HardCollidersWindow(Script script, UnityAction onReturnToParent) : base(script)
         {
-            buildAction = BuildSelf;
-            closeAction = ActionsOnClose;
+            buildAction = () =>
+            {
+                CreateBackButton(false);
+                elements["backButton"].AddListener(_returnToParent);
+                CreateTitle(false);
+                CreateColliderGroupChooser(true);
+
+                CreateBaseCollisionForceSlider(false, spacing: 8);
+
+                CreateScalingInfoTextArea(false, spacing: 10);
+
+                CreateShowHardCollidersChooser(false, spacing: 10);
+                CreateXRayVisualizationToggle(false);
+                CreateHighlightAllToggle(false);
+                AddShowPreviewsPopupChangeHandler();
+
+                script.colliderVisualizer.enabled = true;
+                script.colliderVisualizer.ShowPreviewsJSON.val = true;
+                AddColliderPopupChangeHandler();
+            };
+
+            closeAction = () =>
+            {
+                script.colliderVisualizer.ShowPreviewsJSON.val = false;
+                script.colliderVisualizer.enabled = false;
+            };
+
             colliderSectionElements = new Dictionary<string, UIDynamic>();
 
             _returnToParent = () =>
@@ -27,27 +52,6 @@ namespace TittyMagic.UI
                 onReturnToParent();
             };
             _colliderInfoText = new JSONStorableString("colliderInfoText", "");
-        }
-
-        private void BuildSelf()
-        {
-            CreateBackButton(false);
-            elements["backButton"].AddListener(_returnToParent);
-            CreateTitle(false);
-            CreateColliderGroupChooser(true);
-
-            CreateBaseCollisionForceSlider(false, spacing: 8);
-
-            CreateScalingInfoTextArea(false, spacing: 10);
-
-            CreateShowHardCollidersChooser(false, spacing: 10);
-            CreateXRayVisualizationToggle(false);
-            CreateHighlightAllToggle(false);
-            AddShowPreviewsPopupChangeHandler();
-
-            script.colliderVisualizer.enabled = true;
-            script.colliderVisualizer.ShowPreviewsJSON.val = true;
-            AddColliderPopupChangeHandler();
         }
 
         private void CreateTitle(bool rightSide)
@@ -359,12 +363,6 @@ namespace TittyMagic.UI
                 .ToList()
                 .ForEach(element => script.RemoveElement(element.Value));
             colliderSectionElements.Clear();
-        }
-
-        private void ActionsOnClose()
-        {
-            script.colliderVisualizer.ShowPreviewsJSON.val = false;
-            script.colliderVisualizer.enabled = false;
         }
 
         // ReSharper disable once UnusedMember.Global

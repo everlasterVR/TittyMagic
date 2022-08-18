@@ -9,27 +9,25 @@ namespace TittyMagic.UI
     {
         public MorphingWindow(Script script) : base(script)
         {
-            buildAction = BuildSelf;
-        }
+            buildAction = () =>
+            {
+                CreateForceMorphingHeader(false);
+                CreateMorphingInfoTextArea(false);
 
-        private void BuildSelf()
-        {
-            CreateForceMorphingHeader(false);
-            CreateMorphingInfoTextArea(false);
+                CreateBaseMultiplierSlider(script.forceMorphHandler.baseJsf, true, spacing: 72);
+                CreateMultiplierSlider(script.forceMorphHandler.upJsf, "Up", true, spacing: 5);
+                CreateMultiplierSlider(script.forceMorphHandler.downJsf, "Down", true);
+                CreateMultiplierSlider(script.forceMorphHandler.forwardJsf, "Forward", true);
+                CreateMultiplierSlider(script.forceMorphHandler.backJsf, "Back", true);
+                CreateMultiplierSlider(script.forceMorphHandler.leftRightJsf, "Left / Right", true);
 
-            CreateBaseMultiplierSlider(script.forceMorphHandler.baseJsf, true, spacing: 72);
-            CreateMultiplierSlider(script.forceMorphHandler.upJsf, "Up", true, spacing: 5);
-            CreateMultiplierSlider(script.forceMorphHandler.downJsf, "Down", true);
-            CreateMultiplierSlider(script.forceMorphHandler.forwardJsf, "Forward", true);
-            CreateMultiplierSlider(script.forceMorphHandler.backJsf, "Back", true);
-            CreateMultiplierSlider(script.forceMorphHandler.leftRightJsf, "Left / Right", true);
+                CreateOtherSettingsHeader(false);
+                CreateNippleErectionSlider(false);
+                CreateNippleErectionInfoTextArea(true, spacing: 50);
 
-            CreateOtherSettingsHeader(false);
-            CreateNippleErectionSlider(false);
-            CreateNippleErectionInfoTextArea(true, spacing: 50);
-
-            elements[script.forceMorphHandler.baseJsf.name].AddListener(UpdateAllSliderColors);
-            UpdateAllSliderColors(0);
+                elements[script.forceMorphHandler.baseJsf.name].AddListener(UpdateAllSliderColors);
+                UpdateAllSliderColors(0);
+            };
         }
 
         private void CreateForceMorphingHeader(bool rightSide)

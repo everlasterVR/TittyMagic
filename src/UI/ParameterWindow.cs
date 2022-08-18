@@ -23,8 +23,38 @@ namespace TittyMagic.UI
             this.id = id;
             _parameterGroup = parameterGroup;
             _parameter = _parameterGroup.left;
-            buildAction = BuildSelf;
-            closeAction = ActionsOnClose;
+
+            buildAction = () =>
+            {
+                CreateBackButton(false);
+                elements["backButton"].AddListener(_returnToParent);
+                if(_parameterGroup.requiresRecalibration)
+                {
+                    CreateRecalibrateButton(recalibrationAction, true);
+                }
+                else
+                {
+                    AddSpacer("upperRightSpacer", 50, true);
+                }
+
+                CreateTitle(false);
+                CreateApplyOnlyToLeftBreastToggle(true);
+
+                CreateInfoTextArea(false);
+                CreateOffsetSlider(true, spacing: 10);
+                CreateCurrentValueSlider(true);
+
+                if(_parameter.groupMultiplierParams != null)
+                {
+                    CreateColliderGroupSection(SoftColliderGroup.MAIN, false);
+                    CreateColliderGroupSection(SoftColliderGroup.OUTER, true);
+                    CreateColliderGroupSection(SoftColliderGroup.AREOLA, false);
+                    CreateColliderGroupSection(SoftColliderGroup.NIPPLE, true);
+                }
+            };
+
+            closeAction = () => script.RecalibrateOnNavigation(recalibrationAction);
+
             recalibrationAction = new JSONStorableAction("recalibrationAction",
                 () =>
                 {
@@ -38,40 +68,12 @@ namespace TittyMagic.UI
                         script.recalibratePhysics.actionCallback();
                     }
                 });
+
             _returnToParent = () =>
             {
                 Clear();
                 onReturnToParent();
             };
-        }
-
-        private void BuildSelf()
-        {
-            CreateBackButton(false);
-            elements["backButton"].AddListener(_returnToParent);
-            if(_parameterGroup.requiresRecalibration)
-            {
-                CreateRecalibrateButton(recalibrationAction, true);
-            }
-            else
-            {
-                AddSpacer("upperRightSpacer", 50, true);
-            }
-
-            CreateTitle(false);
-            CreateApplyOnlyToLeftBreastToggle(true);
-
-            CreateInfoTextArea(false);
-            CreateOffsetSlider(true, spacing: 10);
-            CreateCurrentValueSlider(true);
-
-            if(_parameter.groupMultiplierParams != null)
-            {
-                CreateColliderGroupSection(SoftColliderGroup.MAIN, false);
-                CreateColliderGroupSection(SoftColliderGroup.OUTER, true);
-                CreateColliderGroupSection(SoftColliderGroup.AREOLA, false);
-                CreateColliderGroupSection(SoftColliderGroup.NIPPLE, true);
-            }
         }
 
         private void CreateTitle(bool rightSide)
@@ -222,8 +224,5 @@ namespace TittyMagic.UI
 
             return label;
         }
-
-        private void ActionsOnClose()
-            => script.RecalibrateOnNavigation(recalibrationAction);
     }
 }

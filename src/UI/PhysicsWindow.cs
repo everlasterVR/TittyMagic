@@ -14,74 +14,71 @@ namespace TittyMagic.UI
 
         public PhysicsWindow(Script script) : base(script)
         {
-            buildAction = BuildSelf;
-            CreateParameterWindows();
-        }
+            buildAction = () =>
+            {
+                CreateHeader(
+                    new JSONStorableString("mainPhysicsParamsHeader", ""),
+                    "Joint Physics Parameters",
+                    false
+                );
+                CreateJointPhysicsInfoTextArea(false);
 
-        private void CreateParameterWindows()
-        {
-            nestedWindows.Add(
-                new ParameterWindow(
-                    script,
-                    ParamName.MASS,
-                    script.mainPhysicsHandler.massParameterGroup,
-                    onReturnToParent
-                )
-            );
-            foreach(var kvp in script.mainPhysicsHandler.parameterGroups)
+                CreateParamButton(ParamName.MASS, script.mainPhysicsHandler.massParameterGroup, false);
+                script.mainPhysicsHandler?.parameterGroups.ToList()
+                    .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, false));
+
+                CreateHeader(
+                    new JSONStorableString("softPhysicsParamsHeader", ""),
+                    "Soft Physics Parameters",
+                    true
+                );
+                CreateSoftPhysicsInfoTextArea(true);
+                CreateSoftPhysicsOnToggle(true);
+
+                if(Gender.isFemale)
+                {
+                    CreateAllowSelfCollisionToggle(true);
+                    script.softPhysicsHandler.parameterGroups.ToList()
+                        .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, true));
+                }
+            };
+
+            /* Create parameter windows */
             {
                 nestedWindows.Add(
                     new ParameterWindow(
                         script,
-                        kvp.Key,
-                        script.mainPhysicsHandler.parameterGroups[kvp.Key],
+                        ParamName.MASS,
+                        script.mainPhysicsHandler.massParameterGroup,
                         onReturnToParent
                     )
                 );
-            }
-
-            if(Gender.isFemale)
-            {
-                foreach(var kvp in script.softPhysicsHandler.parameterGroups)
+                foreach(var kvp in script.mainPhysicsHandler.parameterGroups)
                 {
                     nestedWindows.Add(
                         new ParameterWindow(
                             script,
                             kvp.Key,
-                            script.softPhysicsHandler.parameterGroups[kvp.Key],
+                            script.mainPhysicsHandler.parameterGroups[kvp.Key],
                             onReturnToParent
                         )
                     );
                 }
-            }
-        }
 
-        private void BuildSelf()
-        {
-            CreateHeader(
-                new JSONStorableString("mainPhysicsParamsHeader", ""),
-                "Joint Physics Parameters",
-                false
-            );
-            CreateJointPhysicsInfoTextArea(false);
-
-            CreateParamButton(ParamName.MASS, script.mainPhysicsHandler.massParameterGroup, false);
-            script.mainPhysicsHandler?.parameterGroups.ToList()
-                .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, false));
-
-            CreateHeader(
-                new JSONStorableString("softPhysicsParamsHeader", ""),
-                "Soft Physics Parameters",
-                true
-            );
-            CreateSoftPhysicsInfoTextArea(true);
-            CreateSoftPhysicsOnToggle(true);
-
-            if(Gender.isFemale)
-            {
-                CreateAllowSelfCollisionToggle(true);
-                script.softPhysicsHandler.parameterGroups.ToList()
-                    .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, true));
+                if(Gender.isFemale)
+                {
+                    foreach(var kvp in script.softPhysicsHandler.parameterGroups)
+                    {
+                        nestedWindows.Add(
+                            new ParameterWindow(
+                                script,
+                                kvp.Key,
+                                script.softPhysicsHandler.parameterGroups[kvp.Key],
+                                onReturnToParent
+                            )
+                        );
+                    }
+                }
             }
         }
 

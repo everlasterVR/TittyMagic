@@ -12,9 +12,31 @@ namespace TittyMagic.UI
 
         public MainWindow(Script script) : base(script)
         {
-            buildAction = BuildSelf;
+            buildAction = () =>
+            {
+                CreateTitleTextField(false);
+                CreateSoftnessInfoTextField(false, spacing: 35);
+                CreateQuicknessInfoTextField(false);
+                CreateBreastMassInfoTextField(false, spacing: 10);
+
+                CreateRecalibrateButton(script.recalibratePhysics, true);
+                CreateSoftnessSlider(true, spacing: 65);
+                CreateQuicknessSlider(true);
+                CreateRecalibrateButton(script.calculateBreastMass, true, spacing: 15);
+                CreateAutoUpdateMassToggle(true);
+                CreateMassOffsetSlider(true);
+                CreateMassSlider(true);
+
+                if(Gender.isFemale)
+                {
+                    CreateHardCollidersInfoTextField(false, spacing: 10);
+                    CreateConfigureHardCollidersButton(true, spacing: 15);
+                }
+            };
+
             _title = new JSONStorableString("title", "");
             _massParameter = script.mainPhysicsHandler.massParameterGroup.left;
+
             if(Gender.isFemale)
             {
                 nestedWindows.Add(new HardCollidersWindow(
@@ -25,28 +47,6 @@ namespace TittyMagic.UI
                         buildAction();
                     }
                 ));
-            }
-        }
-
-        private void BuildSelf()
-        {
-            CreateTitleTextField(false);
-            CreateSoftnessInfoTextField(false, spacing: 35);
-            CreateQuicknessInfoTextField(false);
-            CreateBreastMassInfoTextField(false, spacing: 10);
-
-            CreateRecalibrateButton(script.recalibratePhysics, true);
-            CreateSoftnessSlider(true, spacing: 65);
-            CreateQuicknessSlider(true);
-            CreateRecalibrateButton(script.calculateBreastMass, true, spacing: 15);
-            CreateAutoUpdateMassToggle(true);
-            CreateMassOffsetSlider(true);
-            CreateMassSlider(true);
-
-            if(Gender.isFemale)
-            {
-                CreateHardCollidersInfoTextField(false, spacing: 10);
-                CreateConfigureHardCollidersButton(true, spacing: 15);
             }
         }
 

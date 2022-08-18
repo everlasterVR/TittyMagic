@@ -29,11 +29,8 @@ namespace TittyMagic.UI
         {
             _uiDynamicButton.textColor = Color.white;
             _uiDynamicButton.buttonColor = darkerGray;
-            SetInteractableStyle();
-        }
 
-        private void SetInteractableStyle()
-        {
+            /* Set interactable style */
             var colors = _uiDynamicButton.button.colors;
             colors.highlightedColor = defaultBtnHighlightedColor;
             colors.pressedColor = defaultBtnPressedColor;

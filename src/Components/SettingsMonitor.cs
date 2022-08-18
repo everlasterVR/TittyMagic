@@ -40,12 +40,8 @@ namespace TittyMagic
             }
 
             _fixedDeltaTime = Time.fixedDeltaTime;
-            FixInOut();
-        }
 
-        // prevents breasts being flattened due to breastInOut morphs on scene load with plugin already present
-        private void FixInOut()
-        {
+            /* prevent breasts being flattened due to breastInOut morphs on scene load with plugin already present */
             _breastInOut.SetBoolParamValue("enabled", true);
             _breastInOut.SetBoolParamValue("enabled", false);
         }
@@ -69,11 +65,107 @@ namespace TittyMagic
                     LogMessage("Advanced Colliders enabled - they are necessary for directional force morphing and hard colliders to work.");
                 }
 
-                CheckSoftPhysicsEnabledChanged();
+                /* Check if soft physics was toggled */
+                {
+                    bool breastSoftPhysicsOn = _breastPhysicsMesh.on;
+                    bool atomSoftPhysicsOn = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
+                    bool globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
+
+                    string location = LocationWhereStillDisabled(breastSoftPhysicsOn, atomSoftPhysicsOn, globalSoftPhysicsOn);
+                    if(!string.IsNullOrEmpty(location))
+                    {
+                        LogMessage($"Soft Physics is still disabled in {location}");
+                    }
+
+                    bool refreshNeeded = false;
+                    bool value = globalSoftPhysicsOn && atomSoftPhysicsOn && breastSoftPhysicsOn;
+                    if(value != softPhysicsEnabled)
+                    {
+                        refreshNeeded = true;
+                    }
+
+                    _breastSoftPhysicsOn = breastSoftPhysicsOn;
+                    _atomSoftPhysicsOn = atomSoftPhysicsOn;
+                    _globalSoftPhysicsOn = globalSoftPhysicsOn;
+
+                    if(refreshNeeded)
+                    {
+                        _script.StartRefreshCoroutine(refreshMass: false, waitForListeners: false);
+                    }
+                }
             }
 
-            CheckFixedDeltaTimeChanged();
+            /* Check if delta time chaned */
+            {
+                float value = Time.fixedDeltaTime;
+                if(Math.Abs(value - _fixedDeltaTime) > 0.001f)
+                {
+                    _script.mainPhysicsHandler.UpdateRateDependentPhysics();
+                    _script.softPhysicsHandler.UpdateRateDependentPhysics();
+                    _script.hardColliderHandler.SyncHardCollidersBaseMass();
+                }
+
+                _fixedDeltaTime = value;
+            }
+
             return true;
+        }
+
+        private string LocationWhereStillDisabled(bool breastSoftPhysicsOn, bool atomSoftPhysicsOn, bool globalSoftPhysicsOn)
+        {
+            if(breastSoftPhysicsOn && !_breastSoftPhysicsOn)
+            {
+                if(!atomSoftPhysicsOn && !globalSoftPhysicsOn)
+                {
+                    return "Control & Physics 1 and in User Preferences";
+                }
+
+                if(!atomSoftPhysicsOn)
+                {
+                    return "Control & Physics 1";
+                }
+
+                if(!globalSoftPhysicsOn)
+                {
+                    return "User Preferences";
+                }
+            }
+            else if(atomSoftPhysicsOn && !_atomSoftPhysicsOn)
+            {
+                if(!breastSoftPhysicsOn && !globalSoftPhysicsOn)
+                {
+                    return "the plugin UI and in User Preferences";
+                }
+
+                if(!breastSoftPhysicsOn)
+                {
+                    return "the plugin UI";
+                }
+
+                if(!globalSoftPhysicsOn)
+                {
+                    return "User Preferences";
+                }
+            }
+            else if(globalSoftPhysicsOn && !_globalSoftPhysicsOn)
+            {
+                if(!breastSoftPhysicsOn && !atomSoftPhysicsOn)
+                {
+                    return "the plugin UI and in Control & Physics 1";
+                }
+
+                if(!breastSoftPhysicsOn)
+                {
+                    return "the plugin UI";
+                }
+
+                if(!atomSoftPhysicsOn)
+                {
+                    return "Control & Physics 1";
+                }
+            }
+
+            return null;
         }
 
         private void Update()
@@ -86,99 +178,6 @@ namespace TittyMagic
             {
                 LogError($"{e}", nameof(SettingsMonitor));
                 enabled = false;
-            }
-        }
-
-        private void CheckFixedDeltaTimeChanged()
-        {
-            float value = Time.fixedDeltaTime;
-            if(Math.Abs(value - _fixedDeltaTime) > 0.001f)
-            {
-                _script.mainPhysicsHandler.UpdateRateDependentPhysics();
-                _script.softPhysicsHandler.UpdateRateDependentPhysics();
-                _script.hardColliderHandler.SyncHardCollidersBaseMass();
-            }
-
-            _fixedDeltaTime = value;
-        }
-
-        private void CheckSoftPhysicsEnabledChanged()
-        {
-            bool breastSoftPhysicsOn = _breastPhysicsMesh.on;
-            bool atomSoftPhysicsOn = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
-            bool globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
-            CheckIfStillDisabled(breastSoftPhysicsOn, atomSoftPhysicsOn, globalSoftPhysicsOn);
-
-            bool refreshNeeded = false;
-            bool value = globalSoftPhysicsOn && atomSoftPhysicsOn && breastSoftPhysicsOn;
-            if(value != softPhysicsEnabled)
-            {
-                refreshNeeded = true;
-            }
-
-            _breastSoftPhysicsOn = breastSoftPhysicsOn;
-            _atomSoftPhysicsOn = atomSoftPhysicsOn;
-            _globalSoftPhysicsOn = globalSoftPhysicsOn;
-
-            if(refreshNeeded)
-            {
-                _script.StartRefreshCoroutine(refreshMass: false, waitForListeners: false);
-            }
-        }
-
-        private void CheckIfStillDisabled(bool breastSoftPhysicsOn, bool atomSoftPhysicsOn, bool globalSoftPhysicsOn)
-        {
-            string location = "";
-
-            if(breastSoftPhysicsOn && !_breastSoftPhysicsOn)
-            {
-                if(!atomSoftPhysicsOn && !globalSoftPhysicsOn)
-                {
-                    location = "Control & Physics 1 and in User Preferences";
-                }
-                else if(!atomSoftPhysicsOn)
-                {
-                    location = "Control & Physics 1";
-                }
-                else if(!globalSoftPhysicsOn)
-                {
-                    location = "User Preferences";
-                }
-            }
-            else if(atomSoftPhysicsOn && !_atomSoftPhysicsOn)
-            {
-                if(!breastSoftPhysicsOn && !globalSoftPhysicsOn)
-                {
-                    location = "the plugin UI and in User Preferences";
-                }
-                else if(!breastSoftPhysicsOn)
-                {
-                    location = "the plugin UI";
-                }
-                else if(!globalSoftPhysicsOn)
-                {
-                    location = "User Preferences";
-                }
-            }
-            else if(globalSoftPhysicsOn && !_globalSoftPhysicsOn)
-            {
-                if(!breastSoftPhysicsOn && !atomSoftPhysicsOn)
-                {
-                    location = "the plugin UI and in Control & Physics 1";
-                }
-                else if(!breastSoftPhysicsOn)
-                {
-                    location = "the plugin UI";
-                }
-                else if(!atomSoftPhysicsOn)
-                {
-                    location = "Control & Physics 1";
-                }
-            }
-
-            if(location != "")
-            {
-                LogMessage($"Soft Physics is still disabled in {location}");
             }
         }
 

@@ -50,28 +50,26 @@ namespace TittyMagic
         private static float EstimateVolume(Vector3 size, float atomScale)
         {
             float toCm3 = Mathf.Pow(10, 6);
-            float z = size.z * ResolveAtomScaleFactor(atomScale);
+
+            float atomScaleFactor;
+            /* This somewhat accurately scales breast volume to the apparent breast size when atom scale is adjusted. */
+            {
+                float atomScaleAdjustment = 1 - Mathf.Abs(Mathf.Log10(Mathf.Pow(atomScale, 3)));
+
+                if(atomScale >= 1)
+                {
+                    atomScaleFactor = atomScale * atomScaleAdjustment;
+                }
+                else
+                {
+                    atomScaleFactor = atomScale / atomScaleAdjustment;
+                }
+            }
+
+            float z = size.z * atomScaleFactor;
             float volume = toCm3 * (4 * Mathf.PI * size.x / 2 * size.y / 2 * z / 2) / 3;
             // * 0.75f compensates for change in estimated volume compared to pre v3.2 bounds calculation
             return volume * 0.75f;
-        }
-
-        // This somewhat accurately scales breast volume to the apparent breast size when atom scale is adjusted.
-        private static float ResolveAtomScaleFactor(float value)
-        {
-            float result;
-            float atomScaleAdjustment = 1 - Mathf.Abs(Mathf.Log10(Mathf.Pow(value, 3)));
-
-            if(value >= 1)
-            {
-                result = value * atomScaleAdjustment;
-            }
-            else
-            {
-                result = value / atomScaleAdjustment;
-            }
-
-            return result;
         }
     }
 }

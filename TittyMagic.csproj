@@ -88,6 +88,7 @@
     <Compile Include="src\Components\UnityEventsListener.cs" />
     <Compile Include="src\Components\PointerUpDownListener.cs" />
     <Compile Include="src\Extensions\ArrayExtension.cs" />
+    <Compile Include="src\Extensions\MonoBehaviourExtension.cs" />
     <Compile Include="src\Extensions\MVRScriptExtension.cs" />
     <Compile Include="src\Extensions\StringExtension.cs" />
     <Compile Include="src\Extensions\UIDynamicExtension.cs" />
