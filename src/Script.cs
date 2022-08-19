@@ -335,6 +335,7 @@ namespace TittyMagic
             /* Subscribe to keybindings */
             SuperController.singleton.BroadcastMessage("OnActionsProviderAvailable", this, SendMessageOptions.DontRequireReceiver);
 
+            StartCoroutine(ModifyVamUserInterface());
             StartCoroutine(DeferSetPluginVersion());
 
             if(!_loadingFromJson)
@@ -386,6 +387,47 @@ namespace TittyMagic
             }
 
             _pluginVersionStorable.val = $"{VERSION}";
+        }
+
+        private List<Transform> _inactivatedUITransforms;
+
+        private IEnumerator ModifyVamUserInterface()
+        {
+            Transform fBreastPhysics1 = null;
+            Transform fBreastPhysics2 = null;
+            float waited = 0f;
+            while((fBreastPhysics1 == null || fBreastPhysics2 == null) && waited < 30)
+            {
+                waited += 1f;
+                yield return new WaitForSecondsRealtime(1f);
+                var content = containingAtom.transform.Find("UI/UIPlaceHolderModel/UIModel/Canvas/Panel/Content");
+                fBreastPhysics1 = content.Find("F Breast Physics 1");
+                fBreastPhysics2 = content.Find("F Breast Physics 2");
+            }
+
+            if(fBreastPhysics1 == null || fBreastPhysics2 == null)
+            {
+                Utils.LogError("Failed modifying UI: no person UI content found.");
+                yield break;
+            }
+
+            /* Hide elements in F Breast Physics 1 and F Breast Physics 2 tabs */
+            try
+            {
+                _inactivatedUITransforms = new List<Transform>
+                {
+                    fBreastPhysics1.Find("JointText"),
+                    fBreastPhysics1.Find("LeftSide"),
+                    fBreastPhysics1.Find("RightSide"),
+                    fBreastPhysics2.Find("LeftSide"),
+                    fBreastPhysics2.Find("RightSide"),
+                };
+                _inactivatedUITransforms?.ForEach(t => t.gameObject.SetActive(false));
+            }
+            catch(Exception e)
+            {
+                Utils.LogError($"Failed modifying UI: {e}");
+            }
         }
 
         public void NavigateToMainWindow() => NavigateToWindow(mainWindow);
@@ -752,15 +794,17 @@ namespace TittyMagic
         {
             try
             {
+                if(!initDone)
+                {
+                    return;
+                }
+
                 settingsMonitor.SetEnabled(true);
                 hardColliderHandler.SetEnabled(true);
-
-                if(initDone)
-                {
-                    mainPhysicsHandler?.SaveOriginalPhysicsAndSetPluginDefaults();
-                    softPhysicsHandler?.SaveOriginalPhysicsAndSetPluginDefaults();
-                    StartRefreshCoroutine(true);
-                }
+                mainPhysicsHandler?.SaveOriginalPhysicsAndSetPluginDefaults();
+                softPhysicsHandler?.SaveOriginalPhysicsAndSetPluginDefaults();
+                StartRefreshCoroutine(true);
+                _inactivatedUITransforms?.ForEach(t => t.gameObject.SetActive(false));
             }
             catch(Exception e)
             {
@@ -779,6 +823,7 @@ namespace TittyMagic
                 offsetMorphHandler?.ResetAll();
                 forceMorphHandler?.ResetAll();
                 nippleErectionHandler?.Reset();
+                _inactivatedUITransforms?.ForEach(t => t.gameObject.SetActive(true));
             }
             catch(Exception e)
             {
