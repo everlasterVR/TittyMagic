@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SimpleJSON;
 using TittyMagic.Configs;
 using static TittyMagic.ParamName;
 using static TittyMagic.SoftColliderGroup;
@@ -15,10 +14,6 @@ namespace TittyMagic
         private readonly Script _script;
         private readonly DAZPhysicsMesh _breastPhysicsMesh;
         private readonly List<string> _breastPhysicsMeshFloatParamNames;
-        private Dictionary<string, float> _originalBreastPhysicsMeshFloats;
-        private bool _originalSoftPhysicsOn;
-        private bool _originalAllowSelfCollision;
-        private bool _originalAutoFatColliderRadius;
 
         //Left/Right -> Group name -> Group
         private readonly Dictionary<string, Dictionary<string, DAZPhysicsMeshSoftVerticesGroup>> _softVerticesGroups;
@@ -67,13 +62,11 @@ namespace TittyMagic
             allowSelfCollision = _script.NewJSONStorableBool(ALLOW_SELF_COLLISION, Gender.isFemale, register: Gender.isFemale);
             allowSelfCollision.setCallbackFunction = SyncAllowSelfCollision;
 
-            if(!Gender.isFemale)
+            if(_breastPhysicsMesh == null)
             {
-                softPhysicsOn.val = false;
-                allowSelfCollision.val = false;
+                softPhysicsOn.valNoCallback = false;
+                allowSelfCollision.valNoCallback = false;
             }
-
-            SaveOriginalPhysicsAndSetPluginDefaults();
         }
 
         public void LoadSettings()
@@ -634,51 +627,43 @@ namespace TittyMagic
 
         public void ReverseSyncSoftPhysicsOn()
         {
-            if(!Gender.isFemale)
+            if(_breastPhysicsMesh != null)
             {
-                return;
-            }
-
-            if(softPhysicsOn.val != _breastPhysicsMesh.on)
-            {
-                softPhysicsOn.val = _breastPhysicsMesh.on;
+                softPhysicsOn.valNoCallback = _breastPhysicsMesh.on;
             }
         }
 
-        public void ReverseSyncSyncAllowSelfCollision()
+        public void ReverseSyncAllowSelfCollision()
         {
-            if(!Gender.isFemale)
+            if(_breastPhysicsMesh != null)
             {
-                return;
-            }
-
-            if(allowSelfCollision.val != _breastPhysicsMesh.allowSelfCollision)
-            {
-                allowSelfCollision.val = _breastPhysicsMesh.allowSelfCollision;
+                allowSelfCollision.valNoCallback = _breastPhysicsMesh.allowSelfCollision;
             }
         }
 
         private void SyncSoftPhysicsOn(bool value)
         {
-            if(!Gender.isFemale)
+            if(_breastPhysicsMesh != null)
             {
-                return;
+                _breastPhysicsMesh.on = value;
             }
-
-            _breastPhysicsMesh.on = value;
         }
 
         private void SyncAllowSelfCollision(bool value)
         {
-            if(!Gender.isFemale)
+            if(_breastPhysicsMesh != null)
             {
-                return;
+                _breastPhysicsMesh.allowSelfCollision = value;
             }
-
-            _breastPhysicsMesh.allowSelfCollision = value;
         }
 
         #endregion *** Sync functions ***
+
+        public void SyncSoftPhysics()
+        {
+            SyncSoftPhysicsOn(softPhysicsOn.val);
+            SyncAllowSelfCollision(allowSelfCollision.val);
+        }
 
         public void UpdatePhysics()
         {
@@ -717,99 +702,41 @@ namespace TittyMagic
                 });
         }
 
-        public void SaveOriginalPhysicsAndSetPluginDefaults()
+        private bool _originalSoftPhysicsOn;
+        private bool _originalAllowSelfCollision;
+
+        public void SaveOriginalBoolParamValues()
         {
-            _originalBreastPhysicsMeshFloats = new Dictionary<string, float>();
-            if(_breastPhysicsMesh != null)
+            if(_breastPhysicsMesh == null)
             {
-                _originalSoftPhysicsOn = _breastPhysicsMesh.on;
-                SyncSoftPhysicsOn(softPhysicsOn.val);
-
-                _originalAllowSelfCollision = _breastPhysicsMesh.allowSelfCollision;
-                SyncAllowSelfCollision(allowSelfCollision.val);
-
-                // auto fat collider radius off (no effect)
-                _originalAutoFatColliderRadius = _breastPhysicsMesh.softVerticesUseAutoColliderRadius;
-                _breastPhysicsMesh.softVerticesUseAutoColliderRadius = false;
-
-                foreach(var group in _breastPhysicsMesh.softVerticesGroups)
-                {
-                    group.useParentSettings = false;
-                }
-
-                foreach(string jsonParamName in _breastPhysicsMeshFloatParamNames)
-                {
-                    var paramJsf = _breastPhysicsMesh.GetFloatJSONParam(jsonParamName);
-                    _originalBreastPhysicsMeshFloats[jsonParamName] = paramJsf.val;
-                    paramJsf.val = 0;
-                }
+                return;
             }
+
+            _originalSoftPhysicsOn = _breastPhysicsMesh.on;
+            _originalAllowSelfCollision = _breastPhysicsMesh.allowSelfCollision;
         }
 
         public void RestoreOriginalPhysics()
         {
-            if(!Gender.isFemale)
+            if(_breastPhysicsMesh == null)
             {
                 return;
             }
 
             _breastPhysicsMesh.on = _originalSoftPhysicsOn;
             _breastPhysicsMesh.allowSelfCollision = _originalAllowSelfCollision;
-            _breastPhysicsMesh.softVerticesUseAutoColliderRadius = _originalAutoFatColliderRadius;
 
-            foreach(var group in _breastPhysicsMesh.softVerticesGroups)
+            foreach(string name in _breastPhysicsMeshFloatParamNames)
             {
-                group.useParentSettings = true;
-            }
-
-            foreach(string jsonParamName in _breastPhysicsMeshFloatParamNames)
-            {
-                _breastPhysicsMesh.GetFloatJSONParam(jsonParamName).val = _originalBreastPhysicsMeshFloats[jsonParamName];
-            }
-        }
-
-        public JSONClass GetOriginalsJSON()
-        {
-            var jsonClass = new JSONClass();
-            jsonClass[SOFT_PHYSICS_ON].AsBool = _originalSoftPhysicsOn;
-            jsonClass[ALLOW_SELF_COLLISION].AsBool = _originalAllowSelfCollision;
-            jsonClass["breastPhysicsMeshFloats"] = JSONUtils.JSONArrayFromDictionary(_originalBreastPhysicsMeshFloats);
-            jsonClass[SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS].AsBool = _originalAutoFatColliderRadius;
-            return jsonClass;
-        }
-
-        public void RestoreFromJSON(JSONClass jsonClass)
-        {
-            if(jsonClass.HasKey("originals"))
-            {
-                RestoreOriginalsFromJSON(jsonClass["originals"].AsObject);
-            }
-        }
-
-        private void RestoreOriginalsFromJSON(JSONClass jsonClass)
-        {
-            if(jsonClass.HasKey(SOFT_PHYSICS_ON))
-            {
-                _originalSoftPhysicsOn = jsonClass[SOFT_PHYSICS_ON].AsBool;
-            }
-
-            if(jsonClass.HasKey(ALLOW_SELF_COLLISION))
-            {
-                _originalAllowSelfCollision = jsonClass[ALLOW_SELF_COLLISION].AsBool;
-            }
-
-            if(jsonClass.HasKey(SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS))
-            {
-                _originalAutoFatColliderRadius = jsonClass[SOFT_VERTICES_USE_AUTO_COLLIDER_RADIUS].AsBool;
-            }
-
-            if(jsonClass.HasKey("breastPhysicsMeshFloats"))
-            {
-                var breastPhysicsMeshFloats = jsonClass["breastPhysicsMeshFloats"].AsArray;
-                foreach(JSONClass jc in breastPhysicsMeshFloats)
-                {
-                    _originalBreastPhysicsMeshFloats[jc["id"].Value] = jc["value"].AsFloat;
-                }
+                /* Set a value that is different from the original, then restore the original
+                 * in order to trigger VaM's internal sync
+                 */
+                var paramJsf = _breastPhysicsMesh.GetFloatJSONParam(name);
+                float original = paramJsf.val;
+                paramJsf.valNoCallback = Math.Abs(paramJsf.val - paramJsf.min) > 0.01f
+                    ? paramJsf.min
+                    : paramJsf.max;
+                paramJsf.val = original;
             }
         }
 

@@ -1,11 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using SimpleJSON;
 using TittyMagic.Configs;
 using TittyMagic.UI;
 using UnityEngine;
-using static TittyMagic.ParamName;
 
 namespace TittyMagic
 {
@@ -13,8 +11,6 @@ namespace TittyMagic
     {
         private Script _script;
         private DAZCharacterSelector _geometry;
-        private bool _originalUseAdvancedColliders;
-        private bool _originalUseAuxBreastColliders;
 
         public JSONStorableStringChooser colliderGroupsJsc { get; private set; }
         public List<ColliderConfigGroup> colliderConfigs { get; private set; }
@@ -36,9 +32,6 @@ namespace TittyMagic
         {
             _script = gameObject.GetComponent<Script>();
             _geometry = (DAZCharacterSelector) _script.containingAtom.GetStorableByID("geometry");
-            _originalUseAdvancedColliders = _geometry.useAdvancedColliders;
-            _geometry.useAdvancedColliders = true;
-            _originalUseAuxBreastColliders = _geometry.useAuxBreastColliders;
 
             if(!Gender.isFemale)
             {
@@ -556,38 +549,6 @@ namespace TittyMagic
             }
         }
 
-        public JSONClass GetOriginalsJSON()
-        {
-            var jsonClass = new JSONClass();
-            if(Gender.isFemale)
-            {
-                jsonClass[USE_ADVANCED_COLLIDERS].AsBool = _originalUseAdvancedColliders;
-                jsonClass[USE_AUX_BREAST_COLLIDERS].AsBool = _originalUseAuxBreastColliders;
-            }
-
-            return jsonClass;
-        }
-
-        public void RestoreFromJSON(JSONClass originalJson)
-        {
-            if(originalJson.HasKey(USE_ADVANCED_COLLIDERS))
-            {
-                _originalUseAdvancedColliders = originalJson[USE_ADVANCED_COLLIDERS].AsBool;
-            }
-
-            if(originalJson.HasKey(USE_AUX_BREAST_COLLIDERS))
-            {
-                _originalUseAuxBreastColliders = originalJson[USE_AUX_BREAST_COLLIDERS].AsBool;
-            }
-        }
-
-        private void RestoreDefaults()
-        {
-            colliderConfigs.ForEach(config => config.RestoreDefaults());
-            StartCoroutine(DeferRestoreDefaultMass());
-            _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
-        }
-
         private IEnumerator DeferRestoreDefaultMass()
         {
             // e.g. in case hard colliders are not enabled (yet)
@@ -610,7 +571,17 @@ namespace TittyMagic
                 colliderConfigs.ForEach(config => config.RestoreDefaultMass());
             }
 
+            /* Changes to collider properties must be done while advanced colliders are enabled */
             _geometry.useAdvancedColliders = _originalUseAdvancedColliders;
+        }
+
+        private bool _originalUseAdvancedColliders;
+        private bool _originalUseAuxBreastColliders;
+
+        public void SaveOriginalUseColliders()
+        {
+            _originalUseAdvancedColliders = _geometry.useAdvancedColliders;
+            _originalUseAuxBreastColliders = _geometry.useAuxBreastColliders;
         }
 
         private void OnEnable()
@@ -620,14 +591,18 @@ namespace TittyMagic
                 return;
             }
 
-            StartCoroutine(SyncAll());
+            SaveOriginalUseColliders();
+            _geometry.useAdvancedColliders = true;
         }
 
         private void OnDisable()
         {
             if(Gender.isFemale)
             {
-                RestoreDefaults();
+                /* Restore defaults */
+                colliderConfigs.ForEach(config => config.RestoreDefaults());
+                StartCoroutine(DeferRestoreDefaultMass());
+                _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
             }
         }
 

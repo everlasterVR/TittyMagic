@@ -117,8 +117,7 @@ namespace TittyMagic
                 var background = rightUIContent.parent.parent.parent.transform.GetComponent<Image>();
                 background.color = new Color(0.85f, 0.85f, 0.85f);
 
-                softPhysicsHandler.ReverseSyncSoftPhysicsOn();
-                softPhysicsHandler.ReverseSyncSyncAllowSelfCollision();
+                softPhysicsHandler.ReverseSyncAllowSelfCollision();
 
                 if(_tabs.activeWindow == mainWindow)
                 {
@@ -194,6 +193,7 @@ namespace TittyMagic
             var breastControl = (AdjustJoints) containingAtom.GetStorableByID(Gender.isFemale ? "BreastControl" : "PectoralControl");
             _pectoralRbLeft = breastControl.joint2.GetComponent<Rigidbody>();
             _pectoralRbRight = breastControl.joint1.GetComponent<Rigidbody>();
+            SetPectoralCollisions(false);
 
             atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
             var skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
@@ -340,6 +340,8 @@ namespace TittyMagic
 
             if(!_loadingFromJson)
             {
+                hardColliderHandler.SaveOriginalUseColliders();
+                softPhysicsHandler.SaveOriginalBoolParamValues();
                 calculateBreastMass.actionCallback();
             }
             else
@@ -591,6 +593,7 @@ namespace TittyMagic
                 yield return new WaitForSeconds(0.1f);
             }
 
+            softPhysicsHandler.SyncSoftPhysics();
             softnessAmount = SoftnessAmount(softnessJsf.val);
             quicknessAmount = QuicknessAmount(quicknessJsf.val);
 
@@ -698,23 +701,15 @@ namespace TittyMagic
             }
         }
 
+        /* Disable pectoral collisions while plugin is active, they cause breasts to "jump" when touched */
+        private void SetPectoralCollisions(bool value)
+        {
+            _pectoralRbLeft.detectCollisions = value;
+            _pectoralRbRight.detectCollisions = value;
+        }
+
         public string PluginPath() =>
             $@"{this.GetPackagePath()}Custom\Scripts\everlaster\TittyMagic";
-
-        public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
-        {
-            var jsonClass = base.GetJSON(includePhysical, includeAppearance, forceStore);
-            jsonClass["originalMainPhysics"] = mainPhysicsHandler.GetOriginalsJSON();
-            if(Gender.isFemale)
-            {
-                jsonClass["originalSoftPhysics"] = softPhysicsHandler.GetOriginalsJSON();
-            }
-
-            jsonClass["originalHardColliders"] = hardColliderHandler.GetOriginalsJSON();
-
-            needsStore = true;
-            return jsonClass;
-        }
 
         public override void RestoreFromJSON(
             JSONClass jsonClass,
@@ -725,15 +720,13 @@ namespace TittyMagic
         )
         {
             _loadingFromJson = true;
-            StartCoroutine(
-                DeferRestoreFromJSON(
-                    jsonClass,
-                    restorePhysical,
-                    restoreAppearance,
-                    presetAtoms,
-                    setMissingToDefault
-                )
-            );
+            StartCoroutine(DeferRestoreFromJSON(
+                jsonClass,
+                restorePhysical,
+                restoreAppearance,
+                presetAtoms,
+                setMissingToDefault
+            ));
         }
 
         private IEnumerator DeferRestoreFromJSON(
@@ -750,24 +743,9 @@ namespace TittyMagic
             }
 
             base.RestoreFromJSON(jsonClass, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
-
-            if(jsonClass.HasKey("mainPhysics"))
-            {
-                mainPhysicsHandler.RestoreFromJSON(jsonClass["mainPhysics"].AsObject);
-            }
-
-            if(jsonClass.HasKey("hardColliders"))
-            {
-                hardColliderHandler.RestoreFromJSON(jsonClass["hardColliders"].AsObject);
-            }
-
-            if(jsonClass.HasKey("softPhysics"))
-            {
-                softPhysicsHandler.RestoreFromJSON(jsonClass["softPhysics"].AsObject);
-            }
-
             _loadingFromJson = false;
-
+            hardColliderHandler.SaveOriginalUseColliders();
+            softPhysicsHandler.SaveOriginalBoolParamValues();
             calculateBreastMass.actionCallback();
         }
 
@@ -799,10 +777,10 @@ namespace TittyMagic
                     return;
                 }
 
+                SetPectoralCollisions(false);
                 settingsMonitor.SetEnabled(true);
                 hardColliderHandler.SetEnabled(true);
-                mainPhysicsHandler?.SaveOriginalPhysicsAndSetPluginDefaults();
-                softPhysicsHandler?.SaveOriginalPhysicsAndSetPluginDefaults();
+                softPhysicsHandler?.SaveOriginalBoolParamValues();
                 StartRefreshCoroutine(true);
                 _inactivatedUITransforms?.ForEach(t => t.gameObject.SetActive(false));
             }
@@ -816,6 +794,7 @@ namespace TittyMagic
         {
             try
             {
+                SetPectoralCollisions(true);
                 settingsMonitor.SetEnabled(false);
                 hardColliderHandler.SetEnabled(false);
                 mainPhysicsHandler?.RestoreOriginalPhysics();

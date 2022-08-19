@@ -1,9 +1,7 @@
-﻿// ReSharper disable RedundantCast
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SimpleJSON;
 using TittyMagic.Configs;
 using UnityEngine;
 using static TittyMagic.ParamName;
@@ -20,10 +18,7 @@ namespace TittyMagic
         private readonly Dictionary<string, Rigidbody> _pectoralRbs;
         private readonly Dictionary<string, DAZBone> _dazBones;
 
-        private readonly List<string> _adjustJointsFloatParamNames;
-        private Dictionary<string, float> _originalBreastControlFloats;
-        private bool _originalPectoralRbLeftDetectCollisions;
-        private bool _originalPectoralRbRightDetectCollisions;
+        private readonly List<string> _breastControlFloatParamNames;
 
         // AdjustJoints.joint1.slerpDrive.maximumForce value logged on plugin Init
         private const float DEFAULT_SLERP_MAX_FORCE = 500;
@@ -66,7 +61,7 @@ namespace TittyMagic
                 { RIGHT, _joints[RIGHT].GetComponent<DAZBone>() },
             };
 
-            _adjustJointsFloatParamNames = new List<string>
+            _breastControlFloatParamNames = new List<string>
             {
                 MASS,
                 CENTER_OF_GRAVITY_PERCENT,
@@ -77,8 +72,6 @@ namespace TittyMagic
                 TARGET_ROTATION_X,
                 TARGET_ROTATION_Y,
             };
-
-            SaveOriginalPhysicsAndSetPluginDefaults();
         }
 
         public void UpdateMassValueAndAmounts()
@@ -498,67 +491,19 @@ namespace TittyMagic
             paramGroup.UpdateValue(massValue, softness, quickness);
         }
 
-        public void SaveOriginalPhysicsAndSetPluginDefaults()
-        {
-            // disable pectoral collisions, they cause breasts to "jump" when touched
-            _originalPectoralRbLeftDetectCollisions = _pectoralRbs[LEFT].detectCollisions;
-            _originalPectoralRbRightDetectCollisions = _pectoralRbs[RIGHT].detectCollisions;
-            _pectoralRbs[LEFT].detectCollisions = false;
-            _pectoralRbs[RIGHT].detectCollisions = false;
-
-            _originalBreastControlFloats = new Dictionary<string, float>();
-            foreach(string jsonParamName in _adjustJointsFloatParamNames)
-            {
-                var paramJsf = _breastControl.GetFloatJSONParam(jsonParamName);
-                _originalBreastControlFloats[jsonParamName] = paramJsf.val;
-                paramJsf.val = 0;
-            }
-        }
-
         public void RestoreOriginalPhysics()
         {
-            _pectoralRbs[LEFT].detectCollisions = _originalPectoralRbLeftDetectCollisions;
-            _pectoralRbs[RIGHT].detectCollisions = _originalPectoralRbRightDetectCollisions;
-            foreach(string jsonParamName in _adjustJointsFloatParamNames)
+            foreach(string name in _breastControlFloatParamNames)
             {
-                _breastControl.GetFloatJSONParam(jsonParamName).val = _originalBreastControlFloats[jsonParamName];
-            }
-        }
-
-        public JSONClass GetOriginalsJSON()
-        {
-            var jsonClass = new JSONClass();
-            jsonClass["breastControlFloats"] = JSONUtils.JSONArrayFromDictionary(_originalBreastControlFloats);
-            jsonClass["pectoralRbLeftDetectCollisions"].AsBool = _originalPectoralRbLeftDetectCollisions;
-            jsonClass["pectoralRbRightDetectCollisions"].AsBool = _originalPectoralRbRightDetectCollisions;
-            return jsonClass;
-        }
-
-        public void RestoreFromJSON(JSONClass jsonClass)
-        {
-            if(jsonClass.HasKey("originals"))
-            {
-                RestoreOriginalsFromJSON(jsonClass["originals"].AsObject);
-            }
-        }
-
-        private void RestoreOriginalsFromJSON(JSONClass originalJson)
-        {
-            if(originalJson.HasKey("breastControlFloats"))
-            {
-                var breastControlFloats = originalJson["breastControlFloats"].AsArray;
-                foreach(JSONClass jc in breastControlFloats)
-                    _originalBreastControlFloats[jc["id"].Value] = jc["value"].AsFloat;
-            }
-
-            if(originalJson.HasKey("pectoralRbLeftDetectCollisions"))
-            {
-                _originalPectoralRbLeftDetectCollisions = originalJson["pectoralRbLeftDetectCollisions"].AsBool;
-            }
-
-            if(originalJson.HasKey("pectoralRbRightDetectCollisions"))
-            {
-                _originalPectoralRbRightDetectCollisions = originalJson["pectoralRbRightDetectCollisions"].AsBool;
+                /* Set a value that is different from the original, then restore the original
+                 * in order to trigger VaM's internal sync
+                 */
+                var paramJsf = _breastControl.GetFloatJSONParam(name);
+                float original = paramJsf.val;
+                paramJsf.valNoCallback = Math.Abs(paramJsf.val - paramJsf.min) > 0.01f
+                    ? paramJsf.min
+                    : paramJsf.max;
+                paramJsf.val = original;
             }
         }
 

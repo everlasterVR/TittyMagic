@@ -81,6 +81,7 @@ namespace TittyMagic
                     bool value = globalSoftPhysicsOn && atomSoftPhysicsOn && breastSoftPhysicsOn;
                     if(value != softPhysicsEnabled)
                     {
+                        _script.softPhysicsHandler.ReverseSyncSoftPhysicsOn();
                         refreshNeeded = true;
                     }
 
