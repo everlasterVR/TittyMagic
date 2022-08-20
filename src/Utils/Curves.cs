@@ -69,6 +69,8 @@ namespace TittyMagic
         // https://www.desmos.com/calculator/ykxswso5ie
         public static float ForceEffectCurve(float x) => InverseSmoothStep(x, 10, 0.8f, 0f);
 
+        public static float ColliderRadiusAndPositionSizeCurve(float x) => InverseSmoothStep(x, 1.00f, 0.35f, 0.06f);
+
         // https://www.desmos.com/calculator/ln9oecyv4y
         public static float InverseSmoothStep(float value, float b, float curvature, float midpoint)
         {
