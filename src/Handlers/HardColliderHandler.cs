@@ -481,6 +481,7 @@ namespace TittyMagic
                 yield return null;
             }
 
+            _geometry.useAuxBreastColliders = true;
             yield return DeferBeginSyncBaseMass();
             SyncAllOffsets();
         }

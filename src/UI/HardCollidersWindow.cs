@@ -368,18 +368,18 @@ namespace TittyMagic.UI
         // ReSharper disable once UnusedMember.Global
         public void UpdateCollidersDebugInfo()
         {
-            string text = "";
-            var configs = script.hardColliderHandler.colliderConfigs;
-            for(int i = 0; i < configs.Count; i++)
-            {
-                var config = configs[i].left;
-                text +=
-                    $"\n Pectoral{i + 1} radius {Calc.RoundToDecimals(config.autoCollider.colliderRadius, 1000f)}" +
-                    // $"\n height {Calc.RoundToDecimals(config.autoCollider.colliderLength, 1000f)}" +
-                    $"\n";
-            }
-
-            _colliderInfoText.val = text;
+            // string text = "";
+            // var configs = script.hardColliderHandler.colliderConfigs;
+            // for(int i = 0; i < configs.Count; i++)
+            // {
+            //     var config = configs[i].left;
+            //     text +=
+            //         $"\n Pectoral{i + 1} radius {Calc.RoundToDecimals(config.autoCollider.colliderRadius, 1000f)}" +
+            //         $"\n height {Calc.RoundToDecimals(config.autoCollider.colliderLength, 1000f)}" +
+            //         $"\n";
+            // }
+            //
+            // _colliderInfoText.val = text;
         }
     }
 }
