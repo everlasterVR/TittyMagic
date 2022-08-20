@@ -84,6 +84,9 @@
   <ItemGroup>
     <Compile Include="src\AtomScaleListener.cs" />
     <Compile Include="src\BreastMorphListener.cs" />
+    <Compile Include="src\Components\FrequencyRunner.cs" />
+    <Compile Include="src\Components\Scaler.cs" />
+    <Compile Include="src\Components\TrackNipple.cs" />
     <Compile Include="src\Components\UnityEventsListener.cs" />
     <Compile Include="src\Components\PointerUpDownListener.cs" />
     <Compile Include="src\Extensions\ArrayExtension.cs" />
@@ -102,6 +105,7 @@
     <Compile Include="src\Handlers\HardColliderHandler.cs" />
     <Compile Include="src\Handlers\PhysicsParameter.cs" />
     <Compile Include="src\Handlers\SoftPhysicsHandler.cs" />
+    <Compile Include="src\SettingsMonitor.cs" />
     <Compile Include="src\Static\ApplyMethod.cs" />
     <Compile Include="src\Static\Direction.cs" />
     <Compile Include="src\Static\Gender.cs" />
@@ -109,9 +113,7 @@
     <Compile Include="src\Static\ParamName.cs" />
     <Compile Include="src\Static\SoftColliderGroup.cs" />
     <Compile Include="src\Static\VertexIndexGroup.cs" />
-    <Compile Include="src\TrackNipple.cs" />
     <Compile Include="src\Components\Bindings.cs" />
-    <Compile Include="src\Components\SettingsMonitor.cs" />
     <Compile Include="src\Handlers\GravityPhysicsHandler.cs" />
     <Compile Include="src\Handlers\NippleErectionHandler.cs" />
     <Compile Include="src\Handlers\ForceMorphHandler.cs" />
@@ -130,8 +132,6 @@
     <Compile Include="src\UI\WindowBase.cs" />
     <Compile Include="src\Utils\Calc.cs" />
     <Compile Include="src\Utils\Curves.cs" />
-    <Compile Include="src\Utils\FrequencyRunner.cs" />
-    <Compile Include="src\Utils\Scaler.cs" />
     <Compile Include="src\Utils\Utils.cs" />
     <Compile Include="vam-collider-editor\src\ColliderPreviewConfig.cs" />
     <Compile Include="vam-collider-editor\src\ColliderVisualizer.cs" />
