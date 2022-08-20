@@ -34,7 +34,6 @@ namespace TittyMagic
         public SettingsMonitor settingsMonitor { get; private set; }
 
         public AtomScaleListener atomScaleListener { get; private set; }
-        private BreastMorphListener _breastMorphListener;
 
         public MainPhysicsHandler mainPhysicsHandler { get; private set; }
         public HardColliderHandler hardColliderHandler { get; private set; }
@@ -253,13 +252,10 @@ namespace TittyMagic
             forcePhysicsHandler = new ForcePhysicsHandler(this, _trackLeftNipple, _trackRightNipple);
             forceMorphHandler = new ForceMorphHandler(this, _trackLeftNipple, _trackRightNipple);
 
-            if(Gender.isFemale)
+            BreastMorphListener.ProcessMorphs(geometry.morphBank1);
+            if(!Gender.isFemale)
             {
-                _breastMorphListener = new BreastMorphListener(geometry.morphBank1.morphs);
-            }
-            else
-            {
-                _breastMorphListener = new BreastMorphListener(geometry.morphBank1OtherGender.morphs, geometry.morphBank1.morphs);
+                BreastMorphListener.ProcessMorphs(geometry.morphBank1OtherGender);
             }
 
             /* Load settings */
@@ -516,7 +512,7 @@ namespace TittyMagic
                 }
 
                 bool morphsOrScaleChanged = _listenersCheckRunner.Run(() =>
-                    _breastMorphListener.Changed() || atomScaleListener.Changed()
+                    BreastMorphListener.Changed() || atomScaleListener.Changed()
                 );
                 if(morphsOrScaleChanged && autoUpdateJsb.val && !_waiting)
                 {
@@ -603,7 +599,7 @@ namespace TittyMagic
                 yield return new WaitForSeconds(0.33f);
 
                 while(
-                    _breastMorphListener.Changed() ||
+                    BreastMorphListener.Changed() ||
                     atomScaleListener.Changed() ||
                     sliders.Any(slider => slider.IsClickDown())
                 )
