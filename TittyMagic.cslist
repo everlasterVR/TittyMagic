@@ -52,7 +52,6 @@ src\Static\Side.cs
 src\Static\SoftColliderGroup.cs
 src\Static\VertexIndexGroup.cs
 src\AtomScaleListener.cs
-src\BreastVolumeCalculator.cs
 src\BreastMorphListener.cs
 src\Script.cs
 src\TrackNipple.cs

@@ -12,7 +12,6 @@ namespace TittyMagic.Handlers
     internal class MainPhysicsHandler
     {
         private readonly Script _script;
-        private readonly BreastVolumeCalculator _breastVolumeCalculator;
         private readonly AdjustJoints _breastControl;
         private readonly Dictionary<string, ConfigurableJoint> _joints;
         private readonly Dictionary<string, Rigidbody> _pectoralRbs;
@@ -39,12 +38,14 @@ namespace TittyMagic.Handlers
         public MainPhysicsHandler(
             Script script,
             AdjustJoints breastControl,
-            BreastVolumeCalculator breastVolumeCalculator
+            DAZSkinV2 skin,
+            Rigidbody chestRb
         )
         {
             _script = script;
             _breastControl = breastControl;
-            _breastVolumeCalculator = breastVolumeCalculator;
+            _skin = skin;
+            _chestRb = chestRb;
             _joints = new Dictionary<string, ConfigurableJoint>
             {
                 { LEFT, _breastControl.joint2 },
@@ -76,10 +77,54 @@ namespace TittyMagic.Handlers
 
         public void UpdateMassValueAndAmounts()
         {
-            float volume = _breastVolumeCalculator.Calculate(_script.atomScaleListener.scale);
-            massParameterGroup.UpdateValue(volume);
+            float volume = (CalculateVolume(VertexIndexGroup.LEFT_BREAST) + CalculateVolume(VertexIndexGroup.RIGHT_BREAST)) / 2;
+            massParameterGroup.UpdateValue(volume / 1000);
+
+            /* Division by 2 is a hacky way to make the value compatible with legacy configurations for morphs and physics settings */
             realMassAmount = massParameterGroup.left.baseValueJsf.val / 2;
             massAmount = massParameterGroup.left.valueJsf.val / 2;
+        }
+
+        private readonly DAZSkinV2 _skin;
+        private readonly Rigidbody _chestRb;
+
+        private float CalculateVolume(IEnumerable<int> vertexIndices)
+        {
+            var positions = vertexIndices.Select(i => Calc.RelativePosition(_chestRb, _skin.rawSkinnedVerts[i])).ToList();
+            var bounds = new Bounds();
+
+            /* Calculate bounds size */
+            {
+                var min = Vector3.one * float.MaxValue;
+                var max = Vector3.one * float.MinValue;
+                foreach(var vertex in positions)
+                {
+                    min = Vector3.Min(min, vertex);
+                    max = Vector3.Max(max, vertex);
+                }
+
+                bounds.min = min;
+                bounds.max = max;
+            }
+
+            /* Calculate volume */
+            {
+                float toCm3 = Mathf.Pow(10, 6);
+
+                float atomScale = _script.atomScaleListener.scale;
+
+                /* This somewhat accurately scales breast volume to the apparent breast size when atom scale is adjusted. */
+                float atomScaleAdjustment = 1 - Mathf.Abs(Mathf.Log10(Mathf.Pow(atomScale, 3)));
+                float atomScaleFactor = atomScale >= 1
+                    ? atomScale * atomScaleAdjustment
+                    : atomScale / atomScaleAdjustment;
+
+                float z = bounds.size.z * atomScaleFactor;
+                float volume = toCm3 * (4 * Mathf.PI * bounds.size.x / 2 * bounds.size.y / 2 * z / 2) / 3;
+
+                /* Times 0.75f compensates for change in estimated volume compared to pre v3.2 bounds calculation */
+                return volume * 0.75f;
+            }
         }
 
         public void LoadSettings()

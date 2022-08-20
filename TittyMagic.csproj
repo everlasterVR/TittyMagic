@@ -83,7 +83,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\AtomScaleListener.cs" />
-    <Compile Include="src\BreastVolumeCalculator.cs" />
     <Compile Include="src\BreastMorphListener.cs" />
     <Compile Include="src\Components\UnityEventsListener.cs" />
     <Compile Include="src\Components\PointerUpDownListener.cs" />

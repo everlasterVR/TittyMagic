@@ -222,7 +222,7 @@ namespace TittyMagic
                 }
             }
 
-            mainPhysicsHandler = new MainPhysicsHandler(this, breastControl, new BreastVolumeCalculator(skin, chestRb));
+            mainPhysicsHandler = new MainPhysicsHandler(this, breastControl, skin, chestRb);
             hardColliderHandler = gameObject.AddComponent<HardColliderHandler>();
             hardColliderHandler.Init();
             softPhysicsHandler = new SoftPhysicsHandler(this);
