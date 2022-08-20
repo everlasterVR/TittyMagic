@@ -77,7 +77,6 @@ namespace TittyMagic
                 if(!_geometry.useAuxBreastColliders)
                 {
                     refreshNeeded = true;
-                    _geometry.useAuxBreastColliders = true;
                 }
 
                 /* Check if soft physics was toggled */

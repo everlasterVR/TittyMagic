@@ -486,6 +486,7 @@ namespace TittyMagic
                 yield return null;
             }
 
+            _geometry.useAuxBreastColliders = true;
             yield return DeferBeginSyncBaseMass();
             SyncAllOffsets();
         }
@@ -598,6 +599,7 @@ namespace TittyMagic
 
             SaveOriginalUseColliders();
             _geometry.useAdvancedColliders = true;
+            _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
         }
 
         private void OnDisable()
@@ -606,8 +608,8 @@ namespace TittyMagic
             {
                 /* Restore defaults */
                 colliderConfigs.ForEach(config => config.RestoreDefaults());
+                _geometry.useAuxBreastColliders = true;
                 StartCoroutine(DeferRestoreDefaultMass());
-                _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
             }
         }
 
