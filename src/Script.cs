@@ -5,9 +5,9 @@ using System.Collections;
 using System.Collections.Generic;
 using SimpleJSON;
 using UnityEngine;
-using TittyMagic.UI;
 using UnityEngine.UI;
-using static TittyMagic.Calc;
+using TittyMagic.Handlers;
+using TittyMagic.UI;
 
 namespace TittyMagic
 {
@@ -242,10 +242,10 @@ namespace TittyMagic
             }
             else
             {
-                _trackLeftNipple.getNipplePosition = () => AveragePosition(
+                _trackLeftNipple.getNipplePosition = () => Calc.AveragePosition(
                     VertexIndexGroup.LEFT_BREAST_CENTER.Select(i => skin.rawSkinnedWorkingVerts[i]).ToList()
                 );
-                _trackRightNipple.getNipplePosition = () => AveragePosition(
+                _trackRightNipple.getNipplePosition = () => Calc.AveragePosition(
                     VertexIndexGroup.RIGHT_BREAST_CENTER.Select(i => skin.rawSkinnedWorkingVerts[i]).ToList()
                 );
             }
@@ -528,8 +528,8 @@ namespace TittyMagic
                 _trackRightNipple.UpdateAnglesAndDepthDiff();
 
                 var rotation = _chestTransform.rotation;
-                float roll = Roll(rotation);
-                float pitch = Pitch(rotation);
+                float roll = Calc.Roll(rotation);
+                float pitch = Calc.Pitch(rotation);
 
                 UpdateDynamicPhysics(roll, pitch);
                 UpdateDynamicMorphs(roll, pitch);

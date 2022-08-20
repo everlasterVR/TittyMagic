@@ -132,7 +132,6 @@
     <Compile Include="src\Utils\Calc.cs" />
     <Compile Include="src\Utils\Curves.cs" />
     <Compile Include="src\Utils\FrequencyRunner.cs" />
-    <Compile Include="src\Utils\JSONUtils.cs" />
     <Compile Include="src\Utils\Scaler.cs" />
     <Compile Include="src\Utils\Utils.cs" />
     <Compile Include="vam-collider-editor\src\ColliderPreviewConfig.cs" />

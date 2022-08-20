@@ -1,6 +1,5 @@
 ﻿using System;
 using UnityEngine;
-using static TittyMagic.Utils;
 
 namespace TittyMagic
 {
@@ -53,14 +52,14 @@ namespace TittyMagic
                 _breastInOut.SetBoolParamValue("enabled", false);
                 if(Gender.isFemale)
                 {
-                    LogMessage("Auto Breast In/Out Morphs disabled - directional force morphing works better without them.");
+                    Utils.LogMessage("Auto Breast In/Out Morphs disabled - directional force morphing works better without them.");
                 }
             }
 
             if(Gender.isFemale && !_geometry.useAdvancedColliders)
             {
                 _geometry.useAdvancedColliders = true;
-                LogMessage("Advanced Colliders enabled - they are necessary for directional force morphing and hard colliders to work.");
+                Utils.LogMessage("Advanced Colliders enabled - they are necessary for directional force morphing and hard colliders to work.");
             }
 
             if(_script.refreshInProgress)
@@ -88,7 +87,7 @@ namespace TittyMagic
                     string location = LocationWhereStillDisabled(breastSoftPhysicsOn, atomSoftPhysicsOn, globalSoftPhysicsOn);
                     if(!string.IsNullOrEmpty(location))
                     {
-                        LogMessage($"Soft Physics is still disabled in {location}");
+                        Utils.LogMessage($"Soft Physics is still disabled in {location}");
                     }
 
                     bool value = globalSoftPhysicsOn && atomSoftPhysicsOn && breastSoftPhysicsOn;
@@ -192,7 +191,7 @@ namespace TittyMagic
             }
             catch(Exception e)
             {
-                LogError($"{e}", nameof(SettingsMonitor));
+                Utils.LogError($"{e}", nameof(SettingsMonitor));
                 enabled = false;
             }
         }

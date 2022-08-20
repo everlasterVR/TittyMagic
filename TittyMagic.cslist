@@ -70,6 +70,5 @@ src\UI\WindowBase.cs
 src\Utils\Calc.cs
 src\Utils\Curves.cs
 src\Utils\FrequencyRunner.cs
-src\Utils\JSONUtils.cs
 src\Utils\Scaler.cs
 src\Utils\Utils.cs

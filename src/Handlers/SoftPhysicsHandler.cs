@@ -7,7 +7,7 @@ using static TittyMagic.ParamName;
 using static TittyMagic.SoftColliderGroup;
 using static TittyMagic.Side;
 
-namespace TittyMagic
+namespace TittyMagic.Handlers
 {
     internal class SoftPhysicsHandler
     {

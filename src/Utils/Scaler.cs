@@ -1,6 +1,6 @@
 using System;
 
-namespace TittyMagic.Configs
+namespace TittyMagic
 {
     internal class Scaler
     {

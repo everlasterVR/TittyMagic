@@ -1,5 +1,4 @@
 ﻿using System;
-using static TittyMagic.Calc;
 
 namespace TittyMagic
 {
@@ -11,12 +10,12 @@ namespace TittyMagic
         public AtomScaleListener(JSONStorableFloat atomScaleStorable)
         {
             _atomScaleStorable = atomScaleStorable;
-            scale = RoundToDecimals(atomScaleStorable.val, 1000f);
+            scale = Calc.RoundToDecimals(atomScaleStorable.val, 1000f);
         }
 
         public bool Changed()
         {
-            float value = RoundToDecimals(_atomScaleStorable.val, 1000f);
+            float value = Calc.RoundToDecimals(_atomScaleStorable.val, 1000f);
             bool changed = Math.Abs(value - scale) > 0.001f;
 
             if(changed)

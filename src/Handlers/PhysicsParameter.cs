@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TittyMagic.Configs;
 using UnityEngine;
+using TittyMagic.Configs;
 
-namespace TittyMagic
+namespace TittyMagic.Handlers
 {
     internal class PhysicsParameterGroup
     {

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using TittyMagic.Configs;
 using UnityEngine;
+using TittyMagic.Configs;
 using static TittyMagic.ParamName;
 
-namespace TittyMagic
+namespace TittyMagic.Handlers
 {
     internal class ForcePhysicsHandler
     {

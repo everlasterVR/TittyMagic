@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using TittyMagic.Configs;
-using static TittyMagic.GravityEffectCalc;
 
-namespace TittyMagic
+namespace TittyMagic.Handlers
 {
     internal class GravityOffsetMorphHandler
     {
@@ -80,7 +79,7 @@ namespace TittyMagic
         private void AdjustUpDownMorphs(float pitch, float roll)
         {
             float multiplier = upDownExtraMultiplier * _script.gravityPhysicsHandler.downMultiplier;
-            float upDownEffect = CalculateUpDownEffect(pitch, roll, multiplier);
+            float upDownEffect = GravityEffectCalc.CalculateUpDownEffect(pitch, roll, multiplier);
             float effect = offsetMorphingJsf.val * upDownEffect;
             // leaning forward
             if(pitch >= 0)

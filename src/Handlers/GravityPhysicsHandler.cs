@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using TittyMagic.Configs;
 using static TittyMagic.ParamName;
-using static TittyMagic.GravityEffectCalc;
 
-namespace TittyMagic
+namespace TittyMagic.Handlers
 {
     internal class GravityPhysicsHandler
     {
@@ -197,7 +196,7 @@ namespace TittyMagic
 
         private void AdjustLeftRightPhysics(float roll)
         {
-            float effect = CalculateRollEffect(roll, leftRightMultiplier);
+            float effect = GravityEffectCalc.CalculateRollEffect(roll, leftRightMultiplier);
             // left
             if(roll >= 0)
             {
@@ -214,7 +213,7 @@ namespace TittyMagic
 
         private void AdjustUpPhysics(float pitch, float roll)
         {
-            float effect = CalculateUpDownEffect(pitch, roll, upMultiplier);
+            float effect = GravityEffectCalc.CalculateUpDownEffect(pitch, roll, upMultiplier);
             // leaning forward,  upside down
             if(pitch >= 1)
             {
@@ -233,7 +232,7 @@ namespace TittyMagic
 
         private void AdjustDownPhysics(float pitch, float roll)
         {
-            float effect = CalculateUpDownEffect(pitch, roll, downMultiplier);
+            float effect = GravityEffectCalc.CalculateUpDownEffect(pitch, roll, downMultiplier);
             // leaning forward, upright
             if(pitch >= 0 && pitch < 1)
             {
@@ -252,7 +251,7 @@ namespace TittyMagic
 
         private void AdjustForwardPhysics(float pitch, float roll)
         {
-            float effect = CalculateDepthEffect(pitch, roll, forwardMultiplier);
+            float effect = GravityEffectCalc.CalculateDepthEffect(pitch, roll, forwardMultiplier);
             // leaning forward
             if(pitch >= 0)
             {
@@ -275,7 +274,7 @@ namespace TittyMagic
 
         private void AdjustBackPhysics(float pitch, float roll)
         {
-            float effect = CalculateDepthEffect(pitch, roll, backMultiplier);
+            float effect = GravityEffectCalc.CalculateDepthEffect(pitch, roll, backMultiplier);
             // leaning back
             if(pitch < 0)
             {

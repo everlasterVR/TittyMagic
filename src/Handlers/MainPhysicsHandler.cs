@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TittyMagic.Configs;
 using UnityEngine;
+using TittyMagic.Configs;
 using static TittyMagic.ParamName;
 using static TittyMagic.Side;
 
-namespace TittyMagic
+namespace TittyMagic.Handlers
 {
     internal class MainPhysicsHandler
     {

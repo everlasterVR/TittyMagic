@@ -1,11 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 using TittyMagic.Configs;
 using TittyMagic.UI;
-using UnityEngine;
 
-namespace TittyMagic
+namespace TittyMagic.Handlers
 {
     internal class HardColliderHandler : MonoBehaviour
     {
