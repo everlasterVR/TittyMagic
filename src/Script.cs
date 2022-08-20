@@ -391,45 +391,66 @@ namespace TittyMagic
             _pluginVersionStorable.val = $"{VERSION}";
         }
 
+        private List<Transform> _customUITransforms;
         private List<Transform> _inactivatedUITransforms;
 
         private IEnumerator ModifyVamUserInterface()
         {
-            Transform fBreastPhysics1 = null;
-            Transform fBreastPhysics2 = null;
+            var transforms = new Dictionary<string, Transform>
+            {
+                { "M Pectoral Physics", null },
+                { "F Breast Physics 1", null },
+                { "F Breast Physics 2", null },
+                { "F Breast Presets", null },
+            };
+
             float waited = 0f;
-            while((fBreastPhysics1 == null || fBreastPhysics2 == null) && waited < 30)
+            while(transforms.Values.Any(t => t == null) && waited < 30)
             {
                 waited += 1f;
                 yield return new WaitForSecondsRealtime(1f);
                 var content = containingAtom.transform.Find("UI/UIPlaceHolderModel/UIModel/Canvas/Panel/Content");
-                fBreastPhysics1 = content.Find("F Breast Physics 1");
-                fBreastPhysics2 = content.Find("F Breast Physics 2");
+                transforms["M Pectoral Physics"] = content.Find("M Pectoral Physics");
+                transforms["F Breast Physics 1"] = content.Find("F Breast Physics 1");
+                transforms["F Breast Physics 2"] = content.Find("F Breast Physics 2");
+                transforms["F Breast Presets"] = content.Find("F Breast Presets");
             }
 
-            if(fBreastPhysics1 == null || fBreastPhysics2 == null)
+            if(transforms.Values.Any(t => t == null))
             {
                 Utils.LogError("Failed modifying UI: no person UI content found.");
                 yield break;
             }
 
-            /* Hide elements in F Breast Physics 1 and F Breast Physics 2 tabs */
+            /* Hide elements in vanilla Breast Physics tabs, add buttons to nagivate to plugin UI */
             try
             {
-                _inactivatedUITransforms = new List<Transform>
+                _inactivatedUITransforms = new List<Transform>();
+                foreach(var kvp in transforms)
                 {
-                    fBreastPhysics1.Find("JointText"),
-                    fBreastPhysics1.Find("LeftSide"),
-                    fBreastPhysics1.Find("RightSide"),
-                    fBreastPhysics2.Find("LeftSide"),
-                    fBreastPhysics2.Find("RightSide"),
-                };
-                _inactivatedUITransforms?.ForEach(t => t.gameObject.SetActive(false));
+                    foreach(Transform t in kvp.Value)
+                    {
+                        _inactivatedUITransforms.Add(t);
+                    }
+                }
+
+                _inactivatedUITransforms.ForEach(t => t.gameObject.SetActive(false));
+                _customUITransforms = transforms.Select(kvp => OpenPluginUIButton(kvp.Value)).ToList();
             }
             catch(Exception e)
             {
                 Utils.LogError($"Failed modifying UI: {e}");
             }
+        }
+
+        private Transform OpenPluginUIButton(Transform parent)
+        {
+            var button = this.InstantiateButtonTransform();
+            button.SetParent(parent, false);
+            Destroy(button.GetComponent<LayoutElement>());
+            button.GetComponent<UIDynamicButton>().label = "<b>Open TittyMagic UI</b>";
+            button.GetComponent<UIDynamicButton>().button.onClick.AddListener(() => _customBindings.OpenUI());
+            return button;
         }
 
         public void NavigateToMainWindow() => NavigateToWindow(mainWindow);
@@ -760,6 +781,7 @@ namespace TittyMagic
                 morphingWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
                 gravityWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
                 DestroyImmediate(_uiEventsListener);
+                _customUITransforms?.ForEach(t => Destroy(t.gameObject));
                 SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
             }
             catch(Exception e)
@@ -783,6 +805,7 @@ namespace TittyMagic
                 softPhysicsHandler?.SaveOriginalBoolParamValues();
                 StartRefreshCoroutine(true);
                 _inactivatedUITransforms?.ForEach(t => t.gameObject.SetActive(false));
+                _customUITransforms?.ForEach(t => t.gameObject.SetActive(true));
             }
             catch(Exception e)
             {
@@ -802,6 +825,7 @@ namespace TittyMagic
                 offsetMorphHandler?.ResetAll();
                 forceMorphHandler?.ResetAll();
                 nippleErectionHandler?.Reset();
+                _customUITransforms?.ForEach(t => t.gameObject.SetActive(false));
                 _inactivatedUITransforms?.ForEach(t => t.gameObject.SetActive(true));
             }
             catch(Exception e)

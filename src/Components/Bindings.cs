@@ -34,7 +34,7 @@ namespace TittyMagic
             });
         }
 
-        private void OpenUI()
+        public void OpenUI()
         {
             ShowMainHud();
             StartCoroutine(SelectPluginUI());
