@@ -67,10 +67,10 @@ namespace TittyMagic
         public JSONStorableAction configureHardColliders { get; private set; }
 
         public bool initDone { get; private set; }
+        public bool refreshInProgress { get; private set; }
 
         private bool _loadingFromJson;
         private bool _waiting;
-        private bool _refreshInProgress;
         private bool _refreshQueued;
         private bool _animationWasSetFrozen;
 
@@ -555,7 +555,7 @@ namespace TittyMagic
             _waiting = true;
             recalibrationNeeded = false;
 
-            if(_refreshInProgress)
+            if(refreshInProgress)
             {
                 if(!_refreshQueued && !((MainWindow) mainWindow).GetSlidersForRefresh().Any(slider => slider.IsClickDown()))
                 {
@@ -567,13 +567,13 @@ namespace TittyMagic
                 }
             }
 
-            while(_refreshInProgress)
+            while(refreshInProgress)
             {
                 yield return null;
             }
 
             _refreshQueued = false;
-            _refreshInProgress = true;
+            refreshInProgress = true;
 
             /* Freeze animation and zero adjustments */
             {
@@ -688,7 +688,7 @@ namespace TittyMagic
             settingsMonitor.SetEnabled(true);
 
             _waiting = _refreshQueued;
-            _refreshInProgress = false;
+            refreshInProgress = false;
             initDone = true;
         }
 

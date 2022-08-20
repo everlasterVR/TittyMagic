@@ -369,7 +369,7 @@ namespace TittyMagic
 
         private void SyncHardColliderDimensions(ColliderConfigGroup config)
         {
-            if(!enabled)
+            if(!enabled || !Gender.isFemale)
             {
                 return;
             }
@@ -380,7 +380,7 @@ namespace TittyMagic
 
         private void SyncHardColliderPosition(ColliderConfigGroup config)
         {
-            if(!enabled)
+            if(!enabled || !Gender.isFemale)
             {
                 return;
             }
@@ -391,7 +391,7 @@ namespace TittyMagic
 
         private void SyncHardColliderMass(ColliderConfigGroup config)
         {
-            if(!enabled)
+            if(!enabled || !Gender.isFemale)
             {
                 return;
             }
@@ -404,6 +404,11 @@ namespace TittyMagic
 
         public void SyncAllOffsets()
         {
+            if(!enabled || !Gender.isFemale)
+            {
+                return;
+            }
+
             float mass = _script.mainPhysicsHandler.normalizedRealMass;
             float softness = _script.softnessAmount;
             colliderConfigs.ForEach(config =>
@@ -414,7 +419,7 @@ namespace TittyMagic
             SyncSizeAuto();
         }
 
-        public void SyncSizeAuto()
+        private void SyncSizeAuto()
         {
             colliderConfigs.ForEach(config => config.AutoColliderSizeSet());
             _script.colliderVisualizer.SyncPreviews();
@@ -481,7 +486,6 @@ namespace TittyMagic
                 yield return null;
             }
 
-            _geometry.useAuxBreastColliders = true;
             yield return DeferBeginSyncBaseMass();
             SyncAllOffsets();
         }
@@ -490,7 +494,7 @@ namespace TittyMagic
 
         private void SyncHardCollidersBaseMass(float value)
         {
-            if(!enabled)
+            if(!enabled || !Gender.isFemale)
             {
                 return;
             }
@@ -619,7 +623,7 @@ namespace TittyMagic
             }
             else
             {
-                message += "Unknown reason.";
+                message += "Unknown reason. Please report a bug.";
                 Utils.LogMessage(message);
             }
         }

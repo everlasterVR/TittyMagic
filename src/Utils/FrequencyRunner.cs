@@ -24,5 +24,15 @@ namespace TittyMagic
 
             return default(T);
         }
+
+        public void Run(Action action)
+        {
+            _timeSinceLastCheck += Time.unscaledDeltaTime;
+            if(_timeSinceLastCheck >= _frequency)
+            {
+                _timeSinceLastCheck = 0;
+                action();
+            }
+        }
     }
 }

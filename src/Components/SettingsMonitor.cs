@@ -46,7 +46,7 @@ namespace TittyMagic
             _breastInOut.SetBoolParamValue("enabled", false);
         }
 
-        private bool Watch()
+        private void Watch()
         {
             if(_breastInOut.GetBoolParamValue("enabled"))
             {
@@ -57,12 +57,27 @@ namespace TittyMagic
                 }
             }
 
+            if(Gender.isFemale && !_geometry.useAdvancedColliders)
+            {
+                _geometry.useAdvancedColliders = true;
+                LogMessage("Advanced Colliders enabled - they are necessary for directional force morphing and hard colliders to work.");
+            }
+
+            if(_script.refreshInProgress)
+            {
+                return;
+            }
+
+            bool refreshNeeded = false;
+            bool rateDependentRefreshNeeded = false;
+
             if(Gender.isFemale)
             {
-                if(!_geometry.useAdvancedColliders)
+                /* Check if hard colliders have been disabled */
+                if(!_geometry.useAuxBreastColliders)
                 {
-                    _geometry.useAdvancedColliders = true;
-                    LogMessage("Advanced Colliders enabled - they are necessary for directional force morphing and hard colliders to work.");
+                    refreshNeeded = true;
+                    _geometry.useAuxBreastColliders = true;
                 }
 
                 /* Check if soft physics was toggled */
@@ -77,7 +92,6 @@ namespace TittyMagic
                         LogMessage($"Soft Physics is still disabled in {location}");
                     }
 
-                    bool refreshNeeded = false;
                     bool value = globalSoftPhysicsOn && atomSoftPhysicsOn && breastSoftPhysicsOn;
                     if(value != softPhysicsEnabled)
                     {
@@ -88,11 +102,6 @@ namespace TittyMagic
                     _breastSoftPhysicsOn = breastSoftPhysicsOn;
                     _atomSoftPhysicsOn = atomSoftPhysicsOn;
                     _globalSoftPhysicsOn = globalSoftPhysicsOn;
-
-                    if(refreshNeeded)
-                    {
-                        _script.StartRefreshCoroutine(refreshMass: false, waitForListeners: false);
-                    }
                 }
             }
 
@@ -101,15 +110,22 @@ namespace TittyMagic
                 float value = Time.fixedDeltaTime;
                 if(Math.Abs(value - _fixedDeltaTime) > 0.001f)
                 {
-                    _script.mainPhysicsHandler.UpdateRateDependentPhysics();
-                    _script.softPhysicsHandler.UpdateRateDependentPhysics();
-                    _script.hardColliderHandler.SyncHardCollidersBaseMass();
+                    rateDependentRefreshNeeded = true;
                 }
 
                 _fixedDeltaTime = value;
             }
 
-            return true;
+            if(refreshNeeded)
+            {
+                _script.StartRefreshCoroutine(refreshMass: false, waitForListeners: false);
+            }
+            else if(rateDependentRefreshNeeded)
+            {
+                _script.mainPhysicsHandler.UpdateRateDependentPhysics();
+                _script.softPhysicsHandler.UpdateRateDependentPhysics();
+                _script.hardColliderHandler.SyncHardCollidersBaseMass();
+            }
         }
 
         private string LocationWhereStillDisabled(bool breastSoftPhysicsOn, bool atomSoftPhysicsOn, bool globalSoftPhysicsOn)
