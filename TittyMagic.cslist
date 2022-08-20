@@ -53,7 +53,6 @@ src\Static\ParamName.cs
 src\Static\Side.cs
 src\Static\SoftColliderGroup.cs
 src\Static\VertexIndexGroup.cs
-src\AtomScaleListener.cs
 src\BreastMorphListener.cs
 src\Script.cs
 src\SettingsMonitor.cs

@@ -111,13 +111,13 @@ namespace TittyMagic.Handlers
             {
                 float toCm3 = Mathf.Pow(10, 6);
 
-                float atomScale = _script.atomScaleListener.scale;
+                float scale = _script.containingAtom.GetStorableByID("rescaleObject").GetFloatParamValue("scale");
 
                 /* This somewhat accurately scales breast volume to the apparent breast size when atom scale is adjusted. */
-                float atomScaleAdjustment = 1 - Mathf.Abs(Mathf.Log10(Mathf.Pow(atomScale, 3)));
-                float atomScaleFactor = atomScale >= 1
-                    ? atomScale * atomScaleAdjustment
-                    : atomScale / atomScaleAdjustment;
+                float atomScaleAdjustment = 1 - Mathf.Abs(Mathf.Log10(Mathf.Pow(scale, 3)));
+                float atomScaleFactor = scale >= 1
+                    ? scale * atomScaleAdjustment
+                    : scale / atomScaleAdjustment;
 
                 float z = bounds.size.z * atomScaleFactor;
                 float volume = toCm3 * (4 * Mathf.PI * bounds.size.x / 2 * bounds.size.y / 2 * z / 2) / 3;

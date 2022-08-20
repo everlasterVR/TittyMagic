@@ -82,7 +82,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\AtomScaleListener.cs" />
     <Compile Include="src\BreastMorphListener.cs" />
     <Compile Include="src\Components\FrequencyRunner.cs" />
     <Compile Include="src\Components\Scaler.cs" />

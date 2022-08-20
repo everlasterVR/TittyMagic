@@ -33,8 +33,6 @@ namespace TittyMagic
         private TrackNipple _trackRightNipple;
         public SettingsMonitor settingsMonitor { get; private set; }
 
-        public AtomScaleListener atomScaleListener { get; private set; }
-
         public MainPhysicsHandler mainPhysicsHandler { get; private set; }
         public HardColliderHandler hardColliderHandler { get; private set; }
         public SoftPhysicsHandler softPhysicsHandler { get; private set; }
@@ -194,8 +192,22 @@ namespace TittyMagic
             _pectoralRbRight = breastControl.joint1.GetComponent<Rigidbody>();
             SetPectoralCollisions(false);
 
-            atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
-            var skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
+            /* Setup atom scale changed callback */
+            {
+                var scaleJsf = containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale");
+                scaleJsf.setJSONCallbackFunction = _ =>
+                {
+                    if(!initDone || _waiting || containingAtom.grabFreezePhysics && containingAtom.mainController.isGrabbing)
+                    {
+                        return;
+                    }
+
+                    if(autoUpdateJsb.val && !_waiting)
+                    {
+                        StartRefreshCoroutine(refreshMass: true, waitForListeners: true);
+                    }
+                };
+            }
 
             /* Setup collider visualizer */
             {
@@ -221,6 +233,7 @@ namespace TittyMagic
                 }
             }
 
+            var skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
             mainPhysicsHandler = new MainPhysicsHandler(this, breastControl, skin, chestRb);
             hardColliderHandler = gameObject.AddComponent<HardColliderHandler>();
             hardColliderHandler.Init();
@@ -511,10 +524,7 @@ namespace TittyMagic
                     return;
                 }
 
-                bool morphsOrScaleChanged = _listenersCheckRunner.Run(() =>
-                    BreastMorphListener.Changed() || atomScaleListener.Changed()
-                );
-                if(morphsOrScaleChanged && autoUpdateJsb.val && !_waiting)
+                if(_listenersCheckRunner.Run(BreastMorphListener.Changed) && autoUpdateJsb.val && !_waiting)
                 {
                     StartRefreshCoroutine(refreshMass: true, waitForListeners: true);
                     return;
@@ -598,11 +608,7 @@ namespace TittyMagic
                 var sliders = ((MainWindow) mainWindow).GetSlidersForRefresh();
                 yield return new WaitForSeconds(0.33f);
 
-                while(
-                    BreastMorphListener.Changed() ||
-                    atomScaleListener.Changed() ||
-                    sliders.Any(slider => slider.IsClickDown())
-                )
+                while(BreastMorphListener.Changed() || sliders.Any(slider => slider.IsClickDown()))
                 {
                     yield return new WaitForSeconds(0.1f);
                 }
