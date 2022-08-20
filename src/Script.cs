@@ -678,10 +678,7 @@ namespace TittyMagic
                     _trackRightNipple.Calibrate();
                 }
 
-                if(Gender.isFemale)
-                {
-                    yield return hardColliderHandler.SyncAll();
-                }
+                yield return hardColliderHandler.SyncAll();
 
                 _calibrating = false;
             }

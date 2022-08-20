@@ -661,6 +661,11 @@ namespace TittyMagic
 
         public void SyncSoftPhysics()
         {
+            if(!Gender.isFemale)
+            {
+                return;
+            }
+
             SyncSoftPhysicsOn(softPhysicsOn.val);
             SyncAllowSelfCollision(allowSelfCollision.val);
         }

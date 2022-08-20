@@ -471,7 +471,7 @@ namespace TittyMagic
 
         public IEnumerator SyncAll()
         {
-            if(!enabled)
+            if(!enabled || !Gender.isFemale)
             {
                 yield break;
             }
