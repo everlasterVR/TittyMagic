@@ -20,7 +20,6 @@ vam-collider-editor\src\Mirrors.cs
 vam-collider-editor\src\MVRScriptExtensions.cs
 vam-collider-editor\src\NameHelper.cs
 vam-collider-editor\src\UIPopupExtensions.cs
-src\Components\Bindings.cs
 src\Components\FrequencyRunner.cs
 src\Components\PointerUpDownListener.cs
 src\Components\Scaler.cs
@@ -54,6 +53,7 @@ src\Static\Side.cs
 src\Static\SoftColliderGroup.cs
 src\Static\VertexIndexGroup.cs
 src\BreastMorphListener.cs
+src\Bindings.cs
 src\Script.cs
 src\SettingsMonitor.cs
 src\UI\GravityWindow.cs

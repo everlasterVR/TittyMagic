@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using SimpleJSON;
+using TittyMagic.Components;
 using TittyMagic.Handlers;
 using TittyMagic.UI;
 using UnityEngine;

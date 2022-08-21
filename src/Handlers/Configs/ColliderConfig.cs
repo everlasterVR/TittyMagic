@@ -1,4 +1,5 @@
 using GPUTools.Physics.Scripts.Behaviours;
+using TittyMagic.Components;
 using UnityEngine;
 
 namespace TittyMagic.Configs

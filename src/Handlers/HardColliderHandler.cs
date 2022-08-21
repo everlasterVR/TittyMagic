@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TittyMagic.Components;
 using TittyMagic.Configs;
 using TittyMagic.UI;
 using UnityEngine;

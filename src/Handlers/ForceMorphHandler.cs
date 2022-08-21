@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using TittyMagic.Components;
 using TittyMagic.Configs;
 using UnityEngine;
 using static TittyMagic.Script;

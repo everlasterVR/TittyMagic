@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace TittyMagic.UI
+namespace TittyMagic.Components
 {
     public class PointerUpDownListener : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {

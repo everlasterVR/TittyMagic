@@ -1,4 +1,5 @@
 ﻿using System;
+using TittyMagic.Components;
 using TittyMagic.Handlers;
 using UnityEngine;
 using static TittyMagic.Script;

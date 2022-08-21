@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace TittyMagic.UI
+namespace TittyMagic.Components
 {
     public class UnityEventsListener : MonoBehaviour
     {

@@ -1,4 +1,4 @@
-using TittyMagic.UI;
+using TittyMagic.Components;
 
 public static class UIDynamicSliderExtension
 {
