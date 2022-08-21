@@ -78,10 +78,8 @@ namespace TittyMagic
             yield return new WaitForSeconds(0.1f);
         }
 
-        /* Applies the same consistent delay regardless of whether callback invoke is actually updated */
-        public IEnumerator WaitAndRepeat(Action callback, int times, float intervalWait = 0.1f, float initialWait = 0f)
+        public IEnumerator WaitAndRepeat(Action callback, int times, float intervalWait)
         {
-            yield return new WaitForSeconds(initialWait);
             int count = 0;
             while(count < times)
             {

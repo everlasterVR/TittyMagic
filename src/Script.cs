@@ -609,7 +609,8 @@ namespace TittyMagic
                     MainPhysicsHandler.UpdatePhysics();
                 }
             };
-            yield return calibration.WaitAndRepeat(updateMass, 5, 0.1f, 0.3f);
+            yield return new WaitForSeconds(0.3f);
+            yield return calibration.WaitAndRepeat(updateMass, 5, 0.1f);
 
             /* Update physics */
             MainPhysicsHandler.UpdatePhysics();
