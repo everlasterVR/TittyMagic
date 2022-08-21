@@ -163,8 +163,8 @@ namespace TittyMagic
                 },
                 {
                     Direction.RIGHT, new DynamicPhysicsConfig(
-                        massMultiplier: -7.20f,
-                        softnessMultiplier: -11.16f,
+                        massMultiplier: 7.20f,
+                        softnessMultiplier: 11.16f,
                         isNegative: false,
                         applyMethod: ApplyMethod.ADDITIVE,
                         massCurve: x => 1.5f * Curves.TargetRotationMassCurve(x),
