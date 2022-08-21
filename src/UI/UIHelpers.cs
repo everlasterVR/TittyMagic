@@ -1,4 +1,4 @@
-// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
 using UnityEngine;
 using UnityEngine.UI;
 using static TittyMagic.Script;

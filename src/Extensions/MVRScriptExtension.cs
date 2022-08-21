@@ -44,6 +44,42 @@ public static class MVRScriptExtension
         .Instantiate(script.manager.configurableColorPickerPrefab)
         .GetComponent<UIDynamicColorPicker>();
 
+    public static JSONStorableBool NewJSONStorableBool(
+        this MVRScript script,
+        string paramName,
+        bool startingValue,
+        bool register = true
+    )
+    {
+        var storable = new JSONStorableBool(paramName, startingValue);
+        storable.storeType = JSONStorableParam.StoreType.Full;
+        if(register)
+        {
+            script.RegisterBool(storable);
+        }
+
+        return storable;
+    }
+
+    public static JSONStorableFloat NewJSONStorableFloat(
+        this MVRScript script,
+        string paramName,
+        float startingValue,
+        float minValue,
+        float maxValue,
+        bool register = true
+    )
+    {
+        var storable = new JSONStorableFloat(paramName, startingValue, minValue, maxValue);
+        storable.storeType = JSONStorableParam.StoreType.Full;
+        if(register)
+        {
+            script.RegisterFloat(storable);
+        }
+
+        return storable;
+    }
+
     public static UIDynamic NewSpacer(
         this MVRScript script,
         float height,
