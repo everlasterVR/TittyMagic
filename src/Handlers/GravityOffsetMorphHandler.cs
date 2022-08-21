@@ -23,7 +23,7 @@ namespace TittyMagic.Handlers
                 { Direction.DOWN, LoadSettingsFromFile(Direction.DOWN, "upright", true) },
             };
 
-        private static List<MorphConfig> LoadSettingsFromFile(string subDir, string fileName, bool separateLeftRight = false)
+        private static List<MorphConfig> LoadSettingsFromFile(string subDir, string fileName, bool hasSeparateLeftRightConfigs = false)
         {
             string path = $@"{tittyMagic.PluginPath()}\settings\morphmultipliers\offset\{fileName}.json";
             var jsonClass = tittyMagic.LoadJSON(path).AsObject;
@@ -31,7 +31,7 @@ namespace TittyMagic.Handlers
             var configs = new List<MorphConfig>();
             foreach(string name in jsonClass.Keys)
             {
-                if(separateLeftRight)
+                if(hasSeparateLeftRightConfigs)
                 {
                     configs.Add(
                         new MorphConfig(

@@ -27,8 +27,6 @@ namespace TittyMagic.Handlers
         private const string COLLIDER_CENTER_Y = "ColliderCenterY";
         private const string COLLIDER_CENTER_Z = "ColliderCenterZ";
 
-        private bool _combinedSyncInProgress;
-
         public void Init(DAZCharacterSelector geometry)
         {
             _geometry = geometry;
@@ -78,7 +76,7 @@ namespace TittyMagic.Handlers
 
             baseForceJsf = tittyMagic.NewJSONStorableFloat("baseCollisionForce", 0.75f, 0.01f, 1.50f);
             baseForceJsf.setCallbackFunction = SyncHardCollidersBaseMass;
-            highlightAllJsb = tittyMagic.NewJSONStorableBool("highlightAllColliders", false, register: false);
+            highlightAllJsb = tittyMagic.NewJSONStorableBool("highlightAllColliders", false, shouldRegister: false);
             highlightAllJsb.setCallbackFunction = value => tittyMagic.colliderVisualizer.PreviewOpacityJSON.val = value ? 1.00f : 0.67f;
         }
 
@@ -396,7 +394,7 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            if(!config.syncInProgress)
+            if(!config.syncIsInProgress)
             {
                 StartCoroutine(DeferBeginSyncMass(config));
             }
@@ -427,7 +425,7 @@ namespace TittyMagic.Handlers
 
         private IEnumerator DeferBeginSyncMass(ColliderConfigGroup config)
         {
-            config.syncInProgress = true;
+            config.syncIsInProgress = true;
 
             var elements = ((HardCollidersWindow) tittyMagic.mainWindow.GetActiveNestedWindow())?.colliderSectionElements;
             if(elements != null && elements.Any())
@@ -436,7 +434,7 @@ namespace TittyMagic.Handlers
                 var slider = (UIDynamicSlider) elements[config.forceJsf.name];
                 if(slider != null)
                 {
-                    while(slider.IsPointerDown())
+                    while(slider.PointerIsDown())
                     {
                         yield return new WaitForSecondsRealtime(0.1f);
                     }
@@ -445,7 +443,7 @@ namespace TittyMagic.Handlers
                 }
             }
 
-            config.syncInProgress = false;
+            config.syncIsInProgress = false;
             yield return DeferSyncMass(config);
         }
 
@@ -474,6 +472,8 @@ namespace TittyMagic.Handlers
             }
         }
 
+        private bool _combinedSyncIsInProgress;
+
         public IEnumerator SyncAll()
         {
             if(!enabled || !Gender.isFemale)
@@ -481,7 +481,7 @@ namespace TittyMagic.Handlers
                 yield break;
             }
 
-            while(_combinedSyncInProgress)
+            while(_combinedSyncIsInProgress)
             {
                 yield return null;
             }
@@ -500,7 +500,7 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            if(!_combinedSyncInProgress)
+            if(!_combinedSyncIsInProgress)
             {
                 StartCoroutine(DeferBeginSyncBaseMass());
             }
@@ -508,7 +508,7 @@ namespace TittyMagic.Handlers
 
         private IEnumerator DeferBeginSyncBaseMass()
         {
-            _combinedSyncInProgress = true;
+            _combinedSyncIsInProgress = true;
 
             var elements = tittyMagic.mainWindow?.GetActiveNestedWindow()?.GetElements();
             if(elements != null && elements.Any())
@@ -517,7 +517,7 @@ namespace TittyMagic.Handlers
                 var slider = (UIDynamicSlider) elements[baseForceJsf.name];
                 if(slider != null)
                 {
-                    while(slider.IsPointerDown())
+                    while(slider.PointerIsDown())
                     {
                         yield return new WaitForSecondsRealtime(0.1f);
                     }
@@ -526,7 +526,7 @@ namespace TittyMagic.Handlers
                 }
             }
 
-            _combinedSyncInProgress = false;
+            _combinedSyncIsInProgress = false;
             yield return DeferSyncMassCombined();
         }
 
@@ -592,7 +592,7 @@ namespace TittyMagic.Handlers
 
         private void OnEnable()
         {
-            if(tittyMagic == null || !tittyMagic.initDone)
+            if(tittyMagic == null || !tittyMagic.isInitialized)
             {
                 return;
             }

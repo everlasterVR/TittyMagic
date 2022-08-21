@@ -19,7 +19,7 @@ namespace TittyMagic
 
         private static bool isBlocked => ((MainWindow) tittyMagic.mainWindow)
             .GetSlidersForRefresh()
-            .Any(slider => slider.IsPointerDown());
+            .Any(slider => slider.PointerIsDown());
 
         public IEnumerator Begin()
         {
@@ -70,7 +70,7 @@ namespace TittyMagic
         {
             yield return new WaitForSeconds(0.33f);
 
-            while(BreastMorphListener.Changed() || isBlocked)
+            while(BreastMorphListener.ChangeWasDetected() || isBlocked)
             {
                 yield return new WaitForSeconds(0.1f);
             }
@@ -78,7 +78,7 @@ namespace TittyMagic
             yield return new WaitForSeconds(0.1f);
         }
 
-        /* Applies the same consistent delay regardless of whether mass is actually updated */
+        /* Applies the same consistent delay regardless of whether callback invoke is actually updated */
         public IEnumerator WaitAndRepeat(Action callback, int times, float intervalWait = 0.1f, float initialWait = 0f)
         {
             yield return new WaitForSeconds(initialWait);

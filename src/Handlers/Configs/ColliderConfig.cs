@@ -12,7 +12,7 @@ namespace TittyMagic.Configs
 
         public string id { get; }
         public string visualizerEditableId => _left.visualizerEditableId;
-        public bool syncInProgress { get; set; }
+        public bool syncIsInProgress { get; set; }
 
         private readonly Scaler _baseRbMassSliderScaler;
         private readonly Scaler _radiusSliderScaler;

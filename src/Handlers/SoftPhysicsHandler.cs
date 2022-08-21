@@ -20,10 +20,10 @@ namespace TittyMagic.Handlers
 
         // Group name -> Group
         public static Dictionary<string, PhysicsParameterGroup> parameterGroups { get; private set; }
-        public static JSONStorableBool softPhysicsOn { get; private set; }
-        public static JSONStorableBool allowSelfCollision { get; private set; }
+        public static JSONStorableBool softPhysicsOnJsb { get; private set; }
+        public static JSONStorableBool allowSelfCollisionJsb { get; private set; }
 
-        private static bool _initDone;
+        private static bool _isInitialized;
 
         public static void Init()
         {
@@ -56,19 +56,19 @@ namespace TittyMagic.Handlers
                 };
             }
 
-            softPhysicsOn = tittyMagic.NewJSONStorableBool(SOFT_PHYSICS_ON, Gender.isFemale, register: Gender.isFemale);
-            softPhysicsOn.setCallbackFunction = SyncSoftPhysicsOn;
+            softPhysicsOnJsb = tittyMagic.NewJSONStorableBool(SOFT_PHYSICS_ON, Gender.isFemale, shouldRegister: Gender.isFemale);
+            softPhysicsOnJsb.setCallbackFunction = SyncSoftPhysicsOn;
 
-            allowSelfCollision = tittyMagic.NewJSONStorableBool(ALLOW_SELF_COLLISION, Gender.isFemale, register: Gender.isFemale);
-            allowSelfCollision.setCallbackFunction = SyncAllowSelfCollision;
+            allowSelfCollisionJsb = tittyMagic.NewJSONStorableBool(ALLOW_SELF_COLLISION, Gender.isFemale, shouldRegister: Gender.isFemale);
+            allowSelfCollisionJsb.setCallbackFunction = SyncAllowSelfCollision;
 
             if(_breastPhysicsMesh == null)
             {
-                softPhysicsOn.valNoCallback = false;
-                allowSelfCollision.valNoCallback = false;
+                softPhysicsOnJsb.valNoCallback = false;
+                allowSelfCollisionJsb.valNoCallback = false;
             }
 
-            _initDone = true;
+            _isInitialized = true;
         }
 
         public static void LoadSettings()
@@ -91,7 +91,7 @@ namespace TittyMagic.Handlers
             return new PhysicsParameter(
                 valueJsf,
                 baseValueJsf: new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
-                offsetJsf: tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, register: side == LEFT)
+                offsetJsf: tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, shouldRegister: side == LEFT)
             );
         }
 
@@ -102,7 +102,7 @@ namespace TittyMagic.Handlers
             return new SoftGroupPhysicsParameter(
                 valueJsf,
                 baseValueJsf: new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
-                offsetJsf: tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, register: side == LEFT)
+                offsetJsf: tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, shouldRegister: side == LEFT)
             );
         }
 
@@ -472,7 +472,7 @@ namespace TittyMagic.Handlers
                 "Fat Damper"
             )
             {
-                dependOnPhysicsRate = true,
+                dependsOnPhysicsRate = true,
             };
 
             var softVerticesMass = new PhysicsParameterGroup(
@@ -487,7 +487,7 @@ namespace TittyMagic.Handlers
                 "Fat Collider Radius"
             )
             {
-                useRealMass = true,
+                usesRealMass = true,
             };
 
             var softVerticesColliderAdditionalNormalOffset = new PhysicsParameterGroup(
@@ -502,7 +502,7 @@ namespace TittyMagic.Handlers
                 "Fat Distance Limit"
             )
             {
-                useRealMass = true,
+                usesRealMass = true,
             };
 
             var softVerticesBackForce = new PhysicsParameterGroup(
@@ -631,7 +631,7 @@ namespace TittyMagic.Handlers
         {
             if(_breastPhysicsMesh != null)
             {
-                softPhysicsOn.valNoCallback = _breastPhysicsMesh.on;
+                softPhysicsOnJsb.valNoCallback = _breastPhysicsMesh.on;
             }
         }
 
@@ -639,7 +639,7 @@ namespace TittyMagic.Handlers
         {
             if(_breastPhysicsMesh != null)
             {
-                allowSelfCollision.valNoCallback = _breastPhysicsMesh.allowSelfCollision;
+                allowSelfCollisionJsb.valNoCallback = _breastPhysicsMesh.allowSelfCollision;
             }
         }
 
@@ -668,8 +668,8 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            SyncSoftPhysicsOn(softPhysicsOn.val);
-            SyncAllowSelfCollision(allowSelfCollision.val);
+            SyncSoftPhysicsOn(softPhysicsOnJsb.val);
+            SyncAllowSelfCollision(allowSelfCollisionJsb.val);
         }
 
         public static void UpdatePhysics()
@@ -685,7 +685,7 @@ namespace TittyMagic.Handlers
                 .ToList()
                 .ForEach(paramGroup =>
                 {
-                    float mass = paramGroup.useRealMass ? MainPhysicsHandler.realMassAmount : MainPhysicsHandler.massAmount;
+                    float mass = paramGroup.usesRealMass ? MainPhysicsHandler.realMassAmount : MainPhysicsHandler.massAmount;
                     paramGroup.UpdateValue(mass, softness, quickness);
                 });
         }
@@ -700,11 +700,11 @@ namespace TittyMagic.Handlers
             float softness = tittyMagic.softnessAmount;
             float quickness = tittyMagic.quicknessAmount;
             parameterGroups.Values
-                .Where(paramGroup => paramGroup.dependOnPhysicsRate)
+                .Where(paramGroup => paramGroup.dependsOnPhysicsRate)
                 .ToList()
                 .ForEach(paramGroup =>
                 {
-                    float mass = paramGroup.useRealMass ? MainPhysicsHandler.realMassAmount : MainPhysicsHandler.massAmount;
+                    float mass = paramGroup.usesRealMass ? MainPhysicsHandler.realMassAmount : MainPhysicsHandler.massAmount;
                     paramGroup.UpdateValue(mass, softness, quickness);
                 });
         }
@@ -725,7 +725,7 @@ namespace TittyMagic.Handlers
 
         public static void RestoreOriginalPhysics()
         {
-            if(!_initDone || _breastPhysicsMesh == null)
+            if(!_isInitialized || _breastPhysicsMesh == null)
             {
                 return;
             }

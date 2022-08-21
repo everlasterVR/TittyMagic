@@ -48,12 +48,12 @@ public static class MVRScriptExtension
         this MVRScript script,
         string paramName,
         bool startingValue,
-        bool register = true
+        bool shouldRegister = true
     )
     {
         var storable = new JSONStorableBool(paramName, startingValue);
         storable.storeType = JSONStorableParam.StoreType.Full;
-        if(register)
+        if(shouldRegister)
         {
             script.RegisterBool(storable);
         }
@@ -67,12 +67,12 @@ public static class MVRScriptExtension
         float startingValue,
         float minValue,
         float maxValue,
-        bool register = true
+        bool shouldRegister = true
     )
     {
         var storable = new JSONStorableFloat(paramName, startingValue, minValue, maxValue);
         storable.storeType = JSONStorableParam.StoreType.Full;
-        if(register)
+        if(shouldRegister)
         {
             script.RegisterFloat(storable);
         }

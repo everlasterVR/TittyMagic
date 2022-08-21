@@ -83,7 +83,7 @@ namespace TittyMagic.UI
 
         private void CreateAllowSelfCollisionToggle(bool rightSide)
         {
-            var storable = SoftPhysicsHandler.allowSelfCollision;
+            var storable = SoftPhysicsHandler.allowSelfCollisionJsb;
             var toggle = tittyMagic.CreateToggle(storable, rightSide);
             toggle.height = 52;
             toggle.label = "Breast Soft Physics Self Collide";
@@ -134,7 +134,7 @@ namespace TittyMagic.UI
 
         private void CreateSoftPhysicsOnToggle(bool rightSide, int spacing = 0)
         {
-            var storable = SoftPhysicsHandler.softPhysicsOn;
+            var storable = SoftPhysicsHandler.softPhysicsOnJsb;
             AddSpacer(storable.name, spacing, rightSide);
 
             var toggle = tittyMagic.CreateToggle(storable, rightSide);

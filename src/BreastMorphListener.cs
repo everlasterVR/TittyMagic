@@ -87,7 +87,7 @@ namespace TittyMagic
         private static DAZMorph[] _morphs;
         private static float[] _values;
 
-        public static bool Changed()
+        public static bool ChangeWasDetected()
         {
             for(int i = 0; i < _morphs.Length; i++)
             {

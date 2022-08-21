@@ -102,7 +102,7 @@ namespace TittyMagic.UI
             slider.valueFormat = _massParameter.valueFormat;
             slider.label = "Breast Mass Offset";
 
-            slider.AddListener((float _) => tittyMagic.StartCalibration(shouldCalibrateMass: true, shouldWaitForListeners: true));
+            slider.AddListener((float _) => tittyMagic.StartCalibration(calibratesMass: true, waitsForListeners: true));
             slider.AddPointerUpDownListener();
 
             elements[storable.name] = slider;

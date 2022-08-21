@@ -52,8 +52,8 @@ namespace TittyMagic.Configs
 
         private float LimitToRange(float value)
         {
-            bool inRange = isNegative ? value < 0 : value > 0;
-            return inRange ? value : 0;
+            bool isInRange = isNegative ? value < 0 : value > 0;
+            return isInRange ? value : 0;
         }
     }
 }

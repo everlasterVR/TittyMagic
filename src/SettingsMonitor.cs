@@ -116,7 +116,7 @@ namespace TittyMagic
 
             if(refreshNeeded)
             {
-                tittyMagic.StartCalibration(shouldCalibrateMass: false, shouldWaitForListeners: false);
+                tittyMagic.StartCalibration(calibratesMass: false, waitsForListeners: false);
             }
             else if(rateDependentRefreshNeeded)
             {

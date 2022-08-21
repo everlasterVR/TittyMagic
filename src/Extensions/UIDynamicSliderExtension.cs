@@ -15,7 +15,7 @@ public static class UIDynamicSliderExtension
         return uiDynamicSlider.slider.gameObject.GetComponent<PointerUpDownListener>();
     }
 
-    public static bool IsPointerDown(this UIDynamicSlider uiDynamicSlider)
+    public static bool PointerIsDown(this UIDynamicSlider uiDynamicSlider)
     {
         var sliderClickMonitor = uiDynamicSlider.GetPointerUpDownListener();
         return sliderClickMonitor != null && sliderClickMonitor.isDown;

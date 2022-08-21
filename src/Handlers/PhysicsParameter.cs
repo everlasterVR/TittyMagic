@@ -11,19 +11,19 @@ namespace TittyMagic.Handlers
         public string displayName { get; }
         public string infoText { get; set; }
 
-        public bool dependOnPhysicsRate
+        public bool dependsOnPhysicsRate
         {
-            get { return left.dependOnPhysicsRate && right.dependOnPhysicsRate; }
+            get { return left.dependsOnPhysicsRate && right.dependsOnPhysicsRate; }
             set
             {
-                left.dependOnPhysicsRate = value;
-                right.dependOnPhysicsRate = value;
+                left.dependsOnPhysicsRate = value;
+                right.dependsOnPhysicsRate = value;
             }
         }
 
-        public bool useRealMass { get; set; }
+        public bool usesRealMass { get; set; }
         public bool requiresRecalibration { get; set; }
-        public bool invertRight { get; set; }
+        public bool rightIsInverted { get; set; }
         public JSONStorableBool offsetOnlyLeftBreastJsb { get; }
 
         public PhysicsParameter left { get; }
@@ -66,7 +66,7 @@ namespace TittyMagic.Handlers
             left.offsetJsf.setCallbackFunction = value =>
             {
                 left.UpdateOffsetValue(value);
-                float rightValue = invertRight ? -value : value;
+                float rightValue = rightIsInverted ? -value : value;
                 right.UpdateOffsetValue(offsetOnlyLeftBreastJsb.val ? 0 : rightValue);
             };
         }
@@ -143,7 +143,7 @@ namespace TittyMagic.Handlers
             left.offsetJsf.setCallbackFunction = value =>
             {
                 left.UpdateOffsetValue(value);
-                float rightValue = invertRight ? -value : value;
+                float rightValue = rightIsInverted ? -value : value;
                 right.UpdateOffsetValue(offsetOnlyLeftBreastJsb.val ? 0 : rightValue);
             };
 
@@ -172,7 +172,7 @@ namespace TittyMagic.Handlers
 
         private readonly Dictionary<string, float> _additiveGravityAdjustments;
         protected readonly Dictionary<string, float> additiveForceAdjustments;
-        public bool dependOnPhysicsRate { get; set; }
+        public bool dependsOnPhysicsRate { get; set; }
 
         public StaticPhysicsConfig config { get; set; }
         public StaticPhysicsConfig quicknessOffsetConfig { get; set; }
@@ -281,7 +281,7 @@ namespace TittyMagic.Handlers
                 value += Mathf.Lerp(0, maxSlownessOffset, -quickness);
             }
 
-            return dependOnPhysicsRate ? Utils.PhysicsRateMultiplier() * value : value;
+            return dependsOnPhysicsRate ? Utils.PhysicsRateMultiplier() * value : value;
         }
 
         public void UpdateGravityValue(string direction, float effect, float massValue, float softness)

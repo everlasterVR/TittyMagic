@@ -35,7 +35,7 @@ namespace TittyMagic.Handlers
 
         public static MassParameterGroup massParameterGroup { get; private set; }
 
-        private static bool _initDone;
+        private static bool _isInitialized;
 
         public static void Init(
             AdjustJoints breastControl,
@@ -74,7 +74,7 @@ namespace TittyMagic.Handlers
                 TARGET_ROTATION_Y,
             };
 
-            _initDone = true;
+            _isInitialized = true;
         }
 
         public static void UpdateMassValueAndAmounts()
@@ -150,7 +150,7 @@ namespace TittyMagic.Handlers
             var parameter = new MassParameter(
                 valueJsf,
                 baseValueJsf: new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
-                offsetJsf: tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, register: side == LEFT)
+                offsetJsf: tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, shouldRegister: side == LEFT)
             );
             parameter.valueFormat = "F3";
             parameter.sync = value => SyncMass(_pectoralRbs[side], value);
@@ -164,7 +164,7 @@ namespace TittyMagic.Handlers
             return new PhysicsParameter(
                 valueJsf,
                 baseValueJsf: new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
-                offsetJsf: tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, register: side == LEFT)
+                offsetJsf: tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, shouldRegister: side == LEFT)
             );
         }
 
@@ -287,7 +287,7 @@ namespace TittyMagic.Handlers
                 "Damper"
             )
             {
-                dependOnPhysicsRate = true,
+                dependsOnPhysicsRate = true,
             };
 
             var positionSpringZ = new PhysicsParameterGroup(
@@ -305,7 +305,7 @@ namespace TittyMagic.Handlers
                 "In/Out Damper"
             )
             {
-                dependOnPhysicsRate = true,
+                dependsOnPhysicsRate = true,
             };
 
             var targetRotationY = new PhysicsParameterGroup(
@@ -315,7 +315,7 @@ namespace TittyMagic.Handlers
             )
             {
                 requiresRecalibration = true,
-                invertRight = true,
+                rightIsInverted = true,
             };
 
             var targetRotationX = new PhysicsParameterGroup(
@@ -368,7 +368,7 @@ namespace TittyMagic.Handlers
         private static void SyncCenterOfGravity(Rigidbody rb, float value)
         {
             var newCenterOfMass = Vector3.Lerp(_breastControl.lowCenterOfGravity, _breastControl.highCenterOfGravity, value);
-            if(Calc.VectorEqualWithin(1 / 100f, rb.centerOfMass, newCenterOfMass))
+            if(Calc.VectorIsEqualWithin(1 / 100f, rb.centerOfMass, newCenterOfMass))
             {
                 return;
             }
@@ -527,20 +527,20 @@ namespace TittyMagic.Handlers
             float softness = tittyMagic.softnessAmount;
             float quickness = tittyMagic.quicknessAmount;
             parameterGroups.Values
-                .Where(paramGroup => paramGroup.dependOnPhysicsRate)
+                .Where(paramGroup => paramGroup.dependsOnPhysicsRate)
                 .ToList()
                 .ForEach(paramGroup => UpdateParam(paramGroup, softness, quickness));
         }
 
         private static void UpdateParam(PhysicsParameterGroup paramGroup, float softness, float quickness)
         {
-            float massValue = paramGroup.useRealMass ? realMassAmount : massAmount;
+            float massValue = paramGroup.usesRealMass ? realMassAmount : massAmount;
             paramGroup.UpdateValue(massValue, softness, quickness);
         }
 
         public static void RestoreOriginalPhysics()
         {
-            if(!_initDone)
+            if(!_isInitialized)
             {
                 return;
             }
