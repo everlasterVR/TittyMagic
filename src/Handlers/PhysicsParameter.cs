@@ -208,7 +208,7 @@ namespace TittyMagic
             }
 
             valueJsf.val = value;
-            sync?.Invoke(value);
+            sync?.Invoke(valueJsf.val);
         }
 
         protected void UpdateOffsetMinMax()
@@ -402,7 +402,7 @@ namespace TittyMagic
         {
             float value = offsetJsf.val + baseValueJsf.val;
             valueJsf.val = value;
-            sync?.Invoke(value);
+            sync?.Invoke(valueJsf.val);
         }
 
         public void UpdateValue(float massValue)
@@ -433,7 +433,7 @@ namespace TittyMagic
             }
 
             valueJsf.val = value;
-            sync?.Invoke(value);
+            sync?.Invoke(valueJsf.val);
         }
 
         public new void UpdateValue(float massValue, float softness, float quickness)
