@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using static TittyMagic.Script;
 
 namespace TittyMagic
 {
@@ -19,20 +20,17 @@ namespace TittyMagic
         private bool _atomSoftPhysicsOn;
         private bool _breastSoftPhysicsOn;
 
-        private Script _script;
-
         public void Init()
         {
             enabled = false; // will be enabled during main refresh cycle
             _runner = new FrequencyRunner(1);
-            _script = gameObject.GetComponent<Script>();
-            _breastInOut = _script.containingAtom.GetStorableByID("BreastInOut");
-            _softBodyPhysicsEnabler = _script.containingAtom.GetStorableByID("SoftBodyPhysicsEnabler");
-            _geometry = (DAZCharacterSelector) _script.containingAtom.GetStorableByID("geometry");
+            _breastInOut = tittyMagic.containingAtom.GetStorableByID("BreastInOut");
+            _softBodyPhysicsEnabler = tittyMagic.containingAtom.GetStorableByID("SoftBodyPhysicsEnabler");
+            _geometry = (DAZCharacterSelector) tittyMagic.containingAtom.GetStorableByID("geometry");
 
             if(Gender.isFemale)
             {
-                _breastPhysicsMesh = (DAZPhysicsMesh) _script.containingAtom.GetStorableByID("BreastPhysicsMesh");
+                _breastPhysicsMesh = (DAZPhysicsMesh) tittyMagic.containingAtom.GetStorableByID("BreastPhysicsMesh");
                 _breastSoftPhysicsOn = _breastPhysicsMesh.on;
                 _atomSoftPhysicsOn = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
                 _globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
@@ -62,7 +60,7 @@ namespace TittyMagic
                 Utils.LogMessage("Advanced Colliders enabled - they are necessary for directional force morphing and hard colliders to work.");
             }
 
-            if(_script.refreshInProgress)
+            if(tittyMagic.refreshInProgress)
             {
                 return;
             }
@@ -93,7 +91,7 @@ namespace TittyMagic
                     bool value = globalSoftPhysicsOn && atomSoftPhysicsOn && breastSoftPhysicsOn;
                     if(value != softPhysicsEnabled)
                     {
-                        _script.softPhysicsHandler.ReverseSyncSoftPhysicsOn();
+                        tittyMagic.softPhysicsHandler.ReverseSyncSoftPhysicsOn();
                         refreshNeeded = true;
                     }
 
@@ -116,13 +114,13 @@ namespace TittyMagic
 
             if(refreshNeeded)
             {
-                _script.StartRefreshCoroutine(refreshMass: false, waitForListeners: false);
+                tittyMagic.StartRefreshCoroutine(refreshMass: false, waitForListeners: false);
             }
             else if(rateDependentRefreshNeeded)
             {
-                _script.mainPhysicsHandler.UpdateRateDependentPhysics();
-                _script.softPhysicsHandler.UpdateRateDependentPhysics();
-                _script.hardColliderHandler.SyncHardCollidersBaseMass();
+                tittyMagic.mainPhysicsHandler.UpdateRateDependentPhysics();
+                tittyMagic.softPhysicsHandler.UpdateRateDependentPhysics();
+                tittyMagic.hardColliderHandler.SyncHardCollidersBaseMass();
             }
         }
 

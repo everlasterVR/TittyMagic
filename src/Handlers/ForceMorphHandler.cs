@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using TittyMagic.Configs;
+using UnityEngine;
+using static TittyMagic.Script;
 
 namespace TittyMagic.Handlers
 {
     internal class ForceMorphHandler
     {
-        private readonly Script _script;
-
         private readonly TrackNipple _trackLeftNipple;
         private readonly TrackNipple _trackRightNipple;
 
@@ -36,18 +35,17 @@ namespace TittyMagic.Handlers
         private float backMultiplier => baseJsf.val * backJsf.val;
         private float leftRightMultiplier => baseJsf.val * leftRightJsf.val;
 
-        public ForceMorphHandler(Script script, TrackNipple trackLeftNipple, TrackNipple trackRightNipple)
+        public ForceMorphHandler(TrackNipple trackLeftNipple, TrackNipple trackRightNipple)
         {
-            _script = script;
             _trackLeftNipple = trackLeftNipple;
             _trackRightNipple = trackRightNipple;
 
-            baseJsf = script.NewJSONStorableFloat("forceMorphingBase", 1.00f, 0.00f, 2.00f);
-            upJsf = script.NewJSONStorableFloat("forceMorphingUp", 1.00f, 0.00f, 2.00f);
-            downJsf = script.NewJSONStorableFloat("forceMorphingDown", 1.00f, 0.00f, 2.00f);
-            forwardJsf = script.NewJSONStorableFloat("forceMorphingForward", 1.00f, 0.00f, 2.00f);
-            backJsf = script.NewJSONStorableFloat("forceMorphingBack", 1.00f, 0.00f, 2.00f);
-            leftRightJsf = script.NewJSONStorableFloat("forceMorphingLeftRight", 1.00f, 0.00f, 2.00f);
+            baseJsf = tittyMagic.NewJSONStorableFloat("forceMorphingBase", 1.00f, 0.00f, 2.00f);
+            upJsf = tittyMagic.NewJSONStorableFloat("forceMorphingUp", 1.00f, 0.00f, 2.00f);
+            downJsf = tittyMagic.NewJSONStorableFloat("forceMorphingDown", 1.00f, 0.00f, 2.00f);
+            forwardJsf = tittyMagic.NewJSONStorableFloat("forceMorphingForward", 1.00f, 0.00f, 2.00f);
+            backJsf = tittyMagic.NewJSONStorableFloat("forceMorphingBack", 1.00f, 0.00f, 2.00f);
+            leftRightJsf = tittyMagic.NewJSONStorableFloat("forceMorphingLeftRight", 1.00f, 0.00f, 2.00f);
         }
 
         public void LoadSettings() =>
@@ -72,8 +70,8 @@ namespace TittyMagic.Handlers
 
         private List<MorphConfig> LoadSettingsFromFile(string subDir, string fileName, string morphNameSuffix = null)
         {
-            string path = $@"{_script.PluginPath()}\settings\morphmultipliers\female\{fileName}.json";
-            var jsonClass = _script.LoadJSON(path).AsObject;
+            string path = $@"{tittyMagic.PluginPath()}\settings\morphmultipliers\female\{fileName}.json";
+            var jsonClass = tittyMagic.LoadJSON(path).AsObject;
 
             return jsonClass.Keys.Select(name =>
                 {
@@ -302,7 +300,7 @@ namespace TittyMagic.Handlers
             }
 
             float diff = 4 * Mathf.Abs(-0.25f - pitch);
-            float minTarget1 = Mathf.Lerp(0.25f, 1.00f, _script.mainPhysicsHandler.normalizedInvertedMass);
+            float minTarget1 = Mathf.Lerp(0.25f, 1.00f, tittyMagic.mainPhysicsHandler.normalizedInvertedMass);
             float minTarget2 = Mathf.Lerp(minTarget1, 1.00f, Mathf.Abs(roll * roll));
             return Mathf.Lerp(minTarget2, 1.00f, diff);
         }
@@ -318,7 +316,7 @@ namespace TittyMagic.Handlers
 
         private void UpdateMorphs(string configSetName, float effect)
         {
-            float mass = _script.mainPhysicsHandler.realMassAmount;
+            float mass = tittyMagic.mainPhysicsHandler.realMassAmount;
             const float softness = 0.62f;
             _configSets[configSetName].ForEach(config => UpdateValue(config, effect, mass, softness));
         }

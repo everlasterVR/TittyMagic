@@ -1,15 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using TittyMagic.Configs;
 using TittyMagic.UI;
+using UnityEngine;
+using static TittyMagic.Script;
 
 namespace TittyMagic.Handlers
 {
     internal class HardColliderHandler : MonoBehaviour
     {
-        private Script _script;
         private DAZCharacterSelector _geometry;
 
         public JSONStorableStringChooser colliderGroupsJsc { get; private set; }
@@ -30,8 +30,7 @@ namespace TittyMagic.Handlers
 
         public void Init()
         {
-            _script = gameObject.GetComponent<Script>();
-            _geometry = (DAZCharacterSelector) _script.containingAtom.GetStorableByID("geometry");
+            _geometry = (DAZCharacterSelector) tittyMagic.containingAtom.GetStorableByID("geometry");
 
             if(!Gender.isFemale)
             {
@@ -59,27 +58,27 @@ namespace TittyMagic.Handlers
             );
             colliderGroupsJsc.setCallbackFunction = value =>
             {
-                _script.colliderVisualizer.EditablesJSON.val = value;
+                tittyMagic.colliderVisualizer.EditablesJSON.val = value;
                 SyncSizeAuto();
             };
             colliderGroupsJsc.val = options[0];
 
-            _script.colliderVisualizer.GroupsJSON.setJSONCallbackFunction = jsc =>
+            tittyMagic.colliderVisualizer.GroupsJSON.setJSONCallbackFunction = jsc =>
             {
-                _script.colliderVisualizer.SelectedPreviewOpacityJSON.val = jsc.val == "Off" ? 0 : 1;
+                tittyMagic.colliderVisualizer.SelectedPreviewOpacityJSON.val = jsc.val == "Off" ? 0 : 1;
                 if(jsc.val != "Off")
                 {
-                    _script.colliderVisualizer.EditablesJSON.val = colliderGroupsJsc.val;
+                    tittyMagic.colliderVisualizer.EditablesJSON.val = colliderGroupsJsc.val;
                 }
 
                 SyncSizeAuto();
             };
-            _script.colliderVisualizer.XRayPreviewsJSON.setJSONCallbackFunction = _ => SyncSizeAuto();
+            tittyMagic.colliderVisualizer.XRayPreviewsJSON.setJSONCallbackFunction = _ => SyncSizeAuto();
 
-            baseForceJsf = _script.NewJSONStorableFloat("baseCollisionForce", 0.75f, 0.01f, 1.50f);
+            baseForceJsf = tittyMagic.NewJSONStorableFloat("baseCollisionForce", 0.75f, 0.01f, 1.50f);
             baseForceJsf.setCallbackFunction = SyncHardCollidersBaseMass;
-            highlightAllJsb = _script.NewJSONStorableBool("highlightAllColliders", false, register: false);
-            highlightAllJsb.setCallbackFunction = value => _script.colliderVisualizer.PreviewOpacityJSON.val = value ? 1.00f : 0.67f;
+            highlightAllJsb = tittyMagic.NewJSONStorableBool("highlightAllColliders", false, register: false);
+            highlightAllJsb.setCallbackFunction = value => tittyMagic.colliderVisualizer.PreviewOpacityJSON.val = value ? 1.00f : 0.67f;
         }
 
         private void CreateScalingConfigs()
@@ -334,12 +333,12 @@ namespace TittyMagic.Handlers
                 scalingConfig[COLLIDER_CENTER_Z]
             )
             {
-                forceJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLISION_FORCE, 0.50f, 0.01f, 1.00f),
-                radiusJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_RADIUS, 0, -1f, 1f),
-                lengthJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_LENGTH, 0, 0f, 5f),
-                rightJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_X, 0, -1f, 1f),
-                upJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_Y, 0, -1f, 1f),
-                lookJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_Z, 0, -1f, 1f),
+                forceJsf = tittyMagic.NewJSONStorableFloat(id.ToLower() + COLLISION_FORCE, 0.50f, 0.01f, 1.00f),
+                radiusJsf = tittyMagic.NewJSONStorableFloat(id.ToLower() + COLLIDER_RADIUS, 0, -1f, 1f),
+                lengthJsf = tittyMagic.NewJSONStorableFloat(id.ToLower() + COLLIDER_LENGTH, 0, 0f, 5f),
+                rightJsf = tittyMagic.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_X, 0, -1f, 1f),
+                upJsf = tittyMagic.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_Y, 0, -1f, 1f),
+                lookJsf = tittyMagic.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_Z, 0, -1f, 1f),
             };
 
             colliderConfigGroup.forceJsf.setCallbackFunction = _ => SyncHardColliderMass(colliderConfigGroup);
@@ -356,13 +355,13 @@ namespace TittyMagic.Handlers
         {
             var collider = _geometry.auxBreastColliders.ToList().Find(c => c.name.Contains(id));
             var autoCollider = FindAutoCollider(collider);
-            string visualizerEditableId = _script.colliderVisualizer.EditablesJSON.choices.Find(option => option.EndsWith(id));
+            string visualizerEditableId = tittyMagic.colliderVisualizer.EditablesJSON.choices.Find(option => option.EndsWith(id));
             return new ColliderConfig(autoCollider, visualizerEditableId);
         }
 
         private AutoCollider FindAutoCollider(Collider collider)
         {
-            var updater = _script.containingAtom.GetComponentInChildren<AutoColliderBatchUpdater>();
+            var updater = tittyMagic.containingAtom.GetComponentInChildren<AutoColliderBatchUpdater>();
             return updater.autoColliders.First(autoCollider =>
                 autoCollider.jointCollider != null && autoCollider.jointCollider.name == collider.name);
         }
@@ -374,7 +373,7 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            config.UpdateDimensions(_script.mainPhysicsHandler.normalizedMass, _script.softnessAmount);
+            config.UpdateDimensions(tittyMagic.mainPhysicsHandler.normalizedMass, tittyMagic.softnessAmount);
             SyncSizeAuto();
         }
 
@@ -385,7 +384,7 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            config.UpdatePosition(_script.mainPhysicsHandler.normalizedMass, _script.softnessAmount);
+            config.UpdatePosition(tittyMagic.mainPhysicsHandler.normalizedMass, tittyMagic.softnessAmount);
             SyncSizeAuto();
         }
 
@@ -409,8 +408,8 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            float mass = _script.mainPhysicsHandler.normalizedRealMass;
-            float softness = _script.softnessAmount;
+            float mass = tittyMagic.mainPhysicsHandler.normalizedRealMass;
+            float softness = tittyMagic.softnessAmount;
             colliderConfigs.ForEach(config =>
             {
                 config.UpdateDimensions(mass, softness);
@@ -422,14 +421,14 @@ namespace TittyMagic.Handlers
         private void SyncSizeAuto()
         {
             colliderConfigs.ForEach(config => config.AutoColliderSizeSet());
-            _script.colliderVisualizer.SyncPreviews();
+            tittyMagic.colliderVisualizer.SyncPreviews();
         }
 
         private IEnumerator DeferBeginSyncMass(ColliderConfigGroup config)
         {
             config.syncInProgress = true;
 
-            var elements = ((HardCollidersWindow) _script.mainWindow.GetActiveNestedWindow())?.colliderSectionElements;
+            var elements = ((HardCollidersWindow) tittyMagic.mainWindow.GetActiveNestedWindow())?.colliderSectionElements;
             if(elements != null && elements.Any())
             {
                 yield return new WaitForSecondsRealtime(0.1f);
@@ -468,8 +467,8 @@ namespace TittyMagic.Handlers
             {
                 config.UpdateRigidbodyMass(
                     1 / Utils.PhysicsRateMultiplier() * baseForceJsf.val * config.forceJsf.val,
-                    _script.mainPhysicsHandler.normalizedMass,
-                    _script.softnessAmount
+                    tittyMagic.mainPhysicsHandler.normalizedMass,
+                    tittyMagic.softnessAmount
                 );
             }
         }
@@ -510,7 +509,7 @@ namespace TittyMagic.Handlers
         {
             _combinedSyncInProgress = true;
 
-            var elements = _script.mainWindow?.GetActiveNestedWindow()?.GetElements();
+            var elements = tittyMagic.mainWindow?.GetActiveNestedWindow()?.GetElements();
             if(elements != null && elements.Any())
             {
                 yield return new WaitForSecondsRealtime(0.1f);
@@ -549,8 +548,8 @@ namespace TittyMagic.Handlers
             {
                 colliderConfigs.ForEach(config => config.UpdateRigidbodyMass(
                     1 / Utils.PhysicsRateMultiplier() * baseForceJsf.val * config.forceJsf.val,
-                    _script.mainPhysicsHandler.normalizedMass,
-                    _script.softnessAmount
+                    tittyMagic.mainPhysicsHandler.normalizedMass,
+                    tittyMagic.softnessAmount
                 ));
             }
         }
@@ -592,7 +591,7 @@ namespace TittyMagic.Handlers
 
         private void OnEnable()
         {
-            if(_script == null || !_script.initDone)
+            if(tittyMagic == null || !tittyMagic.initDone)
             {
                 return;
             }

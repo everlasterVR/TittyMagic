@@ -4,16 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using TittyMagic.UI;
 using UnityEngine;
+using static TittyMagic.Script;
 
 namespace TittyMagic
 {
     internal class Bindings : MonoBehaviour
     {
-        private Script _script;
-
-        public void Init(Script script, List<object> bindings)
+        public void Init(List<object> bindings)
         {
-            _script = script;
             bindings.Add(new Dictionary<string, string>
             {
                 { "Namespace", nameof(TittyMagic) },
@@ -26,10 +24,10 @@ namespace TittyMagic
                 new JSONStorableAction("OpenUI_PhysicsParams", OpenUIPhysicsParams),
                 new JSONStorableAction("OpenUI_MorphMultipliers", OpenUIMorphMultipliers),
                 new JSONStorableAction("OpenUI_GravityMultipliers", OpenUIGravityMultipliers),
-                new JSONStorableAction("AutoUpdateMassOn", () => _script.autoUpdateJsb.val = true),
-                new JSONStorableAction("AutoUpdateMassOff", () => _script.autoUpdateJsb.val = false),
-                new JSONStorableAction("CalculateBreastMass", _script.calculateBreastMass.actionCallback),
-                new JSONStorableAction("RecalibratePhysics", _script.recalibratePhysics.actionCallback),
+                new JSONStorableAction("AutoUpdateMassOn", () => tittyMagic.autoUpdateJsb.val = true),
+                new JSONStorableAction("AutoUpdateMassOff", () => tittyMagic.autoUpdateJsb.val = false),
+                new JSONStorableAction("CalculateBreastMass", tittyMagic.calculateBreastMass.actionCallback),
+                new JSONStorableAction("RecalibratePhysics", tittyMagic.recalibratePhysics.actionCallback),
             });
         }
 
@@ -42,25 +40,25 @@ namespace TittyMagic
         private void OpenUIControl()
         {
             ShowMainHud();
-            StartCoroutine(SelectPluginUI(postAction: _script.NavigateToMainWindow));
+            StartCoroutine(SelectPluginUI(postAction: tittyMagic.NavigateToMainWindow));
         }
 
         private void OpenUIPhysicsParams()
         {
             ShowMainHud();
-            StartCoroutine(SelectPluginUI(postAction: _script.NavigateToPhysicsWindow));
+            StartCoroutine(SelectPluginUI(postAction: tittyMagic.NavigateToPhysicsWindow));
         }
 
         private void OpenUIMorphMultipliers()
         {
             ShowMainHud();
-            StartCoroutine(SelectPluginUI(postAction: _script.NavigateToMorphingWindow));
+            StartCoroutine(SelectPluginUI(postAction: tittyMagic.NavigateToMorphingWindow));
         }
 
         private void OpenUIGravityMultipliers()
         {
             ShowMainHud();
-            StartCoroutine(SelectPluginUI(postAction: _script.NavigateToGravityWindow));
+            StartCoroutine(SelectPluginUI(postAction: tittyMagic.NavigateToGravityWindow));
         }
 
         private void OpenUIConfigureHardColliders()
@@ -68,18 +66,18 @@ namespace TittyMagic
             ShowMainHud();
             StartCoroutine(SelectPluginUI(postAction: () =>
             {
-                _script.NavigateToMainWindow();
-                var hardCollidersWindow = _script.mainWindow.GetActiveNestedWindow() as HardCollidersWindow;
+                tittyMagic.NavigateToMainWindow();
+                var hardCollidersWindow = tittyMagic.mainWindow.GetActiveNestedWindow() as HardCollidersWindow;
                 if(hardCollidersWindow == null)
                 {
-                    _script.configureHardColliders.actionCallback();
+                    tittyMagic.configureHardColliders.actionCallback();
                 }
             }));
         }
 
         private void ShowMainHud()
         {
-            SuperController.singleton.SelectController(_script.containingAtom.freeControllers.First(), false, false);
+            SuperController.singleton.SelectController(tittyMagic.containingAtom.freeControllers.First(), false, false);
             SuperController.singleton.ShowMainHUDMonitor();
         }
 
@@ -97,21 +95,21 @@ namespace TittyMagic
                 time += Time.unscaledDeltaTime;
                 yield return null;
 
-                var selector = _script.containingAtom.gameObject.GetComponentInChildren<UITabSelector>();
+                var selector = tittyMagic.containingAtom.gameObject.GetComponentInChildren<UITabSelector>();
                 if(selector == null)
                 {
                     continue;
                 }
 
                 selector.SetActiveTab("Plugins");
-                if(_script.UITransform == null)
+                if(tittyMagic.UITransform == null)
                 {
                     Utils.LogError("No UI", nameof(Bindings));
                 }
 
-                if(_script.enabled)
+                if(tittyMagic.enabled)
                 {
-                    _script.UITransform.gameObject.SetActive(true);
+                    tittyMagic.UITransform.gameObject.SetActive(true);
                     postAction?.Invoke();
                 }
 

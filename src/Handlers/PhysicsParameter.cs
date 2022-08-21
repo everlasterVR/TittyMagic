@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using TittyMagic.Configs;
+using UnityEngine;
 
 namespace TittyMagic.Handlers
 {

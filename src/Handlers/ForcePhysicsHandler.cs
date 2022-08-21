@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using TittyMagic.Configs;
+using static TittyMagic.Script;
 using static TittyMagic.ParamName;
 
 namespace TittyMagic.Handlers
 {
     internal class ForcePhysicsHandler
     {
-        private readonly Script _script;
-
         private List<PhysicsParameterGroup> _mainParamGroups;
         private List<PhysicsParameterGroup> _softParamGroups;
 
@@ -32,29 +31,27 @@ namespace TittyMagic.Handlers
         private float leftRightMultiplier => baseJsf.val * leftRightJsf.val;
 
         public ForcePhysicsHandler(
-            Script script,
             TrackNipple trackLeftNipple,
             TrackNipple trackRightNipple
         )
         {
-            _script = script;
             _trackLeftNipple = trackLeftNipple;
             _trackRightNipple = trackRightNipple;
 
-            baseJsf = script.NewJSONStorableFloat("forcePhysicsBase", 1.00f, 0.00f, 2.00f);
-            upJsf = script.NewJSONStorableFloat("forcePhysicsUp", 1.00f, 0.00f, 2.00f);
-            downJsf = script.NewJSONStorableFloat("forcePhysicsDown", 1.00f, 0.00f, 2.00f);
-            forwardJsf = script.NewJSONStorableFloat("forcePhysicsForward", 1.00f, 0.00f, 2.00f);
-            backJsf = script.NewJSONStorableFloat("forcePhysicsBack", 1.00f, 0.00f, 2.00f);
-            leftRightJsf = script.NewJSONStorableFloat("forcePhysicsLeftRight", 1.00f, 0.00f, 2.00f);
+            baseJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsBase", 1.00f, 0.00f, 2.00f);
+            upJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsUp", 1.00f, 0.00f, 2.00f);
+            downJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsDown", 1.00f, 0.00f, 2.00f);
+            forwardJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsForward", 1.00f, 0.00f, 2.00f);
+            backJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsBack", 1.00f, 0.00f, 2.00f);
+            leftRightJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsLeftRight", 1.00f, 0.00f, 2.00f);
         }
 
         public void LoadSettings()
         {
             SetupMainForcePhysicsConfigs();
             SetupSoftForcePhysicsConfigs();
-            _mainParamGroups = _script.mainPhysicsHandler.parameterGroups.Values.ToList();
-            _softParamGroups = _script.softPhysicsHandler.parameterGroups.Values.ToList();
+            _mainParamGroups = tittyMagic.mainPhysicsHandler.parameterGroups.Values.ToList();
+            _softParamGroups = tittyMagic.softPhysicsHandler.parameterGroups.Values.ToList();
         }
 
         private static Dictionary<string, DynamicPhysicsConfig> NewCenterOfGravityConfigs() =>
@@ -130,7 +127,7 @@ namespace TittyMagic.Handlers
 
         private void SetupMainForcePhysicsConfigs()
         {
-            var paramGroups = _script.mainPhysicsHandler.parameterGroups;
+            var paramGroups = tittyMagic.mainPhysicsHandler.parameterGroups;
             paramGroups[CENTER_OF_GRAVITY_PERCENT].SetForcePhysicsConfigs(NewCenterOfGravityConfigs(), NewCenterOfGravityConfigs());
             paramGroups[DAMPER].SetForcePhysicsConfigs(NewDamperConfigs(), NewDamperConfigs());
             paramGroups[POSITION_DAMPER_Z].SetForcePhysicsConfigs(NewPositionDamperZConfigs(), NewPositionDamperZConfigs());
@@ -184,7 +181,7 @@ namespace TittyMagic.Handlers
 
         private void SetupSoftForcePhysicsConfigs()
         {
-            var paramGroups = _script.softPhysicsHandler.parameterGroups;
+            var paramGroups = tittyMagic.softPhysicsHandler.parameterGroups;
             paramGroups[SOFT_VERTICES_SPRING].SetForcePhysicsConfigs(NewSoftVerticesSpringConfigs(), NewSoftVerticesSpringConfigs());
             paramGroups[SOFT_VERTICES_BACK_FORCE].SetForcePhysicsConfigs(NewSoftVerticesBackForceConfigs(), NewSoftVerticesBackForceConfigs());
         }
@@ -353,16 +350,16 @@ namespace TittyMagic.Handlers
 
         private void UpdateLeftPhysics(string direction, float effect)
         {
-            float mass = _script.mainPhysicsHandler.realMassAmount;
-            float softness = _script.softnessAmount;
+            float mass = tittyMagic.mainPhysicsHandler.realMassAmount;
+            float softness = tittyMagic.softnessAmount;
             _mainParamGroups.ForEach(group => group.left.UpdateForceValue(direction, effect, mass, softness));
             _softParamGroups.ForEach(group => group.left.UpdateForceValue(direction, effect, mass, softness));
         }
 
         private void UpdateRightPhysics(string direction, float effect)
         {
-            float mass = _script.mainPhysicsHandler.realMassAmount;
-            float softness = _script.softnessAmount;
+            float mass = tittyMagic.mainPhysicsHandler.realMassAmount;
+            float softness = tittyMagic.softnessAmount;
             _mainParamGroups.ForEach(group => group.right.UpdateForceValue(direction, effect, mass, softness));
             _softParamGroups.ForEach(group => group.right.UpdateForceValue(direction, effect, mass, softness));
         }

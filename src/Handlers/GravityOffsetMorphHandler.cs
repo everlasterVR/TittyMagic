@@ -1,22 +1,20 @@
 using System.Collections.Generic;
 using TittyMagic.Configs;
+using static TittyMagic.Script;
 
 namespace TittyMagic.Handlers
 {
     internal class GravityOffsetMorphHandler
     {
-        private readonly Script _script;
-
         private Dictionary<string, List<MorphConfig>> _configSets;
 
         public JSONStorableFloat offsetMorphingJsf { get; }
         public float upDownExtraMultiplier { get; set; }
 
-        public GravityOffsetMorphHandler(Script script)
+        public GravityOffsetMorphHandler()
         {
-            _script = script;
-            offsetMorphingJsf = script.NewJSONStorableFloat("gravityOffsetMorphing", 1.00f, 0.00f, 2.00f);
-            offsetMorphingJsf.setCallbackFunction = value => _script.recalibrationNeeded = true;
+            offsetMorphingJsf = tittyMagic.NewJSONStorableFloat("gravityOffsetMorphing", 1.00f, 0.00f, 2.00f);
+            offsetMorphingJsf.setCallbackFunction = value => tittyMagic.recalibrationNeeded = true;
         }
 
         public void LoadSettings() =>
@@ -25,10 +23,10 @@ namespace TittyMagic.Handlers
                 { Direction.DOWN, LoadSettingsFromFile(Direction.DOWN, "upright", true) },
             };
 
-        private List<MorphConfig> LoadSettingsFromFile(string subDir, string fileName, bool separateLeftRight = false)
+        private static List<MorphConfig> LoadSettingsFromFile(string subDir, string fileName, bool separateLeftRight = false)
         {
-            string path = $@"{_script.PluginPath()}\settings\morphmultipliers\offset\{fileName}.json";
-            var jsonClass = _script.LoadJSON(path).AsObject;
+            string path = $@"{tittyMagic.PluginPath()}\settings\morphmultipliers\offset\{fileName}.json";
+            var jsonClass = tittyMagic.LoadJSON(path).AsObject;
 
             var configs = new List<MorphConfig>();
             foreach(string name in jsonClass.Keys)
@@ -78,7 +76,7 @@ namespace TittyMagic.Handlers
 
         private void AdjustUpDownMorphs(float pitch, float roll)
         {
-            float multiplier = upDownExtraMultiplier * _script.gravityPhysicsHandler.downMultiplier;
+            float multiplier = upDownExtraMultiplier * tittyMagic.gravityPhysicsHandler.downMultiplier;
             float upDownEffect = GravityEffectCalc.CalculateUpDownEffect(pitch, roll, multiplier);
             float effect = offsetMorphingJsf.val * upDownEffect;
             // leaning forward
@@ -113,8 +111,8 @@ namespace TittyMagic.Handlers
 
         private void UpdateMorphs(string configSetName, float effect)
         {
-            float mass = _script.mainPhysicsHandler.realMassAmount;
-            float softness = _script.softnessAmount;
+            float mass = tittyMagic.mainPhysicsHandler.realMassAmount;
+            float softness = tittyMagic.softnessAmount;
             _configSets[configSetName].ForEach(config => UpdateValue(config, effect, mass, softness));
         }
 

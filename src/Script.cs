@@ -4,15 +4,17 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using SimpleJSON;
-using UnityEngine;
-using UnityEngine.UI;
 using TittyMagic.Handlers;
 using TittyMagic.UI;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace TittyMagic
 {
-    internal class Script : MVRScript
+    internal sealed class Script : MVRScript
     {
+        public static Script tittyMagic { get; private set; }
+
         public const string VERSION = "v0.0.0";
 
         public static GenerateDAZMorphsControlUI morphsControlUI { get; private set; }
@@ -120,6 +122,8 @@ namespace TittyMagic
 
         public override void Init()
         {
+            tittyMagic = this;
+
             try
             {
                 _pluginVersionStorable = new JSONStorableString("version", "");
@@ -236,13 +240,13 @@ namespace TittyMagic
             var skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
 
             /* Setup handlers */
-            mainPhysicsHandler = new MainPhysicsHandler(this, breastControl, skin, chestRb);
+            mainPhysicsHandler = new MainPhysicsHandler(breastControl, skin, chestRb);
             hardColliderHandler = gameObject.AddComponent<HardColliderHandler>();
             hardColliderHandler.Init();
-            softPhysicsHandler = new SoftPhysicsHandler(this);
-            gravityPhysicsHandler = new GravityPhysicsHandler(this);
-            offsetMorphHandler = new GravityOffsetMorphHandler(this);
-            nippleErectionHandler = new NippleErectionHandler(this);
+            softPhysicsHandler = new SoftPhysicsHandler();
+            gravityPhysicsHandler = new GravityPhysicsHandler();
+            offsetMorphHandler = new GravityOffsetMorphHandler();
+            nippleErectionHandler = new NippleErectionHandler();
 
             settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
             settingsMonitor.Init();
@@ -265,8 +269,8 @@ namespace TittyMagic
                 );
             }
 
-            forcePhysicsHandler = new ForcePhysicsHandler(this, _trackLeftNipple, _trackRightNipple);
-            forceMorphHandler = new ForceMorphHandler(this, _trackLeftNipple, _trackRightNipple);
+            forcePhysicsHandler = new ForcePhysicsHandler(_trackLeftNipple, _trackRightNipple);
+            forceMorphHandler = new ForceMorphHandler(_trackLeftNipple, _trackRightNipple);
 
             /* Setup breast morph listening */
             BreastMorphListener.ProcessMorphs(geometry.morphBank1);
@@ -331,12 +335,12 @@ namespace TittyMagic
 
             /* Setup navigation */
             {
-                mainWindow = new MainWindow(this);
-                morphingWindow = new MorphingWindow(this);
-                gravityWindow = new GravityWindow(this);
-                physicsWindow = new PhysicsWindow(this);
+                mainWindow = new MainWindow();
+                morphingWindow = new MorphingWindow();
+                gravityWindow = new GravityWindow();
+                physicsWindow = new PhysicsWindow();
 
-                _tabs = new Tabs(this, leftUIContent, rightUIContent);
+                _tabs = new Tabs(leftUIContent, rightUIContent);
                 _tabs.CreateNavigationButton(mainWindow, "Control", NavigateToMainWindow);
                 _tabs.CreateNavigationButton(physicsWindow, "Physics Params", NavigateToPhysicsWindow);
                 _tabs.CreateNavigationButton(morphingWindow, "Morph Multipliers", NavigateToMorphingWindow);
@@ -392,7 +396,7 @@ namespace TittyMagic
         public void OnBindingsListRequested(List<object> bindings)
         {
             _customBindings = gameObject.AddComponent<Bindings>();
-            _customBindings.Init(this, bindings);
+            _customBindings.Init(bindings);
         }
 
         private IEnumerator DeferSetPluginVersion()

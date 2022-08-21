@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
 using TittyMagic.Configs;
+using UnityEngine;
 using static TittyMagic.ParamName;
+using static TittyMagic.Script;
 using static TittyMagic.Side;
 
 namespace TittyMagic.Handlers
 {
     internal class MainPhysicsHandler
     {
-        private readonly Script _script;
         private readonly AdjustJoints _breastControl;
         private readonly Dictionary<string, ConfigurableJoint> _joints;
         private readonly Dictionary<string, Rigidbody> _pectoralRbs;
@@ -36,13 +36,11 @@ namespace TittyMagic.Handlers
         public MassParameterGroup massParameterGroup { get; private set; }
 
         public MainPhysicsHandler(
-            Script script,
             AdjustJoints breastControl,
             DAZSkinV2 skin,
             Rigidbody chestRb
         )
         {
-            _script = script;
             _breastControl = breastControl;
             _skin = skin;
             _chestRb = chestRb;
@@ -111,7 +109,7 @@ namespace TittyMagic.Handlers
             {
                 float toCm3 = Mathf.Pow(10, 6);
 
-                float scale = _script.containingAtom.GetStorableByID("rescaleObject").GetFloatParamValue("scale");
+                float scale = tittyMagic.containingAtom.GetStorableByID("rescaleObject").GetFloatParamValue("scale");
 
                 /* This somewhat accurately scales breast volume to the apparent breast size when atom scale is adjusted. */
                 float atomScaleAdjustment = 1 - Mathf.Abs(Mathf.Log10(Mathf.Pow(scale, 3)));
@@ -148,7 +146,7 @@ namespace TittyMagic.Handlers
             var parameter = new MassParameter(
                 valueJsf,
                 baseValueJsf: new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
-                offsetJsf: _script.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, register: side == LEFT)
+                offsetJsf: tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, register: side == LEFT)
             );
             parameter.valueFormat = "F3";
             parameter.sync = value => SyncMass(_pectoralRbs[side], value);
@@ -162,7 +160,7 @@ namespace TittyMagic.Handlers
             return new PhysicsParameter(
                 valueJsf,
                 baseValueJsf: new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
-                offsetJsf: _script.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, register: side == LEFT)
+                offsetJsf: tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, register: side == LEFT)
             );
         }
 
@@ -513,8 +511,8 @@ namespace TittyMagic.Handlers
 
         public void UpdatePhysics()
         {
-            float softness = _script.softnessAmount;
-            float quickness = _script.quicknessAmount;
+            float softness = tittyMagic.softnessAmount;
+            float quickness = tittyMagic.quicknessAmount;
             parameterGroups.Values
                 .ToList()
                 .ForEach(paramGroup => UpdateParam(paramGroup, softness, quickness));
@@ -522,8 +520,8 @@ namespace TittyMagic.Handlers
 
         public void UpdateRateDependentPhysics()
         {
-            float softness = _script.softnessAmount;
-            float quickness = _script.quicknessAmount;
+            float softness = tittyMagic.softnessAmount;
+            float quickness = tittyMagic.quicknessAmount;
             parameterGroups.Values
                 .Where(paramGroup => paramGroup.dependOnPhysicsRate)
                 .ToList()

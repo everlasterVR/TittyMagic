@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using TittyMagic.Configs;
+using static TittyMagic.Script;
 using static TittyMagic.ParamName;
 
 namespace TittyMagic.Handlers
 {
     internal class GravityPhysicsHandler
     {
-        private readonly Script _script;
         private List<PhysicsParameterGroup> _paramGroups;
 
         public JSONStorableFloat baseJsf { get; }
@@ -22,29 +22,27 @@ namespace TittyMagic.Handlers
         private float backMultiplier => baseJsf.val * backJsf.val;
         private float leftRightMultiplier => baseJsf.val * leftRightJsf.val;
 
-        public GravityPhysicsHandler(Script script)
+        public GravityPhysicsHandler()
         {
-            _script = script;
+            baseJsf = tittyMagic.NewJSONStorableFloat("gravityPhysicsBase", 1.00f, 0.00f, 2.00f);
+            upJsf = tittyMagic.NewJSONStorableFloat("gravityPhysicsUp", 1.00f, 0.00f, 2.00f);
+            downJsf = tittyMagic.NewJSONStorableFloat("gravityPhysicsDown", 1.00f, 0.00f, 2.00f);
+            forwardJsf = tittyMagic.NewJSONStorableFloat("gravityPhysicsForward", 1.00f, 0.00f, 2.00f);
+            backJsf = tittyMagic.NewJSONStorableFloat("gravityPhysicsBack", 1.00f, 0.00f, 2.00f);
+            leftRightJsf = tittyMagic.NewJSONStorableFloat("gravityPhysicsLeftRight", 1.00f, 0.00f, 2.00f);
 
-            baseJsf = script.NewJSONStorableFloat("gravityPhysicsBase", 1.00f, 0.00f, 2.00f);
-            upJsf = script.NewJSONStorableFloat("gravityPhysicsUp", 1.00f, 0.00f, 2.00f);
-            downJsf = script.NewJSONStorableFloat("gravityPhysicsDown", 1.00f, 0.00f, 2.00f);
-            forwardJsf = script.NewJSONStorableFloat("gravityPhysicsForward", 1.00f, 0.00f, 2.00f);
-            backJsf = script.NewJSONStorableFloat("gravityPhysicsBack", 1.00f, 0.00f, 2.00f);
-            leftRightJsf = script.NewJSONStorableFloat("gravityPhysicsLeftRight", 1.00f, 0.00f, 2.00f);
-
-            baseJsf.setCallbackFunction = _ => _script.recalibrationNeeded = true;
-            upJsf.setCallbackFunction = _ => _script.recalibrationNeeded = true;
-            downJsf.setCallbackFunction = _ => _script.recalibrationNeeded = true;
-            forwardJsf.setCallbackFunction = _ => _script.recalibrationNeeded = true;
-            backJsf.setCallbackFunction = _ => _script.recalibrationNeeded = true;
-            leftRightJsf.setCallbackFunction = _ => _script.recalibrationNeeded = true;
+            baseJsf.setCallbackFunction = _ => tittyMagic.recalibrationNeeded = true;
+            upJsf.setCallbackFunction = _ => tittyMagic.recalibrationNeeded = true;
+            downJsf.setCallbackFunction = _ => tittyMagic.recalibrationNeeded = true;
+            forwardJsf.setCallbackFunction = _ => tittyMagic.recalibrationNeeded = true;
+            backJsf.setCallbackFunction = _ => tittyMagic.recalibrationNeeded = true;
+            leftRightJsf.setCallbackFunction = _ => tittyMagic.recalibrationNeeded = true;
         }
 
         public void LoadSettings()
         {
             SetupGravityPhysicsConfigs();
-            _paramGroups = _script.mainPhysicsHandler.parameterGroups.Values.ToList();
+            _paramGroups = tittyMagic.mainPhysicsHandler.parameterGroups.Values.ToList();
         }
 
         private static Dictionary<string, DynamicPhysicsConfig> NewSpringConfigs() =>
@@ -174,7 +172,7 @@ namespace TittyMagic.Handlers
 
         private void SetupGravityPhysicsConfigs()
         {
-            var paramGroups = _script.mainPhysicsHandler.parameterGroups;
+            var paramGroups = tittyMagic.mainPhysicsHandler.parameterGroups;
             paramGroups[SPRING].SetGravityPhysicsConfigs(NewSpringConfigs(), NewSpringConfigs());
             paramGroups[POSITION_SPRING_Z].SetGravityPhysicsConfigs(NewPositionSpringZConfigs(), NewPositionSpringZConfigs());
             paramGroups[TARGET_ROTATION_X].SetGravityPhysicsConfigs(NewPositionTargetRotationXConfigs(), NewPositionTargetRotationXConfigs());
@@ -297,8 +295,8 @@ namespace TittyMagic.Handlers
 
         private void UpdatePhysics(string direction, float effect)
         {
-            float mass = _script.mainPhysicsHandler.massAmount;
-            float softness = _script.softnessAmount;
+            float mass = tittyMagic.mainPhysicsHandler.massAmount;
+            float softness = tittyMagic.softnessAmount;
             _paramGroups.ForEach(paramGroup =>
                 paramGroup.UpdateGravityValue(direction, effect, mass, softness)
             );

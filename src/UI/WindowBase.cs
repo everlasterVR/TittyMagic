@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static TittyMagic.Script;
 
 namespace TittyMagic.UI
 {
     internal class WindowBase : IWindow
     {
-        protected readonly Script script;
         protected Action buildAction;
         protected Action closeAction;
 
@@ -19,9 +19,8 @@ namespace TittyMagic.UI
         public IWindow GetActiveNestedWindow() => activeNestedWindow;
         protected IWindow activeNestedWindow;
 
-        protected WindowBase(Script script)
+        protected WindowBase()
         {
-            this.script = script;
             elements = new Dictionary<string, UIDynamic>();
             nestedWindows = new List<IWindow>();
         }
@@ -29,13 +28,13 @@ namespace TittyMagic.UI
         #region Common elements
 
         protected void AddSpacer(string name, int height, bool rightSide) =>
-            elements[$"{name}Spacer"] = script.NewSpacer(height, rightSide);
+            elements[$"{name}Spacer"] = tittyMagic.NewSpacer(height, rightSide);
 
         protected void CreateRecalibrateButton(JSONStorableAction storable, bool rightSide, int spacing = 0)
         {
             AddSpacer(storable.name, spacing, rightSide);
-            string label = storable == script.calculateBreastMass ? "Calculate Breast Mass" : "Recalibrate Physics";
-            var button = script.CreateButton(label, rightSide);
+            string label = storable == tittyMagic.calculateBreastMass ? "Calculate Breast Mass" : "Recalibrate Physics";
+            var button = tittyMagic.CreateButton(label, rightSide);
             storable.RegisterButton(button);
             button.height = 52;
             elements[storable.name] = button;
@@ -44,7 +43,7 @@ namespace TittyMagic.UI
         protected void CreateBaseMultiplierSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
         {
             AddSpacer(storable.name, spacing, rightSide);
-            var slider = script.CreateSlider(storable, rightSide);
+            var slider = tittyMagic.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "Base Multiplier";
             elements[storable.name] = slider;
@@ -54,12 +53,12 @@ namespace TittyMagic.UI
         {
             var storable = new JSONStorableString("otherSettingsHeader", "");
             AddSpacer(storable.name, spacing, rightSide);
-            elements[storable.name] = UIHelpers.HeaderTextField(script, storable, "Other", rightSide);
+            elements[storable.name] = UIHelpers.HeaderTextField(storable, "Other", rightSide);
         }
 
         protected void CreateBackButton(bool rightSide)
         {
-            var button = script.CreateButton("Return", rightSide);
+            var button = tittyMagic.CreateButton("Return", rightSide);
             button.textColor = Color.white;
             var colors = button.button.colors;
             colors.normalColor = UIHelpers.sliderGray;
@@ -136,7 +135,7 @@ namespace TittyMagic.UI
         }
 
         protected void ClearSelf() =>
-            elements.ToList().ForEach(element => script.RemoveElement(element.Value));
+            elements.ToList().ForEach(element => tittyMagic.RemoveElement(element.Value));
 
         #endregion Life cycle
     }

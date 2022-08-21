@@ -2,47 +2,48 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using static TittyMagic.Script;
 
 namespace TittyMagic.UI
 {
     internal class GravityWindow : WindowBase
     {
-        public GravityWindow(Script script) : base(script)
+        public GravityWindow()
         {
             buildAction = () =>
             {
                 CreateBreastGravityHeader(false);
                 CreateGravityPhysicsInfoTextArea(false);
 
-                CreateRecalibrateButton(script.recalibratePhysics, true);
-                CreateBaseMultiplierSlider(script.gravityPhysicsHandler.baseJsf, true, spacing: 5);
-                CreateMultiplierSlider(script.gravityPhysicsHandler.upJsf, "Up", true, spacing: 5);
-                CreateMultiplierSlider(script.gravityPhysicsHandler.downJsf, "Down", true);
-                CreateMultiplierSlider(script.gravityPhysicsHandler.forwardJsf, "Forward", true);
-                CreateMultiplierSlider(script.gravityPhysicsHandler.backJsf, "Back", true);
-                CreateMultiplierSlider(script.gravityPhysicsHandler.leftRightJsf, "Left / Right", true);
+                CreateRecalibrateButton(tittyMagic.recalibratePhysics, true);
+                CreateBaseMultiplierSlider(tittyMagic.gravityPhysicsHandler.baseJsf, true, spacing: 5);
+                CreateMultiplierSlider(tittyMagic.gravityPhysicsHandler.upJsf, "Up", true, spacing: 5);
+                CreateMultiplierSlider(tittyMagic.gravityPhysicsHandler.downJsf, "Down", true);
+                CreateMultiplierSlider(tittyMagic.gravityPhysicsHandler.forwardJsf, "Forward", true);
+                CreateMultiplierSlider(tittyMagic.gravityPhysicsHandler.backJsf, "Back", true);
+                CreateMultiplierSlider(tittyMagic.gravityPhysicsHandler.leftRightJsf, "Left / Right", true);
 
                 CreateOtherSettingsHeader(false);
                 CreateOffsetMorphingSlider(false);
                 CreateOffsetMorphingInfoTextArea(true, spacing: 50);
 
-                elements[script.gravityPhysicsHandler.baseJsf.name].AddListener(UpdateAllSliderColors);
+                elements[tittyMagic.gravityPhysicsHandler.baseJsf.name].AddListener(UpdateAllSliderColors);
                 UpdateAllSliderColors(0);
             };
 
-            closeAction = () => script.RecalibrateOnNavigation(script.recalibratePhysics);
+            closeAction = () => tittyMagic.RecalibrateOnNavigation(tittyMagic.recalibratePhysics);
         }
 
         private void CreateBreastGravityHeader(bool rightSide)
         {
             var storable = new JSONStorableString("breastGravityHeader", "");
-            elements[storable.name] = UIHelpers.HeaderTextField(script, storable, "Breast Gravity", rightSide);
+            elements[storable.name] = UIHelpers.HeaderTextField(storable, "Breast Gravity", rightSide);
         }
 
         private void CreateMultiplierSlider(JSONStorableFloat storable, string label, bool rightSide, int spacing = 0)
         {
             AddSpacer(storable.name, spacing, rightSide);
-            var slider = script.CreateSlider(storable, rightSide);
+            var slider = tittyMagic.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = label;
             slider.AddListener((float _) => UpdateSliderColor(storable));
@@ -67,7 +68,7 @@ namespace TittyMagic.UI
             var storable = new JSONStorableString("gravityPhysicsMultipliersInfoText", sb.ToString());
             AddSpacer(storable.name, spacing, rightSide);
 
-            var textField = script.CreateTextField(storable, rightSide);
+            var textField = tittyMagic.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.height = 825;
             textField.backgroundColor = Color.clear;
@@ -76,10 +77,10 @@ namespace TittyMagic.UI
 
         private void CreateOffsetMorphingSlider(bool rightSide, int spacing = 0)
         {
-            var storable = script.offsetMorphHandler.offsetMorphingJsf;
+            var storable = tittyMagic.offsetMorphHandler.offsetMorphingJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var slider = script.CreateSlider(storable, rightSide);
+            var slider = tittyMagic.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "Down Offset Morphing";
             elements[storable.name] = slider;
@@ -93,7 +94,7 @@ namespace TittyMagic.UI
             var storable = new JSONStorableString("offsetMorphingInfoText", sb.ToString());
             AddSpacer(storable.name, spacing, rightSide);
 
-            var textField = script.CreateTextField(storable, rightSide);
+            var textField = tittyMagic.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.height = 115;
             textField.backgroundColor = Color.clear;
@@ -102,11 +103,11 @@ namespace TittyMagic.UI
 
         private void UpdateAllSliderColors(float _)
         {
-            UpdateSliderColor(script.gravityPhysicsHandler.upJsf);
-            UpdateSliderColor(script.gravityPhysicsHandler.downJsf);
-            UpdateSliderColor(script.gravityPhysicsHandler.forwardJsf);
-            UpdateSliderColor(script.gravityPhysicsHandler.backJsf);
-            UpdateSliderColor(script.gravityPhysicsHandler.leftRightJsf);
+            UpdateSliderColor(tittyMagic.gravityPhysicsHandler.upJsf);
+            UpdateSliderColor(tittyMagic.gravityPhysicsHandler.downJsf);
+            UpdateSliderColor(tittyMagic.gravityPhysicsHandler.forwardJsf);
+            UpdateSliderColor(tittyMagic.gravityPhysicsHandler.backJsf);
+            UpdateSliderColor(tittyMagic.gravityPhysicsHandler.leftRightJsf);
         }
 
         private void UpdateSliderColor(JSONStorableFloat storable)
@@ -115,7 +116,7 @@ namespace TittyMagic.UI
             var images = slider.slider.gameObject.transform.GetComponentsInChildren<Image>();
             var fillImage = images.First(image => image.name == "Fill");
             var handleImage = images.First(image => image.name == "Handle");
-            var color = MultiplierSliderColor(script.gravityPhysicsHandler.baseJsf.val * storable.val);
+            var color = MultiplierSliderColor(tittyMagic.gravityPhysicsHandler.baseJsf.val * storable.val);
             fillImage.color = color;
             handleImage.color = color;
         }

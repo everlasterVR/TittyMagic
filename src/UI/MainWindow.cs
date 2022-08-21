@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
 using TittyMagic.Handlers;
+using UnityEngine;
+using static TittyMagic.Script;
 
 namespace TittyMagic.UI
 {
@@ -11,7 +12,7 @@ namespace TittyMagic.UI
         private readonly JSONStorableString _title;
         private readonly PhysicsParameter _massParameter;
 
-        public MainWindow(Script script) : base(script)
+        public MainWindow()
         {
             buildAction = () =>
             {
@@ -20,10 +21,10 @@ namespace TittyMagic.UI
                 CreateQuicknessInfoTextField(false);
                 CreateBreastMassInfoTextField(false, spacing: 10);
 
-                CreateRecalibrateButton(script.recalibratePhysics, true);
+                CreateRecalibrateButton(tittyMagic.recalibratePhysics, true);
                 CreateSoftnessSlider(true, spacing: 65);
                 CreateQuicknessSlider(true);
-                CreateRecalibrateButton(script.calculateBreastMass, true, spacing: 15);
+                CreateRecalibrateButton(tittyMagic.calculateBreastMass, true, spacing: 15);
                 CreateAutoUpdateMassToggle(true);
                 CreateMassOffsetSlider(true);
                 CreateMassSlider(true);
@@ -36,12 +37,11 @@ namespace TittyMagic.UI
             };
 
             _title = new JSONStorableString("title", "");
-            _massParameter = script.mainPhysicsHandler.massParameterGroup.left;
+            _massParameter = tittyMagic.mainPhysicsHandler.massParameterGroup.left;
 
             if(Gender.isFemale)
             {
                 nestedWindows.Add(new HardCollidersWindow(
-                    script,
                     () =>
                     {
                         activeNestedWindow = null;
@@ -54,9 +54,8 @@ namespace TittyMagic.UI
         private void CreateTitleTextField(bool rightSide)
         {
             var textField = UIHelpers.TitleTextField(
-                script,
                 _title,
-                $"{"\n".Size(12)}{nameof(TittyMagic)}    {Script.VERSION}",
+                $"{"\n".Size(12)}{nameof(TittyMagic)}    {VERSION}",
                 100,
                 rightSide
             );
@@ -76,7 +75,7 @@ namespace TittyMagic.UI
             var storable = new JSONStorableString("breastMassInfoText", sb.ToString());
             AddSpacer(storable.name, spacing, rightSide);
 
-            var textField = script.CreateTextField(storable, rightSide);
+            var textField = tittyMagic.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.backgroundColor = Color.clear;
             textField.height = 400;
@@ -85,10 +84,10 @@ namespace TittyMagic.UI
 
         private void CreateAutoUpdateMassToggle(bool rightSide, int spacing = 0)
         {
-            var storable = script.autoUpdateJsb;
+            var storable = tittyMagic.autoUpdateJsb;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var toggle = script.CreateToggle(storable, rightSide);
+            var toggle = tittyMagic.CreateToggle(storable, rightSide);
             toggle.height = 52;
             toggle.label = "Auto-Update Mass";
             elements[storable.name] = toggle;
@@ -99,11 +98,11 @@ namespace TittyMagic.UI
             var storable = _massParameter.offsetJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var slider = script.CreateSlider(storable, rightSide);
+            var slider = tittyMagic.CreateSlider(storable, rightSide);
             slider.valueFormat = _massParameter.valueFormat;
             slider.label = "Breast Mass Offset";
 
-            slider.AddListener((float _) => script.StartRefreshCoroutine(refreshMass: true, waitForListeners: true));
+            slider.AddListener((float _) => tittyMagic.StartRefreshCoroutine(refreshMass: true, waitForListeners: true));
             slider.AddPointerUpDownListener();
 
             elements[storable.name] = slider;
@@ -114,7 +113,7 @@ namespace TittyMagic.UI
             var storable = _massParameter.valueJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var slider = script.CreateSlider(storable, rightSide);
+            var slider = tittyMagic.CreateSlider(storable, rightSide);
             slider.valueFormat = _massParameter.valueFormat;
             slider.SetActiveStyle(false);
             slider.slider.interactable = false;
@@ -132,7 +131,7 @@ namespace TittyMagic.UI
             var storable = new JSONStorableString("softnessInfoText", sb.ToString());
             AddSpacer(storable.name, spacing, rightSide);
 
-            var textField = script.CreateTextField(storable, rightSide);
+            var textField = tittyMagic.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.backgroundColor = Color.clear;
             textField.height = 120;
@@ -147,7 +146,7 @@ namespace TittyMagic.UI
             var storable = new JSONStorableString("quicknessInfoText", sb.ToString());
             AddSpacer(storable.name, spacing, rightSide);
 
-            var textField = script.CreateTextField(storable, rightSide);
+            var textField = tittyMagic.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.backgroundColor = Color.clear;
             textField.height = 120;
@@ -156,10 +155,10 @@ namespace TittyMagic.UI
 
         private void CreateSoftnessSlider(bool rightSide, int spacing = 0)
         {
-            var storable = script.softnessJsf;
+            var storable = tittyMagic.softnessJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var slider = script.CreateSlider(storable, rightSide);
+            var slider = tittyMagic.CreateSlider(storable, rightSide);
             slider.valueFormat = "F0";
             slider.slider.wholeNumbers = true;
             slider.label = "Breast Softness";
@@ -169,10 +168,10 @@ namespace TittyMagic.UI
 
         private void CreateQuicknessSlider(bool rightSide, int spacing = 0)
         {
-            var storable = script.quicknessJsf;
+            var storable = tittyMagic.quicknessJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var slider = script.CreateSlider(storable, rightSide);
+            var slider = tittyMagic.CreateSlider(storable, rightSide);
             slider.valueFormat = "F0";
             slider.slider.wholeNumbers = true;
             slider.label = "Breast Quickness";
@@ -188,7 +187,7 @@ namespace TittyMagic.UI
             var storable = new JSONStorableString("hardCollidersInfoText", sb.ToString());
             AddSpacer(storable.name, spacing, rightSide);
 
-            var textField = script.CreateTextField(storable, rightSide);
+            var textField = tittyMagic.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.backgroundColor = Color.clear;
             textField.height = 160;
@@ -197,10 +196,10 @@ namespace TittyMagic.UI
 
         private void CreateConfigureHardCollidersButton(bool rightSide, int spacing = 0)
         {
-            var storable = script.configureHardColliders;
+            var storable = tittyMagic.configureHardColliders;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var button = script.CreateButton(storable.name, rightSide);
+            var button = tittyMagic.CreateButton(storable.name, rightSide);
             storable.RegisterButton(button);
             button.buttonText.alignment = TextAnchor.MiddleLeft;
             button.label = "  Configure Hard Colliders...";
@@ -222,8 +221,8 @@ namespace TittyMagic.UI
             if(elements.Any())
             {
                 sliders.Add(elements[_massParameter.offsetJsf.name] as UIDynamicSlider);
-                sliders.Add(elements[script.softnessJsf.name] as UIDynamicSlider);
-                sliders.Add(elements[script.quicknessJsf.name] as UIDynamicSlider);
+                sliders.Add(elements[tittyMagic.softnessJsf.name] as UIDynamicSlider);
+                sliders.Add(elements[tittyMagic.quicknessJsf.name] as UIDynamicSlider);
             }
 
             return sliders;
