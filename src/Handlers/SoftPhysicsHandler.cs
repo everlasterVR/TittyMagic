@@ -10,21 +10,22 @@ using static TittyMagic.SoftColliderGroup;
 
 namespace TittyMagic.Handlers
 {
-    internal class SoftPhysicsHandler
+    internal static class SoftPhysicsHandler
     {
-        private readonly DAZPhysicsMesh _breastPhysicsMesh;
-        private readonly List<string> _breastPhysicsMeshFloatParamNames;
+        private static DAZPhysicsMesh _breastPhysicsMesh;
+        private static List<string> _breastPhysicsMeshFloatParamNames;
 
-        //Left/Right -> Group name -> Group
-        private readonly Dictionary<string, Dictionary<string, DAZPhysicsMeshSoftVerticesGroup>> _softVerticesGroups;
+        // Left/Right -> Group name -> Group
+        private static Dictionary<string, Dictionary<string, DAZPhysicsMeshSoftVerticesGroup>> _softVerticesGroups;
 
-        //Group name -> Group
-        public Dictionary<string, PhysicsParameterGroup> parameterGroups { get; private set; }
+        // Group name -> Group
+        public static Dictionary<string, PhysicsParameterGroup> parameterGroups { get; private set; }
+        public static JSONStorableBool softPhysicsOn { get; private set; }
+        public static JSONStorableBool allowSelfCollision { get; private set; }
 
-        public JSONStorableBool softPhysicsOn { get; }
-        public JSONStorableBool allowSelfCollision { get; }
+        private static bool _initDone;
 
-        public SoftPhysicsHandler()
+        public static void Init()
         {
             if(Gender.isFemale)
             {
@@ -66,9 +67,11 @@ namespace TittyMagic.Handlers
                 softPhysicsOn.valNoCallback = false;
                 allowSelfCollision.valNoCallback = false;
             }
+
+            _initDone = true;
         }
 
-        public void LoadSettings()
+        public static void LoadSettings()
         {
             SetupPhysicsParameterGroups();
 
@@ -81,7 +84,7 @@ namespace TittyMagic.Handlers
 
         #region *** Parameter setup ***
 
-        private PhysicsParameter NewPhysicsParameter(string paramName, string side, float startingValue, float minValue, float maxValue)
+        private static PhysicsParameter NewPhysicsParameter(string paramName, string side, float startingValue, float minValue, float maxValue)
         {
             string jsfName = $"{paramName}{(side == LEFT ? "" : side)}";
             var valueJsf = new JSONStorableFloat($"{jsfName}Value", startingValue, minValue, maxValue);
@@ -92,7 +95,7 @@ namespace TittyMagic.Handlers
             );
         }
 
-        private SoftGroupPhysicsParameter NewSoftGroupPhysicsParameter(string paramName, string side, string group)
+        private static SoftGroupPhysicsParameter NewSoftGroupPhysicsParameter(string paramName, string side, string group)
         {
             string jsfName = $"{paramName}{(side == LEFT ? "" : side)}{group}";
             var valueJsf = new JSONStorableFloat($"{jsfName}Value", 1, 0, 5);
@@ -103,7 +106,7 @@ namespace TittyMagic.Handlers
             );
         }
 
-        private PhysicsParameter NewSpringParameter(string side)
+        private static PhysicsParameter NewSpringParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_SPRING, side, 0, 0, 500);
             parameter.config = new StaticPhysicsConfig(
@@ -152,7 +155,7 @@ namespace TittyMagic.Handlers
             return parameter;
         }
 
-        private PhysicsParameter NewDamperParameter(string side)
+        private static PhysicsParameter NewDamperParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_DAMPER, side, 0, 0, 5.00f);
             parameter.config = new StaticPhysicsConfig(
@@ -206,7 +209,7 @@ namespace TittyMagic.Handlers
             return parameter;
         }
 
-        private PhysicsParameter NewSoftVerticesMassParameter(string side)
+        private static PhysicsParameter NewSoftVerticesMassParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_MASS, side, 0, 0.001f, 0.300f);
             parameter.config = new StaticPhysicsConfig(
@@ -262,7 +265,7 @@ namespace TittyMagic.Handlers
             return parameter;
         }
 
-        private PhysicsParameter NewColliderRadiusParameter(string side)
+        private static PhysicsParameter NewColliderRadiusParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_COLLIDER_RADIUS, side, 0, 0, 0.060f);
             parameter.config = new StaticPhysicsConfig(
@@ -292,7 +295,7 @@ namespace TittyMagic.Handlers
             return parameter;
         }
 
-        private PhysicsParameter NewColliderAdditionalNormalOffsetParameter(string side)
+        private static PhysicsParameter NewColliderAdditionalNormalOffsetParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, side, 0, -0.010f, 0.010f);
             parameter.config = new StaticPhysicsConfig(0.001f);
@@ -317,7 +320,7 @@ namespace TittyMagic.Handlers
             return parameter;
         }
 
-        private PhysicsParameter NewDistanceLimitParameter(string side)
+        private static PhysicsParameter NewDistanceLimitParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_DISTANCE_LIMIT, side, 0, 0, 0.100f);
             parameter.config = new StaticPhysicsConfig(
@@ -354,7 +357,7 @@ namespace TittyMagic.Handlers
             return parameter;
         }
 
-        private PhysicsParameter NewBackForceParameter(string side)
+        private static PhysicsParameter NewBackForceParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_BACK_FORCE, side, 0, 0, 50.00f);
             parameter.config = new StaticPhysicsConfig(
@@ -405,7 +408,7 @@ namespace TittyMagic.Handlers
             return parameter;
         }
 
-        private PhysicsParameter NewBackForceMaxForceParameter(string side)
+        private static PhysicsParameter NewBackForceMaxForceParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_BACK_FORCE_MAX_FORCE, side, 0, 0, 50.00f);
             parameter.config = new StaticPhysicsConfig(50.00f);
@@ -430,7 +433,7 @@ namespace TittyMagic.Handlers
             return parameter;
         }
 
-        private PhysicsParameter NewBackForceThresholdDistanceParameter(string side)
+        private static PhysicsParameter NewBackForceThresholdDistanceParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE, side, 0, 0, 0.030f);
             parameter.config = new StaticPhysicsConfig(0.001f);
@@ -455,7 +458,7 @@ namespace TittyMagic.Handlers
             return parameter;
         }
 
-        private void SetupPhysicsParameterGroups()
+        private static void SetupPhysicsParameterGroups()
         {
             var softVerticesSpring = new PhysicsParameterGroup(
                 NewSpringParameter(LEFT),
@@ -624,7 +627,7 @@ namespace TittyMagic.Handlers
             group.jointBackForceThresholdDistance = value;
         }
 
-        public void ReverseSyncSoftPhysicsOn()
+        public static void ReverseSyncSoftPhysicsOn()
         {
             if(_breastPhysicsMesh != null)
             {
@@ -632,7 +635,7 @@ namespace TittyMagic.Handlers
             }
         }
 
-        public void ReverseSyncAllowSelfCollision()
+        public static void ReverseSyncAllowSelfCollision()
         {
             if(_breastPhysicsMesh != null)
             {
@@ -640,7 +643,7 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private void SyncSoftPhysicsOn(bool value)
+        private static void SyncSoftPhysicsOn(bool value)
         {
             if(_breastPhysicsMesh != null)
             {
@@ -648,7 +651,7 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private void SyncAllowSelfCollision(bool value)
+        private static void SyncAllowSelfCollision(bool value)
         {
             if(_breastPhysicsMesh != null)
             {
@@ -658,7 +661,7 @@ namespace TittyMagic.Handlers
 
         #endregion *** Sync functions ***
 
-        public void SyncSoftPhysics()
+        public static void SyncSoftPhysics()
         {
             if(!Gender.isFemale)
             {
@@ -669,7 +672,7 @@ namespace TittyMagic.Handlers
             SyncAllowSelfCollision(allowSelfCollision.val);
         }
 
-        public void UpdatePhysics()
+        public static void UpdatePhysics()
         {
             if(!tittyMagic.settingsMonitor.softPhysicsEnabled)
             {
@@ -682,12 +685,12 @@ namespace TittyMagic.Handlers
                 .ToList()
                 .ForEach(paramGroup =>
                 {
-                    float mass = paramGroup.useRealMass ? tittyMagic.mainPhysicsHandler.realMassAmount : tittyMagic.mainPhysicsHandler.massAmount;
+                    float mass = paramGroup.useRealMass ? MainPhysicsHandler.realMassAmount : MainPhysicsHandler.massAmount;
                     paramGroup.UpdateValue(mass, softness, quickness);
                 });
         }
 
-        public void UpdateRateDependentPhysics()
+        public static void UpdateRateDependentPhysics()
         {
             if(!tittyMagic.settingsMonitor.softPhysicsEnabled)
             {
@@ -701,15 +704,15 @@ namespace TittyMagic.Handlers
                 .ToList()
                 .ForEach(paramGroup =>
                 {
-                    float mass = paramGroup.useRealMass ? tittyMagic.mainPhysicsHandler.realMassAmount : tittyMagic.mainPhysicsHandler.massAmount;
+                    float mass = paramGroup.useRealMass ? MainPhysicsHandler.realMassAmount : MainPhysicsHandler.massAmount;
                     paramGroup.UpdateValue(mass, softness, quickness);
                 });
         }
 
-        private bool _originalSoftPhysicsOn;
-        private bool _originalAllowSelfCollision;
+        private static bool _originalSoftPhysicsOn;
+        private static bool _originalAllowSelfCollision;
 
-        public void SaveOriginalBoolParamValues()
+        public static void SaveOriginalBoolParamValues()
         {
             if(_breastPhysicsMesh == null)
             {
@@ -720,9 +723,9 @@ namespace TittyMagic.Handlers
             _originalAllowSelfCollision = _breastPhysicsMesh.allowSelfCollision;
         }
 
-        public void RestoreOriginalPhysics()
+        public static void RestoreOriginalPhysics()
         {
-            if(_breastPhysicsMesh == null)
+            if(!_initDone || _breastPhysicsMesh == null)
             {
                 return;
             }
@@ -831,7 +834,7 @@ namespace TittyMagic.Handlers
                 return sb.ToString();
             };
 
-            return new Dictionary<string, string>()
+            return new Dictionary<string, string>
             {
                 { SOFT_VERTICES_SPRING, springText() },
                 { SOFT_VERTICES_DAMPER, damperText() },

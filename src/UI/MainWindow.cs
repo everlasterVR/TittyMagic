@@ -37,7 +37,7 @@ namespace TittyMagic.UI
             };
 
             _title = new JSONStorableString("title", "");
-            _massParameter = tittyMagic.mainPhysicsHandler.massParameterGroup.left;
+            _massParameter = MainPhysicsHandler.massParameterGroup.left;
 
             if(Gender.isFemale)
             {

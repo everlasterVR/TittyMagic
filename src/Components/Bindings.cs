@@ -75,14 +75,14 @@ namespace TittyMagic
             }));
         }
 
-        private void ShowMainHud()
+        private static void ShowMainHud()
         {
             SuperController.singleton.SelectController(tittyMagic.containingAtom.freeControllers.First(), false, false);
             SuperController.singleton.ShowMainHUDMonitor();
         }
 
         // adapted from Timeline v4.3.1 (c) acidbubbles
-        private IEnumerator SelectPluginUI(Action postAction = null)
+        private static IEnumerator SelectPluginUI(Action postAction = null)
         {
             if(SuperController.singleton.gameMode != SuperController.GameMode.Edit)
             {

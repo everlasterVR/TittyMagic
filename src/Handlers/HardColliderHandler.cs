@@ -28,9 +28,9 @@ namespace TittyMagic.Handlers
 
         private bool _combinedSyncInProgress;
 
-        public void Init()
+        public void Init(DAZCharacterSelector geometry)
         {
-            _geometry = (DAZCharacterSelector) tittyMagic.containingAtom.GetStorableByID("geometry");
+            _geometry = geometry;
 
             if(!Gender.isFemale)
             {
@@ -359,7 +359,7 @@ namespace TittyMagic.Handlers
             return new ColliderConfig(autoCollider, visualizerEditableId);
         }
 
-        private AutoCollider FindAutoCollider(Collider collider)
+        private static AutoCollider FindAutoCollider(Collider collider)
         {
             var updater = tittyMagic.containingAtom.GetComponentInChildren<AutoColliderBatchUpdater>();
             return updater.autoColliders.First(autoCollider =>
@@ -373,7 +373,7 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            config.UpdateDimensions(tittyMagic.mainPhysicsHandler.normalizedMass, tittyMagic.softnessAmount);
+            config.UpdateDimensions(MainPhysicsHandler.normalizedMass, tittyMagic.softnessAmount);
             SyncSizeAuto();
         }
 
@@ -384,7 +384,7 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            config.UpdatePosition(tittyMagic.mainPhysicsHandler.normalizedMass, tittyMagic.softnessAmount);
+            config.UpdatePosition(MainPhysicsHandler.normalizedMass, tittyMagic.softnessAmount);
             SyncSizeAuto();
         }
 
@@ -408,7 +408,7 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            float mass = tittyMagic.mainPhysicsHandler.normalizedRealMass;
+            float mass = MainPhysicsHandler.normalizedRealMass;
             float softness = tittyMagic.softnessAmount;
             colliderConfigs.ForEach(config =>
             {
@@ -467,7 +467,7 @@ namespace TittyMagic.Handlers
             {
                 config.UpdateRigidbodyMass(
                     1 / Utils.PhysicsRateMultiplier() * baseForceJsf.val * config.forceJsf.val,
-                    tittyMagic.mainPhysicsHandler.normalizedMass,
+                    MainPhysicsHandler.normalizedMass,
                     tittyMagic.softnessAmount
                 );
             }
@@ -548,7 +548,7 @@ namespace TittyMagic.Handlers
             {
                 colliderConfigs.ForEach(config => config.UpdateRigidbodyMass(
                     1 / Utils.PhysicsRateMultiplier() * baseForceJsf.val * config.forceJsf.val,
-                    tittyMagic.mainPhysicsHandler.normalizedMass,
+                    MainPhysicsHandler.normalizedMass,
                     tittyMagic.softnessAmount
                 ));
             }

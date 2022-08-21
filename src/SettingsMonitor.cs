@@ -1,4 +1,5 @@
 ﻿using System;
+using TittyMagic.Handlers;
 using UnityEngine;
 using static TittyMagic.Script;
 
@@ -91,7 +92,7 @@ namespace TittyMagic
                     bool value = globalSoftPhysicsOn && atomSoftPhysicsOn && breastSoftPhysicsOn;
                     if(value != softPhysicsEnabled)
                     {
-                        tittyMagic.softPhysicsHandler.ReverseSyncSoftPhysicsOn();
+                        SoftPhysicsHandler.ReverseSyncSoftPhysicsOn();
                         refreshNeeded = true;
                     }
 
@@ -118,8 +119,8 @@ namespace TittyMagic
             }
             else if(rateDependentRefreshNeeded)
             {
-                tittyMagic.mainPhysicsHandler.UpdateRateDependentPhysics();
-                tittyMagic.softPhysicsHandler.UpdateRateDependentPhysics();
+                MainPhysicsHandler.UpdateRateDependentPhysics();
+                SoftPhysicsHandler.UpdateRateDependentPhysics();
                 tittyMagic.hardColliderHandler.SyncHardCollidersBaseMass();
             }
         }

@@ -5,24 +5,24 @@ using static TittyMagic.Script;
 
 namespace TittyMagic.Handlers
 {
-    internal class NippleErectionHandler
+    internal static class NippleErectionHandler
     {
-        private MorphConfigBase _morphConfig;
-        private List<PhysicsParameterGroup> _paramGroups;
+        private static MorphConfigBase _morphConfig;
+        private static List<PhysicsParameterGroup> _paramGroups;
 
-        public JSONStorableFloat nippleErectionJsf { get; }
+        public static JSONStorableFloat nippleErectionJsf { get; private set; }
 
-        public NippleErectionHandler()
+        public static void Init()
         {
             nippleErectionJsf = tittyMagic.NewJSONStorableFloat("nippleErection", 0.00f, 0.00f, 1.00f);
             nippleErectionJsf.setCallbackFunction = _ => Update();
         }
 
-        public void LoadSettings()
+        public static void LoadSettings()
         {
             _morphConfig = new MorphConfigBase("TM_NippleErection", 1.0f);
             SetupPhysicsConfigs();
-            _paramGroups = tittyMagic.softPhysicsHandler.parameterGroups.Values.ToList();
+            _paramGroups = SoftPhysicsHandler.parameterGroups.Values.ToList();
         }
 
         private static Dictionary<string, DynamicPhysicsConfig> NewSpringConfigs() =>
@@ -83,19 +83,19 @@ namespace TittyMagic.Handlers
                 },
             };
 
-        private void SetupPhysicsConfigs()
+        private static void SetupPhysicsConfigs()
         {
-            var paramGroups = tittyMagic.softPhysicsHandler.parameterGroups;
+            var paramGroups = SoftPhysicsHandler.parameterGroups;
             paramGroups[SOFT_VERTICES_SPRING].SetNippleErectionConfigs(NewSpringConfigs(), NewSpringConfigs());
             paramGroups[SOFT_VERTICES_DAMPER].SetNippleErectionConfigs(NewDamperConfigs(), NewDamperConfigs());
         }
 
-        public void Update()
+        public static void Update()
         {
             _morphConfig.morph.morphValue = nippleErectionJsf.val * _morphConfig.multiplier;
             if(tittyMagic.settingsMonitor.softPhysicsEnabled)
             {
-                float mass = tittyMagic.mainPhysicsHandler.massAmount;
+                float mass = MainPhysicsHandler.massAmount;
                 float softness = tittyMagic.softnessAmount;
                 _paramGroups.ForEach(paramGroup =>
                     paramGroup.UpdateNippleErectionGroupValues(mass, softness, nippleErectionJsf.val)
@@ -103,7 +103,7 @@ namespace TittyMagic.Handlers
             }
         }
 
-        public void Reset()
+        public static void Reset()
         {
             _morphConfig.morph.morphValue = 0;
         }

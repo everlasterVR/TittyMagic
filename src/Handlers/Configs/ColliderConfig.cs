@@ -10,7 +10,7 @@ namespace TittyMagic.Configs
         private const float DEFAULT_MASS = 0.04f;
 
         public string id { get; }
-        public string visualizerEditableId => left.visualizerEditableId;
+        public string visualizerEditableId => _left.visualizerEditableId;
         public bool syncInProgress { get; set; }
 
         private readonly Scaler _baseRbMassSliderScaler;
@@ -20,8 +20,8 @@ namespace TittyMagic.Configs
         private readonly Scaler _upOffsetSliderScaler;
         private readonly Scaler _lookOffsetSliderScaler;
 
-        public ColliderConfig left { get; }
-        public ColliderConfig right { get; }
+        private readonly ColliderConfig _left;
+        private readonly ColliderConfig _right;
 
         public JSONStorableFloat forceJsf { get; set; }
         public JSONStorableFloat radiusJsf { get; set; }
@@ -43,8 +43,8 @@ namespace TittyMagic.Configs
         )
         {
             this.id = id;
-            this.left = left;
-            this.right = right;
+            _left = left;
+            _right = right;
             _baseRbMassSliderScaler = baseRbMassSliderScaler;
             _radiusSliderScaler = radiusSliderScaler;
             _lengthSliderScaler = lengthSliderScaler;
@@ -56,22 +56,22 @@ namespace TittyMagic.Configs
         public void UpdateRigidbodyMass(float combinedMultiplier, float massValue, float softness)
         {
             float rbMass = combinedMultiplier * _baseRbMassSliderScaler.Scale(DEFAULT_MASS, massValue, softness);
-            left.UpdateRigidbodyMass(rbMass);
-            right.UpdateRigidbodyMass(rbMass);
+            _left.UpdateRigidbodyMass(rbMass);
+            _right.UpdateRigidbodyMass(rbMass);
         }
 
         public void RestoreDefaultMass()
         {
-            left.UpdateRigidbodyMass(DEFAULT_MASS);
-            right.UpdateRigidbodyMass(DEFAULT_MASS);
+            _left.UpdateRigidbodyMass(DEFAULT_MASS);
+            _right.UpdateRigidbodyMass(DEFAULT_MASS);
         }
 
         public void UpdateDimensions(float massValue, float softness)
         {
             float radius = -_radiusSliderScaler.Scale(radiusJsf.val, massValue, softness);
             float length = -_lengthSliderScaler.Scale(lengthJsf.val, massValue, softness);
-            left.UpdateDimensions(radius, length);
-            right.UpdateDimensions(radius, length);
+            _left.UpdateDimensions(radius, length);
+            _right.UpdateDimensions(radius, length);
         }
 
         public void UpdatePosition(float massValue, float softness)
@@ -79,23 +79,23 @@ namespace TittyMagic.Configs
             float rightOffset = _rightOffsetSliderScaler.Scale(rightJsf.val, massValue, softness);
             float upOffset = -_upOffsetSliderScaler.Scale(upJsf.val, massValue, softness);
             float lookOffset = -_lookOffsetSliderScaler.Scale(lookJsf.val, massValue, softness);
-            left.UpdatePosition(-rightOffset, upOffset, lookOffset);
-            right.UpdatePosition(rightOffset, upOffset, lookOffset);
+            _left.UpdatePosition(-rightOffset, upOffset, lookOffset);
+            _right.UpdatePosition(rightOffset, upOffset, lookOffset);
         }
 
         public void AutoColliderSizeSet()
         {
-            left.AutoColliderSizeSet();
-            right.AutoColliderSizeSet();
+            _left.AutoColliderSizeSet();
+            _right.AutoColliderSizeSet();
         }
 
         public void RestoreDefaults()
         {
-            left.RestoreDefaults();
-            right.RestoreDefaults();
+            _left.RestoreDefaults();
+            _right.RestoreDefaults();
         }
 
-        public bool HasRigidbodies() => left.HasRigidbody() && right.HasRigidbody();
+        public bool HasRigidbodies() => _left.HasRigidbody() && _right.HasRigidbody();
     }
 
     internal class ColliderConfig

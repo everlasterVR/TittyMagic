@@ -23,18 +23,8 @@ namespace TittyMagic
         public float quicknessAmount { get; private set; }
 
         public SettingsMonitor settingsMonitor { get; private set; }
-
-        public MainPhysicsHandler mainPhysicsHandler { get; private set; }
         public HardColliderHandler hardColliderHandler { get; private set; }
-        public SoftPhysicsHandler softPhysicsHandler { get; private set; }
-        public GravityPhysicsHandler gravityPhysicsHandler { get; private set; }
-        public GravityOffsetMorphHandler offsetMorphHandler { get; private set; }
-        public NippleErectionHandler nippleErectionHandler { get; private set; }
         public ColliderVisualizer colliderVisualizer { get; private set; }
-
-        // ReSharper disable once MemberCanBePrivate.Global
-        public ForcePhysicsHandler forcePhysicsHandler { get; private set; }
-        public ForceMorphHandler forceMorphHandler { get; private set; }
 
         // ReSharper disable MemberCanBePrivate.Global
         public IWindow mainWindow { get; private set; }
@@ -96,7 +86,7 @@ namespace TittyMagic
                 var background = rightUIContent.parent.parent.parent.transform.GetComponent<Image>();
                 background.color = new Color(0.85f, 0.85f, 0.85f);
 
-                softPhysicsHandler.ReverseSyncAllowSelfCollision();
+                SoftPhysicsHandler.ReverseSyncAllowSelfCollision();
 
                 if(_tabs.activeWindow == mainWindow)
                 {
@@ -240,13 +230,13 @@ namespace TittyMagic
             var skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
 
             /* Setup handlers */
-            mainPhysicsHandler = new MainPhysicsHandler(breastControl, skin, chestRb);
+            MainPhysicsHandler.Init(breastControl, skin, chestRb);
             hardColliderHandler = gameObject.AddComponent<HardColliderHandler>();
-            hardColliderHandler.Init();
-            softPhysicsHandler = new SoftPhysicsHandler();
-            gravityPhysicsHandler = new GravityPhysicsHandler();
-            offsetMorphHandler = new GravityOffsetMorphHandler();
-            nippleErectionHandler = new NippleErectionHandler();
+            hardColliderHandler.Init(geometry);
+            SoftPhysicsHandler.Init();
+            GravityPhysicsHandler.Init();
+            GravityOffsetMorphHandler.Init();
+            NippleErectionHandler.Init();
 
             settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
             settingsMonitor.Init();
@@ -269,8 +259,8 @@ namespace TittyMagic
                 );
             }
 
-            forcePhysicsHandler = new ForcePhysicsHandler(_trackLeftNipple, _trackRightNipple);
-            forceMorphHandler = new ForceMorphHandler(_trackLeftNipple, _trackRightNipple);
+            ForcePhysicsHandler.Init(_trackLeftNipple, _trackRightNipple);
+            ForceMorphHandler.Init(_trackLeftNipple, _trackRightNipple);
 
             /* Setup breast morph listening */
             BreastMorphListener.ProcessMorphs(geometry.morphBank1);
@@ -281,13 +271,13 @@ namespace TittyMagic
 
             /* Load settings */
             {
-                mainPhysicsHandler.LoadSettings();
-                softPhysicsHandler.LoadSettings();
-                nippleErectionHandler.LoadSettings();
-                gravityPhysicsHandler.LoadSettings();
-                forcePhysicsHandler.LoadSettings();
-                forceMorphHandler.LoadSettings();
-                offsetMorphHandler.LoadSettings();
+                MainPhysicsHandler.LoadSettings();
+                SoftPhysicsHandler.LoadSettings();
+                NippleErectionHandler.LoadSettings();
+                GravityPhysicsHandler.LoadSettings();
+                ForcePhysicsHandler.LoadSettings();
+                ForceMorphHandler.LoadSettings();
+                GravityOffsetMorphHandler.LoadSettings();
             }
 
             /* Setup storables */
@@ -359,7 +349,7 @@ namespace TittyMagic
             if(!_loadingFromJson)
             {
                 hardColliderHandler.SaveOriginalUseColliders();
-                softPhysicsHandler.SaveOriginalBoolParamValues();
+                SoftPhysicsHandler.SaveOriginalBoolParamValues();
                 calculateBreastMass.actionCallback();
             }
             else
@@ -516,16 +506,12 @@ namespace TittyMagic
 #endif
         }
 
-        private void UpdateDynamicPhysics(float roll, float pitch)
+        private static void UpdateDynamicHandlers(float roll, float pitch)
         {
-            forcePhysicsHandler.Update();
-            gravityPhysicsHandler.Update(roll, pitch);
-        }
-
-        private void UpdateDynamicMorphs(float roll, float pitch)
-        {
-            forceMorphHandler.Update(roll, pitch);
-            offsetMorphHandler.Update(roll, pitch);
+            ForcePhysicsHandler.Update();
+            GravityPhysicsHandler.Update(roll, pitch);
+            ForceMorphHandler.Update(roll, pitch);
+            GravityOffsetMorphHandler.Update(roll, pitch);
         }
 
         private void FixedUpdate()
@@ -550,8 +536,7 @@ namespace TittyMagic
                 float roll = Calc.Roll(rotation);
                 float pitch = Calc.Pitch(rotation);
 
-                UpdateDynamicPhysics(roll, pitch);
-                UpdateDynamicMorphs(roll, pitch);
+                UpdateDynamicHandlers(roll, pitch);
             }
             catch(Exception e)
             {
@@ -616,12 +601,11 @@ namespace TittyMagic
 
                 _trackLeftNipple.ResetAnglesAndDepthDiff();
                 _trackRightNipple.ResetAnglesAndDepthDiff();
-                UpdateDynamicPhysics(0, 0);
-                UpdateDynamicMorphs(0, 0);
+                UpdateDynamicHandlers(0, 0);
 
-                mainPhysicsHandler.UpdatePhysics();
-                softPhysicsHandler.UpdatePhysics();
-                nippleErectionHandler.Update();
+                MainPhysicsHandler.UpdatePhysics();
+                SoftPhysicsHandler.UpdatePhysics();
+                NippleErectionHandler.Update();
             }
 
             if(waitForListeners)
@@ -637,7 +621,7 @@ namespace TittyMagic
                 yield return new WaitForSeconds(0.1f);
             }
 
-            softPhysicsHandler.SyncSoftPhysics();
+            SoftPhysicsHandler.SyncSoftPhysics();
 
             /* Calculate softness and quickness */
             {
@@ -660,34 +644,34 @@ namespace TittyMagic
 
                     if(refreshMass)
                     {
-                        mainPhysicsHandler.UpdateMassValueAndAmounts();
-                        mainPhysicsHandler.UpdatePhysics();
+                        MainPhysicsHandler.UpdateMassValueAndAmounts();
+                        MainPhysicsHandler.UpdatePhysics();
                     }
                 }
             }
 
-            mainPhysicsHandler.UpdatePhysics();
-            softPhysicsHandler.UpdatePhysics();
-            nippleErectionHandler.Update();
+            MainPhysicsHandler.UpdatePhysics();
+            SoftPhysicsHandler.UpdatePhysics();
+            NippleErectionHandler.Update();
 
             /* Set extra multipliers */
             {
-                float mass = mainPhysicsHandler.realMassAmount;
+                float mass = MainPhysicsHandler.realMassAmount;
 
-                forceMorphHandler.upDownExtraMultiplier =
+                ForceMorphHandler.upDownExtraMultiplier =
                     Curves.Exponential1(softnessAmount, 1.73f, 1.68f, 0.88f, m: 0.93f, s: 0.56f)
                     * Curves.MorphingCurve(mass);
-                forceMorphHandler.forwardExtraMultiplier =
+                ForceMorphHandler.forwardExtraMultiplier =
                     Mathf.Lerp(1.00f, 1.20f, softnessAmount)
                     * Curves.DepthMorphingCurve(mass);
-                forceMorphHandler.backExtraMultiplier =
+                ForceMorphHandler.backExtraMultiplier =
                     Mathf.Lerp(0.80f, 1.00f, softnessAmount)
                     * Curves.DepthMorphingCurve(mass);
-                forceMorphHandler.leftRightExtraMultiplier =
+                ForceMorphHandler.leftRightExtraMultiplier =
                     Curves.Exponential1(softnessAmount, 1.73f, 1.68f, 0.88f, m: 0.93f, s: 0.56f)
                     * Curves.MorphingCurve(mass);
 
-                offsetMorphHandler.upDownExtraMultiplier = 1.16f - mass;
+                GravityOffsetMorphHandler.upDownExtraMultiplier = 1.16f - mass;
             }
 
             /* Calibrate nipples tracking and colliders */
@@ -731,9 +715,8 @@ namespace TittyMagic
         {
             while(_calibrating)
             {
-                // simulate gravityPhysics when upright
-                UpdateDynamicPhysics(roll: 0, pitch: 0);
-                UpdateDynamicMorphs(roll: 0, pitch: 0);
+                // simulate upright pose
+                UpdateDynamicHandlers(roll: 0, pitch: 0);
 
                 // scale force to be correct for the given fps vs physics rate, for some reason this produces an accurate calibration result
                 float rateToPhysicsRateRatio = Time.deltaTime / Time.fixedDeltaTime;
@@ -792,7 +775,7 @@ namespace TittyMagic
             base.RestoreFromJSON(jsonClass, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
             _loadingFromJson = false;
             hardColliderHandler.SaveOriginalUseColliders();
-            softPhysicsHandler.SaveOriginalBoolParamValues();
+            SoftPhysicsHandler.SaveOriginalBoolParamValues();
             calculateBreastMass.actionCallback();
         }
 
@@ -828,7 +811,7 @@ namespace TittyMagic
                 SetPectoralCollisions(false);
                 settingsMonitor.SetEnabled(true);
                 hardColliderHandler.SetEnabled(true);
-                softPhysicsHandler?.SaveOriginalBoolParamValues();
+                SoftPhysicsHandler.SaveOriginalBoolParamValues();
                 StartRefreshCoroutine(true);
                 _inactivatedUITransforms?.ForEach(t => t.gameObject.SetActive(false));
                 _customUITransforms?.ForEach(t => t.gameObject.SetActive(true));
@@ -846,11 +829,11 @@ namespace TittyMagic
                 SetPectoralCollisions(true);
                 settingsMonitor.SetEnabled(false);
                 hardColliderHandler.SetEnabled(false);
-                mainPhysicsHandler?.RestoreOriginalPhysics();
-                softPhysicsHandler?.RestoreOriginalPhysics();
-                offsetMorphHandler?.ResetAll();
-                forceMorphHandler?.ResetAll();
-                nippleErectionHandler?.Reset();
+                MainPhysicsHandler.RestoreOriginalPhysics();
+                SoftPhysicsHandler.RestoreOriginalPhysics();
+                GravityOffsetMorphHandler.ResetAll();
+                ForceMorphHandler.ResetAll();
+                NippleErectionHandler.Reset();
                 _customUITransforms?.ForEach(t => t.gameObject.SetActive(false));
                 _inactivatedUITransforms?.ForEach(t => t.gameObject.SetActive(true));
             }

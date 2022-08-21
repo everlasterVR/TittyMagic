@@ -6,36 +6,36 @@ using static TittyMagic.Script;
 
 namespace TittyMagic.Handlers
 {
-    internal class ForceMorphHandler
+    internal static class ForceMorphHandler
     {
-        private readonly TrackNipple _trackLeftNipple;
-        private readonly TrackNipple _trackRightNipple;
+        private static TrackNipple _trackLeftNipple;
+        private static TrackNipple _trackRightNipple;
 
-        private float _pitchMultiplier;
-        private float _rollMultiplier;
-        private float _leanBackFixerMultiplier;
+        private static float _pitchMultiplier;
+        private static float _rollMultiplier;
+        private static float _leanBackFixerMultiplier;
 
-        private Dictionary<string, List<MorphConfig>> _configSets;
+        private static Dictionary<string, List<MorphConfig>> _configSets;
 
-        public JSONStorableFloat baseJsf { get; }
-        public JSONStorableFloat upJsf { get; }
-        public JSONStorableFloat downJsf { get; }
-        public JSONStorableFloat forwardJsf { get; }
-        public JSONStorableFloat backJsf { get; }
-        public JSONStorableFloat leftRightJsf { get; }
+        public static JSONStorableFloat baseJsf { get; private set; }
+        public static JSONStorableFloat upJsf { get; private set; }
+        public static JSONStorableFloat downJsf { get; private set; }
+        public static JSONStorableFloat forwardJsf { get; private set; }
+        public static JSONStorableFloat backJsf { get; private set; }
+        public static JSONStorableFloat leftRightJsf { get; private set; }
 
-        public float upDownExtraMultiplier { get; set; }
-        public float forwardExtraMultiplier { get; set; }
-        public float backExtraMultiplier { get; set; }
-        public float leftRightExtraMultiplier { get; set; }
+        public static float upDownExtraMultiplier { get; set; }
+        public static float forwardExtraMultiplier { get; set; }
+        public static float backExtraMultiplier { get; set; }
+        public static float leftRightExtraMultiplier { get; set; }
 
-        private float upMultiplier => baseJsf.val * upJsf.val;
-        private float downMultiplier => baseJsf.val * downJsf.val;
-        private float forwardMultiplier => baseJsf.val * forwardJsf.val;
-        private float backMultiplier => baseJsf.val * backJsf.val;
-        private float leftRightMultiplier => baseJsf.val * leftRightJsf.val;
+        private static float upMultiplier => baseJsf.val * upJsf.val;
+        private static float downMultiplier => baseJsf.val * downJsf.val;
+        private static float forwardMultiplier => baseJsf.val * forwardJsf.val;
+        private static float backMultiplier => baseJsf.val * backJsf.val;
+        private static float leftRightMultiplier => baseJsf.val * leftRightJsf.val;
 
-        public ForceMorphHandler(TrackNipple trackLeftNipple, TrackNipple trackRightNipple)
+        public static void Init(TrackNipple trackLeftNipple, TrackNipple trackRightNipple)
         {
             _trackLeftNipple = trackLeftNipple;
             _trackRightNipple = trackRightNipple;
@@ -48,7 +48,7 @@ namespace TittyMagic.Handlers
             leftRightJsf = tittyMagic.NewJSONStorableFloat("forceMorphingLeftRight", 1.00f, 0.00f, 2.00f);
         }
 
-        public void LoadSettings() =>
+        public static void LoadSettings() =>
             _configSets = new Dictionary<string, List<MorphConfig>>
             {
                 { Direction.UP_L, LoadSettingsFromFile(Direction.UP, "upForce", " L") },
@@ -68,7 +68,7 @@ namespace TittyMagic.Handlers
                 { Direction.RIGHT_R, LoadSettingsFromFile(Direction.RIGHT, "rightForceR") },
             };
 
-        private List<MorphConfig> LoadSettingsFromFile(string subDir, string fileName, string morphNameSuffix = null)
+        private static List<MorphConfig> LoadSettingsFromFile(string subDir, string fileName, string morphNameSuffix = null)
         {
             string path = $@"{tittyMagic.PluginPath()}\settings\morphmultipliers\female\{fileName}.json";
             var jsonClass = tittyMagic.LoadJSON(path).AsObject;
@@ -86,7 +86,7 @@ namespace TittyMagic.Handlers
                 .ToList();
         }
 
-        public void Update(float roll, float pitch)
+        public static void Update(float roll, float pitch)
         {
             _rollMultiplier = CalculateRollMultiplier(roll);
             _pitchMultiplier = CalculatePitchMultiplier(pitch, roll);
@@ -99,7 +99,7 @@ namespace TittyMagic.Handlers
             AdjustLeftRightMorphs();
         }
 
-        private void AdjustUpMorphs()
+        private static void AdjustUpMorphs()
         {
             float multiplier = Curves.QuadraticRegression(upMultiplier) * upDownExtraMultiplier;
             float effectYLeft = CalculateYEffect(_trackLeftNipple.angleY, multiplier);
@@ -140,7 +140,7 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private void AdjustDownMorphs()
+        private static void AdjustDownMorphs()
         {
             float multiplier = Curves.QuadraticRegression(downMultiplier) * upDownExtraMultiplier;
             float effectYLeft = CalculateYEffect(_trackLeftNipple.angleY, multiplier);
@@ -169,7 +169,7 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private void AdjustForwardMorphs()
+        private static void AdjustForwardMorphs()
         {
             float multiplier = Curves.QuadraticRegression(forwardMultiplier) * forwardExtraMultiplier;
             float effectZLeft = CalculateZEffect(_trackLeftNipple.depthDiff, multiplier);
@@ -211,7 +211,7 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private void AdjustBackMorphs()
+        private static void AdjustBackMorphs()
         {
             float multiplier = _leanBackFixerMultiplier * Curves.QuadraticRegression(backMultiplier) * backExtraMultiplier;
             float effectZLeft = CalculateZEffect(_trackLeftNipple.depthDiff, multiplier);
@@ -253,7 +253,7 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private void AdjustLeftRightMorphs()
+        private static void AdjustLeftRightMorphs()
         {
             float multiplier = Curves.QuadraticRegression(leftRightMultiplier) * leftRightExtraMultiplier;
             float effectXLeft = CalculateXEffect(_trackLeftNipple.angleX, multiplier);
@@ -292,7 +292,7 @@ namespace TittyMagic.Handlers
         private static float CalculatePitchMultiplier(float pitch, float roll) =>
             Mathf.Lerp(0.80f, 1f, GravityEffectCalc.CalculateDiffFromHorizontal(pitch, roll)); // same for upright and upside down
 
-        private float CalculateLeanBackFixerMultiplier(float pitch, float roll)
+        private static float CalculateLeanBackFixerMultiplier(float pitch, float roll)
         {
             if(pitch < -0.5f || pitch > 0)
             {
@@ -300,23 +300,23 @@ namespace TittyMagic.Handlers
             }
 
             float diff = 4 * Mathf.Abs(-0.25f - pitch);
-            float minTarget1 = Mathf.Lerp(0.25f, 1.00f, tittyMagic.mainPhysicsHandler.normalizedInvertedMass);
+            float minTarget1 = Mathf.Lerp(0.25f, 1.00f, MainPhysicsHandler.normalizedInvertedMass);
             float minTarget2 = Mathf.Lerp(minTarget1, 1.00f, Mathf.Abs(roll * roll));
             return Mathf.Lerp(minTarget2, 1.00f, diff);
         }
 
-        private float CalculateYEffect(float angle, float multiplier) =>
+        private static float CalculateYEffect(float angle, float multiplier) =>
             multiplier * Curves.ForceEffectCurve(_pitchMultiplier * Mathf.Abs(angle) / 75);
 
         private static float CalculateZEffect(float distance, float multiplier) =>
             multiplier * Curves.ForceEffectCurve(Mathf.Abs(distance) * 10.8f);
 
-        private float CalculateXEffect(float angle, float multiplier) =>
+        private static float CalculateXEffect(float angle, float multiplier) =>
             multiplier * Curves.ForceEffectCurve(_rollMultiplier * Mathf.Abs(angle) / 60);
 
-        private void UpdateMorphs(string configSetName, float effect)
+        private static void UpdateMorphs(string configSetName, float effect)
         {
-            float mass = tittyMagic.mainPhysicsHandler.realMassAmount;
+            float mass = MainPhysicsHandler.realMassAmount;
             const float softness = 0.62f;
             _configSets[configSetName].ForEach(config => UpdateValue(config, effect, mass, softness));
         }
@@ -331,9 +331,9 @@ namespace TittyMagic.Handlers
             config.morph.morphValue = inRange ? Calc.RoundToDecimals(value, 1000f) : 0;
         }
 
-        public void ResetAll() => _configSets?.Keys.ToList().ForEach(ResetMorphs);
+        public static void ResetAll() => _configSets?.Keys.ToList().ForEach(ResetMorphs);
 
-        private void ResetMorphs(string configSetName) =>
+        private static void ResetMorphs(string configSetName) =>
             _configSets[configSetName].ForEach(config => config.morph.morphValue = 0);
     }
 }

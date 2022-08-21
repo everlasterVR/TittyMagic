@@ -5,24 +5,24 @@ using static TittyMagic.ParamName;
 
 namespace TittyMagic.Handlers
 {
-    internal class GravityPhysicsHandler
+    internal static class GravityPhysicsHandler
     {
-        private List<PhysicsParameterGroup> _paramGroups;
+        private static List<PhysicsParameterGroup> _paramGroups;
 
-        public JSONStorableFloat baseJsf { get; }
-        public JSONStorableFloat upJsf { get; }
-        public JSONStorableFloat downJsf { get; }
-        public JSONStorableFloat forwardJsf { get; }
-        public JSONStorableFloat backJsf { get; }
-        public JSONStorableFloat leftRightJsf { get; }
+        public static JSONStorableFloat baseJsf { get; private set; }
+        public static JSONStorableFloat upJsf { get; private set; }
+        public static JSONStorableFloat downJsf { get; private set; }
+        public static JSONStorableFloat forwardJsf { get; private set; }
+        public static JSONStorableFloat backJsf { get; private set; }
+        public static JSONStorableFloat leftRightJsf { get; private set; }
 
-        private float upMultiplier => baseJsf.val * upJsf.val;
-        public float downMultiplier => baseJsf.val * downJsf.val;
-        private float forwardMultiplier => baseJsf.val * forwardJsf.val;
-        private float backMultiplier => baseJsf.val * backJsf.val;
-        private float leftRightMultiplier => baseJsf.val * leftRightJsf.val;
+        private static float upMultiplier => baseJsf.val * upJsf.val;
+        public static float downMultiplier => baseJsf.val * downJsf.val;
+        private static float forwardMultiplier => baseJsf.val * forwardJsf.val;
+        private static float backMultiplier => baseJsf.val * backJsf.val;
+        private static float leftRightMultiplier => baseJsf.val * leftRightJsf.val;
 
-        public GravityPhysicsHandler()
+        public static void Init()
         {
             baseJsf = tittyMagic.NewJSONStorableFloat("gravityPhysicsBase", 1.00f, 0.00f, 2.00f);
             upJsf = tittyMagic.NewJSONStorableFloat("gravityPhysicsUp", 1.00f, 0.00f, 2.00f);
@@ -39,10 +39,10 @@ namespace TittyMagic.Handlers
             leftRightJsf.setCallbackFunction = _ => tittyMagic.recalibrationNeeded = true;
         }
 
-        public void LoadSettings()
+        public static void LoadSettings()
         {
             SetupGravityPhysicsConfigs();
-            _paramGroups = tittyMagic.mainPhysicsHandler.parameterGroups.Values.ToList();
+            _paramGroups = MainPhysicsHandler.parameterGroups.Values.ToList();
         }
 
         private static Dictionary<string, DynamicPhysicsConfig> NewSpringConfigs() =>
@@ -170,16 +170,16 @@ namespace TittyMagic.Handlers
                 },
             };
 
-        private void SetupGravityPhysicsConfigs()
+        private static void SetupGravityPhysicsConfigs()
         {
-            var paramGroups = tittyMagic.mainPhysicsHandler.parameterGroups;
+            var paramGroups = MainPhysicsHandler.parameterGroups;
             paramGroups[SPRING].SetGravityPhysicsConfigs(NewSpringConfigs(), NewSpringConfigs());
             paramGroups[POSITION_SPRING_Z].SetGravityPhysicsConfigs(NewPositionSpringZConfigs(), NewPositionSpringZConfigs());
             paramGroups[TARGET_ROTATION_X].SetGravityPhysicsConfigs(NewPositionTargetRotationXConfigs(), NewPositionTargetRotationXConfigs());
             paramGroups[TARGET_ROTATION_Y].SetGravityPhysicsConfigs(NewPositionTargetRotationYConfigs(), NewPositionTargetRotationYConfigs());
         }
 
-        public void Update(float roll, float pitch)
+        public static void Update(float roll, float pitch)
         {
             float smoothRoll = Calc.SmoothStep(roll);
             float smoothPitch = 2 * Calc.SmoothStep(pitch);
@@ -192,7 +192,7 @@ namespace TittyMagic.Handlers
             AdjustBackPhysics(smoothPitch, smoothRoll);
         }
 
-        private void AdjustLeftRightPhysics(float roll)
+        private static void AdjustLeftRightPhysics(float roll)
         {
             float effect = GravityEffectCalc.CalculateRollEffect(roll, leftRightMultiplier);
             // left
@@ -209,7 +209,7 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private void AdjustUpPhysics(float pitch, float roll)
+        private static void AdjustUpPhysics(float pitch, float roll)
         {
             float effect = GravityEffectCalc.CalculateUpDownEffect(pitch, roll, upMultiplier);
             // leaning forward,  upside down
@@ -228,7 +228,7 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private void AdjustDownPhysics(float pitch, float roll)
+        private static void AdjustDownPhysics(float pitch, float roll)
         {
             float effect = GravityEffectCalc.CalculateUpDownEffect(pitch, roll, downMultiplier);
             // leaning forward, upright
@@ -247,7 +247,7 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private void AdjustForwardPhysics(float pitch, float roll)
+        private static void AdjustForwardPhysics(float pitch, float roll)
         {
             float effect = GravityEffectCalc.CalculateDepthEffect(pitch, roll, forwardMultiplier);
             // leaning forward
@@ -270,7 +270,7 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private void AdjustBackPhysics(float pitch, float roll)
+        private static void AdjustBackPhysics(float pitch, float roll)
         {
             float effect = GravityEffectCalc.CalculateDepthEffect(pitch, roll, backMultiplier);
             // leaning back
@@ -293,16 +293,16 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private void UpdatePhysics(string direction, float effect)
+        private static void UpdatePhysics(string direction, float effect)
         {
-            float mass = tittyMagic.mainPhysicsHandler.massAmount;
+            float mass = MainPhysicsHandler.massAmount;
             float softness = tittyMagic.softnessAmount;
             _paramGroups.ForEach(paramGroup =>
                 paramGroup.UpdateGravityValue(direction, effect, mass, softness)
             );
         }
 
-        private void ResetPhysics(string direction) =>
+        private static void ResetPhysics(string direction) =>
             _paramGroups.ForEach(paramGroup => paramGroup.ResetGravityValue(direction));
     }
 }

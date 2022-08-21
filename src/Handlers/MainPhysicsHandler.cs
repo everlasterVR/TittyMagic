@@ -10,32 +10,34 @@ using static TittyMagic.Side;
 
 namespace TittyMagic.Handlers
 {
-    internal class MainPhysicsHandler
+    internal static class MainPhysicsHandler
     {
-        private readonly AdjustJoints _breastControl;
-        private readonly Dictionary<string, ConfigurableJoint> _joints;
-        private readonly Dictionary<string, Rigidbody> _pectoralRbs;
-        private readonly Dictionary<string, DAZBone> _dazBones;
+        private static AdjustJoints _breastControl;
+        private static Dictionary<string, ConfigurableJoint> _joints;
+        private static Dictionary<string, Rigidbody> _pectoralRbs;
+        private static Dictionary<string, DAZBone> _dazBones;
 
-        private readonly List<string> _breastControlFloatParamNames;
+        private static List<string> _breastControlFloatParamNames;
 
         // AdjustJoints.joint1.slerpDrive.maximumForce value logged on plugin Init
         private const float DEFAULT_SLERP_MAX_FORCE = 500;
 
-        public Dictionary<string, PhysicsParameterGroup> parameterGroups { get; private set; }
+        public static Dictionary<string, PhysicsParameterGroup> parameterGroups { get; private set; }
 
-        public float realMassAmount { get; private set; }
-        public float massAmount { get; private set; }
+        public static float realMassAmount { get; private set; }
+        public static float massAmount { get; private set; }
 
         // hack. 1.5f because 3f is the max mass and massValue is actual mass / 2
         public static float InvertMass(float x) => 1.5f - x;
-        public float normalizedMass => Mathf.InverseLerp(0, 1.45f, massAmount);
-        public float normalizedRealMass => Mathf.InverseLerp(0, 1.50f, realMassAmount);
-        public float normalizedInvertedMass => Mathf.InverseLerp(0, 1.45f, InvertMass(massAmount));
+        public static float normalizedMass => Mathf.InverseLerp(0, 1.45f, massAmount);
+        public static float normalizedRealMass => Mathf.InverseLerp(0, 1.50f, realMassAmount);
+        public static float normalizedInvertedMass => Mathf.InverseLerp(0, 1.45f, InvertMass(massAmount));
 
-        public MassParameterGroup massParameterGroup { get; private set; }
+        public static MassParameterGroup massParameterGroup { get; private set; }
 
-        public MainPhysicsHandler(
+        private static bool _initDone;
+
+        public static void Init(
             AdjustJoints breastControl,
             DAZSkinV2 skin,
             Rigidbody chestRb
@@ -71,9 +73,11 @@ namespace TittyMagic.Handlers
                 TARGET_ROTATION_X,
                 TARGET_ROTATION_Y,
             };
+
+            _initDone = true;
         }
 
-        public void UpdateMassValueAndAmounts()
+        public static void UpdateMassValueAndAmounts()
         {
             float volume = (CalculateVolume(VertexIndexGroup.LEFT_BREAST) + CalculateVolume(VertexIndexGroup.RIGHT_BREAST)) / 2;
             massParameterGroup.UpdateValue(volume / 1000);
@@ -83,10 +87,10 @@ namespace TittyMagic.Handlers
             massAmount = massParameterGroup.left.valueJsf.val / 2;
         }
 
-        private readonly DAZSkinV2 _skin;
-        private readonly Rigidbody _chestRb;
+        private static DAZSkinV2 _skin;
+        private static Rigidbody _chestRb;
 
-        private float CalculateVolume(IEnumerable<int> vertexIndices)
+        private static float CalculateVolume(IEnumerable<int> vertexIndices)
         {
             var positions = vertexIndices.Select(i => Calc.RelativePosition(_chestRb, _skin.rawSkinnedVerts[i])).ToList();
             var bounds = new Bounds();
@@ -125,7 +129,7 @@ namespace TittyMagic.Handlers
             }
         }
 
-        public void LoadSettings()
+        public static void LoadSettings()
         {
             SetupPhysicsParameterGroups();
 
@@ -139,7 +143,7 @@ namespace TittyMagic.Handlers
 
         #region *** Parameter setup ***
 
-        private MassParameter NewMassParameter(string side)
+        private static MassParameter NewMassParameter(string side)
         {
             string jsfName = $"{MASS}{(side == LEFT ? "" : side)}";
             var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.100f, 0.100f, 3.000f);
@@ -153,7 +157,7 @@ namespace TittyMagic.Handlers
             return parameter;
         }
 
-        private PhysicsParameter NewPhysicsParameter(string paramName, string side, float startingValue, float minValue, float maxValue)
+        private static PhysicsParameter NewPhysicsParameter(string paramName, string side, float startingValue, float minValue, float maxValue)
         {
             string jsfName = $"{paramName}{(side == LEFT ? "" : side)}";
             var valueJsf = new JSONStorableFloat($"{jsfName}Value", startingValue, minValue, maxValue);
@@ -164,7 +168,7 @@ namespace TittyMagic.Handlers
             );
         }
 
-        private PhysicsParameter NewCenterOfGravityParameter(string side)
+        private static PhysicsParameter NewCenterOfGravityParameter(string side)
         {
             var parameter = NewPhysicsParameter(CENTER_OF_GRAVITY_PERCENT, side, 0, 0, 1.00f);
             parameter.config = new StaticPhysicsConfig(
@@ -177,7 +181,7 @@ namespace TittyMagic.Handlers
             return parameter;
         }
 
-        private PhysicsParameter NewSpringParameter(string side)
+        private static PhysicsParameter NewSpringParameter(string side)
         {
             var parameter = NewPhysicsParameter(SPRING, side, 10, 10, 100);
             parameter.config = new StaticPhysicsConfig(
@@ -193,7 +197,7 @@ namespace TittyMagic.Handlers
             return parameter;
         }
 
-        private PhysicsParameter NewDamperParameter(string side)
+        private static PhysicsParameter NewDamperParameter(string side)
         {
             var parameter = NewPhysicsParameter(DAMPER, side, 0, 0, 10.00f);
             parameter.config = new StaticPhysicsConfig(
@@ -208,7 +212,7 @@ namespace TittyMagic.Handlers
             return parameter;
         }
 
-        private PhysicsParameter NewPositionSpringZParameter(string side)
+        private static PhysicsParameter NewPositionSpringZParameter(string side)
         {
             var parameter = NewPhysicsParameter(POSITION_SPRING_Z, side, 0, 0, 1000);
             parameter.config = new StaticPhysicsConfig(
@@ -221,7 +225,7 @@ namespace TittyMagic.Handlers
             return parameter;
         }
 
-        private PhysicsParameter NewPositionDamperZParameter(string side)
+        private static PhysicsParameter NewPositionDamperZParameter(string side)
         {
             var parameter = NewPhysicsParameter(POSITION_DAMPER_Z, side, 0, 0, 100);
             parameter.config = new StaticPhysicsConfig(8f);
@@ -230,7 +234,7 @@ namespace TittyMagic.Handlers
             return parameter;
         }
 
-        private PhysicsParameter NewTargetRotationYParameter(string side)
+        private static PhysicsParameter NewTargetRotationYParameter(string side)
         {
             var parameter = NewPhysicsParameter(TARGET_ROTATION_Y, side, 0, -20.00f, 20.00f);
             parameter.config = new StaticPhysicsConfig(0.00f);
@@ -239,7 +243,7 @@ namespace TittyMagic.Handlers
             return parameter;
         }
 
-        private PhysicsParameter NewTargetRotationXParameter(string side)
+        private static PhysicsParameter NewTargetRotationXParameter(string side)
         {
             var parameter = NewPhysicsParameter(TARGET_ROTATION_X, side, 0, -20.00f, 20.00f);
             parameter.config = new StaticPhysicsConfig(0.00f);
@@ -248,7 +252,7 @@ namespace TittyMagic.Handlers
             return parameter;
         }
 
-        private void SetupPhysicsParameterGroups()
+        private static void SetupPhysicsParameterGroups()
         {
             massParameterGroup = new MassParameterGroup(
                 NewMassParameter(LEFT),
@@ -361,7 +365,7 @@ namespace TittyMagic.Handlers
         }
 
         // Reimplements AdjustJoints.cs method SyncCenterOfGravity
-        private void SyncCenterOfGravity(Rigidbody rb, float value)
+        private static void SyncCenterOfGravity(Rigidbody rb, float value)
         {
             var newCenterOfMass = Vector3.Lerp(_breastControl.lowCenterOfGravity, _breastControl.highCenterOfGravity, value);
             if(Calc.VectorEqualWithin(1 / 100f, rb.centerOfMass, newCenterOfMass))
@@ -373,7 +377,7 @@ namespace TittyMagic.Handlers
             rb.WakeUp();
         }
 
-        private void SyncJointSpring(ConfigurableJoint joint, Rigidbody rb, float spring)
+        private static void SyncJointSpring(ConfigurableJoint joint, Rigidbody rb, float spring)
         {
             // see AdjustJoints.cs method ScaleChanged
             float scalePow = Mathf.Pow(1.7f, _breastControl.scale - 1f);
@@ -408,7 +412,7 @@ namespace TittyMagic.Handlers
             rb.WakeUp();
         }
 
-        private void SyncJointDamper(ConfigurableJoint joint, Rigidbody rb, float damper)
+        private static void SyncJointDamper(ConfigurableJoint joint, Rigidbody rb, float damper)
         {
             // see AdjustJoints.cs method ScaleChanged
             float scalePow = Mathf.Pow(1.7f, _breastControl.scale - 1f);
@@ -472,7 +476,7 @@ namespace TittyMagic.Handlers
         }
 
         // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
-        private void SyncTargetRotationX(string side, float targetRotationX)
+        private static void SyncTargetRotationX(string side, float targetRotationX)
         {
             if(side == LEFT)
             {
@@ -491,7 +495,7 @@ namespace TittyMagic.Handlers
         }
 
         // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
-        private void SyncTargetRotationY(string side, float targetRotationY)
+        private static void SyncTargetRotationY(string side, float targetRotationY)
         {
             if(side == LEFT)
             {
@@ -509,7 +513,7 @@ namespace TittyMagic.Handlers
 
         #endregion *** Sync functions ***
 
-        public void UpdatePhysics()
+        public static void UpdatePhysics()
         {
             float softness = tittyMagic.softnessAmount;
             float quickness = tittyMagic.quicknessAmount;
@@ -518,7 +522,7 @@ namespace TittyMagic.Handlers
                 .ForEach(paramGroup => UpdateParam(paramGroup, softness, quickness));
         }
 
-        public void UpdateRateDependentPhysics()
+        public static void UpdateRateDependentPhysics()
         {
             float softness = tittyMagic.softnessAmount;
             float quickness = tittyMagic.quicknessAmount;
@@ -528,14 +532,19 @@ namespace TittyMagic.Handlers
                 .ForEach(paramGroup => UpdateParam(paramGroup, softness, quickness));
         }
 
-        private void UpdateParam(PhysicsParameterGroup paramGroup, float softness, float quickness)
+        private static void UpdateParam(PhysicsParameterGroup paramGroup, float softness, float quickness)
         {
             float massValue = paramGroup.useRealMass ? realMassAmount : massAmount;
             paramGroup.UpdateValue(massValue, softness, quickness);
         }
 
-        public void RestoreOriginalPhysics()
+        public static void RestoreOriginalPhysics()
         {
+            if(!_initDone)
+            {
+                return;
+            }
+
             foreach(string name in _breastControlFloatParamNames)
             {
                 /* Set a value that is different from the original, then restore the original
@@ -633,7 +642,7 @@ namespace TittyMagic.Handlers
                 return sb.ToString();
             };
 
-            return new Dictionary<string, string>()
+            return new Dictionary<string, string>
             {
                 { MASS, massText() },
                 { CENTER_OF_GRAVITY_PERCENT, centerOfGravityText() },

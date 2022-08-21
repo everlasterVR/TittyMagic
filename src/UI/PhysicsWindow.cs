@@ -25,8 +25,8 @@ namespace TittyMagic.UI
                 );
                 CreateJointPhysicsInfoTextArea(false);
 
-                CreateParamButton(ParamName.MASS, tittyMagic.mainPhysicsHandler.massParameterGroup, false);
-                tittyMagic.mainPhysicsHandler?.parameterGroups.ToList()
+                CreateParamButton(ParamName.MASS, MainPhysicsHandler.massParameterGroup, false);
+                MainPhysicsHandler.parameterGroups.ToList()
                     .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, false));
 
                 CreateHeader(
@@ -40,7 +40,7 @@ namespace TittyMagic.UI
                 if(Gender.isFemale)
                 {
                     CreateAllowSelfCollisionToggle(true);
-                    tittyMagic.softPhysicsHandler.parameterGroups.ToList()
+                    SoftPhysicsHandler.parameterGroups.ToList()
                         .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, true));
                 }
             };
@@ -50,16 +50,16 @@ namespace TittyMagic.UI
                 nestedWindows.Add(
                     new ParameterWindow(
                         ParamName.MASS,
-                        tittyMagic.mainPhysicsHandler.massParameterGroup,
+                        MainPhysicsHandler.massParameterGroup,
                         onReturnToParent
                     )
                 );
-                foreach(var kvp in tittyMagic.mainPhysicsHandler.parameterGroups)
+                foreach(var kvp in MainPhysicsHandler.parameterGroups)
                 {
                     nestedWindows.Add(
                         new ParameterWindow(
                             kvp.Key,
-                            tittyMagic.mainPhysicsHandler.parameterGroups[kvp.Key],
+                            MainPhysicsHandler.parameterGroups[kvp.Key],
                             onReturnToParent
                         )
                     );
@@ -67,12 +67,12 @@ namespace TittyMagic.UI
 
                 if(Gender.isFemale)
                 {
-                    foreach(var kvp in tittyMagic.softPhysicsHandler.parameterGroups)
+                    foreach(var kvp in SoftPhysicsHandler.parameterGroups)
                     {
                         nestedWindows.Add(
                             new ParameterWindow(
                                 kvp.Key,
-                                tittyMagic.softPhysicsHandler.parameterGroups[kvp.Key],
+                                SoftPhysicsHandler.parameterGroups[kvp.Key],
                                 onReturnToParent
                             )
                         );
@@ -83,7 +83,7 @@ namespace TittyMagic.UI
 
         private void CreateAllowSelfCollisionToggle(bool rightSide)
         {
-            var storable = tittyMagic.softPhysicsHandler.allowSelfCollision;
+            var storable = SoftPhysicsHandler.allowSelfCollision;
             var toggle = tittyMagic.CreateToggle(storable, rightSide);
             toggle.height = 52;
             toggle.label = "Breast Soft Physics Self Collide";
@@ -134,7 +134,7 @@ namespace TittyMagic.UI
 
         private void CreateSoftPhysicsOnToggle(bool rightSide, int spacing = 0)
         {
-            var storable = tittyMagic.softPhysicsHandler.softPhysicsOn;
+            var storable = SoftPhysicsHandler.softPhysicsOn;
             AddSpacer(storable.name, spacing, rightSide);
 
             var toggle = tittyMagic.CreateToggle(storable, rightSide);
