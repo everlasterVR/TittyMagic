@@ -185,13 +185,13 @@ namespace TittyMagic.Handlers
         {
             var parameter = NewPhysicsParameter(SPRING, side, 10, 10, 100);
             parameter.config = new StaticPhysicsConfig(
-                70f,
+                60f,
                 massCurve: x => 0.14f * x,
                 // https://www.desmos.com/calculator/nxyosar9o6
-                softnessCurve: x => -0.45f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f)
+                softnessCurve: x => -0.40f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f)
             );
-            parameter.quicknessOffsetConfig = new StaticPhysicsConfig(40f);
-            parameter.slownessOffsetConfig = new StaticPhysicsConfig(-20f);
+            parameter.quicknessOffsetConfig = new StaticPhysicsConfig(24f);
+            parameter.slownessOffsetConfig = new StaticPhysicsConfig(-12f);
             parameter.valueFormat = "F0";
             parameter.sync = value => SyncJointSpring(_joints[side], _pectoralRbs[side], value);
             return parameter;
