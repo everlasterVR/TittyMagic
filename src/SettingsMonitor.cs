@@ -62,7 +62,7 @@ namespace TittyMagic
                 Utils.LogMessage("Advanced Colliders enabled - they are necessary for directional force morphing and hard colliders to work.");
             }
 
-            if(tittyMagic.refreshInProgress)
+            if(tittyMagic.calibration.isInProgress)
             {
                 return;
             }
@@ -116,7 +116,7 @@ namespace TittyMagic
 
             if(refreshNeeded)
             {
-                tittyMagic.StartRefreshCoroutine(refreshMass: false, waitForListeners: false);
+                tittyMagic.StartCalibration(shouldCalibrateMass: false, shouldWaitForListeners: false);
             }
             else if(rateDependentRefreshNeeded)
             {

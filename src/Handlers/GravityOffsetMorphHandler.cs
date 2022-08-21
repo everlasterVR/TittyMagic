@@ -14,7 +14,7 @@ namespace TittyMagic.Handlers
         public static void Init()
         {
             offsetMorphingJsf = tittyMagic.NewJSONStorableFloat("gravityOffsetMorphing", 1.00f, 0.00f, 2.00f);
-            offsetMorphingJsf.setCallbackFunction = value => tittyMagic.recalibrationNeeded = true;
+            offsetMorphingJsf.setCallbackFunction = value => tittyMagic.calibration.shouldRun = true;
         }
 
         public static void LoadSettings() =>

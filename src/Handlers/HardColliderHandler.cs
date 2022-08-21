@@ -436,7 +436,7 @@ namespace TittyMagic.Handlers
                 var slider = (UIDynamicSlider) elements[config.forceJsf.name];
                 if(slider != null)
                 {
-                    while(slider.IsClickDown())
+                    while(slider.IsPointerDown())
                     {
                         yield return new WaitForSecondsRealtime(0.1f);
                     }
@@ -517,7 +517,7 @@ namespace TittyMagic.Handlers
                 var slider = (UIDynamicSlider) elements[baseForceJsf.name];
                 if(slider != null)
                 {
-                    while(slider.IsClickDown())
+                    while(slider.IsPointerDown())
                     {
                         yield return new WaitForSecondsRealtime(0.1f);
                     }

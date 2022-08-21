@@ -121,7 +121,7 @@ namespace TittyMagic.UI
                 parentButton.label = ParamButtonLabel();
                 if(_parameterGroup.requiresRecalibration)
                 {
-                    tittyMagic.recalibrationNeeded = Math.Abs(value - _offsetWhenCalibrated) > 0.01f;
+                    tittyMagic.calibration.shouldRun = Math.Abs(value - _offsetWhenCalibrated) > 0.01f;
                 }
             });
 

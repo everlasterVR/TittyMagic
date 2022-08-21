@@ -41,6 +41,8 @@ namespace TittyMagic
         public JSONStorableFloat quicknessJsf { get; private set; }
         public JSONStorableAction configureHardColliders { get; private set; }
 
+        public CalibrationHelper calibration { get; private set; }
+
         #region InitUI
 
         private UnityEventsListener _uiEventsListener;
@@ -147,7 +149,6 @@ namespace TittyMagic
         private TrackNipple _trackRightNipple;
 
         private bool _loadingFromJson;
-        private bool _waiting;
 
         private IEnumerator DeferInit()
         {
@@ -192,14 +193,14 @@ namespace TittyMagic
                 var scaleJsf = containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale");
                 scaleJsf.setJSONCallbackFunction = _ =>
                 {
-                    if(!initDone || _waiting || containingAtom.grabFreezePhysics && containingAtom.mainController.isGrabbing)
+                    if(!initDone || calibration.isWaiting || containingAtom.grabFreezePhysics && containingAtom.mainController.isGrabbing)
                     {
                         return;
                     }
 
-                    if(autoUpdateJsb.val && !_waiting)
+                    if(autoUpdateJsb.val && !calibration.isWaiting)
                     {
-                        StartRefreshCoroutine(refreshMass: true, waitForListeners: true);
+                        StartCalibration(shouldCalibrateMass: true, shouldWaitForListeners: true);
                     }
                 };
             }
@@ -289,12 +290,12 @@ namespace TittyMagic
 
                 recalibratePhysics = new JSONStorableAction(
                     "recalibratePhysics",
-                    () => StartRefreshCoroutine(refreshMass: false)
+                    () => StartCalibration(shouldCalibrateMass: false)
                 );
 
                 calculateBreastMass = new JSONStorableAction(
                     "calculateBreastMass",
-                    () => StartRefreshCoroutine(refreshMass: true)
+                    () => StartCalibration(shouldCalibrateMass: true)
                 );
 
                 autoUpdateJsb.setCallbackFunction = value =>
@@ -309,7 +310,7 @@ namespace TittyMagic
                 {
                     if(Mathf.Abs(value - softnessAmount) > 0.001f)
                     {
-                        StartRefreshCoroutine(refreshMass: false, waitForListeners: true);
+                        StartCalibration(shouldCalibrateMass: false, shouldWaitForListeners: true);
                     }
                 };
 
@@ -317,7 +318,7 @@ namespace TittyMagic
                 {
                     if(Mathf.Abs(value - quicknessAmount) > 0.001f)
                     {
-                        StartRefreshCoroutine(refreshMass: false, waitForListeners: true);
+                        StartCalibration(shouldCalibrateMass: false, shouldWaitForListeners: true);
                     }
                 };
 
@@ -346,6 +347,8 @@ namespace TittyMagic
             /* Finish init */
             StartCoroutine(ModifyVamUserInterface());
             StartCoroutine(DeferSetPluginVersion());
+
+            calibration = gameObject.AddComponent<CalibrationHelper>();
 
             if(!_loadingFromJson)
             {
@@ -476,11 +479,9 @@ namespace TittyMagic
             window.Rebuild();
         }
 
-        public bool recalibrationNeeded { get; set; }
-
         public void RecalibrateOnNavigation(JSONStorableAction recalibrationAction)
         {
-            if(recalibrationNeeded)
+            if(calibration.shouldRun)
             {
                 recalibrationAction.actionCallback();
             }
@@ -519,14 +520,14 @@ namespace TittyMagic
         {
             try
             {
-                if(!initDone || _waiting || containingAtom.grabFreezePhysics && containingAtom.mainController.isGrabbing)
+                if(!initDone || calibration.isWaiting || containingAtom.grabFreezePhysics && containingAtom.mainController.isGrabbing)
                 {
                     return;
                 }
 
-                if(_listenersCheckRunner.Run(BreastMorphListener.Changed) && autoUpdateJsb.val && !_waiting)
+                if(_listenersCheckRunner.Run(BreastMorphListener.Changed) && autoUpdateJsb.val && !calibration.isWaiting)
                 {
-                    StartRefreshCoroutine(refreshMass: true, waitForListeners: true);
+                    StartCalibration(shouldCalibrateMass: true, shouldWaitForListeners: true);
                     return;
                 }
 
@@ -548,58 +549,31 @@ namespace TittyMagic
 
         #endregion Update
 
-        public void StartRefreshCoroutine(bool refreshMass, bool waitForListeners = false) =>
-            StartCoroutine(RefreshCo(refreshMass, waitForListeners));
-
         #region Refresh
 
-        public bool refreshInProgress { get; private set; }
-        private bool _refreshQueued;
-        private bool _animationWasSetFrozen;
-
-        private IEnumerator RefreshCo(bool refreshMass, bool waitForListeners)
+        public void StartCalibration(bool shouldCalibrateMass, bool shouldWaitForListeners = false)
         {
             if(_loadingFromJson)
             {
+                return;
+            }
+
+            StartCoroutine(CalibrationCo(shouldCalibrateMass, shouldWaitForListeners));
+        }
+
+        private IEnumerator CalibrationCo(bool shouldCalibrateMass, bool shouldWaitForListeners)
+        {
+            yield return calibration.Begin();
+            if(calibration.isCancelling)
+            {
+                calibration.isCancelling = false;
                 yield break;
             }
 
-            /* Setup refresh */
-            _waiting = true;
-            recalibrationNeeded = false;
+            calibration.FreezeAnimation();
 
-            if(refreshInProgress)
+            /* Dynamic adjustments to zero (simulate upright pose), update physics */
             {
-                if(!_refreshQueued && !((MainWindow) mainWindow).GetSlidersForRefresh().Any(slider => slider.IsClickDown()))
-                {
-                    _refreshQueued = true;
-                }
-                else
-                {
-                    yield break;
-                }
-            }
-
-            while(refreshInProgress)
-            {
-                yield return null;
-            }
-
-            _refreshQueued = false;
-            refreshInProgress = true;
-
-            /* Freeze animation and zero adjustments */
-            {
-                bool mainToggleFrozen =
-                    SuperController.singleton.freezeAnimationToggle != null &&
-                    SuperController.singleton.freezeAnimationToggle.isOn;
-                bool altToggleFrozen =
-                    SuperController.singleton.freezeAnimationToggleAlt != null &&
-                    SuperController.singleton.freezeAnimationToggleAlt.isOn;
-
-                _animationWasSetFrozen = mainToggleFrozen || altToggleFrozen;
-                SuperController.singleton.SetFreezeAnimation(true);
-
                 _trackLeftNipple.ResetAnglesAndDepthDiff();
                 _trackRightNipple.ResetAnglesAndDepthDiff();
                 UpdateDynamicHandlers(0, 0);
@@ -609,48 +583,33 @@ namespace TittyMagic
                 NippleErectionHandler.Update();
             }
 
-            if(waitForListeners)
+            if(shouldWaitForListeners)
             {
-                var sliders = ((MainWindow) mainWindow).GetSlidersForRefresh();
-                yield return new WaitForSeconds(0.33f);
-
-                while(BreastMorphListener.Changed() || sliders.Any(slider => slider.IsClickDown()))
-                {
-                    yield return new WaitForSeconds(0.1f);
-                }
-
-                yield return new WaitForSeconds(0.1f);
+                yield return calibration.WaitForListeners();
             }
 
             SoftPhysicsHandler.SyncSoftPhysics();
 
-            /* Calculate softness and quickness */
-            {
-                softnessAmount = Curves.SoftnessBaseCurve(softnessJsf.val / 100f);
-                quicknessAmount = 2 * quicknessJsf.val / 100 - 1;
-            }
+            /* Calculate softness and quickness (in case sliders were adjusted) */
+            softnessAmount = Curves.SoftnessBaseCurve(softnessJsf.val / 100f);
+            quicknessAmount = 2 * quicknessJsf.val / 100 - 1;
 
-            settingsMonitor.SetEnabled(false);
+            /* Calculate mass when gravity is off to get a consistent result.
+             * Mass is calculated multiple times because each new mass value
+             * changes the exact breast shape and therefore the estimated volume.
+             */
             SetBreastsUseGravity(false);
-
-            /* Apply a consistent delay, maybe refresh mass*/
+            Action updateMass = () =>
             {
-                yield return new WaitForSeconds(0.30f);
-                float duration = 0;
-                const float interval = 0.1f;
-                while(duration < 0.5f)
+                if(shouldCalibrateMass)
                 {
-                    yield return new WaitForSeconds(interval);
-                    duration += interval;
-
-                    if(refreshMass)
-                    {
-                        MainPhysicsHandler.UpdateMassValueAndAmounts();
-                        MainPhysicsHandler.UpdatePhysics();
-                    }
+                    MainPhysicsHandler.UpdateMassValueAndAmounts();
+                    MainPhysicsHandler.UpdatePhysics();
                 }
-            }
+            };
+            yield return calibration.WaitAndRepeat(updateMass, 5, 0.1f, 0.3f);
 
+            /* Update physics */
             MainPhysicsHandler.UpdatePhysics();
             SoftPhysicsHandler.UpdatePhysics();
             NippleErectionHandler.Update();
@@ -677,30 +636,21 @@ namespace TittyMagic
 
             /* Calibrate nipples tracking and colliders */
             {
-                _calibrating = true;
+                _isSimulatingUprightPose = true;
                 StartCoroutine(SimulateUprightPose());
-
-                float duration = 0;
-                const float interval = 0.05f;
-                while(duration < 1.20f)
+                Action calibrateNipples = () =>
                 {
-                    yield return new WaitForSeconds(interval);
-                    duration += interval;
                     _trackLeftNipple.Calibrate();
                     _trackRightNipple.Calibrate();
-                }
-
+                };
+                yield return calibration.WaitAndRepeat(calibrateNipples, 24, 0.05f);
                 yield return hardColliderHandler.SyncAll();
-
-                _calibrating = false;
+                _isSimulatingUprightPose = false;
             }
 
             SetBreastsUseGravity(true);
-            SuperController.singleton.SetFreezeAnimation(_animationWasSetFrozen);
-            settingsMonitor.SetEnabled(true);
 
-            _waiting = _refreshQueued;
-            refreshInProgress = false;
+            calibration.Finish();
             initDone = true;
         }
 
@@ -710,11 +660,11 @@ namespace TittyMagic
             _pectoralRbRight.useGravity = value;
         }
 
-        private bool _calibrating;
+        private bool _isSimulatingUprightPose;
 
         private IEnumerator SimulateUprightPose()
         {
-            while(_calibrating)
+            while(_isSimulatingUprightPose)
             {
                 // simulate upright pose
                 UpdateDynamicHandlers(roll: 0, pitch: 0);
@@ -741,6 +691,14 @@ namespace TittyMagic
 
         public string PluginPath() =>
             $@"{this.GetPackagePath()}Custom\Scripts\everlaster\TittyMagic";
+
+        public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
+        {
+            var jsonClass = base.GetJSON(includePhysical, includeAppearance, forceStore);
+            //TODO remove unwanted
+            needsStore = true;
+            return jsonClass;
+        }
 
         public override void RestoreFromJSON(
             JSONClass jsonClass,
@@ -784,6 +742,7 @@ namespace TittyMagic
         {
             try
             {
+                Destroy(calibration);
                 Destroy(settingsMonitor);
                 Destroy(colliderVisualizer);
                 Destroy(hardColliderHandler);
@@ -813,7 +772,7 @@ namespace TittyMagic
                 settingsMonitor.SetEnabled(true);
                 hardColliderHandler.SetEnabled(true);
                 SoftPhysicsHandler.SaveOriginalBoolParamValues();
-                StartRefreshCoroutine(true);
+                StartCalibration(true);
                 _inactivatedUITransforms?.ForEach(t => t.gameObject.SetActive(false));
                 _customUITransforms?.ForEach(t => t.gameObject.SetActive(true));
             }
