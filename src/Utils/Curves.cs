@@ -38,6 +38,8 @@ namespace TittyMagic
         // https://www.desmos.com/calculator/rvwvufzdtn
         public static float TargetRotationMassCurve(float x) => Exponential1(2 / 3f * x, 4.00f, 0.75f, 0.61f);
 
+        public static float DownTargetRotationMassCurve(float x) => Exponential1(2 / 3f * x, 3.50f, 0.64f, 0.48f);
+
         // https://www.desmos.com/calculator/ldejemzr2a
         public static float TargetRotationSoftnessCurve(float x) => Exponential1(x, 3.00f, 1.35f, 1.00f);
 

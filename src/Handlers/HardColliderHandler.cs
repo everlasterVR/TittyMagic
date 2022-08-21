@@ -91,7 +91,7 @@ namespace TittyMagic
                     {
                         {
                             COLLISION_FORCE, new Scaler(
-                                offset: 0.030f,
+                                offset: 0.025f,
                                 range: new float[] { 0, 1 }
                             )
                         },
@@ -135,7 +135,7 @@ namespace TittyMagic
                     {
                         {
                             COLLISION_FORCE, new Scaler(
-                                offset: 0.040f,
+                                offset: 0.035f,
                                 range: new float[] { 0, 1 },
                                 softnessCurve: x => -0.020f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
                             )
@@ -181,7 +181,7 @@ namespace TittyMagic
                     {
                         {
                             COLLISION_FORCE, new Scaler(
-                                offset: 0.000f,
+                                offset: -0.005f,
                                 range: new float[] { 0, 1 },
                                 softnessCurve: x => -0.020f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
                             )
@@ -227,7 +227,7 @@ namespace TittyMagic
                     {
                         {
                             COLLISION_FORCE, new Scaler(
-                                offset: 0.020f,
+                                offset: 0.015f,
                                 range: new float[] { 0, 1 },
                                 softnessCurve: x => -0.020f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
                             )
@@ -273,7 +273,7 @@ namespace TittyMagic
                     {
                         {
                             COLLISION_FORCE, new Scaler(
-                                offset: 0.040f,
+                                offset: 0.035f,
                                 range: new float[] { 0, 1 },
                                 softnessCurve: x => -0.055f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
                             )
