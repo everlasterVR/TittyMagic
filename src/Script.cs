@@ -60,9 +60,19 @@ namespace TittyMagic
 
             _uiEventsListener.onDisable.AddListener(() =>
             {
-                var activeParameterWindow = _tabs.activeWindow?.GetActiveNestedWindow() as ParameterWindow;
-                var recalibrationAction = activeParameterWindow != null ? activeParameterWindow.recalibrationAction : recalibratePhysics;
-                RecalibrateOnNavigation(recalibrationAction);
+                if(calibration.shouldRun)
+                {
+                    var activeParameterWindow = _tabs.activeWindow?.GetActiveNestedWindow() as ParameterWindow;
+                    if(activeParameterWindow != null)
+                    {
+                        activeParameterWindow.recalibrationAction.actionCallback();
+                    }
+                    else
+                    {
+                        recalibratePhysics.actionCallback();
+                    }
+                }
+
                 colliderVisualizer.ShowPreviewsJSON.val = false;
 
                 try
@@ -477,14 +487,6 @@ namespace TittyMagic
             _tabs.activeWindow?.Clear();
             _tabs.ActivateTab(window);
             window.Rebuild();
-        }
-
-        public void RecalibrateOnNavigation(JSONStorableAction recalibrationAction)
-        {
-            if(calibration.shouldRun)
-            {
-                recalibrationAction.actionCallback();
-            }
         }
 
         #region Update

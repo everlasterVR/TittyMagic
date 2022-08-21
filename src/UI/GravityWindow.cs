@@ -32,7 +32,13 @@ namespace TittyMagic.UI
                 UpdateAllSliderColors(0);
             };
 
-            closeAction = () => tittyMagic.RecalibrateOnNavigation(tittyMagic.recalibratePhysics);
+            closeAction = () =>
+            {
+                if(tittyMagic.calibration.shouldRun)
+                {
+                    tittyMagic.recalibratePhysics.actionCallback();
+                }
+            };
         }
 
         private void CreateBreastGravityHeader(bool rightSide)

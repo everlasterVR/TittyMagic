@@ -55,8 +55,6 @@ namespace TittyMagic.UI
                 }
             };
 
-            closeAction = () => tittyMagic.RecalibrateOnNavigation(recalibrationAction);
-
             recalibrationAction = new JSONStorableAction("recalibrationAction",
                 () =>
                 {
@@ -70,6 +68,14 @@ namespace TittyMagic.UI
                         tittyMagic.recalibratePhysics.actionCallback();
                     }
                 });
+
+            closeAction = () =>
+            {
+                if(tittyMagic.calibration.shouldRun)
+                {
+                    tittyMagic.recalibratePhysics.actionCallback();
+                }
+            };
 
             _returnToParent = () =>
             {
