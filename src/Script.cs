@@ -16,21 +16,10 @@ namespace TittyMagic
         public const string VERSION = "v0.0.0";
 
         public static GenerateDAZMorphsControlUI morphsControlUI { get; private set; }
-        private Bindings _customBindings;
-        private FrequencyRunner _listenersCheckRunner;
-
-        private Transform _chestTransform;
-        private Rigidbody _pectoralRbLeft;
-        private Rigidbody _pectoralRbRight;
 
         public float softnessAmount { get; private set; }
         public float quicknessAmount { get; private set; }
 
-        private static float SoftnessAmount(float val) => Curves.SoftnessBaseCurve(val / 100f);
-        private static float QuicknessAmount(float val) => 2 * val / 100 - 1;
-
-        private TrackNipple _trackLeftNipple;
-        private TrackNipple _trackRightNipple;
         public SettingsMonitor settingsMonitor { get; private set; }
 
         public MainPhysicsHandler mainPhysicsHandler { get; private set; }
@@ -44,10 +33,6 @@ namespace TittyMagic
         // ReSharper disable once MemberCanBePrivate.Global
         public ForcePhysicsHandler forcePhysicsHandler { get; private set; }
         public ForceMorphHandler forceMorphHandler { get; private set; }
-
-        private JSONStorableString _pluginVersionStorable;
-
-        private Tabs _tabs;
 
         // ReSharper disable MemberCanBePrivate.Global
         public IWindow mainWindow { get; private set; }
@@ -63,15 +48,10 @@ namespace TittyMagic
         public JSONStorableFloat quicknessJsf { get; private set; }
         public JSONStorableAction configureHardColliders { get; private set; }
 
-        public bool initDone { get; private set; }
-        public bool refreshInProgress { get; private set; }
-
-        private bool _loadingFromJson;
-        private bool _waiting;
-        private bool _refreshQueued;
-        private bool _animationWasSetFrozen;
+        #region InitUI
 
         private UnityEventsListener _uiEventsListener;
+        private Tabs _tabs;
 
         public override void InitUI()
         {
@@ -131,6 +111,13 @@ namespace TittyMagic
             });
         }
 
+        #endregion Init UI
+
+        #region Init
+
+        private JSONStorableString _pluginVersionStorable;
+        public bool initDone { get; private set; }
+
         public override void Init()
         {
             try
@@ -153,6 +140,19 @@ namespace TittyMagic
                 Utils.LogError($"Init: {e}");
             }
         }
+
+        private Bindings _customBindings;
+        private FrequencyRunner _listenersCheckRunner;
+
+        private List<Rigidbody> _rigidbodies;
+        private Transform _chestTransform;
+        private Rigidbody _pectoralRbLeft;
+        private Rigidbody _pectoralRbRight;
+        private TrackNipple _trackLeftNipple;
+        private TrackNipple _trackRightNipple;
+
+        private bool _loadingFromJson;
+        private bool _waiting;
 
         private IEnumerator DeferInit()
         {
@@ -183,8 +183,8 @@ namespace TittyMagic
             _listenersCheckRunner = new FrequencyRunner(0.333f);
 
             morphsControlUI = Gender.isFemale ? geometry.morphsControlUI : geometry.morphsControlUIOtherGender;
-            var rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
-            var chestRb = rigidbodies.Find(rb => rb.name == "chest");
+            _rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
+            var chestRb = _rigidbodies.Find(rb => rb.name == "chest");
             _chestTransform = chestRb.transform;
 
             var breastControl = (AdjustJoints) containingAtom.GetStorableByID(Gender.isFemale ? "BreastControl" : "PectoralControl");
@@ -234,6 +234,8 @@ namespace TittyMagic
             }
 
             var skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
+
+            /* Setup handlers */
             mainPhysicsHandler = new MainPhysicsHandler(this, breastControl, skin, chestRb);
             hardColliderHandler = gameObject.AddComponent<HardColliderHandler>();
             hardColliderHandler.Init();
@@ -245,6 +247,7 @@ namespace TittyMagic
             settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
             settingsMonitor.Init();
 
+            /* Setup nipples tracking */
             _trackLeftNipple = new TrackNipple(chestRb, _pectoralRbLeft);
             _trackRightNipple = new TrackNipple(chestRb, _pectoralRbRight);
 
@@ -265,6 +268,7 @@ namespace TittyMagic
             forcePhysicsHandler = new ForcePhysicsHandler(this, _trackLeftNipple, _trackRightNipple);
             forceMorphHandler = new ForceMorphHandler(this, _trackLeftNipple, _trackRightNipple);
 
+            /* Setup breast morph listening */
             BreastMorphListener.ProcessMorphs(geometry.morphBank1);
             if(!Gender.isFemale)
             {
@@ -344,6 +348,7 @@ namespace TittyMagic
             /* Subscribe to keybindings */
             SuperController.singleton.BroadcastMessage("OnActionsProviderAvailable", this, SendMessageOptions.DontRequireReceiver);
 
+            /* Finish init */
             StartCoroutine(ModifyVamUserInterface());
             StartCoroutine(DeferSetPluginVersion());
 
@@ -366,9 +371,9 @@ namespace TittyMagic
             float timeout = Time.unscaledTime + 3f;
             while((nippleRbLeft == null || nippleRbRight == null) && Time.unscaledTime < timeout)
             {
-                var rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
-                nippleRbLeft = rigidbodies.Find(rb => rb.name == "lNipple");
-                nippleRbRight = rigidbodies.Find(rb => rb.name == "rNipple");
+                _rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
+                nippleRbLeft = _rigidbodies.Find(rb => rb.name == "lNipple");
+                nippleRbRight = _rigidbodies.Find(rb => rb.name == "rNipple");
                 yield return new WaitForSecondsRealtime(0.1f);
             }
 
@@ -462,6 +467,8 @@ namespace TittyMagic
             return button;
         }
 
+        #endregion Init
+
         public void NavigateToMainWindow() => NavigateToWindow(mainWindow);
         public void NavigateToPhysicsWindow() => NavigateToWindow(physicsWindow);
         public void NavigateToMorphingWindow() => NavigateToWindow(morphingWindow);
@@ -483,6 +490,8 @@ namespace TittyMagic
                 recalibrationAction.actionCallback();
             }
         }
+
+        #region Update
 
         private void Update()
         {
@@ -547,8 +556,16 @@ namespace TittyMagic
             }
         }
 
+        #endregion Update
+
         public void StartRefreshCoroutine(bool refreshMass, bool waitForListeners = false) =>
             StartCoroutine(RefreshCo(refreshMass, waitForListeners));
+
+        #region Refresh
+
+        public bool refreshInProgress { get; private set; }
+        private bool _refreshQueued;
+        private bool _animationWasSetFrozen;
 
         private IEnumerator RefreshCo(bool refreshMass, bool waitForListeners)
         {
@@ -617,8 +634,12 @@ namespace TittyMagic
             }
 
             softPhysicsHandler.SyncSoftPhysics();
-            softnessAmount = SoftnessAmount(softnessJsf.val);
-            quicknessAmount = QuicknessAmount(quicknessJsf.val);
+
+            /* Calculate softness and quickness */
+            {
+                softnessAmount = Curves.SoftnessBaseCurve(softnessJsf.val / 100f);
+                quicknessAmount = 2 * quicknessJsf.val / 100 - 1;
+            }
 
             settingsMonitor.SetEnabled(false);
             SetBreastsUseGravity(false);
@@ -727,6 +748,8 @@ namespace TittyMagic
             _pectoralRbLeft.detectCollisions = value;
             _pectoralRbRight.detectCollisions = value;
         }
+
+        #endregion Refresh
 
         public string PluginPath() =>
             $@"{this.GetPackagePath()}Custom\Scripts\everlaster\TittyMagic";
