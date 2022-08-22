@@ -1,3 +1,4 @@
+// ReSharper disable MemberCanBePrivate.Global UnusedMember.Global UnusedMethodReturnValue.Global UnusedType.Global
 using System;
 
 public static class ArrayExtension
