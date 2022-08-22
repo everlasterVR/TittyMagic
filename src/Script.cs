@@ -15,8 +15,7 @@ namespace TittyMagic
     internal sealed class Script : MVRScript
     {
         public static Script tittyMagic { get; private set; }
-
-        public const string VERSION = "v0.0.0";
+        public static readonly Version VERSION = new Version("0.0.0");
 
         public static GenerateDAZMorphsControlUI morphsControlUI { get; private set; }
 
@@ -120,7 +119,6 @@ namespace TittyMagic
 
         #region Init
 
-        private JSONStorableString _pluginVersionStorable;
         public bool isInitialized { get; private set; }
 
         public override void Init()
@@ -129,9 +127,9 @@ namespace TittyMagic
 
             try
             {
-                _pluginVersionStorable = new JSONStorableString("version", "");
-                _pluginVersionStorable.storeType = JSONStorableParam.StoreType.Full;
-                RegisterString(_pluginVersionStorable);
+                /* Used to store version in save JSON */
+                var versionJss = this.NewJSONStorableString("version", "");
+                versionJss.val = $"{VERSION}";
 
                 if(containingAtom.type != "Person")
                 {
@@ -298,12 +296,12 @@ namespace TittyMagic
                 softnessJsf = this.NewJSONStorableFloat("breastSoftness", 70f, 0f, 100f);
                 quicknessJsf = this.NewJSONStorableFloat("breastQuickness", 70f, 0f, 100f);
 
-                recalibratePhysics = new JSONStorableAction(
+                recalibratePhysics = this.NewJSONStorableAction(
                     "recalibratePhysics",
                     () => StartCalibration(calibratesMass: false)
                 );
 
-                calculateBreastMass = new JSONStorableAction(
+                calculateBreastMass = this.NewJSONStorableAction(
                     "calculateBreastMass",
                     () => StartCalibration(calibratesMass: true)
                 );
@@ -356,8 +354,6 @@ namespace TittyMagic
 
             /* Finish init */
             StartCoroutine(ModifyVamUserInterface());
-            StartCoroutine(DeferSetPluginVersion());
-
             calibration = gameObject.AddComponent<CalibrationHelper>();
 
             if(!_isLoadingFromJson)
@@ -401,16 +397,6 @@ namespace TittyMagic
         {
             _customBindings = gameObject.AddComponent<Bindings>();
             _customBindings.Init(bindings);
-        }
-
-        private IEnumerator DeferSetPluginVersion()
-        {
-            while(_isLoadingFromJson)
-            {
-                yield return null;
-            }
-
-            _pluginVersionStorable.val = $"{VERSION}";
         }
 
         private List<Transform> _customUITransforms;
@@ -712,6 +698,14 @@ namespace TittyMagic
         )
         {
             _isLoadingFromJson = true;
+            /* Prevent overriding versionJss.val from JSON. Version stored in JSON just for information,
+             * but could be intercepted here and used to save a "loadedFromVersion" value.
+             */
+            if(jsonClass.HasKey("version"))
+            {
+                jsonClass["version"] = $"{VERSION}";
+            }
+
             StartCoroutine(DeferRestoreFromJSON(
                 jsonClass,
                 restorePhysical,

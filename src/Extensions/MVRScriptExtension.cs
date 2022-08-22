@@ -1,5 +1,6 @@
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedMethodReturnValue.Global
 using System;
 
 public static class MVRScriptExtension
@@ -44,6 +45,23 @@ public static class MVRScriptExtension
         .Instantiate(script.manager.configurableColorPickerPrefab)
         .GetComponent<UIDynamicColorPicker>();
 
+    public static JSONStorableString NewJSONStorableString(
+        this MVRScript script,
+        string paramName,
+        string startingValue,
+        bool shouldRegister = true
+    )
+    {
+        var storable = new JSONStorableString(paramName, startingValue);
+        storable.storeType = JSONStorableParam.StoreType.Full;
+        if(shouldRegister)
+        {
+            script.RegisterString(storable);
+        }
+
+        return storable;
+    }
+
     public static JSONStorableBool NewJSONStorableBool(
         this MVRScript script,
         string paramName,
@@ -75,6 +93,22 @@ public static class MVRScriptExtension
         if(shouldRegister)
         {
             script.RegisterFloat(storable);
+        }
+
+        return storable;
+    }
+
+    public static JSONStorableAction NewJSONStorableAction(
+        this MVRScript script,
+        string paramName,
+        JSONStorableAction.ActionCallback callback,
+        bool shouldRegister = true
+    )
+    {
+        var storable = new JSONStorableAction(paramName, callback);
+        if(shouldRegister)
+        {
+            script.RegisterAction(storable);
         }
 
         return storable;

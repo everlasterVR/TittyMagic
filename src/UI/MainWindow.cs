@@ -55,7 +55,7 @@ namespace TittyMagic.UI
         {
             var textField = UIHelpers.TitleTextField(
                 _title,
-                $"{"\n".Size(12)}{nameof(TittyMagic)}    {VERSION}",
+                $"{"\n".Size(12)}{nameof(TittyMagic)}    v{VERSION}",
                 100,
                 rightSide
             );

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using static TittyMagic.Script;
 
 namespace TittyMagic
 {
@@ -18,7 +19,7 @@ namespace TittyMagic
             SuperController.LogMessage(Format(message, name));
 
         private static string Format(string message, string name) =>
-            $"{nameof(TittyMagic)} {Script.VERSION}: {message}{(string.IsNullOrEmpty(name) ? "" : $" [{name}]")}";
+            $"{nameof(TittyMagic)} v{VERSION}: {message}{(string.IsNullOrEmpty(name) ? "" : $" [{name}]")}";
 
         // ReSharper disable once UnusedMember.Global
         public static MVRScript FindPluginOnAtom(Atom atom, string search)
@@ -30,7 +31,7 @@ namespace TittyMagic
         public static DAZMorph GetMorph(string file)
         {
             string uid = $"{morphsPath}/{file}.vmi";
-            var dazMorph = Script.morphsControlUI.GetMorphByUid(uid);
+            var dazMorph = morphsControlUI.GetMorphByUid(uid);
             if(dazMorph == null)
             {
                 LogError($"Morph with uid '{uid}' not found!");
