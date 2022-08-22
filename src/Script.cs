@@ -127,7 +127,7 @@ namespace TittyMagic
 
             try
             {
-                /* Used to store version in save JSON */
+                /* Used to store version in save JSON and communicate version to other plugin instances */
                 var versionJss = this.NewJSONStorableString("version", "");
                 versionJss.val = $"{VERSION}";
 
@@ -354,7 +354,9 @@ namespace TittyMagic
 
             /* Finish init */
             StartCoroutine(ModifyVamUserInterface());
+            InitOtherInstancesIntegration();
             calibration = gameObject.AddComponent<CalibrationHelper>();
+            calibration.Init();
 
             if(!_isLoadingFromJson)
             {
@@ -461,6 +463,68 @@ namespace TittyMagic
             return button;
         }
 
+        #region Integration
+
+        public List<JSONStorable> otherInstances { get; private set; }
+
+        private void InitOtherInstancesIntegration()
+        {
+            var integrateAction = tittyMagic.NewJSONStorableAction("Integrate", RefreshOtherPluginInstances);
+            integrateAction.actionCallback();
+
+            /* When the plugin is added to an existing atom and this method gets called during initialization,
+             * other instances are told to update their knowledge on what other instances are in the network.
+             */
+            foreach(var instance in otherInstances)
+            {
+                if(instance.IsAction("Integrate"))
+                {
+                    instance.CallAction("Integrate");
+                }
+            }
+
+            /* When the plugin is added as part of a new atom using e.g. scene or subscene merge load,
+             * AddInstance adds the instance to this plugin's list of other instances.
+             */
+            SuperController.singleton.onAtomAddedHandlers += AddInstance;
+            SuperController.singleton.onAtomRemovedHandlers += RemoveInstance;
+        }
+
+        private void RefreshOtherPluginInstances()
+        {
+            Debug.Log($"{containingAtom.uid}: Refreshing other instances...");
+            otherInstances = otherInstances ?? new List<JSONStorable>();
+            PruneInstances();
+            SuperController.singleton.GetAtoms().ForEach(AddInstance);
+        }
+
+        private void AddInstance(Atom atom)
+        {
+            PruneInstances();
+            var storable = Utils.FindOtherInstanceStorable(atom);
+            if(storable != null && !otherInstances.Exists(instance => instance.containingAtom.uid == atom.uid))
+            {
+                Debug.Log($"{containingAtom.uid}: Adding instance for {atom.uid}");
+                otherInstances.Add(storable);
+            }
+        }
+
+        private void RemoveInstance(Atom atom)
+        {
+            PruneInstances();
+            otherInstances.RemoveAll(instance => instance.containingAtom.uid == atom.uid);
+        }
+
+        public void PruneInstances()
+        {
+            otherInstances.RemoveAll(instance =>
+                instance == null ||
+                instance.containingAtom == null
+            );
+        }
+
+        #endregion Integration
+
         #endregion Init
 
         public void NavigateToMainWindow() => NavigateToWindow(mainWindow);
@@ -558,7 +622,7 @@ namespace TittyMagic
                 yield break;
             }
 
-            calibration.FreezeAnimation();
+            yield return calibration.DeferFreezeAnimation();
 
             /* Dynamic adjustments to zero (simulate upright pose), update physics */
             {
@@ -684,7 +748,7 @@ namespace TittyMagic
         public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
         {
             var jsonClass = base.GetJSON(includePhysical, includeAppearance, forceStore);
-            //TODO remove unwanted
+            jsonClass.Remove(CalibrationHelper.CALIBRATION_LOCK);
             needsStore = true;
             return jsonClass;
         }
@@ -749,6 +813,8 @@ namespace TittyMagic
                 DestroyImmediate(_uiEventsListener);
                 _customUITransforms?.ForEach(t => Destroy(t.gameObject));
                 SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
+                SuperController.singleton.onAtomAddedHandlers -= AddInstance;
+                SuperController.singleton.onAtomRemovedHandlers -= RemoveInstance;
             }
             catch(Exception e)
             {

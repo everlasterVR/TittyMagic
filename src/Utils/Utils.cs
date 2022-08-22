@@ -1,8 +1,10 @@
 // ReSharper disable UnusedMember.Global
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using static TittyMagic.Script;
 
@@ -113,6 +115,56 @@ namespace TittyMagic
             {
                 ObjectHierarchyToString(child, propertyDel, builder, maxDepth, currentDepth + 1);
             }
+        }
+
+        public static bool AnimationIsFrozen()
+        {
+            bool mainToggleFrozen =
+                SuperController.singleton.freezeAnimationToggle != null &&
+                SuperController.singleton.freezeAnimationToggle.isOn;
+            bool altToggleFrozen =
+                SuperController.singleton.freezeAnimationToggleAlt != null &&
+                SuperController.singleton.freezeAnimationToggleAlt.isOn;
+            return mainToggleFrozen || altToggleFrozen;
+        }
+
+        public static JSONStorable FindOtherInstanceStorable(Atom atom)
+        {
+            if(atom.type != "Person" || atom.uid == tittyMagic.containingAtom.uid)
+            {
+                return null;
+            }
+
+            JSONStorable instance = null;
+            string regex = $@"^plugin#\d+_{nameof(TittyMagic)}.{nameof(Script)}";
+            string storableId = atom.GetStorableIDs().FirstOrDefault(id => Regex.IsMatch(id, regex));
+
+            var storable = storableId == null ? null : atom.GetStorableByID(storableId);
+            if(storable != null && storable.IsStringJSONParam("version"))
+            {
+                string versionString = storable.GetStringParamValue("version");
+                if(versionString == $"{VERSION}")
+                {
+                    instance = storable;
+                }
+                else
+                {
+                    try
+                    {
+                        var version = new Version(storable.GetStringParamValue("version"));
+                        if(version >= new Version("5.1.0"))
+                        {
+                            instance = storable;
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        //ignored
+                    }
+                }
+            }
+
+            return instance;
         }
     }
 }

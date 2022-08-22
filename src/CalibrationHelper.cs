@@ -1,6 +1,7 @@
 // ReSharper disable MemberCanBeMadeStatic.Global
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using TittyMagic.UI;
 using UnityEngine;
@@ -10,6 +11,7 @@ namespace TittyMagic
 {
     internal class CalibrationHelper : MonoBehaviour
     {
+        private static readonly string _uid = tittyMagic.containingAtom.uid;
         public bool isWaiting;
         public bool shouldRun;
         public bool isInProgress;
@@ -17,7 +19,15 @@ namespace TittyMagic
         public bool isCancelling;
         private bool? _wasFrozenBefore;
 
-        private static bool isBlocked => ((MainWindow) tittyMagic.mainWindow)
+        private JSONStorableBool _calibrationLockJsb;
+        public const string CALIBRATION_LOCK = "calibrationLock";
+
+        public void Init()
+        {
+            _calibrationLockJsb = tittyMagic.NewJSONStorableBool(CALIBRATION_LOCK, false);
+        }
+
+        private static bool isBlockedByInput => ((MainWindow) tittyMagic.mainWindow)
             .GetSlidersForRefresh()
             .Any(slider => slider.PointerIsDown());
 
@@ -28,7 +38,7 @@ namespace TittyMagic
 
             if(isInProgress)
             {
-                if(!isQueued && !isBlocked)
+                if(!isQueued && !isBlockedByInput)
                 {
                     isQueued = true;
                 }
@@ -50,27 +60,53 @@ namespace TittyMagic
             isInProgress = true;
         }
 
-        public void FreezeAnimation()
+        public IEnumerator DeferFreezeAnimation()
         {
-            bool mainToggleFrozen =
-                SuperController.singleton.freezeAnimationToggle != null &&
-                SuperController.singleton.freezeAnimationToggle.isOn;
-            bool altToggleFrozen =
-                SuperController.singleton.freezeAnimationToggleAlt != null &&
-                SuperController.singleton.freezeAnimationToggleAlt.isOn;
+            while(OtherCalibrationInProgress())
+            {
+                yield return new WaitForSeconds(0.1f);
+            }
 
+            _calibrationLockJsb.val = true;
             if(_wasFrozenBefore == null)
             {
-                _wasFrozenBefore = _wasFrozenBefore ?? mainToggleFrozen || altToggleFrozen;
+                _wasFrozenBefore = _wasFrozenBefore ?? Utils.AnimationIsFrozen();
                 SuperController.singleton.SetFreezeAnimation(true);
             }
+        }
+
+        private static bool OtherCalibrationInProgress()
+        {
+            tittyMagic.PruneInstances();
+            try
+            {
+                foreach(var instance in tittyMagic.otherInstances)
+                {
+                    if(instance != null)
+                    {
+                        bool response = instance.GetBoolParamValue(CALIBRATION_LOCK);
+                        if(response)
+                        {
+                            /* Another instance is currently calibrating. */
+                            return true;
+                        }
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+                Debug.Log($"{_uid}: Something went wrong: {e}");
+            }
+
+            /* No other instance is currently calibrating. */
+            return false;
         }
 
         public IEnumerator WaitForListeners()
         {
             yield return new WaitForSeconds(0.33f);
 
-            while(BreastMorphListener.ChangeWasDetected() || isBlocked)
+            while(BreastMorphListener.ChangeWasDetected() || isBlockedByInput)
             {
                 yield return new WaitForSeconds(0.1f);
             }
@@ -97,6 +133,7 @@ namespace TittyMagic
                 isWaiting = false;
                 SuperController.singleton.SetFreezeAnimation(_wasFrozenBefore ?? false);
                 _wasFrozenBefore = null;
+                _calibrationLockJsb.val = false;
             }
 
             isInProgress = false;
