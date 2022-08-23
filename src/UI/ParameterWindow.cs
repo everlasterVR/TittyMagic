@@ -44,7 +44,7 @@ namespace TittyMagic.UI
                 CreateOffsetSlider(true, spacing: 10);
                 CreateCurrentValueSlider(true);
 
-                if(_parameter.groupMultiplierParams != null)
+                /* Soft physics parameter group sections*/
                 {
                     CreateColliderGroupSection(SoftColliderGroup.MAIN, false);
                     CreateColliderGroupSection(SoftColliderGroup.OUTER, true);
@@ -147,7 +147,12 @@ namespace TittyMagic.UI
 
         private void CreateColliderGroupSection(string group, bool rightSide)
         {
-            var groupParam = _parameter.GetGroupParam(group);
+            if(!_parameter.groupMultiplierParams.ContainsKey(group))
+            {
+                return;
+            }
+
+            var groupParam = _parameter.groupMultiplierParams[group];
             CreateGroupHeader(group, rightSide);
             CreateMultiplierOffsetSlider(groupParam.offsetJsf, rightSide);
             CreateMultiplierSlider(groupParam.valueJsf, rightSide);
@@ -181,7 +186,7 @@ namespace TittyMagic.UI
 
         public void SyncAllMultiplierSliderValues()
         {
-            foreach(var storable in _parameter.GetGroupMultiplierStorables())
+            foreach(var storable in _parameter.groupMultiplierParams.Select(kvp => kvp.Value.valueJsf))
             {
                 var uiDynamicSlider = elements[storable.name] as UIDynamicSlider;
                 if(uiDynamicSlider != null)
@@ -217,7 +222,8 @@ namespace TittyMagic.UI
         public string ParamButtonLabel()
         {
             string label = $"  {_parameterGroup.displayName}";
-            if(_parameter.offsetJsf.val != 0 || _parameter.GetGroupOffsetStorables().Any(jsf => jsf.val != 0))
+            var groupOffsetStorables = _parameter.groupMultiplierParams.Select(kvp => kvp.Value.offsetJsf);
+            if(_parameter.offsetJsf.val != 0 || groupOffsetStorables.Any(jsf => jsf.val != 0))
             {
                 label += " *".Bold();
             }
