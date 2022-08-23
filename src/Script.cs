@@ -556,7 +556,8 @@ namespace TittyMagic
         {
             try
             {
-                if(!initDone || _waiting || containingAtom.grabFreezePhysics && containingAtom.mainController.isGrabbing)
+                bool isFreezeGrabbing = containingAtom.grabFreezePhysics && containingAtom.mainController.isGrabbing;
+                if(!initDone || _loadingFromJson || _waiting || isFreezeGrabbing)
                 {
                     return;
                 }
@@ -594,7 +595,7 @@ namespace TittyMagic
         {
             if(!enabled)
             {
-                Utils.LogMessage($"Enable the plugin to recalibrate.");
+                Utils.LogMessage("Enable the plugin to recalibrate.");
                 yield break;
             }
 
