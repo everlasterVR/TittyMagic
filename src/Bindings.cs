@@ -29,6 +29,13 @@ namespace TittyMagic
                 new JSONStorableAction("CalculateBreastMass", tittyMagic.calculateBreastMass.actionCallback),
                 new JSONStorableAction("RecalibratePhysics", tittyMagic.recalibratePhysics.actionCallback),
             });
+            if(envIsDevelopment)
+            {
+                bindings.AddRange(new List<object>()
+                {
+                    new JSONStorableAction("OpenUI_Dev", OpenUIDev),
+                });
+            }
         }
 
         public void OpenUI()
@@ -72,6 +79,21 @@ namespace TittyMagic
                 if(hardCollidersWindow == null)
                 {
                     mainWindow.configureHardColliders.actionCallback();
+                }
+            }));
+        }
+
+        private void OpenUIDev()
+        {
+            ShowMainHud();
+            StartCoroutine(SelectPluginUI(postAction: () =>
+            {
+                tittyMagic.NavigateToMainWindow();
+                var mainWindow = (MainWindow) tittyMagic.mainWindow;
+                var devWindow = mainWindow.GetActiveNestedWindow() as DevWindow;
+                if(devWindow == null)
+                {
+                    mainWindow.openDevWindow.actionCallback();
                 }
             }));
         }

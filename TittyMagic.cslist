@@ -57,6 +57,7 @@ src\Bindings.cs
 src\Script.cs
 src\SettingsMonitor.cs
 src\CalibrationHelper.cs
+src\UI\DevWindow.cs
 src\UI\GravityWindow.cs
 src\UI\HardCollidersWindow.cs
 src\UI\IWindow.cs

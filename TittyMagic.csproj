@@ -116,6 +116,7 @@
     <Compile Include="src\Handlers\ForceMorphHandler.cs" />
     <Compile Include="src\Handlers\MainPhysicsHandler.cs" />
     <Compile Include="src\Script.cs" />
+    <Compile Include="src\UI\DevWindow.cs" />
     <Compile Include="src\UI\HardCollidersWindow.cs" />
     <Compile Include="src\UI\GravityWindow.cs" />
     <Compile Include="src\UI\MainWindow.cs" />

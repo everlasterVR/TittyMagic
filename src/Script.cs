@@ -1,5 +1,4 @@
-﻿#define DEBUG_ON
-using System;
+﻿using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,6 +15,7 @@ namespace TittyMagic
     {
         public static Script tittyMagic { get; private set; }
         public static readonly Version VERSION = new Version("0.0.0");
+        public static bool envIsDevelopment => VERSION.Major == 0;
 
         public static GenerateDAZMorphsControlUI morphsControlUI { get; private set; }
 
@@ -72,6 +72,7 @@ namespace TittyMagic
                 }
 
                 colliderVisualizer.ShowPreviewsJSON.val = false;
+                colliderVisualizer.enabled = false;
 
                 try
                 {
@@ -105,6 +106,7 @@ namespace TittyMagic
                     {
                         if(enabled)
                         {
+                            tittyMagic.colliderVisualizer.enabled = true;
                             colliderVisualizer.ShowPreviewsJSON.val = true;
                         }
                         else
@@ -583,21 +585,14 @@ namespace TittyMagic
 
         private void Update()
         {
-#if DEBUG_ON
             try
             {
-                var window = mainWindow?.GetActiveNestedWindow() as HardCollidersWindow;
-                if(window != null)
-                {
-                    window.UpdateCollidersDebugInfo();
-                }
             }
             catch(Exception e)
             {
                 Utils.LogError($"Update: {e}");
                 enabled = false;
             }
-#endif
         }
 
         private static void UpdateDynamicHandlers(float roll, float pitch)
@@ -632,6 +627,11 @@ namespace TittyMagic
                 float pitch = Calc.Pitch(rotation);
 
                 UpdateDynamicHandlers(roll, pitch);
+
+                if(envIsDevelopment)
+                {
+                    (mainWindow.GetActiveNestedWindow() as DevWindow)?.UpdateLeftDebugInfo();
+                }
             }
             catch(Exception e)
             {

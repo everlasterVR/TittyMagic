@@ -12,6 +12,7 @@ namespace TittyMagic.UI
         private readonly JSONStorableString _title;
         private readonly PhysicsParameter _massParameter;
         public JSONStorableAction configureHardColliders { get; }
+        public JSONStorableAction openDevWindow { get; }
 
         public MainWindow()
         {
@@ -53,6 +54,19 @@ namespace TittyMagic.UI
                     activeNestedWindow = nestedWindows.Find(window => window.GetId() == "hardCollidersWindow");
                     activeNestedWindow.Rebuild();
                 });
+
+            if(envIsDevelopment)
+            {
+                openDevWindow = new JSONStorableAction("openDevWindow",
+                    () =>
+                    {
+                        ClearSelf();
+                        activeNestedWindow = nestedWindows.Find(window => window.GetId() == "devWindow");
+                        activeNestedWindow.Rebuild();
+                    });
+
+                nestedWindows.Add(new DevWindow("devWindow", onReturnToParent));
+            }
 
             if(Gender.isFemale)
             {

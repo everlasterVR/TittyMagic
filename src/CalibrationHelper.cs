@@ -135,6 +135,11 @@ namespace TittyMagic
                 _calibrationLockJsb.val = false;
             }
 
+            if(envIsDevelopment)
+            {
+                Utils.LogMessage($"Calibration done");
+            }
+
             isInProgress = false;
         }
     }
