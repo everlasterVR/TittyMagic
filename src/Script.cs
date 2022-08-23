@@ -74,19 +74,19 @@ namespace TittyMagic
         private bool _refreshQueued;
         private bool _animationWasSetFrozen;
 
-        private UnityEventsListener _uiEventsListener;
+        private UnityEventsListener _pluginUIEventsListener;
 
         public override void InitUI()
         {
             base.InitUI();
-            if(UITransform == null || _uiEventsListener != null)
+            if(UITransform == null || _pluginUIEventsListener != null)
             {
                 return;
             }
 
-            _uiEventsListener = UITransform.gameObject.AddComponent<UnityEventsListener>();
+            _pluginUIEventsListener = UITransform.gameObject.AddComponent<UnityEventsListener>();
 
-            _uiEventsListener.onDisable.AddListener(() =>
+            _pluginUIEventsListener.onDisable.AddListener(() =>
             {
                 var activeParameterWindow = _tabs.activeWindow?.GetActiveNestedWindow() as ParameterWindow;
                 var recalibrationAction = activeParameterWindow != null ? activeParameterWindow.recalibrationAction : recalibratePhysics;
@@ -112,7 +112,7 @@ namespace TittyMagic
                 }
             });
 
-            _uiEventsListener.onEnable.AddListener(() =>
+            _pluginUIEventsListener.onEnable.AddListener(() =>
             {
                 var background = rightUIContent.parent.parent.parent.transform.GetComponent<Image>();
                 background.color = new Color(0.85f, 0.85f, 0.85f);
@@ -335,11 +335,26 @@ namespace TittyMagic
             /* Subscribe to keybindings */
             SuperController.singleton.BroadcastMessage("OnActionsProviderAvailable", this, SendMessageOptions.DontRequireReceiver);
 
-            StartCoroutine(ModifyVamUserInterface());
             StartCoroutine(DeferSetPluginVersion());
 
             if(!_loadingFromJson)
             {
+                /* Modify atom UI when not loading from JSON */
+                {
+                    /* Plugin added manually */
+                    var atomUIContent = containingAtom.transform.Find("UI/UIPlaceHolderModel/UIModel/Canvas/Panel/Content");
+                    if(atomUIContent.gameObject.activeInHierarchy)
+                    {
+                        StartCoroutine(ModifyAtomUI(atomUIContent));
+                    }
+                    /* Plugin added with trigger or programmatically without the person UI being open */
+                    else
+                    {
+                        _atomUIEventsListener = atomUIContent.gameObject.AddComponent<UnityEventsListener>();
+                        _atomUIEventsListener.onEnable.AddListener(() => StartCoroutine(ModifyAtomUI(atomUIContent)));
+                    }
+                }
+
                 hardColliderHandler.SaveOriginalUseColliders();
                 softPhysicsHandler.SaveOriginalBoolParamValues();
                 calculateBreastMass.actionCallback();
@@ -391,11 +406,34 @@ namespace TittyMagic
             _pluginVersionStorable.val = $"{VERSION}";
         }
 
-        private List<Transform> _customUITransforms;
-        private List<Transform> _inactivatedUITransforms;
+        public void NavigateToMainWindow() => NavigateToWindow(mainWindow);
+        public void NavigateToPhysicsWindow() => NavigateToWindow(physicsWindow);
+        public void NavigateToMorphingWindow() => NavigateToWindow(morphingWindow);
+        public void NavigateToGravityWindow() => NavigateToWindow(gravityWindow);
 
-        private IEnumerator ModifyVamUserInterface()
+        private void NavigateToWindow(IWindow window)
         {
+            _tabs.activeWindow?.Clear();
+            _tabs.ActivateTab(window);
+            window.Rebuild();
+        }
+
+        private UnityEventsListener _atomUIEventsListener;
+        private List<GameObject> _customUIGameObjects;
+        private List<GameObject> _inactivatedUIGameObjects;
+
+        private bool _modifyAtomUIHasBeenCalled;
+
+        private IEnumerator ModifyAtomUI(Transform content)
+        {
+            // Allow modifying UI only once
+            if(_modifyAtomUIHasBeenCalled)
+            {
+                yield break;
+            }
+
+            _modifyAtomUIHasBeenCalled = true;
+
             var transforms = new Dictionary<string, Transform>
             {
                 { "M Pectoral Physics", null },
@@ -405,11 +443,10 @@ namespace TittyMagic
             };
 
             float waited = 0f;
-            while(transforms.Values.Any(t => t == null) && waited < 30)
+            while(transforms.Values.Any(t => t == null) && waited < 1)
             {
-                waited += 1f;
-                yield return new WaitForSecondsRealtime(1f);
-                var content = containingAtom.transform.Find("UI/UIPlaceHolderModel/UIModel/Canvas/Panel/Content");
+                waited += 0.1f;
+                yield return new WaitForSecondsRealtime(0.1f);
                 transforms["M Pectoral Physics"] = content.Find("M Pectoral Physics");
                 transforms["F Breast Physics 1"] = content.Find("F Breast Physics 1");
                 transforms["F Breast Physics 2"] = content.Find("F Breast Physics 2");
@@ -418,28 +455,32 @@ namespace TittyMagic
 
             if(transforms.Values.Any(t => t == null))
             {
-                Utils.LogError("Failed modifying UI: no person UI content found.");
+                Debug.Log("Failed to modify person UI - could not find UI transforms.");
+                _modifyAtomUIHasBeenCalled = true;
                 yield break;
             }
 
-            /* Hide elements in vanilla Breast Physics tabs, add buttons to nagivate to plugin UI */
+            /* Hide elements in vanilla Breast Physics tabs, add buttons to navigate to plugin UI */
             try
             {
-                _inactivatedUITransforms = new List<Transform>();
-                foreach(var kvp in transforms)
+                _inactivatedUIGameObjects = new List<GameObject>();
+                foreach(var t in transforms.Values.ToList())
                 {
-                    foreach(Transform t in kvp.Value)
+                    foreach(Transform child in t)
                     {
-                        _inactivatedUITransforms.Add(t);
+                        _inactivatedUIGameObjects.Add(child.gameObject);
+                        child.gameObject.SetActive(false);
                     }
                 }
 
-                _inactivatedUITransforms.ForEach(t => t.gameObject.SetActive(false));
-                _customUITransforms = transforms.Select(kvp => OpenPluginUIButton(kvp.Value)).ToList();
+                _customUIGameObjects = transforms.Values.ToList()
+                    .Select(t => OpenPluginUIButton(t).gameObject)
+                    .ToList();
+                _modifyAtomUIHasBeenCalled = true;
             }
             catch(Exception e)
             {
-                Utils.LogError($"Failed modifying UI: {e}");
+                Utils.LogError($"Error modifying person UI: {e}");
             }
         }
 
@@ -451,18 +492,6 @@ namespace TittyMagic
             button.GetComponent<UIDynamicButton>().label = "<b>Open TittyMagic UI</b>";
             button.GetComponent<UIDynamicButton>().button.onClick.AddListener(() => _customBindings.OpenUI());
             return button;
-        }
-
-        public void NavigateToMainWindow() => NavigateToWindow(mainWindow);
-        public void NavigateToPhysicsWindow() => NavigateToWindow(physicsWindow);
-        public void NavigateToMorphingWindow() => NavigateToWindow(morphingWindow);
-        public void NavigateToGravityWindow() => NavigateToWindow(gravityWindow);
-
-        private void NavigateToWindow(IWindow window)
-        {
-            _tabs.activeWindow?.Clear();
-            _tabs.ActivateTab(window);
-            window.Rebuild();
         }
 
         public bool recalibrationNeeded { get; set; }
@@ -760,6 +789,13 @@ namespace TittyMagic
                 yield return null;
             }
 
+            /* Add listener to person UI content for modifying the UI. When loading
+             * from JSON, the person UI isn't open when the plugin is loaded.
+             */
+            var atomUIContent = containingAtom.transform.Find("UI/UIPlaceHolderModel/UIModel/Canvas/Panel/Content");
+            _atomUIEventsListener = atomUIContent.gameObject.AddComponent<UnityEventsListener>();
+            _atomUIEventsListener.onEnable.AddListener(() => StartCoroutine(ModifyAtomUI(atomUIContent)));
+
             base.RestoreFromJSON(jsonClass, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
             _loadingFromJson = false;
             hardColliderHandler.SaveOriginalUseColliders();
@@ -777,8 +813,9 @@ namespace TittyMagic
                 mainWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
                 morphingWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
                 gravityWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
-                DestroyImmediate(_uiEventsListener);
-                _customUITransforms?.ForEach(t => Destroy(t.gameObject));
+                DestroyImmediate(_pluginUIEventsListener);
+                DestroyImmediate(_atomUIEventsListener);
+                _customUIGameObjects?.ForEach(Destroy);
                 SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
             }
             catch(Exception e)
@@ -801,8 +838,8 @@ namespace TittyMagic
                 hardColliderHandler.SetEnabled(true);
                 softPhysicsHandler?.SaveOriginalBoolParamValues();
                 StartRefreshCoroutine(true);
-                _inactivatedUITransforms?.ForEach(t => t.gameObject.SetActive(false));
-                _customUITransforms?.ForEach(t => t.gameObject.SetActive(true));
+                _inactivatedUIGameObjects?.ForEach(go => go.SetActive(false));
+                _customUIGameObjects?.ForEach(go => go.SetActive(true));
             }
             catch(Exception e)
             {
@@ -822,8 +859,8 @@ namespace TittyMagic
                 offsetMorphHandler?.ResetAll();
                 forceMorphHandler?.ResetAll();
                 nippleErectionHandler?.Reset();
-                _customUITransforms?.ForEach(t => t.gameObject.SetActive(false));
-                _inactivatedUITransforms?.ForEach(t => t.gameObject.SetActive(true));
+                _inactivatedUIGameObjects?.ForEach(go => go.SetActive(true));
+                _customUIGameObjects?.ForEach(go => go.SetActive(false));
             }
             catch(Exception e)
             {
