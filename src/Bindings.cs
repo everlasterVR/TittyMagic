@@ -67,10 +67,11 @@ namespace TittyMagic
             StartCoroutine(SelectPluginUI(postAction: () =>
             {
                 tittyMagic.NavigateToMainWindow();
-                var hardCollidersWindow = tittyMagic.mainWindow.GetActiveNestedWindow() as HardCollidersWindow;
+                var mainWindow = (MainWindow) tittyMagic.mainWindow;
+                var hardCollidersWindow = mainWindow.GetActiveNestedWindow() as HardCollidersWindow;
                 if(hardCollidersWindow == null)
                 {
-                    tittyMagic.configureHardColliders.actionCallback();
+                    mainWindow.configureHardColliders.actionCallback();
                 }
             }));
         }

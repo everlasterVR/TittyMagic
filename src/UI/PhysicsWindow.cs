@@ -1,19 +1,12 @@
 using System.Text;
 using TittyMagic.Handlers;
 using UnityEngine;
-using UnityEngine.Events;
 using static TittyMagic.Script;
 
 namespace TittyMagic.UI
 {
     internal class PhysicsWindow : WindowBase
     {
-        private UnityAction onReturnToParent => () =>
-        {
-            activeNestedWindow = null;
-            buildAction();
-        };
-
         public PhysicsWindow()
         {
             buildAction = () =>
@@ -154,7 +147,7 @@ namespace TittyMagic.UI
             button.height = 52;
             button.buttonText.alignment = TextAnchor.MiddleLeft;
 
-            var nestedWindow = (ParameterWindow) nestedWindows.Find(window => (window as ParameterWindow)?.id == key);
+            var nestedWindow = nestedWindows.Find(window => window.GetId() == key);
             button.AddListener(() =>
             {
                 ClearSelf();
@@ -162,8 +155,8 @@ namespace TittyMagic.UI
                 activeNestedWindow.Rebuild();
             });
 
-            nestedWindow.parentButton = button;
-            button.label = nestedWindow.ParamButtonLabel();
+            ((ParameterWindow) nestedWindow).parentButton = button;
+            button.label = ((ParameterWindow) nestedWindow).ParamButtonLabel();
             elements[key] = button;
         }
     }

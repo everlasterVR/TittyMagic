@@ -11,6 +11,7 @@ namespace TittyMagic.UI
     {
         private readonly JSONStorableString _title;
         private readonly PhysicsParameter _massParameter;
+        public JSONStorableAction configureHardColliders { get; }
 
         public MainWindow()
         {
@@ -39,15 +40,23 @@ namespace TittyMagic.UI
             _title = new JSONStorableString("title", "");
             _massParameter = MainPhysicsHandler.massParameterGroup.left;
 
+            configureHardColliders = new JSONStorableAction("configureHardColliders",
+                () =>
+                {
+                    if(!tittyMagic.enabled)
+                    {
+                        Utils.LogMessage("Enable the plugin to configure hard colliders.");
+                        return;
+                    }
+
+                    ClearSelf();
+                    activeNestedWindow = nestedWindows.Find(window => window.GetId() == "hardCollidersWindow");
+                    activeNestedWindow.Rebuild();
+                });
+
             if(Gender.isFemale)
             {
-                nestedWindows.Add(new HardCollidersWindow(
-                    () =>
-                    {
-                        activeNestedWindow = null;
-                        buildAction();
-                    }
-                ));
+                nestedWindows.Add(new HardCollidersWindow("hardCollidersWindow", onReturnToParent));
             }
         }
 
@@ -196,7 +205,7 @@ namespace TittyMagic.UI
 
         private void CreateConfigureHardCollidersButton(bool rightSide, int spacing = 0)
         {
-            var storable = tittyMagic.configureHardColliders;
+            var storable = configureHardColliders;
             AddSpacer(storable.name, spacing, rightSide);
 
             var button = tittyMagic.CreateButton(storable.name, rightSide);
@@ -204,19 +213,6 @@ namespace TittyMagic.UI
             button.buttonText.alignment = TextAnchor.MiddleLeft;
             button.label = "  Configure Hard Colliders...";
             button.height = 52;
-
-            storable.actionCallback = () =>
-            {
-                if(!tittyMagic.enabled)
-                {
-                    Utils.LogMessage($"Enable the plugin to configure hard colliders.");
-                    return;
-                }
-
-                ClearSelf();
-                activeNestedWindow = nestedWindows.First();
-                activeNestedWindow.Rebuild();
-            };
 
             elements[storable.name] = button;
         }

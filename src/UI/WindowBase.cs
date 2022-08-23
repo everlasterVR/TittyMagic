@@ -2,12 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 using static TittyMagic.Script;
 
 namespace TittyMagic.UI
 {
     internal class WindowBase : IWindow
     {
+        private readonly string _id;
+        public string GetId() => _id;
+
         protected Action buildAction;
         protected Action closeAction;
 
@@ -19,8 +23,16 @@ namespace TittyMagic.UI
         public IWindow GetActiveNestedWindow() => activeNestedWindow;
         protected IWindow activeNestedWindow;
 
-        protected WindowBase()
+        public UnityAction onReturnToParent => () =>
         {
+            activeNestedWindow.Clear();
+            activeNestedWindow = null;
+            buildAction();
+        };
+
+        protected WindowBase(string id = "")
+        {
+            _id = id;
             elements = new Dictionary<string, UIDynamic>();
             nestedWindows = new List<IWindow>();
         }

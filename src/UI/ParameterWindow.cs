@@ -12,24 +12,21 @@ namespace TittyMagic.UI
     {
         private readonly PhysicsParameterGroup _parameterGroup;
         private readonly PhysicsParameter _parameter;
-        private readonly UnityAction _returnToParent;
 
         public JSONStorableAction recalibrationAction { get; }
         private float _offsetWhenCalibrated;
 
-        public string id { get; }
         public UIDynamicButton parentButton { private get; set; }
 
-        public ParameterWindow(string id, PhysicsParameterGroup parameterGroup, UnityAction onReturnToParent)
+        public ParameterWindow(string id, PhysicsParameterGroup parameterGroup, UnityAction onReturnToParent) : base(id)
         {
-            this.id = id;
             _parameterGroup = parameterGroup;
             _parameter = _parameterGroup.left;
 
             buildAction = () =>
             {
                 CreateBackButton(false);
-                elements["backButton"].AddListener(_returnToParent);
+                elements["backButton"].AddListener(onReturnToParent);
                 if(_parameterGroup.requiresRecalibration)
                 {
                     CreateRecalibrateButton(recalibrationAction, true);
@@ -76,12 +73,6 @@ namespace TittyMagic.UI
                     tittyMagic.recalibratePhysics.actionCallback();
                 }
             };
-
-            _returnToParent = () =>
-            {
-                Clear();
-                onReturnToParent();
-            };
         }
 
         private void CreateTitle(bool rightSide)
@@ -108,7 +99,7 @@ namespace TittyMagic.UI
 
             var textField = tittyMagic.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
-            textField.height = id == ParamName.MASS ? 368 : 268;
+            textField.height = GetId() == ParamName.MASS ? 368 : 268;
             textField.backgroundColor = Color.clear;
             elements[storable.name] = textField;
         }

@@ -10,18 +10,16 @@ namespace TittyMagic.UI
 {
     internal class HardCollidersWindow : WindowBase, IWindow
     {
-        public readonly UnityAction returnToParent;
-
         public Dictionary<string, UIDynamic> colliderSectionElements { get; }
 
         private readonly JSONStorableString _colliderInfoText;
 
-        public HardCollidersWindow(UnityAction onReturnToParent)
+        public HardCollidersWindow(string id, UnityAction onReturnToParent) : base(id)
         {
             buildAction = () =>
             {
                 CreateBackButton(false);
-                elements["backButton"].AddListener(returnToParent);
+                elements["backButton"].AddListener(onReturnToParent);
                 CreateTitle(false);
                 CreateColliderGroupChooser(true);
 
@@ -46,12 +44,6 @@ namespace TittyMagic.UI
             };
 
             colliderSectionElements = new Dictionary<string, UIDynamic>();
-
-            returnToParent = () =>
-            {
-                Clear();
-                onReturnToParent();
-            };
             _colliderInfoText = new JSONStorableString("colliderInfoText", "");
         }
 

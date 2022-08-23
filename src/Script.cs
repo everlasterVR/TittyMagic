@@ -38,7 +38,6 @@ namespace TittyMagic
         public JSONStorableBool autoUpdateJsb { get; private set; }
         public JSONStorableFloat softnessJsf { get; private set; }
         public JSONStorableFloat quicknessJsf { get; private set; }
-        public JSONStorableAction configureHardColliders { get; private set; }
 
         public CalibrationHelper calibration { get; private set; }
 
@@ -102,8 +101,7 @@ namespace TittyMagic
 
                 if(_tabs.activeWindow == mainWindow)
                 {
-                    var hardCollidersWindow = mainWindow?.GetActiveNestedWindow() as HardCollidersWindow;
-                    if(hardCollidersWindow != null)
+                    if(mainWindow?.GetActiveNestedWindow() != null)
                     {
                         if(enabled)
                         {
@@ -111,7 +109,7 @@ namespace TittyMagic
                         }
                         else
                         {
-                            hardCollidersWindow.returnToParent();
+                            ((WindowBase) mainWindow).onReturnToParent();
                         }
                     }
                 }
@@ -337,8 +335,6 @@ namespace TittyMagic
                         StartCalibration(calibratesMass: false, waitsForListeners: true);
                     }
                 };
-
-                configureHardColliders = new JSONStorableAction("configureHardColliders", () => { });
             }
 
             /* Setup navigation */
