@@ -77,10 +77,9 @@ namespace TittyMagic
 
         private static bool OtherCalibrationInProgress()
         {
-            tittyMagic.PruneInstances();
             try
             {
-                foreach(var instance in tittyMagic.otherInstances)
+                foreach(var instance in tittyMagic.PruneOtherInstances())
                 {
                     if(instance != null)
                     {
@@ -95,7 +94,7 @@ namespace TittyMagic
             }
             catch(Exception e)
             {
-                Debug.Log($"{_uid}: Something went wrong: {e}");
+                Utils.LogError($"{_uid}: Error checking if other plugins are calibrating {e}");
             }
 
             /* No other instance is currently calibrating. */

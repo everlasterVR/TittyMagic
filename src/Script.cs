@@ -465,17 +465,17 @@ namespace TittyMagic
 
         #region Integration
 
-        public List<JSONStorable> otherInstances { get; private set; }
+        private List<JSONStorable> _otherInstances;
 
         private void InitOtherInstancesIntegration()
         {
-            var integrateAction = tittyMagic.NewJSONStorableAction("Integrate", RefreshOtherPluginInstances);
-            integrateAction.actionCallback();
+            tittyMagic.NewJSONStorableAction("Integrate", RefreshOtherPluginInstances);
+            RefreshOtherPluginInstances();
 
             /* When the plugin is added to an existing atom and this method gets called during initialization,
              * other instances are told to update their knowledge on what other instances are in the network.
              */
-            foreach(var instance in otherInstances)
+            foreach(var instance in _otherInstances)
             {
                 if(instance.IsAction("Integrate"))
                 {
@@ -486,41 +486,45 @@ namespace TittyMagic
             /* When the plugin is added as part of a new atom using e.g. scene or subscene merge load,
              * AddInstance adds the instance to this plugin's list of other instances.
              */
-            SuperController.singleton.onAtomAddedHandlers += AddInstance;
-            SuperController.singleton.onAtomRemovedHandlers += RemoveInstance;
+            SuperController.singleton.onAtomAddedHandlers += OnAtomAdded;
+            SuperController.singleton.onAtomRemovedHandlers += OnAtomRemoved;
         }
 
         private void RefreshOtherPluginInstances()
         {
-            Debug.Log($"{containingAtom.uid}: Refreshing other instances...");
-            otherInstances = otherInstances ?? new List<JSONStorable>();
-            PruneInstances();
+            // Debug.Log($"{containingAtom.uid}: Refreshing other instances...");
+            _otherInstances = PruneOtherInstances() ?? new List<JSONStorable>();
             SuperController.singleton.GetAtoms().ForEach(AddInstance);
         }
 
         private void AddInstance(Atom atom)
         {
-            PruneInstances();
             var storable = Utils.FindOtherInstanceStorable(atom);
-            if(storable != null && !otherInstances.Exists(instance => instance.containingAtom.uid == atom.uid))
+            if(storable != null && !_otherInstances.Exists(instance => instance.containingAtom.uid == atom.uid))
             {
-                Debug.Log($"{containingAtom.uid}: Adding instance for {atom.uid}");
-                otherInstances.Add(storable);
+                // Debug.Log($"{containingAtom.uid}: Adding instance for {atom.uid}");
+                _otherInstances.Add(storable);
             }
         }
 
-        private void RemoveInstance(Atom atom)
+        private void OnAtomAdded(Atom atom)
         {
-            PruneInstances();
-            otherInstances.RemoveAll(instance => instance.containingAtom.uid == atom.uid);
+            PruneOtherInstances();
+            AddInstance(atom);
         }
 
-        public void PruneInstances()
+        private void OnAtomRemoved(Atom atom)
         {
-            otherInstances.RemoveAll(instance =>
+            PruneOtherInstances().RemoveAll(instance => instance.containingAtom.uid == atom.uid);
+        }
+
+        public List<JSONStorable> PruneOtherInstances()
+        {
+            _otherInstances?.RemoveAll(instance =>
                 instance == null ||
                 instance.containingAtom == null
             );
+            return _otherInstances;
         }
 
         #endregion Integration
@@ -814,7 +818,7 @@ namespace TittyMagic
                 _customUITransforms?.ForEach(t => Destroy(t.gameObject));
                 SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
                 SuperController.singleton.onAtomAddedHandlers -= AddInstance;
-                SuperController.singleton.onAtomRemovedHandlers -= RemoveInstance;
+                SuperController.singleton.onAtomRemovedHandlers -= OnAtomRemoved;
             }
             catch(Exception e)
             {
