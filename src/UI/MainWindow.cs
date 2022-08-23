@@ -207,6 +207,12 @@ namespace TittyMagic.UI
 
             storable.actionCallback = () =>
             {
+                if(!tittyMagic.enabled)
+                {
+                    Utils.LogMessage($"Enable the plugin to configure hard colliders.");
+                    return;
+                }
+
                 ClearSelf();
                 activeNestedWindow = nestedWindows.First();
                 activeNestedWindow.Rebuild();

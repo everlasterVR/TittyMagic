@@ -84,15 +84,27 @@ namespace TittyMagic
         // adapted from Timeline v4.3.1 (c) acidbubbles
         private static IEnumerator SelectPluginUI(Action postAction = null)
         {
+            if(tittyMagic.UITransform != null && tittyMagic.UITransform.gameObject.activeInHierarchy)
+            {
+                if(tittyMagic.enabled)
+                {
+                    postAction?.Invoke();
+                }
+
+                yield break;
+            }
+
             if(SuperController.singleton.gameMode != SuperController.GameMode.Edit)
             {
                 SuperController.singleton.gameMode = SuperController.GameMode.Edit;
             }
 
-            float time = 0f;
-            while(time < 1f)
+            SuperController.singleton.SelectController(tittyMagic.containingAtom.mainController, false, false);
+            SuperController.singleton.ShowMainHUDAuto();
+
+            float timeout = Time.unscaledTime + 1;
+            while(Time.unscaledTime < timeout)
             {
-                time += Time.unscaledDeltaTime;
                 yield return null;
 
                 var selector = tittyMagic.containingAtom.gameObject.GetComponentInChildren<UITabSelector>();
@@ -104,7 +116,7 @@ namespace TittyMagic
                 selector.SetActiveTab("Plugins");
                 if(tittyMagic.UITransform == null)
                 {
-                    Utils.LogError("No UI", nameof(Bindings));
+                    continue;
                 }
 
                 if(tittyMagic.enabled)
@@ -112,8 +124,6 @@ namespace TittyMagic
                     tittyMagic.UITransform.gameObject.SetActive(true);
                     postAction?.Invoke();
                 }
-
-                yield break;
             }
         }
     }

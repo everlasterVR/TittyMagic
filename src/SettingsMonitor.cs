@@ -33,7 +33,10 @@ namespace TittyMagic
             if(Gender.isFemale)
             {
                 _breastPhysicsMesh = (DAZPhysicsMesh) tittyMagic.containingAtom.GetStorableByID("BreastPhysicsMesh");
-                _breastSoftPhysicsOn = _breastPhysicsMesh.on;
+                /* Initialize _breastSoftPhysicsOn to same value as initialized to in
+                 * SoftPhysicsHandler's own JSONStorable, prevents double calibration on init
+                 */
+                _breastSoftPhysicsOn = SoftPhysicsHandler.softPhysicsOnJsb.val;
                 _atomSoftPhysicsOn = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
                 _globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
             }

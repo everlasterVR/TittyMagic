@@ -40,23 +40,17 @@ namespace TittyMagic.Handlers
         public void SetOffsetCallbackFunctions()
         {
             CreateOffsetPairCallback();
-            if(left.groupMultiplierParams != null)
+            foreach(var param in left.groupMultiplierParams)
             {
-                foreach(var param in left.groupMultiplierParams)
-                {
-                    CreateOffsetPairCallback(param.Value, right.groupMultiplierParams[param.Key]);
-                }
+                CreateOffsetPairCallback(param.Value, right.groupMultiplierParams[param.Key]);
             }
 
             offsetOnlyLeftBreastJsb.setCallbackFunction = value =>
             {
                 right.UpdateOffsetValue(value ? 0 : left.offsetJsf.val);
-                if(right.groupMultiplierParams != null)
+                foreach(var param in right.groupMultiplierParams)
                 {
-                    foreach(var param in right.groupMultiplierParams)
-                    {
-                        param.Value.UpdateOffsetValue(value ? 0 : left.groupMultiplierParams[param.Key].offsetJsf.val);
-                    }
+                    param.Value.UpdateOffsetValue(value ? 0 : left.groupMultiplierParams[param.Key].offsetJsf.val);
                 }
             };
         }
@@ -223,12 +217,9 @@ namespace TittyMagic.Handlers
             Sync();
             UpdateOffsetMinMax();
 
-            if(groupMultiplierParams != null)
+            foreach(var param in groupMultiplierParams)
             {
-                foreach(var param in groupMultiplierParams)
-                {
-                    param.Value.UpdateValue(massValue, softness, quickness);
-                }
+                param.Value.UpdateValue(massValue, softness, quickness);
             }
         }
 
@@ -237,12 +228,9 @@ namespace TittyMagic.Handlers
             offsetJsf.valNoCallback = value;
             Sync();
 
-            if(groupMultiplierParams != null)
+            foreach(var param in groupMultiplierParams)
             {
-                foreach(var param in groupMultiplierParams)
-                {
-                    param.Value.Sync();
-                }
+                param.Value.Sync();
             }
         }
 
@@ -257,13 +245,10 @@ namespace TittyMagic.Handlers
 
         public void UpdateNippleErectionGroupValues(float massValue, float softness, float nippleErection)
         {
-            if(groupMultiplierParams != null)
-            {
-                groupMultiplierParams
-                    .Where(param => param.Key == SoftColliderGroup.NIPPLE || param.Key == SoftColliderGroup.AREOLA)
-                    .ToList()
-                    .ForEach(param => param.Value.UpdateNippleErectionValue(massValue, softness, nippleErection));
-            }
+            groupMultiplierParams
+                .Where(param => param.Key == SoftColliderGroup.NIPPLE || param.Key == SoftColliderGroup.AREOLA)
+                .ToList()
+                .ForEach(param => param.Value.UpdateNippleErectionValue(massValue, softness, nippleErection));
         }
 
         protected float NewBaseValue(float massValue, float softness, float quickness)
@@ -356,38 +341,6 @@ namespace TittyMagic.Handlers
                     additiveForceAdjustments[direction] = 0;
                     break;
             }
-        }
-
-        public SoftGroupPhysicsParameter GetGroupParam(string group)
-        {
-            if(groupMultiplierParams == null)
-            {
-                return null;
-            }
-
-            return groupMultiplierParams[group];
-        }
-
-        public List<JSONStorableFloat> GetGroupMultiplierStorables()
-        {
-            var list = new List<JSONStorableFloat>();
-            if(groupMultiplierParams != null)
-            {
-                list.AddRange(groupMultiplierParams.Values.ToList().Select(param => param.valueJsf));
-            }
-
-            return list;
-        }
-
-        public IEnumerable<JSONStorableFloat> GetGroupOffsetStorables()
-        {
-            var list = new List<JSONStorableFloat>();
-            if(groupMultiplierParams != null)
-            {
-                list.AddRange(groupMultiplierParams.Values.ToList().Select(param => param.offsetJsf));
-            }
-
-            return list;
         }
     }
 

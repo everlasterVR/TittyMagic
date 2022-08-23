@@ -555,6 +555,11 @@ namespace TittyMagic.Handlers
         // Circumvents use of softVerticesCombinedSpring value as multiplier on the group specific value, using custom multiplier instead
         private static void SyncGroupSpring(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
+            if(!tittyMagic.enabled)
+            {
+                return;
+            }
+
             group.jointSpringNormal = value;
             group.jointSpringTangent = value;
             group.jointSpringTangent2 = value;
@@ -568,6 +573,11 @@ namespace TittyMagic.Handlers
         // Circumvents use of softVerticesCombinedDamper value as multiplier on the group specific value, using custom multiplier instead
         private static void SyncGroupDamper(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
+            if(!tittyMagic.enabled)
+            {
+                return;
+            }
+
             group.jointDamperNormal = value;
             group.jointDamperTangent = value;
             group.jointDamperTangent2 = value;
@@ -579,11 +589,21 @@ namespace TittyMagic.Handlers
 
         private static void SyncGroupMass(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
+            if(!tittyMagic.enabled)
+            {
+                return;
+            }
+
             group.jointMass = value;
         }
 
         private static void SyncGroupColliderRadius(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
+            if(!tittyMagic.enabled)
+            {
+                return;
+            }
+
             if(group.useParentColliderSettings)
             {
                 group.colliderRadiusNoSync = value;
@@ -604,29 +624,55 @@ namespace TittyMagic.Handlers
 
         private static void SyncGroupBackForce(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
+            if(!tittyMagic.enabled)
+            {
+                return;
+            }
+
             group.jointBackForce = value;
         }
 
         private static void SyncGroupAdditionalNormalOffset(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
+            if(!tittyMagic.enabled)
+            {
+                return;
+            }
+
             group.colliderAdditionalNormalOffset = value;
         }
 
         private static void SyncGroupDistanceLimit(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
+            if(!tittyMagic.enabled)
+            {
+                return;
+            }
+
             group.normalDistanceLimit = value;
         }
 
         private static void SyncGroupBackForceMaxForce(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
+            if(!tittyMagic.enabled)
+            {
+                return;
+            }
+
             group.jointBackForceMaxForce = value;
         }
 
         private static void SyncGroupBackForceThresholdDistance(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
+            if(!tittyMagic.enabled)
+            {
+                return;
+            }
+
             group.jointBackForceThresholdDistance = value;
         }
 
+        /* Update value if external value changed */
         public static void ReverseSyncSoftPhysicsOn()
         {
             if(_breastPhysicsMesh != null)
@@ -635,6 +681,7 @@ namespace TittyMagic.Handlers
             }
         }
 
+        /* Update value if external value changed */
         public static void ReverseSyncAllowSelfCollision()
         {
             if(_breastPhysicsMesh != null)
@@ -645,6 +692,12 @@ namespace TittyMagic.Handlers
 
         private static void SyncSoftPhysicsOn(bool value)
         {
+            if(!tittyMagic.enabled)
+            {
+                Utils.LogMessage("Enable the plugin to update Soft Physics Enabled from the plugin.");
+                return;
+            }
+
             if(_breastPhysicsMesh != null)
             {
                 _breastPhysicsMesh.on = value;
@@ -653,6 +706,12 @@ namespace TittyMagic.Handlers
 
         private static void SyncAllowSelfCollision(bool value)
         {
+            if(!tittyMagic.enabled)
+            {
+                Utils.LogMessage("Enable the plugin to update Breast Soft Physics Self Collide via the plugin.");
+                return;
+            }
+
             if(_breastPhysicsMesh != null)
             {
                 _breastPhysicsMesh.allowSelfCollision = value;

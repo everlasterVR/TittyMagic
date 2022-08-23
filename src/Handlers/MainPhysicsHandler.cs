@@ -355,6 +355,11 @@ namespace TittyMagic.Handlers
         // Reimplements AdjustJoints.cs method SyncMass
         private static void SyncMass(Rigidbody rb, float value)
         {
+            if(!tittyMagic.enabled)
+            {
+                return;
+            }
+
             if(Math.Abs(rb.mass - value) <= 0.001f)
             {
                 return;
@@ -367,6 +372,11 @@ namespace TittyMagic.Handlers
         // Reimplements AdjustJoints.cs method SyncCenterOfGravity
         private static void SyncCenterOfGravity(Rigidbody rb, float value)
         {
+            if(!tittyMagic.enabled)
+            {
+                return;
+            }
+
             var newCenterOfMass = Vector3.Lerp(_breastControl.lowCenterOfGravity, _breastControl.highCenterOfGravity, value);
             if(Calc.VectorIsEqualWithin(1 / 100f, rb.centerOfMass, newCenterOfMass))
             {
@@ -379,6 +389,11 @@ namespace TittyMagic.Handlers
 
         private static void SyncJointSpring(ConfigurableJoint joint, Rigidbody rb, float spring)
         {
+            if(!tittyMagic.enabled)
+            {
+                return;
+            }
+
             // see AdjustJoints.cs method ScaleChanged
             float scalePow = Mathf.Pow(1.7f, _breastControl.scale - 1f);
 
@@ -414,6 +429,11 @@ namespace TittyMagic.Handlers
 
         private static void SyncJointDamper(ConfigurableJoint joint, Rigidbody rb, float damper)
         {
+            if(!tittyMagic.enabled)
+            {
+                return;
+            }
+
             // see AdjustJoints.cs method ScaleChanged
             float scalePow = Mathf.Pow(1.7f, _breastControl.scale - 1f);
 
@@ -450,6 +470,11 @@ namespace TittyMagic.Handlers
         // Reimplements AdjustJoints.cs method SyncJointPositionZDrive
         private static void SyncJointPositionZDriveSpring(ConfigurableJoint joint, Rigidbody rb, float spring)
         {
+            if(!tittyMagic.enabled)
+            {
+                return;
+            }
+
             var zDrive = joint.zDrive;
             if(Mathf.Abs(zDrive.positionSpring - spring) <= 1)
             {
@@ -464,6 +489,11 @@ namespace TittyMagic.Handlers
         // Reimplements AdjustJoints.cs method SyncJointPositionZDrive
         private static void SyncJointPositionZDriveDamper(ConfigurableJoint joint, Rigidbody rb, float damper)
         {
+            if(!tittyMagic.enabled)
+            {
+                return;
+            }
+
             var zDrive = joint.zDrive;
             if(Mathf.Abs(zDrive.positionDamper - damper) <= 1)
             {
@@ -478,6 +508,11 @@ namespace TittyMagic.Handlers
         // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
         private static void SyncTargetRotationX(string side, float targetRotationX)
         {
+            if(!tittyMagic.enabled)
+            {
+                return;
+            }
+
             if(side == LEFT)
             {
                 _breastControl.smoothedJoint2TargetRotation.x = targetRotationX;
@@ -497,6 +532,11 @@ namespace TittyMagic.Handlers
         // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
         private static void SyncTargetRotationY(string side, float targetRotationY)
         {
+            if(!tittyMagic.enabled)
+            {
+                return;
+            }
+
             if(side == LEFT)
             {
                 _breastControl.smoothedJoint2TargetRotation.y = -targetRotationY;
