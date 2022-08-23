@@ -468,8 +468,11 @@ namespace TittyMagic
                 {
                     foreach(Transform child in t)
                     {
-                        _inactivatedUIGameObjects.Add(child.gameObject);
-                        child.gameObject.SetActive(false);
+                        if(child.gameObject.activeSelf)
+                        {
+                            _inactivatedUIGameObjects.Add(child.gameObject);
+                            child.gameObject.SetActive(false);
+                        }
                     }
                 }
 
