@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using TittyMagic.Configs;
 using static TittyMagic.ParamName;
-using static TittyMagic.SoftColliderGroup;
 using static TittyMagic.Side;
+using static TittyMagic.SoftColliderGroup;
 
 namespace TittyMagic
 {
@@ -551,8 +551,13 @@ namespace TittyMagic
 
         // Reimplements DAZPhysicsMesh.cs methods SyncGroup[A|B|C|D]SpringMultiplier and SyncSoftVerticesCombinedSpring
         // Circumvents use of softVerticesCombinedSpring value as multiplier on the group specific value, using custom multiplier instead
-        private static void SyncGroupSpring(float value, DAZPhysicsMeshSoftVerticesGroup group)
+        private void SyncGroupSpring(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
+            if(!_script.enabled)
+            {
+                return;
+            }
+
             group.jointSpringNormal = value;
             group.jointSpringTangent = value;
             group.jointSpringTangent2 = value;
@@ -564,8 +569,13 @@ namespace TittyMagic
 
         // Reimplements DAZPhysicsMesh.cs methods SyncGroup[A|B|C|D]DamperMultiplier and SyncSoftVerticesCombinedDamper
         // Circumvents use of softVerticesCombinedDamper value as multiplier on the group specific value, using custom multiplier instead
-        private static void SyncGroupDamper(float value, DAZPhysicsMeshSoftVerticesGroup group)
+        private void SyncGroupDamper(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
+            if(!_script.enabled)
+            {
+                return;
+            }
+
             group.jointDamperNormal = value;
             group.jointDamperTangent = value;
             group.jointDamperTangent2 = value;
@@ -575,13 +585,23 @@ namespace TittyMagic
             }
         }
 
-        private static void SyncGroupMass(float value, DAZPhysicsMeshSoftVerticesGroup group)
+        private void SyncGroupMass(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
+            if(!_script.enabled)
+            {
+                return;
+            }
+
             group.jointMass = value;
         }
 
-        private static void SyncGroupColliderRadius(float value, DAZPhysicsMeshSoftVerticesGroup group)
+        private void SyncGroupColliderRadius(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
+            if(!_script.enabled)
+            {
+                return;
+            }
+
             if(group.useParentColliderSettings)
             {
                 group.colliderRadiusNoSync = value;
@@ -600,31 +620,57 @@ namespace TittyMagic
             }
         }
 
-        private static void SyncGroupBackForce(float value, DAZPhysicsMeshSoftVerticesGroup group)
+        private void SyncGroupBackForce(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
+            if(!_script.enabled)
+            {
+                return;
+            }
+
             group.jointBackForce = value;
         }
 
-        private static void SyncGroupAdditionalNormalOffset(float value, DAZPhysicsMeshSoftVerticesGroup group)
+        private void SyncGroupAdditionalNormalOffset(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
+            if(!_script.enabled)
+            {
+                return;
+            }
+
             group.colliderAdditionalNormalOffset = value;
         }
 
-        private static void SyncGroupDistanceLimit(float value, DAZPhysicsMeshSoftVerticesGroup group)
+        private void SyncGroupDistanceLimit(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
+            if(!_script.enabled)
+            {
+                return;
+            }
+
             group.normalDistanceLimit = value;
         }
 
-        private static void SyncGroupBackForceMaxForce(float value, DAZPhysicsMeshSoftVerticesGroup group)
+        private void SyncGroupBackForceMaxForce(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
+            if(!_script.enabled)
+            {
+                return;
+            }
+
             group.jointBackForceMaxForce = value;
         }
 
-        private static void SyncGroupBackForceThresholdDistance(float value, DAZPhysicsMeshSoftVerticesGroup group)
+        private void SyncGroupBackForceThresholdDistance(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
+            if(!_script.enabled)
+            {
+                return;
+            }
+
             group.jointBackForceThresholdDistance = value;
         }
 
+        /* Update value if external value changed */
         public void ReverseSyncSoftPhysicsOn()
         {
             if(_breastPhysicsMesh != null)
@@ -633,6 +679,7 @@ namespace TittyMagic
             }
         }
 
+        /* Update value if external value changed */
         public void ReverseSyncAllowSelfCollision()
         {
             if(_breastPhysicsMesh != null)
@@ -643,6 +690,12 @@ namespace TittyMagic
 
         private void SyncSoftPhysicsOn(bool value)
         {
+            if(!_script.enabled)
+            {
+                Utils.LogMessage("Enable the plugin to update Soft Physics Enabled from the plugin.");
+                return;
+            }
+
             if(_breastPhysicsMesh != null)
             {
                 _breastPhysicsMesh.on = value;
@@ -651,6 +704,12 @@ namespace TittyMagic
 
         private void SyncAllowSelfCollision(bool value)
         {
+            if(!_script.enabled)
+            {
+                Utils.LogMessage("Enable the plugin to update Breast Soft Physics Self Collide via the plugin.");
+                return;
+            }
+
             if(_breastPhysicsMesh != null)
             {
                 _breastPhysicsMesh.allowSelfCollision = value;

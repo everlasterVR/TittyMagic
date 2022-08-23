@@ -88,9 +88,13 @@ namespace TittyMagic
 
             _pluginUIEventsListener.onDisable.AddListener(() =>
             {
-                var activeParameterWindow = _tabs.activeWindow?.GetActiveNestedWindow() as ParameterWindow;
-                var recalibrationAction = activeParameterWindow != null ? activeParameterWindow.recalibrationAction : recalibratePhysics;
-                RecalibrateOnNavigation(recalibrationAction);
+                if(enabled)
+                {
+                    var activeParameterWindow = _tabs.activeWindow?.GetActiveNestedWindow() as ParameterWindow;
+                    var recalibrationAction = activeParameterWindow != null ? activeParameterWindow.recalibrationAction : recalibratePhysics;
+                    RecalibrateOnNavigation(recalibrationAction);
+                }
+
                 colliderVisualizer.ShowPreviewsJSON.val = false;
 
                 try
@@ -121,9 +125,17 @@ namespace TittyMagic
 
                 if(_tabs.activeWindow == mainWindow)
                 {
-                    if(mainWindow.GetActiveNestedWindow() != null)
+                    var hardCollidersWindow = mainWindow?.GetActiveNestedWindow() as HardCollidersWindow;
+                    if(hardCollidersWindow != null)
                     {
-                        colliderVisualizer.ShowPreviewsJSON.val = true;
+                        if(enabled)
+                        {
+                            colliderVisualizer.ShowPreviewsJSON.val = true;
+                        }
+                        else
+                        {
+                            hardCollidersWindow.returnToParent();
+                        }
                     }
                 }
                 else if(_tabs.activeWindow == physicsWindow)
@@ -578,6 +590,12 @@ namespace TittyMagic
 
         private IEnumerator RefreshCo(bool refreshMass, bool waitForListeners)
         {
+            if(!enabled)
+            {
+                Utils.LogMessage($"Enable the plugin to recalibrate.");
+                yield break;
+            }
+
             if(_loadingFromJson)
             {
                 yield break;
