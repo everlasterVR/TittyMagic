@@ -295,11 +295,13 @@ namespace TittyMagic
                     "recalibratePhysics",
                     () => StartRefreshCoroutine(refreshMass: false)
                 );
+                RegisterAction(recalibratePhysics);
 
                 calculateBreastMass = new JSONStorableAction(
                     "calculateBreastMass",
                     () => StartRefreshCoroutine(refreshMass: true)
                 );
+                RegisterAction(calculateBreastMass);
 
                 autoUpdateJsb.setCallbackFunction = value =>
                 {
