@@ -558,10 +558,7 @@ namespace TittyMagic
 
         public List<JSONStorable> PruneOtherInstances()
         {
-            _otherInstances?.RemoveAll(instance =>
-                instance == null ||
-                instance.containingAtom == null
-            );
+            _otherInstances?.RemoveAll(instance => instance == null || instance.containingAtom == null);
             return _otherInstances;
         }
 
@@ -868,7 +865,7 @@ namespace TittyMagic
                 DestroyImmediate(_atomUIEventsListener);
                 _customUIGameObjects?.ForEach(Destroy);
                 SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
-                SuperController.singleton.onAtomAddedHandlers -= AddInstance;
+                SuperController.singleton.onAtomAddedHandlers -= OnAtomAdded;
                 SuperController.singleton.onAtomRemovedHandlers -= OnAtomRemoved;
             }
             catch(Exception e)

@@ -138,8 +138,7 @@ namespace TittyMagic
             JSONStorable instance = null;
             string regex = $@"^plugin#\d+_{nameof(TittyMagic)}.{nameof(Script)}";
             string storableId = atom.GetStorableIDs().FirstOrDefault(id => Regex.IsMatch(id, regex));
-
-            var storable = storableId == null ? null : atom.GetStorableByID(storableId);
+            var storable = atom.GetStorableByID(storableId);
             if(storable != null && storable.IsStringJSONParam("version"))
             {
                 string versionString = storable.GetStringParamValue("version");
