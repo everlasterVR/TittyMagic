@@ -127,43 +127,5 @@ namespace TittyMagic
                 SuperController.singleton.freezeAnimationToggleAlt.isOn;
             return mainToggleFrozen || altToggleFrozen;
         }
-
-        public static JSONStorable FindOtherInstanceStorable(Atom atom)
-        {
-            if(atom.type != "Person" || atom.uid == tittyMagic.containingAtom.uid)
-            {
-                return null;
-            }
-
-            JSONStorable instance = null;
-            string regex = $@"^plugin#\d+_{nameof(TittyMagic)}.{nameof(Script)}";
-            string storableId = atom.GetStorableIDs().FirstOrDefault(id => Regex.IsMatch(id, regex));
-            var storable = atom.GetStorableByID(storableId);
-            if(storable != null && storable.IsStringJSONParam("version"))
-            {
-                string versionString = storable.GetStringParamValue("version");
-                if(versionString == $"{VERSION}")
-                {
-                    instance = storable;
-                }
-                else
-                {
-                    try
-                    {
-                        var version = new Version(storable.GetStringParamValue("version"));
-                        if(version >= new Version("5.1.0"))
-                        {
-                            instance = storable;
-                        }
-                    }
-                    catch(Exception e)
-                    {
-                        //ignored
-                    }
-                }
-            }
-
-            return instance;
-        }
     }
 }

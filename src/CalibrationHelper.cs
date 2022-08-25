@@ -79,7 +79,7 @@ namespace TittyMagic
         {
             try
             {
-                foreach(var instance in tittyMagic.PruneOtherInstances())
+                foreach(var instance in Integration.otherInstances)
                 {
                     if(instance != null)
                     {

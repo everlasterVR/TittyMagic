@@ -359,7 +359,7 @@ namespace TittyMagic
             SuperController.singleton.BroadcastMessage("OnActionsProviderAvailable", this, SendMessageOptions.DontRequireReceiver);
 
             /* Finish init */
-            InitOtherInstancesIntegration();
+            Integration.Init();
             calibration = gameObject.AddComponent<CalibrationHelper>();
             calibration.Init();
 
@@ -500,69 +500,6 @@ namespace TittyMagic
             button.GetComponent<UIDynamicButton>().button.onClick.AddListener(() => _customBindings.OpenUI());
             return button;
         }
-
-        #region Integration
-
-        private List<JSONStorable> _otherInstances;
-
-        private void InitOtherInstancesIntegration()
-        {
-            tittyMagic.NewJSONStorableAction("Integrate", RefreshOtherPluginInstances);
-            RefreshOtherPluginInstances();
-
-            /* When the plugin is added to an existing atom and this method gets called during initialization,
-             * other instances are told to update their knowledge on what other instances are in the network.
-             */
-            foreach(var instance in _otherInstances)
-            {
-                if(instance.IsAction("Integrate"))
-                {
-                    instance.CallAction("Integrate");
-                }
-            }
-
-            /* When the plugin is added as part of a new atom using e.g. scene or subscene merge load,
-             * AddInstance adds the instance to this plugin's list of other instances.
-             */
-            SuperController.singleton.onAtomAddedHandlers += OnAtomAdded;
-            SuperController.singleton.onAtomRemovedHandlers += OnAtomRemoved;
-        }
-
-        private void RefreshOtherPluginInstances()
-        {
-            // Debug.Log($"{containingAtom.uid}: Refreshing other instances...");
-            _otherInstances = PruneOtherInstances() ?? new List<JSONStorable>();
-            SuperController.singleton.GetAtoms().ForEach(AddInstance);
-        }
-
-        private void AddInstance(Atom atom)
-        {
-            var storable = Utils.FindOtherInstanceStorable(atom);
-            if(storable != null && !_otherInstances.Exists(instance => instance.containingAtom.uid == atom.uid))
-            {
-                // Debug.Log($"{containingAtom.uid}: Adding instance for {atom.uid}");
-                _otherInstances.Add(storable);
-            }
-        }
-
-        private void OnAtomAdded(Atom atom)
-        {
-            PruneOtherInstances();
-            AddInstance(atom);
-        }
-
-        private void OnAtomRemoved(Atom atom)
-        {
-            PruneOtherInstances().RemoveAll(instance => instance.containingAtom.uid == atom.uid);
-        }
-
-        public List<JSONStorable> PruneOtherInstances()
-        {
-            _otherInstances?.RemoveAll(instance => instance == null || instance.containingAtom == null);
-            return _otherInstances;
-        }
-
-        #endregion Integration
 
         #endregion Init
 
@@ -865,8 +802,7 @@ namespace TittyMagic
                 DestroyImmediate(_atomUIEventsListener);
                 _customUIGameObjects?.ForEach(Destroy);
                 SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
-                SuperController.singleton.onAtomAddedHandlers -= OnAtomAdded;
-                SuperController.singleton.onAtomRemovedHandlers -= OnAtomRemoved;
+                Integration.RemoveHandlers();
             }
             catch(Exception e)
             {
