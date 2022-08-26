@@ -53,9 +53,10 @@ namespace TittyMagic
             JSONStorable otherInstance = null;
             try
             {
+                var regex = new Regex(@"^plugin#\d+_TittyMagic.Script", RegexOptions.Compiled);
                 otherInstance = atom
                     .GetStorableIDs()
-                    .Where(id => Regex.IsMatch(id, @"^plugin#\d+_TittyMagic.Script"))
+                    .Where(id => regex.IsMatch(id))
                     .Select(atom.GetStorableByID)
                     .ToList()
                     .Prune()
