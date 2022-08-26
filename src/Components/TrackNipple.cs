@@ -17,9 +17,6 @@ namespace TittyMagic.Components
         public float angleX { get; private set; }
         public float depthDiff { get; private set; }
 
-        private readonly Vector3[] _nippleCalibrationVectors = new Vector3[3];
-        private readonly Vector3[] _pectoralCalibrationVectors = new Vector3[3];
-
         public TrackNipple(Rigidbody chestRb, Rigidbody pectoralRb)
         {
             _chestRb = chestRb;
@@ -28,10 +25,8 @@ namespace TittyMagic.Components
 
         public void Calibrate()
         {
-            _nippleCalibrationVectors.Unshift(Calc.RelativePosition(_chestRb, getNipplePosition()));
-            _pectoralCalibrationVectors.Unshift(Calc.RelativePosition(_chestRb, _pectoralRb.position));
-            _neutralRelativePosition = _nippleCalibrationVectors[_nippleCalibrationVectors.Length - 1];
-            _neutralRelativePectoralPosition = _pectoralCalibrationVectors[_pectoralCalibrationVectors.Length - 1];
+            _neutralRelativePosition = Calc.RelativePosition(_chestRb, getNipplePosition());
+            _neutralRelativePectoralPosition = Calc.RelativePosition(_chestRb, _pectoralRb.position);
         }
 
         public void UpdateAnglesAndDepthDiff()
