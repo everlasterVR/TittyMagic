@@ -36,16 +36,16 @@ namespace TittyMagic
             );
         }
 
-        // ReSharper disable once UnusedMember.Global
-        public static Vector3 AveragePosition(List<Vector3> positions)
+        public static Vector3 AveragePosition(Vector3[] positions)
         {
             var sum = Vector3.zero;
+            // ReSharper disable once LoopCanBeConvertedToQuery
             foreach(var position in positions)
             {
                 sum += position;
             }
 
-            return sum / positions.Count;
+            return sum / positions.Length;
         }
 
         private static bool IsEqualWithin(float diff, float v1, float v2) =>

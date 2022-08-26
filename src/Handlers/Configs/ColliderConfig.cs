@@ -84,10 +84,34 @@ namespace TittyMagic.Configs
             right.UpdatePosition(rightOffset, upOffset, lookOffset);
         }
 
+        public void UpdateFriction()
+        {
+            left.UpdateFriction();
+            right.UpdateFriction();
+        }
+
         public void AutoColliderSizeSet()
         {
             left.AutoColliderSizeSet();
             right.AutoColliderSizeSet();
+        }
+
+        public void Calibrate(Vector3 breastCenterLeft, Vector3 breastCenterRight, Rigidbody chestRb)
+        {
+            left.Calibrate(breastCenterLeft, chestRb);
+            right.Calibrate(breastCenterRight, chestRb);
+        }
+
+        public void UpdateDistanceDiffs(Vector3 breastCenterLeft, Vector3 breastCenterRight, Rigidbody chestRb)
+        {
+            left.UpdateDistanceDiff(breastCenterLeft, chestRb);
+            right.UpdateDistanceDiff(breastCenterRight, chestRb);
+        }
+
+        public void ResetDistanceDiffs()
+        {
+            left.ResetDistanceDiff();
+            right.ResetDistanceDiff();
         }
 
         public void RestoreDefaults()
@@ -103,8 +127,12 @@ namespace TittyMagic.Configs
     {
         public AutoCollider autoCollider { get; }
         public Collider collider { get; }
-
         public string visualizerEditableId { get; }
+
+        private readonly PhysicMaterial _colliderMaterial;
+        private readonly Transform _colliderTransform;
+        private float _distanceDiff;
+        private float _neutralDistance;
 
         public ColliderConfig(AutoCollider autoCollider, string visualizerEditableId)
         {
@@ -114,6 +142,9 @@ namespace TittyMagic.Configs
             collider = this.autoCollider.jointCollider;
             collider.enabled = true;
             collider.GetComponent<CapsuleLineSphereCollider>().enabled = true;
+            _colliderMaterial = collider.material;
+            _colliderMaterial.frictionCombine = PhysicMaterialCombine.Multiply;
+            _colliderTransform = collider.transform;
 
             this.visualizerEditableId = visualizerEditableId;
         }
@@ -134,6 +165,41 @@ namespace TittyMagic.Configs
             autoCollider.colliderLookOffset = lookOffset;
         }
 
+        public void UpdateFriction()
+        {
+            float friction = 1 - Mathf.InverseLerp(0.000f, 0.020f, _distanceDiff);
+            _colliderMaterial.dynamicFriction = friction;
+            _colliderMaterial.staticFriction = friction;
+        }
+
+        public void AutoColliderSizeSet()
+        {
+            autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.Always;
+            autoCollider.AutoColliderSizeSet(true);
+            autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.None;
+        }
+
+        public void Calibrate(Vector3 breastCenter, Rigidbody chestRb)
+        {
+            _neutralDistance = DistanceFromBreastCenter(breastCenter, chestRb);
+        }
+
+        public void UpdateDistanceDiff(Vector3 breastCenter, Rigidbody chestRb)
+        {
+            _distanceDiff = Mathf.Abs(_neutralDistance - DistanceFromBreastCenter(breastCenter, chestRb));
+        }
+
+        private float DistanceFromBreastCenter(Vector3 relativeBreastCenter, Rigidbody chestRb)
+        {
+            var relativeTransformPosition = Calc.RelativePosition(chestRb, _colliderTransform.position);
+            return (relativeTransformPosition - relativeBreastCenter).magnitude;
+        }
+
+        public void ResetDistanceDiff()
+        {
+            _distanceDiff = 0;
+        }
+
         public void RestoreDefaults()
         {
             autoCollider.autoRadiusBuffer = 0;
@@ -144,13 +210,12 @@ namespace TittyMagic.Configs
             autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.Always;
             autoCollider.AutoColliderSizeSet(true);
             autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.MorphChangeOnly;
-        }
 
-        public void AutoColliderSizeSet()
-        {
-            autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.Always;
-            autoCollider.AutoColliderSizeSet(true);
-            autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.None;
+            /* Restore default friction. */
+            var material = collider.material;
+            material.frictionCombine = PhysicMaterialCombine.Average;
+            material.dynamicFriction = 0.6f;
+            material.staticFriction = 0.6f;
         }
 
         public bool HasRigidbody() => collider.attachedRigidbody != null;

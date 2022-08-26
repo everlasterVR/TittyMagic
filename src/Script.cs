@@ -250,7 +250,7 @@ namespace TittyMagic
             /* Setup handlers */
             MainPhysicsHandler.Init(breastControl, skin, chestRb);
             hardColliderHandler = gameObject.AddComponent<HardColliderHandler>();
-            hardColliderHandler.Init(geometry);
+            hardColliderHandler.Init(geometry, skin, chestRb);
             SoftPhysicsHandler.Init();
             GravityPhysicsHandler.Init();
             GravityOffsetMorphHandler.Init();
@@ -270,10 +270,10 @@ namespace TittyMagic
             else
             {
                 _trackLeftNipple.getNipplePosition = () => Calc.AveragePosition(
-                    VertexIndexGroup.LEFT_BREAST_CENTER.Select(i => skin.rawSkinnedWorkingVerts[i]).ToList()
+                    VertexIndexGroup.LEFT_BREAST_CENTER.Select(i => skin.rawSkinnedWorkingVerts[i]).ToArray()
                 );
                 _trackRightNipple.getNipplePosition = () => Calc.AveragePosition(
-                    VertexIndexGroup.RIGHT_BREAST_CENTER.Select(i => skin.rawSkinnedWorkingVerts[i]).ToList()
+                    VertexIndexGroup.RIGHT_BREAST_CENTER.Select(i => skin.rawSkinnedWorkingVerts[i]).ToArray()
                 );
             }
 
@@ -529,8 +529,9 @@ namespace TittyMagic
             }
         }
 
-        private static void UpdateDynamicHandlers(float roll, float pitch)
+        private void UpdateDynamicHandlers(float roll, float pitch)
         {
+            hardColliderHandler.UpdateFriction();
             ForcePhysicsHandler.Update();
             GravityPhysicsHandler.Update(roll, pitch);
             ForceMorphHandler.Update(roll, pitch);
@@ -555,6 +556,7 @@ namespace TittyMagic
 
                 _trackLeftNipple.UpdateAnglesAndDepthDiff();
                 _trackRightNipple.UpdateAnglesAndDepthDiff();
+                hardColliderHandler.UpdateDistanceDiffs();
 
                 var rotation = _chestTransform.rotation;
                 float roll = Calc.Roll(rotation);
@@ -605,10 +607,11 @@ namespace TittyMagic
 
             yield return calibration.DeferFreezeAnimation();
 
-            /* Dynamic adjustments to zero (simulate upright pose), update physics */
+            /* Dynamic adjustments to zero (simulate static upright pose), update physics */
             {
                 _trackLeftNipple.ResetAnglesAndDepthDiff();
                 _trackRightNipple.ResetAnglesAndDepthDiff();
+                hardColliderHandler.ResetDistanceDiffs();
                 UpdateDynamicHandlers(0, 0);
 
                 MainPhysicsHandler.UpdatePhysics();
@@ -672,12 +675,14 @@ namespace TittyMagic
             {
                 _isSimulatingUprightPose = true;
                 StartCoroutine(SimulateUprightPose());
-                Action calibrateNipples = () =>
+                Action calibrateNipplesAndColliders = () =>
                 {
                     _trackLeftNipple.Calibrate();
                     _trackRightNipple.Calibrate();
+                    hardColliderHandler.CalibrateColliders();
+                    hardColliderHandler.SyncAllOffsets();
                 };
-                yield return calibration.WaitAndRepeat(calibrateNipples, 24, 0.05f);
+                yield return calibration.WaitAndRepeat(calibrateNipplesAndColliders, 24, 0.05f);
                 yield return hardColliderHandler.SyncAll();
                 _isSimulatingUprightPose = false;
             }

@@ -12,6 +12,8 @@ namespace TittyMagic.Handlers
     internal class HardColliderHandler : MonoBehaviour
     {
         private DAZCharacterSelector _geometry;
+        private DAZSkinV2 _skin;
+        private Rigidbody _chestRb;
 
         public JSONStorableStringChooser colliderGroupsJsc { get; private set; }
         public List<ColliderConfigGroup> colliderConfigs { get; private set; }
@@ -27,9 +29,11 @@ namespace TittyMagic.Handlers
         private const string COLLIDER_CENTER_Y = "ColliderCenterY";
         private const string COLLIDER_CENTER_Z = "ColliderCenterZ";
 
-        public void Init(DAZCharacterSelector geometry)
+        public void Init(DAZCharacterSelector geometry, DAZSkinV2 skin, Rigidbody chestRb)
         {
             _geometry = geometry;
+            _skin = skin;
+            _chestRb = chestRb;
 
             if(!Gender.isFemale)
             {
@@ -423,6 +427,11 @@ namespace TittyMagic.Handlers
             tittyMagic.colliderVisualizer.SyncPreviews();
         }
 
+        public void UpdateFriction()
+        {
+            colliderConfigs.ForEach(config => config.UpdateFriction());
+        }
+
         private IEnumerator DeferSyncMass(ColliderConfigGroup config)
         {
             config.waitingForForceSlider = true;
@@ -566,6 +575,39 @@ namespace TittyMagic.Handlers
 
             /* Changes to collider properties must be done while advanced colliders are enabled */
             _geometry.useAdvancedColliders = _originalUseAdvancedColliders;
+        }
+
+        public void CalibrateColliders()
+        {
+            var breastCenterLeft = BreastCenter(VertexIndexGroup.LEFT_BREAST);
+            var breastCenterRight = BreastCenter(VertexIndexGroup.RIGHT_BREAST);
+
+            foreach(var config in colliderConfigs)
+            {
+                config.Calibrate(breastCenterLeft, breastCenterRight, _chestRb);
+            }
+        }
+
+        public void UpdateDistanceDiffs()
+        {
+            var breastCenterLeft = BreastCenter(VertexIndexGroup.LEFT_BREAST);
+            var breastCenterRight = BreastCenter(VertexIndexGroup.RIGHT_BREAST);
+
+            foreach(var config in colliderConfigs)
+            {
+                config.UpdateDistanceDiffs(breastCenterLeft, breastCenterRight, _chestRb);
+            }
+        }
+
+        private Vector3 BreastCenter(IEnumerable<int> vertexIndices) =>
+            Calc.RelativePosition(_chestRb, Calc.AveragePosition(vertexIndices.Select(index => _skin.rawSkinnedVerts[index]).ToArray()));
+
+        public void ResetDistanceDiffs()
+        {
+            foreach(var config in colliderConfigs)
+            {
+                config.ResetDistanceDiffs();
+            }
         }
 
         private bool _originalUseAdvancedColliders;
