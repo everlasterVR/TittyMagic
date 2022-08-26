@@ -394,9 +394,9 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            if(!config.syncIsInProgress)
+            if(!config.waitingForForceSlider)
             {
-                StartCoroutine(DeferBeginSyncMass(config));
+                StartCoroutine(DeferSyncMass(config));
             }
         }
 
@@ -423,32 +423,12 @@ namespace TittyMagic.Handlers
             tittyMagic.colliderVisualizer.SyncPreviews();
         }
 
-        private IEnumerator DeferBeginSyncMass(ColliderConfigGroup config)
-        {
-            config.syncIsInProgress = true;
-
-            var elements = ((HardCollidersWindow) tittyMagic.mainWindow.GetActiveNestedWindow())?.colliderSectionElements;
-            if(elements != null && elements.Any())
-            {
-                yield return new WaitForSecondsRealtime(0.1f);
-                var slider = (UIDynamicSlider) elements[config.forceJsf.name];
-                if(slider != null)
-                {
-                    while(slider.PointerIsDown())
-                    {
-                        yield return new WaitForSecondsRealtime(0.1f);
-                    }
-
-                    yield return new WaitForSecondsRealtime(0.1f);
-                }
-            }
-
-            config.syncIsInProgress = false;
-            yield return DeferSyncMass(config);
-        }
-
         private IEnumerator DeferSyncMass(ColliderConfigGroup config)
         {
+            config.waitingForForceSlider = true;
+            yield return WaitForSlider(config.forceJsf.name);
+            config.waitingForForceSlider = false;
+
             // In case hard colliders are not enabled (yet)
             float timeout = Time.unscaledTime + 3f;
             while(!config.HasRigidbodies() && Time.unscaledTime < timeout)
@@ -472,7 +452,7 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private bool _combinedSyncIsInProgress;
+        private bool _waitingForBaseForceSlider;
 
         public IEnumerator SyncAll()
         {
@@ -481,13 +461,13 @@ namespace TittyMagic.Handlers
                 yield break;
             }
 
-            while(_combinedSyncIsInProgress)
+            while(_waitingForBaseForceSlider)
             {
                 yield return null;
             }
 
             _geometry.useAuxBreastColliders = true;
-            yield return DeferBeginSyncBaseMass();
+            yield return DeferSyncBaseMass();
             SyncAllOffsets();
         }
 
@@ -500,38 +480,18 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            if(!_combinedSyncIsInProgress)
+            if(!_waitingForBaseForceSlider)
             {
-                StartCoroutine(DeferBeginSyncBaseMass());
+                StartCoroutine(DeferSyncBaseMass());
             }
         }
 
-        private IEnumerator DeferBeginSyncBaseMass()
+        private IEnumerator DeferSyncBaseMass()
         {
-            _combinedSyncIsInProgress = true;
+            _waitingForBaseForceSlider = true;
+            yield return WaitForSlider(baseForceJsf.name);
+            _waitingForBaseForceSlider = false;
 
-            var elements = tittyMagic.mainWindow?.GetActiveNestedWindow()?.GetElements();
-            if(elements != null && elements.Any())
-            {
-                yield return new WaitForSecondsRealtime(0.1f);
-                var slider = (UIDynamicSlider) elements[baseForceJsf.name];
-                if(slider != null)
-                {
-                    while(slider.PointerIsDown())
-                    {
-                        yield return new WaitForSecondsRealtime(0.1f);
-                    }
-
-                    yield return new WaitForSecondsRealtime(0.1f);
-                }
-            }
-
-            _combinedSyncIsInProgress = false;
-            yield return DeferSyncMassCombined();
-        }
-
-        private IEnumerator DeferSyncMassCombined()
-        {
             // In case hard colliders are not enabled (yet)
             float timeout = Time.unscaledTime + 3f;
             while(colliderConfigs.Any(config => !config.HasRigidbodies()) && Time.unscaledTime < timeout)
@@ -552,6 +512,33 @@ namespace TittyMagic.Handlers
                     MainPhysicsHandler.normalizedMass,
                     tittyMagic.softnessAmount
                 ));
+            }
+        }
+
+        private IEnumerator WaitForSlider(string sliderName)
+        {
+            var hardColliderWindow = tittyMagic.mainWindow?.GetActiveNestedWindow() as HardCollidersWindow;
+            if(hardColliderWindow == null)
+            {
+                yield break;
+            }
+
+            var elements = sliderName == baseForceJsf.name
+                ? hardColliderWindow.GetElements()
+                : hardColliderWindow.colliderSectionElements;
+            if(elements.Any())
+            {
+                yield return new WaitForSecondsRealtime(0.1f);
+                var slider = (UIDynamicSlider) elements[sliderName];
+                if(slider != null)
+                {
+                    while(slider.PointerIsDown())
+                    {
+                        yield return new WaitForSecondsRealtime(0.1f);
+                    }
+
+                    yield return new WaitForSecondsRealtime(0.1f);
+                }
             }
         }
 
