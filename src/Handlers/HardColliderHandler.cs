@@ -12,13 +12,15 @@ namespace TittyMagic.Handlers
     internal class HardColliderHandler : MonoBehaviour
     {
         private DAZCharacterSelector _geometry;
-        private DAZSkinV2 _skin;
         private Rigidbody _chestRb;
 
         public JSONStorableStringChooser colliderGroupsJsc { get; private set; }
         public List<ColliderConfigGroup> colliderConfigs { get; private set; }
         public JSONStorableFloat baseForceJsf { get; private set; }
         public JSONStorableBool highlightAllJsb { get; private set; }
+
+        private float _frictionSizeMultiplierLeft;
+        private float _frictionSizeMultiplierRight;
 
         private Dictionary<string, Dictionary<string, Scaler>> _scalingConfigs;
 
@@ -29,10 +31,9 @@ namespace TittyMagic.Handlers
         private const string COLLIDER_CENTER_Y = "ColliderCenterY";
         private const string COLLIDER_CENTER_Z = "ColliderCenterZ";
 
-        public void Init(DAZCharacterSelector geometry, DAZSkinV2 skin, Rigidbody chestRb)
+        public void Init(DAZCharacterSelector geometry, Rigidbody chestRb)
         {
             _geometry = geometry;
-            _skin = skin;
             _chestRb = chestRb;
 
             if(!Gender.isFemale)
@@ -324,6 +325,16 @@ namespace TittyMagic.Handlers
             var configLeft = NewColliderConfig("l" + id);
             var configRight = NewColliderConfig("r" + id);
             var scalingConfig = _scalingConfigs[id];
+
+            var frictionMultipliers = new Dictionary<string, float>
+            {
+                { "Pectoral1", 0.5f },
+                { "Pectoral2", 1.0f },
+                { "Pectoral3", 1.0f },
+                { "Pectoral4", 1.0f },
+                { "Pectoral5", 1.0f },
+            };
+
             var colliderConfigGroup = new ColliderConfigGroup(
                 id,
                 configLeft,
@@ -333,7 +344,8 @@ namespace TittyMagic.Handlers
                 scalingConfig[COLLIDER_LENGTH],
                 scalingConfig[COLLIDER_CENTER_X],
                 scalingConfig[COLLIDER_CENTER_Y],
-                scalingConfig[COLLIDER_CENTER_Z]
+                scalingConfig[COLLIDER_CENTER_Z],
+                frictionMultipliers[id]
             )
             {
                 forceJsf = tittyMagic.NewJSONStorableFloat(id.ToLower() + COLLISION_FORCE, 0.50f, 0.01f, 1.00f),
@@ -424,12 +436,37 @@ namespace TittyMagic.Handlers
         private void SyncSizeAuto()
         {
             colliderConfigs.ForEach(config => config.AutoColliderSizeSet());
+            float averageRadius = colliderConfigs.Average(config => config.left.autoCollider.colliderRadius);
+            colliderConfigs.ForEach(config => config.UpdateMaxFrictionalDistance(
+                _frictionSizeMultiplierLeft,
+                _frictionSizeMultiplierRight,
+                averageRadius
+            ));
             tittyMagic.colliderVisualizer.SyncPreviews();
+        }
+
+        public void UpdateFrictionSizeMultipliers()
+        {
+            _frictionSizeMultiplierLeft = FrictionSizeMultiplier(VertexIndexGroup.LEFT_BREAST_WIDTH_MARKERS);
+            _frictionSizeMultiplierRight = FrictionSizeMultiplier(VertexIndexGroup.RIGHT_BREAST_WIDTH_MARKERS);
+        }
+
+        private static float FrictionSizeMultiplier(int[] indices)
+        {
+            /* experimentally determined with 3kg breasts, is slightly different for different shapes */
+            const float maxWidth = 0.17f;
+            float width = (tittyMagic.skin.rawSkinnedVerts[indices[0]] - tittyMagic.skin.rawSkinnedVerts[indices[1]]).magnitude;
+            float multiplier = Mathf.InverseLerp(0, maxWidth, width);
+            return Curves.InverseSmoothStep(multiplier, 1, 0.55f, 0.42f);
         }
 
         public void UpdateFriction()
         {
-            colliderConfigs.ForEach(config => config.UpdateFriction());
+            colliderConfigs.ForEach(config =>
+            {
+                config.maxFriction = 1.0f;
+                config.UpdateFriction();
+            });
         }
 
         private IEnumerator DeferSyncMass(ColliderConfigGroup config)
@@ -600,7 +637,7 @@ namespace TittyMagic.Handlers
         }
 
         private Vector3 BreastCenter(IEnumerable<int> vertexIndices) =>
-            Calc.RelativePosition(_chestRb, Calc.AveragePosition(vertexIndices.Select(index => _skin.rawSkinnedVerts[index]).ToArray()));
+            Calc.RelativePosition(_chestRb, Calc.AveragePosition(vertexIndices.Select(index => tittyMagic.skin.rawSkinnedVerts[index]).ToArray()));
 
         public void ResetDistanceDiffs()
         {

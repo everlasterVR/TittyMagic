@@ -21,6 +21,10 @@ namespace TittyMagic.Configs
         private readonly Scaler _upOffsetSliderScaler;
         private readonly Scaler _lookOffsetSliderScaler;
 
+        private readonly float _frictionMultiplier;
+
+        public float maxFriction { set; private get; }
+
         public ColliderConfig left { get; }
         public ColliderConfig right { get; }
 
@@ -40,7 +44,8 @@ namespace TittyMagic.Configs
             Scaler lengthSliderScaler,
             Scaler rightOffsetSliderScaler,
             Scaler upOffsetSliderScaler,
-            Scaler lookOffsetSliderScaler
+            Scaler lookOffsetSliderScaler,
+            float frictionMultiplier
         )
         {
             this.id = id;
@@ -52,6 +57,7 @@ namespace TittyMagic.Configs
             _rightOffsetSliderScaler = rightOffsetSliderScaler;
             _upOffsetSliderScaler = upOffsetSliderScaler;
             _lookOffsetSliderScaler = lookOffsetSliderScaler;
+            _frictionMultiplier = frictionMultiplier;
         }
 
         public void UpdateRigidbodyMass(float combinedMultiplier, float massValue, float softness)
@@ -84,10 +90,16 @@ namespace TittyMagic.Configs
             right.UpdatePosition(rightOffset, upOffset, lookOffset);
         }
 
+        public void UpdateMaxFrictionalDistance(float sizeMultiplierLeft, float sizeMultiplierRight, float smallestRadius)
+        {
+            left.maxFrictionalDistance = sizeMultiplierLeft * 0.5f * smallestRadius;
+            right.maxFrictionalDistance = sizeMultiplierRight * 0.5f * smallestRadius;
+        }
+
         public void UpdateFriction()
         {
-            left.UpdateFriction();
-            right.UpdateFriction();
+            left.UpdateFriction(_frictionMultiplier, maxFriction);
+            right.UpdateFriction(_frictionMultiplier, maxFriction);
         }
 
         public void AutoColliderSizeSet()
@@ -128,6 +140,7 @@ namespace TittyMagic.Configs
         public AutoCollider autoCollider { get; }
         public Collider collider { get; }
         public string visualizerEditableId { get; }
+        public float maxFrictionalDistance { private get; set; }
 
         private readonly PhysicMaterial _colliderMaterial;
         private readonly Transform _colliderTransform;
@@ -165,9 +178,10 @@ namespace TittyMagic.Configs
             autoCollider.colliderLookOffset = lookOffset;
         }
 
-        public void UpdateFriction()
+        public void UpdateFriction(float multiplier, float max)
         {
-            float friction = 1 - Mathf.InverseLerp(0.000f, 0.020f, _distanceDiff);
+            float friction = max - Mathf.SmoothStep(0, max, Mathf.InverseLerp(0, maxFrictionalDistance, _distanceDiff));
+            friction *= multiplier;
             _colliderMaterial.dynamicFriction = friction;
             _colliderMaterial.staticFriction = friction;
         }

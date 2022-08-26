@@ -39,12 +39,10 @@ namespace TittyMagic.Handlers
 
         public static void Init(
             AdjustJoints breastControl,
-            DAZSkinV2 skin,
             Rigidbody chestRb
         )
         {
             _breastControl = breastControl;
-            _skin = skin;
             _chestRb = chestRb;
             _joints = new Dictionary<string, ConfigurableJoint>
             {
@@ -87,12 +85,11 @@ namespace TittyMagic.Handlers
             massAmount = massParameterGroup.left.valueJsf.val / 2;
         }
 
-        private static DAZSkinV2 _skin;
         private static Rigidbody _chestRb;
 
         private static float CalculateVolume(IEnumerable<int> vertexIndices)
         {
-            var positions = vertexIndices.Select(i => Calc.RelativePosition(_chestRb, _skin.rawSkinnedVerts[i])).ToList();
+            var positions = vertexIndices.Select(i => Calc.RelativePosition(_chestRb, tittyMagic.skin.rawSkinnedVerts[i])).ToList();
             var bounds = new Bounds();
 
             /* Calculate bounds size */

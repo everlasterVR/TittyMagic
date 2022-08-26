@@ -27,6 +27,10 @@ namespace TittyMagic
             return a / Mathf.Sqrt(mass + b) - c;
         }
 
+        // https://www.desmos.com/calculator/okwggb6a3s
+        // ReSharper disable once UnusedMember.Global
+        public static float QuadraticOneToZero(float x, float a) => a * Mathf.Pow(x - Mathf.Sqrt(1 / a), 2);
+
         public static float SoftnessBaseCurve(float x) => Exponential1(x, 6.44f, 1.27f, 1.15f);
 
         // https://www.desmos.com/calculator/shbc4eckoe

@@ -18,6 +18,7 @@ namespace TittyMagic
         public static bool envIsDevelopment => VERSION.Major == 0;
 
         public static GenerateDAZMorphsControlUI morphsControlUI { get; private set; }
+        public DAZSkinV2 skin { get; private set; }
 
         public float softnessAmount { get; private set; }
         public float quicknessAmount { get; private set; }
@@ -245,12 +246,12 @@ namespace TittyMagic
                 }
             }
 
-            var skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
+            skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
 
             /* Setup handlers */
-            MainPhysicsHandler.Init(breastControl, skin, chestRb);
+            MainPhysicsHandler.Init(breastControl, chestRb);
             hardColliderHandler = gameObject.AddComponent<HardColliderHandler>();
-            hardColliderHandler.Init(geometry, skin, chestRb);
+            hardColliderHandler.Init(geometry, chestRb);
             SoftPhysicsHandler.Init();
             GravityPhysicsHandler.Init();
             GravityOffsetMorphHandler.Init();
@@ -670,6 +671,8 @@ namespace TittyMagic
 
                 GravityOffsetMorphHandler.upDownExtraMultiplier = 1.16f - mass;
             }
+
+            hardColliderHandler.UpdateFrictionSizeMultipliers();
 
             /* Calibrate nipples tracking and colliders */
             {

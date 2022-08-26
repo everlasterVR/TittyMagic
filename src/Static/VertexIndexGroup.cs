@@ -40,5 +40,8 @@ namespace TittyMagic
 
         public static readonly List<int> RIGHT_BREAST_CENTER = new List<int>
             { 17904, 17915, 19568, 19570, 19571, 19574, 19575, 19577, 19581, 19583, 19588, 19590 };
+
+        public static readonly int[] LEFT_BREAST_WIDTH_MARKERS = new[] { 8956, 8967 };
+        public static readonly int[] RIGHT_BREAST_WIDTH_MARKERS = new[] { 19622, 19633 };
     }
 }
