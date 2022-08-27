@@ -252,7 +252,7 @@ namespace TittyMagic
 
             /* Setup friction calculation */
             FrictionCalc.Init(containingAtom.GetStorableByID("skin"));
-            FrictionCalc.CalculateMaxFriction();
+            FrictionCalc.CalculateFriction();
 
             /* Setup handlers */
             MainPhysicsHandler.Init(breastControl, chestRb);

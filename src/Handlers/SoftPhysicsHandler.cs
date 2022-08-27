@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TittyMagic.Configs;
+using UnityEngine;
 using static TittyMagic.ParamName;
 using static TittyMagic.Script;
 using static TittyMagic.Side;
@@ -54,6 +55,28 @@ namespace TittyMagic.Handlers
                         }
                     },
                 };
+
+                /* Setup soft collider friction settings */
+                foreach(var group in _softVerticesGroups[RIGHT])
+                {
+                    foreach(var set in group.Value.softVerticesSets)
+                    {
+                        var material = set.jointCollider.material;
+                        material.frictionCombine = PhysicMaterialCombine.Multiply;
+                    }
+                }
+
+                foreach(var group in _softVerticesGroups[LEFT])
+                {
+                    foreach(var set in group.Value.softVerticesSets)
+                    {
+                        var material = set.jointCollider.material;
+                        material.frictionCombine = PhysicMaterialCombine.Multiply;
+                    }
+                }
+
+                FrictionCalc.softColliderFriction.setCallbackFunction = _ => SyncFriction();
+                SyncFriction();
             }
 
             softPhysicsOnJsb = tittyMagic.NewJSONStorableBool(SOFT_PHYSICS_ON, Gender.isFemale, shouldRegister: Gender.isFemale);
@@ -718,6 +741,31 @@ namespace TittyMagic.Handlers
             }
         }
 
+        private static void SyncFriction()
+        {
+            float friction = FrictionCalc.softColliderFriction.val;
+
+            foreach(var group in _softVerticesGroups[RIGHT])
+            {
+                foreach(var set in group.Value.softVerticesSets)
+                {
+                    var material = set.jointCollider.material;
+                    material.dynamicFriction = friction;
+                    material.staticFriction = friction;
+                }
+            }
+
+            foreach(var group in _softVerticesGroups[LEFT])
+            {
+                foreach(var set in group.Value.softVerticesSets)
+                {
+                    var material = set.jointCollider.material;
+                    material.dynamicFriction = friction;
+                    material.staticFriction = friction;
+                }
+            }
+        }
+
         #endregion *** Sync functions ***
 
         public static void SyncSoftPhysics()
@@ -803,6 +851,17 @@ namespace TittyMagic.Handlers
                     ? paramJsf.min
                     : paramJsf.max;
                 paramJsf.val = original;
+            }
+
+            foreach(var group in _softVerticesGroups[LEFT])
+            {
+                foreach(var set in group.Value.softVerticesSets)
+                {
+                    var material = set.jointCollider.material;
+                    material.dynamicFriction = 0.6f;
+                    material.staticFriction = 0.6f;
+                    material.frictionCombine = PhysicMaterialCombine.Average;
+                }
             }
         }
 
