@@ -248,6 +248,10 @@ namespace TittyMagic
 
             skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
 
+            /* Setup friction calculation */
+            FrictionCalc.Init(containingAtom.GetStorableByID("skin"));
+            FrictionCalc.CalculateMaxFriction();
+
             /* Setup handlers */
             MainPhysicsHandler.Init(breastControl, chestRb);
             hardColliderHandler = gameObject.AddComponent<HardColliderHandler>();
@@ -803,6 +807,7 @@ namespace TittyMagic
                 Destroy(settingsMonitor);
                 Destroy(colliderVisualizer);
                 Destroy(hardColliderHandler);
+                FrictionCalc.RemoveCallbacks();
                 mainWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
                 morphingWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
                 gravityWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));

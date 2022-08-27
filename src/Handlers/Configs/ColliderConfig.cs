@@ -23,8 +23,6 @@ namespace TittyMagic.Configs
 
         private readonly float _frictionMultiplier;
 
-        public float maxFriction { set; private get; }
-
         public ColliderConfig left { get; }
         public ColliderConfig right { get; }
 
@@ -96,10 +94,10 @@ namespace TittyMagic.Configs
             right.maxFrictionalDistance = sizeMultiplierRight * 0.5f * smallestRadius;
         }
 
-        public void UpdateFriction()
+        public void UpdateFriction(float max)
         {
-            left.UpdateFriction(_frictionMultiplier, maxFriction);
-            right.UpdateFriction(_frictionMultiplier, maxFriction);
+            left.UpdateFriction(_frictionMultiplier, max);
+            right.UpdateFriction(_frictionMultiplier, max);
         }
 
         public void AutoColliderSizeSet()

@@ -73,4 +73,5 @@ src\UI\UIHelpers.cs
 src\UI\WindowBase.cs
 src\Utils\Calc.cs
 src\Utils\Curves.cs
+src\Utils\FrictionCalc.cs
 src\Utils\Utils.cs
