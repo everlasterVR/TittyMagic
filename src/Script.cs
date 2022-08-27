@@ -158,6 +158,7 @@ namespace TittyMagic
         private Bindings _customBindings;
         private FrequencyRunner _listenersCheckRunner;
 
+        private JSONStorableFloat _scaleJsf;
         private List<Rigidbody> _rigidbodies;
         private Transform _chestTransform;
         private Rigidbody _pectoralRbLeft;
@@ -207,10 +208,11 @@ namespace TittyMagic
 
             /* Setup atom scale changed callback */
             {
-                var scaleJsf = containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale");
-                scaleJsf.setJSONCallbackFunction = _ =>
+                _scaleJsf = containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale");
+                _scaleJsf.setJSONCallbackFunction = _ =>
                 {
-                    if(!isInitialized || calibration.isWaiting || containingAtom.grabFreezePhysics && containingAtom.mainController.isGrabbing)
+                    if(!enabled || !isInitialized || calibration.isWaiting ||
+                        containingAtom.grabFreezePhysics && containingAtom.mainController.isGrabbing)
                     {
                         return;
                     }
@@ -808,6 +810,7 @@ namespace TittyMagic
                 Destroy(colliderVisualizer);
                 Destroy(hardColliderHandler);
                 FrictionCalc.RemoveCallbacks();
+                _scaleJsf.setJSONCallbackFunction = null;
                 mainWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
                 morphingWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
                 gravityWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
