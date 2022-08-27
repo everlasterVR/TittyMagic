@@ -363,6 +363,8 @@ namespace TittyMagic.Handlers
             colliderConfigGroup.upJsf.setCallbackFunction = _ => SyncHardColliderPosition(colliderConfigGroup);
             colliderConfigGroup.lookJsf.setCallbackFunction = _ => SyncHardColliderPosition(colliderConfigGroup);
 
+            colliderConfigGroup.EnableMultiplyFriction();
+
             return colliderConfigGroup;
         }
 
@@ -614,34 +616,21 @@ namespace TittyMagic.Handlers
         {
             var breastCenterLeft = BreastCenter(VertexIndexGroup.LEFT_BREAST);
             var breastCenterRight = BreastCenter(VertexIndexGroup.RIGHT_BREAST);
-
-            foreach(var config in colliderConfigs)
-            {
-                config.Calibrate(breastCenterLeft, breastCenterRight, _chestRb);
-            }
+            colliderConfigs.ForEach(config => config.Calibrate(breastCenterLeft, breastCenterRight, _chestRb));
         }
 
         public void UpdateDistanceDiffs()
         {
             var breastCenterLeft = BreastCenter(VertexIndexGroup.LEFT_BREAST);
             var breastCenterRight = BreastCenter(VertexIndexGroup.RIGHT_BREAST);
-
-            foreach(var config in colliderConfigs)
-            {
-                config.UpdateDistanceDiffs(breastCenterLeft, breastCenterRight, _chestRb);
-            }
+            colliderConfigs.ForEach(config => config.UpdateDistanceDiffs(breastCenterLeft, breastCenterRight, _chestRb));
         }
 
         private Vector3 BreastCenter(IEnumerable<int> vertexIndices) =>
             Calc.RelativePosition(_chestRb, Calc.AveragePosition(vertexIndices.Select(index => tittyMagic.skin.rawSkinnedVerts[index]).ToArray()));
 
-        public void ResetDistanceDiffs()
-        {
-            foreach(var config in colliderConfigs)
-            {
-                config.ResetDistanceDiffs();
-            }
-        }
+        public void ResetDistanceDiffs() =>
+            colliderConfigs.ForEach(config => config.ResetDistanceDiffs());
 
         private bool _originalUseAdvancedColliders;
         private bool _originalUseAuxBreastColliders;
@@ -658,6 +647,8 @@ namespace TittyMagic.Handlers
             {
                 return;
             }
+
+            colliderConfigs.ForEach(config => config.EnableMultiplyFriction());
 
             SaveOriginalUseColliders();
             _geometry.useAdvancedColliders = true;

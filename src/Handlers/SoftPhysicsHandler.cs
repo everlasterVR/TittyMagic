@@ -56,25 +56,7 @@ namespace TittyMagic.Handlers
                     },
                 };
 
-                /* Setup soft collider friction settings */
-                foreach(var group in _softVerticesGroups[RIGHT])
-                {
-                    foreach(var set in group.Value.softVerticesSets)
-                    {
-                        var material = set.jointCollider.material;
-                        material.frictionCombine = PhysicMaterialCombine.Multiply;
-                    }
-                }
-
-                foreach(var group in _softVerticesGroups[LEFT])
-                {
-                    foreach(var set in group.Value.softVerticesSets)
-                    {
-                        var material = set.jointCollider.material;
-                        material.frictionCombine = PhysicMaterialCombine.Multiply;
-                    }
-                }
-
+                EnableMultiplyFriction();
                 FrictionCalc.softColliderFriction.setCallbackFunction = _ => SyncFriction();
                 SyncFriction();
             }
@@ -828,6 +810,27 @@ namespace TittyMagic.Handlers
 
             _originalSoftPhysicsOn = _breastPhysicsMesh.on;
             _originalAllowSelfCollision = _breastPhysicsMesh.allowSelfCollision;
+        }
+
+        public static void EnableMultiplyFriction()
+        {
+            foreach(var group in _softVerticesGroups[RIGHT])
+            {
+                foreach(var set in group.Value.softVerticesSets)
+                {
+                    var material = set.jointCollider.material;
+                    material.frictionCombine = PhysicMaterialCombine.Multiply;
+                }
+            }
+
+            foreach(var group in _softVerticesGroups[LEFT])
+            {
+                foreach(var set in group.Value.softVerticesSets)
+                {
+                    var material = set.jointCollider.material;
+                    material.frictionCombine = PhysicMaterialCombine.Multiply;
+                }
+            }
         }
 
         public static void RestoreOriginalPhysics()

@@ -124,6 +124,12 @@ namespace TittyMagic.Configs
             right.ResetDistanceDiff();
         }
 
+        public void EnableMultiplyFriction()
+        {
+            left.EnableMultiplyFriction();
+            right.EnableMultiplyFriction();
+        }
+
         public void RestoreDefaults()
         {
             left.RestoreDefaults();
@@ -154,7 +160,6 @@ namespace TittyMagic.Configs
             collider.enabled = true;
             collider.GetComponent<CapsuleLineSphereCollider>().enabled = true;
             _colliderMaterial = collider.material;
-            _colliderMaterial.frictionCombine = PhysicMaterialCombine.Multiply;
             _colliderTransform = collider.transform;
 
             this.visualizerEditableId = visualizerEditableId;
@@ -210,6 +215,11 @@ namespace TittyMagic.Configs
         public void ResetDistanceDiff()
         {
             _distanceDiff = 0;
+        }
+
+        public void EnableMultiplyFriction()
+        {
+            _colliderMaterial.frictionCombine = PhysicMaterialCombine.Multiply;
         }
 
         public void RestoreDefaults()
