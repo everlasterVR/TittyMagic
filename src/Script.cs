@@ -511,7 +511,7 @@ namespace TittyMagic
 
         private Transform OpenPluginUIButton(Transform parent)
         {
-            var button = this.InstantiateButtonTransform();
+            var button = this.InstantiateButton();
             button.SetParent(parent, false);
             Destroy(button.GetComponent<LayoutElement>());
             button.GetComponent<UIDynamicButton>().label = "<b>Open TittyMagic UI</b>";

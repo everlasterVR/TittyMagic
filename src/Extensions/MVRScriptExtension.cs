@@ -1,5 +1,6 @@
 // ReSharper disable MemberCanBePrivate.Global UnusedMember.Global UnusedMethodReturnValue.Global UnusedType.Global
 using System;
+using UnityEngine;
 
 public static class MVRScriptExtension
 {
@@ -19,29 +20,23 @@ public static class MVRScriptExtension
         return idx >= 0 ? filename.Substring(0, idx) : "";
     }
 
-    public static UIDynamicTextField InstantiateTextField(this MVRScript script) => UnityEngine.Object
-        .Instantiate(script.manager.configurableTextFieldPrefab)
-        .GetComponent<UIDynamicTextField>();
+    public static Transform InstantiateTextField(this MVRScript script, Transform parent = null) =>
+        UnityEngine.Object.Instantiate(script.manager.configurableTextFieldPrefab, parent, false);
 
-    public static UIDynamicButton InstantiateButton(this MVRScript script) => UnityEngine.Object
-        .Instantiate(script.manager.configurableButtonPrefab)
-        .GetComponent<UIDynamicButton>();
+    public static Transform InstantiateButton(this MVRScript script, Transform parent = null) =>
+        UnityEngine.Object.Instantiate(script.manager.configurableButtonPrefab, parent, false);
 
-    public static UIDynamicSlider InstantiateSlider(this MVRScript script) => UnityEngine.Object
-        .Instantiate(script.manager.configurableSliderPrefab)
-        .GetComponent<UIDynamicSlider>();
+    public static Transform InstantiateSlider(this MVRScript script, Transform parent = null) =>
+        UnityEngine.Object.Instantiate(script.manager.configurableSliderPrefab, parent, false);
 
-    public static UIDynamicToggle InstantiateToggle(this MVRScript script) => UnityEngine.Object
-        .Instantiate(script.manager.configurableTogglePrefab)
-        .GetComponent<UIDynamicToggle>();
+    public static Transform InstantiateToggle(this MVRScript script, Transform parent = null) =>
+        UnityEngine.Object.Instantiate(script.manager.configurableTogglePrefab, parent, false);
 
-    public static UIDynamicPopup InstantiatePopup(this MVRScript script) => UnityEngine.Object
-        .Instantiate(script.manager.configurablePopupPrefab)
-        .GetComponent<UIDynamicPopup>();
+    public static Transform InstantiatePopup(this MVRScript script, Transform parent = null) =>
+        UnityEngine.Object.Instantiate(script.manager.configurablePopupPrefab, parent, false);
 
-    public static UIDynamicColorPicker InstantiateColorPicker(this MVRScript script) => UnityEngine.Object
-        .Instantiate(script.manager.configurableColorPickerPrefab)
-        .GetComponent<UIDynamicColorPicker>();
+    public static Transform InstantiateColorPicker(this MVRScript script, Transform parent = null) =>
+        UnityEngine.Object.Instantiate(script.manager.configurableColorPickerPrefab, parent, false);
 
     public static JSONStorableString NewJSONStorableString(
         this MVRScript script,

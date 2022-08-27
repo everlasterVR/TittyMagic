@@ -24,7 +24,7 @@ namespace TittyMagic.UI
         public void CreateNavigationButton(IWindow window, string name, UnityAction callback)
         {
             var parent = _tabButtons.Count < 2 ? _leftGroupTransform : _rightGroupTransform;
-            var button = new NavigationButton(tittyMagic.InstantiateButton(), name, parent);
+            var button = new NavigationButton(tittyMagic.InstantiateButton().GetComponent<UIDynamicButton>(), name, parent);
             button.AddListener(callback);
             _tabButtons[window] = button;
         }
