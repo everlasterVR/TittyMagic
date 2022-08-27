@@ -445,56 +445,67 @@ namespace TittyMagic
 
             _modifyAtomUIHasBeenCalled = true;
 
-            var transforms = new Dictionary<string, Transform>
-            {
-                { "M Pectoral Physics", null },
-                { "F Breast Physics 1", null },
-                { "F Breast Physics 2", null },
-                { "F Breast Presets", null },
-            };
+            Transform mPectoralPhysics = null;
+            Transform fBreastPhysics1 = null;
+            Transform fBreastPhysics2 = null;
+            Transform fBreastPresets = null;
 
             float waited = 0f;
-            while(transforms.Values.Any(t => t == null) && waited < 1)
+            while(waited < 1 && (
+                mPectoralPhysics == null ||
+                fBreastPhysics1 == null ||
+                fBreastPhysics2 == null ||
+                fBreastPresets == null
+            ))
             {
                 waited += 0.1f;
                 yield return new WaitForSecondsRealtime(0.1f);
-                transforms["M Pectoral Physics"] = content.Find("M Pectoral Physics");
-                transforms["F Breast Physics 1"] = content.Find("F Breast Physics 1");
-                transforms["F Breast Physics 2"] = content.Find("F Breast Physics 2");
-                transforms["F Breast Presets"] = content.Find("F Breast Presets");
+                mPectoralPhysics = content.Find("M Pectoral Physics");
+                fBreastPhysics1 = content.Find("F Breast Physics 1");
+                fBreastPhysics2 = content.Find("F Breast Physics 2");
+                fBreastPresets = content.Find("F Breast Presets");
             }
 
-            if(transforms.Values.Any(t => t == null))
+            if(mPectoralPhysics == null || fBreastPhysics1 == null || fBreastPhysics2 == null || fBreastPresets == null)
             {
                 Debug.Log("Failed to modify person UI - could not find UI transforms.");
                 _modifyAtomUIHasBeenCalled = true;
                 yield break;
             }
 
+            _customUIGameObjects = new List<GameObject>();
+
             /* Hide elements in vanilla Breast Physics tabs, add buttons to navigate to plugin UI */
             try
             {
                 _inactivatedUIGameObjects = new List<GameObject>();
-                foreach(var t in transforms.Values.ToList())
-                {
-                    foreach(Transform child in t)
-                    {
-                        if(child.gameObject.activeSelf)
-                        {
-                            _inactivatedUIGameObjects.Add(child.gameObject);
-                            child.gameObject.SetActive(false);
-                        }
-                    }
-                }
+                Inactivate(mPectoralPhysics);
+                Inactivate(fBreastPhysics1);
+                Inactivate(fBreastPhysics2);
+                Inactivate(fBreastPresets);
 
-                _customUIGameObjects = transforms.Values.ToList()
-                    .Select(t => OpenPluginUIButton(t).gameObject)
-                    .ToList();
+                _customUIGameObjects.Add(OpenPluginUIButton(mPectoralPhysics).gameObject);
+                _customUIGameObjects.Add(OpenPluginUIButton(fBreastPhysics1).gameObject);
+                _customUIGameObjects.Add(OpenPluginUIButton(fBreastPhysics2).gameObject);
+                _customUIGameObjects.Add(OpenPluginUIButton(fBreastPresets).gameObject);
+
                 _modifyAtomUIHasBeenCalled = true;
             }
             catch(Exception e)
             {
-                Utils.LogError($"Error modifying person UI: {e}");
+                Utils.LogError($"Error modifying person VaM breast physics tabs: {e}");
+            }
+        }
+
+        private void Inactivate(Transform t)
+        {
+            foreach(Transform child in t)
+            {
+                if(child.gameObject.activeSelf)
+                {
+                    _inactivatedUIGameObjects.Add(child.gameObject);
+                    child.gameObject.SetActive(false);
+                }
             }
         }
 
