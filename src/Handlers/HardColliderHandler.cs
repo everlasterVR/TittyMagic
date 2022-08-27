@@ -94,13 +94,13 @@ namespace TittyMagic.Handlers
                     {
                         {
                             COLLISION_FORCE, new Scaler(
-                                offset: 0.025f,
+                                offset: 0.010f,
                                 range: new float[] { 0, 1 }
                             )
                         },
                         {
                             COLLIDER_RADIUS, new Scaler(
-                                offset: -0.34f,
+                                offset: -0.43f,
                                 range: new float[] { 0, 40 },
                                 massCurve: x => 0.27f * Curves.ColliderRadiusAndPositionSizeCurve(x)
                             )
@@ -113,7 +113,7 @@ namespace TittyMagic.Handlers
                         },
                         {
                             COLLIDER_CENTER_X, new Scaler(
-                                offset: -0.10f,
+                                offset: -0.35f,
                                 range: new float[] { 0, 40 },
                                 massCurve: x => -0.32f * Curves.ColliderRadiusAndPositionSizeCurve(x)
                             )
