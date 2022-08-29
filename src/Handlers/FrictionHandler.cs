@@ -31,6 +31,11 @@ namespace TittyMagic
                     tittyMagic.enableAdaptiveFrictionToggle.textColor = val ? UIHelpers.funkyCyan : Color.white;
                 }
 
+                if(tittyMagic.drySkinFrictionSlider != null)
+                {
+                    tittyMagic.drySkinFrictionSlider.SetActiveStyle(val);
+                }
+
                 CalculateFriction();
             };
 

@@ -501,6 +501,7 @@ namespace TittyMagic
 
         private bool _modifySkinMaterialsUIDone;
         public UIDynamicToggle enableAdaptiveFrictionToggle { get; private set; }
+        public UIDynamicSlider drySkinFrictionSlider { get; private set; }
 
         private IEnumerator ModifySkinMaterialsUI(Transform content)
         {
@@ -556,12 +557,13 @@ namespace TittyMagic
                     rectTransform.sizeDelta = new Vector2(sizeDelta.x + 10, sizeDelta.y);
                     _customUIGameObjects.Add(customTransform.gameObject);
 
-                    var uiDynamic = customTransform.GetComponent<UIDynamicSlider>();
+                    drySkinFrictionSlider = customTransform.GetComponent<UIDynamicSlider>();
                     var jsf = FrictionHandler.drySkinFriction;
-                    uiDynamic.Configure(jsf.name, jsf.min, jsf.max, jsf.defaultVal, jsf.constrained, valFormat: "F3");
-                    jsf.slider = uiDynamic.slider;
-                    sliderToJSONStorableFloat.Add(uiDynamic, jsf);
-                    uiDynamic.label = "Dry Skin Friction";
+                    drySkinFrictionSlider.Configure(jsf.name, jsf.min, jsf.max, jsf.defaultVal, jsf.constrained, valFormat: "F3");
+                    jsf.slider = drySkinFrictionSlider.slider;
+                    sliderToJSONStorableFloat.Add(drySkinFrictionSlider, jsf);
+                    drySkinFrictionSlider.label = "Dry Skin Friction";
+                    drySkinFrictionSlider.SetActiveStyle(FrictionHandler.enableAdaptiveFriction.val);
                 }
                 {
                     var customTransform = UIHelpers.DestroyLayout(this.InstantiateSlider(leftSide));
