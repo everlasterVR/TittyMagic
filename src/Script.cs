@@ -206,7 +206,6 @@ namespace TittyMagic
             var breastControl = (AdjustJoints) containingAtom.GetStorableByID(Gender.isFemale ? "BreastControl" : "PectoralControl");
             _pectoralRbLeft = breastControl.joint2.GetComponent<Rigidbody>();
             _pectoralRbRight = breastControl.joint1.GetComponent<Rigidbody>();
-            SetPectoralCollisions(false);
 
             atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
             skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
@@ -773,13 +772,6 @@ namespace TittyMagic
             }
         }
 
-        /* Disable pectoral collisions while plugin is active, they cause breasts to "jump" when touched */
-        private void SetPectoralCollisions(bool value)
-        {
-            _pectoralRbLeft.detectCollisions = value;
-            _pectoralRbRight.detectCollisions = value;
-        }
-
         public string PluginPath() =>
             $@"{this.GetPackagePath()}Custom\Scripts\everlaster\TittyMagic";
 
@@ -858,7 +850,6 @@ namespace TittyMagic
                     return;
                 }
 
-                SetPectoralCollisions(false);
                 settingsMonitor.SetEnabled(true);
                 hardColliderHandler.SetEnabled(true);
                 softPhysicsHandler?.SaveOriginalBoolParamValues();
@@ -876,7 +867,6 @@ namespace TittyMagic
         {
             try
             {
-                SetPectoralCollisions(true);
                 settingsMonitor.SetEnabled(false);
                 hardColliderHandler.SetEnabled(false);
                 mainPhysicsHandler?.RestoreOriginalPhysics();

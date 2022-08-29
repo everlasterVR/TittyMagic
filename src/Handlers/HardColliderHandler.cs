@@ -621,13 +621,17 @@ namespace TittyMagic
                 message +=
                     "Advanced Colliders are not enabled in Control & Physics 1 tab. " +
                     "Enabling them and toggling hard colliders on will auto-apply the current collision force.";
-                Utils.LogMessage(message);
+            }
+            else if(_geometry.gender != DAZCharacterSelector.Gender.Female)
+            {
+                message += "Current character is male. Reload the plugin.";
             }
             else
             {
                 message += "Unknown reason. Please report a bug.";
-                Utils.LogMessage(message);
             }
+
+            Utils.LogMessage(message);
         }
     }
 }

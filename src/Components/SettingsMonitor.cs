@@ -22,6 +22,9 @@ namespace TittyMagic
         private bool _atomSoftPhysicsOn;
         private bool _breastSoftPhysicsOn;
 
+        private Rigidbody _pectoralRbLeft;
+        private Rigidbody _pectoralRbRight;
+
         private Script _script;
 
         public void Init()
@@ -45,6 +48,10 @@ namespace TittyMagic
                 _breastSoftPhysicsOn = _script.softPhysicsHandler.softPhysicsOn.val;
                 _atomSoftPhysicsOn = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
                 _globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
+
+                var breastControl = (AdjustJoints) _script.containingAtom.GetStorableByID("BreastControl");
+                _pectoralRbLeft = breastControl.joint2.GetComponent<Rigidbody>();
+                _pectoralRbRight = breastControl.joint1.GetComponent<Rigidbody>();
             }
 
             /* prevent breasts being flattened due to breastInOut morphs on scene load with plugin already present */
@@ -67,6 +74,12 @@ namespace TittyMagic
             {
                 _geometry.useAdvancedColliders = true;
                 LogMessage("Advanced Colliders enabled - they are necessary for directional force morphing and hard colliders to work.");
+            }
+
+            /* Disable pectoral joint rb's collisions if enabled by e.g. person atom collisions being toggled off/on */
+            if(Gender.isFemale && (_pectoralRbLeft.detectCollisions || _pectoralRbRight.detectCollisions))
+            {
+                SetPectoralCollisions(false);
             }
 
             if(_script.refreshInProgress)
@@ -136,6 +149,12 @@ namespace TittyMagic
             {
                 StartCoroutine(OnCharacterChangedCo());
             }
+        }
+
+        private void SetPectoralCollisions(bool value)
+        {
+            _pectoralRbLeft.detectCollisions = value;
+            _pectoralRbRight.detectCollisions = value;
         }
 
         private IEnumerator OnCharacterChangedCo()
@@ -221,9 +240,22 @@ namespace TittyMagic
 
         private void OnEnable()
         {
+            if(Gender.isFemale)
+            {
+                SetPectoralCollisions(false);
+            }
+
             if(_geometry != null)
             {
                 _geometry.useAdvancedColliders = true;
+            }
+        }
+
+        private void OnDisable()
+        {
+            if(Gender.isFemale)
+            {
+                SetPectoralCollisions(true);
             }
         }
     }
