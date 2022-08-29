@@ -57,8 +57,6 @@ namespace TittyMagic.Handlers
                 };
 
                 EnableMultiplyFriction();
-                FrictionHandler.softColliderFriction.setCallbackFunction = _ => SyncFriction();
-                SyncFriction();
             }
 
             softPhysicsOnJsb = tittyMagic.NewJSONStorableBool(SOFT_PHYSICS_ON, Gender.isFemale, shouldRegister: Gender.isFemale);
@@ -723,10 +721,8 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private static void SyncFriction()
+        public static void SyncFriction(float friction)
         {
-            float friction = FrictionHandler.softColliderFriction.val;
-
             foreach(var group in _softVerticesGroups[RIGHT])
             {
                 foreach(var set in group.Value.softVerticesSets)

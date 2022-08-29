@@ -300,6 +300,7 @@ namespace TittyMagic
                 ForcePhysicsHandler.LoadSettings();
                 ForceMorphHandler.LoadSettings();
                 GravityOffsetMorphHandler.LoadSettings();
+                FrictionHandler.LoadSettings();
             }
 
             /* Setup storables */
@@ -771,6 +772,7 @@ namespace TittyMagic
             MainPhysicsHandler.UpdatePhysics();
             SoftPhysicsHandler.UpdatePhysics();
             NippleErectionHandler.Update();
+            FrictionHandler.CalculateFriction();
 
             /* Set extra multipliers */
             {

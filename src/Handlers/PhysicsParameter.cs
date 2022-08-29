@@ -124,6 +124,24 @@ namespace TittyMagic.Handlers
             left.forcePhysicsConfigs = leftConfigs;
             right.forcePhysicsConfigs = rightConfigs;
         }
+
+        public void SetFrictionConfig(DynamicPhysicsConfig leftConfig, DynamicPhysicsConfig rightConfig)
+        {
+            left.inverseFrictionConfig = leftConfig;
+            right.inverseFrictionConfig = rightConfig;
+        }
+
+        public void UpdateInverseFrictionValue(float friction, float massValue, float softness)
+        {
+            left.UpdateInverseFrictionValue(friction, massValue, softness);
+            right.UpdateInverseFrictionValue(friction, massValue, softness);
+        }
+
+        public void ResetInverseFrictionValue()
+        {
+            left.ResetInverseFrictionValue();
+            right.ResetInverseFrictionValue();
+        }
     }
 
     internal class MassParameterGroup : PhysicsParameterGroup
@@ -164,15 +182,20 @@ namespace TittyMagic.Handlers
         public JSONStorableFloat baseValueJsf { get; }
         public JSONStorableFloat offsetJsf { get; }
 
+        public Dictionary<string, DynamicPhysicsConfig> gravityPhysicsConfigs { get; set; }
         private readonly Dictionary<string, float> _additiveGravityAdjustments;
+
+        public Dictionary<string, DynamicPhysicsConfig> forcePhysicsConfigs { get; set; }
         protected readonly Dictionary<string, float> additiveForceAdjustments;
+
+        public DynamicPhysicsConfig inverseFrictionConfig { get; set; }
+        private float _additiveFrictionAdjustment;
+
         public bool dependsOnPhysicsRate { get; set; }
 
         public StaticPhysicsConfig config { get; set; }
         public StaticPhysicsConfig quicknessOffsetConfig { get; set; }
         public StaticPhysicsConfig slownessOffsetConfig { get; set; }
-        public Dictionary<string, DynamicPhysicsConfig> gravityPhysicsConfigs { get; set; }
-        public Dictionary<string, DynamicPhysicsConfig> forcePhysicsConfigs { get; set; }
         public string valueFormat { get; set; }
         public Action<float> sync { protected get; set; }
 
@@ -186,11 +209,12 @@ namespace TittyMagic.Handlers
             groupMultiplierParams = new Dictionary<string, SoftGroupPhysicsParameter>();
             _additiveGravityAdjustments = new Dictionary<string, float>();
             additiveForceAdjustments = new Dictionary<string, float>();
+            _additiveFrictionAdjustment = 0;
         }
 
         private void Sync()
         {
-            float value = offsetJsf.val + baseValueJsf.val;
+            float value = offsetJsf.val + baseValueJsf.val + _additiveFrictionAdjustment;
             if(gravityPhysicsConfigs != null)
             {
                 value += _additiveGravityAdjustments.Values.Sum();
@@ -341,6 +365,32 @@ namespace TittyMagic.Handlers
                     additiveForceAdjustments[direction] = 0;
                     break;
             }
+
+            Sync();
+        }
+
+        public void UpdateInverseFrictionValue(float friction, float massValue, float softness)
+        {
+            switch(inverseFrictionConfig.applyMethod)
+            {
+                case ApplyMethod.ADDITIVE:
+                    _additiveFrictionAdjustment = Calc.RoundToDecimals(inverseFrictionConfig.Calculate(friction, massValue, softness), 10000f);
+                    break;
+            }
+
+            Sync();
+        }
+
+        public void ResetInverseFrictionValue()
+        {
+            switch(inverseFrictionConfig.applyMethod)
+            {
+                case ApplyMethod.ADDITIVE:
+                    _additiveFrictionAdjustment = 0;
+                    break;
+            }
+
+            Sync();
         }
     }
 
