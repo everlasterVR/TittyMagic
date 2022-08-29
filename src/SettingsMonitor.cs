@@ -27,6 +27,8 @@ namespace TittyMagic
         private Rigidbody _pectoralRbLeft;
         private Rigidbody _pectoralRbRight;
 
+        private bool _isInitialized;
+
         public void Init()
         {
             enabled = false; // will be enabled during main refresh cycle
@@ -56,6 +58,8 @@ namespace TittyMagic
             /* prevent breasts being flattened due to breastInOut morphs on scene load with plugin already present */
             _breastInOut.SetBoolParamValue("enabled", true);
             _breastInOut.SetBoolParamValue("enabled", false);
+
+            _isInitialized = true;
         }
 
         private void Watch()
@@ -234,6 +238,11 @@ namespace TittyMagic
 
         private void Update()
         {
+            if(!_isInitialized)
+            {
+                return;
+            }
+
             try
             {
                 _runner.Run(Watch);
@@ -247,6 +256,11 @@ namespace TittyMagic
 
         private void OnEnable()
         {
+            if(!_isInitialized)
+            {
+                return;
+            }
+
             if(Gender.isFemale)
             {
                 SetPectoralCollisions(false);
@@ -260,6 +274,11 @@ namespace TittyMagic
 
         private void OnDisable()
         {
+            if(!_isInitialized)
+            {
+                return;
+            }
+
             if(Gender.isFemale)
             {
                 SetPectoralCollisions(true);
