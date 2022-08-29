@@ -19,6 +19,7 @@ namespace TittyMagic
         private Bindings _customBindings;
         private FrequencyRunner _listenersCheckRunner;
 
+        public DAZSkinV2 skin { get; set; }
         private Transform _chestTransform;
         private Rigidbody _pectoralRbLeft;
         private Rigidbody _pectoralRbRight;
@@ -208,7 +209,7 @@ namespace TittyMagic
             SetPectoralCollisions(false);
 
             atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
-            var skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
+            skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
 
             /* Setup collider visualizer */
             {
@@ -234,7 +235,7 @@ namespace TittyMagic
                 }
             }
 
-            mainPhysicsHandler = new MainPhysicsHandler(this, breastControl, new BreastVolumeCalculator(skin, chestRb));
+            mainPhysicsHandler = new MainPhysicsHandler(this, breastControl, new BreastVolumeCalculator(this, chestRb));
             hardColliderHandler = gameObject.AddComponent<HardColliderHandler>();
             hardColliderHandler.Init();
             softPhysicsHandler = new SoftPhysicsHandler(this);

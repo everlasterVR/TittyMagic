@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
 using static TittyMagic.Utils;
 
@@ -11,6 +12,7 @@ namespace TittyMagic
         private JSONStorable _softBodyPhysicsEnabler;
         private DAZPhysicsMesh _breastPhysicsMesh;
         private DAZCharacterSelector _geometry;
+        private DAZCharacter _selectedCharacter;
 
         private float _fixedDeltaTime;
 
@@ -30,6 +32,9 @@ namespace TittyMagic
             _breastInOut = _script.containingAtom.GetStorableByID("BreastInOut");
             _softBodyPhysicsEnabler = _script.containingAtom.GetStorableByID("SoftBodyPhysicsEnabler");
             _geometry = (DAZCharacterSelector) _script.containingAtom.GetStorableByID("geometry");
+            _selectedCharacter = _geometry.selectedCharacter;
+
+            _fixedDeltaTime = Time.fixedDeltaTime;
 
             if(Gender.isFemale)
             {
@@ -41,8 +46,6 @@ namespace TittyMagic
                 _atomSoftPhysicsOn = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
                 _globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
             }
-
-            _fixedDeltaTime = Time.fixedDeltaTime;
 
             /* prevent breasts being flattened due to breastInOut morphs on scene load with plugin already present */
             _breastInOut.SetBoolParamValue("enabled", true);
@@ -128,6 +131,22 @@ namespace TittyMagic
                 _script.softPhysicsHandler.UpdateRateDependentPhysics();
                 _script.hardColliderHandler.SyncHardCollidersBaseMass();
             }
+
+            if(_selectedCharacter != _geometry.selectedCharacter)
+            {
+                StartCoroutine(OnCharacterChangedCo());
+            }
+        }
+
+        private IEnumerator OnCharacterChangedCo()
+        {
+            _selectedCharacter = _geometry.selectedCharacter;
+            while(!_selectedCharacter.ready)
+            {
+                yield return null;
+            }
+
+            _script.skin = _geometry.containingAtom.GetComponentInChildren<DAZCharacter>().skin;
         }
 
         private string LocationWhereStillDisabled(bool breastSoftPhysicsOn, bool atomSoftPhysicsOn, bool globalSoftPhysicsOn)
