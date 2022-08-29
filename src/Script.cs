@@ -252,7 +252,6 @@ namespace TittyMagic
 
             /* Setup friction calculation */
             FrictionCalc.Init(containingAtom.GetStorableByID("skin"));
-            FrictionCalc.CalculateFriction();
 
             /* Setup handlers */
             MainPhysicsHandler.Init(breastControl, chestRb);
@@ -378,13 +377,18 @@ namespace TittyMagic
                     var atomUIContent = containingAtom.transform.Find("UI/UIPlaceHolderModel/UIModel/Canvas/Panel/Content");
                     if(atomUIContent.gameObject.activeInHierarchy)
                     {
-                        StartCoroutine(ModifyAtomUI(atomUIContent));
+                        StartCoroutine(ModifyBreastPhysicsUI(atomUIContent));
+                        StartCoroutine(ModifySkinMaterialsUI(atomUIContent));
                     }
                     /* Plugin added with trigger or programmatically without the person UI being open */
                     else
                     {
                         _atomUIEventsListener = atomUIContent.gameObject.AddComponent<UnityEventsListener>();
-                        _atomUIEventsListener.onEnable.AddListener(() => StartCoroutine(ModifyAtomUI(atomUIContent)));
+                        _atomUIEventsListener.onEnable.AddListener(() =>
+                        {
+                            StartCoroutine(ModifyBreastPhysicsUI(atomUIContent));
+                            StartCoroutine(ModifySkinMaterialsUI(atomUIContent));
+                        });
                     }
                 }
 
@@ -432,18 +436,17 @@ namespace TittyMagic
         private UnityEventsListener _atomUIEventsListener;
         private List<GameObject> _customUIGameObjects;
         private List<GameObject> _inactivatedUIGameObjects;
+        private bool _modifyBreastPhysicsUIDone;
 
-        private bool _modifyAtomUIHasBeenCalled;
-
-        private IEnumerator ModifyAtomUI(Transform content)
+        private IEnumerator ModifyBreastPhysicsUI(Transform content)
         {
             // Allow modifying UI only once
-            if(_modifyAtomUIHasBeenCalled)
+            if(_modifyBreastPhysicsUIDone)
             {
                 yield break;
             }
 
-            _modifyAtomUIHasBeenCalled = true;
+            _modifyBreastPhysicsUIDone = true;
 
             Transform mPectoralPhysics = null;
             Transform fBreastPhysics1 = null;
@@ -468,8 +471,8 @@ namespace TittyMagic
 
             if(mPectoralPhysics == null || fBreastPhysics1 == null || fBreastPhysics2 == null || fBreastPresets == null)
             {
-                Debug.Log("Failed to modify person UI - could not find UI transforms.");
-                _modifyAtomUIHasBeenCalled = true;
+                Debug.Log("Failed to modify breast physics UI - could not find UI transforms.");
+                _modifyBreastPhysicsUIDone = true;
                 yield break;
             }
 
@@ -489,20 +492,25 @@ namespace TittyMagic
                 _customUIGameObjects.Add(OpenPluginUIButton(fBreastPhysics2).gameObject);
                 _customUIGameObjects.Add(OpenPluginUIButton(fBreastPresets).gameObject);
 
-                _modifyAtomUIHasBeenCalled = true;
+                _modifyBreastPhysicsUIDone = true;
             }
             catch(Exception e)
             {
-                Utils.LogError($"Error modifying person VaM breast physics tabs: {e}");
+                Utils.LogError($"Error modifying breast physics UI: {e}");
             }
-
-            yield return ModifySkinMaterialsUI(content);
         }
 
-        public UIDynamicTextField skinMaterials2TextField { get; private set; }
+        private bool _modifySkinMaterialsUIDone;
 
         private IEnumerator ModifySkinMaterialsUI(Transform content)
         {
+            if(_modifySkinMaterialsUIDone)
+            {
+                yield break;
+            }
+
+            _modifySkinMaterialsUIDone = true;
+
             Transform skinMaterials2 = null;
             float waited = 0f;
             while(waited < 1 && skinMaterials2 == null)
@@ -515,11 +523,10 @@ namespace TittyMagic
             if(skinMaterials2 == null)
             {
                 Debug.Log("Failed to modify Skin Materials UI - could not find UI transform.");
-                _modifyAtomUIHasBeenCalled = true;
+                _modifySkinMaterialsUIDone = true;
                 yield break;
             }
 
-            /* Add text field to Skin Materials 2 */
             try
             {
                 var leftSide = skinMaterials2.Find("LeftSide");
@@ -567,8 +574,8 @@ namespace TittyMagic
                 }
                 {
                     var fieldTransform = UIHelpers.DestroyLayout(this.InstantiateTextField(leftSide));
-                    skinMaterials2TextField = fieldTransform.GetComponent<UIDynamicTextField>();
-                    skinMaterials2TextField.text = "\n".Size(12) +
+                    var uiDynamic = fieldTransform.GetComponent<UIDynamicTextField>();
+                    uiDynamic.text = "\n".Size(12) +
                         "Friction decreases with gloss but increases with specular bumpiness " +
                         "when gloss is high. Dry skin friction represents the value when " +
                         "both gloss and specular bumpiness are zero.";
@@ -581,7 +588,7 @@ namespace TittyMagic
             }
             catch(Exception e)
             {
-                Utils.LogError($"Error modifying Skin Materials 2 tab: {e}");
+                Utils.LogError($"Error modifying Skin Materials UI: {e}");
             }
         }
 
@@ -889,7 +896,7 @@ namespace TittyMagic
              */
             var atomUIContent = containingAtom.transform.Find("UI/UIPlaceHolderModel/UIModel/Canvas/Panel/Content");
             _atomUIEventsListener = atomUIContent.gameObject.AddComponent<UnityEventsListener>();
-            _atomUIEventsListener.onEnable.AddListener(() => StartCoroutine(ModifyAtomUI(atomUIContent)));
+            _atomUIEventsListener.onEnable.AddListener(() => StartCoroutine(ModifyBreastPhysicsUI(atomUIContent)));
 
             base.RestoreFromJSON(jsonClass, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
             _isLoadingFromJson = false;

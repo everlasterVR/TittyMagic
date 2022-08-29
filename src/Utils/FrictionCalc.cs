@@ -23,10 +23,12 @@ namespace TittyMagic
             drySkinFriction.setCallbackFunction = _ => CalculateFriction();
             _glossJsf.setJSONCallbackFunction = _ => CalculateFriction();
             _specularBumpinessJsf.setJSONCallbackFunction = _ => CalculateFriction();
+
+            CalculateFriction();
         }
 
         /* Maximum friction that a collider can have, drops off dynamically with distance from collider's normal position */
-        public static void CalculateFriction()
+        private static void CalculateFriction()
         {
             float normalizedLinearGloss = Mathf.InverseLerp(2.000f, 8.000f, _glossJsf.val);
             float normalizedSpecBump = Mathf.InverseLerp(_specularBumpinessJsf.min, _specularBumpinessJsf.max, _specularBumpinessJsf.val);
