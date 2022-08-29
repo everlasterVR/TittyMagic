@@ -99,6 +99,7 @@
     <Compile Include="src\Handlers\Configs\MorphConfig.cs" />
     <Compile Include="src\Handlers\Configs\StaticPhysicsConfig.cs" />
     <Compile Include="src\Handlers\ForcePhysicsHandler.cs" />
+    <Compile Include="src\Handlers\FrictionHandler.cs" />
     <Compile Include="src\Handlers\GravityEffectCalc.cs" />
     <Compile Include="src\Handlers\GravityOffsetMorphHandler.cs" />
     <Compile Include="src\Handlers\HardColliderHandler.cs" />
@@ -132,7 +133,6 @@
     <Compile Include="src\UI\WindowBase.cs" />
     <Compile Include="src\Utils\Calc.cs" />
     <Compile Include="src\Utils\Curves.cs" />
-    <Compile Include="src\Utils\FrictionCalc.cs" />
     <Compile Include="src\Utils\Utils.cs" />
     <Compile Include="vam-collider-editor\src\ColliderPreviewConfig.cs" />
     <Compile Include="vam-collider-editor\src\ColliderVisualizer.cs" />

@@ -166,7 +166,7 @@ namespace TittyMagic
             }
 
             tittyMagic.skin = _geometry.containingAtom.GetComponentInChildren<DAZCharacter>().skin;
-            FrictionCalc.Refresh(tittyMagic.containingAtom.GetStorableByID("skin"));
+            FrictionHandler.Refresh(tittyMagic.containingAtom.GetStorableByID("skin"));
         }
 
         private void SetPectoralCollisions(bool value)

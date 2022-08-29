@@ -250,9 +250,6 @@ namespace TittyMagic
 
             skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
 
-            /* Setup friction calculation */
-            FrictionCalc.Init(containingAtom.GetStorableByID("skin"));
-
             /* Setup handlers */
             MainPhysicsHandler.Init(breastControl, chestRb);
             hardColliderHandler = gameObject.AddComponent<HardColliderHandler>();
@@ -261,6 +258,7 @@ namespace TittyMagic
             GravityPhysicsHandler.Init();
             GravityOffsetMorphHandler.Init();
             NippleErectionHandler.Init();
+            FrictionHandler.Init(containingAtom.GetStorableByID("skin"));
 
             settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
             settingsMonitor.Init();
@@ -541,7 +539,7 @@ namespace TittyMagic
                     _customUIGameObjects.Add(customTransform.gameObject);
 
                     enableAdaptiveFrictionToggle = customTransform.GetComponent<UIDynamicToggle>();
-                    var jsf = FrictionCalc.enableAdaptiveFriction;
+                    var jsf = FrictionHandler.enableAdaptiveFriction;
                     jsf.toggle = enableAdaptiveFrictionToggle.toggle;
                     toggleToJSONStorableBool.Add(enableAdaptiveFrictionToggle, jsf);
                     enableAdaptiveFrictionToggle.label = "TittyMagic Adaptive Friction";
@@ -558,7 +556,7 @@ namespace TittyMagic
                     _customUIGameObjects.Add(customTransform.gameObject);
 
                     var uiDynamic = customTransform.GetComponent<UIDynamicSlider>();
-                    var jsf = FrictionCalc.drySkinFriction;
+                    var jsf = FrictionHandler.drySkinFriction;
                     uiDynamic.Configure(jsf.name, jsf.min, jsf.max, jsf.defaultVal, jsf.constrained, valFormat: "F3");
                     jsf.slider = uiDynamic.slider;
                     sliderToJSONStorableFloat.Add(uiDynamic, jsf);
@@ -574,7 +572,7 @@ namespace TittyMagic
                     _customUIGameObjects.Add(customTransform.gameObject);
 
                     var uiDynamic = customTransform.GetComponent<UIDynamicSlider>();
-                    var jsf = FrictionCalc.softColliderFriction;
+                    var jsf = FrictionHandler.softColliderFriction;
                     uiDynamic.Configure(jsf.name, jsf.min, jsf.max, jsf.defaultVal, jsf.constrained, valFormat: "F3");
                     jsf.slider = uiDynamic.slider;
                     sliderToJSONStorableFloat.Add(uiDynamic, jsf);
@@ -922,7 +920,7 @@ namespace TittyMagic
                 Destroy(settingsMonitor);
                 Destroy(colliderVisualizer);
                 Destroy(hardColliderHandler);
-                FrictionCalc.RemoveCallbacks();
+                FrictionHandler.RemoveCallbacks();
                 _scaleJsf.setJSONCallbackFunction = null;
                 mainWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
                 morphingWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));

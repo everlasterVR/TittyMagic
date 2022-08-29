@@ -464,7 +464,7 @@ namespace TittyMagic.Handlers
 
         public void UpdateFriction()
         {
-            colliderConfigs.ForEach(config => config.UpdateFriction(FrictionCalc.maxHardColliderFriction));
+            colliderConfigs.ForEach(config => config.UpdateFriction(FrictionHandler.maxHardColliderFriction));
         }
 
         private IEnumerator DeferSyncMass(ColliderConfigGroup config)

@@ -4,7 +4,7 @@ using static TittyMagic.Script;
 
 namespace TittyMagic
 {
-    public static class FrictionCalc
+    public static class FrictionHandler
     {
         public static JSONStorable skinMaterials { get; private set; }
         public static JSONStorableBool enableAdaptiveFriction { get; private set; }

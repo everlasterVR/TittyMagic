@@ -57,7 +57,7 @@ namespace TittyMagic.Handlers
                 };
 
                 EnableMultiplyFriction();
-                FrictionCalc.softColliderFriction.setCallbackFunction = _ => SyncFriction();
+                FrictionHandler.softColliderFriction.setCallbackFunction = _ => SyncFriction();
                 SyncFriction();
             }
 
@@ -725,7 +725,7 @@ namespace TittyMagic.Handlers
 
         private static void SyncFriction()
         {
-            float friction = FrictionCalc.softColliderFriction.val;
+            float friction = FrictionHandler.softColliderFriction.val;
 
             foreach(var group in _softVerticesGroups[RIGHT])
             {
