@@ -87,8 +87,8 @@ namespace TittyMagic
                 {
                     try
                     {
-                        var version = new Version(storable.GetStringParamValue("version"));
-                        if(version >= new Version("5.1.0"))
+                        /* split version number from pre-release tag */
+                        if(new Version(versionString.Split('-')[0]) >= new Version("5.1.0"))
                         {
                             result = true;
                         }

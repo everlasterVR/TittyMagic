@@ -14,8 +14,8 @@ namespace TittyMagic
     internal sealed class Script : MVRScript
     {
         public static Script tittyMagic { get; private set; }
-        public static readonly Version VERSION = new Version("0.0.0");
-        public static bool envIsDevelopment => VERSION.Major == 0;
+        public const string VERSION = "0.0.0";
+        public static bool envIsDevelopment => VERSION.StartsWith("0.");
 
         public static GenerateDAZMorphsControlUI morphsControlUI { get; private set; }
 
