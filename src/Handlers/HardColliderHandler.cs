@@ -464,6 +464,11 @@ namespace TittyMagic.Handlers
 
         public void UpdateFriction()
         {
+            if(!enabled || !Gender.isFemale)
+            {
+                return;
+            }
+
             colliderConfigs.ForEach(config => config.UpdateFriction(FrictionHandler.maxHardColliderFriction));
         }
 
@@ -614,6 +619,11 @@ namespace TittyMagic.Handlers
 
         public void CalibrateColliders()
         {
+            if(!Gender.isFemale)
+            {
+                return;
+            }
+
             var breastCenterLeft = BreastCenter(VertexIndexGroup.LEFT_BREAST);
             var breastCenterRight = BreastCenter(VertexIndexGroup.RIGHT_BREAST);
             colliderConfigs.ForEach(config => config.Calibrate(breastCenterLeft, breastCenterRight, _chestRb));
@@ -621,6 +631,11 @@ namespace TittyMagic.Handlers
 
         public void UpdateDistanceDiffs()
         {
+            if(!Gender.isFemale)
+            {
+                return;
+            }
+
             var breastCenterLeft = BreastCenter(VertexIndexGroup.LEFT_BREAST);
             var breastCenterRight = BreastCenter(VertexIndexGroup.RIGHT_BREAST);
             colliderConfigs.ForEach(config => config.UpdateDistanceDiffs(breastCenterLeft, breastCenterRight, _chestRb));
@@ -629,8 +644,15 @@ namespace TittyMagic.Handlers
         private Vector3 BreastCenter(IEnumerable<int> vertexIndices) =>
             Calc.RelativePosition(_chestRb, Calc.AveragePosition(vertexIndices.Select(index => tittyMagic.skin.rawSkinnedVerts[index]).ToArray()));
 
-        public void ResetDistanceDiffs() =>
+        public void ResetDistanceDiffs()
+        {
+            if(!enabled || !Gender.isFemale)
+            {
+                return;
+            }
+
             colliderConfigs.ForEach(config => config.ResetDistanceDiffs());
+        }
 
         private bool _originalUseAdvancedColliders;
         private bool _originalUseAuxBreastColliders;

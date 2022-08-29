@@ -21,6 +21,11 @@ namespace TittyMagic
 
         public static void Init(JSONStorable skinMaterialsStorable)
         {
+            if(!Gender.isFemale)
+            {
+                return;
+            }
+
             skinMaterials = skinMaterialsStorable;
 
             enableAdaptiveFriction = tittyMagic.NewJSONStorableBool("enableAdaptiveFriction", false);
@@ -105,6 +110,11 @@ namespace TittyMagic
         /* Maximum friction that a collider can have, drops off dynamically with distance from collider's normal position */
         public static void CalculateFriction()
         {
+            if(!Gender.isFemale)
+            {
+                return;
+            }
+
             if(!enableAdaptiveFriction.val)
             {
                 maxHardColliderFriction = 0.600f;

@@ -512,6 +512,11 @@ namespace TittyMagic
 
             _modifySkinMaterialsUIDone = true;
 
+            if(!Gender.isFemale)
+            {
+                yield break;
+            }
+
             Transform skinMaterials2 = null;
             float waited = 0f;
             while(waited < 1 && skinMaterials2 == null)

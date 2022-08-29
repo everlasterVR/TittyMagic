@@ -137,7 +137,7 @@ namespace TittyMagic
 
             if(envIsDevelopment)
             {
-                Utils.LogMessage($"Calibration done");
+                Utils.LogMessage("Calibration done");
             }
 
             isInProgress = false;
