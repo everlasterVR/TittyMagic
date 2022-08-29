@@ -8,7 +8,7 @@ namespace TittyMagic
 {
     public static class FrictionHandler
     {
-        public static JSONStorable skinMaterials { get; private set; }
+        private static JSONStorable _skinMaterialsStorable;
         private static PhysicsParameterGroup _colliderRadiusParameter;
 
         public static JSONStorableBool enableAdaptiveFriction { get; private set; }
@@ -26,7 +26,7 @@ namespace TittyMagic
                 return;
             }
 
-            skinMaterials = skinMaterialsStorable;
+            _skinMaterialsStorable = skinMaterialsStorable;
 
             enableAdaptiveFriction = tittyMagic.NewJSONStorableBool("enableAdaptiveFriction", false);
             enableAdaptiveFriction.setCallbackFunction = val =>
@@ -50,10 +50,10 @@ namespace TittyMagic
             softColliderFriction = new JSONStorableFloat("softColliderFriction", 1, 0, 1);
             softColliderFriction.setCallbackFunction = UpdateSoftColliders;
 
-            _glossJsf = skinMaterials.GetFloatJSONParam("Gloss");
+            _glossJsf = _skinMaterialsStorable.GetFloatJSONParam("Gloss");
             _glossJsf.setJSONCallbackFunction = _ => CalculateFriction();
 
-            _specularBumpinessJsf = skinMaterials.GetFloatJSONParam("Specular Bumpiness");
+            _specularBumpinessJsf = _skinMaterialsStorable.GetFloatJSONParam("Specular Bumpiness");
             _specularBumpinessJsf.setJSONCallbackFunction = _ => CalculateFriction();
         }
 
@@ -96,12 +96,12 @@ namespace TittyMagic
 
         public static void Refresh(JSONStorable skinMaterialsStorable)
         {
-            skinMaterials = skinMaterialsStorable;
+            _skinMaterialsStorable = skinMaterialsStorable;
 
-            _glossJsf = skinMaterials.GetFloatJSONParam("Gloss");
+            _glossJsf = _skinMaterialsStorable.GetFloatJSONParam("Gloss");
             _glossJsf.setJSONCallbackFunction = _ => CalculateFriction();
 
-            _specularBumpinessJsf = skinMaterials.GetFloatJSONParam("Specular Bumpiness");
+            _specularBumpinessJsf = _skinMaterialsStorable.GetFloatJSONParam("Specular Bumpiness");
             _specularBumpinessJsf.setJSONCallbackFunction = _ => CalculateFriction();
 
             CalculateFriction();
