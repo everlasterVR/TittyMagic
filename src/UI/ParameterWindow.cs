@@ -134,10 +134,7 @@ namespace TittyMagic.UI
             var slider = tittyMagic.CreateSlider(storable, rightSide);
             slider.valueFormat = _parameter.valueFormat;
             slider.label = "Value";
-            slider.SetActiveStyle(false);
-            slider.slider.interactable = false;
-            slider.quickButtonsEnabled = false;
-            slider.defaultButtonEnabled = false;
+            slider.SetActiveStyle(false, true);
 
             slider.slider.onValueChanged.AddListener(_ => SyncAllMultiplierSliderValues());
 
@@ -169,10 +166,7 @@ namespace TittyMagic.UI
 
             var slider = tittyMagic.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
-            slider.SetActiveStyle(false);
-            slider.slider.interactable = false;
-            slider.quickButtonsEnabled = false;
-            slider.defaultButtonEnabled = false;
+            slider.SetActiveStyle(false, true);
             var uiInputField = slider.sliderValueTextFromFloat.UIInputField;
             uiInputField.contentType = InputField.ContentType.Standard;
 

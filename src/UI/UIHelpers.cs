@@ -7,6 +7,7 @@ namespace TittyMagic.UI
 {
     public static class UIHelpers
     {
+        public static Color backgroundGray = new Color(0.85f, 0.85f, 0.85f);
         public static Color darkerGray = new Color(0.4f, 0.4f, 0.4f);
         public static Color sliderGray = new Color(0, 0, 0, 0.498f);
         public static Color funkyCyan = new Color(0.596f, 1.000f, 0.780f);
@@ -90,6 +91,12 @@ namespace TittyMagic.UI
             layout.minHeight = height;
 
             return textField;
+        }
+
+        public static Transform DestroyLayout(Transform transform)
+        {
+            Object.Destroy(transform.GetComponent<LayoutElement>());
+            return transform;
         }
     }
 }

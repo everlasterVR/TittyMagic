@@ -97,7 +97,7 @@ namespace TittyMagic
             _pluginUIEventsListener.onEnable.AddListener(() =>
             {
                 var background = rightUIContent.parent.parent.parent.transform.GetComponent<Image>();
-                background.color = new Color(0.85f, 0.85f, 0.85f);
+                background.color = UIHelpers.backgroundGray;
 
                 SoftPhysicsHandler.ReverseSyncAllowSelfCollision();
 
@@ -495,6 +495,94 @@ namespace TittyMagic
             {
                 Utils.LogError($"Error modifying person VaM breast physics tabs: {e}");
             }
+
+            yield return ModifySkinMaterialsUI(content);
+        }
+
+        public UIDynamicTextField skinMaterials2TextField { get; private set; }
+
+        private IEnumerator ModifySkinMaterialsUI(Transform content)
+        {
+            Transform skinMaterials2 = null;
+            float waited = 0f;
+            while(waited < 1 && skinMaterials2 == null)
+            {
+                waited += 0.1f;
+                yield return new WaitForSecondsRealtime(0.1f);
+                skinMaterials2 = content.Find("Skin Materials 2");
+            }
+
+            if(skinMaterials2 == null)
+            {
+                Debug.Log("Failed to modify Skin Materials UI - could not find UI transform.");
+                _modifyAtomUIHasBeenCalled = true;
+                yield break;
+            }
+
+            /* Add text field to Skin Materials 2 */
+            try
+            {
+                var leftSide = skinMaterials2.Find("LeftSide");
+                {
+                    var customTransform = UIHelpers.DestroyLayout(this.InstantiateTextField(leftSide));
+                    var uiDynamic = customTransform.GetComponent<UIDynamicTextField>();
+                    uiDynamic.backgroundColor = Color.clear;
+                    uiDynamic.textColor = Color.white;
+                    uiDynamic.UItext.alignment = TextAnchor.LowerCenter;
+                    uiDynamic.text = "\n".Size(20) + $"{nameof(TittyMagic)}".Bold().Size(32);
+                    var rectTransform = customTransform.GetComponent<RectTransform>();
+                    rectTransform.pivot = new Vector2(0, 0);
+                    rectTransform.anchoredPosition = new Vector2(20f, -780f);
+                    rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, 60f);
+                    _customUIGameObjects.Add(customTransform.gameObject);
+                }
+                {
+                    var customTransform = UIHelpers.DestroyLayout(this.InstantiateSlider(leftSide));
+                    var rectTransform = customTransform.GetComponent<RectTransform>();
+                    rectTransform.pivot = new Vector2(0, 0);
+                    rectTransform.anchoredPosition = new Vector2(20f, -910f);
+                    _customUIGameObjects.Add(customTransform.gameObject);
+
+                    var uiDynamic = customTransform.GetComponent<UIDynamicSlider>();
+                    var jsf = FrictionCalc.drySkinFriction;
+                    uiDynamic.Configure(jsf.name, jsf.min, jsf.max, jsf.defaultVal, jsf.constrained, valFormat: "F3");
+                    jsf.slider = uiDynamic.slider;
+                    sliderToJSONStorableFloat.Add(uiDynamic, jsf);
+                    uiDynamic.label = "Dry Skin Friction";
+                }
+                {
+                    var customTransform = UIHelpers.DestroyLayout(this.InstantiateSlider(leftSide));
+                    var rectTransform = customTransform.GetComponent<RectTransform>();
+                    rectTransform.pivot = new Vector2(0, 0);
+                    rectTransform.anchoredPosition = new Vector2(20f, -1050f);
+                    _customUIGameObjects.Add(customTransform.gameObject);
+
+                    var uiDynamic = customTransform.GetComponent<UIDynamicSlider>();
+                    var jsf = FrictionCalc.softColliderFriction;
+                    uiDynamic.Configure(jsf.name, jsf.min, jsf.max, jsf.defaultVal, jsf.constrained, valFormat: "F3");
+                    jsf.slider = uiDynamic.slider;
+                    sliderToJSONStorableFloat.Add(uiDynamic, jsf);
+                    uiDynamic.label = "Collider Friction";
+                    uiDynamic.SetActiveStyle(false, true);
+                }
+                {
+                    var fieldTransform = UIHelpers.DestroyLayout(this.InstantiateTextField(leftSide));
+                    skinMaterials2TextField = fieldTransform.GetComponent<UIDynamicTextField>();
+                    skinMaterials2TextField.text = "\n".Size(12) +
+                        "Friction decreases with gloss but increases with specular bumpiness " +
+                        "when gloss is high. Dry skin friction represents the value when " +
+                        "both gloss and specular bumpiness are zero.";
+                    var rectTransform = fieldTransform.GetComponent<RectTransform>();
+                    rectTransform.pivot = new Vector2(0, 0);
+                    rectTransform.anchoredPosition = new Vector2(20f, -1300f);
+                    rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, 230f);
+                    _customUIGameObjects.Add(fieldTransform.gameObject);
+                }
+            }
+            catch(Exception e)
+            {
+                Utils.LogError($"Error modifying Skin Materials 2 tab: {e}");
+            }
         }
 
         private void Inactivate(Transform t)
@@ -511,9 +599,7 @@ namespace TittyMagic
 
         private Transform OpenPluginUIButton(Transform parent)
         {
-            var button = this.InstantiateButton();
-            button.SetParent(parent, false);
-            Destroy(button.GetComponent<LayoutElement>());
+            var button = UIHelpers.DestroyLayout(this.InstantiateButton(parent));
             button.GetComponent<UIDynamicButton>().label = "<b>Open TittyMagic UI</b>";
             button.GetComponent<UIDynamicButton>().button.onClick.AddListener(() => _customBindings.OpenUI());
             return button;

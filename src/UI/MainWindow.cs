@@ -138,10 +138,7 @@ namespace TittyMagic.UI
 
             var slider = tittyMagic.CreateSlider(storable, rightSide);
             slider.valueFormat = _massParameter.valueFormat;
-            slider.SetActiveStyle(false);
-            slider.slider.interactable = false;
-            slider.quickButtonsEnabled = false;
-            slider.defaultButtonEnabled = false;
+            slider.SetActiveStyle(false, true);
             slider.label = "Breast Mass";
             elements[storable.name] = slider;
         }

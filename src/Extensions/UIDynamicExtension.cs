@@ -47,6 +47,8 @@ public static class UIDynamicExtension
             if(setsInteractable)
             {
                 uiDynamicSlider.slider.interactable = isActive;
+                uiDynamicSlider.quickButtonsEnabled = isActive;
+                uiDynamicSlider.defaultButtonEnabled = isActive;
             }
 
             uiDynamicSlider.labelText.color = color;

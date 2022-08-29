@@ -38,6 +38,9 @@ public static class MVRScriptExtension
     public static Transform InstantiateColorPicker(this MVRScript script, Transform parent = null) =>
         UnityEngine.Object.Instantiate(script.manager.configurableColorPickerPrefab, parent, false);
 
+    public static Transform InstantiateSpacer(this MVRScript script, Transform parent = null) =>
+        UnityEngine.Object.Instantiate(script.manager.configurableSpacerPrefab, parent, false);
+
     public static JSONStorableString NewJSONStorableString(
         this MVRScript script,
         string paramName,
