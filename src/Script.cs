@@ -501,6 +501,7 @@ namespace TittyMagic
         }
 
         private bool _modifySkinMaterialsUIDone;
+        public UIDynamicToggle enableAdaptiveFrictionToggle { get; private set; }
 
         private IEnumerator ModifySkinMaterialsUI(Transform content)
         {
@@ -531,23 +532,29 @@ namespace TittyMagic
             {
                 var leftSide = skinMaterials2.Find("LeftSide");
                 {
-                    var customTransform = UIHelpers.DestroyLayout(this.InstantiateTextField(leftSide));
-                    var uiDynamic = customTransform.GetComponent<UIDynamicTextField>();
-                    uiDynamic.backgroundColor = Color.clear;
-                    uiDynamic.textColor = Color.white;
-                    uiDynamic.UItext.alignment = TextAnchor.LowerCenter;
-                    uiDynamic.text = "\n".Size(20) + $"{nameof(TittyMagic)}".Bold().Size(32);
+                    var customTransform = UIHelpers.DestroyLayout(this.InstantiateToggle(leftSide));
                     var rectTransform = customTransform.GetComponent<RectTransform>();
                     rectTransform.pivot = new Vector2(0, 0);
                     rectTransform.anchoredPosition = new Vector2(20f, -780f);
-                    rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, 60f);
+                    var sizeDelta = rectTransform.sizeDelta;
+                    rectTransform.sizeDelta = new Vector2(sizeDelta.x + 10, sizeDelta.y);
                     _customUIGameObjects.Add(customTransform.gameObject);
+
+                    enableAdaptiveFrictionToggle = customTransform.GetComponent<UIDynamicToggle>();
+                    var jsf = FrictionCalc.enableAdaptiveFriction;
+                    jsf.toggle = enableAdaptiveFrictionToggle.toggle;
+                    toggleToJSONStorableBool.Add(enableAdaptiveFrictionToggle, jsf);
+                    enableAdaptiveFrictionToggle.label = "TittyMagic Adaptive Friction";
+                    enableAdaptiveFrictionToggle.textColor = jsf.val ? UIHelpers.funkyCyan : Color.white;
+                    enableAdaptiveFrictionToggle.backgroundColor = UIHelpers.darkerGray;
                 }
                 {
                     var customTransform = UIHelpers.DestroyLayout(this.InstantiateSlider(leftSide));
                     var rectTransform = customTransform.GetComponent<RectTransform>();
                     rectTransform.pivot = new Vector2(0, 0);
-                    rectTransform.anchoredPosition = new Vector2(20f, -910f);
+                    rectTransform.anchoredPosition = new Vector2(20f, -920f);
+                    var sizeDelta = rectTransform.sizeDelta;
+                    rectTransform.sizeDelta = new Vector2(sizeDelta.x + 10, sizeDelta.y);
                     _customUIGameObjects.Add(customTransform.gameObject);
 
                     var uiDynamic = customTransform.GetComponent<UIDynamicSlider>();
@@ -561,7 +568,9 @@ namespace TittyMagic
                     var customTransform = UIHelpers.DestroyLayout(this.InstantiateSlider(leftSide));
                     var rectTransform = customTransform.GetComponent<RectTransform>();
                     rectTransform.pivot = new Vector2(0, 0);
-                    rectTransform.anchoredPosition = new Vector2(20f, -1050f);
+                    rectTransform.anchoredPosition = new Vector2(20f, -1060f);
+                    var sizeDelta = rectTransform.sizeDelta;
+                    rectTransform.sizeDelta = new Vector2(sizeDelta.x + 10, sizeDelta.y);
                     _customUIGameObjects.Add(customTransform.gameObject);
 
                     var uiDynamic = customTransform.GetComponent<UIDynamicSlider>();
@@ -574,16 +583,19 @@ namespace TittyMagic
                 }
                 {
                     var fieldTransform = UIHelpers.DestroyLayout(this.InstantiateTextField(leftSide));
-                    var uiDynamic = fieldTransform.GetComponent<UIDynamicTextField>();
-                    uiDynamic.text = "\n".Size(12) +
-                        "Friction decreases with gloss but increases with specular bumpiness " +
-                        "when gloss is high. Dry skin friction represents the value when " +
-                        "both gloss and specular bumpiness are zero.";
                     var rectTransform = fieldTransform.GetComponent<RectTransform>();
                     rectTransform.pivot = new Vector2(0, 0);
                     rectTransform.anchoredPosition = new Vector2(20f, -1300f);
-                    rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, 230f);
+                    rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x + 10, 220f);
                     _customUIGameObjects.Add(fieldTransform.gameObject);
+
+                    var uiDynamic = fieldTransform.GetComponent<UIDynamicTextField>();
+                    uiDynamic.text =
+                        "Friction decreases with <i>Gloss</i> but increases with <i>Specular Bumpiness</i> " +
+                        "when <i>Gloss</i> is high. Dry skin friction represents the value when both " +
+                        "<i>Gloss</i> and <i>Specular Bumpiness</i> are zero. Other sliders are ignored.";
+                    uiDynamic.backgroundColor = Color.clear;
+                    uiDynamic.textColor = Color.white;
                 }
             }
             catch(Exception e)
@@ -896,7 +908,11 @@ namespace TittyMagic
              */
             var atomUIContent = containingAtom.transform.Find("UI/UIPlaceHolderModel/UIModel/Canvas/Panel/Content");
             _atomUIEventsListener = atomUIContent.gameObject.AddComponent<UnityEventsListener>();
-            _atomUIEventsListener.onEnable.AddListener(() => StartCoroutine(ModifyBreastPhysicsUI(atomUIContent)));
+            _atomUIEventsListener.onEnable.AddListener(() =>
+            {
+                StartCoroutine(ModifyBreastPhysicsUI(atomUIContent));
+                StartCoroutine(ModifySkinMaterialsUI(atomUIContent));
+            });
 
             base.RestoreFromJSON(jsonClass, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
             _isLoadingFromJson = false;

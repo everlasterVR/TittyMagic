@@ -21,6 +21,7 @@ namespace TittyMagic
         private bool _globalSoftPhysicsOn;
         private bool _atomSoftPhysicsOn;
         private bool _breastSoftPhysicsOn;
+        private DAZCharacter _selectedCharacter;
 
         public void Init()
         {
@@ -29,6 +30,8 @@ namespace TittyMagic
             _breastInOut = tittyMagic.containingAtom.GetStorableByID("BreastInOut");
             _softBodyPhysicsEnabler = tittyMagic.containingAtom.GetStorableByID("SoftBodyPhysicsEnabler");
             _geometry = (DAZCharacterSelector) tittyMagic.containingAtom.GetStorableByID("geometry");
+
+            _fixedDeltaTime = Time.fixedDeltaTime;
 
             if(Gender.isFemale)
             {
@@ -41,8 +44,6 @@ namespace TittyMagic
                 _globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
             }
 
-            _fixedDeltaTime = Time.fixedDeltaTime;
-
             /* prevent breasts being flattened due to breastInOut morphs on scene load with plugin already present */
             _breastInOut.SetBoolParamValue("enabled", true);
             _breastInOut.SetBoolParamValue("enabled", false);
@@ -50,6 +51,7 @@ namespace TittyMagic
 
         private void Watch()
         {
+            /* Enforce in-out morphs off */
             if(_breastInOut.GetBoolParamValue("enabled"))
             {
                 _breastInOut.SetBoolParamValue("enabled", false);
@@ -59,6 +61,7 @@ namespace TittyMagic
                 }
             }
 
+            /* Enforce advanced colliders on */
             if(Gender.isFemale && !_geometry.useAdvancedColliders)
             {
                 _geometry.useAdvancedColliders = true;
@@ -70,6 +73,17 @@ namespace TittyMagic
                 return;
             }
 
+            CheckIfRecalibrationNeeded();
+
+            var skinMaterialsStorable = tittyMagic.containingAtom.GetStorableByID("skin");
+            if(FrictionCalc.skinMaterials != skinMaterialsStorable)
+            {
+                FrictionCalc.Refresh(skinMaterialsStorable);
+            }
+        }
+
+        private void CheckIfRecalibrationNeeded()
+        {
             bool refreshNeeded = false;
             bool rateDependentRefreshNeeded = false;
 
