@@ -18,7 +18,7 @@ namespace TittyMagic
         public static bool envIsDevelopment => VERSION.Major == 0;
 
         public static GenerateDAZMorphsControlUI morphsControlUI { get; private set; }
-        public DAZSkinV2 skin { get; private set; }
+        public DAZSkinV2 skin { get; set; }
 
         public float softnessAmount { get; private set; }
         public float quicknessAmount { get; private set; }

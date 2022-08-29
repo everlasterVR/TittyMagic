@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using TittyMagic.Components;
 using TittyMagic.Handlers;
 using UnityEngine;
@@ -44,6 +45,8 @@ namespace TittyMagic
                 _globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
             }
 
+            _selectedCharacter = _geometry.selectedCharacter;
+
             /* prevent breasts being flattened due to breastInOut morphs on scene load with plugin already present */
             _breastInOut.SetBoolParamValue("enabled", true);
             _breastInOut.SetBoolParamValue("enabled", false);
@@ -75,10 +78,10 @@ namespace TittyMagic
 
             CheckIfRecalibrationNeeded();
 
-            var skinMaterialsStorable = tittyMagic.containingAtom.GetStorableByID("skin");
-            if(FrictionCalc.skinMaterials != skinMaterialsStorable)
+            if(_selectedCharacter != _geometry.selectedCharacter)
             {
-                FrictionCalc.Refresh(skinMaterialsStorable);
+                Utils.LogMessage($"changed!");
+                StartCoroutine(OnCharacterChangedCo());
             }
         }
 
@@ -141,6 +144,18 @@ namespace TittyMagic
                 SoftPhysicsHandler.UpdateRateDependentPhysics();
                 tittyMagic.hardColliderHandler.SyncHardCollidersBaseMass();
             }
+        }
+
+        private IEnumerator OnCharacterChangedCo()
+        {
+            _selectedCharacter = _geometry.selectedCharacter;
+            while(!_selectedCharacter.ready)
+            {
+                yield return null;
+            }
+
+            tittyMagic.skin = _geometry.containingAtom.GetComponentInChildren<DAZCharacter>().skin;
+            FrictionCalc.Refresh(tittyMagic.containingAtom.GetStorableByID("skin"));
         }
 
         private string LocationWhereStillDisabled(bool breastSoftPhysicsOn, bool atomSoftPhysicsOn, bool globalSoftPhysicsOn)
