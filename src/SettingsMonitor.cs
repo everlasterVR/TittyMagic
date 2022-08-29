@@ -14,6 +14,7 @@ namespace TittyMagic
         private JSONStorable _softBodyPhysicsEnabler;
         private DAZPhysicsMesh _breastPhysicsMesh;
         private DAZCharacterSelector _geometry;
+        private DAZCharacter _selectedCharacter;
 
         private float _fixedDeltaTime;
 
@@ -22,7 +23,9 @@ namespace TittyMagic
         private bool _globalSoftPhysicsOn;
         private bool _atomSoftPhysicsOn;
         private bool _breastSoftPhysicsOn;
-        private DAZCharacter _selectedCharacter;
+
+        private Rigidbody _pectoralRbLeft;
+        private Rigidbody _pectoralRbRight;
 
         public void Init()
         {
@@ -31,6 +34,7 @@ namespace TittyMagic
             _breastInOut = tittyMagic.containingAtom.GetStorableByID("BreastInOut");
             _softBodyPhysicsEnabler = tittyMagic.containingAtom.GetStorableByID("SoftBodyPhysicsEnabler");
             _geometry = (DAZCharacterSelector) tittyMagic.containingAtom.GetStorableByID("geometry");
+            _selectedCharacter = _geometry.selectedCharacter;
 
             _fixedDeltaTime = Time.fixedDeltaTime;
 
@@ -43,9 +47,11 @@ namespace TittyMagic
                 _breastSoftPhysicsOn = SoftPhysicsHandler.softPhysicsOnJsb.val;
                 _atomSoftPhysicsOn = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
                 _globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
-            }
 
-            _selectedCharacter = _geometry.selectedCharacter;
+                var breastControl = (AdjustJoints) tittyMagic.containingAtom.GetStorableByID("BreastControl");
+                _pectoralRbLeft = breastControl.joint2.GetComponent<Rigidbody>();
+                _pectoralRbRight = breastControl.joint1.GetComponent<Rigidbody>();
+            }
 
             /* prevent breasts being flattened due to breastInOut morphs on scene load with plugin already present */
             _breastInOut.SetBoolParamValue("enabled", true);
@@ -71,6 +77,12 @@ namespace TittyMagic
                 Utils.LogMessage("Advanced Colliders enabled - they are necessary for directional force morphing and hard colliders to work.");
             }
 
+            /* Disable pectoral joint rb's collisions if enabled by e.g. person atom collisions being toggled off/on */
+            if(Gender.isFemale && (_pectoralRbLeft.detectCollisions || _pectoralRbRight.detectCollisions))
+            {
+                SetPectoralCollisions(false);
+            }
+
             if(tittyMagic.calibration.isInProgress)
             {
                 return;
@@ -80,7 +92,6 @@ namespace TittyMagic
 
             if(_selectedCharacter != _geometry.selectedCharacter)
             {
-                Utils.LogMessage($"changed!");
                 StartCoroutine(OnCharacterChangedCo());
             }
         }
@@ -158,6 +169,12 @@ namespace TittyMagic
             FrictionCalc.Refresh(tittyMagic.containingAtom.GetStorableByID("skin"));
         }
 
+        private void SetPectoralCollisions(bool value)
+        {
+            _pectoralRbLeft.detectCollisions = value;
+            _pectoralRbRight.detectCollisions = value;
+        }
+
         private string LocationWhereStillDisabled(bool breastSoftPhysicsOn, bool atomSoftPhysicsOn, bool globalSoftPhysicsOn)
         {
             if(breastSoftPhysicsOn && !_breastSoftPhysicsOn)
@@ -230,9 +247,22 @@ namespace TittyMagic
 
         private void OnEnable()
         {
+            if(Gender.isFemale)
+            {
+                SetPectoralCollisions(false);
+            }
+
             if(_geometry != null)
             {
                 _geometry.useAdvancedColliders = true;
+            }
+        }
+
+        private void OnDisable()
+        {
+            if(Gender.isFemale)
+            {
+                SetPectoralCollisions(true);
             }
         }
     }

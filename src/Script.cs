@@ -18,6 +18,7 @@ namespace TittyMagic
         public static bool envIsDevelopment => VERSION.Major == 0;
 
         public static GenerateDAZMorphsControlUI morphsControlUI { get; private set; }
+
         public DAZSkinV2 skin { get; set; }
 
         public float softnessAmount { get; private set; }
@@ -204,7 +205,6 @@ namespace TittyMagic
             var breastControl = (AdjustJoints) containingAtom.GetStorableByID(Gender.isFemale ? "BreastControl" : "PectoralControl");
             _pectoralRbLeft = breastControl.joint2.GetComponent<Rigidbody>();
             _pectoralRbRight = breastControl.joint1.GetComponent<Rigidbody>();
-            SetPectoralCollisions(false);
 
             /* Setup atom scale changed callback */
             {
@@ -844,13 +844,6 @@ namespace TittyMagic
             }
         }
 
-        /* Disable pectoral collisions while plugin is active, they cause breasts to "jump" when touched */
-        private void SetPectoralCollisions(bool value)
-        {
-            _pectoralRbLeft.detectCollisions = value;
-            _pectoralRbRight.detectCollisions = value;
-        }
-
         #endregion Refresh
 
         public string PluginPath() =>
@@ -955,7 +948,6 @@ namespace TittyMagic
                     return;
                 }
 
-                SetPectoralCollisions(false);
                 settingsMonitor.SetEnabled(true);
                 hardColliderHandler.SetEnabled(true);
                 SoftPhysicsHandler.SaveOriginalBoolParamValues();
@@ -974,7 +966,6 @@ namespace TittyMagic
         {
             try
             {
-                SetPectoralCollisions(true);
                 settingsMonitor.SetEnabled(false);
                 hardColliderHandler.SetEnabled(false);
                 MainPhysicsHandler.RestoreOriginalPhysics();
