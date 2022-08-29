@@ -183,10 +183,13 @@ namespace TittyMagic.Configs
 
         public void UpdateFriction(float multiplier, float max)
         {
-            float friction = max - Mathf.SmoothStep(0, max, Mathf.InverseLerp(0, maxFrictionalDistance, _distanceDiff));
-            friction *= multiplier;
-            _colliderMaterial.dynamicFriction = friction;
-            _colliderMaterial.staticFriction = friction;
+            float normalizedDistance = Mathf.InverseLerp(0, maxFrictionalDistance, _distanceDiff);
+            float dynamicFriction = max - Mathf.SmoothStep(0, max, normalizedDistance);
+            _colliderMaterial.dynamicFriction = multiplier * dynamicFriction;
+
+            float staticMax = 0.1f + max;
+            float staticFriction = staticMax - Mathf.SmoothStep(0, staticMax, normalizedDistance);
+            _colliderMaterial.staticFriction = multiplier * staticFriction;
         }
 
         public void AutoColliderSizeSet()
