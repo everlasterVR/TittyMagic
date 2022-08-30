@@ -138,30 +138,30 @@ namespace TittyMagic.Handlers
                         },
                         {
                             COLLIDER_RADIUS, new Scaler(
-                                offset: -0.65f,
+                                offset: -0.72f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => -0.18f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                massCurve: x => -0.08f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_X, new Scaler(
                                 offset: 0.88f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => 0.48f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                massCurve: x => 0.48f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_Y, new Scaler(
                                 offset: -0.15f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => -0.11f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                massCurve: x => -0.11f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_Z, new Scaler(
                                 offset: -0.80f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => 0.03f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                massCurve: x => 0.03f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                     }
@@ -178,30 +178,29 @@ namespace TittyMagic.Handlers
                         },
                         {
                             COLLIDER_RADIUS, new Scaler(
-                                offset: -0.20f,
+                                offset: -0.30f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => -1.07f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                massCurve: x => -0.94f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_X, new Scaler(
                                 offset: -0.32f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => -0.12f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                massCurve: x => -0.12f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_Y, new Scaler(
-                                offset: 0.19f,
-                                range: new float[] { 0, 40 },
-                                massCurve: x => 0.30f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                offset: 0.15f,
+                                range: new float[] { 0, 40 }
                             )
                         },
                         {
                             COLLIDER_CENTER_Z, new Scaler(
                                 offset: -0.24f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => -0.42f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                massCurve: x => -0.42f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                     }
@@ -218,9 +217,9 @@ namespace TittyMagic.Handlers
                         },
                         {
                             COLLIDER_RADIUS, new Scaler(
-                                offset: -0.30f,
+                                offset: -0.40f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => -0.75f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                massCurve: x => -0.62f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
@@ -234,7 +233,7 @@ namespace TittyMagic.Handlers
                             COLLIDER_CENTER_Y, new Scaler(
                                 offset: -0.05f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => 0.55f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                massCurve: x => 0.35f * Curves.ColliderRadiusAndPositionSizeCurve(x)
                             )
                         },
                         {
@@ -258,30 +257,30 @@ namespace TittyMagic.Handlers
                         },
                         {
                             COLLIDER_RADIUS, new Scaler(
-                                offset: -0.50f,
+                                offset: -0.58f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => -1.35f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                massCurve: x => -1.24f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_X, new Scaler(
-                                offset: -0.24f,
+                                offset: -0.17f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => -0.85f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                massCurve: x => -0.84f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_Y, new Scaler(
-                                offset: 0.75f,
+                                offset: 0.90f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => 0.47f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                massCurve: x => 0.65f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_Z, new Scaler(
-                                offset: -0.16f,
+                                offset: -0.26f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => 0.13f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                massCurve: x => 0.18f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                     }
