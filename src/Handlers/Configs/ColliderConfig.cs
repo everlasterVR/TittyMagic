@@ -195,7 +195,7 @@ namespace TittyMagic.Configs
         public void AutoColliderSizeSet()
         {
             autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.Always;
-            autoCollider.AutoColliderSizeSet(true);
+            autoCollider.AutoColliderSizeSet();
             autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.None;
         }
 
