@@ -60,14 +60,16 @@ namespace TittyMagic
                     .Select(atom.GetStorableByID)
                     .ToList()
                     .Prune()
-                    .First(FindOtherInstanceStorable);
+                    .FirstOrDefault(FindOtherInstanceStorable);
             }
             catch(Exception e)
             {
                 Utils.LogError($"Error finding TittyMagic instance from Atom {atom.uid}: {e}");
             }
 
-            if(!_otherInstances.Contains(otherInstance) && !_otherInstances.Exists(instance => instance.containingAtom.uid == atom.uid))
+            if(otherInstance != null &&
+                !_otherInstances.Contains(otherInstance) &&
+                !_otherInstances.Exists(instance => instance.containingAtom.uid == atom.uid))
             {
                 _otherInstances.Add(otherInstance);
             }
