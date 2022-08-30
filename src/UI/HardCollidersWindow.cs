@@ -84,8 +84,7 @@ namespace TittyMagic.UI
             sb.Append("<b><i>Collision force</i></b> determines how easily collision");
             sb.Append(" causes breasts to move.");
             sb.Append("\n\n");
-            sb.Append("<b><i>Radius</i></b> and <b><i>length</i></b> adjust the size and");
-            sb.Append(" shape of the selected collider.");
+            sb.Append("<b><i>Radius</i></b> adjusts the size of the selected collider.");
             sb.Append("\n\n");
             sb.Append("<b><i>X, Y and Z offsets</i></b> can be used to modify the position");
             sb.Append(" of the selected collider.");
@@ -214,7 +213,6 @@ namespace TittyMagic.UI
 
             CreateCollisionForceSlider(colliderConfigGroup.forceJsf, true, spacing: 15);
             CreateColliderRadiusSlider(colliderConfigGroup.radiusJsf, true, spacing: 15);
-            CreateColliderLengthSlider(colliderConfigGroup.lengthJsf, true);
 
             CreateColliderRightSlider(colliderConfigGroup.rightJsf, true, spacing: 15);
             CreateColliderUpSlider(colliderConfigGroup.upJsf, true);
@@ -242,15 +240,6 @@ namespace TittyMagic.UI
             var slider = tittyMagic.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "Radius Offset";
-            colliderSectionElements[storable.name] = slider;
-        }
-
-        private void CreateColliderLengthSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
-        {
-            colliderSectionElements[$"{storable.name}Spacer"] = tittyMagic.NewSpacer(spacing, rightSide);
-            var slider = tittyMagic.CreateSlider(storable, rightSide);
-            slider.valueFormat = "F2";
-            slider.label = "Length Offset";
             colliderSectionElements[storable.name] = slider;
         }
 

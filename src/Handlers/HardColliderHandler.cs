@@ -26,7 +26,6 @@ namespace TittyMagic.Handlers
 
         private const string COLLISION_FORCE = "CollisionForce";
         private const string COLLIDER_RADIUS = "ColliderRadius";
-        private const string COLLIDER_LENGTH = "ColliderLength";
         private const string COLLIDER_CENTER_X = "ColliderCenterX";
         private const string COLLIDER_CENTER_Y = "ColliderCenterY";
         private const string COLLIDER_CENTER_Z = "ColliderCenterZ";
@@ -106,12 +105,6 @@ namespace TittyMagic.Handlers
                             )
                         },
                         {
-                            COLLIDER_LENGTH, new Scaler(
-                                offset: 0.00f,
-                                range: new float[] { 0, 40 }
-                            )
-                        },
-                        {
                             COLLIDER_CENTER_X, new Scaler(
                                 offset: -0.35f,
                                 range: new float[] { 0, 40 },
@@ -148,12 +141,6 @@ namespace TittyMagic.Handlers
                                 offset: -0.65f,
                                 range: new float[] { 0, 40 },
                                 massCurve: x => -0.18f * Curves.ColliderRadiusAndPositionSizeCurve(x)
-                            )
-                        },
-                        {
-                            COLLIDER_LENGTH, new Scaler(
-                                offset: 0.00f,
-                                range: new float[] { 0, 40 }
                             )
                         },
                         {
@@ -197,12 +184,6 @@ namespace TittyMagic.Handlers
                             )
                         },
                         {
-                            COLLIDER_LENGTH, new Scaler(
-                                offset: 0.00f,
-                                range: new float[] { 0, 40 }
-                            )
-                        },
-                        {
                             COLLIDER_CENTER_X, new Scaler(
                                 offset: -0.32f,
                                 range: new float[] { 0, 40 },
@@ -243,12 +224,6 @@ namespace TittyMagic.Handlers
                             )
                         },
                         {
-                            COLLIDER_LENGTH, new Scaler(
-                                offset: 0.00f,
-                                range: new float[] { 0, 40 }
-                            )
-                        },
-                        {
                             COLLIDER_CENTER_X, new Scaler(
                                 offset: -0.17f,
                                 range: new float[] { 0, 40 },
@@ -286,12 +261,6 @@ namespace TittyMagic.Handlers
                                 offset: -0.50f,
                                 range: new float[] { 0, 40 },
                                 massCurve: x => -1.35f * Curves.ColliderRadiusAndPositionSizeCurve(x)
-                            )
-                        },
-                        {
-                            COLLIDER_LENGTH, new Scaler(
-                                offset: 0.00f,
-                                range: new float[] { 0, 40 }
                             )
                         },
                         {
@@ -341,7 +310,6 @@ namespace TittyMagic.Handlers
                 configRight,
                 scalingConfig[COLLISION_FORCE],
                 scalingConfig[COLLIDER_RADIUS],
-                scalingConfig[COLLIDER_LENGTH],
                 scalingConfig[COLLIDER_CENTER_X],
                 scalingConfig[COLLIDER_CENTER_Y],
                 scalingConfig[COLLIDER_CENTER_Z],
@@ -350,15 +318,13 @@ namespace TittyMagic.Handlers
             {
                 forceJsf = tittyMagic.NewJSONStorableFloat(id.ToLower() + COLLISION_FORCE, 0.50f, 0.01f, 1.00f),
                 radiusJsf = tittyMagic.NewJSONStorableFloat(id.ToLower() + COLLIDER_RADIUS, 0, -1f, 1f),
-                lengthJsf = tittyMagic.NewJSONStorableFloat(id.ToLower() + COLLIDER_LENGTH, 0, 0f, 5f),
                 rightJsf = tittyMagic.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_X, 0, -1f, 1f),
                 upJsf = tittyMagic.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_Y, 0, -1f, 1f),
                 lookJsf = tittyMagic.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_Z, 0, -1f, 1f),
             };
 
             colliderConfigGroup.forceJsf.setCallbackFunction = _ => SyncHardColliderMass(colliderConfigGroup);
-            colliderConfigGroup.radiusJsf.setCallbackFunction = _ => SyncHardColliderDimensions(colliderConfigGroup);
-            colliderConfigGroup.lengthJsf.setCallbackFunction = _ => SyncHardColliderDimensions(colliderConfigGroup);
+            colliderConfigGroup.radiusJsf.setCallbackFunction = _ => SyncHardColliderRadius(colliderConfigGroup);
             colliderConfigGroup.rightJsf.setCallbackFunction = _ => SyncHardColliderPosition(colliderConfigGroup);
             colliderConfigGroup.upJsf.setCallbackFunction = _ => SyncHardColliderPosition(colliderConfigGroup);
             colliderConfigGroup.lookJsf.setCallbackFunction = _ => SyncHardColliderPosition(colliderConfigGroup);
@@ -383,7 +349,7 @@ namespace TittyMagic.Handlers
                 autoCollider.jointCollider != null && autoCollider.jointCollider.name == collider.name);
         }
 
-        private void SyncHardColliderDimensions(ColliderConfigGroup config)
+        private void SyncHardColliderRadius(ColliderConfigGroup config)
         {
             if(!enabled || !Gender.isFemale)
             {

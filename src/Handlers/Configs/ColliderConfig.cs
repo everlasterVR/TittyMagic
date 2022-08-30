@@ -16,7 +16,6 @@ namespace TittyMagic.Configs
 
         private readonly Scaler _baseRbMassSliderScaler;
         private readonly Scaler _radiusSliderScaler;
-        private readonly Scaler _lengthSliderScaler;
         private readonly Scaler _rightOffsetSliderScaler;
         private readonly Scaler _upOffsetSliderScaler;
         private readonly Scaler _lookOffsetSliderScaler;
@@ -28,7 +27,6 @@ namespace TittyMagic.Configs
 
         public JSONStorableFloat forceJsf { get; set; }
         public JSONStorableFloat radiusJsf { get; set; }
-        public JSONStorableFloat lengthJsf { get; set; }
         public JSONStorableFloat rightJsf { get; set; }
         public JSONStorableFloat upJsf { get; set; }
         public JSONStorableFloat lookJsf { get; set; }
@@ -39,7 +37,6 @@ namespace TittyMagic.Configs
             ColliderConfig right,
             Scaler baseRbMassSliderScaler,
             Scaler radiusSliderScaler,
-            Scaler lengthSliderScaler,
             Scaler rightOffsetSliderScaler,
             Scaler upOffsetSliderScaler,
             Scaler lookOffsetSliderScaler,
@@ -51,7 +48,6 @@ namespace TittyMagic.Configs
             this.right = right;
             _baseRbMassSliderScaler = baseRbMassSliderScaler;
             _radiusSliderScaler = radiusSliderScaler;
-            _lengthSliderScaler = lengthSliderScaler;
             _rightOffsetSliderScaler = rightOffsetSliderScaler;
             _upOffsetSliderScaler = upOffsetSliderScaler;
             _lookOffsetSliderScaler = lookOffsetSliderScaler;
@@ -74,9 +70,8 @@ namespace TittyMagic.Configs
         public void UpdateDimensions(float massValue, float softness)
         {
             float radius = -_radiusSliderScaler.Scale(radiusJsf.val, massValue, softness);
-            float length = -_lengthSliderScaler.Scale(lengthJsf.val, massValue, softness);
-            left.UpdateDimensions(radius, length);
-            right.UpdateDimensions(radius, length);
+            left.UpdateDimensions(radius);
+            right.UpdateDimensions(radius);
         }
 
         public void UpdatePosition(float massValue, float softness)
@@ -168,10 +163,15 @@ namespace TittyMagic.Configs
         public void UpdateRigidbodyMass(float mass) =>
             collider.attachedRigidbody.mass = mass;
 
-        public void UpdateDimensions(float radiusOffset, float lengthOffset)
+        public void UpdateDimensions(float radiusOffset)
         {
             autoCollider.autoRadiusBuffer = radiusOffset;
-            autoCollider.autoLengthBuffer = lengthOffset + 2 * radiusOffset;
+            /* Scale length buffer with radius to ensure that the capsule colliders stay spherical.
+             * 2x radius is exact scaling, preserving current center cylinder length.
+             * Adding 0.1f ensures cylinder length decreases enough to prevent it
+             * having any length. (+buffer => -length)
+             */
+            autoCollider.autoLengthBuffer = 2f * radiusOffset + 0.1f;
         }
 
         public void UpdatePosition(float rightOffset, float upOffset, float lookOffset)
