@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TittyMagic.Handlers;
 using UnityEngine;
 using UnityEngine.Events;
 using Image = UnityEngine.UI.Image;
@@ -57,7 +58,7 @@ namespace TittyMagic.UI
 
         private void CreateColliderGroupChooser(bool rightSide, int spacing = 0)
         {
-            var storable = tittyMagic.hardColliderHandler.colliderGroupsJsc;
+            var storable = HardColliderHandler.colliderGroupsJsc;
             elements[$"{storable.name}Spacer"] = tittyMagic.NewSpacer(spacing, rightSide);
 
             var chooser = tittyMagic.CreatePopupAuto(storable, rightSide, 360f);
@@ -68,7 +69,7 @@ namespace TittyMagic.UI
 
         private void CreateBaseCollisionForceSlider(bool rightSide, int spacing = 0)
         {
-            var storable = tittyMagic.hardColliderHandler.baseForceJsf;
+            var storable = HardColliderHandler.baseForceJsf;
             elements[$"{storable.name}Spacer"] = tittyMagic.NewSpacer(spacing, rightSide);
 
             var slider = tittyMagic.CreateSlider(storable, rightSide);
@@ -131,7 +132,7 @@ namespace TittyMagic.UI
 
         private void CreateHighlightAllToggle(bool rightSide, int spacing = 0)
         {
-            var storable = tittyMagic.hardColliderHandler.highlightAllJsb;
+            var storable = HardColliderHandler.highlightAllJsb;
             elements[$"{storable.name}Spacer"] = tittyMagic.NewSpacer(spacing, rightSide);
 
             var toggle = tittyMagic.CreateToggle(storable, rightSide);
@@ -175,12 +176,12 @@ namespace TittyMagic.UI
             }
 
             elements[tittyMagic.colliderVisualizer.XRayPreviewsJSON.name].SetActiveStyle(value != "Off");
-            elements[tittyMagic.hardColliderHandler.highlightAllJsb.name].SetActiveStyle(value != "Off");
+            elements[HardColliderHandler.highlightAllJsb.name].SetActiveStyle(value != "Off");
         }
 
         private void RemoveColliderPopupChangeHandler()
         {
-            var element = elements[tittyMagic.hardColliderHandler.colliderGroupsJsc.name];
+            var element = elements[HardColliderHandler.colliderGroupsJsc.name];
             var uiDynamicPopup = element as UIDynamicPopup;
             if(uiDynamicPopup != null)
             {
@@ -191,12 +192,12 @@ namespace TittyMagic.UI
 
         private void AddColliderPopupChangeHandler()
         {
-            var element = elements[tittyMagic.hardColliderHandler.colliderGroupsJsc.name];
+            var element = elements[HardColliderHandler.colliderGroupsJsc.name];
             var uiDynamicPopup = element as UIDynamicPopup;
             if(uiDynamicPopup != null)
             {
                 uiDynamicPopup.popup.onValueChangeHandlers += OnColliderPopupValueChanged;
-                RebuildColliderSection(tittyMagic.hardColliderHandler.colliderGroupsJsc.val);
+                RebuildColliderSection(HardColliderHandler.colliderGroupsJsc.val);
             }
         }
 
@@ -208,7 +209,7 @@ namespace TittyMagic.UI
 
         private void RebuildColliderSection(string colliderId)
         {
-            var colliderConfigGroup = tittyMagic.hardColliderHandler.colliderConfigs
+            var colliderConfigGroup = HardColliderHandler.colliderConfigs
                 .Find(config => config.visualizerEditableId == colliderId);
 
             CreateCollisionForceSlider(colliderConfigGroup.forceJsf, true, spacing: 15);
@@ -218,7 +219,7 @@ namespace TittyMagic.UI
             CreateColliderUpSlider(colliderConfigGroup.upJsf, true);
             CreateColliderLookSlider(colliderConfigGroup.lookJsf, true);
 
-            var baseSlider = elements[tittyMagic.hardColliderHandler.baseForceJsf.name];
+            var baseSlider = elements[HardColliderHandler.baseForceJsf.name];
             baseSlider.AddListener(UpdateAllSliderColors);
             UpdateAllSliderColors(0);
         }
@@ -272,7 +273,7 @@ namespace TittyMagic.UI
 
         private void UpdateAllSliderColors(float value)
         {
-            foreach(var config in tittyMagic.hardColliderHandler.colliderConfigs)
+            foreach(var config in HardColliderHandler.colliderConfigs)
             {
                 if(colliderSectionElements.ContainsKey(config.forceJsf.name))
                 {
@@ -287,7 +288,7 @@ namespace TittyMagic.UI
             var images = slider.slider.gameObject.transform.GetComponentsInChildren<Image>();
             var fillImage = images.First(image => image.name == "Fill");
             var handleImage = images.First(image => image.name == "Handle");
-            var color = MultiplierSliderColor(tittyMagic.hardColliderHandler.baseForceJsf.val * storable.val / 1.5f);
+            var color = MultiplierSliderColor(HardColliderHandler.baseForceJsf.val * storable.val / 1.5f);
             fillImage.color = color;
             handleImage.color = color;
         }

@@ -7,20 +7,20 @@ using static TittyMagic.Script;
 
 namespace TittyMagic.Handlers
 {
-    internal class HardColliderHandler : MonoBehaviour
+    internal static class HardColliderHandler
     {
-        private DAZCharacterSelector _geometry;
-        private Rigidbody _chestRb;
+        private static DAZCharacterSelector _geometry;
+        private static Rigidbody _chestRb;
 
-        public JSONStorableStringChooser colliderGroupsJsc { get; private set; }
-        public List<ColliderConfigGroup> colliderConfigs { get; private set; }
-        public JSONStorableFloat baseForceJsf { get; private set; }
-        public JSONStorableBool highlightAllJsb { get; private set; }
+        public static JSONStorableStringChooser colliderGroupsJsc { get; private set; }
+        public static List<ColliderConfigGroup> colliderConfigs { get; private set; }
+        public static JSONStorableFloat baseForceJsf { get; private set; }
+        public static JSONStorableBool highlightAllJsb { get; private set; }
 
-        private float _frictionSizeMultiplierLeft;
-        private float _frictionSizeMultiplierRight;
+        private static float _frictionSizeMultiplierLeft;
+        private static float _frictionSizeMultiplierRight;
 
-        private Dictionary<string, Dictionary<string, Scaler>> _scalingConfigs;
+        private static Dictionary<string, Dictionary<string, Scaler>> _scalingConfigs;
 
         private const string COLLISION_FORCE = "CollisionForce";
         private const string COLLIDER_RADIUS = "ColliderRadius";
@@ -28,7 +28,7 @@ namespace TittyMagic.Handlers
         private const string COLLIDER_CENTER_Y = "ColliderCenterY";
         private const string COLLIDER_CENTER_Z = "ColliderCenterZ";
 
-        public void Init(DAZCharacterSelector geometry, Rigidbody chestRb)
+        public static void Init(DAZCharacterSelector geometry, Rigidbody chestRb)
         {
             _geometry = geometry;
             _chestRb = chestRb;
@@ -86,7 +86,7 @@ namespace TittyMagic.Handlers
             highlightAllJsb.setCallbackFunction = value => tittyMagic.colliderVisualizer.PreviewOpacityJSON.val = value ? 1.00f : 0.67f;
         }
 
-        private void CreateScalingConfigs()
+        private static void CreateScalingConfigs()
         {
             _scalingConfigs = new Dictionary<string, Dictionary<string, Scaler>>
             {
@@ -290,7 +290,7 @@ namespace TittyMagic.Handlers
             };
         }
 
-        private ColliderConfigGroup NewColliderConfigGroup(string id)
+        private static ColliderConfigGroup NewColliderConfigGroup(string id)
         {
             var configLeft = NewColliderConfig("l" + id);
             var configRight = NewColliderConfig("r" + id);
@@ -335,7 +335,7 @@ namespace TittyMagic.Handlers
             return colliderConfigGroup;
         }
 
-        private ColliderConfig NewColliderConfig(string id)
+        private static ColliderConfig NewColliderConfig(string id)
         {
             var collider = _geometry.auxBreastColliders.ToList().Find(c => c.name.Contains(id));
             /* Find auto collider */
@@ -346,9 +346,9 @@ namespace TittyMagic.Handlers
             return new ColliderConfig(autoCollider, visualizerEditableId);
         }
 
-        private void SyncRadius(ColliderConfigGroup config)
+        private static void SyncRadius(ColliderConfigGroup config)
         {
-            if(!enabled || !Gender.isFemale)
+            if(!Gender.isFemale)
             {
                 return;
             }
@@ -357,9 +357,9 @@ namespace TittyMagic.Handlers
             SyncSizeAuto();
         }
 
-        private void SyncPosition(ColliderConfigGroup config)
+        private static void SyncPosition(ColliderConfigGroup config)
         {
-            if(!enabled || !Gender.isFemale)
+            if(!Gender.isFemale)
             {
                 return;
             }
@@ -368,9 +368,9 @@ namespace TittyMagic.Handlers
             SyncSizeAuto();
         }
 
-        public void SyncAllOffsets()
+        public static void SyncAllOffsets()
         {
-            if(!enabled || !Gender.isFemale)
+            if(!Gender.isFemale)
             {
                 return;
             }
@@ -385,7 +385,7 @@ namespace TittyMagic.Handlers
             SyncSizeAuto();
         }
 
-        private void SyncSizeAuto()
+        private static void SyncSizeAuto()
         {
             colliderConfigs.ForEach(config => config.AutoColliderSizeSet());
             float averageRadius = colliderConfigs.Average(config => config.left.autoCollider.colliderRadius);
@@ -397,7 +397,7 @@ namespace TittyMagic.Handlers
             tittyMagic.colliderVisualizer.SyncPreviews();
         }
 
-        public void UpdateFrictionSizeMultipliers()
+        public static void UpdateFrictionSizeMultipliers()
         {
             _frictionSizeMultiplierLeft = FrictionSizeMultiplier(VertexIndexGroup.LEFT_BREAST_WIDTH_MARKERS);
             _frictionSizeMultiplierRight = FrictionSizeMultiplier(VertexIndexGroup.RIGHT_BREAST_WIDTH_MARKERS);
@@ -412,9 +412,9 @@ namespace TittyMagic.Handlers
             return Curves.InverseSmoothStep(multiplier, 1, 0.55f, 0.42f);
         }
 
-        public void UpdateFriction()
+        public static void UpdateFriction()
         {
-            if(!enabled || !Gender.isFemale)
+            if(!Gender.isFemale)
             {
                 return;
             }
@@ -422,9 +422,9 @@ namespace TittyMagic.Handlers
             colliderConfigs.ForEach(config => config.UpdateFriction(FrictionHandler.maxHardColliderFriction));
         }
 
-        private void SyncColliderMass(ColliderConfigGroup config)
+        private static void SyncColliderMass(ColliderConfigGroup config)
         {
-            if(!enabled || !Gender.isFemale)
+            if(!Gender.isFemale)
             {
                 return;
             }
@@ -436,9 +436,9 @@ namespace TittyMagic.Handlers
             );
         }
 
-        public void SyncCollidersMass() => colliderConfigs?.ForEach(SyncColliderMass);
+        public static void SyncCollidersMass() => colliderConfigs?.ForEach(SyncColliderMass);
 
-        public void CalibrateColliders()
+        public static void CalibrateColliders()
         {
             if(!Gender.isFemale)
             {
@@ -450,7 +450,7 @@ namespace TittyMagic.Handlers
             colliderConfigs.ForEach(config => config.Calibrate(breastCenterLeft, breastCenterRight, _chestRb));
         }
 
-        public void UpdateDistanceDiffs()
+        public static void UpdateDistanceDiffs()
         {
             if(!Gender.isFemale)
             {
@@ -462,12 +462,12 @@ namespace TittyMagic.Handlers
             colliderConfigs.ForEach(config => config.UpdateDistanceDiffs(breastCenterLeft, breastCenterRight, _chestRb));
         }
 
-        private Vector3 BreastCenter(IEnumerable<int> vertexIndices) =>
+        private static Vector3 BreastCenter(IEnumerable<int> vertexIndices) =>
             Calc.RelativePosition(_chestRb, Calc.AveragePosition(vertexIndices.Select(index => tittyMagic.skin.rawSkinnedVerts[index]).ToArray()));
 
-        public void ResetDistanceDiffs()
+        public static void ResetDistanceDiffs()
         {
-            if(!enabled || !Gender.isFemale)
+            if(!Gender.isFemale)
             {
                 return;
             }
@@ -475,10 +475,10 @@ namespace TittyMagic.Handlers
             colliderConfigs.ForEach(config => config.ResetDistanceDiffs());
         }
 
-        private bool _originalUseAdvancedColliders;
-        private bool _originalUseAuxBreastColliders;
+        private static bool _originalUseAdvancedColliders;
+        private static bool _originalUseAuxBreastColliders;
 
-        public void SaveOriginalUseColliders()
+        public static void SaveOriginalUseColliders()
         {
             if(Gender.isFemale)
             {
@@ -487,7 +487,7 @@ namespace TittyMagic.Handlers
             }
         }
 
-        public void EnableDefaults()
+        public static void EnableDefaults()
         {
             if(Gender.isFemale)
             {
@@ -497,7 +497,7 @@ namespace TittyMagic.Handlers
             }
         }
 
-        public void RestoreOriginalPhysics()
+        public static void RestoreOriginalPhysics()
         {
             if(Gender.isFemale)
             {

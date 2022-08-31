@@ -1,5 +1,6 @@
 using System.Text;
 using TittyMagic.Configs;
+using TittyMagic.Handlers;
 using UnityEngine;
 using UnityEngine.Events;
 using static TittyMagic.Script;
@@ -29,7 +30,7 @@ namespace TittyMagic.UI
 
         private void CreateColliderGroupChooser(bool rightSide, int spacing = 0)
         {
-            var storable = tittyMagic.hardColliderHandler.colliderGroupsJsc;
+            var storable = HardColliderHandler.colliderGroupsJsc;
             elements[$"{storable.name}Spacer"] = tittyMagic.NewSpacer(spacing, rightSide);
 
             var chooser = tittyMagic.CreatePopupAuto(storable, rightSide, 360f);
@@ -49,7 +50,7 @@ namespace TittyMagic.UI
             textField.height = 1070;
             elements[_leftDebugArea.name] = textField;
 
-            _colliderConfigs = tittyMagic.hardColliderHandler.colliderConfigs.ToArray();
+            _colliderConfigs = HardColliderHandler.colliderConfigs.ToArray();
         }
 
         public void UpdateLeftDebugInfo()
