@@ -728,24 +728,25 @@ namespace TittyMagic.Handlers
 
         public static void SyncFriction(float friction)
         {
-            foreach(var group in _softVerticesGroups[RIGHT])
-            {
-                foreach(var set in group.Value.softVerticesSets)
-                {
-                    var material = set.jointCollider.material;
-                    material.dynamicFriction = friction;
-                    material.staticFriction = friction;
-                }
-            }
+            float areolaFriction = friction + 0.33f * (1 - friction);
+            float nippleFriction = friction + 0.5f * (1 - friction);
 
-            foreach(var group in _softVerticesGroups[LEFT])
+            foreach(string side in new[] { LEFT, RIGHT })
             {
-                foreach(var set in group.Value.softVerticesSets)
-                {
-                    var material = set.jointCollider.material;
-                    material.dynamicFriction = friction;
-                    material.staticFriction = friction;
-                }
+                SyncFriction(friction, _softVerticesGroups[side][MAIN]);
+                SyncFriction(friction, _softVerticesGroups[side][OUTER]);
+                SyncFriction(areolaFriction, _softVerticesGroups[side][AREOLA]);
+                SyncFriction(nippleFriction, _softVerticesGroups[side][NIPPLE]);
+            }
+        }
+
+        private static void SyncFriction(float value, DAZPhysicsMeshSoftVerticesGroup group)
+        {
+            foreach(var set in group.softVerticesSets)
+            {
+                var material = set.jointCollider.material;
+                material.dynamicFriction = value;
+                material.staticFriction = value;
             }
         }
 
