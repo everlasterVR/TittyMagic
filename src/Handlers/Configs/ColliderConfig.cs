@@ -127,6 +127,8 @@ namespace TittyMagic.Configs
 
     internal class ColliderConfig
     {
+        public const float DEFAULT_FRICTION = 0.6f;
+
         public AutoCollider autoCollider { get; }
         public Collider collider { get; }
         public string visualizerEditableId { get; }
@@ -232,8 +234,8 @@ namespace TittyMagic.Configs
             /* Restore default friction. */
             var material = collider.material;
             material.frictionCombine = PhysicMaterialCombine.Average;
-            material.dynamicFriction = 0.6f;
-            material.staticFriction = 0.6f;
+            material.dynamicFriction = DEFAULT_FRICTION;
+            material.staticFriction = DEFAULT_FRICTION;
         }
     }
 }

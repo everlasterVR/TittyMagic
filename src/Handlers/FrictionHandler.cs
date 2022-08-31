@@ -11,10 +11,11 @@ namespace TittyMagic
         private static JSONStorable _skinMaterialsStorable;
         private static PhysicsParameterGroup _colliderRadiusParameter;
 
-        public static JSONStorableBool enableAdaptiveFriction { get; private set; }
-        public static JSONStorableFloat drySkinFriction { get; private set; }
+        public static JSONStorableFloat frictionOffsetJsf { get; private set; }
+        public static JSONStorableFloat softColliderFrictionJsf { get; private set; }
+        public static JSONStorableBool adaptiveFrictionJsb { get; private set; }
+        public static JSONStorableFloat drySkinFrictionJsf { get; private set; }
         public static float maxHardColliderFriction { get; private set; }
-        public static JSONStorableFloat softColliderFriction { get; private set; }
 
         private static JSONStorableFloat _glossJsf;
         private static JSONStorableFloat _specularBumpinessJsf;
@@ -28,14 +29,15 @@ namespace TittyMagic
 
             _skinMaterialsStorable = skinMaterialsStorable;
 
-            enableAdaptiveFriction = tittyMagic.NewJSONStorableBool("enableAdaptiveFriction", false);
-            enableAdaptiveFriction.setCallbackFunction = val =>
-            {
-                if(tittyMagic.enableAdaptiveFrictionToggle != null)
-                {
-                    tittyMagic.enableAdaptiveFrictionToggle.textColor = val ? UIHelpers.funkyCyan : Color.white;
-                }
+            frictionOffsetJsf = new JSONStorableFloat("frictionOffset", 0, -0.5f, 0.5f);
+            frictionOffsetJsf.setCallbackFunction = _ => CalculateFriction();
 
+            softColliderFrictionJsf = new JSONStorableFloat("softColliderFriction", ColliderConfig.DEFAULT_FRICTION, 0, 1);
+            softColliderFrictionJsf.setCallbackFunction = UpdateSoftColliders;
+
+            adaptiveFrictionJsb = tittyMagic.NewJSONStorableBool("enableAdaptiveFriction", false);
+            adaptiveFrictionJsb.setCallbackFunction = val =>
+            {
                 if(tittyMagic.drySkinFrictionSlider != null)
                 {
                     tittyMagic.drySkinFrictionSlider.SetActiveStyle(val);
@@ -44,11 +46,8 @@ namespace TittyMagic
                 CalculateFriction();
             };
 
-            drySkinFriction = tittyMagic.NewJSONStorableFloat("drySkinFriction", 0.750f, 0.000f, 1.000f);
-            drySkinFriction.setCallbackFunction = _ => CalculateFriction();
-
-            softColliderFriction = new JSONStorableFloat("softColliderFriction", 1, 0, 1);
-            softColliderFriction.setCallbackFunction = UpdateSoftColliders;
+            drySkinFrictionJsf = tittyMagic.NewJSONStorableFloat("drySkinFriction", 0.750f, 0.000f, 1.000f);
+            drySkinFrictionJsf.setCallbackFunction = _ => CalculateFriction();
 
             _glossJsf = _skinMaterialsStorable.GetFloatJSONParam("Gloss");
             _glossJsf.setJSONCallbackFunction = _ => CalculateFriction();
@@ -82,12 +81,12 @@ namespace TittyMagic
 
         private static void UpdateSoftColliders(float friction)
         {
-            if(enableAdaptiveFriction.val)
+            if(adaptiveFrictionJsb.val)
             {
                 /* Update physics dependent on friction */
                 float mass = MainPhysicsHandler.realMassAmount;
                 float softness = tittyMagic.softnessAmount;
-                float inverseFriction = 1 - Mathf.InverseLerp(0, drySkinFriction.val, friction);
+                float inverseFriction = 1 - Mathf.InverseLerp(0, drySkinFrictionJsf.val, friction);
                 _colliderRadiusParameter.UpdateInverseFrictionValue(inverseFriction, mass, softness);
             }
             else
@@ -120,10 +119,11 @@ namespace TittyMagic
                 return;
             }
 
-            if(!enableAdaptiveFriction.val)
+            if(!adaptiveFrictionJsb.val)
             {
-                maxHardColliderFriction = 0.600f;
-                softColliderFriction.valNoCallback = 0.600f;
+                float friction = Mathf.Clamp(ColliderConfig.DEFAULT_FRICTION + frictionOffsetJsf.val, 0, 1);
+                maxHardColliderFriction = friction;
+                softColliderFrictionJsf.valNoCallback = friction;
             }
             else
             {
@@ -138,22 +138,24 @@ namespace TittyMagic
                 /* Inverse of gloss determines the minimum value for friction along a curve.
                  * https://www.desmos.com/calculator/8jwemyzuwr
                  */
-                float minFriction = drySkinFriction.val * (1 - Curves.InverseSmoothStep(normalizedLinearGloss, 1, 0.56f, 0.86f));
+                float minFriction = drySkinFrictionJsf.val * (1 - Curves.InverseSmoothStep(normalizedLinearGloss, 1, 0.56f, 0.86f));
 
                 /* Hard colliders */
                 {
                     float specBumpComponent = 0.50f * bumpinessEffectMultiplier * normalizedSpecBump;
-                    maxHardColliderFriction = 0.80f * Mathf.Lerp(minFriction, 1.000f, specBumpComponent);
+                    float friction = 0.80f * Mathf.Lerp(minFriction, 1.000f, specBumpComponent);
+                    maxHardColliderFriction = Mathf.Clamp(friction + frictionOffsetJsf.val, 0, 1);
                 }
 
                 /* Soft colliders */
                 {
                     float specBumpComponent = 0.60f * bumpinessEffectMultiplier * normalizedSpecBump;
-                    softColliderFriction.valNoCallback = Mathf.Lerp(minFriction, 1.000f, specBumpComponent);
+                    float friction = Mathf.Lerp(minFriction, 1.000f, specBumpComponent);
+                    softColliderFrictionJsf.valNoCallback = Mathf.Clamp(friction + frictionOffsetJsf.val, 0, 1);
                 }
             }
 
-            UpdateSoftColliders(softColliderFriction.val);
+            UpdateSoftColliders(softColliderFrictionJsf.val);
         }
 
         public static void RemoveCallbacks()

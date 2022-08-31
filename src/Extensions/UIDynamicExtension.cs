@@ -44,13 +44,9 @@ public static class UIDynamicExtension
         var uiDynamicSlider = element as UIDynamicSlider;
         if(uiDynamicSlider != null)
         {
-            if(setsInteractable)
-            {
-                uiDynamicSlider.slider.interactable = isActive;
-                uiDynamicSlider.quickButtonsEnabled = isActive;
-                uiDynamicSlider.defaultButtonEnabled = isActive;
-            }
-
+            uiDynamicSlider.slider.interactable = !setsInteractable || isActive;
+            uiDynamicSlider.quickButtonsEnabled = !setsInteractable || isActive;
+            uiDynamicSlider.defaultButtonEnabled = !setsInteractable || isActive;
             uiDynamicSlider.labelText.color = color;
             return;
         }
@@ -58,11 +54,7 @@ public static class UIDynamicExtension
         var uiDynamicToggle = element as UIDynamicToggle;
         if(uiDynamicToggle != null)
         {
-            if(setsInteractable)
-            {
-                uiDynamicToggle.toggle.interactable = isActive;
-            }
-
+            uiDynamicToggle.toggle.interactable = !setsInteractable || isActive;
             uiDynamicToggle.labelText.color = color;
             return;
         }
@@ -70,11 +62,7 @@ public static class UIDynamicExtension
         var uiDynamicButton = element as UIDynamicButton;
         if(uiDynamicButton != null)
         {
-            if(setsInteractable)
-            {
-                uiDynamicButton.button.interactable = isActive;
-            }
-
+            uiDynamicButton.button.interactable = !setsInteractable || isActive;
             var colors = uiDynamicButton.button.colors;
             colors.disabledColor = colors.normalColor;
             uiDynamicButton.button.colors = colors;

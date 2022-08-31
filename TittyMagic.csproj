@@ -83,6 +83,7 @@
     <Compile Include="src\BreastMorphListener.cs" />
     <Compile Include="src\CalibrationHelper.cs" />
     <Compile Include="src\Components\FrequencyRunner.cs" />
+    <Compile Include="src\Components\RectTransformChange.cs" />
     <Compile Include="src\Components\Scaler.cs" />
     <Compile Include="src\Components\TrackNipple.cs" />
     <Compile Include="src\Components\UnityEventsListener.cs" />

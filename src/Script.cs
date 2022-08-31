@@ -434,8 +434,8 @@ namespace TittyMagic
         }
 
         private UnityEventsListener _atomUIEventsListener;
-        private List<GameObject> _customUIGameObjects;
-        private List<GameObject> _inactivatedUIGameObjects;
+        private readonly List<GameObject> _customUIGameObjects = new List<GameObject>();
+        private readonly List<GameObject> _inactivatedUIGameObjects = new List<GameObject>();
         private bool _modifyBreastPhysicsUIDone;
 
         private IEnumerator ModifyBreastPhysicsUI(Transform content)
@@ -476,12 +476,9 @@ namespace TittyMagic
                 yield break;
             }
 
-            _customUIGameObjects = new List<GameObject>();
-
             /* Hide elements in vanilla Breast Physics tabs, add buttons to navigate to plugin UI */
             try
             {
-                _inactivatedUIGameObjects = new List<GameObject>();
                 Inactivate(mPectoralPhysics);
                 Inactivate(fBreastPhysics1);
                 Inactivate(fBreastPhysics2);
@@ -501,6 +498,7 @@ namespace TittyMagic
         }
 
         private bool _modifySkinMaterialsUIDone;
+        private readonly List<RectTransformChange> _movedRects = new List<RectTransformChange>();
         public UIDynamicToggle enableAdaptiveFrictionToggle { get; private set; }
         public UIDynamicSlider drySkinFrictionSlider { get; private set; }
 
@@ -536,73 +534,119 @@ namespace TittyMagic
 
             try
             {
+                /* Left side */
                 var leftSide = skinMaterials2.Find("LeftSide");
                 {
-                    var customTransform = UIHelpers.DestroyLayout(this.InstantiateToggle(leftSide));
-                    var rectTransform = customTransform.GetComponent<RectTransform>();
+                    var fieldTransform = UIHelpers.DestroyLayout(this.InstantiateTextField(leftSide));
+                    var rectTransform = fieldTransform.GetComponent<RectTransform>();
                     rectTransform.pivot = new Vector2(0, 0);
-                    rectTransform.anchoredPosition = new Vector2(20f, -780f);
-                    var sizeDelta = rectTransform.sizeDelta;
-                    rectTransform.sizeDelta = new Vector2(sizeDelta.x + 10, sizeDelta.y);
-                    _customUIGameObjects.Add(customTransform.gameObject);
+                    rectTransform.anchoredPosition = new Vector2(20f, -930);
+                    rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x + 10, 100);
+                    _customUIGameObjects.Add(fieldTransform.gameObject);
 
-                    enableAdaptiveFrictionToggle = customTransform.GetComponent<UIDynamicToggle>();
-                    var jsf = FrictionHandler.enableAdaptiveFriction;
-                    jsf.toggle = enableAdaptiveFrictionToggle.toggle;
-                    toggleToJSONStorableBool.Add(enableAdaptiveFrictionToggle, jsf);
-                    enableAdaptiveFrictionToggle.label = "TittyMagic Adaptive Friction";
-                    enableAdaptiveFrictionToggle.textColor = jsf.val ? UIHelpers.funkyCyan : Color.white;
-                    enableAdaptiveFrictionToggle.backgroundColor = UIHelpers.darkerGray;
-                }
-                {
-                    var customTransform = UIHelpers.DestroyLayout(this.InstantiateSlider(leftSide));
-                    var rectTransform = customTransform.GetComponent<RectTransform>();
-                    rectTransform.pivot = new Vector2(0, 0);
-                    rectTransform.anchoredPosition = new Vector2(20f, -920f);
-                    var sizeDelta = rectTransform.sizeDelta;
-                    rectTransform.sizeDelta = new Vector2(sizeDelta.x + 10, sizeDelta.y);
-                    _customUIGameObjects.Add(customTransform.gameObject);
-
-                    drySkinFrictionSlider = customTransform.GetComponent<UIDynamicSlider>();
-                    var jsf = FrictionHandler.drySkinFriction;
-                    drySkinFrictionSlider.Configure(jsf.name, jsf.min, jsf.max, jsf.defaultVal, jsf.constrained, valFormat: "F3");
-                    jsf.slider = drySkinFrictionSlider.slider;
-                    sliderToJSONStorableFloat.Add(drySkinFrictionSlider, jsf);
-                    drySkinFrictionSlider.label = "Dry Skin Friction";
-                    drySkinFrictionSlider.SetActiveStyle(FrictionHandler.enableAdaptiveFriction.val);
-                }
-                {
-                    var customTransform = UIHelpers.DestroyLayout(this.InstantiateSlider(leftSide));
-                    var rectTransform = customTransform.GetComponent<RectTransform>();
-                    rectTransform.pivot = new Vector2(0, 0);
-                    rectTransform.anchoredPosition = new Vector2(20f, -1060f);
-                    var sizeDelta = rectTransform.sizeDelta;
-                    rectTransform.sizeDelta = new Vector2(sizeDelta.x + 10, sizeDelta.y);
-                    _customUIGameObjects.Add(customTransform.gameObject);
-
-                    var uiDynamic = customTransform.GetComponent<UIDynamicSlider>();
-                    var jsf = FrictionHandler.softColliderFriction;
-                    uiDynamic.Configure(jsf.name, jsf.min, jsf.max, jsf.defaultVal, jsf.constrained, valFormat: "F3");
-                    jsf.slider = uiDynamic.slider;
-                    sliderToJSONStorableFloat.Add(uiDynamic, jsf);
-                    uiDynamic.label = "Collider Friction";
-                    uiDynamic.SetActiveStyle(false, true);
+                    var uiDynamic = fieldTransform.GetComponent<UIDynamicTextField>();
+                    uiDynamic.UItext.alignment = TextAnchor.LowerCenter;
+                    uiDynamic.text = "TittyMagic Collider Friction".Size(32).Bold();
+                    uiDynamic.backgroundColor = Color.clear;
+                    uiDynamic.textColor = Color.white;
                 }
                 {
                     var fieldTransform = UIHelpers.DestroyLayout(this.InstantiateTextField(leftSide));
                     var rectTransform = fieldTransform.GetComponent<RectTransform>();
                     rectTransform.pivot = new Vector2(0, 0);
-                    rectTransform.anchoredPosition = new Vector2(20f, -1300f);
-                    rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x + 10, 220f);
+                    rectTransform.anchoredPosition = new Vector2(20, -1290);
+                    rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x + 10, 400);
                     _customUIGameObjects.Add(fieldTransform.gameObject);
 
                     var uiDynamic = fieldTransform.GetComponent<UIDynamicTextField>();
                     uiDynamic.text =
-                        "Friction decreases with <i>Gloss</i> but increases with <i>Specular Bumpiness</i> " +
-                        "when <i>Gloss</i> is high. Dry skin friction represents the value when both " +
-                        "<i>Gloss</i> and <i>Specular Bumpiness</i> are zero. Other sliders are ignored.";
+                        "Combined friction for hard colliders and soft colliders." +
+                        "\n\n" +
+                        "Adaptive friction reduces friction when <i>Gloss</i> is increased. The higher " +
+                        "the gloss, the more <i>Specular Bumpiness</i> adds friction. Other skin material " +
+                        "sliders are ignored." +
+                        "\n\n" +
+                        "Dry skin friction represents the value when both <i>Gloss</i> and <i>Specular Bumpiness</i> " +
+                        "are zero.";
                     uiDynamic.backgroundColor = Color.clear;
                     uiDynamic.textColor = Color.white;
+                }
+
+                /* Right side */
+                var rightSide = skinMaterials2.Find("RightSide");
+                foreach(Transform t in rightSide)
+                {
+                    if(t.name == "SavePanel" || t.name == "RestorePanel" || t.name == "Reset")
+                    {
+                        var change = new RectTransformChange(t.GetComponent<RectTransform>(), new Vector2(0, 600f));
+                        _movedRects.Add(change);
+                    }
+                }
+
+                {
+                    var customTransform = UIHelpers.DestroyLayout(this.InstantiateToggle(rightSide));
+                    var rectTransform = customTransform.GetComponent<RectTransform>();
+                    rectTransform.pivot = new Vector2(0, 0);
+                    rectTransform.anchoredPosition = new Vector2(0, -880);
+                    var sizeDelta = rectTransform.sizeDelta;
+                    rectTransform.sizeDelta = new Vector2(sizeDelta.x + 10, sizeDelta.y);
+                    _customUIGameObjects.Add(customTransform.gameObject);
+
+                    enableAdaptiveFrictionToggle = customTransform.GetComponent<UIDynamicToggle>();
+                    var jsf = FrictionHandler.adaptiveFrictionJsb;
+                    jsf.toggle = enableAdaptiveFrictionToggle.toggle;
+                    toggleToJSONStorableBool.Add(enableAdaptiveFrictionToggle, jsf);
+                    enableAdaptiveFrictionToggle.label = "Use Adaptive Friction";
+                }
+                {
+                    var customTransform = UIHelpers.DestroyLayout(this.InstantiateSlider(rightSide));
+                    var rectTransform = customTransform.GetComponent<RectTransform>();
+                    rectTransform.pivot = new Vector2(0, 0);
+                    rectTransform.anchoredPosition = new Vector2(0, -1020);
+                    var sizeDelta = rectTransform.sizeDelta;
+                    rectTransform.sizeDelta = new Vector2(sizeDelta.x + 10, sizeDelta.y);
+                    _customUIGameObjects.Add(customTransform.gameObject);
+
+                    drySkinFrictionSlider = customTransform.GetComponent<UIDynamicSlider>();
+                    var jsf = FrictionHandler.drySkinFrictionJsf;
+                    drySkinFrictionSlider.Configure(jsf.name, jsf.min, jsf.max, jsf.defaultVal, jsf.constrained, valFormat: "F3");
+                    jsf.slider = drySkinFrictionSlider.slider;
+                    sliderToJSONStorableFloat.Add(drySkinFrictionSlider, jsf);
+                    drySkinFrictionSlider.label = "Dry Skin Friction";
+                    drySkinFrictionSlider.SetActiveStyle(FrictionHandler.adaptiveFrictionJsb.val, true);
+                }
+                {
+                    var customTransform = UIHelpers.DestroyLayout(this.InstantiateSlider(rightSide));
+                    var rectTransform = customTransform.GetComponent<RectTransform>();
+                    rectTransform.pivot = new Vector2(0, 0);
+                    rectTransform.anchoredPosition = new Vector2(0, -1160);
+                    var sizeDelta = rectTransform.sizeDelta;
+                    rectTransform.sizeDelta = new Vector2(sizeDelta.x + 10, sizeDelta.y);
+                    _customUIGameObjects.Add(customTransform.gameObject);
+
+                    var uiDynamic = customTransform.GetComponent<UIDynamicSlider>();
+                    var jsf = FrictionHandler.frictionOffsetJsf;
+                    uiDynamic.Configure(jsf.name, jsf.min, jsf.max, jsf.defaultVal, jsf.constrained, valFormat: "F3");
+                    jsf.slider = uiDynamic.slider;
+                    sliderToJSONStorableFloat.Add(uiDynamic, jsf);
+                    uiDynamic.label = "Friction Offset";
+                }
+                {
+                    var customTransform = UIHelpers.DestroyLayout(this.InstantiateSlider(rightSide));
+                    var rectTransform = customTransform.GetComponent<RectTransform>();
+                    rectTransform.pivot = new Vector2(0, 0);
+                    rectTransform.anchoredPosition = new Vector2(0, -1300);
+                    var sizeDelta = rectTransform.sizeDelta;
+                    rectTransform.sizeDelta = new Vector2(sizeDelta.x + 10, sizeDelta.y);
+                    _customUIGameObjects.Add(customTransform.gameObject);
+
+                    var uiDynamic = customTransform.GetComponent<UIDynamicSlider>();
+                    var jsf = FrictionHandler.softColliderFrictionJsf;
+                    uiDynamic.Configure(jsf.name, jsf.min, jsf.max, jsf.defaultVal, jsf.constrained, valFormat: "F3");
+                    jsf.slider = uiDynamic.slider;
+                    sliderToJSONStorableFloat.Add(uiDynamic, jsf);
+                    uiDynamic.label = "Friction Value";
+                    uiDynamic.SetActiveStyle(false, true);
                 }
             }
             catch(Exception e)
@@ -963,6 +1007,7 @@ namespace TittyMagic
                 StartCalibration(true);
                 _inactivatedUIGameObjects?.ForEach(go => go.SetActive(false));
                 _customUIGameObjects?.ForEach(go => go.SetActive(true));
+                _movedRects?.ForEach(change => change.Apply());
             }
             catch(Exception e)
             {
@@ -983,6 +1028,7 @@ namespace TittyMagic
                 NippleErectionHandler.Reset();
                 _inactivatedUIGameObjects?.ForEach(go => go.SetActive(true));
                 _customUIGameObjects?.ForEach(go => go.SetActive(false));
+                _movedRects?.ForEach(change => change.RestoreOriginal());
             }
             catch(Exception e)
             {
