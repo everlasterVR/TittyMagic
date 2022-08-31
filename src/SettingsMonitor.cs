@@ -45,10 +45,10 @@ namespace TittyMagic
                 _breastSoftPhysicsOn = SoftPhysicsHandler.softPhysicsOnJsb.val;
                 _atomSoftPhysicsOn = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
                 _globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
-
-                _pectoralRbLeft = MainPhysicsHandler.breastControl.joint2.GetComponent<Rigidbody>();
-                _pectoralRbRight = MainPhysicsHandler.breastControl.joint1.GetComponent<Rigidbody>();
             }
+
+            _pectoralRbLeft = MainPhysicsHandler.breastControl.joint2.GetComponent<Rigidbody>();
+            _pectoralRbRight = MainPhysicsHandler.breastControl.joint1.GetComponent<Rigidbody>();
 
             /* prevent breasts being flattened due to breastInOut morphs on scene load with plugin already present */
             _breastInOut.SetBoolParamValue("enabled", true);
@@ -91,11 +91,18 @@ namespace TittyMagic
                     SetPectoralCollisions(false);
                 }
             }
+            else
+            {
+                /* Force enable pectoral joint rb's collisions for futa */
+                if(!_pectoralRbLeft.detectCollisions || !_pectoralRbRight.detectCollisions)
+                {
+                    SetPectoralCollisions(true);
+                }
+            }
 
             if(!tittyMagic.calibration.isInProgress)
             {
                 CheckIfRecalibrationNeeded();
-
                 if(_selectedCharacter != geometry.selectedCharacter)
                 {
                     StartCoroutine(OnCharacterChangedCo());
@@ -164,14 +171,23 @@ namespace TittyMagic
 
         private IEnumerator OnCharacterChangedCo()
         {
-            _selectedCharacter = geometry.selectedCharacter;
-            while(!_selectedCharacter.ready)
+            while(!geometry.selectedCharacter.ready)
             {
                 yield return null;
             }
 
-            tittyMagic.skin = geometry.containingAtom.GetComponentInChildren<DAZCharacter>().skin;
-            FrictionHandler.Refresh(tittyMagic.containingAtom.GetStorableByID("skin"));
+            if(_selectedCharacter.isMale != geometry.selectedCharacter.isMale)
+            {
+                Utils.LogMessage("Changing gender while the plugin is active is not supported. " +
+                    "Disable the plugin, change gender and then reload the plugin.");
+                geometry.selectedCharacter = _selectedCharacter;
+            }
+            else
+            {
+                _selectedCharacter = geometry.selectedCharacter;
+                tittyMagic.skin = geometry.containingAtom.GetComponentInChildren<DAZCharacter>().skin;
+                FrictionHandler.Refresh(tittyMagic.containingAtom.GetStorableByID("skin"));
+            }
         }
 
         private void SetPectoralCollisions(bool value)
@@ -262,10 +278,8 @@ namespace TittyMagic
                 return;
             }
 
-            if(personIsFemale)
-            {
-                SetPectoralCollisions(false);
-            }
+            /* Check settings immediately when plugin enabled instead of waiting for runner to trigger */
+            Watch();
         }
 
         private void OnDisable()
@@ -275,10 +289,7 @@ namespace TittyMagic
                 return;
             }
 
-            if(personIsFemale)
-            {
-                SetPectoralCollisions(true);
-            }
+            SetPectoralCollisions(true);
         }
     }
 }
