@@ -777,11 +777,6 @@ namespace TittyMagic.Handlers
 
         public static void UpdateRateDependentPhysics()
         {
-            if(!tittyMagic.settingsMonitor.softPhysicsEnabled)
-            {
-                return;
-            }
-
             float softness = tittyMagic.softnessAmount;
             float quickness = tittyMagic.quicknessAmount;
             parameterGroups.Values

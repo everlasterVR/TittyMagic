@@ -74,29 +74,37 @@ namespace TittyMagic
                 }
             }
 
-            /* Enforce advanced colliders on */
-            if(Gender.isFemale && !_geometry.useAdvancedColliders)
+            if(Gender.isFemale)
             {
-                _geometry.useAdvancedColliders = true;
-                Utils.LogMessage("Advanced Colliders enabled - they are necessary for directional force morphing and hard colliders to work.");
+                /* Enforce advanced colliders on */
+                if(!_geometry.useAdvancedColliders)
+                {
+                    _geometry.useAdvancedColliders = true;
+                    Utils.LogMessage("Advanced Colliders enabled - they are necessary for directional force morphing and hard colliders to work.");
+                }
+
+                /* Enforce hard colliders on */
+                if(!_geometry.useAuxBreastColliders)
+                {
+                    _geometry.useAuxBreastColliders = true;
+                    Utils.LogMessage("Breast Hard Colliders re-enabled.");
+                }
+
+                /* Disable pectoral joint rb's collisions if enabled by e.g. person atom collisions being toggled off/on */
+                if(_pectoralRbLeft.detectCollisions || _pectoralRbRight.detectCollisions)
+                {
+                    SetPectoralCollisions(false);
+                }
             }
 
-            /* Disable pectoral joint rb's collisions if enabled by e.g. person atom collisions being toggled off/on */
-            if(Gender.isFemale && (_pectoralRbLeft.detectCollisions || _pectoralRbRight.detectCollisions))
+            if(!tittyMagic.calibration.isInProgress)
             {
-                SetPectoralCollisions(false);
-            }
+                CheckIfRecalibrationNeeded();
 
-            if(tittyMagic.calibration.isInProgress)
-            {
-                return;
-            }
-
-            CheckIfRecalibrationNeeded();
-
-            if(_selectedCharacter != _geometry.selectedCharacter)
-            {
-                StartCoroutine(OnCharacterChangedCo());
+                if(_selectedCharacter != _geometry.selectedCharacter)
+                {
+                    StartCoroutine(OnCharacterChangedCo());
+                }
             }
         }
 
@@ -107,12 +115,6 @@ namespace TittyMagic
 
             if(Gender.isFemale)
             {
-                /* Check if hard colliders have been disabled */
-                if(!_geometry.useAuxBreastColliders)
-                {
-                    refreshNeeded = true;
-                }
-
                 /* Check if soft physics was toggled */
                 {
                     bool breastSoftPhysicsOn = _breastPhysicsMesh.on;
@@ -156,7 +158,11 @@ namespace TittyMagic
             else if(rateDependentRefreshNeeded)
             {
                 MainPhysicsHandler.UpdateRateDependentPhysics();
-                SoftPhysicsHandler.UpdateRateDependentPhysics();
+                if(softPhysicsEnabled)
+                {
+                    SoftPhysicsHandler.UpdateRateDependentPhysics();
+                }
+
                 tittyMagic.hardColliderHandler.SyncHardCollidersBaseMass();
             }
         }

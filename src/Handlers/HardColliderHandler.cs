@@ -578,8 +578,9 @@ namespace TittyMagic.Handlers
                 colliderConfigs.ForEach(config => config.RestoreDefaultMass());
             }
 
-            /* Changes to collider properties must be done while advanced colliders are enabled */
+            /* Changes to collider properties must be done while advanced colliders and hard colliders are enabled */
             _geometry.useAdvancedColliders = _originalUseAdvancedColliders;
+            _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
         }
 
         public void CalibrateColliders()
@@ -639,7 +640,7 @@ namespace TittyMagic.Handlers
 
             SaveOriginalUseColliders();
             _geometry.useAdvancedColliders = true;
-            _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
+            _geometry.useAuxBreastColliders = true;
         }
 
         private void OnDisable()

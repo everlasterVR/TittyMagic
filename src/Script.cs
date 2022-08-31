@@ -707,7 +707,7 @@ namespace TittyMagic
 
         #endregion Update
 
-        #region Refresh
+        #region Calibration
 
         public void StartCalibration(bool calibratesMass, bool waitsForListeners = false)
         {
@@ -851,7 +851,7 @@ namespace TittyMagic
             }
         }
 
-        #endregion Refresh
+        #endregion Calibration
 
         public string PluginPath() =>
             $@"{this.GetPackagePath()}Custom\Scripts\everlaster\TittyMagic";
