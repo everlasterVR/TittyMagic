@@ -142,6 +142,16 @@ namespace TittyMagic
                     continue;
                 }
 
+                /* Close any currently open plugin UI before opening this plugin's UI */
+                foreach(Transform scriptController in tittyMagic.manager.pluginContainer)
+                {
+                    var script = scriptController.gameObject.GetComponent<MVRScript>();
+                    if(script != null && script != tittyMagic)
+                    {
+                        script.UITransform.gameObject.SetActive(false);
+                    }
+                }
+
                 if(tittyMagic.enabled)
                 {
                     tittyMagic.UITransform.gameObject.SetActive(true);
