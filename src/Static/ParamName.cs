@@ -11,6 +11,7 @@ namespace TittyMagic
         public const string POSITION_DAMPER_Z = "positionDamperZ";
         public const string TARGET_ROTATION_Y = "targetRotationY";
         public const string TARGET_ROTATION_X = "targetRotationX";
+        public const string TARGET_ROTATION_Z = "targetRotationZ";
         public const string USE_ADVANCED_COLLIDERS = "useAdvancedColliders";
         public const string USE_AUX_BREAST_COLLIDERS = "useAuxBreastColliders";
         public const string SOFT_PHYSICS_ON = "on"; // just "on" in the original JSONStorable

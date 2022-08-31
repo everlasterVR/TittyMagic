@@ -871,47 +871,47 @@ namespace TittyMagic.Handlers
 
         private static Dictionary<string, string> CreateInfoTexts()
         {
-            Func<string> springText = () =>
+            string springText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Magnitude of the spring that holds each soft joint in its target position.");
                 sb.Append("\n\n");
                 sb.Append("Low fat spring makes breast fat soft and slow. High fat spring makes it rigid and");
                 sb.Append(" quick to return to its normal shape.");
-                return sb.ToString();
-            };
+                springText = sb.ToString();
+            }
 
-            Func<string> damperText = () =>
+            string damperText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Magnitude of the damper that reduces oscillation of each soft joint around");
                 sb.Append(" its target position.");
                 sb.Append("\n\n");
                 sb.Append("Low fat damper makes breast fat jiggle more easily.");
-                return sb.ToString();
-            };
+                damperText = sb.ToString();
+            }
 
-            Func<string> massText = () =>
+            string massText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Mass of each soft joint.");
                 sb.Append("\n\n");
                 sb.Append("Higher mass makes the breast tissue more dense. The value is an absolute value,");
                 sb.Append(" so increasing breast size while keeping fat mass the same reduces density.");
-                return sb.ToString();
-            };
+                massText = sb.ToString();
+            }
 
-            Func<string> backForceText = () =>
+            string backForceText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Force applied to the pectoral joint based on movement of each soft joint.");
                 sb.Append("\n\n");
                 sb.Append("Low back force (not 0) helps move the breast with collision, and adds a dampening effect.");
                 sb.Append(" High force can create a feedback loop that spirals out of control.");
-                return sb.ToString();
-            };
+                backForceText = sb.ToString();
+            }
 
-            Func<string> backForceThresholdDistanceText = () =>
+            string backForceThresholdDistanceText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Minimum distance each soft joint needs to move for back force to be applied.");
@@ -919,54 +919,54 @@ namespace TittyMagic.Handlers
                 sb.Append("Ensures that small movements of soft joints don't cause the whole breast");
                 sb.Append(" to move. Along with Fat Bk Force Threshold, this can be used to prevent");
                 sb.Append(" an out of control feedback loop.");
-                return sb.ToString();
-            };
+                backForceThresholdDistanceText = sb.ToString();
+            }
 
-            Func<string> backForceMaxForceText = () =>
+            string backForceMaxForceText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Upper limit on the magnitude of back force.");
                 sb.Append("\n\n");
                 sb.Append("Along with Fat Bk Force Threshold, this can be used to prevent an out of control feedback loop.");
-                return sb.ToString();
-            };
+                backForceMaxForceText = sb.ToString();
+            }
 
-            Func<string> colliderRadiusText = () =>
+            string colliderRadiusText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Radius of each soft collider.");
                 sb.Append("\n\n");
                 sb.Append("Since the number of soft colliders is fixed, the radius scales with breast size.");
-                return sb.ToString();
-            };
+                colliderRadiusText = sb.ToString();
+            }
 
-            Func<string> colliderAdditionalNormalOffsetText = () =>
+            string colliderAdditionalNormalOffsetText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Offset of soft collider positions relative to skin surface.");
                 sb.Append("\n\n");
                 sb.Append("Negative values pull colliders out from the breast, positive values push them into the breast.");
-                return sb.ToString();
-            };
+                colliderAdditionalNormalOffsetText = sb.ToString();
+            }
 
-            Func<string> distanceLimitText = () =>
+            string distanceLimitText;
             {
                 var sb = new StringBuilder();
                 sb.Append("The maximum distance each soft joint can move away from its target position.");
-                return sb.ToString();
-            };
+                distanceLimitText = sb.ToString();
+            }
 
             return new Dictionary<string, string>
             {
-                { SOFT_VERTICES_SPRING, springText() },
-                { SOFT_VERTICES_DAMPER, damperText() },
-                { SOFT_VERTICES_MASS, massText() },
-                { SOFT_VERTICES_BACK_FORCE, backForceText() },
-                { SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE, backForceThresholdDistanceText() },
-                { SOFT_VERTICES_BACK_FORCE_MAX_FORCE, backForceMaxForceText() },
-                { SOFT_VERTICES_COLLIDER_RADIUS, colliderRadiusText() },
-                { SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, colliderAdditionalNormalOffsetText() },
-                { SOFT_VERTICES_DISTANCE_LIMIT, distanceLimitText() },
+                { SOFT_VERTICES_SPRING, springText },
+                { SOFT_VERTICES_DAMPER, damperText },
+                { SOFT_VERTICES_MASS, massText },
+                { SOFT_VERTICES_BACK_FORCE, backForceText },
+                { SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE, backForceThresholdDistanceText },
+                { SOFT_VERTICES_BACK_FORCE_MAX_FORCE, backForceMaxForceText },
+                { SOFT_VERTICES_COLLIDER_RADIUS, colliderRadiusText },
+                { SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, colliderAdditionalNormalOffsetText },
+                { SOFT_VERTICES_DISTANCE_LIMIT, distanceLimitText },
             };
         }
     }

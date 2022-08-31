@@ -244,6 +244,15 @@ namespace TittyMagic.Handlers
             return parameter;
         }
 
+        private static PhysicsParameter NewTargetRotationZParameter(string side)
+        {
+            var parameter = NewPhysicsParameter(TARGET_ROTATION_Z, side, 0, -30.00f, 30.00f);
+            parameter.config = new StaticPhysicsConfig(0.00f);
+            parameter.valueFormat = "F2";
+            parameter.sync = value => SyncTargetRotationZ(side, value);
+            return parameter;
+        }
+
         private static void SetupPhysicsParameterGroups()
         {
             massParameterGroup = new MassParameterGroup(
@@ -319,6 +328,16 @@ namespace TittyMagic.Handlers
                 requiresRecalibration = true,
             };
 
+            var targetRotationZ = new PhysicsParameterGroup(
+                NewTargetRotationZParameter(LEFT),
+                NewTargetRotationZParameter(RIGHT),
+                "Twist Angle Target"
+            )
+            {
+                requiresRecalibration = true,
+                rightIsInverted = true,
+            };
+
             massParameterGroup.SetOffsetCallbackFunctions();
             centerOfGravityPercent.SetOffsetCallbackFunctions();
             spring.SetOffsetCallbackFunctions();
@@ -327,6 +346,7 @@ namespace TittyMagic.Handlers
             positionDamperZ.SetOffsetCallbackFunctions();
             targetRotationY.SetOffsetCallbackFunctions();
             targetRotationX.SetOffsetCallbackFunctions();
+            targetRotationZ.SetOffsetCallbackFunctions();
 
             parameterGroups = new Dictionary<string, PhysicsParameterGroup>
             {
@@ -337,6 +357,7 @@ namespace TittyMagic.Handlers
                 { POSITION_DAMPER_Z, positionDamperZ },
                 { TARGET_ROTATION_X, targetRotationX },
                 { TARGET_ROTATION_Y, targetRotationY },
+                { TARGET_ROTATION_Z, targetRotationZ },
             };
         }
 
@@ -543,6 +564,27 @@ namespace TittyMagic.Handlers
             }
         }
 
+        private static void SyncTargetRotationZ(string side, float targetRotationZ)
+        {
+            if(!tittyMagic.enabled)
+            {
+                return;
+            }
+
+            if(side == LEFT)
+            {
+                breastControl.smoothedJoint2TargetRotation.z = targetRotationZ;
+                var rotation = breastControl.smoothedJoint2TargetRotation;
+                _dazBones[side].baseJointRotation = rotation;
+            }
+            else if(side == RIGHT)
+            {
+                breastControl.smoothedJoint1TargetRotation.z = targetRotationZ;
+                var rotation = breastControl.smoothedJoint1TargetRotation;
+                _dazBones[side].baseJointRotation = rotation;
+            }
+        }
+
         #endregion *** Sync functions ***
 
         public static void UpdatePhysics()
@@ -593,7 +635,7 @@ namespace TittyMagic.Handlers
 
         private static Dictionary<string, string> CreateInfoTexts()
         {
-            Func<string> massText = () =>
+            string massText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Mass of the pectoral joint.");
@@ -606,55 +648,55 @@ namespace TittyMagic.Handlers
                     sb.Append(" volume, the rest are adjusted using the actual mass value that includes the offset.");
                 }
 
-                return sb.ToString();
-            };
+                massText = sb.ToString();
+            }
 
-            Func<string> centerOfGravityText = () =>
+            string centerOfGravityText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Position of the pectoral joint's center of mass.");
                 sb.Append("\n\n");
                 sb.Append("At 0, the center of mass is inside the chest at the pectoral joint. At 1, it is at the nipple.");
                 sb.Append(" Between about 0.5 and 0.8, the center of mass is within the bulk of the breast volume.");
-                return sb.ToString();
-            };
+                centerOfGravityText = sb.ToString();
+            }
 
-            Func<string> springText = () =>
+            string springText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Magnitude of the spring that pushes the pectoral joint towards its angle target.");
                 sb.Append("\n\n");
                 sb.Append("The angle target is defined by the Up/Down and Left/Right Angle Target parameters.");
-                return sb.ToString();
-            };
+                springText = sb.ToString();
+            }
 
-            Func<string> damperText = () =>
+            string damperText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Magnitude of the damper that reduces oscillation around the joint angle target.");
                 sb.Append("\n\n");
                 sb.Append("The higher the damper, the quicker breasts will stop swinging.");
-                return sb.ToString();
-            };
+                damperText = sb.ToString();
+            }
 
-            Func<string> positionSpringZText = () =>
+            string positionSpringZText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Magnitude of the spring that pushes the pectoral joint towards its position target along the Z axis.");
                 sb.Append("\n\n");
                 sb.Append("Directional force morphing along the forward-back axis depends on In/Out Spring being suitably low");
                 sb.Append(" for the given breast mass.");
-                return sb.ToString();
-            };
+                positionSpringZText = sb.ToString();
+            }
 
-            Func<string> positionDamperZText = () =>
+            string positionDamperZText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Magnitude of the damper that reduces oscillation around the joint position target along the Z axis.");
-                return sb.ToString();
-            };
+                positionDamperZText = sb.ToString();
+            }
 
-            Func<string> targetRotationXText = () =>
+            string targetRotationXText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Vertical target angle of the pectoral joint.");
@@ -662,28 +704,36 @@ namespace TittyMagic.Handlers
                 sb.Append("\n\n");
                 sb.Append("The offset shifts the center around which the final angle is calculated");
                 sb.Append(" based on chest angle (see Gravity Multipliers)");
-                return sb.ToString();
-            };
+                targetRotationXText = sb.ToString();
+            }
 
-            Func<string> targetRotationYText = () =>
+            string targetRotationYText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Horizontal target angle of the pectoral joint.");
                 sb.Append("\n\n");
                 sb.Append("A negative offset pulls breasts apart, while a positive offset pushes them together.");
-                return sb.ToString();
-            };
+                targetRotationYText = sb.ToString();
+            }
+
+            string targetRotationZtext;
+            {
+                var sb = new StringBuilder();
+                sb.Append("Forward axis target angle of the pectoral joint.");
+                targetRotationZtext = sb.ToString();
+            }
 
             return new Dictionary<string, string>
             {
-                { MASS, massText() },
-                { CENTER_OF_GRAVITY_PERCENT, centerOfGravityText() },
-                { SPRING, springText() },
-                { DAMPER, damperText() },
-                { POSITION_SPRING_Z, positionSpringZText() },
-                { POSITION_DAMPER_Z, positionDamperZText() },
-                { TARGET_ROTATION_X, targetRotationXText() },
-                { TARGET_ROTATION_Y, targetRotationYText() },
+                { MASS, massText },
+                { CENTER_OF_GRAVITY_PERCENT, centerOfGravityText },
+                { SPRING, springText },
+                { DAMPER, damperText },
+                { POSITION_SPRING_Z, positionSpringZText },
+                { POSITION_DAMPER_Z, positionDamperZText },
+                { TARGET_ROTATION_X, targetRotationXText },
+                { TARGET_ROTATION_Y, targetRotationYText },
+                { TARGET_ROTATION_Z, targetRotationZtext },
             };
         }
     }
