@@ -21,8 +21,11 @@ namespace TittyMagic.Handlers
         public static void LoadSettings()
         {
             _morphConfig = new MorphConfigBase("TM_NippleErection", 1.0f);
-            SetupPhysicsConfigs();
-            _paramGroups = SoftPhysicsHandler.parameterGroups.Values.ToList();
+            if(Gender.isFemale)
+            {
+                SetupPhysicsConfigs();
+                _paramGroups = SoftPhysicsHandler.parameterGroups.Values.ToList();
+            }
         }
 
         private static Dictionary<string, DynamicPhysicsConfig> NewSpringConfigs() =>

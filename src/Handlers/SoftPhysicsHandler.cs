@@ -76,6 +76,11 @@ namespace TittyMagic.Handlers
 
         public static void LoadSettings()
         {
+            if(!Gender.isFemale)
+            {
+                return;
+            }
+
             SetupPhysicsParameterGroups();
 
             var texts = CreateInfoTexts();

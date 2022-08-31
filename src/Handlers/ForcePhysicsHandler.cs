@@ -50,9 +50,13 @@ namespace TittyMagic.Handlers
         public static void LoadSettings()
         {
             SetupMainForcePhysicsConfigs();
-            SetupSoftForcePhysicsConfigs();
             _mainParamGroups = MainPhysicsHandler.parameterGroups.Values.ToList();
-            _softParamGroups = SoftPhysicsHandler.parameterGroups.Values.ToList();
+
+            if(Gender.isFemale)
+            {
+                SetupSoftForcePhysicsConfigs();
+                _softParamGroups = SoftPhysicsHandler.parameterGroups.Values.ToList();
+            }
         }
 
         private static Dictionary<string, DynamicPhysicsConfig> NewCenterOfGravityConfigs() =>
@@ -354,7 +358,7 @@ namespace TittyMagic.Handlers
             float mass = MainPhysicsHandler.realMassAmount;
             float softness = tittyMagic.softnessAmount;
             _mainParamGroups.ForEach(group => group.left.UpdateForceValue(direction, effect, mass, softness));
-            _softParamGroups.ForEach(group => group.left.UpdateForceValue(direction, effect, mass, softness));
+            _softParamGroups?.ForEach(group => group.left.UpdateForceValue(direction, effect, mass, softness));
         }
 
         private static void UpdateRightPhysics(string direction, float effect)
@@ -362,19 +366,19 @@ namespace TittyMagic.Handlers
             float mass = MainPhysicsHandler.realMassAmount;
             float softness = tittyMagic.softnessAmount;
             _mainParamGroups.ForEach(group => group.right.UpdateForceValue(direction, effect, mass, softness));
-            _softParamGroups.ForEach(group => group.right.UpdateForceValue(direction, effect, mass, softness));
+            _softParamGroups?.ForEach(group => group.right.UpdateForceValue(direction, effect, mass, softness));
         }
 
         private static void ResetLeftPhysics(string direction)
         {
             _mainParamGroups.ForEach(group => group.left.ResetForceValue(direction));
-            _softParamGroups.ForEach(group => group.left.ResetForceValue(direction));
+            _softParamGroups?.ForEach(group => group.left.ResetForceValue(direction));
         }
 
         private static void ResetRightPhysics(string direction)
         {
             _mainParamGroups.ForEach(group => group.right.ResetForceValue(direction));
-            _softParamGroups.ForEach(group => group.right.ResetForceValue(direction));
+            _softParamGroups?.ForEach(group => group.right.ResetForceValue(direction));
         }
     }
 }

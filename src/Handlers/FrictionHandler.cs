@@ -68,6 +68,11 @@ namespace TittyMagic
 
         public static void LoadSettings()
         {
+            if(!Gender.isFemale)
+            {
+                return;
+            }
+
             _colliderRadiusParameter = SoftPhysicsHandler.parameterGroups[ParamName.SOFT_VERTICES_COLLIDER_RADIUS];
             _colliderRadiusParameter.SetFrictionConfig(
                 NewSoftVerticesColliderRadiusConfig(),
