@@ -24,8 +24,8 @@ namespace TittyMagic
                 new JSONStorableAction("OpenUI_PhysicsParams", OpenUIPhysicsParams),
                 new JSONStorableAction("OpenUI_MorphMultipliers", OpenUIMorphMultipliers),
                 new JSONStorableAction("OpenUI_GravityMultipliers", OpenUIGravityMultipliers),
-                new JSONStorableAction("AutoUpdateMassOn", () => tittyMagic.autoUpdateJsb.val = true),
-                new JSONStorableAction("AutoUpdateMassOff", () => tittyMagic.autoUpdateJsb.val = false),
+                new JSONStorableAction("AutoUpdateMassOn", () => StartCoroutine(DeferSetAutoUpdateMass(true))),
+                new JSONStorableAction("AutoUpdateMassOff", () => StartCoroutine(DeferSetAutoUpdateMass(false))),
                 new JSONStorableAction("CalculateBreastMass", tittyMagic.calculateBreastMass.actionCallback),
                 new JSONStorableAction("RecalibratePhysics", tittyMagic.recalibratePhysics.actionCallback),
             });
@@ -107,6 +107,11 @@ namespace TittyMagic
         // adapted from Timeline v4.3.1 (c) acidbubbles
         private static IEnumerator SelectPluginUI(Action postAction = null)
         {
+            while(!tittyMagic.isInitialized)
+            {
+                yield return null;
+            }
+
             if(tittyMagic.UITransform != null && tittyMagic.UITransform.gameObject.activeInHierarchy)
             {
                 if(tittyMagic.enabled)
@@ -159,6 +164,16 @@ namespace TittyMagic
                     yield break;
                 }
             }
+        }
+
+        private static IEnumerator DeferSetAutoUpdateMass(bool value)
+        {
+            while(!tittyMagic.isInitialized)
+            {
+                yield return null;
+            }
+
+            tittyMagic.autoUpdateJsb.val = value;
         }
     }
 }
