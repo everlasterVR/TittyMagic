@@ -957,8 +957,8 @@ namespace TittyMagic
                 }
 
                 settingsMonitor.SetEnabled(true);
-                hardColliderHandler.SetEnabled(true);
-                SoftPhysicsHandler.SaveOriginalBoolParamValues();
+                hardColliderHandler.SaveOriginalUseColliders();
+                hardColliderHandler.EnableDefaults();
                 SoftPhysicsHandler.EnableMultiplyFriction();
                 StartCalibration(true);
                 _inactivatedUIGameObjects?.ForEach(go => go.SetActive(false));
@@ -975,7 +975,7 @@ namespace TittyMagic
             try
             {
                 settingsMonitor.SetEnabled(false);
-                hardColliderHandler.SetEnabled(false);
+                hardColliderHandler.RestoreOriginalPhysics();
                 MainPhysicsHandler.RestoreOriginalPhysics();
                 SoftPhysicsHandler.RestoreOriginalPhysics();
                 GravityOffsetMorphHandler.ResetAll();

@@ -805,6 +805,11 @@ namespace TittyMagic.Handlers
 
         public static void EnableMultiplyFriction()
         {
+            if(_breastPhysicsMesh == null)
+            {
+                return;
+            }
+
             foreach(var group in _softVerticesGroups[RIGHT])
             {
                 foreach(var set in group.Value.softVerticesSets)

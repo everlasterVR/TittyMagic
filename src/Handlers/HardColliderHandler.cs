@@ -33,7 +33,8 @@ namespace TittyMagic.Handlers
             _geometry = geometry;
             _chestRb = chestRb;
 
-            /* Enable hard colliders on init */
+            /* Enable advanced colliders and hard colliders on init */
+            _geometry.useAdvancedColliders = true;
             _geometry.useAuxBreastColliders = true;
 
             if(!Gender.isFemale)
@@ -479,31 +480,31 @@ namespace TittyMagic.Handlers
 
         public void SaveOriginalUseColliders()
         {
-            _originalUseAdvancedColliders = _geometry.useAdvancedColliders;
-            _originalUseAuxBreastColliders = _geometry.useAuxBreastColliders;
-        }
-
-        private void OnEnable()
-        {
-            if(tittyMagic == null || !tittyMagic.isInitialized)
+            if(Gender.isFemale)
             {
-                return;
+                _originalUseAdvancedColliders = _geometry.useAdvancedColliders;
+                _originalUseAuxBreastColliders = _geometry.useAuxBreastColliders;
             }
-
-            colliderConfigs.ForEach(config => config.EnableMultiplyFriction());
-
-            SaveOriginalUseColliders();
-            _geometry.useAdvancedColliders = true;
-            _geometry.useAuxBreastColliders = true;
         }
 
-        private void OnDisable()
+        public void EnableDefaults()
+        {
+            if(Gender.isFemale)
+            {
+                _geometry.useAdvancedColliders = true;
+                _geometry.useAuxBreastColliders = true;
+                colliderConfigs.ForEach(config => config.EnableMultiplyFriction());
+            }
+        }
+
+        public void RestoreOriginalPhysics()
         {
             if(Gender.isFemale)
             {
                 /* Required for restoring default collider mass. Enabled in case disabled
                  * programmatically, and not yet restored back on by SettingsMonitor.
                  */
+                _geometry.useAdvancedColliders = true;
                 _geometry.useAuxBreastColliders = true;
                 /* Restore defaults */
                 colliderConfigs.ForEach(config => config.RestoreDefaults());

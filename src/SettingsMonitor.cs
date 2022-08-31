@@ -271,11 +271,6 @@ namespace TittyMagic
             {
                 SetPectoralCollisions(false);
             }
-
-            if(_geometry != null)
-            {
-                _geometry.useAdvancedColliders = true;
-            }
         }
 
         private void OnDisable()

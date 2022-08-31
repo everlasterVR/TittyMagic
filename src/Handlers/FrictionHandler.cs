@@ -153,6 +153,11 @@ namespace TittyMagic
 
         public static void RemoveCallbacks()
         {
+            if(!Gender.isFemale)
+            {
+                return;
+            }
+
             _glossJsf.setJSONCallbackFunction = null;
             _specularBumpinessJsf.setJSONCallbackFunction = null;
         }
