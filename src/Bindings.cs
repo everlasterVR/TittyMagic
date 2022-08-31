@@ -146,6 +146,7 @@ namespace TittyMagic
                 {
                     tittyMagic.UITransform.gameObject.SetActive(true);
                     postAction?.Invoke();
+                    yield break;
                 }
             }
         }
