@@ -31,7 +31,7 @@ namespace TittyMagic.UI
                 CreateMassOffsetSlider(true);
                 CreateMassSlider(true);
 
-                if(Gender.isFemale)
+                if(personIsFemale)
                 {
                     CreateHardCollidersInfoTextField(false, spacing: 10);
                     CreateConfigureHardCollidersButton(true, spacing: 15);
@@ -68,7 +68,7 @@ namespace TittyMagic.UI
                 nestedWindows.Add(new DevWindow("devWindow", onReturnToParent));
             }
 
-            if(Gender.isFemale)
+            if(personIsFemale)
             {
                 nestedWindows.Add(new HardCollidersWindow("hardCollidersWindow", onReturnToParent));
             }

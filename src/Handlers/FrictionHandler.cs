@@ -21,7 +21,7 @@ namespace TittyMagic
 
         public static void Init(JSONStorable skinMaterialsStorable)
         {
-            if(!Gender.isFemale)
+            if(!personIsFemale)
             {
                 return;
             }
@@ -68,7 +68,7 @@ namespace TittyMagic
 
         public static void LoadSettings()
         {
-            if(!Gender.isFemale)
+            if(!personIsFemale)
             {
                 return;
             }
@@ -115,7 +115,7 @@ namespace TittyMagic
         /* Maximum friction that a collider can have, drops off dynamically with distance from collider's normal position */
         public static void CalculateFriction()
         {
-            if(!Gender.isFemale)
+            if(!personIsFemale)
             {
                 return;
             }
@@ -158,7 +158,7 @@ namespace TittyMagic
 
         public static void RemoveCallbacks()
         {
-            if(!Gender.isFemale)
+            if(!personIsFemale)
             {
                 return;
             }

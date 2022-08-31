@@ -88,7 +88,7 @@ namespace TittyMagic.UI
         {
             var sb = new StringBuilder();
             sb.Append("\n".Size(12));
-            if(Gender.isFemale)
+            if(personIsFemale)
             {
                 sb.Append("Expand nipple morphs and harden nipple physics.");
             }

@@ -13,7 +13,7 @@ namespace TittyMagic.Handlers
 {
     internal static class SoftPhysicsHandler
     {
-        private static DAZPhysicsMesh _breastPhysicsMesh;
+        public static DAZPhysicsMesh breastPhysicsMesh { get; private set; }
         private static List<string> _breastPhysicsMeshFloatParamNames;
 
         // Left/Right -> Group name -> Group
@@ -28,12 +28,12 @@ namespace TittyMagic.Handlers
 
         public static void Init()
         {
-            if(Gender.isFemale)
+            if(personIsFemale)
             {
-                _breastPhysicsMesh = (DAZPhysicsMesh) tittyMagic.containingAtom.GetStorableByID("BreastPhysicsMesh");
-                _breastPhysicsMeshFloatParamNames = _breastPhysicsMesh.GetFloatParamNames();
+                breastPhysicsMesh = (DAZPhysicsMesh) tittyMagic.containingAtom.GetStorableByID("BreastPhysicsMesh");
+                _breastPhysicsMeshFloatParamNames = breastPhysicsMesh.GetFloatParamNames();
 
-                var groups = _breastPhysicsMesh.softVerticesGroups;
+                var groups = breastPhysicsMesh.softVerticesGroups;
                 _softVerticesGroups = new Dictionary<string, Dictionary<string, DAZPhysicsMeshSoftVerticesGroup>>
                 {
                     {
@@ -59,13 +59,13 @@ namespace TittyMagic.Handlers
                 EnableMultiplyFriction();
             }
 
-            softPhysicsOnJsb = tittyMagic.NewJSONStorableBool(SOFT_PHYSICS_ON, Gender.isFemale, shouldRegister: Gender.isFemale);
+            softPhysicsOnJsb = tittyMagic.NewJSONStorableBool(SOFT_PHYSICS_ON, personIsFemale, shouldRegister: personIsFemale);
             softPhysicsOnJsb.setCallbackFunction = SyncSoftPhysicsOn;
 
-            allowSelfCollisionJsb = tittyMagic.NewJSONStorableBool(ALLOW_SELF_COLLISION, Gender.isFemale, shouldRegister: Gender.isFemale);
+            allowSelfCollisionJsb = tittyMagic.NewJSONStorableBool(ALLOW_SELF_COLLISION, personIsFemale, shouldRegister: personIsFemale);
             allowSelfCollisionJsb.setCallbackFunction = SyncAllowSelfCollision;
 
-            if(_breastPhysicsMesh == null)
+            if(breastPhysicsMesh == null)
             {
                 softPhysicsOnJsb.valNoCallback = false;
                 allowSelfCollisionJsb.valNoCallback = false;
@@ -76,7 +76,7 @@ namespace TittyMagic.Handlers
 
         public static void LoadSettings()
         {
-            if(!Gender.isFemale)
+            if(!personIsFemale)
             {
                 return;
             }
@@ -683,18 +683,18 @@ namespace TittyMagic.Handlers
         /* Update value if external value changed */
         public static void ReverseSyncSoftPhysicsOn()
         {
-            if(_breastPhysicsMesh != null)
+            if(breastPhysicsMesh != null)
             {
-                softPhysicsOnJsb.valNoCallback = _breastPhysicsMesh.on;
+                softPhysicsOnJsb.valNoCallback = breastPhysicsMesh.on;
             }
         }
 
         /* Update value if external value changed */
         public static void ReverseSyncAllowSelfCollision()
         {
-            if(_breastPhysicsMesh != null)
+            if(breastPhysicsMesh != null)
             {
-                allowSelfCollisionJsb.valNoCallback = _breastPhysicsMesh.allowSelfCollision;
+                allowSelfCollisionJsb.valNoCallback = breastPhysicsMesh.allowSelfCollision;
             }
         }
 
@@ -706,9 +706,9 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            if(_breastPhysicsMesh != null)
+            if(breastPhysicsMesh != null)
             {
-                _breastPhysicsMesh.on = value;
+                breastPhysicsMesh.on = value;
             }
         }
 
@@ -720,9 +720,9 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            if(_breastPhysicsMesh != null)
+            if(breastPhysicsMesh != null)
             {
-                _breastPhysicsMesh.allowSelfCollision = value;
+                breastPhysicsMesh.allowSelfCollision = value;
             }
         }
 
@@ -753,7 +753,7 @@ namespace TittyMagic.Handlers
 
         public static void SyncSoftPhysics()
         {
-            if(!Gender.isFemale)
+            if(!personIsFemale)
             {
                 return;
             }
@@ -799,18 +799,18 @@ namespace TittyMagic.Handlers
 
         public static void SaveOriginalBoolParamValues()
         {
-            if(_breastPhysicsMesh == null)
+            if(breastPhysicsMesh == null)
             {
                 return;
             }
 
-            _originalSoftPhysicsOn = _breastPhysicsMesh.on;
-            _originalAllowSelfCollision = _breastPhysicsMesh.allowSelfCollision;
+            _originalSoftPhysicsOn = breastPhysicsMesh.on;
+            _originalAllowSelfCollision = breastPhysicsMesh.allowSelfCollision;
         }
 
         public static void EnableMultiplyFriction()
         {
-            if(_breastPhysicsMesh == null)
+            if(breastPhysicsMesh == null)
             {
                 return;
             }
@@ -836,20 +836,20 @@ namespace TittyMagic.Handlers
 
         public static void RestoreOriginalPhysics()
         {
-            if(!_isInitialized || _breastPhysicsMesh == null)
+            if(!_isInitialized || breastPhysicsMesh == null)
             {
                 return;
             }
 
-            _breastPhysicsMesh.on = _originalSoftPhysicsOn;
-            _breastPhysicsMesh.allowSelfCollision = _originalAllowSelfCollision;
+            breastPhysicsMesh.on = _originalSoftPhysicsOn;
+            breastPhysicsMesh.allowSelfCollision = _originalAllowSelfCollision;
 
             foreach(string name in _breastPhysicsMeshFloatParamNames)
             {
                 /* Set a value that is different from the original, then restore the original
                  * in order to trigger VaM's internal sync
                  */
-                var paramJsf = _breastPhysicsMesh.GetFloatJSONParam(name);
+                var paramJsf = breastPhysicsMesh.GetFloatJSONParam(name);
                 float original = paramJsf.val;
                 paramJsf.valNoCallback = Math.Abs(paramJsf.val - paramJsf.min) > 0.01f
                     ? paramJsf.min

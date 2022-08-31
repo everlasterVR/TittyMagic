@@ -49,7 +49,6 @@ src\Handlers\PhysicsParameter.cs
 src\Handlers\SoftPhysicsHandler.cs
 src\Static\ApplyMethod.cs
 src\Static\Direction.cs
-src\Static\Gender.cs
 src\Static\ParamName.cs
 src\Static\Side.cs
 src\Static\SoftColliderGroup.cs

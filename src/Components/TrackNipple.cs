@@ -1,4 +1,5 @@
 using System;
+using TittyMagic.Handlers;
 using UnityEngine;
 
 namespace TittyMagic.Components
@@ -17,9 +18,9 @@ namespace TittyMagic.Components
         public float angleX { get; private set; }
         public float depthDiff { get; private set; }
 
-        public TrackNipple(Rigidbody chestRb, Rigidbody pectoralRb)
+        public TrackNipple(Rigidbody pectoralRb)
         {
-            _chestRb = chestRb;
+            _chestRb = MainPhysicsHandler.chestRb;
             _pectoralRb = pectoralRb;
         }
 

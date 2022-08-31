@@ -52,7 +52,7 @@ namespace TittyMagic.Handlers
             SetupMainForcePhysicsConfigs();
             _mainParamGroups = MainPhysicsHandler.parameterGroups.Values.ToList();
 
-            if(Gender.isFemale)
+            if(personIsFemale)
             {
                 SetupSoftForcePhysicsConfigs();
                 _softParamGroups = SoftPhysicsHandler.parameterGroups.Values.ToList();

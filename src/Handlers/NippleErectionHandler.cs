@@ -21,7 +21,7 @@ namespace TittyMagic.Handlers
         public static void LoadSettings()
         {
             _morphConfig = new MorphConfigBase("TM_NippleErection", 1.0f);
-            if(Gender.isFemale)
+            if(personIsFemale)
             {
                 SetupPhysicsConfigs();
                 _paramGroups = SoftPhysicsHandler.parameterGroups.Values.ToList();

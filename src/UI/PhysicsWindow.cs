@@ -30,7 +30,7 @@ namespace TittyMagic.UI
                 CreateSoftPhysicsInfoTextArea(true);
                 CreateSoftPhysicsOnToggle(true);
 
-                if(Gender.isFemale)
+                if(personIsFemale)
                 {
                     CreateAllowSelfCollisionToggle(true);
                     SoftPhysicsHandler.parameterGroups.ToList()
@@ -58,7 +58,7 @@ namespace TittyMagic.UI
                     );
                 }
 
-                if(Gender.isFemale)
+                if(personIsFemale)
                 {
                     foreach(var kvp in SoftPhysicsHandler.parameterGroups)
                     {
@@ -106,7 +106,7 @@ namespace TittyMagic.UI
         private void CreateSoftPhysicsInfoTextArea(bool rightSide, int spacing = 0)
         {
             var sb = new StringBuilder();
-            if(Gender.isFemale)
+            if(personIsFemale)
             {
                 sb.Append("Physics of each breast's soft tissue is simulated with 111 small colliders and their associated joints.");
             }
@@ -133,7 +133,7 @@ namespace TittyMagic.UI
             var toggle = tittyMagic.CreateToggle(storable, rightSide);
             toggle.height = 52;
             toggle.label = "Soft Physics Enabled";
-            if(!Gender.isFemale)
+            if(!personIsFemale)
             {
                 toggle.SetActiveStyle(false, true);
             }

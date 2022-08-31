@@ -16,8 +16,10 @@ namespace TittyMagic
         public static Script tittyMagic { get; private set; }
         public const string VERSION = "0.0.0";
         public static bool envIsDevelopment => VERSION.StartsWith("0.");
+        public static bool personIsFemale { get; set; }
 
         public static GenerateDAZMorphsControlUI morphsControlUI { get; private set; }
+        public static DAZCharacterSelector geometry { get; private set; }
 
         public DAZSkinV2 skin { get; set; }
 
@@ -192,19 +194,19 @@ namespace TittyMagic
                 }
             }
 
-            var geometry = (DAZCharacterSelector) containingAtom.GetStorableByID("geometry");
-            Gender.isFemale = geometry.gender == DAZCharacterSelector.Gender.Female;
+            geometry = (DAZCharacterSelector) containingAtom.GetStorableByID("geometry");
+            personIsFemale = !geometry.selectedCharacter.isMale;
 
             _listenersCheckRunner = new FrequencyRunner(0.333f);
 
-            morphsControlUI = Gender.isFemale ? geometry.morphsControlUI : geometry.morphsControlUIOtherGender;
+            morphsControlUI = personIsFemale ? geometry.morphsControlUI : geometry.morphsControlUIOtherGender;
             _rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
-            var chestRb = _rigidbodies.Find(rb => rb.name == "chest");
-            _chestTransform = chestRb.transform;
+            MainPhysicsHandler.chestRb = _rigidbodies.Find(rb => rb.name == "chest");
+            _chestTransform = MainPhysicsHandler.chestRb.transform;
 
-            var breastControl = (AdjustJoints) containingAtom.GetStorableByID(Gender.isFemale ? "BreastControl" : "PectoralControl");
-            _pectoralRbLeft = breastControl.joint2.GetComponent<Rigidbody>();
-            _pectoralRbRight = breastControl.joint1.GetComponent<Rigidbody>();
+            MainPhysicsHandler.breastControl = (AdjustJoints) containingAtom.GetStorableByID(personIsFemale ? "BreastControl" : "PectoralControl");
+            _pectoralRbLeft = MainPhysicsHandler.breastControl.joint2.GetComponent<Rigidbody>();
+            _pectoralRbRight = MainPhysicsHandler.breastControl.joint1.GetComponent<Rigidbody>();
 
             /* Setup atom scale changed callback */
             {
@@ -251,8 +253,8 @@ namespace TittyMagic
             skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
 
             /* Setup handlers */
-            MainPhysicsHandler.Init(breastControl, chestRb);
-            HardColliderHandler.Init(geometry, chestRb);
+            MainPhysicsHandler.Init();
+            HardColliderHandler.Init();
             SoftPhysicsHandler.Init();
             GravityPhysicsHandler.Init();
             GravityOffsetMorphHandler.Init();
@@ -263,10 +265,10 @@ namespace TittyMagic
             settingsMonitor.Init();
 
             /* Setup nipples tracking */
-            _trackLeftNipple = new TrackNipple(chestRb, _pectoralRbLeft);
-            _trackRightNipple = new TrackNipple(chestRb, _pectoralRbRight);
+            _trackLeftNipple = new TrackNipple(_pectoralRbLeft);
+            _trackRightNipple = new TrackNipple(_pectoralRbRight);
 
-            if(Gender.isFemale)
+            if(personIsFemale)
             {
                 yield return DeferSetupTrackFemaleNipples();
             }
@@ -285,7 +287,7 @@ namespace TittyMagic
 
             /* Setup breast morph listening */
             BreastMorphListener.ProcessMorphs(geometry.morphBank1);
-            if(!Gender.isFemale)
+            if(!personIsFemale)
             {
                 BreastMorphListener.ProcessMorphs(geometry.morphBank1OtherGender);
             }
@@ -511,7 +513,7 @@ namespace TittyMagic
 
             _modifySkinMaterialsUIDone = true;
 
-            if(!Gender.isFemale)
+            if(!personIsFemale)
             {
                 yield break;
             }

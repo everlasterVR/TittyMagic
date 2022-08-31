@@ -12,8 +12,6 @@ namespace TittyMagic
         private FrequencyRunner _runner;
         private JSONStorable _breastInOut;
         private JSONStorable _softBodyPhysicsEnabler;
-        private DAZPhysicsMesh _breastPhysicsMesh;
-        private DAZCharacterSelector _geometry;
         private DAZCharacter _selectedCharacter;
 
         private float _fixedDeltaTime;
@@ -35,14 +33,12 @@ namespace TittyMagic
             _runner = new FrequencyRunner(1);
             _breastInOut = tittyMagic.containingAtom.GetStorableByID("BreastInOut");
             _softBodyPhysicsEnabler = tittyMagic.containingAtom.GetStorableByID("SoftBodyPhysicsEnabler");
-            _geometry = (DAZCharacterSelector) tittyMagic.containingAtom.GetStorableByID("geometry");
-            _selectedCharacter = _geometry.selectedCharacter;
+            _selectedCharacter = geometry.selectedCharacter;
 
             _fixedDeltaTime = Time.fixedDeltaTime;
 
-            if(Gender.isFemale)
+            if(personIsFemale)
             {
-                _breastPhysicsMesh = (DAZPhysicsMesh) tittyMagic.containingAtom.GetStorableByID("BreastPhysicsMesh");
                 /* Initialize _breastSoftPhysicsOn to same value as initialized to in
                  * SoftPhysicsHandler's own JSONStorable, prevents double calibration on init
                  */
@@ -50,9 +46,8 @@ namespace TittyMagic
                 _atomSoftPhysicsOn = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
                 _globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
 
-                var breastControl = (AdjustJoints) tittyMagic.containingAtom.GetStorableByID("BreastControl");
-                _pectoralRbLeft = breastControl.joint2.GetComponent<Rigidbody>();
-                _pectoralRbRight = breastControl.joint1.GetComponent<Rigidbody>();
+                _pectoralRbLeft = MainPhysicsHandler.breastControl.joint2.GetComponent<Rigidbody>();
+                _pectoralRbRight = MainPhysicsHandler.breastControl.joint1.GetComponent<Rigidbody>();
             }
 
             /* prevent breasts being flattened due to breastInOut morphs on scene load with plugin already present */
@@ -68,25 +63,25 @@ namespace TittyMagic
             if(_breastInOut.GetBoolParamValue("enabled"))
             {
                 _breastInOut.SetBoolParamValue("enabled", false);
-                if(Gender.isFemale)
+                if(personIsFemale)
                 {
                     Utils.LogMessage("Auto Breast In/Out Morphs disabled - directional force morphing works better without them.");
                 }
             }
 
-            if(Gender.isFemale)
+            if(personIsFemale)
             {
                 /* Enforce advanced colliders on */
-                if(!_geometry.useAdvancedColliders)
+                if(!geometry.useAdvancedColliders)
                 {
-                    _geometry.useAdvancedColliders = true;
+                    geometry.useAdvancedColliders = true;
                     Utils.LogMessage("Advanced Colliders enabled - they are necessary for directional force morphing and hard colliders to work.");
                 }
 
                 /* Enforce hard colliders on */
-                if(!_geometry.useAuxBreastColliders)
+                if(!geometry.useAuxBreastColliders)
                 {
-                    _geometry.useAuxBreastColliders = true;
+                    geometry.useAuxBreastColliders = true;
                     Utils.LogMessage("Breast Hard Colliders re-enabled.");
                 }
 
@@ -101,7 +96,7 @@ namespace TittyMagic
             {
                 CheckIfRecalibrationNeeded();
 
-                if(_selectedCharacter != _geometry.selectedCharacter)
+                if(_selectedCharacter != geometry.selectedCharacter)
                 {
                     StartCoroutine(OnCharacterChangedCo());
                 }
@@ -113,11 +108,11 @@ namespace TittyMagic
             bool refreshNeeded = false;
             bool rateDependentRefreshNeeded = false;
 
-            if(Gender.isFemale)
+            if(personIsFemale)
             {
                 /* Check if soft physics was toggled */
                 {
-                    bool breastSoftPhysicsOn = _breastPhysicsMesh.on;
+                    bool breastSoftPhysicsOn = SoftPhysicsHandler.breastPhysicsMesh.on;
                     bool atomSoftPhysicsOn = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
                     bool globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
 
@@ -169,13 +164,13 @@ namespace TittyMagic
 
         private IEnumerator OnCharacterChangedCo()
         {
-            _selectedCharacter = _geometry.selectedCharacter;
+            _selectedCharacter = geometry.selectedCharacter;
             while(!_selectedCharacter.ready)
             {
                 yield return null;
             }
 
-            tittyMagic.skin = _geometry.containingAtom.GetComponentInChildren<DAZCharacter>().skin;
+            tittyMagic.skin = geometry.containingAtom.GetComponentInChildren<DAZCharacter>().skin;
             FrictionHandler.Refresh(tittyMagic.containingAtom.GetStorableByID("skin"));
         }
 
@@ -267,7 +262,7 @@ namespace TittyMagic
                 return;
             }
 
-            if(Gender.isFemale)
+            if(personIsFemale)
             {
                 SetPectoralCollisions(false);
             }
@@ -280,7 +275,7 @@ namespace TittyMagic
                 return;
             }
 
-            if(Gender.isFemale)
+            if(personIsFemale)
             {
                 SetPectoralCollisions(true);
             }

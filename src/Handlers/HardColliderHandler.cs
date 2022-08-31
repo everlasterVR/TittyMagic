@@ -9,9 +9,6 @@ namespace TittyMagic.Handlers
 {
     internal static class HardColliderHandler
     {
-        private static DAZCharacterSelector _geometry;
-        private static Rigidbody _chestRb;
-
         public static JSONStorableStringChooser colliderGroupsJsc { get; private set; }
         public static List<ColliderConfigGroup> colliderConfigs { get; private set; }
         public static JSONStorableFloat baseForceJsf { get; private set; }
@@ -28,16 +25,13 @@ namespace TittyMagic.Handlers
         private const string COLLIDER_CENTER_Y = "ColliderCenterY";
         private const string COLLIDER_CENTER_Z = "ColliderCenterZ";
 
-        public static void Init(DAZCharacterSelector geometry, Rigidbody chestRb)
+        public static void Init()
         {
-            _geometry = geometry;
-            _chestRb = chestRb;
-
             /* Enable advanced colliders and hard colliders on init */
-            _geometry.useAdvancedColliders = true;
-            _geometry.useAuxBreastColliders = true;
+            geometry.useAdvancedColliders = true;
+            geometry.useAuxBreastColliders = true;
 
-            if(!Gender.isFemale)
+            if(!personIsFemale)
             {
                 return;
             }
@@ -337,7 +331,7 @@ namespace TittyMagic.Handlers
 
         private static ColliderConfig NewColliderConfig(string id)
         {
-            var collider = _geometry.auxBreastColliders.ToList().Find(c => c.name.Contains(id));
+            var collider = geometry.auxBreastColliders.ToList().Find(c => c.name.Contains(id));
             /* Find auto collider */
             var autoColliders = tittyMagic.containingAtom.GetComponentInChildren<AutoColliderBatchUpdater>().autoColliders;
             var autoCollider = autoColliders.First(ac => ac.jointCollider != null && ac.jointCollider.name == collider.name);
@@ -348,7 +342,7 @@ namespace TittyMagic.Handlers
 
         private static void SyncRadius(ColliderConfigGroup config)
         {
-            if(!Gender.isFemale)
+            if(!personIsFemale)
             {
                 return;
             }
@@ -359,7 +353,7 @@ namespace TittyMagic.Handlers
 
         private static void SyncPosition(ColliderConfigGroup config)
         {
-            if(!Gender.isFemale)
+            if(!personIsFemale)
             {
                 return;
             }
@@ -370,7 +364,7 @@ namespace TittyMagic.Handlers
 
         public static void SyncAllOffsets()
         {
-            if(!Gender.isFemale)
+            if(!personIsFemale)
             {
                 return;
             }
@@ -414,7 +408,7 @@ namespace TittyMagic.Handlers
 
         public static void UpdateFriction()
         {
-            if(!Gender.isFemale)
+            if(!personIsFemale)
             {
                 return;
             }
@@ -424,7 +418,7 @@ namespace TittyMagic.Handlers
 
         private static void SyncColliderMass(ColliderConfigGroup config)
         {
-            if(!Gender.isFemale)
+            if(!personIsFemale)
             {
                 return;
             }
@@ -440,34 +434,37 @@ namespace TittyMagic.Handlers
 
         public static void CalibrateColliders()
         {
-            if(!Gender.isFemale)
+            if(!personIsFemale)
             {
                 return;
             }
 
             var breastCenterLeft = BreastCenter(VertexIndexGroup.LEFT_BREAST);
             var breastCenterRight = BreastCenter(VertexIndexGroup.RIGHT_BREAST);
-            colliderConfigs.ForEach(config => config.Calibrate(breastCenterLeft, breastCenterRight, _chestRb));
+            colliderConfigs.ForEach(config => config.Calibrate(breastCenterLeft, breastCenterRight, MainPhysicsHandler.chestRb));
         }
 
         public static void UpdateDistanceDiffs()
         {
-            if(!Gender.isFemale)
+            if(!personIsFemale)
             {
                 return;
             }
 
             var breastCenterLeft = BreastCenter(VertexIndexGroup.LEFT_BREAST);
             var breastCenterRight = BreastCenter(VertexIndexGroup.RIGHT_BREAST);
-            colliderConfigs.ForEach(config => config.UpdateDistanceDiffs(breastCenterLeft, breastCenterRight, _chestRb));
+            colliderConfigs.ForEach(config => config.UpdateDistanceDiffs(breastCenterLeft, breastCenterRight, MainPhysicsHandler.chestRb));
         }
 
         private static Vector3 BreastCenter(IEnumerable<int> vertexIndices) =>
-            Calc.RelativePosition(_chestRb, Calc.AveragePosition(vertexIndices.Select(index => tittyMagic.skin.rawSkinnedVerts[index]).ToArray()));
+            Calc.RelativePosition(
+                MainPhysicsHandler.chestRb,
+                Calc.AveragePosition(vertexIndices.Select(index => tittyMagic.skin.rawSkinnedVerts[index]).ToArray())
+            );
 
         public static void ResetDistanceDiffs()
         {
-            if(!Gender.isFemale)
+            if(!personIsFemale)
             {
                 return;
             }
@@ -480,37 +477,43 @@ namespace TittyMagic.Handlers
 
         public static void SaveOriginalUseColliders()
         {
-            if(Gender.isFemale)
+            if(!personIsFemale)
             {
-                _originalUseAdvancedColliders = _geometry.useAdvancedColliders;
-                _originalUseAuxBreastColliders = _geometry.useAuxBreastColliders;
+                return;
             }
+
+            _originalUseAdvancedColliders = geometry.useAdvancedColliders;
+            _originalUseAuxBreastColliders = geometry.useAuxBreastColliders;
         }
 
         public static void EnableDefaults()
         {
-            if(Gender.isFemale)
+            if(!personIsFemale)
             {
-                _geometry.useAdvancedColliders = true;
-                _geometry.useAuxBreastColliders = true;
-                colliderConfigs.ForEach(config => config.EnableMultiplyFriction());
+                return;
             }
+
+            geometry.useAdvancedColliders = true;
+            geometry.useAuxBreastColliders = true;
+            colliderConfigs.ForEach(config => config.EnableMultiplyFriction());
         }
 
         public static void RestoreOriginalPhysics()
         {
-            if(Gender.isFemale)
+            if(!personIsFemale)
             {
-                /* Required for restoring default collider mass. Enabled in case disabled
-                 * programmatically, and not yet restored back on by SettingsMonitor.
-                 */
-                _geometry.useAdvancedColliders = true;
-                _geometry.useAuxBreastColliders = true;
-                /* Restore defaults */
-                colliderConfigs.ForEach(config => config.RestoreDefaults());
-                _geometry.useAdvancedColliders = _originalUseAdvancedColliders;
-                _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
+                return;
             }
+
+            /* Required for restoring default collider mass. Enabled in case disabled
+             * programmatically, and not yet restored back on by SettingsMonitor.
+             */
+            geometry.useAdvancedColliders = true;
+            geometry.useAuxBreastColliders = true;
+            /* Restore defaults */
+            colliderConfigs.ForEach(config => config.RestoreDefaults());
+            geometry.useAdvancedColliders = _originalUseAdvancedColliders;
+            geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
         }
     }
 }

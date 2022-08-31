@@ -12,7 +12,9 @@ namespace TittyMagic.Handlers
 {
     internal static class MainPhysicsHandler
     {
-        private static AdjustJoints _breastControl;
+        public static Rigidbody chestRb { get; set; }
+        public static AdjustJoints breastControl { get; set; }
+
         private static Dictionary<string, ConfigurableJoint> _joints;
         private static Dictionary<string, Rigidbody> _pectoralRbs;
         private static Dictionary<string, DAZBone> _dazBones;
@@ -37,17 +39,12 @@ namespace TittyMagic.Handlers
 
         private static bool _isInitialized;
 
-        public static void Init(
-            AdjustJoints breastControl,
-            Rigidbody chestRb
-        )
+        public static void Init()
         {
-            _breastControl = breastControl;
-            _chestRb = chestRb;
             _joints = new Dictionary<string, ConfigurableJoint>
             {
-                { LEFT, _breastControl.joint2 },
-                { RIGHT, _breastControl.joint1 },
+                { LEFT, breastControl.joint2 },
+                { RIGHT, breastControl.joint1 },
             };
             _pectoralRbs = new Dictionary<string, Rigidbody>
             {
@@ -85,11 +82,9 @@ namespace TittyMagic.Handlers
             massAmount = massParameterGroup.left.valueJsf.val / 2;
         }
 
-        private static Rigidbody _chestRb;
-
         private static float CalculateVolume(IEnumerable<int> vertexIndices)
         {
-            var positions = vertexIndices.Select(i => Calc.RelativePosition(_chestRb, tittyMagic.skin.rawSkinnedVerts[i])).ToList();
+            var positions = vertexIndices.Select(i => Calc.RelativePosition(chestRb, tittyMagic.skin.rawSkinnedVerts[i])).ToList();
             var bounds = new Bounds();
 
             /* Calculate bounds size */
@@ -374,7 +369,7 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            var newCenterOfMass = Vector3.Lerp(_breastControl.lowCenterOfGravity, _breastControl.highCenterOfGravity, value);
+            var newCenterOfMass = Vector3.Lerp(breastControl.lowCenterOfGravity, breastControl.highCenterOfGravity, value);
             if(Calc.VectorIsEqualWithin(1 / 100f, rb.centerOfMass, newCenterOfMass))
             {
                 return;
@@ -392,7 +387,7 @@ namespace TittyMagic.Handlers
             }
 
             // see AdjustJoints.cs method ScaleChanged
-            float scalePow = Mathf.Pow(1.7f, _breastControl.scale - 1f);
+            float scalePow = Mathf.Pow(1.7f, breastControl.scale - 1f);
 
             float scaledSpring = spring * scalePow;
             if(Mathf.Abs(joint.slerpDrive.positionSpring - scaledSpring) <= 1)
@@ -414,11 +409,11 @@ namespace TittyMagic.Handlers
             joint.angularYZDrive = angularYZDrive;
 
             var angularXLimitSpring = joint.angularXLimitSpring;
-            angularXLimitSpring.spring = scaledSpring * _breastControl.limitSpringMultiplier;
+            angularXLimitSpring.spring = scaledSpring * breastControl.limitSpringMultiplier;
             joint.angularXLimitSpring = angularXLimitSpring;
 
             var angularYZLimitSpring = joint.angularYZLimitSpring;
-            angularYZLimitSpring.spring = scaledSpring * _breastControl.limitSpringMultiplier;
+            angularYZLimitSpring.spring = scaledSpring * breastControl.limitSpringMultiplier;
             joint.angularYZLimitSpring = angularYZLimitSpring;
 
             rb.WakeUp();
@@ -432,7 +427,7 @@ namespace TittyMagic.Handlers
             }
 
             // see AdjustJoints.cs method ScaleChanged
-            float scalePow = Mathf.Pow(1.7f, _breastControl.scale - 1f);
+            float scalePow = Mathf.Pow(1.7f, breastControl.scale - 1f);
 
             float scaledDamper = damper * scalePow;
             if(Mathf.Abs(joint.slerpDrive.positionDamper - scaledDamper) <= 0.01f)
@@ -454,11 +449,11 @@ namespace TittyMagic.Handlers
             joint.angularYZDrive = angularYZDrive;
 
             var angularXLimitSpring = joint.angularXLimitSpring;
-            angularXLimitSpring.damper = scaledDamper * _breastControl.limitDamperMultiplier;
+            angularXLimitSpring.damper = scaledDamper * breastControl.limitDamperMultiplier;
             joint.angularXLimitSpring = angularXLimitSpring;
 
             var angularYZLimitSpring = joint.angularYZLimitSpring;
-            angularYZLimitSpring.damper = scaledDamper * _breastControl.limitDamperMultiplier;
+            angularYZLimitSpring.damper = scaledDamper * breastControl.limitDamperMultiplier;
             joint.angularYZLimitSpring = angularYZLimitSpring;
 
             rb.WakeUp();
@@ -512,15 +507,15 @@ namespace TittyMagic.Handlers
 
             if(side == LEFT)
             {
-                _breastControl.smoothedJoint2TargetRotation.x = targetRotationX;
-                var rotation = _breastControl.smoothedJoint2TargetRotation;
+                breastControl.smoothedJoint2TargetRotation.x = targetRotationX;
+                var rotation = breastControl.smoothedJoint2TargetRotation;
                 rotation.x = -rotation.x;
                 _dazBones[side].baseJointRotation = rotation;
             }
             else if(side == RIGHT)
             {
-                _breastControl.smoothedJoint1TargetRotation.x = targetRotationX;
-                var rotation = _breastControl.smoothedJoint1TargetRotation;
+                breastControl.smoothedJoint1TargetRotation.x = targetRotationX;
+                var rotation = breastControl.smoothedJoint1TargetRotation;
                 rotation.x = -rotation.x;
                 _dazBones[side].baseJointRotation = rotation;
             }
@@ -536,14 +531,14 @@ namespace TittyMagic.Handlers
 
             if(side == LEFT)
             {
-                _breastControl.smoothedJoint2TargetRotation.y = -targetRotationY;
-                var rotation = _breastControl.smoothedJoint2TargetRotation;
+                breastControl.smoothedJoint2TargetRotation.y = -targetRotationY;
+                var rotation = breastControl.smoothedJoint2TargetRotation;
                 _dazBones[side].baseJointRotation = rotation;
             }
             else if(side == RIGHT)
             {
-                _breastControl.smoothedJoint1TargetRotation.y = -targetRotationY;
-                var rotation = _breastControl.smoothedJoint1TargetRotation;
+                breastControl.smoothedJoint1TargetRotation.y = -targetRotationY;
+                var rotation = breastControl.smoothedJoint1TargetRotation;
                 _dazBones[side].baseJointRotation = rotation;
             }
         }
@@ -587,7 +582,7 @@ namespace TittyMagic.Handlers
                 /* Set a value that is different from the original, then restore the original
                  * in order to trigger VaM's internal sync
                  */
-                var paramJsf = _breastControl.GetFloatJSONParam(name);
+                var paramJsf = breastControl.GetFloatJSONParam(name);
                 float original = paramJsf.val;
                 paramJsf.valNoCallback = Math.Abs(paramJsf.val - paramJsf.min) > 0.01f
                     ? paramJsf.min
@@ -604,7 +599,7 @@ namespace TittyMagic.Handlers
                 sb.Append("Mass of the pectoral joint.");
                 sb.Append("\n\n");
                 sb.Append("Since mass represents breast size, other physics parameters are adjusted based on its value.");
-                if(Gender.isFemale)
+                if(personIsFemale)
                 {
                     sb.Append("\n\n");
                     sb.Append("Fat Collider Radius and Fat Distance Limit are adjusted using the mass estimated from");

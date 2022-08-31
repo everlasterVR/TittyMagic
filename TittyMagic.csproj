@@ -109,7 +109,6 @@
     <Compile Include="src\SettingsMonitor.cs" />
     <Compile Include="src\Static\ApplyMethod.cs" />
     <Compile Include="src\Static\Direction.cs" />
-    <Compile Include="src\Static\Gender.cs" />
     <Compile Include="src\Static\Side.cs" />
     <Compile Include="src\Static\ParamName.cs" />
     <Compile Include="src\Static\SoftColliderGroup.cs" />
