@@ -179,6 +179,13 @@ namespace TittyMagic
                 yield return null;
             }
 
+            /* Wait for plugin permissions to be accepted */
+            var confirmPanel = SuperController.singleton.errorLogPanel.parent.Find("UserConfirmCanvas");
+            while(confirmPanel != null && confirmPanel.childCount > 0)
+            {
+                yield return null;
+            }
+
             /* Morphs path from main dir or var package */
             {
                 string packageId = this.GetPackageId();
