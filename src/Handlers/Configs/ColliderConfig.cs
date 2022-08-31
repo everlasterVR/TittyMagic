@@ -12,7 +12,6 @@ namespace TittyMagic.Configs
 
         public string id { get; }
         public string visualizerEditableId => left.visualizerEditableId;
-        public bool waitingForForceSlider { get; set; }
 
         private readonly Scaler _baseRbMassSliderScaler;
         private readonly Scaler _radiusSliderScaler;
@@ -59,12 +58,6 @@ namespace TittyMagic.Configs
             float rbMass = combinedMultiplier * _baseRbMassSliderScaler.Scale(DEFAULT_MASS, massValue, softness);
             left.UpdateRigidbodyMass(rbMass);
             right.UpdateRigidbodyMass(rbMass);
-        }
-
-        public void RestoreDefaultMass()
-        {
-            left.UpdateRigidbodyMass(DEFAULT_MASS);
-            right.UpdateRigidbodyMass(DEFAULT_MASS);
         }
 
         public void UpdateDimensions(float massValue, float softness)
@@ -127,11 +120,9 @@ namespace TittyMagic.Configs
 
         public void RestoreDefaults()
         {
-            left.RestoreDefaults();
-            right.RestoreDefaults();
+            left.RestoreDefaults(DEFAULT_MASS);
+            right.RestoreDefaults(DEFAULT_MASS);
         }
-
-        public bool HasRigidbodies() => left.HasRigidbody() && right.HasRigidbody();
     }
 
     internal class ColliderConfig
@@ -225,8 +216,10 @@ namespace TittyMagic.Configs
             _colliderMaterial.frictionCombine = PhysicMaterialCombine.Multiply;
         }
 
-        public void RestoreDefaults()
+        public void RestoreDefaults(float defaultMass)
         {
+            UpdateRigidbodyMass(defaultMass);
+
             autoCollider.autoRadiusBuffer = 0;
             autoCollider.autoLengthBuffer = 0;
             autoCollider.colliderRightOffset = 0;
@@ -242,7 +235,5 @@ namespace TittyMagic.Configs
             material.dynamicFriction = 0.6f;
             material.staticFriction = 0.6f;
         }
-
-        public bool HasRigidbody() => collider.attachedRigidbody != null;
     }
 }

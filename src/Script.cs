@@ -815,7 +815,8 @@ namespace TittyMagic
                     hardColliderHandler.SyncAllOffsets();
                 };
                 yield return calibration.WaitAndRepeat(calibrateNipplesAndColliders, 24, 0.05f);
-                yield return hardColliderHandler.SyncAll();
+                hardColliderHandler.SyncCollidersMass();
+                hardColliderHandler.SyncAllOffsets();
                 _isSimulatingUprightPose = false;
             }
 

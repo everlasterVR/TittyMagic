@@ -163,7 +163,7 @@ namespace TittyMagic
                     SoftPhysicsHandler.UpdateRateDependentPhysics();
                 }
 
-                tittyMagic.hardColliderHandler.SyncHardCollidersBaseMass();
+                tittyMagic.hardColliderHandler.SyncCollidersMass();
             }
         }
 

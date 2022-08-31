@@ -1,9 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TittyMagic.Components;
 using TittyMagic.Configs;
-using TittyMagic.UI;
 using UnityEngine;
 using static TittyMagic.Script;
 
@@ -34,6 +32,9 @@ namespace TittyMagic.Handlers
         {
             _geometry = geometry;
             _chestRb = chestRb;
+
+            /* Enable hard colliders on init */
+            _geometry.useAuxBreastColliders = true;
 
             if(!Gender.isFemale)
             {
@@ -79,7 +80,7 @@ namespace TittyMagic.Handlers
             tittyMagic.colliderVisualizer.XRayPreviewsJSON.setJSONCallbackFunction = _ => SyncSizeAuto();
 
             baseForceJsf = tittyMagic.NewJSONStorableFloat("baseCollisionForce", 0.75f, 0.01f, 1.50f);
-            baseForceJsf.setCallbackFunction = SyncHardCollidersBaseMass;
+            baseForceJsf.setCallbackFunction = _ => SyncCollidersMass();
             highlightAllJsb = tittyMagic.NewJSONStorableBool("highlightAllColliders", false, shouldRegister: false);
             highlightAllJsb.setCallbackFunction = value => tittyMagic.colliderVisualizer.PreviewOpacityJSON.val = value ? 1.00f : 0.67f;
         }
@@ -322,11 +323,11 @@ namespace TittyMagic.Handlers
                 lookJsf = tittyMagic.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_Z, 0, -1f, 1f),
             };
 
-            colliderConfigGroup.forceJsf.setCallbackFunction = _ => SyncHardColliderMass(colliderConfigGroup);
-            colliderConfigGroup.radiusJsf.setCallbackFunction = _ => SyncHardColliderRadius(colliderConfigGroup);
-            colliderConfigGroup.rightJsf.setCallbackFunction = _ => SyncHardColliderPosition(colliderConfigGroup);
-            colliderConfigGroup.upJsf.setCallbackFunction = _ => SyncHardColliderPosition(colliderConfigGroup);
-            colliderConfigGroup.lookJsf.setCallbackFunction = _ => SyncHardColliderPosition(colliderConfigGroup);
+            colliderConfigGroup.forceJsf.setCallbackFunction = _ => SyncColliderMass(colliderConfigGroup);
+            colliderConfigGroup.radiusJsf.setCallbackFunction = _ => SyncRadius(colliderConfigGroup);
+            colliderConfigGroup.rightJsf.setCallbackFunction = _ => SyncPosition(colliderConfigGroup);
+            colliderConfigGroup.upJsf.setCallbackFunction = _ => SyncPosition(colliderConfigGroup);
+            colliderConfigGroup.lookJsf.setCallbackFunction = _ => SyncPosition(colliderConfigGroup);
 
             colliderConfigGroup.EnableMultiplyFriction();
 
@@ -336,19 +337,15 @@ namespace TittyMagic.Handlers
         private ColliderConfig NewColliderConfig(string id)
         {
             var collider = _geometry.auxBreastColliders.ToList().Find(c => c.name.Contains(id));
-            var autoCollider = FindAutoCollider(collider);
+            /* Find auto collider */
+            var autoColliders = tittyMagic.containingAtom.GetComponentInChildren<AutoColliderBatchUpdater>().autoColliders;
+            var autoCollider = autoColliders.First(ac => ac.jointCollider != null && ac.jointCollider.name == collider.name);
+
             string visualizerEditableId = tittyMagic.colliderVisualizer.EditablesJSON.choices.Find(option => option.EndsWith(id));
             return new ColliderConfig(autoCollider, visualizerEditableId);
         }
 
-        private static AutoCollider FindAutoCollider(Collider collider)
-        {
-            var updater = tittyMagic.containingAtom.GetComponentInChildren<AutoColliderBatchUpdater>();
-            return updater.autoColliders.First(autoCollider =>
-                autoCollider.jointCollider != null && autoCollider.jointCollider.name == collider.name);
-        }
-
-        private void SyncHardColliderRadius(ColliderConfigGroup config)
+        private void SyncRadius(ColliderConfigGroup config)
         {
             if(!enabled || !Gender.isFemale)
             {
@@ -359,7 +356,7 @@ namespace TittyMagic.Handlers
             SyncSizeAuto();
         }
 
-        private void SyncHardColliderPosition(ColliderConfigGroup config)
+        private void SyncPosition(ColliderConfigGroup config)
         {
             if(!enabled || !Gender.isFemale)
             {
@@ -368,19 +365,6 @@ namespace TittyMagic.Handlers
 
             config.UpdatePosition(MainPhysicsHandler.normalizedMass, tittyMagic.softnessAmount);
             SyncSizeAuto();
-        }
-
-        private void SyncHardColliderMass(ColliderConfigGroup config)
-        {
-            if(!enabled || !Gender.isFemale)
-            {
-                return;
-            }
-
-            if(!config.waitingForForceSlider)
-            {
-                StartCoroutine(DeferSyncMass(config));
-            }
         }
 
         public void SyncAllOffsets()
@@ -437,151 +421,21 @@ namespace TittyMagic.Handlers
             colliderConfigs.ForEach(config => config.UpdateFriction(FrictionHandler.maxHardColliderFriction));
         }
 
-        private IEnumerator DeferSyncMass(ColliderConfigGroup config)
-        {
-            config.waitingForForceSlider = true;
-            yield return WaitForSlider(config.forceJsf.name);
-            config.waitingForForceSlider = false;
-
-            // In case hard colliders are not enabled (yet)
-            float timeout = Time.unscaledTime + 3f;
-            while(!config.HasRigidbodies() && Time.unscaledTime < timeout)
-            {
-                yield return new WaitForSecondsRealtime(0.2f);
-            }
-
-            yield return new WaitForSecondsRealtime(0.1f);
-
-            if(!config.HasRigidbodies())
-            {
-                LogSyncMassFailure();
-            }
-            else
-            {
-                config.UpdateRigidbodyMass(
-                    1 / Utils.PhysicsRateMultiplier() * baseForceJsf.val * config.forceJsf.val,
-                    MainPhysicsHandler.normalizedMass,
-                    tittyMagic.softnessAmount
-                );
-            }
-        }
-
-        private bool _waitingForBaseForceSlider;
-
-        public IEnumerator SyncAll()
-        {
-            if(!enabled || !Gender.isFemale)
-            {
-                yield break;
-            }
-
-            while(_waitingForBaseForceSlider)
-            {
-                yield return null;
-            }
-
-            _geometry.useAuxBreastColliders = true;
-            yield return DeferSyncBaseMass();
-            SyncAllOffsets();
-        }
-
-        public void SyncHardCollidersBaseMass() => SyncHardCollidersBaseMass(0);
-
-        private void SyncHardCollidersBaseMass(float value)
+        private void SyncColliderMass(ColliderConfigGroup config)
         {
             if(!enabled || !Gender.isFemale)
             {
                 return;
             }
 
-            if(!_waitingForBaseForceSlider)
-            {
-                StartCoroutine(DeferSyncBaseMass());
-            }
+            config.UpdateRigidbodyMass(
+                1 / Utils.PhysicsRateMultiplier() * baseForceJsf.val * config.forceJsf.val,
+                MainPhysicsHandler.normalizedMass,
+                tittyMagic.softnessAmount
+            );
         }
 
-        private IEnumerator DeferSyncBaseMass()
-        {
-            _waitingForBaseForceSlider = true;
-            yield return WaitForSlider(baseForceJsf.name);
-            _waitingForBaseForceSlider = false;
-
-            // In case hard colliders are not enabled (yet)
-            float timeout = Time.unscaledTime + 3f;
-            while(colliderConfigs.Any(config => !config.HasRigidbodies()) && Time.unscaledTime < timeout)
-            {
-                yield return new WaitForSecondsRealtime(0.3f);
-            }
-
-            yield return new WaitForSecondsRealtime(0.1f);
-
-            if(colliderConfigs.Any(config => !config.HasRigidbodies()))
-            {
-                LogSyncMassFailure();
-            }
-            else
-            {
-                colliderConfigs.ForEach(config => config.UpdateRigidbodyMass(
-                    1 / Utils.PhysicsRateMultiplier() * baseForceJsf.val * config.forceJsf.val,
-                    MainPhysicsHandler.normalizedMass,
-                    tittyMagic.softnessAmount
-                ));
-            }
-        }
-
-        private IEnumerator WaitForSlider(string sliderName)
-        {
-            var hardColliderWindow = tittyMagic.mainWindow?.GetActiveNestedWindow() as HardCollidersWindow;
-            if(hardColliderWindow == null)
-            {
-                yield break;
-            }
-
-            var elements = sliderName == baseForceJsf.name
-                ? hardColliderWindow.GetElements()
-                : hardColliderWindow.colliderSectionElements;
-            if(elements.Any())
-            {
-                yield return new WaitForSecondsRealtime(0.1f);
-                var slider = (UIDynamicSlider) elements[sliderName];
-                if(slider != null)
-                {
-                    while(slider.PointerIsDown())
-                    {
-                        yield return new WaitForSecondsRealtime(0.1f);
-                    }
-
-                    yield return new WaitForSecondsRealtime(0.1f);
-                }
-            }
-        }
-
-        private IEnumerator DeferRestoreDefaultMass()
-        {
-            // e.g. in case hard colliders are not enabled (yet)
-            yield return new WaitForSecondsRealtime(0.1f);
-            float timeout = Time.unscaledTime + 3f;
-
-            while(colliderConfigs.Any(config => !config.HasRigidbodies()) && Time.unscaledTime < timeout)
-            {
-                yield return new WaitForSecondsRealtime(0.3f);
-            }
-
-            yield return new WaitForSecondsRealtime(0.1f);
-
-            if(colliderConfigs.Any(config => !config.HasRigidbodies()))
-            {
-                Utils.LogError("Failed restoring hard colliders mass to default.");
-            }
-            else
-            {
-                colliderConfigs.ForEach(config => config.RestoreDefaultMass());
-            }
-
-            /* Changes to collider properties must be done while advanced colliders and hard colliders are enabled */
-            _geometry.useAdvancedColliders = _originalUseAdvancedColliders;
-            _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
-        }
+        public void SyncCollidersMass() => colliderConfigs?.ForEach(SyncColliderMass);
 
         public void CalibrateColliders()
         {
@@ -647,32 +501,15 @@ namespace TittyMagic.Handlers
         {
             if(Gender.isFemale)
             {
+                /* Required for restoring default collider mass. Enabled in case disabled
+                 * programmatically, and not yet restored back on by SettingsMonitor.
+                 */
+                _geometry.useAuxBreastColliders = true;
                 /* Restore defaults */
                 colliderConfigs.ForEach(config => config.RestoreDefaults());
-                _geometry.useAuxBreastColliders = true;
-                StartCoroutine(DeferRestoreDefaultMass());
+                _geometry.useAdvancedColliders = _originalUseAdvancedColliders;
+                _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
             }
-        }
-
-        private void LogSyncMassFailure()
-        {
-            string message = "Unable to apply collision force: ";
-            if(!_geometry.useAdvancedColliders)
-            {
-                message +=
-                    "Advanced Colliders are not enabled in Control & Physics 1 tab. " +
-                    "Enabling them and toggling hard colliders on will auto-apply the current collision force.";
-            }
-            else if(_geometry.gender != DAZCharacterSelector.Gender.Female)
-            {
-                message += "Current character is male. Reload the plugin.";
-            }
-            else
-            {
-                message += "Unknown reason. Please report a bug.";
-            }
-
-            Utils.LogMessage(message);
         }
     }
 }
