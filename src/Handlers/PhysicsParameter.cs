@@ -47,7 +47,8 @@ namespace TittyMagic.Handlers
 
             offsetOnlyLeftBreastJsb.setCallbackFunction = value =>
             {
-                right.UpdateOffsetValue(value ? 0 : left.offsetJsf.val);
+                float rightValue = rightIsInverted ? -left.offsetJsf.val : left.offsetJsf.val;
+                right.UpdateOffsetValue(value ? 0 : rightValue);
                 foreach(var param in right.groupMultiplierParams)
                 {
                     param.Value.UpdateOffsetValue(value ? 0 : left.groupMultiplierParams[param.Key].offsetJsf.val);
