@@ -74,7 +74,7 @@ namespace TittyMagic.Handlers
 
         public static void UpdateMassValueAndAmounts()
         {
-            float volume = (CalculateVolume(VertexIndexGroup.LEFT_BREAST) + CalculateVolume(VertexIndexGroup.RIGHT_BREAST)) / 2;
+            float volume = (CalculateVolume(VertexIndexGroup.leftBreast) + CalculateVolume(VertexIndexGroup.rightBreast)) / 2;
             massParameterGroup.UpdateValue(volume / 1000);
 
             /* Division by 2 is a hacky way to make the value compatible with legacy configurations for morphs and physics settings */
@@ -735,6 +735,18 @@ namespace TittyMagic.Handlers
                 { TARGET_ROTATION_Y, targetRotationYText },
                 { TARGET_ROTATION_Z, targetRotationZtext },
             };
+        }
+
+        public static void Destroy()
+        {
+            chestRb = null;
+            breastControl = null;
+            _joints = null;
+            _pectoralRbs = null;
+            _dazBones = null;
+            _breastControlFloatParamNames = null;
+            parameterGroups = null;
+            massParameterGroup = null;
         }
     }
 }

@@ -110,5 +110,12 @@ namespace TittyMagic.Handlers
         {
             _morphConfig.morph.morphValue = 0;
         }
+
+        public static void Destroy()
+        {
+            _morphConfig = null;
+            _paramGroups = null;
+            nippleErectionJsf = null;
+        }
     }
 }

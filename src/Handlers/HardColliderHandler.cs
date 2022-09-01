@@ -393,8 +393,8 @@ namespace TittyMagic.Handlers
 
         public static void UpdateFrictionSizeMultipliers()
         {
-            _frictionSizeMultiplierLeft = FrictionSizeMultiplier(VertexIndexGroup.LEFT_BREAST_WIDTH_MARKERS);
-            _frictionSizeMultiplierRight = FrictionSizeMultiplier(VertexIndexGroup.RIGHT_BREAST_WIDTH_MARKERS);
+            _frictionSizeMultiplierLeft = FrictionSizeMultiplier(VertexIndexGroup.leftBreastWidthMarkers);
+            _frictionSizeMultiplierRight = FrictionSizeMultiplier(VertexIndexGroup.rightBreastWidthMarkers);
         }
 
         private static float FrictionSizeMultiplier(int[] indices)
@@ -439,8 +439,8 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            var breastCenterLeft = BreastCenter(VertexIndexGroup.LEFT_BREAST);
-            var breastCenterRight = BreastCenter(VertexIndexGroup.RIGHT_BREAST);
+            var breastCenterLeft = BreastCenter(VertexIndexGroup.leftBreast);
+            var breastCenterRight = BreastCenter(VertexIndexGroup.rightBreast);
             colliderConfigs.ForEach(config => config.Calibrate(breastCenterLeft, breastCenterRight, MainPhysicsHandler.chestRb));
         }
 
@@ -451,8 +451,8 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            var breastCenterLeft = BreastCenter(VertexIndexGroup.LEFT_BREAST);
-            var breastCenterRight = BreastCenter(VertexIndexGroup.RIGHT_BREAST);
+            var breastCenterLeft = BreastCenter(VertexIndexGroup.leftBreast);
+            var breastCenterRight = BreastCenter(VertexIndexGroup.rightBreast);
             colliderConfigs.ForEach(config => config.UpdateDistanceDiffs(breastCenterLeft, breastCenterRight, MainPhysicsHandler.chestRb));
         }
 
@@ -514,6 +514,15 @@ namespace TittyMagic.Handlers
             colliderConfigs.ForEach(config => config.RestoreDefaults());
             geometry.useAdvancedColliders = _originalUseAdvancedColliders;
             geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
+        }
+
+        public static void Destroy()
+        {
+            colliderGroupsJsc = null;
+            colliderConfigs = null;
+            baseForceJsf = null;
+            highlightAllJsb = null;
+            _scalingConfigs = null;
         }
     }
 }

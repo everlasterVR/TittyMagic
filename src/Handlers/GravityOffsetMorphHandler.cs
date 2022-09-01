@@ -129,5 +129,11 @@ namespace TittyMagic.Handlers
 
         private static void ResetMorphs(string configSetName) =>
             _configSets[configSetName].ForEach(config => config.morph.morphValue = 0);
+
+        public static void Destroy()
+        {
+            _configSets = null;
+            offsetMorphingJsf = null;
+        }
     }
 }

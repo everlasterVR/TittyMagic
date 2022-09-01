@@ -336,5 +336,18 @@ namespace TittyMagic.Handlers
 
         private static void ResetMorphs(string configSetName) =>
             _configSets[configSetName].ForEach(config => config.morph.morphValue = 0);
+
+        public static void Destroy()
+        {
+            _trackLeftNipple = null;
+            _trackRightNipple = null;
+            _configSets = null;
+            baseJsf = null;
+            upJsf = null;
+            downJsf = null;
+            forwardJsf = null;
+            backJsf = null;
+            leftRightJsf = null;
+        }
     }
 }

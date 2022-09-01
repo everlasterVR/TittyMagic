@@ -7,7 +7,7 @@ namespace TittyMagic
 {
     internal static class BreastMorphListener
     {
-        private static readonly List<string> _excludeMorphsNames = new List<string>
+        private static List<string> _excludeMorphsNames = new List<string>
         {
             "FBMFitnessDetails",
             "FBMHeight",
@@ -65,7 +65,7 @@ namespace TittyMagic
                         !morph.group.Contains("Pose/") &&
                         !_excludeMorphsNames.Contains(morph.morphName) &&
                         !listenedMorphs.ContainsKey(morph) &&
-                        IsInSet(morph, VertexIndexGroup.BREASTS, FILTER_STRENGTH)
+                        IsInSet(morph, VertexIndexGroup.breasts, FILTER_STRENGTH)
                     )
                     {
                         listenedMorphs.Add(morph, morph.morphValue);
@@ -129,6 +129,13 @@ namespace TittyMagic
             }
 
             return false;
+        }
+
+        public static void Destroy()
+        {
+            _excludeMorphsNames = null;
+            _morphs = null;
+            _values = null;
         }
     }
 }

@@ -5,7 +5,7 @@ namespace TittyMagic
     internal static class VertexIndexGroup
     {
         // excludes areola and nipple vertices
-        public static readonly HashSet<int> BREASTS = new HashSet<int>
+        public static HashSet<int> breasts = new HashSet<int>
         {
             8, 16, 17, 93, 135, 136, 137, 138, 2401, 2402, 2403, 2404, 2405, 2406, 2407, 2408, 2409, 2410, 2411, 2412,
             2413, 2414, 2415, 2416, 2417, 2418, 2419, 2590, 2591, 2592, 2594, 2596, 2597, 2598, 2871, 2872, 2873, 7216,
@@ -20,14 +20,14 @@ namespace TittyMagic
 
         // excludes nipple vertices
         // excludes indexes that (for some reason) don't get updated vertex positions in DAZSkinV2.rawSkinnedVertices when male skinned person is moved around or morphed
-        public static readonly List<int> LEFT_BREAST = new List<int>
+        public static List<int> leftBreast = new List<int>
         {
             2403, 2411, 2592, 7197, 7208, 8902, 8904, 8905, 8908, 8909, 8911, 8915, 8917, 8922, 8924, 8925, 8926, 8928,
             8930, 8933, 8934, 8935, 8939, 8941, 8942, 8943, 8945, 8946, 8947, 8948, 8949, 8951, 8952, 8954, 8959, 8969,
             8970,
         };
 
-        public static readonly List<int> RIGHT_BREAST = new List<int>
+        public static List<int> rightBreast = new List<int>
         {
             13233, 13241, 13410, 17904, 17915, 19568, 19570, 19571, 19574, 19575, 19577, 19581, 19583, 19588, 19590,
             19591, 19592, 19594, 19596, 19599, 19600, 19601, 19605, 19607, 19608, 19609, 19611, 19612, 19613, 19614,
@@ -35,13 +35,24 @@ namespace TittyMagic
         };
 
         // subsets of LEFT_BREAST and RIGHT_BREAST - vertices closest to center
-        public static readonly List<int> LEFT_BREAST_CENTER = new List<int>
+        public static List<int> leftBreastCenter = new List<int>
             { 7197, 7208, 8902, 8904, 8905, 8908, 8909, 8911, 8915, 8917, 8922, 8924 };
 
-        public static readonly List<int> RIGHT_BREAST_CENTER = new List<int>
+        public static List<int> rightBreastCenter = new List<int>
             { 17904, 17915, 19568, 19570, 19571, 19574, 19575, 19577, 19581, 19583, 19588, 19590 };
 
-        public static readonly int[] LEFT_BREAST_WIDTH_MARKERS = new[] { 8956, 8967 };
-        public static readonly int[] RIGHT_BREAST_WIDTH_MARKERS = new[] { 19622, 19633 };
+        public static int[] leftBreastWidthMarkers = { 8956, 8967 };
+        public static int[] rightBreastWidthMarkers = { 19622, 19633 };
+
+        public static void Destroy()
+        {
+            breasts = null;
+            leftBreast = null;
+            rightBreast = null;
+            leftBreastCenter = null;
+            rightBreastCenter = null;
+            leftBreastWidthMarkers = null;
+            rightBreastWidthMarkers = null;
+        }
     }
 }

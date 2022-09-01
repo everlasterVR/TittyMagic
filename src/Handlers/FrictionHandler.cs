@@ -1,6 +1,5 @@
 using TittyMagic.Configs;
 using TittyMagic.Handlers;
-using TittyMagic.UI;
 using UnityEngine;
 using static TittyMagic.Script;
 
@@ -158,15 +157,23 @@ namespace TittyMagic
             UpdateSoftColliders(softColliderFrictionJsf.val);
         }
 
-        public static void RemoveCallbacks()
+        public static void Destroy()
         {
-            if(!personIsFemale)
+            if(personIsFemale)
             {
-                return;
+                _glossJsf.setJSONCallbackFunction = null;
+                _specularBumpinessJsf.setJSONCallbackFunction = null;
             }
 
-            _glossJsf.setJSONCallbackFunction = null;
-            _specularBumpinessJsf.setJSONCallbackFunction = null;
+            /* ensure GC */
+            _skinMaterialsStorable = null;
+            _colliderRadiusParameter = null;
+            frictionOffsetJsf = null;
+            softColliderFrictionJsf = null;
+            adaptiveFrictionJsb = null;
+            drySkinFrictionJsf = null;
+            _glossJsf = null;
+            _specularBumpinessJsf = null;
         }
     }
 }

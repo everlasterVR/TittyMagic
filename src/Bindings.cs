@@ -31,7 +31,7 @@ namespace TittyMagic
             });
             if(envIsDevelopment)
             {
-                bindings.AddRange(new List<object>()
+                bindings.AddRange(new List<object>
                 {
                     new JSONStorableAction("OpenUI_Dev", OpenUIDev),
                 });

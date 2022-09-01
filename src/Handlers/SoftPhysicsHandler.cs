@@ -970,5 +970,15 @@ namespace TittyMagic.Handlers
                 { SOFT_VERTICES_DISTANCE_LIMIT, distanceLimitText },
             };
         }
+
+        public static void Destroy()
+        {
+            breastPhysicsMesh = null;
+            _breastPhysicsMeshFloatParamNames = null;
+            _softVerticesGroups = null;
+            parameterGroups = null;
+            softPhysicsOnJsb = null;
+            allowSelfCollisionJsb = null;
+        }
     }
 }

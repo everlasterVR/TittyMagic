@@ -116,8 +116,9 @@ namespace TittyMagic
             _otherInstances.Prune().RemoveAll(instance => instance.containingAtom.uid == atom.uid);
         }
 
-        public static void RemoveHandlers()
+        public static void Destroy()
         {
+            _otherInstances = null;
             SuperController.singleton.onAtomAddedHandlers -= OnAtomAdded;
             SuperController.singleton.onAtomRemovedHandlers -= OnAtomRemoved;
         }

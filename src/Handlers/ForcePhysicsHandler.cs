@@ -15,21 +15,18 @@ namespace TittyMagic.Handlers
         private static TrackNipple _trackLeftNipple;
         private static TrackNipple _trackRightNipple;
 
-        // ReSharper disable MemberCanBePrivate.Global
-        public static JSONStorableFloat baseJsf { get; private set; }
-        public static JSONStorableFloat upJsf { get; private set; }
-        public static JSONStorableFloat downJsf { get; private set; }
-        public static JSONStorableFloat forwardJsf { get; private set; }
-        public static JSONStorableFloat backJsf { get; private set; }
-        public static JSONStorableFloat leftRightJsf { get; private set; }
+        private static JSONStorableFloat _baseJsf;
+        private static JSONStorableFloat _upJsf;
+        private static JSONStorableFloat _downJsf;
+        private static JSONStorableFloat _forwardJsf;
+        private static JSONStorableFloat _backJsf;
+        private static JSONStorableFloat _leftRightJsf;
 
-        // ReSharper restore MemberCanBePrivate.Global
-
-        private static float upMultiplier => baseJsf.val * upJsf.val;
-        private static float downMultiplier => baseJsf.val * downJsf.val;
-        private static float forwardMultiplier => baseJsf.val * forwardJsf.val;
-        private static float backMultiplier => baseJsf.val * backJsf.val;
-        private static float leftRightMultiplier => baseJsf.val * leftRightJsf.val;
+        private static float upMultiplier => _baseJsf.val * _upJsf.val;
+        private static float downMultiplier => _baseJsf.val * _downJsf.val;
+        private static float forwardMultiplier => _baseJsf.val * _forwardJsf.val;
+        private static float backMultiplier => _baseJsf.val * _backJsf.val;
+        private static float leftRightMultiplier => _baseJsf.val * _leftRightJsf.val;
 
         public static void Init(
             TrackNipple trackLeftNipple,
@@ -39,12 +36,12 @@ namespace TittyMagic.Handlers
             _trackLeftNipple = trackLeftNipple;
             _trackRightNipple = trackRightNipple;
 
-            baseJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsBase", 1.00f, 0.00f, 2.00f);
-            upJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsUp", 1.00f, 0.00f, 2.00f);
-            downJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsDown", 1.00f, 0.00f, 2.00f);
-            forwardJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsForward", 1.00f, 0.00f, 2.00f);
-            backJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsBack", 1.00f, 0.00f, 2.00f);
-            leftRightJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsLeftRight", 1.00f, 0.00f, 2.00f);
+            _baseJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsBase", 1.00f, 0.00f, 2.00f);
+            _upJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsUp", 1.00f, 0.00f, 2.00f);
+            _downJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsDown", 1.00f, 0.00f, 2.00f);
+            _forwardJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsForward", 1.00f, 0.00f, 2.00f);
+            _backJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsBack", 1.00f, 0.00f, 2.00f);
+            _leftRightJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsLeftRight", 1.00f, 0.00f, 2.00f);
         }
 
         public static void LoadSettings()
@@ -342,15 +339,12 @@ namespace TittyMagic.Handlers
         }
 
         private static float CalculateXEffect(float angle, float multiplier) =>
-            // multiplier * _rollMultiplier * Mathf.Abs(angle) / 60;
             multiplier * Curves.ForceEffectCurve(Mathf.Abs(angle) / 40);
 
         private static float CalculateYEffect(float angle, float multiplier) =>
-            // multiplier * _pitchMultiplier * Mathf.Abs(angle) / 75;
             multiplier * Curves.ForceEffectCurve(Mathf.Abs(angle) / 50);
 
         private static float CalculateZEffect(float distance, float multiplier) =>
-            // multiplier * Mathf.Abs(distance) * 12;
             multiplier * Curves.ForceEffectCurve(Mathf.Abs(distance) * 8);
 
         private static void UpdateLeftPhysics(string direction, float effect)
@@ -379,6 +373,20 @@ namespace TittyMagic.Handlers
         {
             _mainParamGroups.ForEach(group => group.right.ResetForceValue(direction));
             _softParamGroups?.ForEach(group => group.right.ResetForceValue(direction));
+        }
+
+        public static void Destroy()
+        {
+            _mainParamGroups = null;
+            _softParamGroups = null;
+            _trackLeftNipple = null;
+            _trackRightNipple = null;
+            _baseJsf = null;
+            _upJsf = null;
+            _downJsf = null;
+            _forwardJsf = null;
+            _backJsf = null;
+            _leftRightJsf = null;
         }
     }
 }

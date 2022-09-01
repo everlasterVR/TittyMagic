@@ -6,8 +6,6 @@ namespace TittyMagic.UI
     {
         string GetId();
 
-        Dictionary<string, UIDynamic> GetElements();
-
         IWindow GetActiveNestedWindow();
 
         void Rebuild();

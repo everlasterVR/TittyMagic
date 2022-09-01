@@ -228,7 +228,7 @@ namespace TittyMagic.UI
             elements[storable.name] = button;
         }
 
-        public List<UIDynamicSlider> GetSlidersForRefresh()
+        public IEnumerable<UIDynamicSlider> GetSlidersForRefresh()
         {
             var sliders = new List<UIDynamicSlider>();
             if(elements.Any())

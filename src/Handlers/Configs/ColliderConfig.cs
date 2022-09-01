@@ -22,6 +22,8 @@ namespace TittyMagic.Configs
         private readonly float _frictionMultiplier;
 
         public ColliderConfig left { get; }
+
+        // ReSharper disable once MemberCanBePrivate.Global
         public ColliderConfig right { get; }
 
         public JSONStorableFloat forceJsf { get; set; }

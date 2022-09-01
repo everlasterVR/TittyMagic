@@ -304,5 +304,16 @@ namespace TittyMagic.Handlers
 
         private static void ResetPhysics(string direction) =>
             _paramGroups.ForEach(paramGroup => paramGroup.ResetGravityValue(direction));
+
+        public static void Destroy()
+        {
+            _paramGroups = null;
+            baseJsf = null;
+            upJsf = null;
+            downJsf = null;
+            forwardJsf = null;
+            backJsf = null;
+            leftRightJsf = null;
+        }
     }
 }

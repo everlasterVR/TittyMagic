@@ -16,7 +16,7 @@ namespace TittyMagic
         public static Script tittyMagic { get; private set; }
         public const string VERSION = "0.0.0";
         public static bool envIsDevelopment => VERSION.StartsWith("0.");
-        public static bool personIsFemale { get; set; }
+        public static bool personIsFemale { get; private set; }
 
         public static GenerateDAZMorphsControlUI morphsControlUI { get; private set; }
         public static DAZCharacterSelector geometry { get; private set; }
@@ -310,10 +310,10 @@ namespace TittyMagic
             else
             {
                 _trackLeftNipple.getNipplePosition = () => Calc.AveragePosition(
-                    VertexIndexGroup.LEFT_BREAST_CENTER.Select(i => skin.rawSkinnedWorkingVerts[i]).ToArray()
+                    VertexIndexGroup.leftBreastCenter.Select(i => skin.rawSkinnedWorkingVerts[i]).ToArray()
                 );
                 _trackRightNipple.getNipplePosition = () => Calc.AveragePosition(
-                    VertexIndexGroup.RIGHT_BREAST_CENTER.Select(i => skin.rawSkinnedWorkingVerts[i]).ToArray()
+                    VertexIndexGroup.rightBreastCenter.Select(i => skin.rawSkinnedWorkingVerts[i]).ToArray()
                 );
             }
 
@@ -534,7 +534,7 @@ namespace TittyMagic
 
         private bool _modifySkinMaterialsUIDone;
         private readonly List<RectTransformChange> _movedRects = new List<RectTransformChange>();
-        public UIDynamicToggle enableAdaptiveFrictionToggle { get; private set; }
+        private UIDynamicToggle enableAdaptiveFrictionToggle { get; set; }
         public UIDynamicSlider drySkinFrictionSlider { get; private set; }
 
         private IEnumerator ModifySkinMaterialsUI(Transform content)
@@ -1009,16 +1009,36 @@ namespace TittyMagic
                 Destroy(calibration);
                 Destroy(settingsMonitor);
                 Destroy(colliderVisualizer);
-                FrictionHandler.RemoveCallbacks();
+
+                /* Nullify static reference fields to let GC collect unreachable instances */
+                ForceMorphHandler.Destroy();
+                ForcePhysicsHandler.Destroy();
+                FrictionHandler.Destroy();
+                GravityOffsetMorphHandler.Destroy();
+                GravityPhysicsHandler.Destroy();
+                HardColliderHandler.Destroy();
+                MainPhysicsHandler.Destroy();
+                NippleErectionHandler.Destroy();
+                SoftPhysicsHandler.Destroy();
+                BreastMorphListener.Destroy();
+                VertexIndexGroup.Destroy();
+                Integration.Destroy();
+                tittyMagic = null;
+                morphsControlUI = null;
+                geometry = null;
+
                 _scaleJsf.setJSONCallbackFunction = null;
+
                 mainWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
                 morphingWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
                 gravityWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
+
                 DestroyImmediate(_pluginUIEventsListener);
                 DestroyImmediate(_atomUIEventsListener);
+
                 _customUIGameObjects?.ForEach(Destroy);
+
                 SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
-                Integration.RemoveHandlers();
             }
             catch(Exception e)
             {
