@@ -406,27 +406,7 @@ namespace TittyMagic
 
             if(!_isLoadingFromJson)
             {
-                /* Modify atom UI when not loading from JSON */
-                {
-                    /* Plugin added manually */
-                    var atomUIContent = containingAtom.transform.Find("UI/UIPlaceHolderModel/UIModel/Canvas/Panel/Content");
-                    if(atomUIContent.gameObject.activeInHierarchy)
-                    {
-                        StartCoroutine(ModifyBreastPhysicsUI(atomUIContent));
-                        StartCoroutine(ModifySkinMaterialsUI(atomUIContent));
-                    }
-                    /* Plugin added with trigger or programmatically without the person UI being open */
-                    else
-                    {
-                        _atomUIEventsListener = atomUIContent.gameObject.AddComponent<UnityEventsListener>();
-                        _atomUIEventsListener.onEnable.AddListener(() =>
-                        {
-                            StartCoroutine(ModifyBreastPhysicsUI(atomUIContent));
-                            StartCoroutine(ModifySkinMaterialsUI(atomUIContent));
-                        });
-                    }
-                }
-
+                ModifyAtomUI();
                 HardColliderHandler.SaveOriginalUseColliders();
                 SoftPhysicsHandler.SaveOriginalBoolParamValues();
                 calculateBreastMass.actionCallback();
@@ -469,6 +449,28 @@ namespace TittyMagic
         }
 
         private UnityEventsListener _atomUIEventsListener;
+
+        private void ModifyAtomUI()
+        {
+            /* Plugin added manually.*/
+            var atomUIContent = containingAtom.transform.Find("UI/UIPlaceHolderModel/UIModel/Canvas/Panel/Content");
+            if(atomUIContent.gameObject.activeInHierarchy)
+            {
+                StartCoroutine(ModifyBreastPhysicsUI(atomUIContent));
+                StartCoroutine(ModifySkinMaterialsUI(atomUIContent));
+            }
+            /* Plugin added with trigger or programmatically without the person UI being open */
+            else
+            {
+                _atomUIEventsListener = atomUIContent.gameObject.AddComponent<UnityEventsListener>();
+                _atomUIEventsListener.onEnable.AddListener(() =>
+                {
+                    StartCoroutine(ModifyBreastPhysicsUI(atomUIContent));
+                    StartCoroutine(ModifySkinMaterialsUI(atomUIContent));
+                });
+            }
+        }
+
         private readonly List<GameObject> _customUIGameObjects = new List<GameObject>();
         private readonly List<GameObject> _inactivatedUIGameObjects = new List<GameObject>();
         private bool _modifyBreastPhysicsUIDone;
@@ -984,17 +986,7 @@ namespace TittyMagic
                 yield return null;
             }
 
-            /* Add listener to person UI content for modifying the UI. When loading
-             * from JSON, the person UI isn't open when the plugin is loaded.
-             */
-            var atomUIContent = containingAtom.transform.Find("UI/UIPlaceHolderModel/UIModel/Canvas/Panel/Content");
-            _atomUIEventsListener = atomUIContent.gameObject.AddComponent<UnityEventsListener>();
-            _atomUIEventsListener.onEnable.AddListener(() =>
-            {
-                StartCoroutine(ModifyBreastPhysicsUI(atomUIContent));
-                StartCoroutine(ModifySkinMaterialsUI(atomUIContent));
-            });
-
+            ModifyAtomUI();
             base.RestoreFromJSON(jsonClass, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
             _isLoadingFromJson = false;
             HardColliderHandler.SaveOriginalUseColliders();
