@@ -19,9 +19,7 @@ namespace TittyMagic.UI
             buildAction = () =>
             {
                 CreateTitleTextField(false);
-                CreateSoftnessInfoTextField(false, spacing: 35);
-                CreateQuicknessInfoTextField(false);
-                CreateBreastMassInfoTextField(false, spacing: 10);
+                CreateInfoTextField(false, spacing: 35);
 
                 CreateRecalibrateButton(tittyMagic.recalibratePhysics, true);
                 CreateSoftnessSlider(true, spacing: 65);
@@ -33,7 +31,6 @@ namespace TittyMagic.UI
 
                 if(personIsFemale)
                 {
-                    CreateHardCollidersInfoTextField(false, spacing: 10);
                     CreateConfigureHardCollidersButton(true, spacing: 15);
                 }
             };
@@ -86,22 +83,35 @@ namespace TittyMagic.UI
             elements[_title.name] = textField;
         }
 
-        private void CreateBreastMassInfoTextField(bool rightSide, int spacing = 0)
+        private void CreateInfoTextField(bool rightSide, int spacing = 0)
         {
             var sb = new StringBuilder();
+            sb.Append("<b><i>Breast softness</i></b> simulates implants at low values");
+            sb.Append(" and natural breasts at high values.");
+            sb.Append("\n\n");
+            sb.Append("<b><i>Breast quickness</i></b> causes slow motion at low values");
+            sb.Append(" and realistically responsive behavior at high values.");
+            sb.Append("\n\n");
             sb.Append("<b><i>Breast mass</i></b> is estimated from volume. Since it represents size, other physics");
             sb.Append(" parameters are adjusted based on its value. Calculating mass also recalibrates physics.");
             sb.Append("\n\n");
             sb.Append("<b><i>Auto-update mass</i></b> enables calculating mass automatically when changes in breast");
             sb.Append(" morphs are detected. Disabling it prevents repeated recalibration when using other plugins");
             sb.Append(" that animate morphs.");
-            var storable = new JSONStorableString("breastMassInfoText", sb.ToString());
+            if(personIsFemale)
+            {
+                sb.Append("\n\n");
+                sb.Append("<b><i>Hard colliders</i></b> make breasts both easier to move");
+                sb.Append(" when touched and better at maintaining their volume and shape.");
+            }
+
+            var storable = new JSONStorableString("infoText", sb.ToString());
             AddSpacer(storable.name, spacing, rightSide);
 
             var textField = tittyMagic.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.backgroundColor = Color.clear;
-            textField.height = 400;
+            textField.height = 965;
             elements[storable.name] = textField;
         }
 
@@ -143,36 +153,6 @@ namespace TittyMagic.UI
             elements[storable.name] = slider;
         }
 
-        private void CreateSoftnessInfoTextField(bool rightSide, int spacing = 0)
-        {
-            var sb = new StringBuilder();
-            sb.Append("<b><i>Breast softness</i></b> simulates implants at low values");
-            sb.Append(" and natural breasts at high values.");
-            var storable = new JSONStorableString("softnessInfoText", sb.ToString());
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var textField = tittyMagic.CreateTextField(storable, rightSide);
-            textField.UItext.fontSize = 28;
-            textField.backgroundColor = Color.clear;
-            textField.height = 120;
-            elements[storable.name] = textField;
-        }
-
-        private void CreateQuicknessInfoTextField(bool rightSide, int spacing = 0)
-        {
-            var sb = new StringBuilder();
-            sb.Append("<b><i>Breast quickness</i></b> causes slow motion at low values");
-            sb.Append(" and realistically responsive behavior at high values.");
-            var storable = new JSONStorableString("quicknessInfoText", sb.ToString());
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var textField = tittyMagic.CreateTextField(storable, rightSide);
-            textField.UItext.fontSize = 28;
-            textField.backgroundColor = Color.clear;
-            textField.height = 120;
-            elements[storable.name] = textField;
-        }
-
         private void CreateSoftnessSlider(bool rightSide, int spacing = 0)
         {
             var storable = tittyMagic.softnessJsf;
@@ -197,21 +177,6 @@ namespace TittyMagic.UI
             slider.label = "Breast Quickness";
             slider.AddPointerUpDownListener();
             elements[storable.name] = slider;
-        }
-
-        private void CreateHardCollidersInfoTextField(bool rightSide, int spacing = 0)
-        {
-            var sb = new StringBuilder();
-            sb.Append("<b><i>Hard colliders</i></b> make breasts both easier to move");
-            sb.Append(" when touched and better at maintaining their volume and shape.");
-            var storable = new JSONStorableString("hardCollidersInfoText", sb.ToString());
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var textField = tittyMagic.CreateTextField(storable, rightSide);
-            textField.UItext.fontSize = 28;
-            textField.backgroundColor = Color.clear;
-            textField.height = 160;
-            elements[storable.name] = textField;
         }
 
         private void CreateConfigureHardCollidersButton(bool rightSide, int spacing = 0)
