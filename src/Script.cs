@@ -202,6 +202,34 @@ namespace TittyMagic
             }
 
             geometry = (DAZCharacterSelector) containingAtom.GetStorableByID("geometry");
+
+            /* Wait for skin to be ready */
+            {
+                float timeout = Time.unscaledTime + 2;
+                while(Time.unscaledTime < timeout && (!geometry.selectedCharacter.ready || containingAtom.GetStorableByID("skin") == null))
+                {
+                    yield return null;
+                }
+
+                if(!geometry.selectedCharacter.ready)
+                {
+                    Utils.LogError(
+                        $"Selected character {geometry.selectedCharacter.name} was not ready after 2 seconds of waiting. " +
+                        "Aborting plugin initization. Try reloading, and please report an issue."
+                    );
+                    yield break;
+                }
+
+                if(containingAtom.GetStorableByID("skin") == null)
+                {
+                    Utils.LogError(
+                        "Person skin materials not found after 2 seconds of waiting. " +
+                        "Aborting plugin initization. Try reloading, and please report an issue."
+                    );
+                    yield break;
+                }
+            }
+
             personIsFemale = !geometry.selectedCharacter.isMale;
 
             _listenersCheckRunner = new FrequencyRunner(0.333f);
