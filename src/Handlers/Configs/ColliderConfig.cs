@@ -80,8 +80,9 @@ namespace TittyMagic.Configs
 
         public void UpdateMaxFrictionalDistance(float sizeMultiplierLeft, float sizeMultiplierRight, float smallestRadius)
         {
-            left.maxFrictionalDistance = sizeMultiplierLeft * 0.5f * smallestRadius;
-            right.maxFrictionalDistance = sizeMultiplierRight * 0.5f * smallestRadius;
+            float halfSqrSmallestRadiusMillimeters = 0.5f * smallestRadius * smallestRadius * 1000;
+            left.maxFrictionalDistance = sizeMultiplierLeft * halfSqrSmallestRadiusMillimeters;
+            right.maxFrictionalDistance = sizeMultiplierRight * halfSqrSmallestRadiusMillimeters;
         }
 
         public void UpdateFriction(float max)
@@ -138,8 +139,8 @@ namespace TittyMagic.Configs
 
         private readonly PhysicMaterial _colliderMaterial;
         private readonly Transform _colliderTransform;
-        private float _distanceDiff;
-        private float _neutralDistance;
+        private float _sqrDistanceDiff;
+        private float _sqrNeutralDistance;
 
         public ColliderConfig(AutoCollider autoCollider, string visualizerEditableId)
         {
@@ -155,8 +156,7 @@ namespace TittyMagic.Configs
             this.visualizerEditableId = visualizerEditableId;
         }
 
-        public void UpdateRigidbodyMass(float mass) =>
-            collider.attachedRigidbody.mass = mass;
+        public void UpdateRigidbodyMass(float mass) => collider.attachedRigidbody.mass = mass;
 
         public void UpdateDimensions(float radiusOffset)
         {
@@ -178,7 +178,7 @@ namespace TittyMagic.Configs
 
         public void UpdateFriction(float multiplier, float max)
         {
-            float normalizedDistance = Mathf.InverseLerp(0, maxFrictionalDistance, _distanceDiff);
+            float normalizedDistance = Mathf.InverseLerp(0, maxFrictionalDistance, _sqrDistanceDiff);
             float dynamicFriction = max - Mathf.SmoothStep(0, max, normalizedDistance);
             _colliderMaterial.dynamicFriction = multiplier * dynamicFriction;
 
@@ -194,31 +194,22 @@ namespace TittyMagic.Configs
             autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.None;
         }
 
-        public void Calibrate(Vector3 breastCenter, Rigidbody chestRb)
-        {
-            _neutralDistance = DistanceFromBreastCenter(breastCenter, chestRb);
-        }
+        public void Calibrate(Vector3 breastCenter, Rigidbody chestRb) =>
+            _sqrNeutralDistance = SqrDistanceFromBreastCenter(breastCenter, chestRb);
 
-        public void UpdateDistanceDiff(Vector3 breastCenter, Rigidbody chestRb)
-        {
-            _distanceDiff = Mathf.Abs(_neutralDistance - DistanceFromBreastCenter(breastCenter, chestRb));
-        }
+        public void UpdateDistanceDiff(Vector3 breastCenter, Rigidbody chestRb) =>
+            _sqrDistanceDiff = Mathf.Abs(_sqrNeutralDistance - SqrDistanceFromBreastCenter(breastCenter, chestRb));
 
-        private float DistanceFromBreastCenter(Vector3 relativeBreastCenter, Rigidbody chestRb)
+        private float SqrDistanceFromBreastCenter(Vector3 relativeBreastCenter, Rigidbody chestRb)
         {
             var relativeTransformPosition = Calc.RelativePosition(chestRb, _colliderTransform.position);
-            return (relativeTransformPosition - relativeBreastCenter).magnitude;
+            /* Scale up by 1000 (millimeters) */
+            return (relativeTransformPosition - relativeBreastCenter).sqrMagnitude * 1000;
         }
 
-        public void ResetDistanceDiff()
-        {
-            _distanceDiff = 0;
-        }
+        public void ResetDistanceDiff() => _sqrDistanceDiff = 0;
 
-        public void EnableMultiplyFriction()
-        {
-            _colliderMaterial.frictionCombine = PhysicMaterialCombine.Multiply;
-        }
+        public void EnableMultiplyFriction() => _colliderMaterial.frictionCombine = PhysicMaterialCombine.Multiply;
 
         public void RestoreDefaults(float defaultMass)
         {
