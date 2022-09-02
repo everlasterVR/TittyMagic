@@ -1107,7 +1107,14 @@ namespace TittyMagic
             }
             catch(Exception e)
             {
-                Utils.LogError($"OnDestroy: {e}");
+                if(isInitialized)
+                {
+                    Utils.LogError($"OnDestroy: {e}");
+                }
+                else if(envIsDevelopment)
+                {
+                    Debug.Log($"OnDestroy: {e}");
+                }
             }
         }
 
@@ -1153,7 +1160,14 @@ namespace TittyMagic
             }
             catch(Exception e)
             {
-                Utils.LogError($"OnDisable: {e}");
+                if(isInitialized)
+                {
+                    Utils.LogError($"OnDisable: {e}");
+                }
+                else if(envIsDevelopment)
+                {
+                    Debug.Log($"OnDisable: {e}");
+                }
             }
         }
     }
