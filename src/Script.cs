@@ -403,6 +403,7 @@ namespace TittyMagic
             Integration.Init();
             calibration = gameObject.AddComponent<CalibrationHelper>();
             calibration.Init();
+            settingsMonitor.SetPectoralCollisions(!personIsFemale);
 
             if(!_isLoadingFromJson)
             {
@@ -841,10 +842,11 @@ namespace TittyMagic
             softnessAmount = Curves.SoftnessBaseCurve(softnessJsf.val / 100f);
             quicknessAmount = 2 * quicknessJsf.val / 100 - 1;
 
-            /* Calculate mass when gravity is off to get a consistent result.
-             * Mass is calculated multiple times because each new mass value
-             * changes the exact breast shape and therefore the estimated volume.
+            /* Calculate mass when gravity is off and collision is disabled to get a consistent result.
+             * Mass is calculated multiple times because each new mass value changes the exact breast
+             * shape and therefore the estimated volume.
              */
+            SetBreastsCollisionEnabled(false);
             SetBreastsUseGravity(false);
             Action updateMass = () =>
             {
@@ -903,9 +905,80 @@ namespace TittyMagic
             }
 
             SetBreastsUseGravity(true);
+            SetBreastsCollisionEnabled(true);
 
             calibration.Finish();
             isInitialized = true;
+        }
+
+        private IEnumerable<PhysicsSimulator> breastSimulators => containingAtom.physicsSimulators
+            .Where(simulator => new[]
+            {
+                "AutoColliderFemaleAutoColliderslPectoral1",
+                "AutoColliderFemaleAutoColliderslPectoral2",
+                "AutoColliderFemaleAutoColliderslPectoral3",
+                "AutoColliderFemaleAutoColliderslPectoral4",
+                "AutoColliderFemaleAutoColliderslPectoral5",
+                "AutoColliderFemaleAutoColliderslNipple1",
+                "AutoColliderFemaleAutoColliderslNippleGPU",
+                "AutoColliderFemaleAutoCollidersrPectoral1",
+                "AutoColliderFemaleAutoCollidersrPectoral2",
+                "AutoColliderFemaleAutoCollidersrPectoral3",
+                "AutoColliderFemaleAutoCollidersrPectoral4",
+                "AutoColliderFemaleAutoCollidersrPectoral5",
+                "AutoColliderFemaleAutoCollidersrNipple1",
+                "AutoColliderFemaleAutoCollidersrNippleGPU",
+            }.Contains(simulator.name));
+
+        private IEnumerable<PhysicsSimulatorJSONStorable> breastSimulatorStorables => containingAtom.physicsSimulatorsStorable
+            .Where(storable => new[]
+            {
+                "rNippleControl",
+                "lNippleControl",
+                "BreastPhysicsMesh",
+            }.Contains(storable.name));
+
+        private Dictionary<string, bool> _saveCollisionEnabled;
+
+        private void SetBreastsCollisionEnabled(bool value)
+        {
+            try
+            {
+                if(!value)
+                {
+                    _saveCollisionEnabled = new Dictionary<string, bool>();
+                }
+
+                foreach(var simulator in breastSimulators)
+                {
+                    if(value)
+                    {
+                        simulator.collisionEnabled = _saveCollisionEnabled[simulator.name];
+                    }
+                    else
+                    {
+                        _saveCollisionEnabled[simulator.name] = simulator.collisionEnabled;
+                        simulator.collisionEnabled = false;
+                    }
+                }
+
+                foreach(var storable in breastSimulatorStorables)
+                {
+                    if(value)
+                    {
+                        storable.collisionEnabled = _saveCollisionEnabled[storable.name];
+                    }
+                    else
+                    {
+                        _saveCollisionEnabled[storable.name] = storable.collisionEnabled;
+                        storable.collisionEnabled = false;
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+                Utils.LogError($"Error {(value ? "enabling" : "disabling")} breasts collision: {e}");
+            }
         }
 
         private void SetBreastsUseGravity(bool value)
@@ -1067,6 +1140,7 @@ namespace TittyMagic
             try
             {
                 settingsMonitor.SetEnabled(false);
+                settingsMonitor.SetPectoralCollisions(true);
                 HardColliderHandler.RestoreOriginalPhysics();
                 MainPhysicsHandler.RestoreOriginalPhysics();
                 SoftPhysicsHandler.RestoreOriginalPhysics();

@@ -16,7 +16,7 @@ namespace TittyMagic
         public bool isInProgress;
         public bool isQueued;
         public bool isCancelling;
-        private bool? _wasFrozenBefore;
+        private bool? _wasFrozen;
 
         private JSONStorableBool _calibrationLockJsb;
         public const string CALIBRATION_LOCK = "calibrationLock";
@@ -67,9 +67,9 @@ namespace TittyMagic
             }
 
             _calibrationLockJsb.val = true;
-            if(_wasFrozenBefore == null)
+            if(_wasFrozen == null)
             {
-                _wasFrozenBefore = _wasFrozenBefore ?? Utils.AnimationIsFrozen();
+                _wasFrozen = _wasFrozen ?? Utils.AnimationIsFrozen();
                 SuperController.singleton.SetFreezeAnimation(true);
             }
         }
@@ -129,8 +129,8 @@ namespace TittyMagic
             {
                 tittyMagic.settingsMonitor.SetEnabled(true);
                 isWaiting = false;
-                SuperController.singleton.SetFreezeAnimation(_wasFrozenBefore ?? false);
-                _wasFrozenBefore = null;
+                SuperController.singleton.SetFreezeAnimation(_wasFrozen ?? false);
+                _wasFrozen = null;
                 _calibrationLockJsb.val = false;
             }
 

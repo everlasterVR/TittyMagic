@@ -190,7 +190,7 @@ namespace TittyMagic
             }
         }
 
-        private void SetPectoralCollisions(bool value)
+        public void SetPectoralCollisions(bool value)
         {
             _pectoralRbLeft.detectCollisions = value;
             _pectoralRbRight.detectCollisions = value;
@@ -280,16 +280,6 @@ namespace TittyMagic
 
             /* Check settings immediately when plugin enabled instead of waiting for runner to trigger */
             Watch();
-        }
-
-        private void OnDisable()
-        {
-            if(!_isInitialized)
-            {
-                return;
-            }
-
-            SetPectoralCollisions(true);
         }
     }
 }
