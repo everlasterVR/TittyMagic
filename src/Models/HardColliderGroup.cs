@@ -8,7 +8,7 @@ namespace TittyMagic.Models
         private const float DEFAULT_MASS = 0.04f; // Seems to be a hard coded value in VaM.
 
         public string id { get; }
-        public string visualizerEditableId => left.visualizerEditableId;
+        public string visualizerEditableId { get; }
 
         private readonly Scaler _baseRbMassSliderScaler;
         private readonly Scaler _radiusSliderScaler;
@@ -31,6 +31,7 @@ namespace TittyMagic.Models
 
         public HardColliderGroup(
             string id,
+            string visualizerEditableId,
             HardCollider left,
             HardCollider right,
             Scaler baseRbMassSliderScaler,
@@ -42,6 +43,7 @@ namespace TittyMagic.Models
         )
         {
             this.id = id;
+            this.visualizerEditableId = visualizerEditableId;
             this.left = left;
             this.right = right;
             _baseRbMassSliderScaler = baseRbMassSliderScaler;

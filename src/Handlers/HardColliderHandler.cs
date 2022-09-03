@@ -37,13 +37,14 @@ namespace TittyMagic.Handlers
             }
 
             CreateScalingConfigs();
+            var autoColliders = tittyMagic.containingAtom.GetComponentInChildren<AutoColliderBatchUpdater>().autoColliders;
             colliderConfigs = new List<HardColliderGroup>
             {
-                NewHardColliderGroup("Pectoral1"),
-                NewHardColliderGroup("Pectoral2"),
-                NewHardColliderGroup("Pectoral3"),
-                NewHardColliderGroup("Pectoral4"),
-                NewHardColliderGroup("Pectoral5"),
+                NewHardColliderGroup("Pectoral1", autoColliders),
+                NewHardColliderGroup("Pectoral2", autoColliders),
+                NewHardColliderGroup("Pectoral3", autoColliders),
+                NewHardColliderGroup("Pectoral4", autoColliders),
+                NewHardColliderGroup("Pectoral5", autoColliders),
             };
 
             var options = colliderConfigs.Select(c => c.visualizerEditableId).ToList();
@@ -284,10 +285,10 @@ namespace TittyMagic.Handlers
             };
         }
 
-        private static HardColliderGroup NewHardColliderGroup(string id)
+        private static HardColliderGroup NewHardColliderGroup(string id, AutoCollider[] autoColliders)
         {
-            var configLeft = NewHardCollider("l" + id);
-            var configRight = NewHardCollider("r" + id);
+            var configLeft = NewHardCollider("l" + id, autoColliders);
+            var configRight = NewHardCollider("r" + id, autoColliders);
             var scalingConfig = _scalingConfigs[id];
 
             var frictionMultipliers = new Dictionary<string, float>
@@ -299,8 +300,10 @@ namespace TittyMagic.Handlers
                 { "Pectoral5", 1.0f },
             };
 
+            string visualizerEditableId = tittyMagic.colliderVisualizer.EditablesJSON.choices.Find(option => option.EndsWith("l" + id));
             var colliderConfigGroup = new HardColliderGroup(
                 id,
+                visualizerEditableId,
                 configLeft,
                 configRight,
                 scalingConfig[COLLISION_FORCE],
@@ -329,15 +332,11 @@ namespace TittyMagic.Handlers
             return colliderConfigGroup;
         }
 
-        private static HardCollider NewHardCollider(string id)
+        private static HardCollider NewHardCollider(string id, IEnumerable<AutoCollider> autoColliders)
         {
             var collider = geometry.auxBreastColliders.ToList().Find(c => c.name.Contains(id));
-            /* Find auto collider */
-            var autoColliders = tittyMagic.containingAtom.GetComponentInChildren<AutoColliderBatchUpdater>().autoColliders;
             var autoCollider = autoColliders.First(ac => ac.jointCollider != null && ac.jointCollider.name == collider.name);
-
-            string visualizerEditableId = tittyMagic.colliderVisualizer.EditablesJSON.choices.Find(option => option.EndsWith(id));
-            return new HardCollider(autoCollider, visualizerEditableId);
+            return new HardCollider(autoCollider);
         }
 
         private static void SyncRadius(HardColliderGroup config)

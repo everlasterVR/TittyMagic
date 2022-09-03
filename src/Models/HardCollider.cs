@@ -9,7 +9,6 @@ namespace TittyMagic.Models
 
         public AutoCollider autoCollider { get; }
         public Collider collider { get; }
-        public string visualizerEditableId { get; }
         public float maxFrictionalDistance { private get; set; }
 
         private readonly PhysicMaterial _colliderMaterial;
@@ -17,7 +16,7 @@ namespace TittyMagic.Models
         private float _sqrDistanceDiff;
         private float _sqrNeutralDistance;
 
-        public HardCollider(AutoCollider autoCollider, string visualizerEditableId)
+        public HardCollider(AutoCollider autoCollider)
         {
             this.autoCollider = autoCollider;
             this.autoCollider.resizeTrigger = AutoCollider.ResizeTrigger.None;
@@ -27,8 +26,6 @@ namespace TittyMagic.Models
             collider.GetComponent<CapsuleLineSphereCollider>().enabled = true;
             _colliderMaterial = collider.material;
             _colliderTransform = collider.transform;
-
-            this.visualizerEditableId = visualizerEditableId;
         }
 
         public void UpdateRigidbodyMass(float mass) => collider.attachedRigidbody.mass = mass;
