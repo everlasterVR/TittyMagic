@@ -817,21 +817,15 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            foreach(var group in _softVerticesGroups[RIGHT])
+            foreach(var dictionary in _softVerticesGroups.Values.ToList())
             {
-                foreach(var set in group.Value.softVerticesSets)
+                foreach(var group in dictionary)
                 {
-                    var material = set.jointCollider.material;
-                    material.frictionCombine = PhysicMaterialCombine.Multiply;
-                }
-            }
-
-            foreach(var group in _softVerticesGroups[LEFT])
-            {
-                foreach(var set in group.Value.softVerticesSets)
-                {
-                    var material = set.jointCollider.material;
-                    material.frictionCombine = PhysicMaterialCombine.Multiply;
+                    foreach(var set in group.Value.softVerticesSets)
+                    {
+                        var material = set.jointCollider.material;
+                        material.frictionCombine = PhysicMaterialCombine.Multiply;
+                    }
                 }
             }
         }
@@ -859,14 +853,17 @@ namespace TittyMagic.Handlers
                 paramJsf.val = original;
             }
 
-            foreach(var group in _softVerticesGroups[LEFT])
+            foreach(var dictionary in _softVerticesGroups.Values.ToList())
             {
-                foreach(var set in group.Value.softVerticesSets)
+                foreach(var group in dictionary)
                 {
-                    var material = set.jointCollider.material;
-                    material.dynamicFriction = 0.6f;
-                    material.staticFriction = 0.6f;
-                    material.frictionCombine = PhysicMaterialCombine.Average;
+                    foreach(var set in group.Value.softVerticesSets)
+                    {
+                        var material = set.jointCollider.material;
+                        material.dynamicFriction = 0.6f;
+                        material.staticFriction = 0.6f;
+                        material.frictionCombine = PhysicMaterialCombine.Average;
+                    }
                 }
             }
         }
