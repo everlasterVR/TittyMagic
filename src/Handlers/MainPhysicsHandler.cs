@@ -84,7 +84,7 @@ namespace TittyMagic.Handlers
 
         private static float CalculateVolume(IEnumerable<int> vertexIndices)
         {
-            var positions = vertexIndices.Select(i => Calc.RelativePosition(chestRb, tittyMagic.skin.rawSkinnedVerts[i])).ToList();
+            var positions = vertexIndices.Select(i => Calc.RelativePosition(chestRb, skin.rawSkinnedVerts[i])).ToList();
             var bounds = new Bounds();
 
             /* Calculate bounds size */

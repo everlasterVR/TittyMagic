@@ -20,8 +20,7 @@ namespace TittyMagic
 
         public static GenerateDAZMorphsControlUI morphsControlUI { get; private set; }
         public static DAZCharacterSelector geometry { get; private set; }
-
-        public DAZSkinV2 skin { get; set; }
+        public static DAZSkinV2 skin { get; set; }
 
         public float softnessAmount { get; private set; }
         public float quicknessAmount { get; private set; }
@@ -29,13 +28,12 @@ namespace TittyMagic
         public SettingsMonitor settingsMonitor { get; private set; }
         public ColliderVisualizer colliderVisualizer { get; private set; }
 
-        // ReSharper disable MemberCanBePrivate.Global
-        public IWindow mainWindow { get; private set; }
-        public IWindow morphingWindow { get; private set; }
-        public IWindow gravityWindow { get; private set; }
-        public IWindow physicsWindow { get; private set; }
+        private IWindow _mainWindow;
+        private IWindow _morphingWindow;
+        private IWindow _gravityWindow;
+        private IWindow _physicsWindow;
+        public Tabs tabs { get; private set; }
 
-        // ReSharper restore MemberCanBePrivate.Global
         public JSONStorableAction recalibratePhysics { get; private set; }
         public JSONStorableAction calculateBreastMass { get; private set; }
         public JSONStorableBool autoUpdateJsb { get; private set; }
@@ -47,7 +45,6 @@ namespace TittyMagic
         #region InitUI
 
         private UnityEventsListener _pluginUIEventsListener;
-        private Tabs _tabs;
 
         public override void InitUI()
         {
@@ -63,7 +60,7 @@ namespace TittyMagic
             {
                 if(enabled && calibration.shouldRun)
                 {
-                    var activeParameterWindow = _tabs.activeWindow?.GetActiveNestedWindow() as ParameterWindow;
+                    var activeParameterWindow = tabs.activeWindow?.GetActiveNestedWindow() as ParameterWindow;
                     if(activeParameterWindow != null)
                     {
                         activeParameterWindow.recalibrationAction.actionCallback();
@@ -88,7 +85,7 @@ namespace TittyMagic
 
                 try
                 {
-                    mainWindow.GetActiveNestedWindow()?.ClosePopups();
+                    _mainWindow.GetActiveNestedWindow()?.ClosePopups();
                 }
                 catch(Exception e)
                 {
@@ -103,30 +100,30 @@ namespace TittyMagic
 
                 SoftPhysicsHandler.ReverseSyncAllowSelfCollision();
 
-                if(_tabs.activeWindow == mainWindow)
+                if(tabs.activeWindow == _mainWindow)
                 {
-                    if(mainWindow?.GetActiveNestedWindow() != null)
+                    if(_mainWindow?.GetActiveNestedWindow() != null)
                     {
                         if(enabled)
                         {
-                            tittyMagic.colliderVisualizer.enabled = true;
+                            colliderVisualizer.enabled = true;
                             colliderVisualizer.ShowPreviewsJSON.val = true;
                         }
                         else
                         {
-                            ((WindowBase) mainWindow).onReturnToParent();
+                            ((WindowBase) _mainWindow).onReturnToParent();
                         }
                     }
                 }
-                else if(_tabs.activeWindow == physicsWindow)
+                else if(tabs.activeWindow == _physicsWindow)
                 {
-                    var parameterWindow = physicsWindow.GetActiveNestedWindow() as ParameterWindow;
+                    var parameterWindow = _physicsWindow.GetActiveNestedWindow() as ParameterWindow;
                     parameterWindow?.SyncAllMultiplierSliderValues();
                 }
             });
         }
 
-        #endregion Init UI
+        #endregion InitUI
 
         #region Init
 
@@ -168,8 +165,6 @@ namespace TittyMagic
         private Rigidbody _pectoralRbRight;
         private TrackNipple _trackLeftNipple;
         private TrackNipple _trackRightNipple;
-
-        private bool _isLoadingFromJson;
 
         private IEnumerator DeferInit()
         {
@@ -382,16 +377,16 @@ namespace TittyMagic
 
             /* Setup navigation */
             {
-                mainWindow = new MainWindow();
-                morphingWindow = new MorphingWindow();
-                gravityWindow = new GravityWindow();
-                physicsWindow = new PhysicsWindow();
+                _mainWindow = new MainWindow();
+                _morphingWindow = new MorphingWindow();
+                _gravityWindow = new GravityWindow();
+                _physicsWindow = new PhysicsWindow();
 
-                _tabs = new Tabs(leftUIContent, rightUIContent);
-                _tabs.CreateNavigationButton(mainWindow, "Control", NavigateToMainWindow);
-                _tabs.CreateNavigationButton(physicsWindow, "Physics Params", NavigateToPhysicsWindow);
-                _tabs.CreateNavigationButton(morphingWindow, "Morph Multipliers", NavigateToMorphingWindow);
-                _tabs.CreateNavigationButton(gravityWindow, "Gravity Multipliers", NavigateToGravityWindow);
+                tabs = new Tabs(leftUIContent, rightUIContent);
+                tabs.CreateNavigationButton(_mainWindow, "Control", NavigateToMainWindow);
+                tabs.CreateNavigationButton(_physicsWindow, "Physics Params", NavigateToPhysicsWindow);
+                tabs.CreateNavigationButton(_morphingWindow, "Morph Multipliers", NavigateToMorphingWindow);
+                tabs.CreateNavigationButton(_gravityWindow, "Gravity Multipliers", NavigateToGravityWindow);
             }
 
             NavigateToMainWindow();
@@ -405,9 +400,10 @@ namespace TittyMagic
             calibration.Init();
             settingsMonitor.SetPectoralCollisions(!personIsFemale);
 
-            if(!_isLoadingFromJson)
+            ModifyAtomUI();
+
+            if(!_isRestoringFromJson)
             {
-                ModifyAtomUI();
                 HardColliderHandler.SaveOriginalUseColliders();
                 SoftPhysicsHandler.SaveOriginalBoolParamValues();
                 calculateBreastMass.actionCallback();
@@ -535,6 +531,14 @@ namespace TittyMagic
             }
         }
 
+        private Transform OpenPluginUIButton(Transform parent)
+        {
+            var button = UIHelpers.DestroyLayout(this.InstantiateButton(parent));
+            button.GetComponent<UIDynamicButton>().label = $"<b>Open {nameof(TittyMagic)} UI</b>";
+            button.GetComponent<UIDynamicButton>().button.onClick.AddListener(() => _customBindings.OpenUI());
+            return button;
+        }
+
         private bool _modifySkinMaterialsUIDone;
         private readonly List<RectTransformChange> _movedRects = new List<RectTransformChange>();
         private UIDynamicToggle enableAdaptiveFrictionToggle { get; set; }
@@ -584,7 +588,7 @@ namespace TittyMagic
 
                     var uiDynamic = fieldTransform.GetComponent<UIDynamicTextField>();
                     uiDynamic.UItext.alignment = TextAnchor.LowerCenter;
-                    uiDynamic.text = "TittyMagic Collider Friction".Size(32).Bold();
+                    uiDynamic.text = $"{nameof(TittyMagic)} Collider Friction".Size(32).Bold();
                     uiDynamic.backgroundColor = Color.clear;
                     uiDynamic.textColor = Color.white;
                 }
@@ -705,25 +709,17 @@ namespace TittyMagic
             }
         }
 
-        private Transform OpenPluginUIButton(Transform parent)
-        {
-            var button = UIHelpers.DestroyLayout(this.InstantiateButton(parent));
-            button.GetComponent<UIDynamicButton>().label = "<b>Open TittyMagic UI</b>";
-            button.GetComponent<UIDynamicButton>().button.onClick.AddListener(() => _customBindings.OpenUI());
-            return button;
-        }
-
         #endregion Init
 
-        public void NavigateToMainWindow() => NavigateToWindow(mainWindow);
-        public void NavigateToPhysicsWindow() => NavigateToWindow(physicsWindow);
-        public void NavigateToMorphingWindow() => NavigateToWindow(morphingWindow);
-        public void NavigateToGravityWindow() => NavigateToWindow(gravityWindow);
+        public void NavigateToMainWindow() => NavigateToWindow(_mainWindow);
+        public void NavigateToPhysicsWindow() => NavigateToWindow(_physicsWindow);
+        public void NavigateToMorphingWindow() => NavigateToWindow(_morphingWindow);
+        public void NavigateToGravityWindow() => NavigateToWindow(_gravityWindow);
 
         private void NavigateToWindow(IWindow window)
         {
-            _tabs.activeWindow?.Clear();
-            _tabs.ActivateTab(window);
+            tabs.activeWindow?.Clear();
+            tabs.ActivateTab(window);
             window.Rebuild();
         }
 
@@ -755,7 +751,7 @@ namespace TittyMagic
             try
             {
                 bool isFreezeGrabbing = containingAtom.grabFreezePhysics && containingAtom.mainController.isGrabbing;
-                if(!isInitialized || _isLoadingFromJson || calibration.isWaiting || isFreezeGrabbing)
+                if(!isInitialized || _isRestoringFromJson || calibration.isWaiting || isFreezeGrabbing)
                 {
                     return;
                 }
@@ -778,7 +774,7 @@ namespace TittyMagic
 
                 if(envIsDevelopment)
                 {
-                    (mainWindow.GetActiveNestedWindow() as DevWindow)?.UpdateLeftDebugInfo();
+                    (_mainWindow.GetActiveNestedWindow() as DevWindow)?.UpdateLeftDebugInfo();
                 }
             }
             catch(Exception e)
@@ -794,7 +790,7 @@ namespace TittyMagic
 
         public void StartCalibration(bool calibratesMass, bool waitsForListeners = false)
         {
-            if(_isLoadingFromJson)
+            if(_isRestoringFromJson)
             {
                 return;
             }
@@ -1020,6 +1016,8 @@ namespace TittyMagic
             return jsonClass;
         }
 
+        private bool _isRestoringFromJson;
+
         public override void RestoreFromJSON(
             JSONClass jsonClass,
             bool restorePhysical = true,
@@ -1028,7 +1026,7 @@ namespace TittyMagic
             bool setMissingToDefault = true
         )
         {
-            _isLoadingFromJson = true;
+            _isRestoringFromJson = true;
             /* Prevent overriding versionJss.val from JSON. Version stored in JSON just for information,
              * but could be intercepted here and used to save a "loadedFromVersion" value.
              */
@@ -1059,9 +1057,8 @@ namespace TittyMagic
                 yield return null;
             }
 
-            ModifyAtomUI();
             base.RestoreFromJSON(jsonClass, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
-            _isLoadingFromJson = false;
+            _isRestoringFromJson = false;
             HardColliderHandler.SaveOriginalUseColliders();
             SoftPhysicsHandler.SaveOriginalBoolParamValues();
             calculateBreastMass.actionCallback();
@@ -1091,12 +1088,13 @@ namespace TittyMagic
                 tittyMagic = null;
                 morphsControlUI = null;
                 geometry = null;
+                skin = null;
 
                 _scaleJsf.setJSONCallbackFunction = null;
 
-                mainWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
-                morphingWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
-                gravityWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
+                _mainWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
+                _morphingWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
+                _gravityWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
 
                 DestroyImmediate(_pluginUIEventsListener);
                 DestroyImmediate(_atomUIEventsListener);

@@ -74,7 +74,7 @@ namespace TittyMagic
             StartCoroutine(SelectPluginUI(postAction: () =>
             {
                 tittyMagic.NavigateToMainWindow();
-                var mainWindow = (MainWindow) tittyMagic.mainWindow;
+                var mainWindow = (MainWindow) tittyMagic.tabs.activeWindow;
                 var hardCollidersWindow = mainWindow.GetActiveNestedWindow() as HardCollidersWindow;
                 if(hardCollidersWindow == null)
                 {
@@ -89,7 +89,7 @@ namespace TittyMagic
             StartCoroutine(SelectPluginUI(postAction: () =>
             {
                 tittyMagic.NavigateToMainWindow();
-                var mainWindow = (MainWindow) tittyMagic.mainWindow;
+                var mainWindow = (MainWindow) tittyMagic.tabs.activeWindow;
                 var devWindow = mainWindow.GetActiveNestedWindow() as DevWindow;
                 if(devWindow == null)
                 {

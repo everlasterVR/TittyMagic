@@ -9,7 +9,7 @@ using static TittyMagic.Script;
 
 namespace TittyMagic.UI
 {
-    internal class HardCollidersWindow : WindowBase, IWindow
+    internal class HardCollidersWindow : WindowBase
     {
         private readonly Dictionary<string, UIDynamic> _colliderSectionElements;
 
@@ -75,7 +75,6 @@ namespace TittyMagic.UI
             var slider = tittyMagic.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "Base Collision Force";
-            slider.AddPointerUpDownListener();
             elements[storable.name] = slider;
         }
 
@@ -230,7 +229,6 @@ namespace TittyMagic.UI
             var slider = tittyMagic.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "Collision Force Multiplier";
-            slider.AddPointerUpDownListener();
             slider.AddListener((float value) => UpdateSliderColor(storable));
             _colliderSectionElements[storable.name] = slider;
         }
@@ -315,8 +313,6 @@ namespace TittyMagic.UI
 
         public new void Clear()
         {
-            GetSliders().ForEach(slider => Object.Destroy(slider.GetPointerUpDownListener()));
-
             base.Clear();
             ClearColliderSection();
 
@@ -340,8 +336,6 @@ namespace TittyMagic.UI
 
         private void ClearColliderSection()
         {
-            GetColliderSectionSliders()
-                .ForEach(slider => Object.Destroy(slider.GetPointerUpDownListener()));
             _colliderSectionElements
                 .ToList()
                 .ForEach(element => tittyMagic.RemoveElement(element.Value));

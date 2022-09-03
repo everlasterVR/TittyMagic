@@ -26,9 +26,16 @@ namespace TittyMagic
             _calibrationLockJsb = tittyMagic.NewJSONStorableBool(CALIBRATION_LOCK, false);
         }
 
-        private static bool isBlockedByInput => ((MainWindow) tittyMagic.mainWindow)
-            .GetSlidersForRefresh()
-            .Any(slider => slider.PointerIsDown());
+        private static bool IsBlockedByInput()
+        {
+            var mainWindow = tittyMagic.tabs.activeWindow as MainWindow;
+            if(mainWindow != null)
+            {
+                return mainWindow.GetSlidersForRefresh().Any(slider => slider.PointerIsDown());
+            }
+
+            return false;
+        }
 
         public IEnumerator Begin()
         {
@@ -37,7 +44,7 @@ namespace TittyMagic
 
             if(isInProgress)
             {
-                if(!isQueued && !isBlockedByInput)
+                if(!isQueued && !IsBlockedByInput())
                 {
                     isQueued = true;
                 }
@@ -104,7 +111,7 @@ namespace TittyMagic
         {
             yield return new WaitForSeconds(0.33f);
 
-            while(BreastMorphListener.ChangeWasDetected() || isBlockedByInput)
+            while(BreastMorphListener.ChangeWasDetected() || IsBlockedByInput())
             {
                 yield return new WaitForSeconds(0.1f);
             }

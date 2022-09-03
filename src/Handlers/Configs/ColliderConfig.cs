@@ -6,9 +6,7 @@ namespace TittyMagic.Configs
 {
     internal class ColliderConfigGroup
     {
-        // Seems to be a hard coded value in VaM. Hard coding it here avoids
-        // having to check for attachedRigidbody to be available when calling SetBaseMass.
-        private const float DEFAULT_MASS = 0.04f;
+        private const float DEFAULT_MASS = 0.04f; // Seems to be a hard coded value in VaM.
 
         public string id { get; }
         public string visualizerEditableId => left.visualizerEditableId;

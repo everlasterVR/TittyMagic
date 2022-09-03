@@ -401,7 +401,7 @@ namespace TittyMagic.Handlers
         {
             /* experimentally determined with 3kg breasts, is slightly different for different shapes */
             const float maxWidth = 0.17f;
-            float width = (tittyMagic.skin.rawSkinnedVerts[indices[0]] - tittyMagic.skin.rawSkinnedVerts[indices[1]]).magnitude;
+            float width = (skin.rawSkinnedVerts[indices[0]] - skin.rawSkinnedVerts[indices[1]]).magnitude;
             float multiplier = Mathf.InverseLerp(0, maxWidth, width);
             return Curves.InverseSmoothStep(multiplier, 1, 0.55f, 0.42f);
         }
@@ -459,7 +459,7 @@ namespace TittyMagic.Handlers
         private static Vector3 BreastCenter(IEnumerable<int> vertexIndices) =>
             Calc.RelativePosition(
                 MainPhysicsHandler.chestRb,
-                Calc.AveragePosition(vertexIndices.Select(index => tittyMagic.skin.rawSkinnedVerts[index]).ToArray())
+                Calc.AveragePosition(vertexIndices.Select(index => skin.rawSkinnedVerts[index]).ToArray())
             );
 
         public static void ResetDistanceDiffs()
