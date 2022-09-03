@@ -320,20 +320,6 @@ namespace TittyMagic.UI
             RemoveShowPreviewsPopupChangeHandler();
         }
 
-        private List<UIDynamicSlider> GetColliderSectionSliders() => _colliderSectionElements.Aggregate(
-            new List<UIDynamicSlider>(),
-            (list, element) =>
-            {
-                var uiDynamicSlider = element.Value as UIDynamicSlider;
-                if(uiDynamicSlider != null)
-                {
-                    list.Add(uiDynamicSlider);
-                }
-
-                return list;
-            }
-        );
-
         private void ClearColliderSection()
         {
             _colliderSectionElements

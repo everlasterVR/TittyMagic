@@ -34,7 +34,7 @@ namespace TittyMagic
             19615, 19617, 19618, 19620, 19625, 19635, 19636,
         };
 
-        // subsets of LEFT_BREAST and RIGHT_BREAST - vertices closest to center
+        // subsets of leftBreast and rightBreast - vertices closest to center
         public static List<int> leftBreastCenter = new List<int>
             { 7197, 7208, 8902, 8904, 8905, 8908, 8909, 8911, 8915, 8917, 8922, 8924 };
 
