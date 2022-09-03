@@ -68,6 +68,7 @@ namespace TittyMagic.Handlers
                 POSITION_DAMPER_Z,
                 TARGET_ROTATION_X,
                 TARGET_ROTATION_Y,
+                TARGET_ROTATION_Z,
             };
 
             _isInitialized = true;
