@@ -7,7 +7,7 @@ using static TittyMagic.Script;
 
 namespace TittyMagic.UI
 {
-    internal class GravityWindow : WindowBase
+    public class GravityWindow : WindowBase
     {
         public GravityWindow()
         {

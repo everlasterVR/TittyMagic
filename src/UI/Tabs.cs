@@ -6,7 +6,7 @@ using static TittyMagic.Script;
 
 namespace TittyMagic.UI
 {
-    internal class Tabs
+    public class Tabs
     {
         public IWindow activeWindow { get; private set; }
 

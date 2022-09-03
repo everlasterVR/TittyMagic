@@ -7,7 +7,7 @@ using static TittyMagic.Script;
 
 namespace TittyMagic
 {
-    internal class SettingsMonitor : MonoBehaviour
+    public class SettingsMonitor : MonoBehaviour
     {
         private FrequencyRunner _runner;
         private JSONStorable _breastInOut;

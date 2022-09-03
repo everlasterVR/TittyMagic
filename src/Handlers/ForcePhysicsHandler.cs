@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using TittyMagic.Components;
-using TittyMagic.Configs;
+using TittyMagic.Handlers.Configs;
+using TittyMagic.Models;
 using static TittyMagic.Script;
 using static TittyMagic.ParamName;
 
 namespace TittyMagic.Handlers
 {
-    internal static class ForcePhysicsHandler
+    public static class ForcePhysicsHandler
     {
         private static List<PhysicsParameterGroup> _mainParamGroups;
         private static List<PhysicsParameterGroup> _softParamGroups;

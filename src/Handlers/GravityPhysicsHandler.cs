@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
-using TittyMagic.Configs;
+using TittyMagic.Handlers.Configs;
+using TittyMagic.Models;
 using static TittyMagic.Script;
 using static TittyMagic.ParamName;
 
 namespace TittyMagic.Handlers
 {
-    internal static class GravityPhysicsHandler
+    public static class GravityPhysicsHandler
     {
         private static List<PhysicsParameterGroup> _paramGroups;
 

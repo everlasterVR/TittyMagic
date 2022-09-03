@@ -1,5 +1,5 @@
 using System.Text;
-using TittyMagic.Configs;
+using TittyMagic.Models;
 using TittyMagic.Handlers;
 using UnityEngine;
 using UnityEngine.Events;
@@ -7,7 +7,7 @@ using static TittyMagic.Script;
 
 namespace TittyMagic.UI
 {
-    internal class DevWindow : WindowBase
+    public class DevWindow : WindowBase
     {
         public DevWindow(string id, UnityAction onReturnToParent) : base(id)
         {
@@ -40,7 +40,7 @@ namespace TittyMagic.UI
         }
 
         private JSONStorableString _leftDebugArea;
-        private ColliderConfigGroup[] _colliderConfigs;
+        private HardColliderGroup[] _colliderConfigs;
 
         private void CreateLeftDebugArea()
         {

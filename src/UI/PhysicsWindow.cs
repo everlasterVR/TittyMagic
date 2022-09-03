@@ -1,11 +1,12 @@
 using System.Text;
 using TittyMagic.Handlers;
+using TittyMagic.Models;
 using UnityEngine;
 using static TittyMagic.Script;
 
 namespace TittyMagic.UI
 {
-    internal class PhysicsWindow : WindowBase
+    public class PhysicsWindow : WindowBase
     {
         public PhysicsWindow()
         {

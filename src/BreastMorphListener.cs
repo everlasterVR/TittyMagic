@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace TittyMagic
 {
-    internal static class BreastMorphListener
+    public static class BreastMorphListener
     {
         private static List<string> _excludeMorphsNames = new List<string>
         {

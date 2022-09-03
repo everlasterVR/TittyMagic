@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace TittyMagic.Components
 {
-    internal class FrequencyRunner
+    public class FrequencyRunner
     {
         private float _timeSinceLastCheck;
         private readonly float _frequency;

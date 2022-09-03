@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace TittyMagic
 {
-    internal static class Curves
+    public static class Curves
     {
         // https://www.desmos.com/calculator/ebvzukk7ps
         public static float QuadraticRegression(float value) =>

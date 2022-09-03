@@ -1,6 +1,6 @@
-namespace TittyMagic.Configs
+namespace TittyMagic.Handlers.Configs
 {
-    internal class MorphConfigBase
+    public class MorphConfigBase
     {
         public float multiplier { get; }
         public DAZMorph morph { get; }
@@ -12,7 +12,7 @@ namespace TittyMagic.Configs
         }
     }
 
-    internal class MorphConfig : MorphConfigBase
+    public class MorphConfig : MorphConfigBase
     {
         public bool isNegative { get; }
         public float softnessMultiplier { get; }

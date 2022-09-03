@@ -1,6 +1,6 @@
 namespace TittyMagic
 {
-    internal static class Direction
+    public static class Direction
     {
         public const string DOWN = "DN";
         public const string DOWN_L = "DN_L";

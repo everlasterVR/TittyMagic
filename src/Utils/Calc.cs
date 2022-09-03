@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace TittyMagic
 {
-    internal static class Calc
+    public static class Calc
     {
         public static float Roll(Quaternion q) =>
             2 * InverseLerpToPi(Mathf.Asin(2 * q.x * q.y + 2 * q.z * q.w));

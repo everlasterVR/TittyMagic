@@ -1,5 +1,6 @@
-using TittyMagic.Configs;
+using TittyMagic.Handlers.Configs;
 using TittyMagic.Handlers;
+using TittyMagic.Models;
 using UnityEngine;
 using static TittyMagic.Script;
 
@@ -31,7 +32,7 @@ namespace TittyMagic
             frictionOffsetJsf = new JSONStorableFloat("frictionOffset", 0, -0.5f, 0.5f);
             frictionOffsetJsf.setCallbackFunction = _ => CalculateFriction();
 
-            softColliderFrictionJsf = new JSONStorableFloat("softColliderFriction", ColliderConfig.DEFAULT_FRICTION, 0, 1);
+            softColliderFrictionJsf = new JSONStorableFloat("softColliderFriction", HardCollider.DEFAULT_FRICTION, 0, 1);
             softColliderFrictionJsf.setCallbackFunction = UpdateSoftColliders;
 
             adaptiveFrictionJsb = tittyMagic.NewJSONStorableBool("enableAdaptiveFriction", false);
@@ -120,7 +121,7 @@ namespace TittyMagic
 
             if(!adaptiveFrictionJsb.val)
             {
-                float friction = Mathf.Clamp(ColliderConfig.DEFAULT_FRICTION + frictionOffsetJsf.val, 0, 1);
+                float friction = Mathf.Clamp(HardCollider.DEFAULT_FRICTION + frictionOffsetJsf.val, 0, 1);
                 maxHardColliderFriction = friction;
                 softColliderFrictionJsf.valNoCallback = friction;
             }

@@ -2,7 +2,7 @@ using System;
 
 namespace TittyMagic.Components
 {
-    internal class Scaler
+    public class Scaler
     {
         private readonly float _offset;
         private readonly float _min;

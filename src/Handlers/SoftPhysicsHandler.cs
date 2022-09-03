@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TittyMagic.Configs;
+using TittyMagic.Handlers.Configs;
+using TittyMagic.Models;
 using UnityEngine;
 using static TittyMagic.ParamName;
 using static TittyMagic.Script;
@@ -11,7 +12,7 @@ using static TittyMagic.SoftColliderGroup;
 
 namespace TittyMagic.Handlers
 {
-    internal static class SoftPhysicsHandler
+    public static class SoftPhysicsHandler
     {
         public static DAZPhysicsMesh breastPhysicsMesh { get; private set; }
         private static List<string> _breastPhysicsMeshFloatParamNames;

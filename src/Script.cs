@@ -230,6 +230,7 @@ namespace TittyMagic
             _listenersCheckRunner = new FrequencyRunner(0.333f);
 
             morphsControlUI = personIsFemale ? geometry.morphsControlUI : geometry.morphsControlUIOtherGender;
+            skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
             _rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
             MainPhysicsHandler.chestRb = _rigidbodies.Find(rb => rb.name == "chest");
             _chestTransform = MainPhysicsHandler.chestRb.transform;
@@ -279,8 +280,6 @@ namespace TittyMagic
                     colliderVisualizer.GroupsJSON.choices.Remove(option);
                 }
             }
-
-            skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
 
             /* Setup handlers */
             MainPhysicsHandler.Init();

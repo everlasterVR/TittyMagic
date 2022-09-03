@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace TittyMagic
 {
-    internal static class VertexIndexGroup
+    public static class VertexIndexGroup
     {
         // excludes areola and nipple vertices
         public static HashSet<int> breasts = new HashSet<int>

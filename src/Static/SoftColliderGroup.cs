@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace TittyMagic
 {
-    internal static class SoftColliderGroup
+    public static class SoftColliderGroup
     {
         public static IEnumerable<string> allGroups => new List<string> { MAIN, OUTER, AREOLA, NIPPLE };
         public const string MAIN = "Main";

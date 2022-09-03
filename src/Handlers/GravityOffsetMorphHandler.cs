@@ -1,10 +1,10 @@
 using System.Collections.Generic;
-using TittyMagic.Configs;
+using TittyMagic.Handlers.Configs;
 using static TittyMagic.Script;
 
 namespace TittyMagic.Handlers
 {
-    internal static class GravityOffsetMorphHandler
+    public static class GravityOffsetMorphHandler
     {
         private static Dictionary<string, List<MorphConfig>> _configSets;
 

@@ -7,7 +7,7 @@ using static TittyMagic.Script;
 
 namespace TittyMagic.UI
 {
-    internal class MorphingWindow : WindowBase
+    public class MorphingWindow : WindowBase
     {
         public MorphingWindow()
         {

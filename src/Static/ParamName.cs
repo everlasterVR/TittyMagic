@@ -1,7 +1,7 @@
 // ReSharper disable UnusedMember.Global
 namespace TittyMagic
 {
-    internal static class ParamName
+    public static class ParamName
     {
         public const string MASS = "mass";
         public const string CENTER_OF_GRAVITY_PERCENT = "centerOfGravityPercent";

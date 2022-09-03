@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace TittyMagic.UI
 {
-    internal interface IWindow
+    public interface IWindow
     {
         string GetId();
 

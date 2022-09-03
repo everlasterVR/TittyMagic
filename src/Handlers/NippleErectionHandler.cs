@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
-using TittyMagic.Configs;
+using TittyMagic.Handlers.Configs;
+using TittyMagic.Models;
 using static TittyMagic.ParamName;
 using static TittyMagic.Script;
 
 namespace TittyMagic.Handlers
 {
-    internal static class NippleErectionHandler
+    public static class NippleErectionHandler
     {
         private static MorphConfigBase _morphConfig;
         private static List<PhysicsParameterGroup> _paramGroups;

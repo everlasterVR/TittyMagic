@@ -3,7 +3,7 @@ using UnityEngine.Events;
 
 namespace TittyMagic.UI
 {
-    internal class NavigationButton
+    public class NavigationButton
     {
         private readonly UIDynamicButton _uiDynamicButton;
 

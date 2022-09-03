@@ -1,16 +1,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using TittyMagic.Components;
-using TittyMagic.Configs;
+using TittyMagic.Models;
 using UnityEngine;
 using static TittyMagic.Script;
 
 namespace TittyMagic.Handlers
 {
-    internal static class HardColliderHandler
+    public static class HardColliderHandler
     {
         public static JSONStorableStringChooser colliderGroupsJsc { get; private set; }
-        public static List<ColliderConfigGroup> colliderConfigs { get; private set; }
+        public static List<HardColliderGroup> colliderConfigs { get; private set; }
         public static JSONStorableFloat baseForceJsf { get; private set; }
         public static JSONStorableBool highlightAllJsb { get; private set; }
 
@@ -37,13 +37,13 @@ namespace TittyMagic.Handlers
             }
 
             CreateScalingConfigs();
-            colliderConfigs = new List<ColliderConfigGroup>
+            colliderConfigs = new List<HardColliderGroup>
             {
-                NewColliderConfigGroup("Pectoral1"),
-                NewColliderConfigGroup("Pectoral2"),
-                NewColliderConfigGroup("Pectoral3"),
-                NewColliderConfigGroup("Pectoral4"),
-                NewColliderConfigGroup("Pectoral5"),
+                NewHardColliderGroup("Pectoral1"),
+                NewHardColliderGroup("Pectoral2"),
+                NewHardColliderGroup("Pectoral3"),
+                NewHardColliderGroup("Pectoral4"),
+                NewHardColliderGroup("Pectoral5"),
             };
 
             var options = colliderConfigs.Select(c => c.visualizerEditableId).ToList();
@@ -284,10 +284,10 @@ namespace TittyMagic.Handlers
             };
         }
 
-        private static ColliderConfigGroup NewColliderConfigGroup(string id)
+        private static HardColliderGroup NewHardColliderGroup(string id)
         {
-            var configLeft = NewColliderConfig("l" + id);
-            var configRight = NewColliderConfig("r" + id);
+            var configLeft = NewHardCollider("l" + id);
+            var configRight = NewHardCollider("r" + id);
             var scalingConfig = _scalingConfigs[id];
 
             var frictionMultipliers = new Dictionary<string, float>
@@ -299,7 +299,7 @@ namespace TittyMagic.Handlers
                 { "Pectoral5", 1.0f },
             };
 
-            var colliderConfigGroup = new ColliderConfigGroup(
+            var colliderConfigGroup = new HardColliderGroup(
                 id,
                 configLeft,
                 configRight,
@@ -329,7 +329,7 @@ namespace TittyMagic.Handlers
             return colliderConfigGroup;
         }
 
-        private static ColliderConfig NewColliderConfig(string id)
+        private static HardCollider NewHardCollider(string id)
         {
             var collider = geometry.auxBreastColliders.ToList().Find(c => c.name.Contains(id));
             /* Find auto collider */
@@ -337,10 +337,10 @@ namespace TittyMagic.Handlers
             var autoCollider = autoColliders.First(ac => ac.jointCollider != null && ac.jointCollider.name == collider.name);
 
             string visualizerEditableId = tittyMagic.colliderVisualizer.EditablesJSON.choices.Find(option => option.EndsWith(id));
-            return new ColliderConfig(autoCollider, visualizerEditableId);
+            return new HardCollider(autoCollider, visualizerEditableId);
         }
 
-        private static void SyncRadius(ColliderConfigGroup config)
+        private static void SyncRadius(HardColliderGroup config)
         {
             if(!personIsFemale)
             {
@@ -351,7 +351,7 @@ namespace TittyMagic.Handlers
             SyncSizeAuto();
         }
 
-        private static void SyncPosition(ColliderConfigGroup config)
+        private static void SyncPosition(HardColliderGroup config)
         {
             if(!personIsFemale)
             {
@@ -416,7 +416,7 @@ namespace TittyMagic.Handlers
             colliderConfigs.ForEach(config => config.UpdateFriction(FrictionHandler.maxHardColliderFriction));
         }
 
-        private static void SyncColliderMass(ColliderConfigGroup config)
+        private static void SyncColliderMass(HardColliderGroup config)
         {
             if(!personIsFemale)
             {

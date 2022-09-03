@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TittyMagic.Configs;
+using TittyMagic.Handlers.Configs;
+using TittyMagic.Models;
 using UnityEngine;
 using static TittyMagic.ParamName;
 using static TittyMagic.Script;
@@ -10,7 +11,7 @@ using static TittyMagic.Side;
 
 namespace TittyMagic.Handlers
 {
-    internal static class MainPhysicsHandler
+    public static class MainPhysicsHandler
     {
         public static Rigidbody chestRb { get; set; }
         public static AdjustJoints breastControl { get; set; }

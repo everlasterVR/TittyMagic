@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using TittyMagic.Components;
-using TittyMagic.Configs;
+using TittyMagic.Handlers.Configs;
 using UnityEngine;
 using static TittyMagic.Script;
 
 namespace TittyMagic.Handlers
 {
-    internal static class ForceMorphHandler
+    public static class ForceMorphHandler
     {
         private static TrackNipple _trackLeftNipple;
         private static TrackNipple _trackRightNipple;

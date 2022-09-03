@@ -95,7 +95,6 @@
     <Compile Include="src\Extensions\StringExtension.cs" />
     <Compile Include="src\Extensions\UIDynamicExtension.cs" />
     <Compile Include="src\Extensions\UIDynamicSliderExtension.cs" />
-    <Compile Include="src\Handlers\Configs\ColliderConfig.cs" />
     <Compile Include="src\Handlers\Configs\DynamicPhysicsConfig.cs" />
     <Compile Include="src\Handlers\Configs\MorphConfig.cs" />
     <Compile Include="src\Handlers\Configs\StaticPhysicsConfig.cs" />
@@ -104,9 +103,15 @@
     <Compile Include="src\Handlers\GravityEffectCalc.cs" />
     <Compile Include="src\Handlers\GravityOffsetMorphHandler.cs" />
     <Compile Include="src\Handlers\HardColliderHandler.cs" />
-    <Compile Include="src\Handlers\PhysicsParameter.cs" />
     <Compile Include="src\Handlers\SoftPhysicsHandler.cs" />
     <Compile Include="src\Integration.cs" />
+    <Compile Include="src\Models\HardCollider.cs" />
+    <Compile Include="src\Models\HardColliderGroup.cs" />
+    <Compile Include="src\Models\MassParameter.cs" />
+    <Compile Include="src\Models\MassParameterGroup.cs" />
+    <Compile Include="src\Models\PhysicsParameter.cs" />
+    <Compile Include="src\Models\PhysicsParameterGroup.cs" />
+    <Compile Include="src\Models\SoftGroupPhysicsParameter.cs" />
     <Compile Include="src\SettingsMonitor.cs" />
     <Compile Include="src\Static\ApplyMethod.cs" />
     <Compile Include="src\Static\Direction.cs" />

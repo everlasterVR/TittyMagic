@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using TittyMagic.Handlers;
+using TittyMagic.Models;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -8,7 +8,7 @@ using static TittyMagic.Script;
 
 namespace TittyMagic.UI
 {
-    internal class ParameterWindow : WindowBase
+    public class ParameterWindow : WindowBase
     {
         private readonly PhysicsParameterGroup _parameterGroup;
         private readonly PhysicsParameter _parameter;

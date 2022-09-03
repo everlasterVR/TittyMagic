@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace TittyMagic.Components
 {
-    internal class TrackNipple
+    public class TrackNipple
     {
         private readonly Rigidbody _chestRb;
         private readonly Rigidbody _pectoralRb;

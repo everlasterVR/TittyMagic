@@ -1,8 +1,8 @@
 using System;
 
-namespace TittyMagic.Configs
+namespace TittyMagic.Handlers.Configs
 {
-    internal class DynamicPhysicsConfig
+    public class DynamicPhysicsConfig
     {
         public float baseMultiplier { get; set; }
         private bool isNegative { get; }

@@ -7,7 +7,7 @@ using static TittyMagic.Script;
 
 namespace TittyMagic.UI
 {
-    internal class WindowBase : IWindow
+    public class WindowBase : IWindow
     {
         private readonly string _id;
         public string GetId() => _id;

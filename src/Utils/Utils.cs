@@ -8,7 +8,7 @@ using static TittyMagic.Script;
 
 namespace TittyMagic
 {
-    internal static class Utils
+    public static class Utils
     {
         public static string morphsPath { get; set; }
 

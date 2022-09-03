@@ -2,12 +2,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TittyMagic.Handlers;
+using TittyMagic.Models;
 using UnityEngine;
 using static TittyMagic.Script;
 
 namespace TittyMagic.UI
 {
-    internal class MainWindow : WindowBase
+    public class MainWindow : WindowBase
     {
         private readonly JSONStorableString _title;
         private readonly PhysicsParameter _massParameter;

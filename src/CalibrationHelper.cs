@@ -8,7 +8,7 @@ using static TittyMagic.Script;
 
 namespace TittyMagic
 {
-    internal class CalibrationHelper : MonoBehaviour
+    public class CalibrationHelper : MonoBehaviour
     {
         private static readonly string _uid = tittyMagic.containingAtom.uid;
         public bool isWaiting;
