@@ -1127,6 +1127,7 @@ namespace TittyMagic
                 settingsMonitor.SetEnabled(true);
                 HardColliderHandler.SaveOriginalUseColliders();
                 HardColliderHandler.EnableDefaults();
+                SoftPhysicsHandler.SaveOriginalBoolParamValues();
                 SoftPhysicsHandler.EnableMultiplyFriction();
                 StartCalibration(true);
                 _inactivatedUIGameObjects?.ForEach(go => go.SetActive(false));
