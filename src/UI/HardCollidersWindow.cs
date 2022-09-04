@@ -9,7 +9,7 @@ using static TittyMagic.Script;
 
 namespace TittyMagic.UI
 {
-    public class HardCollidersWindow : WindowBase
+    public class HardCollidersWindow : WindowBase, IWindow
     {
         private readonly Dictionary<string, UIDynamic> _colliderSectionElements;
 
