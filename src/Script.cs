@@ -71,26 +71,14 @@ namespace TittyMagic
                     }
                 }
 
-                colliderVisualizer.ShowPreviewsJSON.val = false;
-                colliderVisualizer.enabled = false;
-
-                try
+                if(colliderVisualizer != null)
                 {
+                    colliderVisualizer.ShowPreviewsJSON.val = false;
+                    colliderVisualizer.enabled = false;
                     colliderVisualizer.DestroyAllPreviews();
                 }
-                catch(Exception e)
-                {
-                    Utils.LogError($"Failed to destroy collider visualizer previews. {e}");
-                }
 
-                try
-                {
-                    _mainWindow.GetActiveNestedWindow()?.ClosePopups();
-                }
-                catch(Exception e)
-                {
-                    Utils.LogError($"Failed to close popups in collider configuration window. {e}");
-                }
+                _mainWindow.GetActiveNestedWindow()?.ClosePopups();
             });
 
             _pluginUIEventsListener.onEnable.AddListener(() =>
@@ -104,7 +92,7 @@ namespace TittyMagic
                 {
                     if(_mainWindow?.GetActiveNestedWindow() != null)
                     {
-                        if(enabled)
+                        if(enabled && colliderVisualizer != null)
                         {
                             colliderVisualizer.enabled = true;
                             colliderVisualizer.ShowPreviewsJSON.val = true;
@@ -257,7 +245,11 @@ namespace TittyMagic
                 };
             }
 
+            /* Advanced colliders must be enabled for collider visualizer, force morphing and hard collider handler */
+            HardColliderHandler.EnableAdvColliders();
+
             /* Setup collider visualizer */
+            if(personIsFemale)
             {
                 colliderVisualizer = gameObject.AddComponent<ColliderVisualizer>();
                 var groups = new List<Group>
@@ -1126,7 +1118,8 @@ namespace TittyMagic
 
                 settingsMonitor.SetEnabled(true);
                 HardColliderHandler.SaveOriginalUseColliders();
-                HardColliderHandler.EnableDefaults();
+                HardColliderHandler.EnableAdvColliders();
+                HardColliderHandler.EnableMultiplyFriction();
                 SoftPhysicsHandler.SaveOriginalBoolParamValues();
                 SoftPhysicsHandler.EnableMultiplyFriction();
                 StartCalibration(true);

@@ -27,10 +27,6 @@ namespace TittyMagic.Handlers
 
         public static void Init()
         {
-            /* Enable advanced colliders and hard colliders on init */
-            geometry.useAdvancedColliders = true;
-            geometry.useAuxBreastColliders = true;
-
             if(!personIsFemale)
             {
                 return;
@@ -46,6 +42,7 @@ namespace TittyMagic.Handlers
                 NewHardColliderGroup("Pectoral4", autoColliders),
                 NewHardColliderGroup("Pectoral5", autoColliders),
             };
+            EnableMultiplyFriction();
 
             var options = colliderConfigs.Select(c => c.visualizerEditableId).ToList();
             var displayOptions = colliderConfigs.Select(c => c.id).ToList();
@@ -327,8 +324,6 @@ namespace TittyMagic.Handlers
             colliderConfigGroup.upJsf.setCallbackFunction = _ => SyncPosition(colliderConfigGroup);
             colliderConfigGroup.lookJsf.setCallbackFunction = _ => SyncPosition(colliderConfigGroup);
 
-            colliderConfigGroup.EnableMultiplyFriction();
-
             return colliderConfigGroup;
         }
 
@@ -485,7 +480,7 @@ namespace TittyMagic.Handlers
             _originalUseAuxBreastColliders = geometry.useAuxBreastColliders;
         }
 
-        public static void EnableDefaults()
+        public static void EnableAdvColliders()
         {
             if(!personIsFemale)
             {
@@ -494,6 +489,15 @@ namespace TittyMagic.Handlers
 
             geometry.useAdvancedColliders = true;
             geometry.useAuxBreastColliders = true;
+        }
+
+        public static void EnableMultiplyFriction()
+        {
+            if(!personIsFemale)
+            {
+                return;
+            }
+
             colliderConfigs.ForEach(config => config.EnableMultiplyFriction());
         }
 
