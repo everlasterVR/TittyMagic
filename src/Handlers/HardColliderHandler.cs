@@ -10,7 +10,7 @@ namespace TittyMagic.Handlers
     public static class HardColliderHandler
     {
         public static JSONStorableStringChooser colliderGroupsJsc { get; private set; }
-        public static List<HardColliderGroup> colliderConfigs { get; private set; }
+        public static List<HardColliderGroup> hardColliderGroups { get; private set; }
         public static JSONStorableFloat baseForceJsf { get; private set; }
         public static JSONStorableBool highlightAllJsb { get; private set; }
 
@@ -34,7 +34,7 @@ namespace TittyMagic.Handlers
 
             CreateScalingConfigs();
             var autoColliders = tittyMagic.containingAtom.GetComponentInChildren<AutoColliderBatchUpdater>().autoColliders;
-            colliderConfigs = new List<HardColliderGroup>
+            hardColliderGroups = new List<HardColliderGroup>
             {
                 NewHardColliderGroup("Pectoral1", autoColliders),
                 NewHardColliderGroup("Pectoral2", autoColliders),
@@ -44,8 +44,8 @@ namespace TittyMagic.Handlers
             };
             EnableMultiplyFriction();
 
-            var options = colliderConfigs.Select(c => c.visualizerEditableId).ToList();
-            var displayOptions = colliderConfigs.Select(c => c.id).ToList();
+            var options = hardColliderGroups.Select(c => c.visualizerEditableId).ToList();
+            var displayOptions = hardColliderGroups.Select(c => c.id).ToList();
             colliderGroupsJsc = new JSONStorableStringChooser(
                 "colliderGroup",
                 options,
@@ -284,8 +284,8 @@ namespace TittyMagic.Handlers
 
         private static HardColliderGroup NewHardColliderGroup(string id, AutoCollider[] autoColliders)
         {
-            var configLeft = NewHardCollider("l" + id, autoColliders);
-            var configRight = NewHardCollider("r" + id, autoColliders);
+            var leftCollider = NewHardCollider("l" + id, autoColliders);
+            var rightCollider = NewHardCollider("r" + id, autoColliders);
             var scalingConfig = _scalingConfigs[id];
 
             var frictionMultipliers = new Dictionary<string, float>
@@ -298,11 +298,11 @@ namespace TittyMagic.Handlers
             };
 
             string visualizerEditableId = tittyMagic.colliderVisualizer.EditablesJSON.choices.Find(option => option.EndsWith("l" + id));
-            var colliderConfigGroup = new HardColliderGroup(
+            var hardColliderGroup = new HardColliderGroup(
                 id,
                 visualizerEditableId,
-                configLeft,
-                configRight,
+                leftCollider,
+                rightCollider,
                 scalingConfig[COLLISION_FORCE],
                 scalingConfig[COLLIDER_RADIUS],
                 scalingConfig[COLLIDER_CENTER_X],
@@ -318,13 +318,13 @@ namespace TittyMagic.Handlers
                 lookJsf = tittyMagic.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_Z, 0, -1f, 1f),
             };
 
-            colliderConfigGroup.forceJsf.setCallbackFunction = _ => SyncColliderMass(colliderConfigGroup);
-            colliderConfigGroup.radiusJsf.setCallbackFunction = _ => SyncRadius(colliderConfigGroup);
-            colliderConfigGroup.rightJsf.setCallbackFunction = _ => SyncPosition(colliderConfigGroup);
-            colliderConfigGroup.upJsf.setCallbackFunction = _ => SyncPosition(colliderConfigGroup);
-            colliderConfigGroup.lookJsf.setCallbackFunction = _ => SyncPosition(colliderConfigGroup);
+            hardColliderGroup.forceJsf.setCallbackFunction = _ => SyncColliderMass(hardColliderGroup);
+            hardColliderGroup.radiusJsf.setCallbackFunction = _ => SyncRadius(hardColliderGroup);
+            hardColliderGroup.rightJsf.setCallbackFunction = _ => SyncPosition(hardColliderGroup);
+            hardColliderGroup.upJsf.setCallbackFunction = _ => SyncPosition(hardColliderGroup);
+            hardColliderGroup.lookJsf.setCallbackFunction = _ => SyncPosition(hardColliderGroup);
 
-            return colliderConfigGroup;
+            return hardColliderGroup;
         }
 
         private static HardCollider NewHardCollider(string id, IEnumerable<AutoCollider> autoColliders)
@@ -334,25 +334,25 @@ namespace TittyMagic.Handlers
             return new HardCollider(autoCollider);
         }
 
-        private static void SyncRadius(HardColliderGroup config)
+        private static void SyncRadius(HardColliderGroup group)
         {
             if(!personIsFemale)
             {
                 return;
             }
 
-            config.UpdateDimensions(MainPhysicsHandler.normalizedMass, tittyMagic.softnessAmount);
+            group.UpdateDimensions(MainPhysicsHandler.normalizedMass, tittyMagic.softnessAmount);
             SyncSizeAuto();
         }
 
-        private static void SyncPosition(HardColliderGroup config)
+        private static void SyncPosition(HardColliderGroup group)
         {
             if(!personIsFemale)
             {
                 return;
             }
 
-            config.UpdatePosition(MainPhysicsHandler.normalizedMass, tittyMagic.softnessAmount);
+            group.UpdatePosition(MainPhysicsHandler.normalizedMass, tittyMagic.softnessAmount);
             SyncSizeAuto();
         }
 
@@ -365,19 +365,19 @@ namespace TittyMagic.Handlers
 
             float mass = MainPhysicsHandler.normalizedRealMass;
             float softness = tittyMagic.softnessAmount;
-            colliderConfigs.ForEach(config =>
+            hardColliderGroups.ForEach(group =>
             {
-                config.UpdateDimensions(mass, softness);
-                config.UpdatePosition(mass, softness);
+                group.UpdateDimensions(mass, softness);
+                group.UpdatePosition(mass, softness);
             });
             SyncSizeAuto();
         }
 
         private static void SyncSizeAuto()
         {
-            colliderConfigs.ForEach(config => config.AutoColliderSizeSet());
-            float averageRadius = colliderConfigs.Average(config => config.left.autoCollider.colliderRadius);
-            colliderConfigs.ForEach(config => config.UpdateMaxFrictionalDistance(
+            hardColliderGroups.ForEach(group => group.AutoColliderSizeSet());
+            float averageRadius = hardColliderGroups.Average(group => group.left.autoCollider.colliderRadius);
+            hardColliderGroups.ForEach(group => group.UpdateMaxFrictionalDistance(
                 _frictionSizeMultiplierLeft,
                 _frictionSizeMultiplierRight,
                 averageRadius
@@ -407,24 +407,24 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            colliderConfigs.ForEach(config => config.UpdateFriction(FrictionHandler.maxHardColliderFriction));
+            hardColliderGroups.ForEach(group => group.UpdateFriction(FrictionHandler.maxHardColliderFriction));
         }
 
-        private static void SyncColliderMass(HardColliderGroup config)
+        private static void SyncColliderMass(HardColliderGroup group)
         {
             if(!personIsFemale)
             {
                 return;
             }
 
-            config.UpdateRigidbodyMass(
-                1 / Utils.PhysicsRateMultiplier() * baseForceJsf.val * config.forceJsf.val,
+            group.UpdateRigidbodyMass(
+                1 / Utils.PhysicsRateMultiplier() * baseForceJsf.val * group.forceJsf.val,
                 MainPhysicsHandler.normalizedMass,
                 tittyMagic.softnessAmount
             );
         }
 
-        public static void SyncCollidersMass() => colliderConfigs?.ForEach(SyncColliderMass);
+        public static void SyncCollidersMass() => hardColliderGroups?.ForEach(SyncColliderMass);
 
         public static void CalibrateColliders()
         {
@@ -435,7 +435,7 @@ namespace TittyMagic.Handlers
 
             var breastCenterLeft = BreastCenter(VertexIndexGroup.leftBreast);
             var breastCenterRight = BreastCenter(VertexIndexGroup.rightBreast);
-            colliderConfigs.ForEach(config => config.Calibrate(breastCenterLeft, breastCenterRight, MainPhysicsHandler.chestRb));
+            hardColliderGroups.ForEach(group => group.Calibrate(breastCenterLeft, breastCenterRight, MainPhysicsHandler.chestRb));
         }
 
         public static void UpdateDistanceDiffs()
@@ -447,7 +447,7 @@ namespace TittyMagic.Handlers
 
             var breastCenterLeft = BreastCenter(VertexIndexGroup.leftBreast);
             var breastCenterRight = BreastCenter(VertexIndexGroup.rightBreast);
-            colliderConfigs.ForEach(config => config.UpdateDistanceDiffs(breastCenterLeft, breastCenterRight, MainPhysicsHandler.chestRb));
+            hardColliderGroups.ForEach(group => group.UpdateDistanceDiffs(breastCenterLeft, breastCenterRight, MainPhysicsHandler.chestRb));
         }
 
         private static Vector3 BreastCenter(IEnumerable<int> vertexIndices) =>
@@ -463,7 +463,7 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            colliderConfigs.ForEach(config => config.ResetDistanceDiffs());
+            hardColliderGroups.ForEach(group => group.ResetDistanceDiffs());
         }
 
         private static bool _originalUseAdvancedColliders;
@@ -498,7 +498,7 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            colliderConfigs.ForEach(config => config.EnableMultiplyFriction());
+            hardColliderGroups.ForEach(group => group.EnableMultiplyFriction());
         }
 
         public static void RestoreOriginalPhysics()
@@ -514,7 +514,7 @@ namespace TittyMagic.Handlers
             geometry.useAdvancedColliders = true;
             geometry.useAuxBreastColliders = true;
             /* Restore defaults */
-            colliderConfigs.ForEach(config => config.RestoreDefaults());
+            hardColliderGroups.ForEach(group => group.RestoreDefaults());
             geometry.useAdvancedColliders = _originalUseAdvancedColliders;
             geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
         }
@@ -522,7 +522,7 @@ namespace TittyMagic.Handlers
         public static void Destroy()
         {
             colliderGroupsJsc = null;
-            colliderConfigs = null;
+            hardColliderGroups = null;
             baseForceJsf = null;
             highlightAllJsb = null;
             _scalingConfigs = null;

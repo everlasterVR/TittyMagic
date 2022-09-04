@@ -208,15 +208,15 @@ namespace TittyMagic.UI
 
         private void RebuildColliderSection(string colliderId)
         {
-            var colliderConfigGroup = HardColliderHandler.colliderConfigs
-                .Find(config => config.visualizerEditableId == colliderId);
+            var hardColliderGroup = HardColliderHandler.hardColliderGroups
+                .Find(group => group.visualizerEditableId == colliderId);
 
-            CreateCollisionForceSlider(colliderConfigGroup.forceJsf, true, spacing: 15);
-            CreateColliderRadiusSlider(colliderConfigGroup.radiusJsf, true, spacing: 15);
+            CreateCollisionForceSlider(hardColliderGroup.forceJsf, true, spacing: 15);
+            CreateColliderRadiusSlider(hardColliderGroup.radiusJsf, true, spacing: 15);
 
-            CreateColliderRightSlider(colliderConfigGroup.rightJsf, true, spacing: 15);
-            CreateColliderUpSlider(colliderConfigGroup.upJsf, true);
-            CreateColliderLookSlider(colliderConfigGroup.lookJsf, true);
+            CreateColliderRightSlider(hardColliderGroup.rightJsf, true, spacing: 15);
+            CreateColliderUpSlider(hardColliderGroup.upJsf, true);
+            CreateColliderLookSlider(hardColliderGroup.lookJsf, true);
 
             var baseSlider = elements[HardColliderHandler.baseForceJsf.name];
             baseSlider.AddListener(UpdateAllSliderColors);
@@ -271,11 +271,11 @@ namespace TittyMagic.UI
 
         private void UpdateAllSliderColors(float value)
         {
-            foreach(var config in HardColliderHandler.colliderConfigs)
+            foreach(var group in HardColliderHandler.hardColliderGroups)
             {
-                if(_colliderSectionElements.ContainsKey(config.forceJsf.name))
+                if(_colliderSectionElements.ContainsKey(group.forceJsf.name))
                 {
-                    UpdateSliderColor(config.forceJsf);
+                    UpdateSliderColor(group.forceJsf);
                 }
             }
         }

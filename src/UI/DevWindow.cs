@@ -40,7 +40,7 @@ namespace TittyMagic.UI
         }
 
         private JSONStorableString _leftDebugArea;
-        private HardColliderGroup[] _colliderConfigs;
+        private HardColliderGroup[] _hardColliderGroups;
 
         private void CreateLeftDebugArea()
         {
@@ -50,7 +50,7 @@ namespace TittyMagic.UI
             textField.height = 1070;
             elements[_leftDebugArea.name] = textField;
 
-            _colliderConfigs = HardColliderHandler.colliderConfigs.ToArray();
+            _hardColliderGroups = HardColliderHandler.hardColliderGroups.ToArray();
         }
 
         public void UpdateLeftDebugInfo()
@@ -58,16 +58,16 @@ namespace TittyMagic.UI
             var sb = new StringBuilder();
             sb.Append("\n");
 
-            for(int i = 0; i < _colliderConfigs.Length; i++)
+            for(int i = 0; i < _hardColliderGroups.Length; i++)
             {
-                var config = _colliderConfigs[i];
-                var leftPos = config.left.collider.attachedRigidbody.position;
+                var group = _hardColliderGroups[i];
+                var leftPos = group.left.collider.attachedRigidbody.position;
                 float x = Calc.RoundToDecimals(leftPos.x, 1000f);
                 float y = Calc.RoundToDecimals(leftPos.y, 1000f);
                 float z = Calc.RoundToDecimals(leftPos.z, 1000f);
-                sb.Append($"{config.id} {x} {y} {z}");
+                sb.Append($"{group.id} {x} {y} {z}");
 
-                if(i != _colliderConfigs.Length - 1)
+                if(i != _hardColliderGroups.Length - 1)
                 {
                     sb.Append("\n\n");
                 }
