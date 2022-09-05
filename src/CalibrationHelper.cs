@@ -26,7 +26,7 @@ namespace TittyMagic
             _calibrationLockJsb = tittyMagic.NewJSONStorableBool(CALIBRATION_LOCK, false);
         }
 
-        private static bool IsBlockedByInput()
+        public bool IsBlockedByInput()
         {
             var mainWindow = tittyMagic.tabs.activeWindow as MainWindow;
             if(mainWindow != null)

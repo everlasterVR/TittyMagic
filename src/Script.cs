@@ -786,6 +786,11 @@ namespace TittyMagic
                 return;
             }
 
+            if(calibration.isInProgress && calibration.IsBlockedByInput())
+            {
+                return;
+            }
+
             if(!enabled)
             {
                 Utils.LogMessage("Enable the plugin to recalibrate.");
