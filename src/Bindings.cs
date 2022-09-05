@@ -29,6 +29,7 @@ namespace TittyMagic
                 new JSONStorableAction("OpenUI", OpenUI),
                 new JSONStorableAction("OpenUI_Control", OpenUIControl),
                 new JSONStorableAction("OpenUI_ConfigureHardColliders", OpenUIConfigureHardColliders),
+                new JSONStorableAction("OpenUI_ConfigureColliderFriction", OpenUIConfigureColliderFriction),
                 new JSONStorableAction("OpenUI_PhysicsParams", OpenUIPhysicsParams),
                 new JSONStorableAction("OpenUI_MorphMultipliers", OpenUIMorphMultipliers),
                 new JSONStorableAction("OpenUI_GravityMultipliers", OpenUIGravityMultipliers),
@@ -74,6 +75,9 @@ namespace TittyMagic
                 }
             ));
 
+        private void OpenUIConfigureColliderFriction() =>
+            StartCoroutine(SelectContainingAtomTab(tittyMagic.enabled ? "Skin Materials 2" : "Plugins"));
+
         private void OpenUIDev() =>
             StartCoroutine(SelectPluginUI(postAction: () =>
             {
@@ -104,26 +108,13 @@ namespace TittyMagic
                 yield break;
             }
 
-            if(SuperController.singleton.gameMode != SuperController.GameMode.Edit)
-            {
-                SuperController.singleton.gameMode = SuperController.GameMode.Edit;
-            }
-
-            SuperController.singleton.SelectController(tittyMagic.containingAtom.mainController, false, false);
-            SuperController.singleton.ShowMainHUDAuto();
+            yield return SelectContainingAtomTab("Plugins");
 
             float timeout = Time.unscaledTime + 1;
             while(Time.unscaledTime < timeout)
             {
                 yield return null;
 
-                var selector = tittyMagic.containingAtom.gameObject.GetComponentInChildren<UITabSelector>();
-                if(selector == null)
-                {
-                    continue;
-                }
-
-                selector.SetActiveTab("Plugins");
                 if(tittyMagic.UITransform == null)
                 {
                     continue;
@@ -145,6 +136,31 @@ namespace TittyMagic
                     postAction?.Invoke();
                     yield break;
                 }
+            }
+        }
+
+        private static IEnumerator SelectContainingAtomTab(string tabName)
+        {
+            if(SuperController.singleton.gameMode != SuperController.GameMode.Edit)
+            {
+                SuperController.singleton.gameMode = SuperController.GameMode.Edit;
+            }
+
+            SuperController.singleton.SelectController(tittyMagic.containingAtom.mainController, false, false);
+            SuperController.singleton.ShowMainHUDAuto();
+
+            float timeout = Time.unscaledTime + 1;
+            while(Time.unscaledTime < timeout)
+            {
+                yield return null;
+
+                var selector = tittyMagic.containingAtom.gameObject.GetComponentInChildren<UITabSelector>();
+                if(selector == null)
+                {
+                    continue;
+                }
+
+                selector.SetActiveTab(tabName);
             }
         }
 

@@ -13,6 +13,7 @@ namespace TittyMagic.UI
         private readonly JSONStorableString _title;
         private readonly PhysicsParameter _massParameter;
         public JSONStorableAction configureHardColliders { get; }
+        private JSONStorableAction configureColliderFriction { get; }
         public JSONStorableAction openDevWindow { get; }
 
         public MainWindow()
@@ -33,13 +34,15 @@ namespace TittyMagic.UI
                 if(personIsFemale)
                 {
                     CreateConfigureHardCollidersButton(true, spacing: 15);
+                    CreateConfigureColliderFrictionButton(true, spacing: 15);
                 }
             };
 
             _title = new JSONStorableString("title", "");
             _massParameter = MainPhysicsHandler.massParameterGroup.left;
 
-            configureHardColliders = new JSONStorableAction("configureHardColliders",
+            configureHardColliders = new JSONStorableAction(
+                "configureHardColliders",
                 () =>
                 {
                     if(!tittyMagic.enabled)
@@ -51,18 +54,34 @@ namespace TittyMagic.UI
                     ClearSelf();
                     activeNestedWindow = nestedWindows.Find(window => window.GetId() == "hardCollidersWindow");
                     activeNestedWindow.Rebuild();
-                });
+                }
+            );
+
+            configureColliderFriction = new JSONStorableAction(
+                "configureColliderFriction",
+                () =>
+                {
+                    if(!tittyMagic.enabled)
+                    {
+                        Utils.LogMessage("Enable the plugin to configure collider friction.");
+                        return;
+                    }
+
+                    tittyMagic.bindings.actions["OpenUI_ConfigureColliderFriction"].actionCallback();
+                }
+            );
 
             if(envIsDevelopment)
             {
-                openDevWindow = new JSONStorableAction("openDevWindow",
+                openDevWindow = new JSONStorableAction(
+                    "openDevWindow",
                     () =>
                     {
                         ClearSelf();
                         activeNestedWindow = nestedWindows.Find(window => window.GetId() == "devWindow");
                         activeNestedWindow.Rebuild();
-                    });
-
+                    }
+                );
                 nestedWindows.Add(new DevWindow("devWindow", onReturnToParent));
             }
 
@@ -104,6 +123,9 @@ namespace TittyMagic.UI
                 sb.Append("\n\n");
                 sb.Append("<b><i>Hard colliders</i></b> make breasts both easier to move");
                 sb.Append(" when touched and better at maintaining their volume and shape.");
+                sb.Append("\n\n");
+                sb.Append("<b><i>Collider friction</i></b> controls how easily colliders");
+                sb.Append(" stick to or slip away from hands or other colliding objects.");
             }
 
             var storable = new JSONStorableString("infoText", sb.ToString());
@@ -189,6 +211,20 @@ namespace TittyMagic.UI
             storable.RegisterButton(button);
             button.buttonText.alignment = TextAnchor.MiddleLeft;
             button.label = "  Configure Hard Colliders...";
+            button.height = 52;
+
+            elements[storable.name] = button;
+        }
+
+        private void CreateConfigureColliderFrictionButton(bool rightSide, int spacing = 0)
+        {
+            var storable = configureColliderFriction;
+            AddSpacer(storable.name, spacing, rightSide);
+
+            var button = tittyMagic.CreateButton(storable.name, rightSide);
+            storable.RegisterButton(button);
+            button.buttonText.alignment = TextAnchor.MiddleLeft;
+            button.label = "  Configure Collider Friction...";
             button.height = 52;
 
             elements[storable.name] = button;
