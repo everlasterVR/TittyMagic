@@ -838,8 +838,10 @@ namespace TittyMagic
              * Mass is calculated multiple times because each new mass value changes the exact breast
              * shape and therefore the estimated volume.
              */
-            SetBreastsCollisionEnabled(false);
+            var guid = Guid.NewGuid();
+            calibration.SetBreastsCollisionEnabled(false, guid);
             SetBreastsUseGravity(false);
+
             Action updateMass = () =>
             {
                 if(calibratesMass)
@@ -897,80 +899,9 @@ namespace TittyMagic
             }
 
             SetBreastsUseGravity(true);
-            SetBreastsCollisionEnabled(true);
-
+            calibration.SetBreastsCollisionEnabled(true, guid);
             calibration.Finish();
             isInitialized = true;
-        }
-
-        private IEnumerable<PhysicsSimulator> breastSimulators => containingAtom.physicsSimulators
-            .Where(simulator => new[]
-            {
-                "AutoColliderFemaleAutoColliderslPectoral1",
-                "AutoColliderFemaleAutoColliderslPectoral2",
-                "AutoColliderFemaleAutoColliderslPectoral3",
-                "AutoColliderFemaleAutoColliderslPectoral4",
-                "AutoColliderFemaleAutoColliderslPectoral5",
-                "AutoColliderFemaleAutoColliderslNipple1",
-                "AutoColliderFemaleAutoColliderslNippleGPU",
-                "AutoColliderFemaleAutoCollidersrPectoral1",
-                "AutoColliderFemaleAutoCollidersrPectoral2",
-                "AutoColliderFemaleAutoCollidersrPectoral3",
-                "AutoColliderFemaleAutoCollidersrPectoral4",
-                "AutoColliderFemaleAutoCollidersrPectoral5",
-                "AutoColliderFemaleAutoCollidersrNipple1",
-                "AutoColliderFemaleAutoCollidersrNippleGPU",
-            }.Contains(simulator.name));
-
-        private IEnumerable<PhysicsSimulatorJSONStorable> breastSimulatorStorables => containingAtom.physicsSimulatorsStorable
-            .Where(storable => new[]
-            {
-                "rNippleControl",
-                "lNippleControl",
-                "BreastPhysicsMesh",
-            }.Contains(storable.name));
-
-        private Dictionary<string, bool> _saveCollisionEnabled;
-
-        private void SetBreastsCollisionEnabled(bool value)
-        {
-            try
-            {
-                if(!value)
-                {
-                    _saveCollisionEnabled = new Dictionary<string, bool>();
-                }
-
-                foreach(var simulator in breastSimulators)
-                {
-                    if(value)
-                    {
-                        simulator.collisionEnabled = _saveCollisionEnabled[simulator.name];
-                    }
-                    else
-                    {
-                        _saveCollisionEnabled[simulator.name] = simulator.collisionEnabled;
-                        simulator.collisionEnabled = false;
-                    }
-                }
-
-                foreach(var storable in breastSimulatorStorables)
-                {
-                    if(value)
-                    {
-                        storable.collisionEnabled = _saveCollisionEnabled[storable.name];
-                    }
-                    else
-                    {
-                        _saveCollisionEnabled[storable.name] = storable.collisionEnabled;
-                        storable.collisionEnabled = false;
-                    }
-                }
-            }
-            catch(Exception e)
-            {
-                Utils.LogError($"Error {(value ? "enabling" : "disabling")} breasts collision: {e}");
-            }
         }
 
         private void SetBreastsUseGravity(bool value)
@@ -1069,6 +1000,7 @@ namespace TittyMagic
                 Destroy(colliderVisualizer);
 
                 /* Nullify static reference fields to let GC collect unreachable instances */
+                CalibrationHelper.Destroy();
                 ForceMorphHandler.Destroy();
                 ForcePhysicsHandler.Destroy();
                 FrictionHandler.Destroy();

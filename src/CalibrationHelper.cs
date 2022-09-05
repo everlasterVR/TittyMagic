@@ -1,6 +1,7 @@
 // ReSharper disable MemberCanBeMadeStatic.Global
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using TittyMagic.UI;
 using UnityEngine;
@@ -17,6 +18,7 @@ namespace TittyMagic
         public bool isQueued;
         public bool isCancelling;
         private bool? _wasFrozen;
+        private Dictionary<Guid, Dictionary<string, bool>> _saveCollisionEnabled;
 
         private JSONStorableBool _calibrationLockJsb;
         public const string CALIBRATION_LOCK = "calibrationLock";
@@ -24,6 +26,7 @@ namespace TittyMagic
         public void Init()
         {
             _calibrationLockJsb = tittyMagic.NewJSONStorableBool(CALIBRATION_LOCK, false);
+            _saveCollisionEnabled = new Dictionary<Guid, Dictionary<string, bool>>();
         }
 
         public bool IsBlockedByInput()
@@ -130,6 +133,81 @@ namespace TittyMagic
             }
         }
 
+        private static IEnumerable<PhysicsSimulator> _breastSimulators = tittyMagic.containingAtom.physicsSimulators
+            .Where(simulator => new[]
+            {
+                "AutoColliderFemaleAutoColliderslPectoral1",
+                "AutoColliderFemaleAutoColliderslPectoral2",
+                "AutoColliderFemaleAutoColliderslPectoral3",
+                "AutoColliderFemaleAutoColliderslPectoral4",
+                "AutoColliderFemaleAutoColliderslPectoral5",
+                "AutoColliderFemaleAutoColliderslNipple1",
+                "AutoColliderFemaleAutoColliderslNippleGPU",
+                "AutoColliderFemaleAutoCollidersrPectoral1",
+                "AutoColliderFemaleAutoCollidersrPectoral2",
+                "AutoColliderFemaleAutoCollidersrPectoral3",
+                "AutoColliderFemaleAutoCollidersrPectoral4",
+                "AutoColliderFemaleAutoCollidersrPectoral5",
+                "AutoColliderFemaleAutoCollidersrNipple1",
+                "AutoColliderFemaleAutoCollidersrNippleGPU",
+            }.Contains(simulator.name));
+
+        private static IEnumerable<PhysicsSimulatorJSONStorable> _breastSimulatorStorables = tittyMagic.containingAtom.physicsSimulatorsStorable
+            .Where(storable => new[]
+            {
+                "rNippleControl",
+                "lNippleControl",
+                "BreastPhysicsMesh",
+            }.Contains(storable.name));
+
+        public void SetBreastsCollisionEnabled(bool value, Guid guid)
+        {
+            if(!value)
+            {
+                try
+                {
+                    _saveCollisionEnabled[guid] = new Dictionary<string, bool>();
+                    foreach(var simulator in _breastSimulators)
+                    {
+                        _saveCollisionEnabled[guid][simulator.name] = simulator.collisionEnabled;
+                        simulator.collisionEnabled = false;
+                    }
+
+                    foreach(var storable in _breastSimulatorStorables)
+                    {
+                        _saveCollisionEnabled[guid][storable.name] = storable.collisionEnabled;
+                        storable.collisionEnabled = false;
+                    }
+                }
+                catch(Exception e)
+                {
+                    Utils.LogError($"Error disabling breasts collision: {e}");
+                }
+            }
+            else
+            {
+                try
+                {
+                    foreach(var simulator in _breastSimulators)
+                    {
+                        simulator.collisionEnabled = _saveCollisionEnabled[guid][simulator.name];
+                    }
+
+                    foreach(var storable in _breastSimulatorStorables)
+                    {
+                        storable.collisionEnabled = _saveCollisionEnabled[guid][storable.name];
+                    }
+
+                    _saveCollisionEnabled.Remove(guid);
+                }
+                catch(Exception e)
+                {
+                    Utils.LogError($"Error enabling breasts collision: {e}");
+
+                }
+            }
+        }
+
         public void Finish()
         {
             if(!isQueued)
@@ -147,6 +225,12 @@ namespace TittyMagic
             }
 
             isInProgress = false;
+        }
+
+        public static void Destroy()
+        {
+            _breastSimulators = null;
+            _breastSimulatorStorables = null;
         }
     }
 }
