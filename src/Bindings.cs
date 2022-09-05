@@ -10,13 +10,21 @@ namespace TittyMagic
 {
     internal class Bindings : MonoBehaviour
     {
-        public void Init(List<object> bindings)
+        private Dictionary<string, string> _namespace;
+        public Dictionary<string, string> Namespace() => _namespace;
+
+        public Dictionary<string, JSONStorableAction> actions { get; private set; }
+
+        // ReSharper disable once ReturnTypeCanBeEnumerable.Global
+        public List<object> Actions() => actions.Values.Select(action => (object) action).ToList();
+
+        public void Init()
         {
-            bindings.Add(new Dictionary<string, string>
+            _namespace = new Dictionary<string, string>
             {
                 { "Namespace", nameof(TittyMagic) },
-            });
-            bindings.AddRange(new List<object>
+            };
+            var jsonStorableActions = new List<JSONStorableAction>
             {
                 new JSONStorableAction("OpenUI", OpenUI),
                 new JSONStorableAction("OpenUI_Control", OpenUIControl),
@@ -28,64 +36,45 @@ namespace TittyMagic
                 new JSONStorableAction("AutoUpdateMassOff", () => StartCoroutine(DeferSetAutoUpdateMass(false))),
                 new JSONStorableAction("CalculateBreastMass", tittyMagic.calculateBreastMass.actionCallback),
                 new JSONStorableAction("RecalibratePhysics", tittyMagic.recalibratePhysics.actionCallback),
-            });
+            };
             if(envIsDevelopment)
             {
-                bindings.AddRange(new List<object>
-                {
-                    new JSONStorableAction("OpenUI_Dev", OpenUIDev),
-                });
+                jsonStorableActions.Add(new JSONStorableAction("OpenUI_Dev", OpenUIDev));
             }
+
+            actions = jsonStorableActions.ToDictionary(action => action.name, action => action);
         }
 
-        public void OpenUI()
-        {
-            ShowMainHud();
+        private void OpenUI() =>
             StartCoroutine(SelectPluginUI());
-        }
 
-        private void OpenUIControl()
-        {
-            ShowMainHud();
+        private void OpenUIControl() =>
             StartCoroutine(SelectPluginUI(postAction: tittyMagic.NavigateToMainWindow));
-        }
 
-        private void OpenUIPhysicsParams()
-        {
-            ShowMainHud();
+        private void OpenUIPhysicsParams() =>
             StartCoroutine(SelectPluginUI(postAction: tittyMagic.NavigateToPhysicsWindow));
-        }
 
-        private void OpenUIMorphMultipliers()
-        {
-            ShowMainHud();
+        private void OpenUIMorphMultipliers() =>
             StartCoroutine(SelectPluginUI(postAction: tittyMagic.NavigateToMorphingWindow));
-        }
 
-        private void OpenUIGravityMultipliers()
-        {
-            ShowMainHud();
+        private void OpenUIGravityMultipliers() =>
             StartCoroutine(SelectPluginUI(postAction: tittyMagic.NavigateToGravityWindow));
-        }
 
-        private void OpenUIConfigureHardColliders()
-        {
-            ShowMainHud();
-            StartCoroutine(SelectPluginUI(postAction: () =>
-            {
-                tittyMagic.NavigateToMainWindow();
-                var mainWindow = (MainWindow) tittyMagic.tabs.activeWindow;
-                var hardCollidersWindow = mainWindow.GetActiveNestedWindow() as HardCollidersWindow;
-                if(hardCollidersWindow == null)
+        private void OpenUIConfigureHardColliders() =>
+            StartCoroutine(SelectPluginUI(
+                postAction: () =>
                 {
-                    mainWindow.configureHardColliders.actionCallback();
+                    tittyMagic.NavigateToMainWindow();
+                    var mainWindow = (MainWindow) tittyMagic.tabs.activeWindow;
+                    var hardCollidersWindow = mainWindow.GetActiveNestedWindow() as HardCollidersWindow;
+                    if(hardCollidersWindow == null)
+                    {
+                        mainWindow.configureHardColliders.actionCallback();
+                    }
                 }
-            }));
-        }
+            ));
 
-        private void OpenUIDev()
-        {
-            ShowMainHud();
+        private void OpenUIDev() =>
             StartCoroutine(SelectPluginUI(postAction: () =>
             {
                 tittyMagic.NavigateToMainWindow();
@@ -96,13 +85,6 @@ namespace TittyMagic
                     mainWindow.openDevWindow.actionCallback();
                 }
             }));
-        }
-
-        private static void ShowMainHud()
-        {
-            SuperController.singleton.SelectController(tittyMagic.containingAtom.freeControllers.First(), false, false);
-            SuperController.singleton.ShowMainHUDMonitor();
-        }
 
         // adapted from Timeline v4.3.1 (c) acidbubbles
         private static IEnumerator SelectPluginUI(Action postAction = null)

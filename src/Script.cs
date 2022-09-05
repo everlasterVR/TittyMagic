@@ -27,6 +27,7 @@ namespace TittyMagic
 
         public SettingsMonitor settingsMonitor { get; private set; }
         public ColliderVisualizer colliderVisualizer { get; private set; }
+        public Bindings bindings { get; private set; }
 
         private IWindow _mainWindow;
         private IWindow _morphingWindow;
@@ -143,7 +144,6 @@ namespace TittyMagic
             }
         }
 
-        private Bindings _customBindings;
         private FrequencyRunner _listenersCheckRunner;
 
         private JSONStorableFloat _scaleJsf;
@@ -366,6 +366,17 @@ namespace TittyMagic
                 };
             }
 
+            /* Create custom bindings and subscribe to Keybindings.
+             * Custom bindings actions are used in-plugin as well, and might already be setup in OnBindingsListRequested.
+             */
+            if(bindings == null)
+            {
+                bindings = gameObject.AddComponent<Bindings>();
+                bindings.Init();
+            }
+
+            SuperController.singleton.BroadcastMessage("OnActionsProviderAvailable", this, SendMessageOptions.DontRequireReceiver);
+
             /* Setup navigation */
             {
                 _mainWindow = new MainWindow();
@@ -381,9 +392,6 @@ namespace TittyMagic
             }
 
             NavigateToMainWindow();
-
-            /* Subscribe to keybindings */
-            SuperController.singleton.BroadcastMessage("OnActionsProviderAvailable", this, SendMessageOptions.DontRequireReceiver);
 
             /* Finish init */
             Integration.Init();
@@ -430,10 +438,17 @@ namespace TittyMagic
         }
 
         // https://github.com/vam-community/vam-plugins-interop-specs/blob/main/keybindings.md
-        public void OnBindingsListRequested(List<object> bindings)
+        public void OnBindingsListRequested(List<object> bindingsList)
         {
-            _customBindings = gameObject.AddComponent<Bindings>();
-            _customBindings.Init(bindings);
+            /* Might already be setup in Init. */
+            if(bindings == null)
+            {
+                bindings = gameObject.AddComponent<Bindings>();
+                bindings.Init();
+            }
+
+            bindingsList.Add(bindings.Namespace());
+            bindingsList.AddRange(bindings.Actions());
         }
 
         private UnityEventsListener _atomUIEventsListener;
@@ -469,6 +484,11 @@ namespace TittyMagic
             if(_modifyBreastPhysicsUIDone)
             {
                 yield break;
+            }
+
+            while(bindings == null)
+            {
+                yield return null;
             }
 
             _modifyBreastPhysicsUIDone = true;
@@ -526,7 +546,7 @@ namespace TittyMagic
         {
             var button = UIHelpers.DestroyLayout(this.InstantiateButton(parent));
             button.GetComponent<UIDynamicButton>().label = $"<b>Open {nameof(TittyMagic)} UI</b>";
-            button.GetComponent<UIDynamicButton>().button.onClick.AddListener(() => _customBindings.OpenUI());
+            button.GetComponent<UIDynamicButton>().button.onClick.AddListener(() => bindings.actions["OpenUI"].actionCallback());
             return button;
         }
 
@@ -998,6 +1018,7 @@ namespace TittyMagic
                 Destroy(calibration);
                 Destroy(settingsMonitor);
                 Destroy(colliderVisualizer);
+                Destroy(bindings);
 
                 /* Nullify static reference fields to let GC collect unreachable instances */
                 CalibrationHelper.Destroy();
