@@ -61,7 +61,14 @@ namespace TittyMagic
         private void OpenUIGravityMultipliers() =>
             StartCoroutine(SelectPluginUI(postAction: tittyMagic.NavigateToGravityWindow));
 
-        private void OpenUIConfigureHardColliders() =>
+        private void OpenUIConfigureHardColliders()
+        {
+            if(!personIsFemale)
+            {
+                Utils.LogMessage("Collider friction is only supported on a female character.");
+                return;
+            }
+
             StartCoroutine(SelectPluginUI(
                 postAction: () =>
                 {
@@ -74,9 +81,18 @@ namespace TittyMagic
                     }
                 }
             ));
+        }
 
-        private void OpenUIConfigureColliderFriction() =>
+        private void OpenUIConfigureColliderFriction()
+        {
+            if(!personIsFemale)
+            {
+                Utils.LogMessage("Collider friction is only supported on a female character.");
+                return;
+            }
+
             StartCoroutine(SelectContainingAtomTab(tittyMagic.enabled ? "Skin Materials 2" : "Plugins"));
+        }
 
         private void OpenUIDev() =>
             StartCoroutine(SelectPluginUI(postAction: () =>
