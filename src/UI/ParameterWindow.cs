@@ -165,7 +165,7 @@ namespace TittyMagic.UI
             AddSpacer(storable.name, spacing, rightSide);
 
             var slider = tittyMagic.CreateSlider(storable, rightSide);
-            slider.valueFormat = "F2";
+            slider.valueFormat = _parameter.valueFormat;
             slider.SetActiveStyle(false, true);
             var uiInputField = slider.sliderValueTextFromFloat.UIInputField;
             uiInputField.contentType = InputField.ContentType.Standard;
@@ -192,11 +192,10 @@ namespace TittyMagic.UI
         private void SyncMultiplierSliderLabel(UIDynamicSlider slider, float value)
         {
             var textFromFloat = slider.sliderValueTextFromFloat;
-            string currentValue = (value * _parameter.valueJsf.val).ToString(_parameter.valueFormat);
             if(textFromFloat.UIInputField != null)
             {
                 slider.label = $"Multiplier: {slider.slider.value:F2}              →";
-                textFromFloat.UIInputField.text = currentValue;
+                textFromFloat.floatVal = value * _parameter.valueJsf.val;
             }
         }
 
