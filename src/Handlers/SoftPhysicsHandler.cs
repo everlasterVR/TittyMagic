@@ -9,11 +9,15 @@ using static TittyMagic.ParamName;
 using static TittyMagic.Script;
 using static TittyMagic.Side;
 using static TittyMagic.SoftColliderGroup;
+using Object = UnityEngine.Object;
 
 namespace TittyMagic.Handlers
 {
     public static class SoftPhysicsHandler
     {
+        public static ColliderVisualizer colliderVisualizer { get; private set; }
+        public static JSONStorableBool showSoftVerticesColliderPreviewsJsb { get; private set; }
+
         public static DAZPhysicsMesh breastPhysicsMesh { get; private set; }
         private static List<string> _breastPhysicsMeshFloatParamNames;
 
@@ -31,6 +35,10 @@ namespace TittyMagic.Handlers
         {
             if(personIsFemale)
             {
+                InitColliderVisualizer();
+                showSoftVerticesColliderPreviewsJsb = tittyMagic.NewJSONStorableBool("showSoftVerticesColliders", false, shouldRegister: false);
+                showSoftVerticesColliderPreviewsJsb.setCallbackFunction = value => colliderVisualizer.GroupsJSON.val = value ? "Both breasts" : "Off";;
+
                 breastPhysicsMesh = (DAZPhysicsMesh) tittyMagic.containingAtom.GetStorableByID("BreastPhysicsMesh");
                 _breastPhysicsMeshFloatParamNames = breastPhysicsMesh.GetFloatParamNames();
 
@@ -73,6 +81,38 @@ namespace TittyMagic.Handlers
             }
 
             _isInitialized = true;
+        }
+
+        private static void InitColliderVisualizer()
+        {
+            colliderVisualizer = tittyMagic.gameObject.AddComponent<ColliderVisualizer>();
+            var groups = new List<Group>
+            {
+                new Group("Off", @"$off"), //match nothing
+                new Group("Both breasts", @"PhysicsMeshJoint(left|right)(areola|nipple|outer)?\d+$"),
+                new Group("Left breast", @"PhysicsMeshJointleft(areola|nipple|outer)?\d+$"),
+                new Group("Both breasts (main)", @"PhysicsMeshJoint(left|right)\d+$"),
+                new Group("Left breast (main)", @"PhysicsMeshJointleft\d+$"),
+                new Group("Both breasts (outer)", @"PhysicsMeshJoint(left|right)outer\d+$"),
+                new Group("Left breast (outer)", @"PhysicsMeshJointleftouter\d+$"),
+                new Group("Both breasts (areola)", @"PhysicsMeshJoint(left|right)areola\d+$"),
+                new Group("Left breast (areola)", @"PhysicsMeshJointleftareola\d+$"),
+                new Group("Both breasts (nipple)", @"PhysicsMeshJoint(left|right)nipple\d+$"),
+                new Group("Left breast (nipple)", @"PhysicsMeshJointleftnipple\d+$"),
+            };
+            colliderVisualizer.Init(tittyMagic, groups);
+            colliderVisualizer.PreviewOpacityJSON.val = 0.67f;
+            colliderVisualizer.PreviewOpacityJSON.defaultVal = 0.67f;
+            colliderVisualizer.SelectedPreviewOpacityJSON.val = 1;
+            colliderVisualizer.SelectedPreviewOpacityJSON.defaultVal = 1;
+            colliderVisualizer.GroupsJSON.val = "Off";
+            colliderVisualizer.GroupsJSON.defaultVal = "Off";
+            colliderVisualizer.HighlightMirrorJSON.val = true;
+
+            foreach(string option in new[] { "Select...", "Other", "All" })
+            {
+                colliderVisualizer.GroupsJSON.choices.Remove(option);
+            }
         }
 
         public static void LoadSettings()
@@ -290,7 +330,7 @@ namespace TittyMagic.Handlers
                 { MAIN, new StaticPhysicsConfig(1.00f) },
                 { OUTER, new StaticPhysicsConfig(1.00f) },
                 { AREOLA, new StaticPhysicsConfig(1.15f) },
-                { NIPPLE, new StaticPhysicsConfig(0.00f) },
+                { NIPPLE, new StaticPhysicsConfig(0.25f) },
             };
 
             foreach(string group in allGroups)
@@ -497,13 +537,17 @@ namespace TittyMagic.Handlers
             )
             {
                 usesRealMass = true,
+                allowsSoftColliderVisualization = true,
             };
 
             var softVerticesColliderAdditionalNormalOffset = new PhysicsParameterGroup(
                 NewColliderAdditionalNormalOffsetParameter(LEFT),
                 NewColliderAdditionalNormalOffsetParameter(RIGHT),
                 "Fat Collider Depth"
-            );
+            )
+            {
+                allowsSoftColliderVisualization = true,
+            };
 
             var softVerticesDistanceLimit = new PhysicsParameterGroup(
                 NewDistanceLimitParameter(LEFT),
@@ -613,13 +657,16 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            if(group.useParentColliderSettings)
+            /* Nipple group would normally be excluded because it has useParentColliderSettings=false.
+             * Updating it regardless ensures that the visualized collider has correct radius
+             */
+            // if(group.useParentColliderSettings)
             {
                 group.colliderRadiusNoSync = value;
                 group.colliderNormalOffsetNoSync = value;
             }
 
-            if(group.useParentColliderSettingsForSecondCollider)
+            if (group.useSecondCollider)
             {
                 group.secondColliderRadiusNoSync = value;
                 group.secondColliderNormalOffsetNoSync = value;
@@ -628,6 +675,7 @@ namespace TittyMagic.Handlers
             if(group.colliderSyncDirty)
             {
                 group.SyncColliders();
+                colliderVisualizer.SyncPreviews();
             }
         }
 
@@ -649,6 +697,7 @@ namespace TittyMagic.Handlers
             }
 
             group.colliderAdditionalNormalOffset = value;
+            colliderVisualizer.SyncPreviews();
         }
 
         private static void SyncGroupDistanceLimit(float value, DAZPhysicsMeshSoftVerticesGroup group)
@@ -971,6 +1020,9 @@ namespace TittyMagic.Handlers
 
         public static void Destroy()
         {
+            Object.Destroy(colliderVisualizer);
+            colliderVisualizer = null;
+            showSoftVerticesColliderPreviewsJsb = null;
             breastPhysicsMesh = null;
             _breastPhysicsMeshFloatParamNames = null;
             _softVerticesGroups = null;

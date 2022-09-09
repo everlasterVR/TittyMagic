@@ -157,6 +157,7 @@
     <Compile Include="vam-collider-editor\src\Models\ColliderModel.cs" />
     <Compile Include="vam-collider-editor\src\Models\IModel.cs" />
     <Compile Include="vam-collider-editor\src\Models\ModelBase.cs" />
+    <Compile Include="vam-collider-editor\src\Models\RigidbodyModel.cs" />
     <Compile Include="vam-collider-editor\src\Models\SphereColliderModel.cs" />
     <Compile Include="vam-collider-editor\src\MVRScriptExtensions.cs" />
     <Compile Include="vam-collider-editor\src\NameHelper.cs" />

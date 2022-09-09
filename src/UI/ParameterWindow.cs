@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using TittyMagic.Handlers;
 using TittyMagic.Models;
 using UnityEngine;
 using UnityEngine.Events;
@@ -18,6 +19,8 @@ namespace TittyMagic.UI
 
         public UIDynamicButton parentButton { private get; set; }
 
+        private readonly ColliderVisualizer _visualizer = SoftPhysicsHandler.colliderVisualizer;
+
         public ParameterWindow(string id, PhysicsParameterGroup parameterGroup, UnityAction onReturnToParent) : base(id)
         {
             _parameterGroup = parameterGroup;
@@ -31,6 +34,13 @@ namespace TittyMagic.UI
                 {
                     CreateRecalibrateButton(recalibrationAction, true);
                 }
+                else if(_parameterGroup.allowsSoftColliderVisualization)
+                {
+                    CreateVisualizationToggle(true);
+
+                    _visualizer.enabled = true;
+                    _visualizer.ShowPreviewsJSON.val = true;
+                }
                 else
                 {
                     AddSpacer("upperRightSpacer", 50, true);
@@ -38,8 +48,8 @@ namespace TittyMagic.UI
 
                 CreateTitle(false);
                 CreateApplyOnlyToLeftBreastToggle(true);
-
                 CreateInfoTextArea(false);
+
                 CreateOffsetSlider(true, spacing: 10);
                 CreateCurrentValueSlider(true);
 
@@ -68,11 +78,26 @@ namespace TittyMagic.UI
 
             closeAction = () =>
             {
+                if(_parameterGroup.allowsSoftColliderVisualization)
+                {
+                    _visualizer.ShowPreviewsJSON.val = false;
+                    _visualizer.enabled = false;
+                }
+
                 if(tittyMagic.calibration.shouldRun)
                 {
                     tittyMagic.recalibratePhysics.actionCallback();
                 }
             };
+        }
+
+        private void CreateVisualizationToggle(bool rightSide, int spacing = 0)
+        {
+            var storable = SoftPhysicsHandler.showSoftVerticesColliderPreviewsJsb;
+            AddSpacer(storable.name, spacing, rightSide);
+            var toggle = tittyMagic.CreateToggle(storable, rightSide);
+            toggle.label = "Show Collider Previews";
+            elements[storable.name] = toggle;
         }
 
         private void CreateTitle(bool rightSide)

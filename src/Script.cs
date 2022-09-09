@@ -78,6 +78,13 @@ namespace TittyMagic
                     HardColliderHandler.colliderVisualizer.DestroyAllPreviews();
                 }
 
+                if(SoftPhysicsHandler.colliderVisualizer != null)
+                {
+                    SoftPhysicsHandler.colliderVisualizer.ShowPreviewsJSON.val = false;
+                    SoftPhysicsHandler.colliderVisualizer.enabled = false;
+                    SoftPhysicsHandler.colliderVisualizer.DestroyAllPreviews();
+                }
+
                 _mainWindow.GetActiveNestedWindow()?.ClosePopups();
             });
 
@@ -99,6 +106,7 @@ namespace TittyMagic
                         }
                         else
                         {
+                            /* Prevent displaying hard collider window if plugin disabled */
                             ((WindowBase) _mainWindow).onReturnToParent();
                         }
                     }
@@ -106,7 +114,16 @@ namespace TittyMagic
                 else if(tabs.activeWindow == _physicsWindow)
                 {
                     var parameterWindow = _physicsWindow.GetActiveNestedWindow() as ParameterWindow;
-                    parameterWindow?.SyncAllMultiplierSliderValues();
+                    if(parameterWindow != null)
+                    {
+                        if(enabled && SoftPhysicsHandler.colliderVisualizer != null)
+                        {
+                            SoftPhysicsHandler.colliderVisualizer.enabled = true;
+                            SoftPhysicsHandler.colliderVisualizer.ShowPreviewsJSON.val = true;
+                        }
+
+                        parameterWindow.SyncAllMultiplierSliderValues();
+                    }
                 }
             });
         }

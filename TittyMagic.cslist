@@ -6,6 +6,7 @@ vam-collider-editor\src\Models\ColliderContainerModelBase.cs
 vam-collider-editor\src\Models\ColliderModel.cs
 vam-collider-editor\src\Models\IModel.cs
 vam-collider-editor\src\Models\ModelBase.cs
+vam-collider-editor\src\Models\RigidbodyModel.cs
 vam-collider-editor\src\Models\SphereColliderModel.cs
 vam-collider-editor\src\ColliderPreviewConfig.cs
 vam-collider-editor\src\ColliderVisualizer.cs

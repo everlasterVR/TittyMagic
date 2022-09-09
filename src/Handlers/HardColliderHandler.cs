@@ -77,7 +77,7 @@ namespace TittyMagic.Handlers
 
             baseForceJsf = tittyMagic.NewJSONStorableFloat("baseCollisionForce", 0.75f, 0.01f, 1.50f);
             baseForceJsf.setCallbackFunction = _ => SyncCollidersMass();
-            highlightAllJsb = tittyMagic.NewJSONStorableBool("highlightAllColliders", false, shouldRegister: false);
+            highlightAllJsb = tittyMagic.NewJSONStorableBool("highlightAllHardColliders", false, shouldRegister: false);
             highlightAllJsb.setCallbackFunction = value => colliderVisualizer.PreviewOpacityJSON.val = value ? 1.00f : 0.67f;
         }
 
