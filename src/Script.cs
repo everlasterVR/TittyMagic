@@ -26,7 +26,6 @@ namespace TittyMagic
         public float quicknessAmount { get; private set; }
 
         public SettingsMonitor settingsMonitor { get; private set; }
-        public ColliderVisualizer colliderVisualizer { get; private set; }
         public Bindings bindings { get; private set; }
 
         private IWindow _mainWindow;
@@ -72,11 +71,11 @@ namespace TittyMagic
                     }
                 }
 
-                if(colliderVisualizer != null)
+                if(HardColliderHandler.colliderVisualizer != null)
                 {
-                    colliderVisualizer.ShowPreviewsJSON.val = false;
-                    colliderVisualizer.enabled = false;
-                    colliderVisualizer.DestroyAllPreviews();
+                    HardColliderHandler.colliderVisualizer.ShowPreviewsJSON.val = false;
+                    HardColliderHandler.colliderVisualizer.enabled = false;
+                    HardColliderHandler.colliderVisualizer.DestroyAllPreviews();
                 }
 
                 _mainWindow.GetActiveNestedWindow()?.ClosePopups();
@@ -93,10 +92,10 @@ namespace TittyMagic
                 {
                     if(_mainWindow?.GetActiveNestedWindow() != null)
                     {
-                        if(enabled && colliderVisualizer != null)
+                        if(enabled && HardColliderHandler.colliderVisualizer != null)
                         {
-                            colliderVisualizer.enabled = true;
-                            colliderVisualizer.ShowPreviewsJSON.val = true;
+                            HardColliderHandler.colliderVisualizer.enabled = true;
+                            HardColliderHandler.colliderVisualizer.ShowPreviewsJSON.val = true;
                         }
                         else
                         {
@@ -247,31 +246,6 @@ namespace TittyMagic
 
             /* Advanced colliders must be enabled for collider visualizer, force morphing and hard collider handler */
             HardColliderHandler.EnableAdvColliders();
-
-            /* Setup collider visualizer */
-            if(personIsFemale)
-            {
-                colliderVisualizer = gameObject.AddComponent<ColliderVisualizer>();
-                var groups = new List<Group>
-                {
-                    new Group("Off", @"$off"), //match nothing
-                    new Group("Both breasts", @"[lr](Pectoral\d)"),
-                    new Group("Left breast", @"lPectoral\d"),
-                };
-                colliderVisualizer.Init(this, groups);
-                colliderVisualizer.PreviewOpacityJSON.val = 0.67f;
-                colliderVisualizer.PreviewOpacityJSON.defaultVal = 0.67f;
-                colliderVisualizer.SelectedPreviewOpacityJSON.val = 1;
-                colliderVisualizer.SelectedPreviewOpacityJSON.defaultVal = 1;
-                colliderVisualizer.GroupsJSON.val = "Left breast";
-                colliderVisualizer.GroupsJSON.defaultVal = "Left breast";
-                colliderVisualizer.HighlightMirrorJSON.val = true;
-
-                foreach(string option in new[] { "Select...", "Other", "All" })
-                {
-                    colliderVisualizer.GroupsJSON.choices.Remove(option);
-                }
-            }
 
             /* Setup handlers */
             MainPhysicsHandler.Init();
@@ -1017,7 +991,6 @@ namespace TittyMagic
             {
                 Destroy(calibration);
                 Destroy(settingsMonitor);
-                Destroy(colliderVisualizer);
                 Destroy(bindings);
 
                 /* Nullify static reference fields to let GC collect unreachable instances */

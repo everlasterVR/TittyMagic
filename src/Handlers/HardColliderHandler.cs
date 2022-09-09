@@ -9,6 +9,7 @@ namespace TittyMagic.Handlers
 {
     public static class HardColliderHandler
     {
+        public static ColliderVisualizer colliderVisualizer { get; private set; }
         public static JSONStorableStringChooser colliderGroupsJsc { get; private set; }
         public static List<HardColliderGroup> hardColliderGroups { get; private set; }
         public static JSONStorableFloat baseForceJsf { get; private set; }
@@ -31,6 +32,8 @@ namespace TittyMagic.Handlers
             {
                 return;
             }
+
+            InitColliderVisualizer();
 
             CreateScalingConfigs();
             var autoColliders = tittyMagic.containingAtom.GetComponentInChildren<AutoColliderBatchUpdater>().autoColliders;
@@ -55,27 +58,51 @@ namespace TittyMagic.Handlers
             );
             colliderGroupsJsc.setCallbackFunction = value =>
             {
-                tittyMagic.colliderVisualizer.EditablesJSON.val = value;
+                colliderVisualizer.EditablesJSON.val = value;
                 SyncSizeAuto();
             };
             colliderGroupsJsc.val = options[0];
 
-            tittyMagic.colliderVisualizer.GroupsJSON.setJSONCallbackFunction = jsc =>
+            colliderVisualizer.GroupsJSON.setJSONCallbackFunction = jsc =>
             {
-                tittyMagic.colliderVisualizer.SelectedPreviewOpacityJSON.val = jsc.val == "Off" ? 0 : 1;
+                colliderVisualizer.SelectedPreviewOpacityJSON.val = jsc.val == "Off" ? 0 : 1;
                 if(jsc.val != "Off")
                 {
-                    tittyMagic.colliderVisualizer.EditablesJSON.val = colliderGroupsJsc.val;
+                    colliderVisualizer.EditablesJSON.val = colliderGroupsJsc.val;
                 }
 
                 SyncSizeAuto();
             };
-            tittyMagic.colliderVisualizer.XRayPreviewsJSON.setJSONCallbackFunction = _ => SyncSizeAuto();
+            colliderVisualizer.XRayPreviewsJSON.setJSONCallbackFunction = _ => SyncSizeAuto();
 
             baseForceJsf = tittyMagic.NewJSONStorableFloat("baseCollisionForce", 0.75f, 0.01f, 1.50f);
             baseForceJsf.setCallbackFunction = _ => SyncCollidersMass();
             highlightAllJsb = tittyMagic.NewJSONStorableBool("highlightAllColliders", false, shouldRegister: false);
-            highlightAllJsb.setCallbackFunction = value => tittyMagic.colliderVisualizer.PreviewOpacityJSON.val = value ? 1.00f : 0.67f;
+            highlightAllJsb.setCallbackFunction = value => colliderVisualizer.PreviewOpacityJSON.val = value ? 1.00f : 0.67f;
+        }
+
+        private static void InitColliderVisualizer()
+        {
+            colliderVisualizer = tittyMagic.gameObject.AddComponent<ColliderVisualizer>();
+            var groups = new List<Group>
+            {
+                new Group("Off", @"$off"), //match nothing
+                new Group("Both breasts", @"[lr](Pectoral\d)"),
+                new Group("Left breast", @"lPectoral\d"),
+            };
+            colliderVisualizer.Init(tittyMagic, groups);
+            colliderVisualizer.PreviewOpacityJSON.val = 0.67f;
+            colliderVisualizer.PreviewOpacityJSON.defaultVal = 0.67f;
+            colliderVisualizer.SelectedPreviewOpacityJSON.val = 1;
+            colliderVisualizer.SelectedPreviewOpacityJSON.defaultVal = 1;
+            colliderVisualizer.GroupsJSON.val = "Left breast";
+            colliderVisualizer.GroupsJSON.defaultVal = "Left breast";
+            colliderVisualizer.HighlightMirrorJSON.val = true;
+
+            foreach(string option in new[] { "Select...", "Other", "All" })
+            {
+                colliderVisualizer.GroupsJSON.choices.Remove(option);
+            }
         }
 
         private static void CreateScalingConfigs()
@@ -297,7 +324,7 @@ namespace TittyMagic.Handlers
                 { "Pectoral5", 1.0f },
             };
 
-            string visualizerEditableId = tittyMagic.colliderVisualizer.EditablesJSON.choices.Find(option => option.EndsWith("l" + id));
+            string visualizerEditableId = colliderVisualizer.EditablesJSON.choices.Find(option => option.EndsWith("l" + id));
             var hardColliderGroup = new HardColliderGroup(
                 id,
                 visualizerEditableId,
@@ -382,7 +409,7 @@ namespace TittyMagic.Handlers
                 _frictionSizeMultiplierRight,
                 averageRadius
             ));
-            tittyMagic.colliderVisualizer.SyncPreviews();
+            colliderVisualizer.SyncPreviews();
         }
 
         public static void UpdateFrictionSizeMultipliers()
@@ -521,6 +548,8 @@ namespace TittyMagic.Handlers
 
         public static void Destroy()
         {
+            Object.Destroy(colliderVisualizer);
+            colliderVisualizer = null;
             colliderGroupsJsc = null;
             hardColliderGroups = null;
             baseForceJsf = null;

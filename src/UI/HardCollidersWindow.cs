@@ -15,6 +15,8 @@ namespace TittyMagic.UI
 
         private readonly JSONStorableString _colliderInfoText;
 
+        private readonly ColliderVisualizer _visualizer = HardColliderHandler.colliderVisualizer;
+
         public HardCollidersWindow(string id, UnityAction onReturnToParent) : base(id)
         {
             buildAction = () =>
@@ -33,15 +35,15 @@ namespace TittyMagic.UI
                 CreateHighlightAllToggle(false);
                 AddShowPreviewsPopupChangeHandler();
 
-                tittyMagic.colliderVisualizer.enabled = true;
-                tittyMagic.colliderVisualizer.ShowPreviewsJSON.val = true;
+                _visualizer.enabled = true;
+                _visualizer.ShowPreviewsJSON.val = true;
                 AddColliderPopupChangeHandler();
             };
 
             closeAction = () =>
             {
-                tittyMagic.colliderVisualizer.ShowPreviewsJSON.val = false;
-                tittyMagic.colliderVisualizer.enabled = false;
+                _visualizer.ShowPreviewsJSON.val = false;
+                _visualizer.enabled = false;
             };
 
             _colliderSectionElements = new Dictionary<string, UIDynamic>();
@@ -104,7 +106,7 @@ namespace TittyMagic.UI
 
         private void CreateShowHardCollidersChooser(bool rightSide, int spacing = 0)
         {
-            var storable = tittyMagic.colliderVisualizer.GroupsJSON;
+            var storable = _visualizer.GroupsJSON;
             elements[$"{storable.name}Spacer"] = tittyMagic.NewSpacer(spacing, rightSide);
 
             var chooser = tittyMagic.CreatePopup(storable, rightSide);
@@ -119,7 +121,7 @@ namespace TittyMagic.UI
 
         private void CreateXRayVisualizationToggle(bool rightSide, int spacing = 0)
         {
-            var storable = tittyMagic.colliderVisualizer.XRayPreviewsJSON;
+            var storable = _visualizer.XRayPreviewsJSON;
             elements[$"{storable.name}Spacer"] = tittyMagic.NewSpacer(spacing, rightSide);
 
             var toggle = tittyMagic.CreateToggle(storable, rightSide);
@@ -143,20 +145,20 @@ namespace TittyMagic.UI
 
         private void AddShowPreviewsPopupChangeHandler()
         {
-            var element = elements[tittyMagic.colliderVisualizer.GroupsJSON.name];
+            var element = elements[_visualizer.GroupsJSON.name];
             var uiDynamicPopup = element as UIDynamicPopup;
             if(uiDynamicPopup != null)
             {
                 uiDynamicPopup.popup.onValueChangeHandlers += OnShowPreviewsPopupValueChanged;
 
-                elements[tittyMagic.colliderVisualizer.XRayPreviewsJSON.name]
+                elements[_visualizer.XRayPreviewsJSON.name]
                     .SetActiveStyle(uiDynamicPopup.popup.currentValue != "Off");
             }
         }
 
         private void RemoveShowPreviewsPopupChangeHandler()
         {
-            var element = elements[tittyMagic.colliderVisualizer.GroupsJSON.name];
+            var element = elements[_visualizer.GroupsJSON.name];
             var uiDynamicPopup = element as UIDynamicPopup;
             if(uiDynamicPopup != null)
             {
@@ -167,14 +169,14 @@ namespace TittyMagic.UI
 
         private void OnShowPreviewsPopupValueChanged(string value)
         {
-            var popupElement = elements[tittyMagic.colliderVisualizer.GroupsJSON.name];
+            var popupElement = elements[_visualizer.GroupsJSON.name];
             var uiDynamicPopup = popupElement as UIDynamicPopup;
             if(uiDynamicPopup != null)
             {
                 uiDynamicPopup.popup.labelTextColor = value == "Off" ? Color.red : Color.black;
             }
 
-            elements[tittyMagic.colliderVisualizer.XRayPreviewsJSON.name].SetActiveStyle(value != "Off");
+            elements[_visualizer.XRayPreviewsJSON.name].SetActiveStyle(value != "Off");
             elements[HardColliderHandler.highlightAllJsb.name].SetActiveStyle(value != "Off");
         }
 

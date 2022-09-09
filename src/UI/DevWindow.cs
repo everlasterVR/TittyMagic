@@ -17,14 +17,14 @@ namespace TittyMagic.UI
                 CreateColliderGroupChooser(true);
                 CreateLeftDebugArea();
                 elements["backButton"].AddListener(onReturnToParent);
-                tittyMagic.colliderVisualizer.enabled = true;
-                tittyMagic.colliderVisualizer.ShowPreviewsJSON.val = true;
+                HardColliderHandler.colliderVisualizer.enabled = true;
+                HardColliderHandler.colliderVisualizer.ShowPreviewsJSON.val = true;
             };
 
             closeAction = () =>
             {
-                tittyMagic.colliderVisualizer.ShowPreviewsJSON.val = false;
-                tittyMagic.colliderVisualizer.enabled = false;
+                HardColliderHandler.colliderVisualizer.ShowPreviewsJSON.val = false;
+                HardColliderHandler.colliderVisualizer.enabled = false;
             };
         }
 
