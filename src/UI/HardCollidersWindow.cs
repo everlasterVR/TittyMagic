@@ -211,7 +211,7 @@ namespace TittyMagic.UI
         private void RebuildColliderSection(string colliderId)
         {
             var hardColliderGroup = HardColliderHandler.hardColliderGroups
-                .Find(group => group.visualizerEditableId == colliderId);
+                .Find(group => group.visualizerId == colliderId);
 
             CreateCollisionForceSlider(hardColliderGroup.forceJsf, true, spacing: 15);
             CreateColliderRadiusSlider(hardColliderGroup.radiusJsf, true, spacing: 15);

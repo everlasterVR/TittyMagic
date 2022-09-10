@@ -12,7 +12,7 @@ vam-collider-editor\src\ColliderPreviewConfig.cs
 vam-collider-editor\src\ColliderVisualizer.cs
 vam-collider-editor\src\ColorExtensions.cs
 vam-collider-editor\src\ComponentExtensions.cs
-vam-collider-editor\src\EditablesList.cs
+vam-collider-editor\src\SelectablesList.cs
 vam-collider-editor\src\EnumerableExtensions.cs
 vam-collider-editor\src\FloatExtensions.cs
 vam-collider-editor\src\Group.cs

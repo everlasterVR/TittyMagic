@@ -47,7 +47,7 @@ namespace TittyMagic.Handlers
             };
             EnableMultiplyFriction();
 
-            var options = hardColliderGroups.Select(c => c.visualizerEditableId).ToList();
+            var options = hardColliderGroups.Select(c => c.visualizerId).ToList();
             var displayOptions = hardColliderGroups.Select(c => c.id).ToList();
             colliderGroupsJsc = new JSONStorableStringChooser(
                 "colliderGroup",
@@ -58,7 +58,7 @@ namespace TittyMagic.Handlers
             );
             colliderGroupsJsc.setCallbackFunction = value =>
             {
-                colliderVisualizer.EditablesJSON.val = value;
+                colliderVisualizer.SelectablesJSON.val = value;
                 SyncSizeAuto();
             };
             colliderGroupsJsc.val = options[0];
@@ -68,7 +68,7 @@ namespace TittyMagic.Handlers
                 colliderVisualizer.SelectedPreviewOpacityJSON.val = jsc.val == "Off" ? 0 : 1;
                 if(jsc.val != "Off")
                 {
-                    colliderVisualizer.EditablesJSON.val = colliderGroupsJsc.val;
+                    colliderVisualizer.SelectablesJSON.val = colliderGroupsJsc.val;
                 }
 
                 SyncSizeAuto();
@@ -324,10 +324,10 @@ namespace TittyMagic.Handlers
                 { "Pectoral5", 1.0f },
             };
 
-            string visualizerEditableId = colliderVisualizer.EditablesJSON.choices.Find(option => option.EndsWith("l" + id));
+            string visualizerId = colliderVisualizer.SelectablesJSON.choices.Find(option => option.EndsWith("l" + id));
             var hardColliderGroup = new HardColliderGroup(
                 id,
-                visualizerEditableId,
+                visualizerId,
                 leftCollider,
                 rightCollider,
                 scalingConfig[COLLISION_FORCE],

@@ -143,7 +143,7 @@
     <Compile Include="vam-collider-editor\src\ColliderVisualizer.cs" />
     <Compile Include="vam-collider-editor\src\ColorExtensions.cs" />
     <Compile Include="vam-collider-editor\src\ComponentExtensions.cs" />
-    <Compile Include="vam-collider-editor\src\EditablesList.cs" />
+    <Compile Include="vam-collider-editor\src\SelectablesList.cs" />
     <Compile Include="vam-collider-editor\src\EnumerableExtensions.cs" />
     <Compile Include="vam-collider-editor\src\FloatExtensions.cs" />
     <Compile Include="vam-collider-editor\src\Group.cs" />
