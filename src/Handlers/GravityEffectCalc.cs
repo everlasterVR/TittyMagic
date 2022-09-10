@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace TittyMagic
+namespace TittyMagic.Handlers
 {
     public static class GravityEffectCalc
     {

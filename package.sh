@@ -31,8 +31,8 @@ mkdir -p $morphs_dir
 cp -r local/Morphs/* $morphs_dir/
 
 # update version info
-sed -i "s/v0\.0\.0/v$plugin_version/g" $work_dir/meta.json
-sed -i "s/v0\.0\.0/v$plugin_version/g" $resource_dir/src/Script.cs
+sed -i "s/0\.0\.0/$plugin_version/g" $work_dir/meta.json
+sed -i "s/0\.0\.0/$plugin_version/g" $resource_dir/src/Script.cs
 sed -i "s/#define/\/\/#define/g" $resource_dir/src/Script.cs
 
 # hide .cs files (plugin is loaded with .cslist)

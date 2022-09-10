@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace TittyMagic
 {
-    internal static class Curves
+    public static class Curves
     {
         // https://www.desmos.com/calculator/ebvzukk7ps
         public static float QuadraticRegression(float value) =>
@@ -26,6 +26,10 @@ namespace TittyMagic
             const float c = 2.36f;
             return a / Mathf.Sqrt(mass + b) - c;
         }
+
+        // https://www.desmos.com/calculator/okwggb6a3s
+        // ReSharper disable once UnusedMember.Global
+        public static float QuadraticOneToZero(float x, float a) => a * Mathf.Pow(x - Mathf.Sqrt(1 / a), 2);
 
         public static float SoftnessBaseCurve(float x) => Exponential1(x, 6.44f, 1.27f, 1.15f);
 
@@ -71,7 +75,11 @@ namespace TittyMagic
         // https://www.desmos.com/calculator/ykxswso5ie
         public static float ForceEffectCurve(float x) => InverseSmoothStep(x, 10, 0.8f, 0f);
 
+        // https://www.desmos.com/calculator/iesodcuuww
         public static float ColliderRadiusAndPositionSizeCurve(float x) => InverseSmoothStep(x, 1.00f, 0.35f, 0.06f);
+
+        // https://www.desmos.com/calculator/wed1jr4yxi
+        public static float ColliderRadiusAndPositionSizeCurve2(float x) => InverseSmoothStep(x, 1.00f, 0.07f, 0.04f);
 
         // https://www.desmos.com/calculator/ln9oecyv4y
         public static float InverseSmoothStep(float value, float b, float curvature, float midpoint)

@@ -1,79 +1,48 @@
-﻿#define DEBUG_ON
-using System;
+﻿using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using SimpleJSON;
-using UnityEngine;
+using TittyMagic.Components;
+using TittyMagic.Handlers;
 using TittyMagic.UI;
+using UnityEngine;
 using UnityEngine.UI;
-using static TittyMagic.Calc;
 
 namespace TittyMagic
 {
-    internal class Script : MVRScript
+    internal sealed class Script : MVRScript
     {
-        public const string VERSION = "v0.0.0";
+        public static Script tittyMagic { get; private set; }
+        public const string VERSION = "0.0.0";
+        public static bool envIsDevelopment => VERSION.StartsWith("0.");
+        public static bool personIsFemale { get; private set; }
 
         public static GenerateDAZMorphsControlUI morphsControlUI { get; private set; }
-        private Bindings _customBindings;
-        private FrequencyRunner _listenersCheckRunner;
-
-        public DAZSkinV2 skin { get; set; }
-        private Transform _chestTransform;
-        private Rigidbody _pectoralRbLeft;
-        private Rigidbody _pectoralRbRight;
+        public static DAZCharacterSelector geometry { get; private set; }
+        public static DAZSkinV2 skin { get; set; }
 
         public float softnessAmount { get; private set; }
         public float quicknessAmount { get; private set; }
 
-        private static float SoftnessAmount(float val) => Curves.SoftnessBaseCurve(val / 100f);
-        private static float QuicknessAmount(float val) => 2 * val / 100 - 1;
-
-        private TrackNipple _trackLeftNipple;
-        private TrackNipple _trackRightNipple;
         public SettingsMonitor settingsMonitor { get; private set; }
+        public Bindings bindings { get; private set; }
 
-        public AtomScaleListener atomScaleListener { get; private set; }
-        private BreastMorphListener _breastMorphListener;
+        private IWindow _mainWindow;
+        private IWindow _morphingWindow;
+        private IWindow _gravityWindow;
+        private IWindow _physicsWindow;
+        public Tabs tabs { get; private set; }
 
-        public MainPhysicsHandler mainPhysicsHandler { get; private set; }
-        public HardColliderHandler hardColliderHandler { get; private set; }
-        public SoftPhysicsHandler softPhysicsHandler { get; private set; }
-        public GravityPhysicsHandler gravityPhysicsHandler { get; private set; }
-        public GravityOffsetMorphHandler offsetMorphHandler { get; private set; }
-        public NippleErectionHandler nippleErectionHandler { get; private set; }
-        public ColliderVisualizer colliderVisualizer { get; private set; }
-
-        // ReSharper disable once MemberCanBePrivate.Global
-        public ForcePhysicsHandler forcePhysicsHandler { get; private set; }
-        public ForceMorphHandler forceMorphHandler { get; private set; }
-
-        private JSONStorableString _pluginVersionStorable;
-
-        private Tabs _tabs;
-
-        // ReSharper disable MemberCanBePrivate.Global
-        public IWindow mainWindow { get; private set; }
-        public IWindow morphingWindow { get; private set; }
-        public IWindow gravityWindow { get; private set; }
-        public IWindow physicsWindow { get; private set; }
-
-        // ReSharper restore MemberCanBePrivate.Global
         public JSONStorableAction recalibratePhysics { get; private set; }
         public JSONStorableAction calculateBreastMass { get; private set; }
         public JSONStorableBool autoUpdateJsb { get; private set; }
         public JSONStorableFloat softnessJsf { get; private set; }
         public JSONStorableFloat quicknessJsf { get; private set; }
-        public JSONStorableAction configureHardColliders { get; private set; }
 
-        public bool initDone { get; private set; }
-        public bool refreshInProgress { get; private set; }
+        public CalibrationHelper calibration { get; private set; }
 
-        private bool _loadingFromJson;
-        private bool _waiting;
-        private bool _refreshQueued;
-        private bool _animationWasSetFrozen;
+        #region InitUI
 
         private UnityEventsListener _pluginUIEventsListener;
 
@@ -89,71 +58,92 @@ namespace TittyMagic
 
             _pluginUIEventsListener.onDisable.AddListener(() =>
             {
-                if(enabled)
+                if(enabled && calibration.shouldRun)
                 {
-                    var activeParameterWindow = _tabs.activeWindow?.GetActiveNestedWindow() as ParameterWindow;
-                    var recalibrationAction = activeParameterWindow != null ? activeParameterWindow.recalibrationAction : recalibratePhysics;
-                    RecalibrateOnNavigation(recalibrationAction);
+                    var activeParameterWindow = tabs.activeWindow?.GetActiveNestedWindow() as ParameterWindow;
+                    if(activeParameterWindow != null)
+                    {
+                        activeParameterWindow.recalibrationAction.actionCallback();
+                    }
+                    else
+                    {
+                        recalibratePhysics.actionCallback();
+                    }
                 }
 
-                colliderVisualizer.ShowPreviewsJSON.val = false;
-
-                try
+                if(HardColliderHandler.colliderVisualizer != null)
                 {
-                    colliderVisualizer.DestroyAllPreviews();
-                }
-                catch(Exception e)
-                {
-                    Utils.LogError($"Failed to destroy collider visualizer previews. {e}");
+                    HardColliderHandler.colliderVisualizer.ShowPreviewsJSON.val = false;
+                    HardColliderHandler.colliderVisualizer.enabled = false;
+                    HardColliderHandler.colliderVisualizer.DestroyAllPreviews();
                 }
 
-                try
+                if(SoftPhysicsHandler.colliderVisualizer != null)
                 {
-                    mainWindow.GetActiveNestedWindow()?.ClosePopups();
+                    SoftPhysicsHandler.colliderVisualizer.ShowPreviewsJSON.val = false;
+                    SoftPhysicsHandler.colliderVisualizer.enabled = false;
+                    SoftPhysicsHandler.colliderVisualizer.DestroyAllPreviews();
                 }
-                catch(Exception e)
-                {
-                    Utils.LogError($"Failed to close popups in collider configuration window. {e}");
-                }
+
+                _mainWindow.GetActiveNestedWindow()?.ClosePopups();
             });
 
             _pluginUIEventsListener.onEnable.AddListener(() =>
             {
                 var background = rightUIContent.parent.parent.parent.transform.GetComponent<Image>();
-                background.color = new Color(0.85f, 0.85f, 0.85f);
+                background.color = UIHelpers.backgroundGray;
 
-                softPhysicsHandler.ReverseSyncAllowSelfCollision();
+                SoftPhysicsHandler.ReverseSyncAllowSelfCollision();
 
-                if(_tabs.activeWindow == mainWindow)
+                if(tabs.activeWindow == _mainWindow)
                 {
-                    var hardCollidersWindow = mainWindow?.GetActiveNestedWindow() as HardCollidersWindow;
-                    if(hardCollidersWindow != null)
+                    if(_mainWindow?.GetActiveNestedWindow() != null)
                     {
-                        if(enabled)
+                        if(enabled && HardColliderHandler.colliderVisualizer != null)
                         {
-                            colliderVisualizer.ShowPreviewsJSON.val = true;
+                            HardColliderHandler.colliderVisualizer.enabled = true;
+                            HardColliderHandler.colliderVisualizer.ShowPreviewsJSON.val = true;
                         }
                         else
                         {
-                            hardCollidersWindow.returnToParent();
+                            /* Prevent displaying hard collider window if plugin disabled */
+                            ((WindowBase) _mainWindow).onReturnToParent();
                         }
                     }
                 }
-                else if(_tabs.activeWindow == physicsWindow)
+                else if(tabs.activeWindow == _physicsWindow)
                 {
-                    var parameterWindow = physicsWindow.GetActiveNestedWindow() as ParameterWindow;
-                    parameterWindow?.SyncAllMultiplierSliderValues();
+                    var parameterWindow = _physicsWindow.GetActiveNestedWindow() as ParameterWindow;
+                    if(parameterWindow != null)
+                    {
+                        if(enabled && SoftPhysicsHandler.colliderVisualizer != null)
+                        {
+                            SoftPhysicsHandler.colliderVisualizer.enabled = true;
+                            SoftPhysicsHandler.colliderVisualizer.ShowPreviewsJSON.val = true;
+                        }
+
+                        parameterWindow.SyncAllMultiplierSliderValues();
+                    }
                 }
             });
         }
 
+        #endregion InitUI
+
+        #region Init
+
+        // ReSharper disable once MemberCanBePrivate.Global
+        public bool isInitialized { get; private set; }
+
         public override void Init()
         {
+            tittyMagic = this;
+
             try
             {
-                _pluginVersionStorable = new JSONStorableString("version", "");
-                _pluginVersionStorable.storeType = JSONStorableParam.StoreType.Full;
-                RegisterString(_pluginVersionStorable);
+                /* Used to store version in save JSON and communicate version to other plugin instances */
+                var versionJss = this.NewJSONStorableString("version", "");
+                versionJss.val = $"{VERSION}";
 
                 if(containingAtom.type != "Person")
                 {
@@ -170,10 +160,27 @@ namespace TittyMagic
             }
         }
 
+        private FrequencyRunner _listenersCheckRunner;
+
+        private JSONStorableFloat _scaleJsf;
+        private List<Rigidbody> _rigidbodies;
+        private Transform _chestTransform;
+        private Rigidbody _pectoralRbLeft;
+        private Rigidbody _pectoralRbRight;
+        private TrackNipple _trackLeftNipple;
+        private TrackNipple _trackRightNipple;
+
         private IEnumerator DeferInit()
         {
             yield return new WaitForEndOfFrame();
             while(SuperController.singleton.isLoading)
+            {
+                yield return null;
+            }
+
+            /* Wait for plugin permissions to be accepted */
+            var confirmPanel = SuperController.singleton.errorLogPanel.parent.Find("UserConfirmCanvas");
+            while(confirmPanel != null && confirmPanel.childCount > 0)
             {
                 yield return null;
             }
@@ -193,96 +200,120 @@ namespace TittyMagic
                 }
             }
 
-            var geometry = (DAZCharacterSelector) containingAtom.GetStorableByID("geometry");
-            Gender.isFemale = geometry.gender == DAZCharacterSelector.Gender.Female;
+            geometry = (DAZCharacterSelector) containingAtom.GetStorableByID("geometry");
 
-            _listenersCheckRunner = new FrequencyRunner(0.333f);
-
-            morphsControlUI = Gender.isFemale ? geometry.morphsControlUI : geometry.morphsControlUIOtherGender;
-            var rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
-            var chestRb = rigidbodies.Find(rb => rb.name == "chest");
-            _chestTransform = chestRb.transform;
-
-            var breastControl = (AdjustJoints) containingAtom.GetStorableByID(Gender.isFemale ? "BreastControl" : "PectoralControl");
-            _pectoralRbLeft = breastControl.joint2.GetComponent<Rigidbody>();
-            _pectoralRbRight = breastControl.joint1.GetComponent<Rigidbody>();
-
-            atomScaleListener = new AtomScaleListener(containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale"));
-            skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
-
-            /* Setup collider visualizer */
+            /* Wait for skin to be ready */
             {
-                colliderVisualizer = gameObject.AddComponent<ColliderVisualizer>();
-                var groups = new List<Group>
+                float timeout = Time.unscaledTime + 2;
+                while(Time.unscaledTime < timeout && (!geometry.selectedCharacter.ready || containingAtom.GetStorableByID("skin") == null))
                 {
-                    new Group("Off", @"$off"), //match nothing
-                    new Group("Both breasts", @"[lr](Pectoral\d)"),
-                    new Group("Left breast", @"lPectoral\d"),
-                };
-                colliderVisualizer.Init(this, groups);
-                colliderVisualizer.PreviewOpacityJSON.val = 0.67f;
-                colliderVisualizer.PreviewOpacityJSON.defaultVal = 0.67f;
-                colliderVisualizer.SelectedPreviewOpacityJSON.val = 1;
-                colliderVisualizer.SelectedPreviewOpacityJSON.defaultVal = 1;
-                colliderVisualizer.GroupsJSON.val = "Left breast";
-                colliderVisualizer.GroupsJSON.defaultVal = "Left breast";
-                colliderVisualizer.HighlightMirrorJSON.val = true;
+                    yield return null;
+                }
 
-                foreach(string option in new[] { "Select...", "Other", "All" })
+                if(!geometry.selectedCharacter.ready)
                 {
-                    colliderVisualizer.GroupsJSON.choices.Remove(option);
+                    Utils.LogError(
+                        $"Selected character {geometry.selectedCharacter.name} was not ready after 2 seconds of waiting. " +
+                        "Aborting plugin initization. Try reloading, and please report an issue."
+                    );
+                    yield break;
+                }
+
+                if(containingAtom.GetStorableByID("skin") == null)
+                {
+                    Utils.LogError(
+                        "Person skin materials not found after 2 seconds of waiting. " +
+                        "Aborting plugin initization. Try reloading, and please report an issue."
+                    );
+                    yield break;
                 }
             }
 
-            mainPhysicsHandler = new MainPhysicsHandler(this, breastControl, new BreastVolumeCalculator(this, chestRb));
-            hardColliderHandler = gameObject.AddComponent<HardColliderHandler>();
-            hardColliderHandler.Init();
-            softPhysicsHandler = new SoftPhysicsHandler(this);
-            gravityPhysicsHandler = new GravityPhysicsHandler(this);
-            offsetMorphHandler = new GravityOffsetMorphHandler(this);
-            nippleErectionHandler = new NippleErectionHandler(this);
+            personIsFemale = !geometry.selectedCharacter.isMale;
+
+            _listenersCheckRunner = new FrequencyRunner(0.333f);
+
+            morphsControlUI = personIsFemale ? geometry.morphsControlUI : geometry.morphsControlUIOtherGender;
+            skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
+            _rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
+            MainPhysicsHandler.chestRb = _rigidbodies.Find(rb => rb.name == "chest");
+            _chestTransform = MainPhysicsHandler.chestRb.transform;
+
+            MainPhysicsHandler.breastControl = (AdjustJoints) containingAtom.GetStorableByID(personIsFemale ? "BreastControl" : "PectoralControl");
+            _pectoralRbLeft = MainPhysicsHandler.breastControl.joint2.GetComponent<Rigidbody>();
+            _pectoralRbRight = MainPhysicsHandler.breastControl.joint1.GetComponent<Rigidbody>();
+
+            /* Setup atom scale changed callback */
+            {
+                _scaleJsf = containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale");
+                _scaleJsf.setJSONCallbackFunction = _ =>
+                {
+                    if(!enabled || !isInitialized || calibration.isWaiting ||
+                        containingAtom.grabFreezePhysics && containingAtom.mainController.isGrabbing)
+                    {
+                        return;
+                    }
+
+                    if(autoUpdateJsb.val && !calibration.isWaiting)
+                    {
+                        StartCalibration(calibratesMass: true, waitsForListeners: true);
+                    }
+                };
+            }
+
+            /* Advanced colliders must be enabled for collider visualizer, force morphing and hard collider handler */
+            HardColliderHandler.EnableAdvColliders();
+
+            /* Setup handlers */
+            MainPhysicsHandler.Init();
+            HardColliderHandler.Init();
+            SoftPhysicsHandler.Init();
+            GravityPhysicsHandler.Init();
+            GravityOffsetMorphHandler.Init();
+            NippleErectionHandler.Init();
+            FrictionHandler.Init(containingAtom.GetStorableByID("skin"));
 
             settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
             settingsMonitor.Init();
 
-            _trackLeftNipple = new TrackNipple(chestRb, _pectoralRbLeft);
-            _trackRightNipple = new TrackNipple(chestRb, _pectoralRbRight);
+            /* Setup nipples tracking */
+            _trackLeftNipple = new TrackNipple(_pectoralRbLeft);
+            _trackRightNipple = new TrackNipple(_pectoralRbRight);
 
-            if(Gender.isFemale)
+            if(personIsFemale)
             {
                 yield return DeferSetupTrackFemaleNipples();
             }
             else
             {
-                _trackLeftNipple.getNipplePosition = () => AveragePosition(
-                    VertexIndexGroup.LEFT_BREAST_CENTER.Select(i => skin.rawSkinnedWorkingVerts[i]).ToList()
+                _trackLeftNipple.getNipplePosition = () => Calc.AveragePosition(
+                    VertexIndexGroup.leftBreastCenter.Select(i => skin.rawSkinnedWorkingVerts[i]).ToArray()
                 );
-                _trackRightNipple.getNipplePosition = () => AveragePosition(
-                    VertexIndexGroup.RIGHT_BREAST_CENTER.Select(i => skin.rawSkinnedWorkingVerts[i]).ToList()
+                _trackRightNipple.getNipplePosition = () => Calc.AveragePosition(
+                    VertexIndexGroup.rightBreastCenter.Select(i => skin.rawSkinnedWorkingVerts[i]).ToArray()
                 );
             }
 
-            forcePhysicsHandler = new ForcePhysicsHandler(this, _trackLeftNipple, _trackRightNipple);
-            forceMorphHandler = new ForceMorphHandler(this, _trackLeftNipple, _trackRightNipple);
+            ForcePhysicsHandler.Init(_trackLeftNipple, _trackRightNipple);
+            ForceMorphHandler.Init(_trackLeftNipple, _trackRightNipple);
 
-            if(Gender.isFemale)
+            /* Setup breast morph listening */
+            BreastMorphListener.ProcessMorphs(geometry.morphBank1);
+            if(!personIsFemale)
             {
-                _breastMorphListener = new BreastMorphListener(geometry.morphBank1.morphs);
-            }
-            else
-            {
-                _breastMorphListener = new BreastMorphListener(geometry.morphBank1OtherGender.morphs, geometry.morphBank1.morphs);
+                BreastMorphListener.ProcessMorphs(geometry.morphBank1OtherGender);
             }
 
             /* Load settings */
             {
-                mainPhysicsHandler.LoadSettings();
-                softPhysicsHandler.LoadSettings();
-                nippleErectionHandler.LoadSettings();
-                gravityPhysicsHandler.LoadSettings();
-                forcePhysicsHandler.LoadSettings();
-                forceMorphHandler.LoadSettings();
-                offsetMorphHandler.LoadSettings();
+                MainPhysicsHandler.LoadSettings();
+                SoftPhysicsHandler.LoadSettings();
+                NippleErectionHandler.LoadSettings();
+                GravityPhysicsHandler.LoadSettings();
+                ForcePhysicsHandler.LoadSettings();
+                ForceMorphHandler.LoadSettings();
+                GravityOffsetMorphHandler.LoadSettings();
+                FrictionHandler.LoadSettings();
             }
 
             /* Setup storables */
@@ -291,17 +322,15 @@ namespace TittyMagic
                 softnessJsf = this.NewJSONStorableFloat("breastSoftness", 70f, 0f, 100f);
                 quicknessJsf = this.NewJSONStorableFloat("breastQuickness", 70f, 0f, 100f);
 
-                recalibratePhysics = new JSONStorableAction(
+                recalibratePhysics = this.NewJSONStorableAction(
                     "recalibratePhysics",
-                    () => StartRefreshCoroutine(refreshMass: false)
+                    () => StartCalibration(calibratesMass: false)
                 );
-                RegisterAction(recalibratePhysics);
 
-                calculateBreastMass = new JSONStorableAction(
+                calculateBreastMass = this.NewJSONStorableAction(
                     "calculateBreastMass",
-                    () => StartRefreshCoroutine(refreshMass: true)
+                    () => StartCalibration(calibratesMass: true)
                 );
-                RegisterAction(calculateBreastMass);
 
                 autoUpdateJsb.setCallbackFunction = value =>
                 {
@@ -315,7 +344,7 @@ namespace TittyMagic
                 {
                     if(Mathf.Abs(value - softnessAmount) > 0.001f)
                     {
-                        StartRefreshCoroutine(refreshMass: false, waitForListeners: true);
+                        StartCalibration(calibratesMass: false, waitsForListeners: true);
                     }
                 };
 
@@ -323,59 +352,55 @@ namespace TittyMagic
                 {
                     if(Mathf.Abs(value - quicknessAmount) > 0.001f)
                     {
-                        StartRefreshCoroutine(refreshMass: false, waitForListeners: true);
+                        StartCalibration(calibratesMass: false, waitsForListeners: true);
                     }
                 };
-
-                configureHardColliders = new JSONStorableAction("configureHardColliders", () => { });
             }
+
+            /* Create custom bindings and subscribe to Keybindings.
+             * Custom bindings actions are used in-plugin as well, and might already be setup in OnBindingsListRequested.
+             */
+            if(bindings == null)
+            {
+                bindings = gameObject.AddComponent<Bindings>();
+                bindings.Init();
+            }
+
+            SuperController.singleton.BroadcastMessage("OnActionsProviderAvailable", this, SendMessageOptions.DontRequireReceiver);
 
             /* Setup navigation */
             {
-                mainWindow = new MainWindow(this);
-                morphingWindow = new MorphingWindow(this);
-                gravityWindow = new GravityWindow(this);
-                physicsWindow = new PhysicsWindow(this);
+                _mainWindow = new MainWindow();
+                _morphingWindow = new MorphingWindow();
+                _gravityWindow = new GravityWindow();
+                _physicsWindow = new PhysicsWindow();
 
-                _tabs = new Tabs(this, leftUIContent, rightUIContent);
-                _tabs.CreateNavigationButton(mainWindow, "Control", NavigateToMainWindow);
-                _tabs.CreateNavigationButton(physicsWindow, "Physics Params", NavigateToPhysicsWindow);
-                _tabs.CreateNavigationButton(morphingWindow, "Morph Multipliers", NavigateToMorphingWindow);
-                _tabs.CreateNavigationButton(gravityWindow, "Gravity Multipliers", NavigateToGravityWindow);
+                tabs = new Tabs(leftUIContent, rightUIContent);
+                tabs.CreateNavigationButton(_mainWindow, "Control", NavigateToMainWindow);
+                tabs.CreateNavigationButton(_physicsWindow, "Physics Params", NavigateToPhysicsWindow);
+                tabs.CreateNavigationButton(_morphingWindow, "Morph Multipliers", NavigateToMorphingWindow);
+                tabs.CreateNavigationButton(_gravityWindow, "Gravity Multipliers", NavigateToGravityWindow);
             }
 
-            NavigateToWindow(mainWindow);
+            NavigateToMainWindow();
 
-            /* Subscribe to keybindings */
-            SuperController.singleton.BroadcastMessage("OnActionsProviderAvailable", this, SendMessageOptions.DontRequireReceiver);
+            /* Finish init */
+            Integration.Init();
+            calibration = gameObject.AddComponent<CalibrationHelper>();
+            calibration.Init();
+            settingsMonitor.SetPectoralCollisions(!personIsFemale);
 
-            StartCoroutine(DeferSetPluginVersion());
+            ModifyAtomUI();
 
-            if(!_loadingFromJson)
+            if(!_isRestoringFromJson)
             {
-                /* Modify atom UI when not loading from JSON */
-                {
-                    /* Plugin added manually */
-                    var atomUIContent = containingAtom.transform.Find("UI/UIPlaceHolderModel/UIModel/Canvas/Panel/Content");
-                    if(atomUIContent.gameObject.activeInHierarchy)
-                    {
-                        StartCoroutine(ModifyAtomUI(atomUIContent));
-                    }
-                    /* Plugin added with trigger or programmatically without the person UI being open */
-                    else
-                    {
-                        _atomUIEventsListener = atomUIContent.gameObject.AddComponent<UnityEventsListener>();
-                        _atomUIEventsListener.onEnable.AddListener(() => StartCoroutine(ModifyAtomUI(atomUIContent)));
-                    }
-                }
-
-                hardColliderHandler.SaveOriginalUseColliders();
-                softPhysicsHandler.SaveOriginalBoolParamValues();
+                HardColliderHandler.SaveOriginalUseColliders();
+                SoftPhysicsHandler.SaveOriginalBoolParamValues();
                 calculateBreastMass.actionCallback();
             }
             else
             {
-                initDone = true;
+                isInitialized = true;
             }
         }
 
@@ -386,9 +411,9 @@ namespace TittyMagic
             float timeout = Time.unscaledTime + 3f;
             while((nippleRbLeft == null || nippleRbRight == null) && Time.unscaledTime < timeout)
             {
-                var rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
-                nippleRbLeft = rigidbodies.Find(rb => rb.name == "lNipple");
-                nippleRbRight = rigidbodies.Find(rb => rb.name == "rNipple");
+                _rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
+                nippleRbLeft = _rigidbodies.Find(rb => rb.name == "lNipple");
+                nippleRbRight = _rigidbodies.Find(rb => rb.name == "rNipple");
                 yield return new WaitForSecondsRealtime(0.1f);
             }
 
@@ -404,152 +429,323 @@ namespace TittyMagic
         }
 
         // https://github.com/vam-community/vam-plugins-interop-specs/blob/main/keybindings.md
-        public void OnBindingsListRequested(List<object> bindings)
+        public void OnBindingsListRequested(List<object> bindingsList)
         {
-            _customBindings = gameObject.AddComponent<Bindings>();
-            _customBindings.Init(this, bindings);
-        }
-
-        private IEnumerator DeferSetPluginVersion()
-        {
-            while(_loadingFromJson)
+            /* Might already be setup in Init. */
+            if(bindings == null)
             {
-                yield return null;
+                bindings = gameObject.AddComponent<Bindings>();
+                bindings.Init();
             }
 
-            _pluginVersionStorable.val = $"{VERSION}";
-        }
-
-        public void NavigateToMainWindow() => NavigateToWindow(mainWindow);
-        public void NavigateToPhysicsWindow() => NavigateToWindow(physicsWindow);
-        public void NavigateToMorphingWindow() => NavigateToWindow(morphingWindow);
-        public void NavigateToGravityWindow() => NavigateToWindow(gravityWindow);
-
-        private void NavigateToWindow(IWindow window)
-        {
-            _tabs.activeWindow?.Clear();
-            _tabs.ActivateTab(window);
-            window.Rebuild();
+            bindingsList.Add(bindings.Namespace());
+            bindingsList.AddRange(bindings.Actions());
         }
 
         private UnityEventsListener _atomUIEventsListener;
-        private List<GameObject> _customUIGameObjects;
-        private List<GameObject> _inactivatedUIGameObjects;
 
-        private bool _modifyAtomUIHasBeenCalled;
+        private void ModifyAtomUI()
+        {
+            /* Plugin added manually.*/
+            var atomUIContent = containingAtom.transform.Find("UI/UIPlaceHolderModel/UIModel/Canvas/Panel/Content");
+            if(atomUIContent.gameObject.activeInHierarchy)
+            {
+                StartCoroutine(ModifyBreastPhysicsUI(atomUIContent));
+                StartCoroutine(ModifySkinMaterialsUI(atomUIContent));
+            }
+            /* Plugin added with trigger or programmatically without the person UI being open */
+            else
+            {
+                _atomUIEventsListener = atomUIContent.gameObject.AddComponent<UnityEventsListener>();
+                _atomUIEventsListener.onEnable.AddListener(() =>
+                {
+                    StartCoroutine(ModifyBreastPhysicsUI(atomUIContent));
+                    StartCoroutine(ModifySkinMaterialsUI(atomUIContent));
+                });
+            }
+        }
 
-        private IEnumerator ModifyAtomUI(Transform content)
+        private readonly List<GameObject> _customUIGameObjects = new List<GameObject>();
+        private readonly List<GameObject> _inactivatedUIGameObjects = new List<GameObject>();
+        private bool _modifyBreastPhysicsUIDone;
+
+        private IEnumerator ModifyBreastPhysicsUI(Transform content)
         {
             // Allow modifying UI only once
-            if(_modifyAtomUIHasBeenCalled)
+            if(_modifyBreastPhysicsUIDone)
             {
                 yield break;
             }
 
-            _modifyAtomUIHasBeenCalled = true;
-
-            var transforms = new Dictionary<string, Transform>
+            while(bindings == null)
             {
-                { "M Pectoral Physics", null },
-                { "F Breast Physics 1", null },
-                { "F Breast Physics 2", null },
-                { "F Breast Presets", null },
-            };
+                yield return null;
+            }
+
+            _modifyBreastPhysicsUIDone = true;
+
+            Transform mPectoralPhysics = null;
+            Transform fBreastPhysics1 = null;
+            Transform fBreastPhysics2 = null;
+            Transform fBreastPresets = null;
 
             float waited = 0f;
-            while(transforms.Values.Any(t => t == null) && waited < 1)
+            while(waited < 1 && (
+                mPectoralPhysics == null ||
+                fBreastPhysics1 == null ||
+                fBreastPhysics2 == null ||
+                fBreastPresets == null
+            ))
             {
                 waited += 0.1f;
                 yield return new WaitForSecondsRealtime(0.1f);
-                transforms["M Pectoral Physics"] = content.Find("M Pectoral Physics");
-                transforms["F Breast Physics 1"] = content.Find("F Breast Physics 1");
-                transforms["F Breast Physics 2"] = content.Find("F Breast Physics 2");
-                transforms["F Breast Presets"] = content.Find("F Breast Presets");
+                mPectoralPhysics = content.Find("M Pectoral Physics");
+                fBreastPhysics1 = content.Find("F Breast Physics 1");
+                fBreastPhysics2 = content.Find("F Breast Physics 2");
+                fBreastPresets = content.Find("F Breast Presets");
             }
 
-            if(transforms.Values.Any(t => t == null))
+            if(mPectoralPhysics == null || fBreastPhysics1 == null || fBreastPhysics2 == null || fBreastPresets == null)
             {
-                Debug.Log("Failed to modify person UI - could not find UI transforms.");
-                _modifyAtomUIHasBeenCalled = true;
+                Debug.Log("Failed to modify breast physics UI - could not find UI transforms.");
+                _modifyBreastPhysicsUIDone = true;
                 yield break;
             }
 
             /* Hide elements in vanilla Breast Physics tabs, add buttons to navigate to plugin UI */
             try
             {
-                _inactivatedUIGameObjects = new List<GameObject>();
-                foreach(var t in transforms.Values.ToList())
-                {
-                    foreach(Transform child in t)
-                    {
-                        if(child.gameObject.activeSelf)
-                        {
-                            _inactivatedUIGameObjects.Add(child.gameObject);
-                            child.gameObject.SetActive(false);
-                        }
-                    }
-                }
+                Inactivate(mPectoralPhysics);
+                Inactivate(fBreastPhysics1);
+                Inactivate(fBreastPhysics2);
+                Inactivate(fBreastPresets);
 
-                _customUIGameObjects = transforms.Values.ToList()
-                    .Select(t => OpenPluginUIButton(t).gameObject)
-                    .ToList();
-                _modifyAtomUIHasBeenCalled = true;
+                _customUIGameObjects.Add(OpenPluginUIButton(mPectoralPhysics).gameObject);
+                _customUIGameObjects.Add(OpenPluginUIButton(fBreastPhysics1).gameObject);
+                _customUIGameObjects.Add(OpenPluginUIButton(fBreastPhysics2).gameObject);
+                _customUIGameObjects.Add(OpenPluginUIButton(fBreastPresets).gameObject);
+
+                _modifyBreastPhysicsUIDone = true;
             }
             catch(Exception e)
             {
-                Utils.LogError($"Error modifying person UI: {e}");
+                Utils.LogError($"Error modifying breast physics UI: {e}");
             }
         }
 
         private Transform OpenPluginUIButton(Transform parent)
         {
-            var button = this.InstantiateButtonTransform();
-            button.SetParent(parent, false);
-            Destroy(button.GetComponent<LayoutElement>());
-            button.GetComponent<UIDynamicButton>().label = "<b>Open TittyMagic UI</b>";
-            button.GetComponent<UIDynamicButton>().button.onClick.AddListener(() => _customBindings.OpenUI());
+            var button = UIHelpers.DestroyLayout(this.InstantiateButton(parent));
+            button.GetComponent<UIDynamicButton>().label = $"<b>Open {nameof(TittyMagic)} UI</b>";
+            button.GetComponent<UIDynamicButton>().button.onClick.AddListener(() => bindings.actions["OpenUI"].actionCallback());
             return button;
         }
 
-        public bool recalibrationNeeded { get; set; }
+        private bool _modifySkinMaterialsUIDone;
+        private readonly List<RectTransformChange> _movedRects = new List<RectTransformChange>();
+        private UIDynamicToggle enableAdaptiveFrictionToggle { get; set; }
+        public UIDynamicSlider drySkinFrictionSlider { get; private set; }
 
-        public void RecalibrateOnNavigation(JSONStorableAction recalibrationAction)
+        private IEnumerator ModifySkinMaterialsUI(Transform content)
         {
-            if(recalibrationNeeded)
+            if(_modifySkinMaterialsUIDone)
             {
-                recalibrationAction.actionCallback();
+                yield break;
+            }
+
+            _modifySkinMaterialsUIDone = true;
+
+            if(!personIsFemale)
+            {
+                yield break;
+            }
+
+            Transform skinMaterials2 = null;
+            float waited = 0f;
+            while(waited < 1 && skinMaterials2 == null)
+            {
+                waited += 0.1f;
+                yield return new WaitForSecondsRealtime(0.1f);
+                skinMaterials2 = content.Find("Skin Materials 2");
+            }
+
+            if(skinMaterials2 == null)
+            {
+                Debug.Log("Failed to modify Skin Materials UI - could not find UI transform.");
+                _modifySkinMaterialsUIDone = true;
+                yield break;
+            }
+
+            try
+            {
+                /* Left side */
+                var leftSide = skinMaterials2.Find("LeftSide");
+                {
+                    var fieldTransform = UIHelpers.DestroyLayout(this.InstantiateTextField(leftSide));
+                    var rectTransform = fieldTransform.GetComponent<RectTransform>();
+                    rectTransform.pivot = new Vector2(0, 0);
+                    rectTransform.anchoredPosition = new Vector2(20f, -930);
+                    rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x + 10, 100);
+                    _customUIGameObjects.Add(fieldTransform.gameObject);
+
+                    var uiDynamic = fieldTransform.GetComponent<UIDynamicTextField>();
+                    uiDynamic.UItext.alignment = TextAnchor.LowerCenter;
+                    uiDynamic.text = $"{nameof(TittyMagic)} Collider Friction".Size(32).Bold();
+                    uiDynamic.backgroundColor = Color.clear;
+                    uiDynamic.textColor = Color.white;
+                }
+                {
+                    var fieldTransform = UIHelpers.DestroyLayout(this.InstantiateTextField(leftSide));
+                    var rectTransform = fieldTransform.GetComponent<RectTransform>();
+                    rectTransform.pivot = new Vector2(0, 0);
+                    rectTransform.anchoredPosition = new Vector2(20, -1290);
+                    rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x + 10, 400);
+                    _customUIGameObjects.Add(fieldTransform.gameObject);
+
+                    var uiDynamic = fieldTransform.GetComponent<UIDynamicTextField>();
+                    uiDynamic.text =
+                        "Combined friction for hard colliders and soft colliders." +
+                        "\n\n" +
+                        "Adaptive friction reduces friction when <i>Gloss</i> is increased. The higher " +
+                        "the gloss, the more <i>Specular Bumpiness</i> adds friction. Other skin material " +
+                        "sliders are ignored." +
+                        "\n\n" +
+                        "Dry skin friction represents the value when both <i>Gloss</i> and <i>Specular Bumpiness</i> " +
+                        "are zero.";
+                    uiDynamic.backgroundColor = Color.clear;
+                    uiDynamic.textColor = Color.white;
+                }
+
+                /* Right side */
+                var rightSide = skinMaterials2.Find("RightSide");
+                foreach(Transform t in rightSide)
+                {
+                    if(t.name == "SavePanel" || t.name == "RestorePanel" || t.name == "Reset")
+                    {
+                        var change = new RectTransformChange(t.GetComponent<RectTransform>(), new Vector2(0, 600f));
+                        _movedRects.Add(change);
+                    }
+                }
+
+                {
+                    var customTransform = UIHelpers.DestroyLayout(this.InstantiateToggle(rightSide));
+                    var rectTransform = customTransform.GetComponent<RectTransform>();
+                    rectTransform.pivot = new Vector2(0, 0);
+                    rectTransform.anchoredPosition = new Vector2(0, -880);
+                    var sizeDelta = rectTransform.sizeDelta;
+                    rectTransform.sizeDelta = new Vector2(sizeDelta.x + 10, sizeDelta.y);
+                    _customUIGameObjects.Add(customTransform.gameObject);
+
+                    enableAdaptiveFrictionToggle = customTransform.GetComponent<UIDynamicToggle>();
+                    var jsf = FrictionHandler.adaptiveFrictionJsb;
+                    jsf.toggle = enableAdaptiveFrictionToggle.toggle;
+                    toggleToJSONStorableBool.Add(enableAdaptiveFrictionToggle, jsf);
+                    enableAdaptiveFrictionToggle.label = "Use Adaptive Friction";
+                }
+                {
+                    var customTransform = UIHelpers.DestroyLayout(this.InstantiateSlider(rightSide));
+                    var rectTransform = customTransform.GetComponent<RectTransform>();
+                    rectTransform.pivot = new Vector2(0, 0);
+                    rectTransform.anchoredPosition = new Vector2(0, -1020);
+                    var sizeDelta = rectTransform.sizeDelta;
+                    rectTransform.sizeDelta = new Vector2(sizeDelta.x + 10, sizeDelta.y);
+                    _customUIGameObjects.Add(customTransform.gameObject);
+
+                    drySkinFrictionSlider = customTransform.GetComponent<UIDynamicSlider>();
+                    var jsf = FrictionHandler.drySkinFrictionJsf;
+                    drySkinFrictionSlider.Configure(jsf.name, jsf.min, jsf.max, jsf.defaultVal, jsf.constrained, valFormat: "F3");
+                    jsf.slider = drySkinFrictionSlider.slider;
+                    sliderToJSONStorableFloat.Add(drySkinFrictionSlider, jsf);
+                    drySkinFrictionSlider.label = "Dry Skin Friction";
+                    drySkinFrictionSlider.SetActiveStyle(FrictionHandler.adaptiveFrictionJsb.val, true);
+                }
+                {
+                    var customTransform = UIHelpers.DestroyLayout(this.InstantiateSlider(rightSide));
+                    var rectTransform = customTransform.GetComponent<RectTransform>();
+                    rectTransform.pivot = new Vector2(0, 0);
+                    rectTransform.anchoredPosition = new Vector2(0, -1160);
+                    var sizeDelta = rectTransform.sizeDelta;
+                    rectTransform.sizeDelta = new Vector2(sizeDelta.x + 10, sizeDelta.y);
+                    _customUIGameObjects.Add(customTransform.gameObject);
+
+                    var uiDynamic = customTransform.GetComponent<UIDynamicSlider>();
+                    var jsf = FrictionHandler.frictionOffsetJsf;
+                    uiDynamic.Configure(jsf.name, jsf.min, jsf.max, jsf.defaultVal, jsf.constrained, valFormat: "F3");
+                    jsf.slider = uiDynamic.slider;
+                    sliderToJSONStorableFloat.Add(uiDynamic, jsf);
+                    uiDynamic.label = "Friction Offset";
+                }
+                {
+                    var customTransform = UIHelpers.DestroyLayout(this.InstantiateSlider(rightSide));
+                    var rectTransform = customTransform.GetComponent<RectTransform>();
+                    rectTransform.pivot = new Vector2(0, 0);
+                    rectTransform.anchoredPosition = new Vector2(0, -1300);
+                    var sizeDelta = rectTransform.sizeDelta;
+                    rectTransform.sizeDelta = new Vector2(sizeDelta.x + 10, sizeDelta.y);
+                    _customUIGameObjects.Add(customTransform.gameObject);
+
+                    var uiDynamic = customTransform.GetComponent<UIDynamicSlider>();
+                    var jsf = FrictionHandler.softColliderFrictionJsf;
+                    uiDynamic.Configure(jsf.name, jsf.min, jsf.max, jsf.defaultVal, jsf.constrained, valFormat: "F3");
+                    jsf.slider = uiDynamic.slider;
+                    sliderToJSONStorableFloat.Add(uiDynamic, jsf);
+                    uiDynamic.label = "Friction Value";
+                    uiDynamic.SetActiveStyle(false, true);
+                }
+            }
+            catch(Exception e)
+            {
+                Utils.LogError($"Error modifying Skin Materials UI: {e}");
             }
         }
 
+        private void Inactivate(Transform t)
+        {
+            foreach(Transform child in t)
+            {
+                if(child.gameObject.activeSelf)
+                {
+                    _inactivatedUIGameObjects.Add(child.gameObject);
+                    child.gameObject.SetActive(false);
+                }
+            }
+        }
+
+        #endregion Init
+
+        public void NavigateToMainWindow() => NavigateToWindow(_mainWindow);
+        public void NavigateToPhysicsWindow() => NavigateToWindow(_physicsWindow);
+        public void NavigateToMorphingWindow() => NavigateToWindow(_morphingWindow);
+        public void NavigateToGravityWindow() => NavigateToWindow(_gravityWindow);
+
+        private void NavigateToWindow(IWindow window)
+        {
+            tabs.activeWindow?.Clear();
+            tabs.ActivateTab(window);
+            window.Rebuild();
+        }
+
+        #region Update
+
         private void Update()
         {
-#if DEBUG_ON
             try
             {
-                var window = mainWindow?.GetActiveNestedWindow() as HardCollidersWindow;
-                if(window != null)
-                {
-                    window.UpdateCollidersDebugInfo();
-                }
             }
             catch(Exception e)
             {
                 Utils.LogError($"Update: {e}");
                 enabled = false;
             }
-#endif
         }
 
-        private void UpdateDynamicPhysics(float roll, float pitch)
+        private static void UpdateDynamicHandlers(float roll, float pitch)
         {
-            forcePhysicsHandler.Update();
-            gravityPhysicsHandler.Update(roll, pitch);
-        }
-
-        private void UpdateDynamicMorphs(float roll, float pitch)
-        {
-            forceMorphHandler.Update(roll, pitch);
-            offsetMorphHandler.Update(roll, pitch);
+            HardColliderHandler.UpdateFriction();
+            ForcePhysicsHandler.Update();
+            GravityPhysicsHandler.Update(roll, pitch);
+            ForceMorphHandler.Update(roll, pitch);
+            GravityOffsetMorphHandler.Update(roll, pitch);
         }
 
         private void FixedUpdate()
@@ -557,29 +753,31 @@ namespace TittyMagic
             try
             {
                 bool isFreezeGrabbing = containingAtom.grabFreezePhysics && containingAtom.mainController.isGrabbing;
-                if(!initDone || _loadingFromJson || _waiting || isFreezeGrabbing)
+                if(!isInitialized || _isRestoringFromJson || calibration.isWaiting || isFreezeGrabbing)
                 {
                     return;
                 }
 
-                bool morphsOrScaleChanged = _listenersCheckRunner.Run(() =>
-                    _breastMorphListener.Changed() || atomScaleListener.Changed()
-                );
-                if(morphsOrScaleChanged && autoUpdateJsb.val && !_waiting)
+                if(_listenersCheckRunner.Run(BreastMorphListener.ChangeWasDetected) && autoUpdateJsb.val && !calibration.isWaiting)
                 {
-                    StartRefreshCoroutine(refreshMass: true, waitForListeners: true);
+                    StartCalibration(calibratesMass: true, waitsForListeners: true);
                     return;
                 }
 
                 _trackLeftNipple.UpdateAnglesAndDepthDiff();
                 _trackRightNipple.UpdateAnglesAndDepthDiff();
+                HardColliderHandler.UpdateDistanceDiffs();
 
                 var rotation = _chestTransform.rotation;
-                float roll = Roll(rotation);
-                float pitch = Pitch(rotation);
+                float roll = Calc.Roll(rotation);
+                float pitch = Calc.Pitch(rotation);
 
-                UpdateDynamicPhysics(roll, pitch);
-                UpdateDynamicMorphs(roll, pitch);
+                UpdateDynamicHandlers(roll, pitch);
+
+                if(envIsDevelopment)
+                {
+                    (_mainWindow.GetActiveNestedWindow() as DevWindow)?.UpdateLeftDebugInfo();
+                }
             }
             catch(Exception e)
             {
@@ -588,161 +786,133 @@ namespace TittyMagic
             }
         }
 
-        public void StartRefreshCoroutine(bool refreshMass, bool waitForListeners = false) =>
-            StartCoroutine(RefreshCo(refreshMass, waitForListeners));
+        #endregion Update
 
-        private IEnumerator RefreshCo(bool refreshMass, bool waitForListeners)
+        #region Calibration
+
+        public void StartCalibration(bool calibratesMass, bool waitsForListeners = false)
         {
+            if(_isRestoringFromJson)
+            {
+                return;
+            }
+
+            if(calibration.isInProgress && calibration.IsBlockedByInput())
+            {
+                return;
+            }
+
             if(!enabled)
             {
                 Utils.LogMessage("Enable the plugin to recalibrate.");
+                return;
+            }
+
+            StartCoroutine(CalibrationCo(calibratesMass, waitsForListeners));
+        }
+
+        private IEnumerator CalibrationCo(bool calibratesMass, bool waitsForListeners)
+        {
+            yield return calibration.Begin();
+            if(calibration.isCancelling)
+            {
+                calibration.isCancelling = false;
                 yield break;
             }
 
-            if(_loadingFromJson)
+            yield return calibration.DeferFreezeAnimation();
+
+            /* Dynamic adjustments to zero (simulate static upright pose), update physics */
             {
-                yield break;
-            }
-
-            /* Setup refresh */
-            _waiting = true;
-            recalibrationNeeded = false;
-
-            if(refreshInProgress)
-            {
-                if(!_refreshQueued && !((MainWindow) mainWindow).GetSlidersForRefresh().Any(slider => slider.IsClickDown()))
-                {
-                    _refreshQueued = true;
-                }
-                else
-                {
-                    yield break;
-                }
-            }
-
-            while(refreshInProgress)
-            {
-                yield return null;
-            }
-
-            _refreshQueued = false;
-            refreshInProgress = true;
-
-            /* Freeze animation and zero adjustments */
-            {
-                bool mainToggleFrozen =
-                    SuperController.singleton.freezeAnimationToggle != null &&
-                    SuperController.singleton.freezeAnimationToggle.isOn;
-                bool altToggleFrozen =
-                    SuperController.singleton.freezeAnimationToggleAlt != null &&
-                    SuperController.singleton.freezeAnimationToggleAlt.isOn;
-
-                _animationWasSetFrozen = mainToggleFrozen || altToggleFrozen;
-                SuperController.singleton.SetFreezeAnimation(true);
-
                 _trackLeftNipple.ResetAnglesAndDepthDiff();
                 _trackRightNipple.ResetAnglesAndDepthDiff();
-                UpdateDynamicPhysics(0, 0);
-                UpdateDynamicMorphs(0, 0);
+                HardColliderHandler.ResetDistanceDiffs();
+                UpdateDynamicHandlers(0, 0);
 
-                mainPhysicsHandler.UpdatePhysics();
-                softPhysicsHandler.UpdatePhysics();
-                nippleErectionHandler.Update();
+                MainPhysicsHandler.UpdatePhysics();
+                SoftPhysicsHandler.UpdatePhysics();
+                NippleErectionHandler.Update();
             }
 
-            if(waitForListeners)
+            if(waitsForListeners)
             {
-                var sliders = ((MainWindow) mainWindow).GetSlidersForRefresh();
-                yield return new WaitForSeconds(0.33f);
-
-                while(
-                    _breastMorphListener.Changed() ||
-                    atomScaleListener.Changed() ||
-                    sliders.Any(slider => slider.IsClickDown())
-                )
-                {
-                    yield return new WaitForSeconds(0.1f);
-                }
-
-                yield return new WaitForSeconds(0.1f);
+                yield return calibration.WaitForListeners();
             }
 
-            softPhysicsHandler.SyncSoftPhysics();
-            softnessAmount = SoftnessAmount(softnessJsf.val);
-            quicknessAmount = QuicknessAmount(quicknessJsf.val);
+            SoftPhysicsHandler.SyncSoftPhysics();
 
-            settingsMonitor.SetEnabled(false);
+            /* Calculate softness and quickness (in case sliders were adjusted) */
+            softnessAmount = Curves.SoftnessBaseCurve(softnessJsf.val / 100f);
+            quicknessAmount = 2 * quicknessJsf.val / 100 - 1;
+
+            /* Calculate mass when gravity is off and collision is disabled to get a consistent result.
+             * Mass is calculated multiple times because each new mass value changes the exact breast
+             * shape and therefore the estimated volume.
+             */
+            var guid = Guid.NewGuid();
+            calibration.SetBreastsCollisionEnabled(false, guid);
             SetBreastsUseGravity(false);
 
-            /* Apply a consistent delay, maybe refresh mass*/
+            Action updateMass = () =>
             {
-                yield return new WaitForSeconds(0.30f);
-                float duration = 0;
-                const float interval = 0.1f;
-                while(duration < 0.5f)
+                if(calibratesMass)
                 {
-                    yield return new WaitForSeconds(interval);
-                    duration += interval;
-
-                    if(refreshMass)
-                    {
-                        mainPhysicsHandler.UpdateMassValueAndAmounts();
-                        mainPhysicsHandler.UpdatePhysics();
-                    }
+                    MainPhysicsHandler.UpdateMassValueAndAmounts();
+                    MainPhysicsHandler.UpdatePhysics();
                 }
-            }
+            };
+            yield return new WaitForSeconds(0.3f);
+            yield return calibration.WaitAndRepeat(updateMass, 5, 0.1f);
 
-            mainPhysicsHandler.UpdatePhysics();
-            softPhysicsHandler.UpdatePhysics();
-            nippleErectionHandler.Update();
+            /* Update physics */
+            MainPhysicsHandler.UpdatePhysics();
+            SoftPhysicsHandler.UpdatePhysics();
+            NippleErectionHandler.Update();
+            FrictionHandler.CalculateFriction();
 
             /* Set extra multipliers */
             {
-                float mass = mainPhysicsHandler.realMassAmount;
+                float mass = MainPhysicsHandler.realMassAmount;
 
-                forceMorphHandler.upDownExtraMultiplier =
+                ForceMorphHandler.upDownExtraMultiplier =
                     Curves.Exponential1(softnessAmount, 1.73f, 1.68f, 0.88f, m: 0.93f, s: 0.56f)
                     * Curves.MorphingCurve(mass);
-                forceMorphHandler.forwardExtraMultiplier =
+                ForceMorphHandler.forwardExtraMultiplier =
                     Mathf.Lerp(1.00f, 1.20f, softnessAmount)
                     * Curves.DepthMorphingCurve(mass);
-                forceMorphHandler.backExtraMultiplier =
+                ForceMorphHandler.backExtraMultiplier =
                     Mathf.Lerp(0.80f, 1.00f, softnessAmount)
                     * Curves.DepthMorphingCurve(mass);
-                forceMorphHandler.leftRightExtraMultiplier =
+                ForceMorphHandler.leftRightExtraMultiplier =
                     Curves.Exponential1(softnessAmount, 1.73f, 1.68f, 0.88f, m: 0.93f, s: 0.56f)
                     * Curves.MorphingCurve(mass);
 
-                offsetMorphHandler.upDownExtraMultiplier = 1.16f - mass;
+                GravityOffsetMorphHandler.upDownExtraMultiplier = 1.16f - mass;
             }
+
+            HardColliderHandler.UpdateFrictionSizeMultipliers();
 
             /* Calibrate nipples tracking and colliders */
             {
-                _calibrating = true;
+                _isSimulatingUprightPose = true;
                 StartCoroutine(SimulateUprightPose());
-
-                float duration = 0;
-                const float interval = 0.05f;
-                while(duration < 1.20f)
+                Action calibrateNipplesAndColliders = () =>
                 {
-                    yield return new WaitForSeconds(interval);
-                    duration += interval;
                     _trackLeftNipple.Calibrate();
                     _trackRightNipple.Calibrate();
-                }
-
-                yield return hardColliderHandler.SyncAll();
-
-                _calibrating = false;
+                    HardColliderHandler.CalibrateColliders();
+                    HardColliderHandler.SyncAllOffsets();
+                };
+                yield return calibration.WaitAndRepeat(calibrateNipplesAndColliders, 24, 0.05f);
+                HardColliderHandler.SyncCollidersMass();
+                HardColliderHandler.SyncAllOffsets();
+                _isSimulatingUprightPose = false;
             }
 
             SetBreastsUseGravity(true);
-            SuperController.singleton.SetFreezeAnimation(_animationWasSetFrozen);
-            settingsMonitor.SetEnabled(true);
-
-            _waiting = _refreshQueued;
-            refreshInProgress = false;
-            initDone = true;
+            calibration.SetBreastsCollisionEnabled(true, guid);
+            calibration.Finish();
+            isInitialized = true;
         }
 
         private void SetBreastsUseGravity(bool value)
@@ -751,15 +921,14 @@ namespace TittyMagic
             _pectoralRbRight.useGravity = value;
         }
 
-        private bool _calibrating;
+        private bool _isSimulatingUprightPose;
 
         private IEnumerator SimulateUprightPose()
         {
-            while(_calibrating)
+            while(_isSimulatingUprightPose)
             {
-                // simulate gravityPhysics when upright
-                UpdateDynamicPhysics(roll: 0, pitch: 0);
-                UpdateDynamicMorphs(roll: 0, pitch: 0);
+                // simulate upright pose
+                UpdateDynamicHandlers(roll: 0, pitch: 0);
 
                 // scale force to be correct for the given fps vs physics rate, for some reason this produces an accurate calibration result
                 float rateToPhysicsRateRatio = Time.deltaTime / Time.fixedDeltaTime;
@@ -772,8 +941,20 @@ namespace TittyMagic
             }
         }
 
+        #endregion Calibration
+
         public string PluginPath() =>
             $@"{this.GetPackagePath()}Custom\Scripts\everlaster\TittyMagic";
+
+        public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
+        {
+            var jsonClass = base.GetJSON(includePhysical, includeAppearance, forceStore);
+            jsonClass.Remove(CalibrationHelper.CALIBRATION_LOCK);
+            needsStore = true;
+            return jsonClass;
+        }
+
+        private bool _isRestoringFromJson;
 
         public override void RestoreFromJSON(
             JSONClass jsonClass,
@@ -783,7 +964,15 @@ namespace TittyMagic
             bool setMissingToDefault = true
         )
         {
-            _loadingFromJson = true;
+            _isRestoringFromJson = true;
+            /* Prevent overriding versionJss.val from JSON. Version stored in JSON just for information,
+             * but could be intercepted here and used to save a "loadedFromVersion" value.
+             */
+            if(jsonClass.HasKey("version"))
+            {
+                jsonClass["version"] = $"{VERSION}";
+            }
+
             StartCoroutine(DeferRestoreFromJSON(
                 jsonClass,
                 restorePhysical,
@@ -801,22 +990,15 @@ namespace TittyMagic
             bool setMissingToDefault
         )
         {
-            while(!initDone)
+            while(!isInitialized)
             {
                 yield return null;
             }
 
-            /* Add listener to person UI content for modifying the UI. When loading
-             * from JSON, the person UI isn't open when the plugin is loaded.
-             */
-            var atomUIContent = containingAtom.transform.Find("UI/UIPlaceHolderModel/UIModel/Canvas/Panel/Content");
-            _atomUIEventsListener = atomUIContent.gameObject.AddComponent<UnityEventsListener>();
-            _atomUIEventsListener.onEnable.AddListener(() => StartCoroutine(ModifyAtomUI(atomUIContent)));
-
             base.RestoreFromJSON(jsonClass, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
-            _loadingFromJson = false;
-            hardColliderHandler.SaveOriginalUseColliders();
-            softPhysicsHandler.SaveOriginalBoolParamValues();
+            _isRestoringFromJson = false;
+            HardColliderHandler.SaveOriginalUseColliders();
+            SoftPhysicsHandler.SaveOriginalBoolParamValues();
             calculateBreastMass.actionCallback();
         }
 
@@ -824,20 +1006,52 @@ namespace TittyMagic
         {
             try
             {
+                Destroy(calibration);
                 Destroy(settingsMonitor);
-                Destroy(colliderVisualizer);
-                Destroy(hardColliderHandler);
-                mainWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
-                morphingWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
-                gravityWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
+                Destroy(bindings);
+
+                /* Nullify static reference fields to let GC collect unreachable instances */
+                CalibrationHelper.Destroy();
+                ForceMorphHandler.Destroy();
+                ForcePhysicsHandler.Destroy();
+                FrictionHandler.Destroy();
+                GravityOffsetMorphHandler.Destroy();
+                GravityPhysicsHandler.Destroy();
+                HardColliderHandler.Destroy();
+                MainPhysicsHandler.Destroy();
+                NippleErectionHandler.Destroy();
+                SoftPhysicsHandler.Destroy();
+                BreastMorphListener.Destroy();
+                VertexIndexGroup.Destroy();
+                Integration.Destroy();
+                tittyMagic = null;
+                morphsControlUI = null;
+                geometry = null;
+                skin = null;
+
+                _scaleJsf.setJSONCallbackFunction = null;
+
+                _mainWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
+                _morphingWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
+                _gravityWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
+
                 DestroyImmediate(_pluginUIEventsListener);
                 DestroyImmediate(_atomUIEventsListener);
+
                 _customUIGameObjects?.ForEach(Destroy);
+
                 SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
             }
             catch(Exception e)
             {
-                Utils.LogError($"OnDestroy: {e}");
+                if(isInitialized)
+                {
+                    Utils.LogError($"OnDestroy: {e}");
+                }
+                else if(envIsDevelopment)
+                {
+                    Debug.Log($"OnDestroy: {e}");
+                }
             }
         }
 
@@ -845,17 +1059,21 @@ namespace TittyMagic
         {
             try
             {
-                if(!initDone)
+                if(!isInitialized)
                 {
                     return;
                 }
 
                 settingsMonitor.SetEnabled(true);
-                hardColliderHandler.SetEnabled(true);
-                softPhysicsHandler?.SaveOriginalBoolParamValues();
-                StartRefreshCoroutine(true);
+                HardColliderHandler.SaveOriginalUseColliders();
+                HardColliderHandler.EnableAdvColliders();
+                HardColliderHandler.EnableMultiplyFriction();
+                SoftPhysicsHandler.SaveOriginalBoolParamValues();
+                SoftPhysicsHandler.EnableMultiplyFriction();
+                StartCalibration(true);
                 _inactivatedUIGameObjects?.ForEach(go => go.SetActive(false));
                 _customUIGameObjects?.ForEach(go => go.SetActive(true));
+                _movedRects?.ForEach(change => change.Apply());
             }
             catch(Exception e)
             {
@@ -868,18 +1086,27 @@ namespace TittyMagic
             try
             {
                 settingsMonitor.SetEnabled(false);
-                hardColliderHandler.SetEnabled(false);
-                mainPhysicsHandler?.RestoreOriginalPhysics();
-                softPhysicsHandler?.RestoreOriginalPhysics();
-                offsetMorphHandler?.ResetAll();
-                forceMorphHandler?.ResetAll();
-                nippleErectionHandler?.Reset();
+                settingsMonitor.SetPectoralCollisions(true);
+                HardColliderHandler.RestoreOriginalPhysics();
+                MainPhysicsHandler.RestoreOriginalPhysics();
+                SoftPhysicsHandler.RestoreOriginalPhysics();
+                GravityOffsetMorphHandler.ResetAll();
+                ForceMorphHandler.ResetAll();
+                NippleErectionHandler.Reset();
                 _inactivatedUIGameObjects?.ForEach(go => go.SetActive(true));
                 _customUIGameObjects?.ForEach(go => go.SetActive(false));
+                _movedRects?.ForEach(change => change.RestoreOriginal());
             }
             catch(Exception e)
             {
-                Utils.LogError($"OnDisable: {e}");
+                if(isInitialized)
+                {
+                    Utils.LogError($"OnDisable: {e}");
+                }
+                else if(envIsDevelopment)
+                {
+                    Debug.Log($"OnDisable: {e}");
+                }
             }
         }
     }

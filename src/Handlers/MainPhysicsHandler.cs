@@ -2,53 +2,50 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TittyMagic.Configs;
+using TittyMagic.Handlers.Configs;
+using TittyMagic.Models;
 using UnityEngine;
 using static TittyMagic.ParamName;
+using static TittyMagic.Script;
 using static TittyMagic.Side;
 
-namespace TittyMagic
+namespace TittyMagic.Handlers
 {
-    internal class MainPhysicsHandler
+    public static class MainPhysicsHandler
     {
-        private readonly Script _script;
-        private readonly BreastVolumeCalculator _breastVolumeCalculator;
-        private readonly AdjustJoints _breastControl;
-        private readonly Dictionary<string, ConfigurableJoint> _joints;
-        private readonly Dictionary<string, Rigidbody> _pectoralRbs;
-        private readonly Dictionary<string, DAZBone> _dazBones;
+        public static Rigidbody chestRb { get; set; }
+        public static AdjustJoints breastControl { get; set; }
 
-        private readonly List<string> _breastControlFloatParamNames;
+        private static Dictionary<string, ConfigurableJoint> _joints;
+        private static Dictionary<string, Rigidbody> _pectoralRbs;
+        private static Dictionary<string, DAZBone> _dazBones;
+
+        private static List<string> _breastControlFloatParamNames;
 
         // AdjustJoints.joint1.slerpDrive.maximumForce value logged on plugin Init
         private const float DEFAULT_SLERP_MAX_FORCE = 500;
 
-        public Dictionary<string, PhysicsParameterGroup> parameterGroups { get; private set; }
+        public static Dictionary<string, PhysicsParameterGroup> parameterGroups { get; private set; }
 
-        public float realMassAmount { get; private set; }
-        public float massAmount { get; private set; }
+        public static float realMassAmount { get; private set; }
+        public static float massAmount { get; private set; }
 
         // hack. 1.5f because 3f is the max mass and massValue is actual mass / 2
         public static float InvertMass(float x) => 1.5f - x;
-        public float normalizedMass => Mathf.InverseLerp(0, 1.45f, massAmount);
-        public float normalizedRealMass => Mathf.InverseLerp(0, 1.50f, realMassAmount);
-        public float normalizedInvertedMass => Mathf.InverseLerp(0, 1.45f, InvertMass(massAmount));
+        public static float normalizedMass => Mathf.InverseLerp(0, 1.45f, massAmount);
+        public static float normalizedRealMass => Mathf.InverseLerp(0, 1.50f, realMassAmount);
+        public static float normalizedInvertedMass => Mathf.InverseLerp(0, 1.45f, InvertMass(massAmount));
 
-        public MassParameterGroup massParameterGroup { get; private set; }
+        public static MassParameterGroup massParameterGroup { get; private set; }
 
-        public MainPhysicsHandler(
-            Script script,
-            AdjustJoints breastControl,
-            BreastVolumeCalculator breastVolumeCalculator
-        )
+        private static bool _isInitialized;
+
+        public static void Init()
         {
-            _script = script;
-            _breastControl = breastControl;
-            _breastVolumeCalculator = breastVolumeCalculator;
             _joints = new Dictionary<string, ConfigurableJoint>
             {
-                { LEFT, _breastControl.joint2 },
-                { RIGHT, _breastControl.joint1 },
+                { LEFT, breastControl.joint2 },
+                { RIGHT, breastControl.joint1 },
             };
             _pectoralRbs = new Dictionary<string, Rigidbody>
             {
@@ -71,18 +68,62 @@ namespace TittyMagic
                 POSITION_DAMPER_Z,
                 TARGET_ROTATION_X,
                 TARGET_ROTATION_Y,
+                TARGET_ROTATION_Z,
             };
+
+            _isInitialized = true;
         }
 
-        public void UpdateMassValueAndAmounts()
+        public static void UpdateMassValueAndAmounts()
         {
-            float volume = _breastVolumeCalculator.Calculate(_script.atomScaleListener.scale);
-            massParameterGroup.UpdateValue(volume);
+            float volume = (CalculateVolume(VertexIndexGroup.leftBreast) + CalculateVolume(VertexIndexGroup.rightBreast)) / 2;
+            massParameterGroup.UpdateValue(volume / 1000);
+
+            /* Division by 2 is a hacky way to make the value compatible with legacy configurations for morphs and physics settings */
             realMassAmount = massParameterGroup.left.baseValueJsf.val / 2;
             massAmount = massParameterGroup.left.valueJsf.val / 2;
         }
 
-        public void LoadSettings()
+        private static float CalculateVolume(IEnumerable<int> vertexIndices)
+        {
+            var positions = vertexIndices.Select(i => Calc.RelativePosition(chestRb, skin.rawSkinnedVerts[i])).ToList();
+            var bounds = new Bounds();
+
+            /* Calculate bounds size */
+            {
+                var min = Vector3.one * float.MaxValue;
+                var max = Vector3.one * float.MinValue;
+                foreach(var vertex in positions)
+                {
+                    min = Vector3.Min(min, vertex);
+                    max = Vector3.Max(max, vertex);
+                }
+
+                bounds.min = min;
+                bounds.max = max;
+            }
+
+            /* Calculate volume */
+            {
+                float toCm3 = Mathf.Pow(10, 6);
+
+                float scale = tittyMagic.containingAtom.GetStorableByID("rescaleObject").GetFloatParamValue("scale");
+
+                /* This somewhat accurately scales breast volume to the apparent breast size when atom scale is adjusted. */
+                float atomScaleAdjustment = 1 - Mathf.Abs(Mathf.Log10(Mathf.Pow(scale, 3)));
+                float atomScaleFactor = scale >= 1
+                    ? scale * atomScaleAdjustment
+                    : scale / atomScaleAdjustment;
+
+                float z = bounds.size.z * atomScaleFactor;
+                float volume = toCm3 * (4 * Mathf.PI * bounds.size.x / 2 * bounds.size.y / 2 * z / 2) / 3;
+
+                /* Times 0.75f compensates for change in estimated volume compared to pre v3.2 bounds calculation */
+                return volume * 0.75f;
+            }
+        }
+
+        public static void LoadSettings()
         {
             SetupPhysicsParameterGroups();
 
@@ -96,32 +137,32 @@ namespace TittyMagic
 
         #region *** Parameter setup ***
 
-        private MassParameter NewMassParameter(string side)
+        private static MassParameter NewMassParameter(string side)
         {
             string jsfName = $"{MASS}{(side == LEFT ? "" : side)}";
             var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.100f, 0.100f, 3.000f);
             var parameter = new MassParameter(
                 valueJsf,
                 baseValueJsf: new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
-                offsetJsf: _script.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, register: side == LEFT)
+                offsetJsf: tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, shouldRegister: side == LEFT)
             );
             parameter.valueFormat = "F3";
             parameter.sync = value => SyncMass(_pectoralRbs[side], value);
             return parameter;
         }
 
-        private PhysicsParameter NewPhysicsParameter(string paramName, string side, float startingValue, float minValue, float maxValue)
+        private static PhysicsParameter NewPhysicsParameter(string paramName, string side, float startingValue, float minValue, float maxValue)
         {
             string jsfName = $"{paramName}{(side == LEFT ? "" : side)}";
             var valueJsf = new JSONStorableFloat($"{jsfName}Value", startingValue, minValue, maxValue);
             return new PhysicsParameter(
                 valueJsf,
                 baseValueJsf: new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
-                offsetJsf: _script.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, register: side == LEFT)
+                offsetJsf: tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, shouldRegister: side == LEFT)
             );
         }
 
-        private PhysicsParameter NewCenterOfGravityParameter(string side)
+        private static PhysicsParameter NewCenterOfGravityParameter(string side)
         {
             var parameter = NewPhysicsParameter(CENTER_OF_GRAVITY_PERCENT, side, 0, 0, 1.00f);
             parameter.config = new StaticPhysicsConfig(
@@ -134,7 +175,7 @@ namespace TittyMagic
             return parameter;
         }
 
-        private PhysicsParameter NewSpringParameter(string side)
+        private static PhysicsParameter NewSpringParameter(string side)
         {
             var parameter = NewPhysicsParameter(SPRING, side, 10, 10, 100);
             parameter.config = new StaticPhysicsConfig(
@@ -150,7 +191,7 @@ namespace TittyMagic
             return parameter;
         }
 
-        private PhysicsParameter NewDamperParameter(string side)
+        private static PhysicsParameter NewDamperParameter(string side)
         {
             var parameter = NewPhysicsParameter(DAMPER, side, 0, 0, 10.00f);
             parameter.config = new StaticPhysicsConfig(
@@ -165,7 +206,7 @@ namespace TittyMagic
             return parameter;
         }
 
-        private PhysicsParameter NewPositionSpringZParameter(string side)
+        private static PhysicsParameter NewPositionSpringZParameter(string side)
         {
             var parameter = NewPhysicsParameter(POSITION_SPRING_Z, side, 0, 0, 1000);
             parameter.config = new StaticPhysicsConfig(
@@ -178,7 +219,7 @@ namespace TittyMagic
             return parameter;
         }
 
-        private PhysicsParameter NewPositionDamperZParameter(string side)
+        private static PhysicsParameter NewPositionDamperZParameter(string side)
         {
             var parameter = NewPhysicsParameter(POSITION_DAMPER_Z, side, 0, 0, 100);
             parameter.config = new StaticPhysicsConfig(8f);
@@ -187,7 +228,7 @@ namespace TittyMagic
             return parameter;
         }
 
-        private PhysicsParameter NewTargetRotationYParameter(string side)
+        private static PhysicsParameter NewTargetRotationYParameter(string side)
         {
             var parameter = NewPhysicsParameter(TARGET_ROTATION_Y, side, 0, -20.00f, 20.00f);
             parameter.config = new StaticPhysicsConfig(0.00f);
@@ -196,7 +237,7 @@ namespace TittyMagic
             return parameter;
         }
 
-        private PhysicsParameter NewTargetRotationXParameter(string side)
+        private static PhysicsParameter NewTargetRotationXParameter(string side)
         {
             var parameter = NewPhysicsParameter(TARGET_ROTATION_X, side, 0, -20.00f, 20.00f);
             parameter.config = new StaticPhysicsConfig(0.00f);
@@ -205,7 +246,16 @@ namespace TittyMagic
             return parameter;
         }
 
-        private void SetupPhysicsParameterGroups()
+        private static PhysicsParameter NewTargetRotationZParameter(string side)
+        {
+            var parameter = NewPhysicsParameter(TARGET_ROTATION_Z, side, 0, -30.00f, 30.00f);
+            parameter.config = new StaticPhysicsConfig(0.00f);
+            parameter.valueFormat = "F2";
+            parameter.sync = value => SyncTargetRotationZ(side, value);
+            return parameter;
+        }
+
+        private static void SetupPhysicsParameterGroups()
         {
             massParameterGroup = new MassParameterGroup(
                 NewMassParameter(LEFT),
@@ -240,7 +290,7 @@ namespace TittyMagic
                 "Damper"
             )
             {
-                dependOnPhysicsRate = true,
+                dependsOnPhysicsRate = true,
             };
 
             var positionSpringZ = new PhysicsParameterGroup(
@@ -258,7 +308,7 @@ namespace TittyMagic
                 "In/Out Damper"
             )
             {
-                dependOnPhysicsRate = true,
+                dependsOnPhysicsRate = true,
             };
 
             var targetRotationY = new PhysicsParameterGroup(
@@ -268,7 +318,7 @@ namespace TittyMagic
             )
             {
                 requiresRecalibration = true,
-                invertRight = true,
+                rightIsInverted = true,
             };
 
             var targetRotationX = new PhysicsParameterGroup(
@@ -280,6 +330,16 @@ namespace TittyMagic
                 requiresRecalibration = true,
             };
 
+            var targetRotationZ = new PhysicsParameterGroup(
+                NewTargetRotationZParameter(LEFT),
+                NewTargetRotationZParameter(RIGHT),
+                "Twist Angle Target"
+            )
+            {
+                requiresRecalibration = true,
+                rightIsInverted = true,
+            };
+
             massParameterGroup.SetOffsetCallbackFunctions();
             centerOfGravityPercent.SetOffsetCallbackFunctions();
             spring.SetOffsetCallbackFunctions();
@@ -288,6 +348,7 @@ namespace TittyMagic
             positionDamperZ.SetOffsetCallbackFunctions();
             targetRotationY.SetOffsetCallbackFunctions();
             targetRotationX.SetOffsetCallbackFunctions();
+            targetRotationZ.SetOffsetCallbackFunctions();
 
             parameterGroups = new Dictionary<string, PhysicsParameterGroup>
             {
@@ -298,6 +359,7 @@ namespace TittyMagic
                 { POSITION_DAMPER_Z, positionDamperZ },
                 { TARGET_ROTATION_X, targetRotationX },
                 { TARGET_ROTATION_Y, targetRotationY },
+                { TARGET_ROTATION_Z, targetRotationZ },
             };
         }
 
@@ -306,9 +368,9 @@ namespace TittyMagic
         #region *** Sync functions ***
 
         // Reimplements AdjustJoints.cs method SyncMass
-        private void SyncMass(Rigidbody rb, float value)
+        private static void SyncMass(Rigidbody rb, float value)
         {
-            if(!_script.enabled)
+            if(!tittyMagic.enabled)
             {
                 return;
             }
@@ -323,15 +385,15 @@ namespace TittyMagic
         }
 
         // Reimplements AdjustJoints.cs method SyncCenterOfGravity
-        private void SyncCenterOfGravity(Rigidbody rb, float value)
+        private static void SyncCenterOfGravity(Rigidbody rb, float value)
         {
-            if(!_script.enabled)
+            if(!tittyMagic.enabled)
             {
                 return;
             }
 
-            var newCenterOfMass = Vector3.Lerp(_breastControl.lowCenterOfGravity, _breastControl.highCenterOfGravity, value);
-            if(Calc.VectorEqualWithin(1 / 100f, rb.centerOfMass, newCenterOfMass))
+            var newCenterOfMass = Vector3.Lerp(breastControl.lowCenterOfGravity, breastControl.highCenterOfGravity, value);
+            if(Calc.VectorIsEqualWithin(1 / 100f, rb.centerOfMass, newCenterOfMass))
             {
                 return;
             }
@@ -340,15 +402,15 @@ namespace TittyMagic
             rb.WakeUp();
         }
 
-        private void SyncJointSpring(ConfigurableJoint joint, Rigidbody rb, float spring)
+        private static void SyncJointSpring(ConfigurableJoint joint, Rigidbody rb, float spring)
         {
-            if(!_script.enabled)
+            if(!tittyMagic.enabled)
             {
                 return;
             }
 
             // see AdjustJoints.cs method ScaleChanged
-            float scalePow = Mathf.Pow(1.7f, _breastControl.scale - 1f);
+            float scalePow = Mathf.Pow(1.7f, breastControl.scale - 1f);
 
             float scaledSpring = spring * scalePow;
             if(Mathf.Abs(joint.slerpDrive.positionSpring - scaledSpring) <= 1)
@@ -370,25 +432,25 @@ namespace TittyMagic
             joint.angularYZDrive = angularYZDrive;
 
             var angularXLimitSpring = joint.angularXLimitSpring;
-            angularXLimitSpring.spring = scaledSpring * _breastControl.limitSpringMultiplier;
+            angularXLimitSpring.spring = scaledSpring * breastControl.limitSpringMultiplier;
             joint.angularXLimitSpring = angularXLimitSpring;
 
             var angularYZLimitSpring = joint.angularYZLimitSpring;
-            angularYZLimitSpring.spring = scaledSpring * _breastControl.limitSpringMultiplier;
+            angularYZLimitSpring.spring = scaledSpring * breastControl.limitSpringMultiplier;
             joint.angularYZLimitSpring = angularYZLimitSpring;
 
             rb.WakeUp();
         }
 
-        private void SyncJointDamper(ConfigurableJoint joint, Rigidbody rb, float damper)
+        private static void SyncJointDamper(ConfigurableJoint joint, Rigidbody rb, float damper)
         {
-            if(!_script.enabled)
+            if(!tittyMagic.enabled)
             {
                 return;
             }
 
             // see AdjustJoints.cs method ScaleChanged
-            float scalePow = Mathf.Pow(1.7f, _breastControl.scale - 1f);
+            float scalePow = Mathf.Pow(1.7f, breastControl.scale - 1f);
 
             float scaledDamper = damper * scalePow;
             if(Mathf.Abs(joint.slerpDrive.positionDamper - scaledDamper) <= 0.01f)
@@ -410,20 +472,20 @@ namespace TittyMagic
             joint.angularYZDrive = angularYZDrive;
 
             var angularXLimitSpring = joint.angularXLimitSpring;
-            angularXLimitSpring.damper = scaledDamper * _breastControl.limitDamperMultiplier;
+            angularXLimitSpring.damper = scaledDamper * breastControl.limitDamperMultiplier;
             joint.angularXLimitSpring = angularXLimitSpring;
 
             var angularYZLimitSpring = joint.angularYZLimitSpring;
-            angularYZLimitSpring.damper = scaledDamper * _breastControl.limitDamperMultiplier;
+            angularYZLimitSpring.damper = scaledDamper * breastControl.limitDamperMultiplier;
             joint.angularYZLimitSpring = angularYZLimitSpring;
 
             rb.WakeUp();
         }
 
         // Reimplements AdjustJoints.cs method SyncJointPositionZDrive
-        private void SyncJointPositionZDriveSpring(ConfigurableJoint joint, Rigidbody rb, float spring)
+        private static void SyncJointPositionZDriveSpring(ConfigurableJoint joint, Rigidbody rb, float spring)
         {
-            if(!_script.enabled)
+            if(!tittyMagic.enabled)
             {
                 return;
             }
@@ -440,9 +502,9 @@ namespace TittyMagic
         }
 
         // Reimplements AdjustJoints.cs method SyncJointPositionZDrive
-        private void SyncJointPositionZDriveDamper(ConfigurableJoint joint, Rigidbody rb, float damper)
+        private static void SyncJointPositionZDriveDamper(ConfigurableJoint joint, Rigidbody rb, float damper)
         {
-            if(!_script.enabled)
+            if(!tittyMagic.enabled)
             {
                 return;
             }
@@ -459,86 +521,112 @@ namespace TittyMagic
         }
 
         // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
-        private void SyncTargetRotationX(string side, float targetRotationX)
+        private static void SyncTargetRotationX(string side, float targetRotationX)
         {
-            if(!_script.enabled)
+            if(!tittyMagic.enabled)
             {
                 return;
             }
 
             if(side == LEFT)
             {
-                _breastControl.smoothedJoint2TargetRotation.x = targetRotationX;
-                var rotation = _breastControl.smoothedJoint2TargetRotation;
+                breastControl.smoothedJoint2TargetRotation.x = targetRotationX;
+                var rotation = breastControl.smoothedJoint2TargetRotation;
                 rotation.x = -rotation.x;
                 _dazBones[side].baseJointRotation = rotation;
             }
             else if(side == RIGHT)
             {
-                _breastControl.smoothedJoint1TargetRotation.x = targetRotationX;
-                var rotation = _breastControl.smoothedJoint1TargetRotation;
+                breastControl.smoothedJoint1TargetRotation.x = targetRotationX;
+                var rotation = breastControl.smoothedJoint1TargetRotation;
                 rotation.x = -rotation.x;
                 _dazBones[side].baseJointRotation = rotation;
             }
         }
 
         // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
-        private void SyncTargetRotationY(string side, float targetRotationY)
+        private static void SyncTargetRotationY(string side, float targetRotationY)
         {
-            if(!_script.enabled)
+            if(!tittyMagic.enabled)
             {
                 return;
             }
 
             if(side == LEFT)
             {
-                _breastControl.smoothedJoint2TargetRotation.y = -targetRotationY;
-                var rotation = _breastControl.smoothedJoint2TargetRotation;
+                breastControl.smoothedJoint2TargetRotation.y = -targetRotationY;
+                var rotation = breastControl.smoothedJoint2TargetRotation;
                 _dazBones[side].baseJointRotation = rotation;
             }
             else if(side == RIGHT)
             {
-                _breastControl.smoothedJoint1TargetRotation.y = -targetRotationY;
-                var rotation = _breastControl.smoothedJoint1TargetRotation;
+                breastControl.smoothedJoint1TargetRotation.y = -targetRotationY;
+                var rotation = breastControl.smoothedJoint1TargetRotation;
+                _dazBones[side].baseJointRotation = rotation;
+            }
+        }
+
+        private static void SyncTargetRotationZ(string side, float targetRotationZ)
+        {
+            if(!tittyMagic.enabled)
+            {
+                return;
+            }
+
+            if(side == LEFT)
+            {
+                breastControl.smoothedJoint2TargetRotation.z = targetRotationZ;
+                var rotation = breastControl.smoothedJoint2TargetRotation;
+                _dazBones[side].baseJointRotation = rotation;
+            }
+            else if(side == RIGHT)
+            {
+                breastControl.smoothedJoint1TargetRotation.z = targetRotationZ;
+                var rotation = breastControl.smoothedJoint1TargetRotation;
                 _dazBones[side].baseJointRotation = rotation;
             }
         }
 
         #endregion *** Sync functions ***
 
-        public void UpdatePhysics()
+        public static void UpdatePhysics()
         {
-            float softness = _script.softnessAmount;
-            float quickness = _script.quicknessAmount;
+            float softness = tittyMagic.softnessAmount;
+            float quickness = tittyMagic.quicknessAmount;
             parameterGroups.Values
                 .ToList()
                 .ForEach(paramGroup => UpdateParam(paramGroup, softness, quickness));
         }
 
-        public void UpdateRateDependentPhysics()
+        public static void UpdateRateDependentPhysics()
         {
-            float softness = _script.softnessAmount;
-            float quickness = _script.quicknessAmount;
+            float softness = tittyMagic.softnessAmount;
+            float quickness = tittyMagic.quicknessAmount;
             parameterGroups.Values
-                .Where(paramGroup => paramGroup.dependOnPhysicsRate)
+                .Where(paramGroup => paramGroup.dependsOnPhysicsRate)
                 .ToList()
                 .ForEach(paramGroup => UpdateParam(paramGroup, softness, quickness));
         }
 
-        private void UpdateParam(PhysicsParameterGroup paramGroup, float softness, float quickness)
+        private static void UpdateParam(PhysicsParameterGroup paramGroup, float softness, float quickness)
         {
-            float massValue = paramGroup.useRealMass ? realMassAmount : massAmount;
+            float massValue = paramGroup.usesRealMass ? realMassAmount : massAmount;
             paramGroup.UpdateValue(massValue, softness, quickness);
         }
 
-        public void RestoreOriginalPhysics()
+        public static void RestoreOriginalPhysics()
         {
+            if(!_isInitialized)
+            {
+                return;
+            }
+
             foreach(string name in _breastControlFloatParamNames)
             {
                 /* Set a value that is different from the original, then restore the original
                  * in order to trigger VaM's internal sync
                  */
-                var paramJsf = _breastControl.GetFloatJSONParam(name);
+                var paramJsf = breastControl.GetFloatJSONParam(name);
                 float original = paramJsf.val;
                 paramJsf.valNoCallback = Math.Abs(paramJsf.val - paramJsf.min) > 0.01f
                     ? paramJsf.min
@@ -549,68 +637,68 @@ namespace TittyMagic
 
         private static Dictionary<string, string> CreateInfoTexts()
         {
-            Func<string> massText = () =>
+            string massText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Mass of the pectoral joint.");
                 sb.Append("\n\n");
                 sb.Append("Since mass represents breast size, other physics parameters are adjusted based on its value.");
-                if(Gender.isFemale)
+                if(personIsFemale)
                 {
                     sb.Append("\n\n");
                     sb.Append("Fat Collider Radius and Fat Distance Limit are adjusted using the mass estimated from");
                     sb.Append(" volume, the rest are adjusted using the actual mass value that includes the offset.");
                 }
 
-                return sb.ToString();
-            };
+                massText = sb.ToString();
+            }
 
-            Func<string> centerOfGravityText = () =>
+            string centerOfGravityText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Position of the pectoral joint's center of mass.");
                 sb.Append("\n\n");
                 sb.Append("At 0, the center of mass is inside the chest at the pectoral joint. At 1, it is at the nipple.");
                 sb.Append(" Between about 0.5 and 0.8, the center of mass is within the bulk of the breast volume.");
-                return sb.ToString();
-            };
+                centerOfGravityText = sb.ToString();
+            }
 
-            Func<string> springText = () =>
+            string springText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Magnitude of the spring that pushes the pectoral joint towards its angle target.");
                 sb.Append("\n\n");
                 sb.Append("The angle target is defined by the Up/Down and Left/Right Angle Target parameters.");
-                return sb.ToString();
-            };
+                springText = sb.ToString();
+            }
 
-            Func<string> damperText = () =>
+            string damperText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Magnitude of the damper that reduces oscillation around the joint angle target.");
                 sb.Append("\n\n");
                 sb.Append("The higher the damper, the quicker breasts will stop swinging.");
-                return sb.ToString();
-            };
+                damperText = sb.ToString();
+            }
 
-            Func<string> positionSpringZText = () =>
+            string positionSpringZText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Magnitude of the spring that pushes the pectoral joint towards its position target along the Z axis.");
                 sb.Append("\n\n");
                 sb.Append("Directional force morphing along the forward-back axis depends on In/Out Spring being suitably low");
                 sb.Append(" for the given breast mass.");
-                return sb.ToString();
-            };
+                positionSpringZText = sb.ToString();
+            }
 
-            Func<string> positionDamperZText = () =>
+            string positionDamperZText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Magnitude of the damper that reduces oscillation around the joint position target along the Z axis.");
-                return sb.ToString();
-            };
+                positionDamperZText = sb.ToString();
+            }
 
-            Func<string> targetRotationXText = () =>
+            string targetRotationXText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Vertical target angle of the pectoral joint.");
@@ -618,29 +706,49 @@ namespace TittyMagic
                 sb.Append("\n\n");
                 sb.Append("The offset shifts the center around which the final angle is calculated");
                 sb.Append(" based on chest angle (see Gravity Multipliers)");
-                return sb.ToString();
-            };
+                targetRotationXText = sb.ToString();
+            }
 
-            Func<string> targetRotationYText = () =>
+            string targetRotationYText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Horizontal target angle of the pectoral joint.");
                 sb.Append("\n\n");
                 sb.Append("A negative offset pulls breasts apart, while a positive offset pushes them together.");
-                return sb.ToString();
-            };
+                targetRotationYText = sb.ToString();
+            }
 
-            return new Dictionary<string, string>()
+            string targetRotationZtext;
             {
-                { MASS, massText() },
-                { CENTER_OF_GRAVITY_PERCENT, centerOfGravityText() },
-                { SPRING, springText() },
-                { DAMPER, damperText() },
-                { POSITION_SPRING_Z, positionSpringZText() },
-                { POSITION_DAMPER_Z, positionDamperZText() },
-                { TARGET_ROTATION_X, targetRotationXText() },
-                { TARGET_ROTATION_Y, targetRotationYText() },
+                var sb = new StringBuilder();
+                sb.Append("Forward axis target angle of the pectoral joint.");
+                targetRotationZtext = sb.ToString();
+            }
+
+            return new Dictionary<string, string>
+            {
+                { MASS, massText },
+                { CENTER_OF_GRAVITY_PERCENT, centerOfGravityText },
+                { SPRING, springText },
+                { DAMPER, damperText },
+                { POSITION_SPRING_Z, positionSpringZText },
+                { POSITION_DAMPER_Z, positionDamperZText },
+                { TARGET_ROTATION_X, targetRotationXText },
+                { TARGET_ROTATION_Y, targetRotationYText },
+                { TARGET_ROTATION_Z, targetRotationZtext },
             };
+        }
+
+        public static void Destroy()
+        {
+            chestRb = null;
+            breastControl = null;
+            _joints = null;
+            _pectoralRbs = null;
+            _dazBones = null;
+            _breastControlFloatParamNames = null;
+            parameterGroups = null;
+            massParameterGroup = null;
         }
     }
 }

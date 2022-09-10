@@ -1,6 +1,6 @@
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable UnusedMember.Global
+// ReSharper disable MemberCanBePrivate.Global UnusedMember.Global UnusedMethodReturnValue.Global UnusedType.Global
 using System;
+using UnityEngine;
 
 public static class MVRScriptExtension
 {
@@ -20,29 +20,95 @@ public static class MVRScriptExtension
         return idx >= 0 ? filename.Substring(0, idx) : "";
     }
 
-    public static UIDynamicTextField InstantiateTextField(this MVRScript script) => UnityEngine.Object
-        .Instantiate(script.manager.configurableTextFieldPrefab)
-        .GetComponent<UIDynamicTextField>();
+    public static Transform InstantiateTextField(this MVRScript script, Transform parent = null) =>
+        UnityEngine.Object.Instantiate(script.manager.configurableTextFieldPrefab, parent, false);
 
-    public static UIDynamicButton InstantiateButton(this MVRScript script) => UnityEngine.Object
-        .Instantiate(script.manager.configurableButtonPrefab)
-        .GetComponent<UIDynamicButton>();
+    public static Transform InstantiateButton(this MVRScript script, Transform parent = null) =>
+        UnityEngine.Object.Instantiate(script.manager.configurableButtonPrefab, parent, false);
 
-    public static UIDynamicSlider InstantiateSlider(this MVRScript script) => UnityEngine.Object
-        .Instantiate(script.manager.configurableSliderPrefab)
-        .GetComponent<UIDynamicSlider>();
+    public static Transform InstantiateSlider(this MVRScript script, Transform parent = null) =>
+        UnityEngine.Object.Instantiate(script.manager.configurableSliderPrefab, parent, false);
 
-    public static UIDynamicToggle InstantiateToggle(this MVRScript script) => UnityEngine.Object
-        .Instantiate(script.manager.configurableTogglePrefab)
-        .GetComponent<UIDynamicToggle>();
+    public static Transform InstantiateToggle(this MVRScript script, Transform parent = null) =>
+        UnityEngine.Object.Instantiate(script.manager.configurableTogglePrefab, parent, false);
 
-    public static UIDynamicPopup InstantiatePopup(this MVRScript script) => UnityEngine.Object
-        .Instantiate(script.manager.configurablePopupPrefab)
-        .GetComponent<UIDynamicPopup>();
+    public static Transform InstantiatePopup(this MVRScript script, Transform parent = null) =>
+        UnityEngine.Object.Instantiate(script.manager.configurablePopupPrefab, parent, false);
 
-    public static UIDynamicColorPicker InstantiateColorPicker(this MVRScript script) => UnityEngine.Object
-        .Instantiate(script.manager.configurableColorPickerPrefab)
-        .GetComponent<UIDynamicColorPicker>();
+    public static Transform InstantiateColorPicker(this MVRScript script, Transform parent = null) =>
+        UnityEngine.Object.Instantiate(script.manager.configurableColorPickerPrefab, parent, false);
+
+    public static Transform InstantiateSpacer(this MVRScript script, Transform parent = null) =>
+        UnityEngine.Object.Instantiate(script.manager.configurableSpacerPrefab, parent, false);
+
+    public static JSONStorableString NewJSONStorableString(
+        this MVRScript script,
+        string paramName,
+        string startingValue,
+        bool shouldRegister = true
+    )
+    {
+        var storable = new JSONStorableString(paramName, startingValue);
+        storable.storeType = JSONStorableParam.StoreType.Full;
+        if(shouldRegister)
+        {
+            script.RegisterString(storable);
+        }
+
+        return storable;
+    }
+
+    public static JSONStorableBool NewJSONStorableBool(
+        this MVRScript script,
+        string paramName,
+        bool startingValue,
+        bool shouldRegister = true
+    )
+    {
+        var storable = new JSONStorableBool(paramName, startingValue);
+        storable.storeType = JSONStorableParam.StoreType.Full;
+        if(shouldRegister)
+        {
+            script.RegisterBool(storable);
+        }
+
+        return storable;
+    }
+
+    public static JSONStorableFloat NewJSONStorableFloat(
+        this MVRScript script,
+        string paramName,
+        float startingValue,
+        float minValue,
+        float maxValue,
+        bool shouldRegister = true
+    )
+    {
+        var storable = new JSONStorableFloat(paramName, startingValue, minValue, maxValue);
+        storable.storeType = JSONStorableParam.StoreType.Full;
+        if(shouldRegister)
+        {
+            script.RegisterFloat(storable);
+        }
+
+        return storable;
+    }
+
+    public static JSONStorableAction NewJSONStorableAction(
+        this MVRScript script,
+        string paramName,
+        JSONStorableAction.ActionCallback callback,
+        bool shouldRegister = true
+    )
+    {
+        var storable = new JSONStorableAction(paramName, callback);
+        if(shouldRegister)
+        {
+            script.RegisterAction(storable);
+        }
+
+        return storable;
+    }
 
     public static UIDynamic NewSpacer(
         this MVRScript script,

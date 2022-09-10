@@ -1,0 +1,3 @@
+[submodule "vam-collider-editor"]
+	path = vam-collider-editor
+	url = git@github.com-everlaster:everlasterVR/vam-collider-editor.git

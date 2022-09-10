@@ -1,8 +1,8 @@
 using System;
 
-namespace TittyMagic.Configs
+namespace TittyMagic.Components
 {
-    internal class Scaler
+    public class Scaler
     {
         private readonly float _offset;
         private readonly float _min;

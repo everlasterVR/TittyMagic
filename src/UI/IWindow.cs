@@ -2,9 +2,9 @@ using System.Collections.Generic;
 
 namespace TittyMagic.UI
 {
-    internal interface IWindow
+    public interface IWindow
     {
-        Dictionary<string, UIDynamic> GetElements();
+        string GetId();
 
         IWindow GetActiveNestedWindow();
 

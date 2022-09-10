@@ -1,9 +1,9 @@
-using System.Collections.Generic;
+// ReSharper disable UnusedMember.Global
 using UnityEngine;
 
 namespace TittyMagic
 {
-    internal static class Calc
+    public static class Calc
     {
         public static float Roll(Quaternion q) =>
             2 * InverseLerpToPi(Mathf.Asin(2 * q.x * q.y + 2 * q.z * q.w));
@@ -35,19 +35,19 @@ namespace TittyMagic
             );
         }
 
-        // ReSharper disable once UnusedMember.Global
-        public static Vector3 AveragePosition(List<Vector3> positions)
+        public static Vector3 AveragePosition(Vector3[] positions)
         {
             var sum = Vector3.zero;
+            // ReSharper disable once LoopCanBeConvertedToQuery
             foreach(var position in positions)
             {
                 sum += position;
             }
 
-            return sum / positions.Count;
+            return sum / positions.Length;
         }
 
-        private static bool EqualWithin(float diff, float v1, float v2) =>
+        private static bool IsEqualWithin(float diff, float v1, float v2) =>
             Mathf.Abs(v1 - v2) < diff;
 
         // ReSharper disable once UnusedMember.Global
@@ -66,10 +66,10 @@ namespace TittyMagic
             return result;
         }
 
-        public static bool VectorEqualWithin(float diff, Vector3 v1, Vector3 v2) =>
-            EqualWithin(diff, v1.x, v2.x) &&
-            EqualWithin(diff, v1.y, v2.y) &&
-            EqualWithin(diff, v1.z, v2.z);
+        public static bool VectorIsEqualWithin(float diff, Vector3 v1, Vector3 v2) =>
+            IsEqualWithin(diff, v1.x, v2.x) &&
+            IsEqualWithin(diff, v1.y, v2.y) &&
+            IsEqualWithin(diff, v1.z, v2.z);
 
         public static float[] ExponentialMovingAverage(float[] source, float k)
         {

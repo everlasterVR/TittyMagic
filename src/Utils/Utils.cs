@@ -4,10 +4,11 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using static TittyMagic.Script;
 
 namespace TittyMagic
 {
-    internal static class Utils
+    public static class Utils
     {
         public static string morphsPath { get; set; }
 
@@ -18,7 +19,7 @@ namespace TittyMagic
             SuperController.LogMessage(Format(message, name));
 
         private static string Format(string message, string name) =>
-            $"{nameof(TittyMagic)} {Script.VERSION}: {message}{(string.IsNullOrEmpty(name) ? "" : $" [{name}]")}";
+            $"{nameof(TittyMagic)} v{VERSION}: {message}{(string.IsNullOrEmpty(name) ? "" : $" [{name}]")}";
 
         // ReSharper disable once UnusedMember.Global
         public static MVRScript FindPluginOnAtom(Atom atom, string search)
@@ -30,49 +31,13 @@ namespace TittyMagic
         public static DAZMorph GetMorph(string file)
         {
             string uid = $"{morphsPath}/{file}.vmi";
-            var dazMorph = Script.morphsControlUI.GetMorphByUid(uid);
+            var dazMorph = morphsControlUI.GetMorphByUid(uid);
             if(dazMorph == null)
             {
                 LogError($"Morph with uid '{uid}' not found!");
             }
 
             return dazMorph;
-        }
-
-        public static JSONStorableBool NewJSONStorableBool(
-            this MVRScript script,
-            string paramName,
-            bool startingValue,
-            bool register = true
-        )
-        {
-            var storable = new JSONStorableBool(paramName, startingValue);
-            storable.storeType = JSONStorableParam.StoreType.Full;
-            if(register)
-            {
-                script.RegisterBool(storable);
-            }
-
-            return storable;
-        }
-
-        public static JSONStorableFloat NewJSONStorableFloat(
-            this MVRScript script,
-            string paramName,
-            float startingValue,
-            float minValue,
-            float maxValue,
-            bool register = true
-        )
-        {
-            var storable = new JSONStorableFloat(paramName, startingValue, minValue, maxValue);
-            storable.storeType = JSONStorableParam.StoreType.Full;
-            if(register)
-            {
-                script.RegisterFloat(storable);
-            }
-
-            return storable;
         }
 
         public static float PhysicsRateMultiplier() =>
@@ -148,6 +113,17 @@ namespace TittyMagic
             {
                 ObjectHierarchyToString(child, propertyDel, builder, maxDepth, currentDepth + 1);
             }
+        }
+
+        public static bool AnimationIsFrozen()
+        {
+            bool mainToggleFrozen =
+                SuperController.singleton.freezeAnimationToggle != null &&
+                SuperController.singleton.freezeAnimationToggle.isOn;
+            bool altToggleFrozen =
+                SuperController.singleton.freezeAnimationToggleAlt != null &&
+                SuperController.singleton.freezeAnimationToggleAlt.isOn;
+            return mainToggleFrozen || altToggleFrozen;
         }
     }
 }

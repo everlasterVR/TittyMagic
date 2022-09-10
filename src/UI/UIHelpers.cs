@@ -1,11 +1,13 @@
-// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
 using UnityEngine;
 using UnityEngine.UI;
+using static TittyMagic.Script;
 
 namespace TittyMagic.UI
 {
     public static class UIHelpers
     {
+        public static Color backgroundGray = new Color(0.85f, 0.85f, 0.85f);
         public static Color darkerGray = new Color(0.4f, 0.4f, 0.4f);
         public static Color sliderGray = new Color(0, 0, 0, 0.498f);
         public static Color funkyCyan = new Color(0.596f, 1.000f, 0.780f);
@@ -47,10 +49,10 @@ namespace TittyMagic.UI
             return horizontalLayoutGroup;
         }
 
-        public static UIDynamicTextField HeaderTextField(MVRScript script, JSONStorableString storable, string text, bool rightSide)
+        public static UIDynamicTextField HeaderTextField(JSONStorableString storable, string text, bool rightSide)
         {
             storable.val = "\n".Size(20) + text.Bold();
-            var textField = script.CreateTextField(storable, rightSide);
+            var textField = tittyMagic.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 30;
             textField.UItext.alignment = TextAnchor.LowerCenter;
             textField.backgroundColor = Color.clear;
@@ -62,10 +64,10 @@ namespace TittyMagic.UI
             return textField;
         }
 
-        public static UIDynamicTextField TitleTextField(MVRScript script, JSONStorableString storable, string displayName, int height, bool rightSide)
+        public static UIDynamicTextField TitleTextField(JSONStorableString storable, string displayName, int height, bool rightSide)
         {
             storable.val = "\n".Size(12) + displayName.Bold();
-            var textField = script.CreateTextField(storable, rightSide);
+            var textField = tittyMagic.CreateTextField(storable, rightSide);
             textField.UItext.alignment = TextAnchor.MiddleCenter;
             textField.backgroundColor = Color.clear;
 
@@ -76,9 +78,9 @@ namespace TittyMagic.UI
             return textField;
         }
 
-        public static UIDynamicTextField NotificationTextField(MVRScript script, JSONStorableString storable, int height, bool rightSide)
+        public static UIDynamicTextField NotificationTextField(JSONStorableString storable, int height, bool rightSide)
         {
-            var textField = script.CreateTextField(storable, rightSide);
+            var textField = tittyMagic.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 26;
             textField.UItext.color = new Color(0.15f, 0.15f, 0.15f);
             textField.UItext.alignment = TextAnchor.MiddleRight;
@@ -89,6 +91,12 @@ namespace TittyMagic.UI
             layout.minHeight = height;
 
             return textField;
+        }
+
+        public static Transform DestroyLayout(Transform transform)
+        {
+            Object.Destroy(transform.GetComponent<LayoutElement>());
+            return transform;
         }
     }
 }

@@ -1,10 +1,9 @@
 using UnityEngine;
 using UnityEngine.Events;
-using static TittyMagic.UI.UIHelpers;
 
 namespace TittyMagic.UI
 {
-    internal class NavigationButton
+    public class NavigationButton
     {
         private readonly UIDynamicButton _uiDynamicButton;
 
@@ -18,7 +17,7 @@ namespace TittyMagic.UI
 
         public void SetActive()
         {
-            _uiDynamicButton.textColor = funkyCyan;
+            _uiDynamicButton.textColor = UIHelpers.funkyCyan;
             var colors = _uiDynamicButton.button.colors;
             colors.highlightedColor = Color.white;
             colors.pressedColor = Color.white;
@@ -28,12 +27,12 @@ namespace TittyMagic.UI
         public void SetInactive()
         {
             _uiDynamicButton.textColor = Color.white;
-            _uiDynamicButton.buttonColor = darkerGray;
+            _uiDynamicButton.buttonColor = UIHelpers.darkerGray;
 
             /* Set interactable style */
             var colors = _uiDynamicButton.button.colors;
-            colors.highlightedColor = defaultBtnHighlightedColor;
-            colors.pressedColor = defaultBtnPressedColor;
+            colors.highlightedColor = UIHelpers.defaultBtnHighlightedColor;
+            colors.pressedColor = UIHelpers.defaultBtnPressedColor;
             _uiDynamicButton.button.colors = colors;
         }
 

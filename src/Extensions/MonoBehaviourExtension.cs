@@ -1,3 +1,4 @@
+// ReSharper disable MemberCanBePrivate.Global UnusedMember.Global UnusedMethodReturnValue.Global UnusedType.Global
 using UnityEngine;
 
 public static class MonoBehaviourExtension

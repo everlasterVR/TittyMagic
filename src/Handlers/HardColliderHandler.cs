@@ -1,55 +1,54 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TittyMagic.Configs;
-using TittyMagic.UI;
+using TittyMagic.Components;
+using TittyMagic.Models;
 using UnityEngine;
+using static TittyMagic.Script;
 
-namespace TittyMagic
+namespace TittyMagic.Handlers
 {
-    internal class HardColliderHandler : MonoBehaviour
+    public static class HardColliderHandler
     {
-        private Script _script;
-        private DAZCharacterSelector _geometry;
+        public static ColliderVisualizer colliderVisualizer { get; private set; }
+        public static JSONStorableStringChooser colliderGroupsJsc { get; private set; }
+        public static List<HardColliderGroup> hardColliderGroups { get; private set; }
+        public static JSONStorableFloat baseForceJsf { get; private set; }
+        public static JSONStorableBool highlightAllJsb { get; private set; }
 
-        public JSONStorableStringChooser colliderGroupsJsc { get; private set; }
-        public List<ColliderConfigGroup> colliderConfigs { get; private set; }
-        public JSONStorableFloat baseForceJsf { get; private set; }
-        public JSONStorableBool highlightAllJsb { get; private set; }
+        private static float _frictionSizeMultiplierLeft;
+        private static float _frictionSizeMultiplierRight;
 
-        private Dictionary<string, Dictionary<string, Scaler>> _scalingConfigs;
+        private static Dictionary<string, Dictionary<string, Scaler>> _scalingConfigs;
 
         private const string COLLISION_FORCE = "CollisionForce";
         private const string COLLIDER_RADIUS = "ColliderRadius";
-        private const string COLLIDER_LENGTH = "ColliderLength";
         private const string COLLIDER_CENTER_X = "ColliderCenterX";
         private const string COLLIDER_CENTER_Y = "ColliderCenterY";
         private const string COLLIDER_CENTER_Z = "ColliderCenterZ";
 
-        private bool _combinedSyncInProgress;
-
-        public void Init()
+        public static void Init()
         {
-            _script = gameObject.GetComponent<Script>();
-            _geometry = (DAZCharacterSelector) _script.containingAtom.GetStorableByID("geometry");
-
-            if(!Gender.isFemale)
+            if(!personIsFemale)
             {
                 return;
             }
 
-            CreateScalingConfigs();
-            colliderConfigs = new List<ColliderConfigGroup>
-            {
-                NewColliderConfigGroup("Pectoral1"),
-                NewColliderConfigGroup("Pectoral2"),
-                NewColliderConfigGroup("Pectoral3"),
-                NewColliderConfigGroup("Pectoral4"),
-                NewColliderConfigGroup("Pectoral5"),
-            };
+            InitColliderVisualizer();
 
-            var options = colliderConfigs.Select(c => c.visualizerEditableId).ToList();
-            var displayOptions = colliderConfigs.Select(c => c.id).ToList();
+            CreateScalingConfigs();
+            var autoColliders = tittyMagic.containingAtom.GetComponentInChildren<AutoColliderBatchUpdater>().autoColliders;
+            hardColliderGroups = new List<HardColliderGroup>
+            {
+                NewHardColliderGroup("Pectoral1", autoColliders),
+                NewHardColliderGroup("Pectoral2", autoColliders),
+                NewHardColliderGroup("Pectoral3", autoColliders),
+                NewHardColliderGroup("Pectoral4", autoColliders),
+                NewHardColliderGroup("Pectoral5", autoColliders),
+            };
+            EnableMultiplyFriction();
+
+            var options = hardColliderGroups.Select(c => c.visualizerId).ToList();
+            var displayOptions = hardColliderGroups.Select(c => c.id).ToList();
             colliderGroupsJsc = new JSONStorableStringChooser(
                 "colliderGroup",
                 options,
@@ -59,30 +58,54 @@ namespace TittyMagic
             );
             colliderGroupsJsc.setCallbackFunction = value =>
             {
-                _script.colliderVisualizer.EditablesJSON.val = value;
+                colliderVisualizer.SelectablesJSON.val = value;
                 SyncSizeAuto();
             };
             colliderGroupsJsc.val = options[0];
 
-            _script.colliderVisualizer.GroupsJSON.setJSONCallbackFunction = jsc =>
+            colliderVisualizer.GroupsJSON.setJSONCallbackFunction = jsc =>
             {
-                _script.colliderVisualizer.SelectedPreviewOpacityJSON.val = jsc.val == "Off" ? 0 : 1;
+                colliderVisualizer.SelectedPreviewOpacityJSON.val = jsc.val == "Off" ? 0 : 1;
                 if(jsc.val != "Off")
                 {
-                    _script.colliderVisualizer.EditablesJSON.val = colliderGroupsJsc.val;
+                    colliderVisualizer.SelectablesJSON.val = colliderGroupsJsc.val;
                 }
 
                 SyncSizeAuto();
             };
-            _script.colliderVisualizer.XRayPreviewsJSON.setJSONCallbackFunction = _ => SyncSizeAuto();
+            colliderVisualizer.XRayPreviewsJSON.setJSONCallbackFunction = _ => SyncSizeAuto();
 
-            baseForceJsf = _script.NewJSONStorableFloat("baseCollisionForce", 0.75f, 0.01f, 1.50f);
-            baseForceJsf.setCallbackFunction = SyncHardCollidersBaseMass;
-            highlightAllJsb = _script.NewJSONStorableBool("highlightAllColliders", false, register: false);
-            highlightAllJsb.setCallbackFunction = value => _script.colliderVisualizer.PreviewOpacityJSON.val = value ? 1.00f : 0.67f;
+            baseForceJsf = tittyMagic.NewJSONStorableFloat("baseCollisionForce", 0.75f, 0.01f, 1.50f);
+            baseForceJsf.setCallbackFunction = _ => SyncCollidersMass();
+            highlightAllJsb = tittyMagic.NewJSONStorableBool("highlightAllHardColliders", false, shouldRegister: false);
+            highlightAllJsb.setCallbackFunction = value => colliderVisualizer.PreviewOpacityJSON.val = value ? 1.00f : 0.67f;
         }
 
-        private void CreateScalingConfigs()
+        private static void InitColliderVisualizer()
+        {
+            colliderVisualizer = tittyMagic.gameObject.AddComponent<ColliderVisualizer>();
+            var groups = new List<Group>
+            {
+                new Group("Off", @"$off"), //match nothing
+                new Group("Both breasts", @"[lr](Pectoral\d)"),
+                new Group("Left breast", @"lPectoral\d"),
+            };
+            colliderVisualizer.Init(tittyMagic, groups);
+            colliderVisualizer.PreviewOpacityJSON.val = 0.67f;
+            colliderVisualizer.PreviewOpacityJSON.defaultVal = 0.67f;
+            colliderVisualizer.SelectedPreviewOpacityJSON.val = 1;
+            colliderVisualizer.SelectedPreviewOpacityJSON.defaultVal = 1;
+            colliderVisualizer.GroupsJSON.val = "Left breast";
+            colliderVisualizer.GroupsJSON.defaultVal = "Left breast";
+            colliderVisualizer.HighlightMirrorJSON.val = true;
+
+            foreach(string option in new[] { "Select...", "Other", "All" })
+            {
+                colliderVisualizer.GroupsJSON.choices.Remove(option);
+            }
+        }
+
+        private static void CreateScalingConfigs()
         {
             _scalingConfigs = new Dictionary<string, Dictionary<string, Scaler>>
             {
@@ -91,26 +114,20 @@ namespace TittyMagic
                     {
                         {
                             COLLISION_FORCE, new Scaler(
-                                offset: 0.025f,
+                                offset: 0.010f,
                                 range: new float[] { 0, 1 }
                             )
                         },
                         {
                             COLLIDER_RADIUS, new Scaler(
-                                offset: -0.34f,
+                                offset: -0.43f,
                                 range: new float[] { 0, 40 },
                                 massCurve: x => 0.27f * Curves.ColliderRadiusAndPositionSizeCurve(x)
                             )
                         },
                         {
-                            COLLIDER_LENGTH, new Scaler(
-                                offset: 0.00f,
-                                range: new float[] { 0, 40 }
-                            )
-                        },
-                        {
                             COLLIDER_CENTER_X, new Scaler(
-                                offset: -0.10f,
+                                offset: -0.35f,
                                 range: new float[] { 0, 40 },
                                 massCurve: x => -0.32f * Curves.ColliderRadiusAndPositionSizeCurve(x)
                             )
@@ -135,95 +152,43 @@ namespace TittyMagic
                     {
                         {
                             COLLISION_FORCE, new Scaler(
-                                offset: 0.035f,
+                                offset: 0.025f,
                                 range: new float[] { 0, 1 },
                                 softnessCurve: x => -0.020f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
                             )
                         },
                         {
                             COLLIDER_RADIUS, new Scaler(
-                                offset: -0.65f,
+                                offset: -0.72f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => -0.18f * Curves.ColliderRadiusAndPositionSizeCurve(x)
-                            )
-                        },
-                        {
-                            COLLIDER_LENGTH, new Scaler(
-                                offset: 0.00f,
-                                range: new float[] { 0, 40 }
+                                massCurve: x => -0.08f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_X, new Scaler(
                                 offset: 0.88f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => 0.48f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                massCurve: x => 0.48f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_Y, new Scaler(
                                 offset: -0.15f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => -0.11f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                massCurve: x => -0.11f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_Z, new Scaler(
                                 offset: -0.80f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => 0.03f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                massCurve: x => 0.03f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                     }
                 },
                 {
                     "Pectoral3", new Dictionary<string, Scaler>
-                    {
-                        {
-                            COLLISION_FORCE, new Scaler(
-                                offset: -0.005f,
-                                range: new float[] { 0, 1 },
-                                softnessCurve: x => -0.020f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
-                            )
-                        },
-                        {
-                            COLLIDER_RADIUS, new Scaler(
-                                offset: -0.20f,
-                                range: new float[] { 0, 40 },
-                                massCurve: x => -1.07f * Curves.ColliderRadiusAndPositionSizeCurve(x)
-                            )
-                        },
-                        {
-                            COLLIDER_LENGTH, new Scaler(
-                                offset: 0.00f,
-                                range: new float[] { 0, 40 }
-                            )
-                        },
-                        {
-                            COLLIDER_CENTER_X, new Scaler(
-                                offset: -0.39f,
-                                range: new float[] { 0, 40 },
-                                massCurve: x => -0.12f * Curves.ColliderRadiusAndPositionSizeCurve(x)
-                            )
-                        },
-                        {
-                            COLLIDER_CENTER_Y, new Scaler(
-                                offset: 0.12f,
-                                range: new float[] { 0, 40 },
-                                massCurve: x => 0.30f * Curves.ColliderRadiusAndPositionSizeCurve(x)
-                            )
-                        },
-                        {
-                            COLLIDER_CENTER_Z, new Scaler(
-                                offset: -0.30f,
-                                range: new float[] { 0, 40 },
-                                massCurve: x => -0.42f * Curves.ColliderRadiusAndPositionSizeCurve(x)
-                            )
-                        },
-                    }
-                },
-                {
-                    "Pectoral4", new Dictionary<string, Scaler>
                     {
                         {
                             COLLISION_FORCE, new Scaler(
@@ -234,15 +199,48 @@ namespace TittyMagic
                         },
                         {
                             COLLIDER_RADIUS, new Scaler(
-                                offset: -0.26f,
+                                offset: -0.30f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => -0.75f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                massCurve: x => -0.94f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
-                            COLLIDER_LENGTH, new Scaler(
-                                offset: 0.00f,
+                            COLLIDER_CENTER_X, new Scaler(
+                                offset: -0.32f,
+                                range: new float[] { 0, 40 },
+                                massCurve: x => -0.12f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
+                            )
+                        },
+                        {
+                            COLLIDER_CENTER_Y, new Scaler(
+                                offset: 0.15f,
                                 range: new float[] { 0, 40 }
+                            )
+                        },
+                        {
+                            COLLIDER_CENTER_Z, new Scaler(
+                                offset: -0.24f,
+                                range: new float[] { 0, 40 },
+                                massCurve: x => -0.42f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
+                            )
+                        },
+                    }
+                },
+                {
+                    "Pectoral4", new Dictionary<string, Scaler>
+                    {
+                        {
+                            COLLISION_FORCE, new Scaler(
+                                offset: -0.010f,
+                                range: new float[] { 0, 1 },
+                                softnessCurve: x => -0.020f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
+                            )
+                        },
+                        {
+                            COLLIDER_RADIUS, new Scaler(
+                                offset: -0.40f,
+                                range: new float[] { 0, 40 },
+                                massCurve: x => -0.62f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
@@ -256,12 +254,12 @@ namespace TittyMagic
                             COLLIDER_CENTER_Y, new Scaler(
                                 offset: -0.05f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => 0.55f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                massCurve: x => 0.35f * Curves.ColliderRadiusAndPositionSizeCurve(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_Z, new Scaler(
-                                offset: -0.21f,
+                                offset: -0.24f,
                                 range: new float[] { 0, 40 },
                                 massCurve: x => 0.12f * Curves.ColliderRadiusAndPositionSizeCurve(x)
                             )
@@ -280,36 +278,30 @@ namespace TittyMagic
                         },
                         {
                             COLLIDER_RADIUS, new Scaler(
-                                offset: -0.50f,
+                                offset: -0.58f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => -1.35f * Curves.ColliderRadiusAndPositionSizeCurve(x)
-                            )
-                        },
-                        {
-                            COLLIDER_LENGTH, new Scaler(
-                                offset: 0.00f,
-                                range: new float[] { 0, 40 }
+                                massCurve: x => -1.24f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_X, new Scaler(
-                                offset: -0.24f,
+                                offset: -0.17f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => -0.85f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                massCurve: x => -0.84f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_Y, new Scaler(
-                                offset: 0.75f,
+                                offset: 0.90f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => 0.47f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                massCurve: x => 0.65f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_Z, new Scaler(
-                                offset: -0.16f,
+                                offset: -0.26f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => 0.13f * Curves.ColliderRadiusAndPositionSizeCurve(x)
+                                massCurve: x => 0.18f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                     }
@@ -317,321 +309,252 @@ namespace TittyMagic
             };
         }
 
-        private ColliderConfigGroup NewColliderConfigGroup(string id)
+        private static HardColliderGroup NewHardColliderGroup(string id, AutoCollider[] autoColliders)
         {
-            var configLeft = NewColliderConfig("l" + id);
-            var configRight = NewColliderConfig("r" + id);
+            var leftCollider = NewHardCollider("l" + id, autoColliders);
+            var rightCollider = NewHardCollider("r" + id, autoColliders);
             var scalingConfig = _scalingConfigs[id];
-            var colliderConfigGroup = new ColliderConfigGroup(
-                id,
-                configLeft,
-                configRight,
-                scalingConfig[COLLISION_FORCE],
-                scalingConfig[COLLIDER_RADIUS],
-                scalingConfig[COLLIDER_LENGTH],
-                scalingConfig[COLLIDER_CENTER_X],
-                scalingConfig[COLLIDER_CENTER_Y],
-                scalingConfig[COLLIDER_CENTER_Z]
-            )
+
+            var frictionMultipliers = new Dictionary<string, float>
             {
-                forceJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLISION_FORCE, 0.50f, 0.01f, 1.00f),
-                radiusJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_RADIUS, 0, -1f, 1f),
-                lengthJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_LENGTH, 0, 0f, 5f),
-                rightJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_X, 0, -1f, 1f),
-                upJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_Y, 0, -1f, 1f),
-                lookJsf = _script.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_Z, 0, -1f, 1f),
+                { "Pectoral1", 0.5f },
+                { "Pectoral2", 1.0f },
+                { "Pectoral3", 1.0f },
+                { "Pectoral4", 1.0f },
+                { "Pectoral5", 1.0f },
             };
 
-            colliderConfigGroup.forceJsf.setCallbackFunction = _ => SyncHardColliderMass(colliderConfigGroup);
-            colliderConfigGroup.radiusJsf.setCallbackFunction = _ => SyncHardColliderDimensions(colliderConfigGroup);
-            colliderConfigGroup.lengthJsf.setCallbackFunction = _ => SyncHardColliderDimensions(colliderConfigGroup);
-            colliderConfigGroup.rightJsf.setCallbackFunction = _ => SyncHardColliderPosition(colliderConfigGroup);
-            colliderConfigGroup.upJsf.setCallbackFunction = _ => SyncHardColliderPosition(colliderConfigGroup);
-            colliderConfigGroup.lookJsf.setCallbackFunction = _ => SyncHardColliderPosition(colliderConfigGroup);
+            string visualizerId = colliderVisualizer.SelectablesJSON.choices.Find(option => option.EndsWith("l" + id));
+            var hardColliderGroup = new HardColliderGroup(
+                id,
+                visualizerId,
+                leftCollider,
+                rightCollider,
+                scalingConfig[COLLISION_FORCE],
+                scalingConfig[COLLIDER_RADIUS],
+                scalingConfig[COLLIDER_CENTER_X],
+                scalingConfig[COLLIDER_CENTER_Y],
+                scalingConfig[COLLIDER_CENTER_Z],
+                frictionMultipliers[id]
+            )
+            {
+                forceJsf = tittyMagic.NewJSONStorableFloat(id.ToLower() + COLLISION_FORCE, 0.50f, 0.01f, 1.00f),
+                radiusJsf = tittyMagic.NewJSONStorableFloat(id.ToLower() + COLLIDER_RADIUS, 0, -1f, 1f),
+                rightJsf = tittyMagic.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_X, 0, -1f, 1f),
+                upJsf = tittyMagic.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_Y, 0, -1f, 1f),
+                lookJsf = tittyMagic.NewJSONStorableFloat(id.ToLower() + COLLIDER_CENTER_Z, 0, -1f, 1f),
+            };
 
-            return colliderConfigGroup;
+            hardColliderGroup.forceJsf.setCallbackFunction = _ => SyncColliderMass(hardColliderGroup);
+            hardColliderGroup.radiusJsf.setCallbackFunction = _ => SyncRadius(hardColliderGroup);
+            hardColliderGroup.rightJsf.setCallbackFunction = _ => SyncPosition(hardColliderGroup);
+            hardColliderGroup.upJsf.setCallbackFunction = _ => SyncPosition(hardColliderGroup);
+            hardColliderGroup.lookJsf.setCallbackFunction = _ => SyncPosition(hardColliderGroup);
+
+            return hardColliderGroup;
         }
 
-        private ColliderConfig NewColliderConfig(string id)
+        private static HardCollider NewHardCollider(string id, IEnumerable<AutoCollider> autoColliders)
         {
-            var collider = _geometry.auxBreastColliders.ToList().Find(c => c.name.Contains(id));
-            var autoCollider = FindAutoCollider(collider);
-            string visualizerEditableId = _script.colliderVisualizer.EditablesJSON.choices.Find(option => option.EndsWith(id));
-            return new ColliderConfig(autoCollider, visualizerEditableId);
+            var collider = geometry.auxBreastColliders.ToList().Find(c => c.name.Contains(id));
+            var autoCollider = autoColliders.First(ac => ac.jointCollider != null && ac.jointCollider.name == collider.name);
+            return new HardCollider(autoCollider);
         }
 
-        private AutoCollider FindAutoCollider(Collider collider)
+        private static void SyncRadius(HardColliderGroup group)
         {
-            var updater = _script.containingAtom.GetComponentInChildren<AutoColliderBatchUpdater>();
-            return updater.autoColliders.First(autoCollider =>
-                autoCollider.jointCollider != null && autoCollider.jointCollider.name == collider.name);
-        }
-
-        private void SyncHardColliderDimensions(ColliderConfigGroup config)
-        {
-            if(!enabled || !Gender.isFemale)
+            if(!personIsFemale)
             {
                 return;
             }
 
-            config.UpdateDimensions(_script.mainPhysicsHandler.normalizedMass, _script.softnessAmount);
+            group.UpdateDimensions(MainPhysicsHandler.normalizedMass, tittyMagic.softnessAmount);
             SyncSizeAuto();
         }
 
-        private void SyncHardColliderPosition(ColliderConfigGroup config)
+        private static void SyncPosition(HardColliderGroup group)
         {
-            if(!enabled || !Gender.isFemale)
+            if(!personIsFemale)
             {
                 return;
             }
 
-            config.UpdatePosition(_script.mainPhysicsHandler.normalizedMass, _script.softnessAmount);
+            group.UpdatePosition(MainPhysicsHandler.normalizedMass, tittyMagic.softnessAmount);
             SyncSizeAuto();
         }
 
-        private void SyncHardColliderMass(ColliderConfigGroup config)
+        public static void SyncAllOffsets()
         {
-            if(!enabled || !Gender.isFemale)
+            if(!personIsFemale)
             {
                 return;
             }
 
-            if(!config.syncInProgress)
+            float mass = MainPhysicsHandler.normalizedRealMass;
+            float softness = tittyMagic.softnessAmount;
+            hardColliderGroups.ForEach(group =>
             {
-                StartCoroutine(DeferBeginSyncMass(config));
-            }
-        }
-
-        public void SyncAllOffsets()
-        {
-            if(!enabled || !Gender.isFemale)
-            {
-                return;
-            }
-
-            float mass = _script.mainPhysicsHandler.normalizedRealMass;
-            float softness = _script.softnessAmount;
-            colliderConfigs.ForEach(config =>
-            {
-                config.UpdateDimensions(mass, softness);
-                config.UpdatePosition(mass, softness);
+                group.UpdateDimensions(mass, softness);
+                group.UpdatePosition(mass, softness);
             });
             SyncSizeAuto();
         }
 
-        private void SyncSizeAuto()
+        private static void SyncSizeAuto()
         {
-            colliderConfigs.ForEach(config => config.AutoColliderSizeSet());
-            _script.colliderVisualizer.SyncPreviews();
+            hardColliderGroups.ForEach(group => group.AutoColliderSizeSet());
+            float averageRadius = hardColliderGroups.Average(group => group.left.autoCollider.colliderRadius);
+            hardColliderGroups.ForEach(group => group.UpdateMaxFrictionalDistance(
+                _frictionSizeMultiplierLeft,
+                _frictionSizeMultiplierRight,
+                averageRadius
+            ));
+            colliderVisualizer.SyncPreviews();
         }
 
-        private IEnumerator DeferBeginSyncMass(ColliderConfigGroup config)
+        public static void UpdateFrictionSizeMultipliers()
         {
-            config.syncInProgress = true;
-
-            var elements = ((HardCollidersWindow) _script.mainWindow.GetActiveNestedWindow())?.colliderSectionElements;
-            if(elements != null && elements.Any())
-            {
-                yield return new WaitForSecondsRealtime(0.1f);
-                var slider = (UIDynamicSlider) elements[config.forceJsf.name];
-                if(slider != null)
-                {
-                    while(slider.IsClickDown())
-                    {
-                        yield return new WaitForSecondsRealtime(0.1f);
-                    }
-
-                    yield return new WaitForSecondsRealtime(0.1f);
-                }
-            }
-
-            config.syncInProgress = false;
-            yield return DeferSyncMass(config);
+            _frictionSizeMultiplierLeft = FrictionSizeMultiplier(VertexIndexGroup.leftBreastWidthMarkers);
+            _frictionSizeMultiplierRight = FrictionSizeMultiplier(VertexIndexGroup.rightBreastWidthMarkers);
         }
 
-        private IEnumerator DeferSyncMass(ColliderConfigGroup config)
+        private static float FrictionSizeMultiplier(int[] indices)
         {
-            // In case hard colliders are not enabled (yet)
-            float timeout = Time.unscaledTime + 3f;
-            while(!config.HasRigidbodies() && Time.unscaledTime < timeout)
-            {
-                yield return new WaitForSecondsRealtime(0.2f);
-            }
-
-            yield return new WaitForSecondsRealtime(0.1f);
-
-            if(!config.HasRigidbodies())
-            {
-                LogSyncMassFailure();
-            }
-            else
-            {
-                config.UpdateRigidbodyMass(
-                    1 / Utils.PhysicsRateMultiplier() * baseForceJsf.val * config.forceJsf.val,
-                    _script.mainPhysicsHandler.normalizedMass,
-                    _script.softnessAmount
-                );
-            }
+            /* experimentally determined with 3kg breasts, is slightly different for different shapes */
+            const float maxWidth = 0.17f;
+            float width = (skin.rawSkinnedVerts[indices[0]] - skin.rawSkinnedVerts[indices[1]]).magnitude;
+            float multiplier = Mathf.InverseLerp(0, maxWidth, width);
+            return Curves.InverseSmoothStep(multiplier, 1, 0.55f, 0.42f);
         }
 
-        public IEnumerator SyncAll()
+        public static void UpdateFriction()
         {
-            if(!enabled || !Gender.isFemale)
-            {
-                yield break;
-            }
-
-            while(_combinedSyncInProgress)
-            {
-                yield return null;
-            }
-
-            _geometry.useAuxBreastColliders = true;
-            yield return DeferBeginSyncBaseMass();
-            SyncAllOffsets();
-        }
-
-        public void SyncHardCollidersBaseMass() => SyncHardCollidersBaseMass(0);
-
-        private void SyncHardCollidersBaseMass(float value)
-        {
-            if(!enabled || !Gender.isFemale)
+            if(!personIsFemale)
             {
                 return;
             }
 
-            if(!_combinedSyncInProgress)
-            {
-                StartCoroutine(DeferBeginSyncBaseMass());
-            }
+            hardColliderGroups.ForEach(group => group.UpdateFriction(FrictionHandler.maxHardColliderFriction));
         }
 
-        private IEnumerator DeferBeginSyncBaseMass()
+        private static void SyncColliderMass(HardColliderGroup group)
         {
-            _combinedSyncInProgress = true;
-
-            var elements = _script.mainWindow?.GetActiveNestedWindow()?.GetElements();
-            if(elements != null && elements.Any())
-            {
-                yield return new WaitForSecondsRealtime(0.1f);
-                var slider = (UIDynamicSlider) elements[baseForceJsf.name];
-                if(slider != null)
-                {
-                    while(slider.IsClickDown())
-                    {
-                        yield return new WaitForSecondsRealtime(0.1f);
-                    }
-
-                    yield return new WaitForSecondsRealtime(0.1f);
-                }
-            }
-
-            _combinedSyncInProgress = false;
-            yield return DeferSyncMassCombined();
-        }
-
-        private IEnumerator DeferSyncMassCombined()
-        {
-            // In case hard colliders are not enabled (yet)
-            float timeout = Time.unscaledTime + 3f;
-            while(colliderConfigs.Any(config => !config.HasRigidbodies()) && Time.unscaledTime < timeout)
-            {
-                yield return new WaitForSecondsRealtime(0.3f);
-            }
-
-            yield return new WaitForSecondsRealtime(0.1f);
-
-            if(colliderConfigs.Any(config => !config.HasRigidbodies()))
-            {
-                LogSyncMassFailure();
-            }
-            else
-            {
-                colliderConfigs.ForEach(config => config.UpdateRigidbodyMass(
-                    1 / Utils.PhysicsRateMultiplier() * baseForceJsf.val * config.forceJsf.val,
-                    _script.mainPhysicsHandler.normalizedMass,
-                    _script.softnessAmount
-                ));
-            }
-        }
-
-        private IEnumerator DeferRestoreDefaultMass()
-        {
-            // e.g. in case hard colliders are not enabled (yet)
-            yield return new WaitForSecondsRealtime(0.1f);
-            float timeout = Time.unscaledTime + 3f;
-
-            while(colliderConfigs.Any(config => !config.HasRigidbodies()) && Time.unscaledTime < timeout)
-            {
-                yield return new WaitForSecondsRealtime(0.3f);
-            }
-
-            yield return new WaitForSecondsRealtime(0.1f);
-
-            if(colliderConfigs.Any(config => !config.HasRigidbodies()))
-            {
-                Utils.LogError("Failed restoring hard colliders mass to default.");
-            }
-            else
-            {
-                colliderConfigs.ForEach(config => config.RestoreDefaultMass());
-            }
-
-            /* Changes to collider properties must be done while advanced colliders are enabled */
-            _geometry.useAdvancedColliders = _originalUseAdvancedColliders;
-        }
-
-        private bool _originalUseAdvancedColliders;
-        private bool _originalUseAuxBreastColliders;
-
-        public void SaveOriginalUseColliders()
-        {
-            _originalUseAdvancedColliders = _geometry.useAdvancedColliders;
-            _originalUseAuxBreastColliders = _geometry.useAuxBreastColliders;
-        }
-
-        private void OnEnable()
-        {
-            if(_script == null || !_script.initDone)
+            if(!personIsFemale)
             {
                 return;
             }
 
-            SaveOriginalUseColliders();
-            _geometry.useAdvancedColliders = true;
-            _geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
+            group.UpdateRigidbodyMass(
+                1 / Utils.PhysicsRateMultiplier() * baseForceJsf.val * group.forceJsf.val,
+                MainPhysicsHandler.normalizedMass,
+                tittyMagic.softnessAmount
+            );
         }
 
-        private void OnDisable()
+        public static void SyncCollidersMass() => hardColliderGroups?.ForEach(SyncColliderMass);
+
+        public static void CalibrateColliders()
         {
-            if(Gender.isFemale)
+            if(!personIsFemale)
             {
-                /* Restore defaults */
-                colliderConfigs.ForEach(config => config.RestoreDefaults());
-                _geometry.useAuxBreastColliders = true;
-                StartCoroutine(DeferRestoreDefaultMass());
+                return;
             }
+
+            var breastCenterLeft = BreastCenter(VertexIndexGroup.leftBreast);
+            var breastCenterRight = BreastCenter(VertexIndexGroup.rightBreast);
+            hardColliderGroups.ForEach(group => group.Calibrate(breastCenterLeft, breastCenterRight, MainPhysicsHandler.chestRb));
         }
 
-        private void LogSyncMassFailure()
+        public static void UpdateDistanceDiffs()
         {
-            string message = "Unable to apply collision force: ";
-            if(!_geometry.useAdvancedColliders)
+            if(!personIsFemale)
             {
-                message +=
-                    "Advanced Colliders are not enabled in Control & Physics 1 tab. " +
-                    "Enabling them and toggling hard colliders on will auto-apply the current collision force.";
-            }
-            else if(_geometry.gender != DAZCharacterSelector.Gender.Female)
-            {
-                message += "Current character is male. Reload the plugin.";
-            }
-            else
-            {
-                message += "Unknown reason. Please report a bug.";
+                return;
             }
 
-            Utils.LogMessage(message);
+            var breastCenterLeft = BreastCenter(VertexIndexGroup.leftBreast);
+            var breastCenterRight = BreastCenter(VertexIndexGroup.rightBreast);
+            hardColliderGroups.ForEach(group => group.UpdateDistanceDiffs(breastCenterLeft, breastCenterRight, MainPhysicsHandler.chestRb));
+        }
+
+        private static Vector3 BreastCenter(IEnumerable<int> vertexIndices) =>
+            Calc.RelativePosition(
+                MainPhysicsHandler.chestRb,
+                Calc.AveragePosition(vertexIndices.Select(index => skin.rawSkinnedVerts[index]).ToArray())
+            );
+
+        public static void ResetDistanceDiffs()
+        {
+            if(!personIsFemale)
+            {
+                return;
+            }
+
+            hardColliderGroups.ForEach(group => group.ResetDistanceDiffs());
+        }
+
+        private static bool _originalUseAdvancedColliders;
+        private static bool _originalUseAuxBreastColliders;
+
+        public static void SaveOriginalUseColliders()
+        {
+            if(!personIsFemale)
+            {
+                return;
+            }
+
+            _originalUseAdvancedColliders = geometry.useAdvancedColliders;
+            _originalUseAuxBreastColliders = geometry.useAuxBreastColliders;
+        }
+
+        public static void EnableAdvColliders()
+        {
+            if(!personIsFemale)
+            {
+                return;
+            }
+
+            geometry.useAdvancedColliders = true;
+            geometry.useAuxBreastColliders = true;
+        }
+
+        public static void EnableMultiplyFriction()
+        {
+            if(!personIsFemale)
+            {
+                return;
+            }
+
+            hardColliderGroups.ForEach(group => group.EnableMultiplyFriction());
+        }
+
+        public static void RestoreOriginalPhysics()
+        {
+            if(!personIsFemale)
+            {
+                return;
+            }
+
+            /* Required for restoring default collider mass. Enabled in case disabled
+             * programmatically, and not yet restored back on by SettingsMonitor.
+             */
+            geometry.useAdvancedColliders = true;
+            geometry.useAuxBreastColliders = true;
+            /* Restore defaults */
+            hardColliderGroups.ForEach(group => group.RestoreDefaults());
+            geometry.useAdvancedColliders = _originalUseAdvancedColliders;
+            geometry.useAuxBreastColliders = _originalUseAuxBreastColliders;
+        }
+
+        public static void Destroy()
+        {
+            Object.Destroy(colliderVisualizer);
+            colliderVisualizer = null;
+            colliderGroupsJsc = null;
+            hardColliderGroups = null;
+            baseForceJsf = null;
+            highlightAllJsb = null;
+            _scalingConfigs = null;
         }
     }
 }

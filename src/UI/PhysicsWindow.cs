@@ -1,18 +1,14 @@
 using System.Text;
+using TittyMagic.Handlers;
+using TittyMagic.Models;
 using UnityEngine;
-using UnityEngine.Events;
+using static TittyMagic.Script;
 
 namespace TittyMagic.UI
 {
-    internal class PhysicsWindow : WindowBase
+    public class PhysicsWindow : WindowBase
     {
-        private UnityAction onReturnToParent => () =>
-        {
-            activeNestedWindow = null;
-            buildAction();
-        };
-
-        public PhysicsWindow(Script script) : base(script)
+        public PhysicsWindow()
         {
             buildAction = () =>
             {
@@ -23,8 +19,8 @@ namespace TittyMagic.UI
                 );
                 CreateJointPhysicsInfoTextArea(false);
 
-                CreateParamButton(ParamName.MASS, script.mainPhysicsHandler.massParameterGroup, false);
-                script.mainPhysicsHandler?.parameterGroups.ToList()
+                CreateParamButton(ParamName.MASS, MainPhysicsHandler.massParameterGroup, false);
+                MainPhysicsHandler.parameterGroups.ToList()
                     .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, false));
 
                 CreateHeader(
@@ -35,10 +31,10 @@ namespace TittyMagic.UI
                 CreateSoftPhysicsInfoTextArea(true);
                 CreateSoftPhysicsOnToggle(true);
 
-                if(Gender.isFemale)
+                if(personIsFemale)
                 {
                     CreateAllowSelfCollisionToggle(true);
-                    script.softPhysicsHandler.parameterGroups.ToList()
+                    SoftPhysicsHandler.parameterGroups.ToList()
                         .ForEach(kvp => CreateParamButton(kvp.Key, kvp.Value, true));
                 }
             };
@@ -47,33 +43,30 @@ namespace TittyMagic.UI
             {
                 nestedWindows.Add(
                     new ParameterWindow(
-                        script,
                         ParamName.MASS,
-                        script.mainPhysicsHandler.massParameterGroup,
+                        MainPhysicsHandler.massParameterGroup,
                         onReturnToParent
                     )
                 );
-                foreach(var kvp in script.mainPhysicsHandler.parameterGroups)
+                foreach(var kvp in MainPhysicsHandler.parameterGroups)
                 {
                     nestedWindows.Add(
                         new ParameterWindow(
-                            script,
                             kvp.Key,
-                            script.mainPhysicsHandler.parameterGroups[kvp.Key],
+                            MainPhysicsHandler.parameterGroups[kvp.Key],
                             onReturnToParent
                         )
                     );
                 }
 
-                if(Gender.isFemale)
+                if(personIsFemale)
                 {
-                    foreach(var kvp in script.softPhysicsHandler.parameterGroups)
+                    foreach(var kvp in SoftPhysicsHandler.parameterGroups)
                     {
                         nestedWindows.Add(
                             new ParameterWindow(
-                                script,
                                 kvp.Key,
-                                script.softPhysicsHandler.parameterGroups[kvp.Key],
+                                SoftPhysicsHandler.parameterGroups[kvp.Key],
                                 onReturnToParent
                             )
                         );
@@ -84,8 +77,8 @@ namespace TittyMagic.UI
 
         private void CreateAllowSelfCollisionToggle(bool rightSide)
         {
-            var storable = script.softPhysicsHandler.allowSelfCollision;
-            var toggle = script.CreateToggle(storable, rightSide);
+            var storable = SoftPhysicsHandler.allowSelfCollisionJsb;
+            var toggle = tittyMagic.CreateToggle(storable, rightSide);
             toggle.height = 52;
             toggle.label = "Breast Soft Physics Self Collide";
             elements[storable.name] = toggle;
@@ -93,8 +86,8 @@ namespace TittyMagic.UI
 
         private void CreateHeader(JSONStorableString storable, string text, bool rightSide, int spacing = 0)
         {
-            elements[$"{storable.name}Spacer"] = script.NewSpacer(spacing, rightSide);
-            elements[storable.name] = UIHelpers.HeaderTextField(script, storable, text, rightSide);
+            elements[$"{storable.name}Spacer"] = tittyMagic.NewSpacer(spacing, rightSide);
+            elements[storable.name] = UIHelpers.HeaderTextField(storable, text, rightSide);
         }
 
         private void CreateJointPhysicsInfoTextArea(bool rightSide, int spacing = 0)
@@ -104,7 +97,7 @@ namespace TittyMagic.UI
             var storable = new JSONStorableString("jointPhysicsInfoText", sb.ToString());
             AddSpacer(storable.name, spacing, rightSide);
 
-            var textField = script.CreateTextField(storable, rightSide);
+            var textField = tittyMagic.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.height = 100;
             textField.backgroundColor = Color.clear;
@@ -114,7 +107,7 @@ namespace TittyMagic.UI
         private void CreateSoftPhysicsInfoTextArea(bool rightSide, int spacing = 0)
         {
             var sb = new StringBuilder();
-            if(Gender.isFemale)
+            if(personIsFemale)
             {
                 sb.Append("Physics of each breast's soft tissue is simulated with 111 small colliders and their associated joints.");
             }
@@ -126,7 +119,7 @@ namespace TittyMagic.UI
             var storable = new JSONStorableString("softPhysicsInfoText", sb.ToString());
             AddSpacer(storable.name, spacing, rightSide);
 
-            var textField = script.CreateTextField(storable, rightSide);
+            var textField = tittyMagic.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.height = 100;
             textField.backgroundColor = Color.clear;
@@ -135,13 +128,13 @@ namespace TittyMagic.UI
 
         private void CreateSoftPhysicsOnToggle(bool rightSide, int spacing = 0)
         {
-            var storable = script.softPhysicsHandler.softPhysicsOn;
+            var storable = SoftPhysicsHandler.softPhysicsOnJsb;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var toggle = script.CreateToggle(storable, rightSide);
+            var toggle = tittyMagic.CreateToggle(storable, rightSide);
             toggle.height = 52;
             toggle.label = "Soft Physics Enabled";
-            if(!Gender.isFemale)
+            if(!personIsFemale)
             {
                 toggle.SetActiveStyle(false, true);
             }
@@ -151,11 +144,11 @@ namespace TittyMagic.UI
 
         private void CreateParamButton(string key, PhysicsParameterGroup param, bool rightSide)
         {
-            var button = script.CreateButton("  " + param.displayName, rightSide);
+            var button = tittyMagic.CreateButton("  " + param.displayName, rightSide);
             button.height = 52;
             button.buttonText.alignment = TextAnchor.MiddleLeft;
 
-            var nestedWindow = (ParameterWindow) nestedWindows.Find(window => (window as ParameterWindow)?.id == key);
+            var nestedWindow = nestedWindows.Find(window => window.GetId() == key);
             button.AddListener(() =>
             {
                 ClearSelf();
@@ -163,8 +156,8 @@ namespace TittyMagic.UI
                 activeNestedWindow.Rebuild();
             });
 
-            nestedWindow.parentButton = button;
-            button.label = nestedWindow.ParamButtonLabel();
+            ((ParameterWindow) nestedWindow).parentButton = button;
+            button.label = ((ParameterWindow) nestedWindow).ParamButtonLabel();
             elements[key] = button;
         }
     }

@@ -1,8 +1,8 @@
 using System;
 
-namespace TittyMagic.Configs
+namespace TittyMagic.Handlers.Configs
 {
-    internal class StaticPhysicsConfig
+    public class StaticPhysicsConfig
     {
         private readonly float _baseValue; // value at min mass and min softness
 

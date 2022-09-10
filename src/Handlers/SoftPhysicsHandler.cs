@@ -2,37 +2,47 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TittyMagic.Configs;
+using TittyMagic.Handlers.Configs;
+using TittyMagic.Models;
+using UnityEngine;
 using static TittyMagic.ParamName;
+using static TittyMagic.Script;
 using static TittyMagic.Side;
 using static TittyMagic.SoftColliderGroup;
+using Object = UnityEngine.Object;
 
-namespace TittyMagic
+namespace TittyMagic.Handlers
 {
-    internal class SoftPhysicsHandler
+    public static class SoftPhysicsHandler
     {
-        private readonly Script _script;
-        private readonly DAZPhysicsMesh _breastPhysicsMesh;
-        private readonly List<string> _breastPhysicsMeshFloatParamNames;
+        public static ColliderVisualizer colliderVisualizer { get; private set; }
+        public static JSONStorableBool showSoftVerticesColliderPreviewsJsb { get; private set; }
 
-        //Left/Right -> Group name -> Group
-        private readonly Dictionary<string, Dictionary<string, DAZPhysicsMeshSoftVerticesGroup>> _softVerticesGroups;
+        public static DAZPhysicsMesh breastPhysicsMesh { get; private set; }
+        private static List<string> _breastPhysicsMeshFloatParamNames;
 
-        //Group name -> Group
-        public Dictionary<string, PhysicsParameterGroup> parameterGroups { get; private set; }
+        // Left/Right -> Group name -> Group
+        private static Dictionary<string, Dictionary<string, DAZPhysicsMeshSoftVerticesGroup>> _softVerticesGroups;
 
-        public JSONStorableBool softPhysicsOn { get; }
-        public JSONStorableBool allowSelfCollision { get; }
+        // Group name -> Group
+        public static Dictionary<string, PhysicsParameterGroup> parameterGroups { get; private set; }
+        public static JSONStorableBool softPhysicsOnJsb { get; private set; }
+        public static JSONStorableBool allowSelfCollisionJsb { get; private set; }
 
-        public SoftPhysicsHandler(Script script)
+        private static bool _isInitialized;
+
+        public static void Init()
         {
-            _script = script;
-            if(Gender.isFemale)
+            if(personIsFemale)
             {
-                _breastPhysicsMesh = (DAZPhysicsMesh) _script.containingAtom.GetStorableByID("BreastPhysicsMesh");
-                _breastPhysicsMeshFloatParamNames = _breastPhysicsMesh.GetFloatParamNames();
+                InitColliderVisualizer();
+                showSoftVerticesColliderPreviewsJsb = tittyMagic.NewJSONStorableBool("showSoftVerticesColliders", false, shouldRegister: false);
+                showSoftVerticesColliderPreviewsJsb.setCallbackFunction = value => colliderVisualizer.GroupsJSON.val = value ? "Both breasts" : "Off";;
 
-                var groups = _breastPhysicsMesh.softVerticesGroups;
+                breastPhysicsMesh = (DAZPhysicsMesh) tittyMagic.containingAtom.GetStorableByID("BreastPhysicsMesh");
+                _breastPhysicsMeshFloatParamNames = breastPhysicsMesh.GetFloatParamNames();
+
+                var groups = breastPhysicsMesh.softVerticesGroups;
                 _softVerticesGroups = new Dictionary<string, Dictionary<string, DAZPhysicsMeshSoftVerticesGroup>>
                 {
                     {
@@ -54,23 +64,80 @@ namespace TittyMagic
                         }
                     },
                 };
+
+                EnableMultiplyFriction();
             }
 
-            softPhysicsOn = _script.NewJSONStorableBool(SOFT_PHYSICS_ON, Gender.isFemale, register: Gender.isFemale);
-            softPhysicsOn.setCallbackFunction = SyncSoftPhysicsOn;
+            softPhysicsOnJsb = tittyMagic.NewJSONStorableBool(SOFT_PHYSICS_ON, personIsFemale, shouldRegister: personIsFemale);
+            softPhysicsOnJsb.setCallbackFunction = SyncSoftPhysicsOn;
 
-            allowSelfCollision = _script.NewJSONStorableBool(ALLOW_SELF_COLLISION, Gender.isFemale, register: Gender.isFemale);
-            allowSelfCollision.setCallbackFunction = SyncAllowSelfCollision;
+            allowSelfCollisionJsb = tittyMagic.NewJSONStorableBool(ALLOW_SELF_COLLISION, personIsFemale, shouldRegister: personIsFemale);
+            allowSelfCollisionJsb.setCallbackFunction = SyncAllowSelfCollision;
 
-            if(_breastPhysicsMesh == null)
+            if(breastPhysicsMesh == null)
             {
-                softPhysicsOn.valNoCallback = false;
-                allowSelfCollision.valNoCallback = false;
+                softPhysicsOnJsb.valNoCallback = false;
+                allowSelfCollisionJsb.valNoCallback = false;
+            }
+
+            _isInitialized = true;
+        }
+
+        private static void InitColliderVisualizer()
+        {
+            colliderVisualizer = tittyMagic.gameObject.AddComponent<ColliderVisualizer>();
+            var groups = new List<Group>
+            {
+                new Group("Off", @"$off"), //match nothing
+                new Group("Both breasts", @"PhysicsMeshJoint(left|right)(areola|nipple|outer)?\d+$"),
+                // new Group("Left breast", @"PhysicsMeshJointleft(areola|nipple|outer)?\d+$"),
+                new Group($"Both breasts ({MAIN})", @"PhysicsMeshJoint(left|right)\d+$"),
+                // new Group($"Left breast ({MAIN})", @"PhysicsMeshJointleft\d+$"),
+                new Group($"Both breasts ({OUTER})", @"PhysicsMeshJoint(left|right)outer\d+$"),
+                // new Group($"Left breast ({OUTER})", @"PhysicsMeshJointleftouter\d+$"),
+                new Group($"Both breasts ({AREOLA})", @"PhysicsMeshJoint(left|right)areola\d+$"),
+                // new Group($"Left breast ({AREOLA})", @"PhysicsMeshJointleftareola\d+$"),
+                new Group($"Both breasts ({NIPPLE})", @"PhysicsMeshJoint(left|right)nipple\d+$"),
+                // new Group($"Left breast ({NIPPLE})", @"PhysicsMeshJointleftnipple\d+$"),
+            };
+            colliderVisualizer.Init(tittyMagic, groups);
+            colliderVisualizer.PreviewOpacityJSON.val = 0.67f;
+            colliderVisualizer.PreviewOpacityJSON.defaultVal = 0.67f;
+            colliderVisualizer.SelectedPreviewOpacityJSON.val = 1;
+            colliderVisualizer.SelectedPreviewOpacityJSON.defaultVal = 1;
+            colliderVisualizer.GroupsJSON.val = "Off";
+            colliderVisualizer.GroupsJSON.defaultVal = "Off";
+            colliderVisualizer.HighlightMirrorJSON.val = true;
+
+            foreach(string option in new[] { "Select...", "Other", "All" })
+            {
+                colliderVisualizer.GroupsJSON.choices.Remove(option);
             }
         }
 
-        public void LoadSettings()
+        public static void HidePreviewsOnPointerDown()
         {
+            if(!showSoftVerticesColliderPreviewsJsb.val)
+            {
+                colliderVisualizer.GroupsJSON.val = "Off";
+            }
+        }
+
+        public static void ShowPreviewsOnPointerDown(string colliderGroup = null)
+        {
+            if(!showSoftVerticesColliderPreviewsJsb.val)
+            {
+                colliderVisualizer.GroupsJSON.val = $"Both breasts{(colliderGroup != null ? $" ({colliderGroup})" : "" )}";
+            }
+        }
+
+        public static void LoadSettings()
+        {
+            if(!personIsFemale)
+            {
+                return;
+            }
+
             SetupPhysicsParameterGroups();
 
             var texts = CreateInfoTexts();
@@ -82,29 +149,29 @@ namespace TittyMagic
 
         #region *** Parameter setup ***
 
-        private PhysicsParameter NewPhysicsParameter(string paramName, string side, float startingValue, float minValue, float maxValue)
+        private static PhysicsParameter NewPhysicsParameter(string paramName, string side, float startingValue, float minValue, float maxValue)
         {
             string jsfName = $"{paramName}{(side == LEFT ? "" : side)}";
             var valueJsf = new JSONStorableFloat($"{jsfName}Value", startingValue, minValue, maxValue);
             return new PhysicsParameter(
                 valueJsf,
                 baseValueJsf: new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
-                offsetJsf: _script.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, register: side == LEFT)
+                offsetJsf: tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, shouldRegister: side == LEFT)
             );
         }
 
-        private SoftGroupPhysicsParameter NewSoftGroupPhysicsParameter(string paramName, string side, string group)
+        private static SoftGroupPhysicsParameter NewSoftGroupPhysicsParameter(string paramName, string side, string group, float min = 0, float max = 2)
         {
             string jsfName = $"{paramName}{(side == LEFT ? "" : side)}{group}";
-            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 1, 0, 5);
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 1, min, max);
             return new SoftGroupPhysicsParameter(
                 valueJsf,
                 baseValueJsf: new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
-                offsetJsf: _script.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, register: side == LEFT)
+                offsetJsf: tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, shouldRegister: side == LEFT)
             );
         }
 
-        private PhysicsParameter NewSpringParameter(string side)
+        private static PhysicsParameter NewSpringParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_SPRING, side, 0, 0, 500);
             parameter.config = new StaticPhysicsConfig(
@@ -144,7 +211,7 @@ namespace TittyMagic
 
             foreach(string group in allGroups)
             {
-                var groupParam = NewSoftGroupPhysicsParameter(SOFT_VERTICES_SPRING, side, group);
+                var groupParam = NewSoftGroupPhysicsParameter(SOFT_VERTICES_SPRING, side, group, min: 0, max: 5);
                 groupParam.config = groupConfigs[group];
                 groupParam.sync = value => SyncGroupSpring(parameter.valueJsf.val * value, _softVerticesGroups[side][group]);
                 parameter.groupMultiplierParams[group] = groupParam;
@@ -153,7 +220,7 @@ namespace TittyMagic
             return parameter;
         }
 
-        private PhysicsParameter NewDamperParameter(string side)
+        private static PhysicsParameter NewDamperParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_DAMPER, side, 0, 0, 5.00f);
             parameter.config = new StaticPhysicsConfig(
@@ -198,7 +265,7 @@ namespace TittyMagic
 
             foreach(string group in allGroups)
             {
-                var groupParam = NewSoftGroupPhysicsParameter(SOFT_VERTICES_DAMPER, side, group);
+                var groupParam = NewSoftGroupPhysicsParameter(SOFT_VERTICES_DAMPER, side, group, min: 0, max: 5);
                 groupParam.config = groupConfigs[group];
                 groupParam.sync = value => SyncGroupDamper(parameter.valueJsf.val * value, _softVerticesGroups[side][group]);
                 parameter.groupMultiplierParams[group] = groupParam;
@@ -207,7 +274,7 @@ namespace TittyMagic
             return parameter;
         }
 
-        private PhysicsParameter NewSoftVerticesMassParameter(string side)
+        private static PhysicsParameter NewSoftVerticesMassParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_MASS, side, 0, 0.001f, 0.300f);
             parameter.config = new StaticPhysicsConfig(
@@ -263,23 +330,23 @@ namespace TittyMagic
             return parameter;
         }
 
-        private PhysicsParameter NewColliderRadiusParameter(string side)
+        private static PhysicsParameter NewColliderRadiusParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_COLLIDER_RADIUS, side, 0, 0, 0.060f);
             parameter.config = new StaticPhysicsConfig(
                 0.016f,
                 // https://www.desmos.com/calculator/rotof03irg
-                massCurve: x => 1.54f * Curves.Exponential1(2 / 3f * x, 1.42f, 4.25f, 1.17f),
+                massCurve: x => 1.78f * Curves.Exponential1(2 / 3f * x, 1.42f, 4.25f, 1.17f),
                 softnessCurve: x => 0.18f * x
             );
-            parameter.valueFormat = "F3";
+            parameter.valueFormat = "F4";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
                 { MAIN, new StaticPhysicsConfig(1.00f) },
                 { OUTER, new StaticPhysicsConfig(1.00f) },
                 { AREOLA, new StaticPhysicsConfig(1.15f) },
-                { NIPPLE, new StaticPhysicsConfig(0.00f) },
+                { NIPPLE, new StaticPhysicsConfig(0.33f) },
             };
 
             foreach(string group in allGroups)
@@ -293,11 +360,11 @@ namespace TittyMagic
             return parameter;
         }
 
-        private PhysicsParameter NewColliderAdditionalNormalOffsetParameter(string side)
+        private static PhysicsParameter NewColliderAdditionalNormalOffsetParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, side, 0, -0.010f, 0.010f);
             parameter.config = new StaticPhysicsConfig(0.001f);
-            parameter.valueFormat = "F3";
+            parameter.valueFormat = "F4";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
@@ -318,7 +385,7 @@ namespace TittyMagic
             return parameter;
         }
 
-        private PhysicsParameter NewDistanceLimitParameter(string side)
+        private static PhysicsParameter NewDistanceLimitParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_DISTANCE_LIMIT, side, 0, 0, 0.100f);
             parameter.config = new StaticPhysicsConfig(
@@ -355,7 +422,7 @@ namespace TittyMagic
             return parameter;
         }
 
-        private PhysicsParameter NewBackForceParameter(string side)
+        private static PhysicsParameter NewBackForceParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_BACK_FORCE, side, 0, 0, 50.00f);
             parameter.config = new StaticPhysicsConfig(
@@ -363,7 +430,7 @@ namespace TittyMagic
                 // https://www.desmos.com/calculator/ww9lp03k6o
                 massCurve: x => 0.90f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.00f, 0.50f),
                 // https://www.desmos.com/calculator/uwfattbhdg
-                softnessCurve: x => -0.82f * Curves.Exponential1(x, 2.34f, 1.76f, 1.01f)
+                softnessCurve: x => -0.78f * Curves.Exponential1(x, 2.34f, 1.76f, 1.01f)
             );
             parameter.quicknessOffsetConfig = new StaticPhysicsConfig(
                 -2.00f,
@@ -406,7 +473,7 @@ namespace TittyMagic
             return parameter;
         }
 
-        private PhysicsParameter NewBackForceMaxForceParameter(string side)
+        private static PhysicsParameter NewBackForceMaxForceParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_BACK_FORCE_MAX_FORCE, side, 0, 0, 50.00f);
             parameter.config = new StaticPhysicsConfig(50.00f);
@@ -431,7 +498,7 @@ namespace TittyMagic
             return parameter;
         }
 
-        private PhysicsParameter NewBackForceThresholdDistanceParameter(string side)
+        private static PhysicsParameter NewBackForceThresholdDistanceParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE, side, 0, 0, 0.030f);
             parameter.config = new StaticPhysicsConfig(0.001f);
@@ -456,7 +523,7 @@ namespace TittyMagic
             return parameter;
         }
 
-        private void SetupPhysicsParameterGroups()
+        private static void SetupPhysicsParameterGroups()
         {
             var softVerticesSpring = new PhysicsParameterGroup(
                 NewSpringParameter(LEFT),
@@ -470,7 +537,7 @@ namespace TittyMagic
                 "Fat Damper"
             )
             {
-                dependOnPhysicsRate = true,
+                dependsOnPhysicsRate = true,
             };
 
             var softVerticesMass = new PhysicsParameterGroup(
@@ -485,14 +552,18 @@ namespace TittyMagic
                 "Fat Collider Radius"
             )
             {
-                useRealMass = true,
+                usesRealMass = true,
+                allowsSoftColliderVisualization = true,
             };
 
             var softVerticesColliderAdditionalNormalOffset = new PhysicsParameterGroup(
                 NewColliderAdditionalNormalOffsetParameter(LEFT),
                 NewColliderAdditionalNormalOffsetParameter(RIGHT),
                 "Fat Collider Depth"
-            );
+            )
+            {
+                allowsSoftColliderVisualization = true,
+            };
 
             var softVerticesDistanceLimit = new PhysicsParameterGroup(
                 NewDistanceLimitParameter(LEFT),
@@ -500,7 +571,7 @@ namespace TittyMagic
                 "Fat Distance Limit"
             )
             {
-                useRealMass = true,
+                usesRealMass = true,
             };
 
             var softVerticesBackForce = new PhysicsParameterGroup(
@@ -551,9 +622,9 @@ namespace TittyMagic
 
         // Reimplements DAZPhysicsMesh.cs methods SyncGroup[A|B|C|D]SpringMultiplier and SyncSoftVerticesCombinedSpring
         // Circumvents use of softVerticesCombinedSpring value as multiplier on the group specific value, using custom multiplier instead
-        private void SyncGroupSpring(float value, DAZPhysicsMeshSoftVerticesGroup group)
+        private static void SyncGroupSpring(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
-            if(!_script.enabled)
+            if(!tittyMagic.enabled)
             {
                 return;
             }
@@ -569,9 +640,9 @@ namespace TittyMagic
 
         // Reimplements DAZPhysicsMesh.cs methods SyncGroup[A|B|C|D]DamperMultiplier and SyncSoftVerticesCombinedDamper
         // Circumvents use of softVerticesCombinedDamper value as multiplier on the group specific value, using custom multiplier instead
-        private void SyncGroupDamper(float value, DAZPhysicsMeshSoftVerticesGroup group)
+        private static void SyncGroupDamper(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
-            if(!_script.enabled)
+            if(!tittyMagic.enabled)
             {
                 return;
             }
@@ -585,9 +656,9 @@ namespace TittyMagic
             }
         }
 
-        private void SyncGroupMass(float value, DAZPhysicsMeshSoftVerticesGroup group)
+        private static void SyncGroupMass(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
-            if(!_script.enabled)
+            if(!tittyMagic.enabled)
             {
                 return;
             }
@@ -595,20 +666,23 @@ namespace TittyMagic
             group.jointMass = value;
         }
 
-        private void SyncGroupColliderRadius(float value, DAZPhysicsMeshSoftVerticesGroup group)
+        private static void SyncGroupColliderRadius(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
-            if(!_script.enabled)
+            if(!tittyMagic.enabled)
             {
                 return;
             }
 
-            if(group.useParentColliderSettings)
+            /* Nipple group would normally be excluded because it has useParentColliderSettings=false.
+             * Updating it regardless ensures that the visualized collider has correct radius
+             */
+            // if(group.useParentColliderSettings)
             {
                 group.colliderRadiusNoSync = value;
                 group.colliderNormalOffsetNoSync = value;
             }
 
-            if(group.useParentColliderSettingsForSecondCollider)
+            if (group.useSecondCollider)
             {
                 group.secondColliderRadiusNoSync = value;
                 group.secondColliderNormalOffsetNoSync = value;
@@ -617,12 +691,13 @@ namespace TittyMagic
             if(group.colliderSyncDirty)
             {
                 group.SyncColliders();
+                colliderVisualizer.SyncPreviews();
             }
         }
 
-        private void SyncGroupBackForce(float value, DAZPhysicsMeshSoftVerticesGroup group)
+        private static void SyncGroupBackForce(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
-            if(!_script.enabled)
+            if(!tittyMagic.enabled)
             {
                 return;
             }
@@ -630,19 +705,20 @@ namespace TittyMagic
             group.jointBackForce = value;
         }
 
-        private void SyncGroupAdditionalNormalOffset(float value, DAZPhysicsMeshSoftVerticesGroup group)
+        private static void SyncGroupAdditionalNormalOffset(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
-            if(!_script.enabled)
+            if(!tittyMagic.enabled)
             {
                 return;
             }
 
             group.colliderAdditionalNormalOffset = value;
+            colliderVisualizer.SyncPreviews();
         }
 
-        private void SyncGroupDistanceLimit(float value, DAZPhysicsMeshSoftVerticesGroup group)
+        private static void SyncGroupDistanceLimit(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
-            if(!_script.enabled)
+            if(!tittyMagic.enabled)
             {
                 return;
             }
@@ -650,9 +726,9 @@ namespace TittyMagic
             group.normalDistanceLimit = value;
         }
 
-        private void SyncGroupBackForceMaxForce(float value, DAZPhysicsMeshSoftVerticesGroup group)
+        private static void SyncGroupBackForceMaxForce(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
-            if(!_script.enabled)
+            if(!tittyMagic.enabled)
             {
                 return;
             }
@@ -660,9 +736,9 @@ namespace TittyMagic
             group.jointBackForceMaxForce = value;
         }
 
-        private void SyncGroupBackForceThresholdDistance(float value, DAZPhysicsMeshSoftVerticesGroup group)
+        private static void SyncGroupBackForceThresholdDistance(float value, DAZPhysicsMeshSoftVerticesGroup group)
         {
-            if(!_script.enabled)
+            if(!tittyMagic.enabled)
             {
                 return;
             }
@@ -671,182 +747,235 @@ namespace TittyMagic
         }
 
         /* Update value if external value changed */
-        public void ReverseSyncSoftPhysicsOn()
+        public static void ReverseSyncSoftPhysicsOn()
         {
-            if(_breastPhysicsMesh != null)
+            if(breastPhysicsMesh != null)
             {
-                softPhysicsOn.valNoCallback = _breastPhysicsMesh.on;
+                softPhysicsOnJsb.valNoCallback = breastPhysicsMesh.on;
             }
         }
 
         /* Update value if external value changed */
-        public void ReverseSyncAllowSelfCollision()
+        public static void ReverseSyncAllowSelfCollision()
         {
-            if(_breastPhysicsMesh != null)
+            if(breastPhysicsMesh != null)
             {
-                allowSelfCollision.valNoCallback = _breastPhysicsMesh.allowSelfCollision;
+                allowSelfCollisionJsb.valNoCallback = breastPhysicsMesh.allowSelfCollision;
             }
         }
 
-        private void SyncSoftPhysicsOn(bool value)
+        private static void SyncSoftPhysicsOn(bool value)
         {
-            if(!_script.enabled)
+            if(!tittyMagic.enabled)
             {
                 Utils.LogMessage("Enable the plugin to update Soft Physics Enabled from the plugin.");
                 return;
             }
 
-            if(_breastPhysicsMesh != null)
+            if(breastPhysicsMesh != null)
             {
-                _breastPhysicsMesh.on = value;
+                breastPhysicsMesh.on = value;
             }
         }
 
-        private void SyncAllowSelfCollision(bool value)
+        private static void SyncAllowSelfCollision(bool value)
         {
-            if(!_script.enabled)
+            if(!tittyMagic.enabled)
             {
                 Utils.LogMessage("Enable the plugin to update Breast Soft Physics Self Collide via the plugin.");
                 return;
             }
 
-            if(_breastPhysicsMesh != null)
+            if(breastPhysicsMesh != null)
             {
-                _breastPhysicsMesh.allowSelfCollision = value;
+                breastPhysicsMesh.allowSelfCollision = value;
+            }
+        }
+
+        public static void SyncFriction(float friction)
+        {
+            float areolaFriction = friction + 0.33f * (1 - friction);
+            float nippleFriction = friction + 0.5f * (1 - friction);
+
+            foreach(string side in new[] { LEFT, RIGHT })
+            {
+                SyncFriction(friction, _softVerticesGroups[side][MAIN]);
+                SyncFriction(friction, _softVerticesGroups[side][OUTER]);
+                SyncFriction(areolaFriction, _softVerticesGroups[side][AREOLA]);
+                SyncFriction(nippleFriction, _softVerticesGroups[side][NIPPLE]);
+            }
+        }
+
+        private static void SyncFriction(float value, DAZPhysicsMeshSoftVerticesGroup group)
+        {
+            foreach(var set in group.softVerticesSets)
+            {
+                var material = set.jointCollider.material;
+                material.dynamicFriction = value;
+                material.staticFriction = value;
             }
         }
 
         #endregion *** Sync functions ***
 
-        public void SyncSoftPhysics()
+        public static void SyncSoftPhysics()
         {
-            if(!Gender.isFemale)
+            if(!personIsFemale)
             {
                 return;
             }
 
-            SyncSoftPhysicsOn(softPhysicsOn.val);
-            SyncAllowSelfCollision(allowSelfCollision.val);
+            SyncSoftPhysicsOn(softPhysicsOnJsb.val);
+            SyncAllowSelfCollision(allowSelfCollisionJsb.val);
         }
 
-        public void UpdatePhysics()
+        public static void UpdatePhysics()
         {
-            if(!_script.settingsMonitor.softPhysicsEnabled)
+            if(!tittyMagic.settingsMonitor.softPhysicsEnabled)
             {
                 return;
             }
 
-            float softness = _script.softnessAmount;
-            float quickness = _script.quicknessAmount;
+            float softness = tittyMagic.softnessAmount;
+            float quickness = tittyMagic.quicknessAmount;
             parameterGroups.Values
                 .ToList()
                 .ForEach(paramGroup =>
                 {
-                    float mass = paramGroup.useRealMass ? _script.mainPhysicsHandler.realMassAmount : _script.mainPhysicsHandler.massAmount;
+                    float mass = paramGroup.usesRealMass ? MainPhysicsHandler.realMassAmount : MainPhysicsHandler.massAmount;
                     paramGroup.UpdateValue(mass, softness, quickness);
                 });
         }
 
-        public void UpdateRateDependentPhysics()
+        public static void UpdateRateDependentPhysics()
         {
-            if(!_script.settingsMonitor.softPhysicsEnabled)
-            {
-                return;
-            }
-
-            float softness = _script.softnessAmount;
-            float quickness = _script.quicknessAmount;
+            float softness = tittyMagic.softnessAmount;
+            float quickness = tittyMagic.quicknessAmount;
             parameterGroups.Values
-                .Where(paramGroup => paramGroup.dependOnPhysicsRate)
+                .Where(paramGroup => paramGroup.dependsOnPhysicsRate)
                 .ToList()
                 .ForEach(paramGroup =>
                 {
-                    float mass = paramGroup.useRealMass ? _script.mainPhysicsHandler.realMassAmount : _script.mainPhysicsHandler.massAmount;
+                    float mass = paramGroup.usesRealMass ? MainPhysicsHandler.realMassAmount : MainPhysicsHandler.massAmount;
                     paramGroup.UpdateValue(mass, softness, quickness);
                 });
         }
 
-        private bool _originalSoftPhysicsOn;
-        private bool _originalAllowSelfCollision;
+        private static bool _originalSoftPhysicsOn;
+        private static bool _originalAllowSelfCollision;
 
-        public void SaveOriginalBoolParamValues()
+        public static void SaveOriginalBoolParamValues()
         {
-            if(_breastPhysicsMesh == null)
+            if(breastPhysicsMesh == null)
             {
                 return;
             }
 
-            _originalSoftPhysicsOn = _breastPhysicsMesh.on;
-            _originalAllowSelfCollision = _breastPhysicsMesh.allowSelfCollision;
+            _originalSoftPhysicsOn = breastPhysicsMesh.on;
+            _originalAllowSelfCollision = breastPhysicsMesh.allowSelfCollision;
         }
 
-        public void RestoreOriginalPhysics()
+        public static void EnableMultiplyFriction()
         {
-            if(_breastPhysicsMesh == null)
+            if(breastPhysicsMesh == null)
             {
                 return;
             }
 
-            _breastPhysicsMesh.on = _originalSoftPhysicsOn;
-            _breastPhysicsMesh.allowSelfCollision = _originalAllowSelfCollision;
+            foreach(var dictionary in _softVerticesGroups.Values.ToList())
+            {
+                foreach(var group in dictionary)
+                {
+                    foreach(var set in group.Value.softVerticesSets)
+                    {
+                        var material = set.jointCollider.material;
+                        material.frictionCombine = PhysicMaterialCombine.Multiply;
+                    }
+                }
+            }
+        }
+
+        public static void RestoreOriginalPhysics()
+        {
+            if(!_isInitialized || breastPhysicsMesh == null)
+            {
+                return;
+            }
+
+            breastPhysicsMesh.on = _originalSoftPhysicsOn;
+            breastPhysicsMesh.allowSelfCollision = _originalAllowSelfCollision;
 
             foreach(string name in _breastPhysicsMeshFloatParamNames)
             {
                 /* Set a value that is different from the original, then restore the original
                  * in order to trigger VaM's internal sync
                  */
-                var paramJsf = _breastPhysicsMesh.GetFloatJSONParam(name);
+                var paramJsf = breastPhysicsMesh.GetFloatJSONParam(name);
                 float original = paramJsf.val;
                 paramJsf.valNoCallback = Math.Abs(paramJsf.val - paramJsf.min) > 0.01f
                     ? paramJsf.min
                     : paramJsf.max;
                 paramJsf.val = original;
             }
+
+            foreach(var dictionary in _softVerticesGroups.Values.ToList())
+            {
+                foreach(var group in dictionary)
+                {
+                    foreach(var set in group.Value.softVerticesSets)
+                    {
+                        var material = set.jointCollider.material;
+                        material.dynamicFriction = 0.6f;
+                        material.staticFriction = 0.6f;
+                        material.frictionCombine = PhysicMaterialCombine.Average;
+                    }
+                }
+            }
         }
 
         private static Dictionary<string, string> CreateInfoTexts()
         {
-            Func<string> springText = () =>
+            string springText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Magnitude of the spring that holds each soft joint in its target position.");
                 sb.Append("\n\n");
                 sb.Append("Low fat spring makes breast fat soft and slow. High fat spring makes it rigid and");
                 sb.Append(" quick to return to its normal shape.");
-                return sb.ToString();
-            };
+                springText = sb.ToString();
+            }
 
-            Func<string> damperText = () =>
+            string damperText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Magnitude of the damper that reduces oscillation of each soft joint around");
                 sb.Append(" its target position.");
                 sb.Append("\n\n");
                 sb.Append("Low fat damper makes breast fat jiggle more easily.");
-                return sb.ToString();
-            };
+                damperText = sb.ToString();
+            }
 
-            Func<string> massText = () =>
+            string massText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Mass of each soft joint.");
                 sb.Append("\n\n");
                 sb.Append("Higher mass makes the breast tissue more dense. The value is an absolute value,");
                 sb.Append(" so increasing breast size while keeping fat mass the same reduces density.");
-                return sb.ToString();
-            };
+                massText = sb.ToString();
+            }
 
-            Func<string> backForceText = () =>
+            string backForceText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Force applied to the pectoral joint based on movement of each soft joint.");
                 sb.Append("\n\n");
                 sb.Append("Low back force (not 0) helps move the breast with collision, and adds a dampening effect.");
                 sb.Append(" High force can create a feedback loop that spirals out of control.");
-                return sb.ToString();
-            };
+                backForceText = sb.ToString();
+            }
 
-            Func<string> backForceThresholdDistanceText = () =>
+            string backForceThresholdDistanceText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Minimum distance each soft joint needs to move for back force to be applied.");
@@ -854,55 +983,68 @@ namespace TittyMagic
                 sb.Append("Ensures that small movements of soft joints don't cause the whole breast");
                 sb.Append(" to move. Along with Fat Bk Force Threshold, this can be used to prevent");
                 sb.Append(" an out of control feedback loop.");
-                return sb.ToString();
-            };
+                backForceThresholdDistanceText = sb.ToString();
+            }
 
-            Func<string> backForceMaxForceText = () =>
+            string backForceMaxForceText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Upper limit on the magnitude of back force.");
                 sb.Append("\n\n");
                 sb.Append("Along with Fat Bk Force Threshold, this can be used to prevent an out of control feedback loop.");
-                return sb.ToString();
-            };
+                backForceMaxForceText = sb.ToString();
+            }
 
-            Func<string> colliderRadiusText = () =>
+            string colliderRadiusText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Radius of each soft collider.");
                 sb.Append("\n\n");
                 sb.Append("Since the number of soft colliders is fixed, the radius scales with breast size.");
-                return sb.ToString();
-            };
+                colliderRadiusText = sb.ToString();
+            }
 
-            Func<string> colliderAdditionalNormalOffsetText = () =>
+            string colliderAdditionalNormalOffsetText;
             {
                 var sb = new StringBuilder();
                 sb.Append("Offset of soft collider positions relative to skin surface.");
                 sb.Append("\n\n");
                 sb.Append("Negative values pull colliders out from the breast, positive values push them into the breast.");
-                return sb.ToString();
-            };
+                colliderAdditionalNormalOffsetText = sb.ToString();
+            }
 
-            Func<string> distanceLimitText = () =>
+            string distanceLimitText;
             {
                 var sb = new StringBuilder();
                 sb.Append("The maximum distance each soft joint can move away from its target position.");
-                return sb.ToString();
-            };
+                distanceLimitText = sb.ToString();
+            }
 
-            return new Dictionary<string, string>()
+            return new Dictionary<string, string>
             {
-                { SOFT_VERTICES_SPRING, springText() },
-                { SOFT_VERTICES_DAMPER, damperText() },
-                { SOFT_VERTICES_MASS, massText() },
-                { SOFT_VERTICES_BACK_FORCE, backForceText() },
-                { SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE, backForceThresholdDistanceText() },
-                { SOFT_VERTICES_BACK_FORCE_MAX_FORCE, backForceMaxForceText() },
-                { SOFT_VERTICES_COLLIDER_RADIUS, colliderRadiusText() },
-                { SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, colliderAdditionalNormalOffsetText() },
-                { SOFT_VERTICES_DISTANCE_LIMIT, distanceLimitText() },
+                { SOFT_VERTICES_SPRING, springText },
+                { SOFT_VERTICES_DAMPER, damperText },
+                { SOFT_VERTICES_MASS, massText },
+                { SOFT_VERTICES_BACK_FORCE, backForceText },
+                { SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE, backForceThresholdDistanceText },
+                { SOFT_VERTICES_BACK_FORCE_MAX_FORCE, backForceMaxForceText },
+                { SOFT_VERTICES_COLLIDER_RADIUS, colliderRadiusText },
+                { SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, colliderAdditionalNormalOffsetText },
+                { SOFT_VERTICES_DISTANCE_LIMIT, distanceLimitText },
             };
+        }
+
+        public static void Destroy()
+        {
+            Object.Destroy(colliderVisualizer);
+            colliderVisualizer = null;
+            showSoftVerticesColliderPreviewsJsb = null;
+            breastPhysicsMesh = null;
+            _breastPhysicsMeshFloatParamNames = null;
+            _softVerticesGroups = null;
+            parameterGroups = null;
+            softPhysicsOnJsb = null;
+            allowSelfCollisionJsb = null;
         }
     }
 }

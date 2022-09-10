@@ -1,14 +1,13 @@
 ﻿// #define DEBUG_ON
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace TittyMagic
 {
-    internal class BreastMorphListener
+    public static class BreastMorphListener
     {
-        private readonly List<string> _excludeMorphsNames = new List<string>
+        private static List<string> _excludeMorphsNames = new List<string>
         {
             "FBMFitnessDetails",
             "FBMHeight",
@@ -46,65 +45,58 @@ namespace TittyMagic
         };
 
         private const float FILTER_STRENGTH = 0.005f;
-        private readonly Dictionary<DAZMorph, float> _listenedFemaleMorphs;
-        private readonly Dictionary<DAZMorph, float> _listenedMaleMorphs;
 
-        public BreastMorphListener(List<DAZMorph> femaleMorphs, List<DAZMorph> maleMorphs = null)
+        public static void ProcessMorphs(DAZMorphBank morphBank)
         {
-            _listenedFemaleMorphs = ProcessMorphs(femaleMorphs);
-            _listenedMaleMorphs = ProcessMorphs(maleMorphs);
-#if DEBUG_ON
-            Debug.Log($"Female morphs:\n{string.Join("\n", _listenedFemaleMorphs.Keys.Select(key => key.uid).ToArray())}");
-            Debug.Log($"Male morphs:\n{string.Join("\n", _listenedMaleMorphs.Keys.Select(key => key.uid).ToArray())}");
-#endif
-        }
-
-        private Dictionary<DAZMorph, float> ProcessMorphs(List<DAZMorph> morphs)
-        {
-            var result = new Dictionary<DAZMorph, float>();
-            if(morphs != null)
+            if(morphBank.morphs == null)
             {
-                foreach(var morph in morphs)
+                return;
+            }
+
+            var listenedMorphs = new Dictionary<DAZMorph, float>();
+            foreach(var morph in morphBank.morphs)
+            {
+                try
                 {
-                    try
+                    if(
+                        morph.visible &&
+                        !morph.isPoseControl &&
+                        morph.group != null &&
+                        !morph.group.Contains("Pose/") &&
+                        !_excludeMorphsNames.Contains(morph.morphName) &&
+                        !listenedMorphs.ContainsKey(morph) &&
+                        IsInSet(morph, VertexIndexGroup.breasts, FILTER_STRENGTH)
+                    )
                     {
-                        if(
-                            morph.visible &&
-                            !morph.isPoseControl &&
-                            morph.group != null &&
-                            !morph.group.Contains("Pose/") &&
-                            !_excludeMorphsNames.Contains(morph.morphName) &&
-                            !result.ContainsKey(morph) &&
-                            IsInSet(morph, VertexIndexGroup.BREASTS, FILTER_STRENGTH)
-                        )
-                        {
-                            result.Add(morph, morph.morphValue);
-                        }
+                        listenedMorphs.Add(morph, morph.morphValue);
                     }
-                    catch(Exception e)
-                    {
-                        // ignored
+                }
+                catch(Exception e)
+                {
+                    // ignored
 #if DEBUG_ON
-                        Debug.Log($"Unable to add morph '{morph.morphName}'. Error: {e}");
+                    Debug.Log($"Unable to add morph '{morph.morphName}'. Error: {e}");
 #endif
-                    }
                 }
             }
 
-            return result;
+            _morphs = listenedMorphs.Keys.ToArray();
+            _values = listenedMorphs.Values.ToArray();
         }
 
-        public bool Changed() => MorphsChanged(_listenedFemaleMorphs) || MorphsChanged(_listenedMaleMorphs);
+        private static DAZMorph[] _morphs;
+        private static float[] _values;
 
-        private static bool MorphsChanged(Dictionary<DAZMorph, float> listenedMorphs)
+        public static bool ChangeWasDetected()
         {
-            foreach(var listenedMorph in listenedMorphs)
+            for(int i = 0; i < _morphs.Length; i++)
             {
-                var dazMorph = listenedMorph.Key;
-                float value = dazMorph.morphValue;
-                if(Math.Abs(value - listenedMorph.Value) > 0.001f)
+                var dazMorph = _morphs[i];
+                float oldValue = _values[i];
+                float newValue = dazMorph.morphValue;
+                if(Math.Abs(newValue - oldValue) > 0.001f)
                 {
-                    listenedMorphs[dazMorph] = value;
+                    _values[i] = newValue;
 #if DEBUG_ON
                     Debug.Log($"change detected! morph {dazMorph.uid}");
 #endif
@@ -137,6 +129,13 @@ namespace TittyMagic
             }
 
             return false;
+        }
+
+        public static void Destroy()
+        {
+            _excludeMorphsNames = null;
+            _morphs = null;
+            _values = null;
         }
     }
 }

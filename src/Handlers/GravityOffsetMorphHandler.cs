@@ -1,40 +1,37 @@
 using System.Collections.Generic;
-using TittyMagic.Configs;
-using static TittyMagic.GravityEffectCalc;
+using TittyMagic.Handlers.Configs;
+using static TittyMagic.Script;
 
-namespace TittyMagic
+namespace TittyMagic.Handlers
 {
-    internal class GravityOffsetMorphHandler
+    public static class GravityOffsetMorphHandler
     {
-        private readonly Script _script;
+        private static Dictionary<string, List<MorphConfig>> _configSets;
 
-        private Dictionary<string, List<MorphConfig>> _configSets;
+        public static JSONStorableFloat offsetMorphingJsf { get; private set; }
+        public static float upDownExtraMultiplier { get; set; }
 
-        public JSONStorableFloat offsetMorphingJsf { get; }
-        public float upDownExtraMultiplier { get; set; }
-
-        public GravityOffsetMorphHandler(Script script)
+        public static void Init()
         {
-            _script = script;
-            offsetMorphingJsf = script.NewJSONStorableFloat("gravityOffsetMorphing", 1.00f, 0.00f, 2.00f);
-            offsetMorphingJsf.setCallbackFunction = value => _script.recalibrationNeeded = true;
+            offsetMorphingJsf = tittyMagic.NewJSONStorableFloat("gravityOffsetMorphing", 1.00f, 0.00f, 2.00f);
+            offsetMorphingJsf.setCallbackFunction = value => tittyMagic.calibration.shouldRun = true;
         }
 
-        public void LoadSettings() =>
+        public static void LoadSettings() =>
             _configSets = new Dictionary<string, List<MorphConfig>>
             {
                 { Direction.DOWN, LoadSettingsFromFile(Direction.DOWN, "upright", true) },
             };
 
-        private List<MorphConfig> LoadSettingsFromFile(string subDir, string fileName, bool separateLeftRight = false)
+        private static List<MorphConfig> LoadSettingsFromFile(string subDir, string fileName, bool hasSeparateLeftRightConfigs = false)
         {
-            string path = $@"{_script.PluginPath()}\settings\morphmultipliers\offset\{fileName}.json";
-            var jsonClass = _script.LoadJSON(path).AsObject;
+            string path = $@"{tittyMagic.PluginPath()}\settings\morphmultipliers\offset\{fileName}.json";
+            var jsonClass = tittyMagic.LoadJSON(path).AsObject;
 
             var configs = new List<MorphConfig>();
             foreach(string name in jsonClass.Keys)
             {
-                if(separateLeftRight)
+                if(hasSeparateLeftRightConfigs)
                 {
                     configs.Add(
                         new MorphConfig(
@@ -69,7 +66,7 @@ namespace TittyMagic
             return configs;
         }
 
-        public void Update(float roll, float pitch)
+        public static void Update(float roll, float pitch)
         {
             float smoothRoll = Calc.SmoothStep(roll);
             float smoothPitch = 2 * Calc.SmoothStep(pitch);
@@ -77,10 +74,10 @@ namespace TittyMagic
             AdjustUpDownMorphs(smoothPitch, smoothRoll);
         }
 
-        private void AdjustUpDownMorphs(float pitch, float roll)
+        private static void AdjustUpDownMorphs(float pitch, float roll)
         {
-            float multiplier = upDownExtraMultiplier * _script.gravityPhysicsHandler.downMultiplier;
-            float upDownEffect = CalculateUpDownEffect(pitch, roll, multiplier);
+            float multiplier = upDownExtraMultiplier * GravityPhysicsHandler.downMultiplier;
+            float upDownEffect = GravityEffectCalc.CalculateUpDownEffect(pitch, roll, multiplier);
             float effect = offsetMorphingJsf.val * upDownEffect;
             // leaning forward
             if(pitch >= 0)
@@ -112,10 +109,10 @@ namespace TittyMagic
             }
         }
 
-        private void UpdateMorphs(string configSetName, float effect)
+        private static void UpdateMorphs(string configSetName, float effect)
         {
-            float mass = _script.mainPhysicsHandler.realMassAmount;
-            float softness = _script.softnessAmount;
+            float mass = MainPhysicsHandler.realMassAmount;
+            float softness = tittyMagic.softnessAmount;
             _configSets[configSetName].ForEach(config => UpdateValue(config, effect, mass, softness));
         }
 
@@ -128,9 +125,15 @@ namespace TittyMagic
             config.morph.morphValue = inRange ? Calc.RoundToDecimals(value, 1000f) : 0;
         }
 
-        public void ResetAll() => _configSets?.Keys.ToList().ForEach(ResetMorphs);
+        public static void ResetAll() => _configSets?.Keys.ToList().ForEach(ResetMorphs);
 
-        private void ResetMorphs(string configSetName) =>
+        private static void ResetMorphs(string configSetName) =>
             _configSets[configSetName].ForEach(config => config.morph.morphValue = 0);
+
+        public static void Destroy()
+        {
+            _configSets = null;
+            offsetMorphingJsf = null;
+        }
     }
 }

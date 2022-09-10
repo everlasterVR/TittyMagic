@@ -1,5 +1,4 @@
-// ReSharper disable MemberCanBePrivate.Global
-// ReSharper disable UnusedMember.Global
+// ReSharper disable MemberCanBePrivate.Global UnusedMember.Global UnusedMethodReturnValue.Global UnusedType.Global
 using System;
 using UnityEngine;
 using UnityEngine.Events;
@@ -39,17 +38,15 @@ public static class UIDynamicExtension
         uiDynamicSlider.slider.onValueChanged.AddListener(callback);
     }
 
-    public static void SetActiveStyle(this UIDynamic element, bool active, bool setInteractable = false)
+    public static void SetActiveStyle(this UIDynamic element, bool isActive, bool setsInteractable = false)
     {
-        var color = active ? Color.black : new Color(0.4f, 0.4f, 0.4f);
+        var color = isActive ? Color.black : new Color(0.4f, 0.4f, 0.4f);
         var uiDynamicSlider = element as UIDynamicSlider;
         if(uiDynamicSlider != null)
         {
-            if(setInteractable)
-            {
-                uiDynamicSlider.slider.interactable = active;
-            }
-
+            uiDynamicSlider.slider.interactable = !setsInteractable || isActive;
+            uiDynamicSlider.quickButtonsEnabled = !setsInteractable || isActive;
+            uiDynamicSlider.defaultButtonEnabled = !setsInteractable || isActive;
             uiDynamicSlider.labelText.color = color;
             return;
         }
@@ -57,11 +54,7 @@ public static class UIDynamicExtension
         var uiDynamicToggle = element as UIDynamicToggle;
         if(uiDynamicToggle != null)
         {
-            if(setInteractable)
-            {
-                uiDynamicToggle.toggle.interactable = active;
-            }
-
+            uiDynamicToggle.toggle.interactable = !setsInteractable || isActive;
             uiDynamicToggle.labelText.color = color;
             return;
         }
@@ -69,11 +62,7 @@ public static class UIDynamicExtension
         var uiDynamicButton = element as UIDynamicButton;
         if(uiDynamicButton != null)
         {
-            if(setInteractable)
-            {
-                uiDynamicButton.button.interactable = active;
-            }
-
+            uiDynamicButton.button.interactable = !setsInteractable || isActive;
             var colors = uiDynamicButton.button.colors;
             colors.disabledColor = colors.normalColor;
             uiDynamicButton.button.colors = colors;

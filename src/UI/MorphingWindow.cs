@@ -1,31 +1,33 @@
 using System.Linq;
 using System.Text;
+using TittyMagic.Handlers;
 using UnityEngine;
 using UnityEngine.UI;
+using static TittyMagic.Script;
 
 namespace TittyMagic.UI
 {
-    internal class MorphingWindow : WindowBase
+    public class MorphingWindow : WindowBase
     {
-        public MorphingWindow(Script script) : base(script)
+        public MorphingWindow()
         {
             buildAction = () =>
             {
                 CreateForceMorphingHeader(false);
                 CreateMorphingInfoTextArea(false);
 
-                CreateBaseMultiplierSlider(script.forceMorphHandler.baseJsf, true, spacing: 72);
-                CreateMultiplierSlider(script.forceMorphHandler.upJsf, "Up", true, spacing: 5);
-                CreateMultiplierSlider(script.forceMorphHandler.downJsf, "Down", true);
-                CreateMultiplierSlider(script.forceMorphHandler.forwardJsf, "Forward", true);
-                CreateMultiplierSlider(script.forceMorphHandler.backJsf, "Back", true);
-                CreateMultiplierSlider(script.forceMorphHandler.leftRightJsf, "Left / Right", true);
+                CreateBaseMultiplierSlider(ForceMorphHandler.baseJsf, true, spacing: 72);
+                CreateMultiplierSlider(ForceMorphHandler.upJsf, "Up", true, spacing: 5);
+                CreateMultiplierSlider(ForceMorphHandler.downJsf, "Down", true);
+                CreateMultiplierSlider(ForceMorphHandler.forwardJsf, "Forward", true);
+                CreateMultiplierSlider(ForceMorphHandler.backJsf, "Back", true);
+                CreateMultiplierSlider(ForceMorphHandler.leftRightJsf, "Left / Right", true);
 
                 CreateOtherSettingsHeader(false);
                 CreateNippleErectionSlider(false);
                 CreateNippleErectionInfoTextArea(true, spacing: 50);
 
-                elements[script.forceMorphHandler.baseJsf.name].AddListener(UpdateAllSliderColors);
+                elements[ForceMorphHandler.baseJsf.name].AddListener(UpdateAllSliderColors);
                 UpdateAllSliderColors(0);
             };
         }
@@ -33,13 +35,13 @@ namespace TittyMagic.UI
         private void CreateForceMorphingHeader(bool rightSide)
         {
             var storable = new JSONStorableString("forceMorphingHeader", "");
-            elements[storable.name] = UIHelpers.HeaderTextField(script, storable, "Directional Force Morphing", rightSide);
+            elements[storable.name] = UIHelpers.HeaderTextField(storable, "Directional Force Morphing", rightSide);
         }
 
         private void CreateMultiplierSlider(JSONStorableFloat storable, string label, bool rightSide, int spacing = 0)
         {
             AddSpacer(storable.name, spacing, rightSide);
-            var slider = script.CreateSlider(storable, rightSide);
+            var slider = tittyMagic.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = label;
             slider.AddListener((float _) => UpdateSliderColor(storable));
@@ -64,7 +66,7 @@ namespace TittyMagic.UI
             var storable = new JSONStorableString("forceMorphingMultipliersInfoText", sb.ToString());
             AddSpacer(storable.name, spacing, rightSide);
 
-            var textField = script.CreateTextField(storable, rightSide);
+            var textField = tittyMagic.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.backgroundColor = Color.clear;
             textField.height = 825;
@@ -73,10 +75,10 @@ namespace TittyMagic.UI
 
         private void CreateNippleErectionSlider(bool rightSide, int spacing = 0)
         {
-            var storable = script.nippleErectionHandler.nippleErectionJsf;
+            var storable = NippleErectionHandler.nippleErectionJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var slider = script.CreateSlider(storable, rightSide);
+            var slider = tittyMagic.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "Nipple Erection";
             elements[storable.name] = slider;
@@ -86,7 +88,7 @@ namespace TittyMagic.UI
         {
             var sb = new StringBuilder();
             sb.Append("\n".Size(12));
-            if(Gender.isFemale)
+            if(personIsFemale)
             {
                 sb.Append("Expand nipple morphs and harden nipple physics.");
             }
@@ -98,7 +100,7 @@ namespace TittyMagic.UI
             var storable = new JSONStorableString("nippleErectionInfoText", sb.ToString());
             AddSpacer(storable.name, spacing, rightSide);
 
-            var textField = script.CreateTextField(storable, rightSide);
+            var textField = tittyMagic.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
             textField.height = 115;
             textField.backgroundColor = Color.clear;
@@ -107,11 +109,11 @@ namespace TittyMagic.UI
 
         private void UpdateAllSliderColors(float _)
         {
-            UpdateSliderColor(script.forceMorphHandler.upJsf);
-            UpdateSliderColor(script.forceMorphHandler.downJsf);
-            UpdateSliderColor(script.forceMorphHandler.forwardJsf);
-            UpdateSliderColor(script.forceMorphHandler.backJsf);
-            UpdateSliderColor(script.forceMorphHandler.leftRightJsf);
+            UpdateSliderColor(ForceMorphHandler.upJsf);
+            UpdateSliderColor(ForceMorphHandler.downJsf);
+            UpdateSliderColor(ForceMorphHandler.forwardJsf);
+            UpdateSliderColor(ForceMorphHandler.backJsf);
+            UpdateSliderColor(ForceMorphHandler.leftRightJsf);
         }
 
         private void UpdateSliderColor(JSONStorableFloat storable)
@@ -120,7 +122,7 @@ namespace TittyMagic.UI
             var images = slider.slider.gameObject.transform.GetComponentsInChildren<Image>();
             var fillImage = images.First(image => image.name == "Fill");
             var handleImage = images.First(image => image.name == "Handle");
-            var color = MultiplierSliderColor(script.forceMorphHandler.baseJsf.val * storable.val);
+            var color = MultiplierSliderColor(ForceMorphHandler.baseJsf.val * storable.val);
             fillImage.color = color;
             handleImage.color = color;
         }

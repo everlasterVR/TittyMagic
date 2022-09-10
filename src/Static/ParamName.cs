@@ -1,6 +1,7 @@
+// ReSharper disable UnusedMember.Global
 namespace TittyMagic
 {
-    internal static class ParamName
+    public static class ParamName
     {
         public const string MASS = "mass";
         public const string CENTER_OF_GRAVITY_PERCENT = "centerOfGravityPercent";
@@ -8,12 +9,12 @@ namespace TittyMagic
         public const string DAMPER = "damper";
         public const string POSITION_SPRING_Z = "positionSpringZ";
         public const string POSITION_DAMPER_Z = "positionDamperZ";
-        public const string TARGET_ROTATION_Y = "targetRotationY";
         public const string TARGET_ROTATION_X = "targetRotationX";
+        public const string TARGET_ROTATION_Y = "targetRotationY";
+        public const string TARGET_ROTATION_Z = "targetRotationZ";
         public const string USE_ADVANCED_COLLIDERS = "useAdvancedColliders";
         public const string USE_AUX_BREAST_COLLIDERS = "useAuxBreastColliders";
         public const string SOFT_PHYSICS_ON = "on"; // just "on" in the original JSONStorable
-        // public const string SOFT_PHYSICS_ON = "softPhysicsOn"; // just "on" in the original JSONStorable
         public const string ALLOW_SELF_COLLISION = "allowSelfCollision";
         public const string SOFT_VERTICES_SPRING = "softVerticesSpring";
         public const string SOFT_VERTICES_DAMPER = "softVerticesDamper";

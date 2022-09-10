@@ -1,36 +1,45 @@
 using System;
 using System.Linq;
+using TittyMagic.Handlers;
+using TittyMagic.Models;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using static TittyMagic.Script;
 
 namespace TittyMagic.UI
 {
-    internal class ParameterWindow : WindowBase
+    public class ParameterWindow : WindowBase
     {
         private readonly PhysicsParameterGroup _parameterGroup;
         private readonly PhysicsParameter _parameter;
-        private readonly UnityAction _returnToParent;
 
         public JSONStorableAction recalibrationAction { get; }
         private float _offsetWhenCalibrated;
 
-        public string id { get; }
         public UIDynamicButton parentButton { private get; set; }
 
-        public ParameterWindow(Script script, string id, PhysicsParameterGroup parameterGroup, UnityAction onReturnToParent) : base(script)
+        private readonly ColliderVisualizer _visualizer = SoftPhysicsHandler.colliderVisualizer;
+
+        public ParameterWindow(string id, PhysicsParameterGroup parameterGroup, UnityAction onReturnToParent) : base(id)
         {
-            this.id = id;
             _parameterGroup = parameterGroup;
             _parameter = _parameterGroup.left;
 
             buildAction = () =>
             {
                 CreateBackButton(false);
-                elements["backButton"].AddListener(_returnToParent);
+                elements["backButton"].AddListener(onReturnToParent);
                 if(_parameterGroup.requiresRecalibration)
                 {
                     CreateRecalibrateButton(recalibrationAction, true);
+                }
+                else if(_parameterGroup.allowsSoftColliderVisualization)
+                {
+                    CreateVisualizationToggle(true);
+
+                    _visualizer.enabled = true;
+                    _visualizer.ShowPreviewsJSON.val = true;
                 }
                 else
                 {
@@ -39,8 +48,8 @@ namespace TittyMagic.UI
 
                 CreateTitle(false);
                 CreateApplyOnlyToLeftBreastToggle(true);
-
                 CreateInfoTextArea(false);
+
                 CreateOffsetSlider(true, spacing: 10);
                 CreateCurrentValueSlider(true);
 
@@ -53,33 +62,48 @@ namespace TittyMagic.UI
                 }
             };
 
-            closeAction = () => script.RecalibrateOnNavigation(recalibrationAction);
-
             recalibrationAction = new JSONStorableAction("recalibrationAction",
                 () =>
                 {
                     _offsetWhenCalibrated = _parameter.offsetJsf.val;
                     if(id == ParamName.MASS)
                     {
-                        script.calculateBreastMass.actionCallback();
+                        tittyMagic.calculateBreastMass.actionCallback();
                     }
                     else
                     {
-                        script.recalibratePhysics.actionCallback();
+                        tittyMagic.recalibratePhysics.actionCallback();
                     }
                 });
 
-            _returnToParent = () =>
+            closeAction = () =>
             {
-                Clear();
-                onReturnToParent();
+                if(_parameterGroup.allowsSoftColliderVisualization)
+                {
+                    _visualizer.ShowPreviewsJSON.val = false;
+                    _visualizer.enabled = false;
+                }
+
+                if(tittyMagic.calibration.shouldRun)
+                {
+                    tittyMagic.recalibratePhysics.actionCallback();
+                }
             };
+        }
+
+        private void CreateVisualizationToggle(bool rightSide, int spacing = 0)
+        {
+            var storable = SoftPhysicsHandler.showSoftVerticesColliderPreviewsJsb;
+            AddSpacer(storable.name, spacing, rightSide);
+            var toggle = tittyMagic.CreateToggle(storable, rightSide);
+            toggle.label = "Show Collider Previews";
+            elements[storable.name] = toggle;
         }
 
         private void CreateTitle(bool rightSide)
         {
             var storable = new JSONStorableString("title", "");
-            var textField = UIHelpers.HeaderTextField(script, storable, _parameterGroup.displayName, rightSide);
+            var textField = UIHelpers.HeaderTextField(storable, _parameterGroup.displayName, rightSide);
             textField.UItext.fontSize = 32;
             elements[storable.name] = textField;
         }
@@ -88,7 +112,7 @@ namespace TittyMagic.UI
         {
             var storable = _parameterGroup.offsetOnlyLeftBreastJsb;
             AddSpacer(storable.name, spacing, rightSide);
-            var toggle = script.CreateToggle(storable, rightSide);
+            var toggle = tittyMagic.CreateToggle(storable, rightSide);
             toggle.label = "Apply Only To Left Breast";
             elements[storable.name] = toggle;
         }
@@ -98,9 +122,9 @@ namespace TittyMagic.UI
             var storable = new JSONStorableString("infoText", _parameterGroup.infoText);
             AddSpacer(storable.name, spacing, rightSide);
 
-            var textField = script.CreateTextField(storable, rightSide);
+            var textField = tittyMagic.CreateTextField(storable, rightSide);
             textField.UItext.fontSize = 28;
-            textField.height = id == ParamName.MASS ? 368 : 268;
+            textField.height = GetId() == ParamName.MASS ? 368 : 268;
             textField.backgroundColor = Color.clear;
             elements[storable.name] = textField;
         }
@@ -110,7 +134,7 @@ namespace TittyMagic.UI
             var storable = _parameter.offsetJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var slider = script.CreateSlider(storable, rightSide);
+            var slider = tittyMagic.CreateSlider(storable, rightSide);
             slider.valueFormat = _parameter.valueFormat;
             slider.label = "Offset";
 
@@ -119,9 +143,17 @@ namespace TittyMagic.UI
                 parentButton.label = ParamButtonLabel();
                 if(_parameterGroup.requiresRecalibration)
                 {
-                    script.recalibrationNeeded = Math.Abs(value - _offsetWhenCalibrated) > 0.01f;
+                    tittyMagic.calibration.shouldRun = Math.Abs(value - _offsetWhenCalibrated) > 0.01f;
                 }
             });
+
+            if(_parameterGroup.allowsSoftColliderVisualization)
+            {
+                slider.AddPointerUpDownListener(
+                    SoftPhysicsHandler.HidePreviewsOnPointerDown,
+                    () => SoftPhysicsHandler.ShowPreviewsOnPointerDown()
+                );
+            }
 
             elements[storable.name] = slider;
             _offsetWhenCalibrated = storable.val;
@@ -132,13 +164,10 @@ namespace TittyMagic.UI
             var storable = _parameter.valueJsf;
             AddSpacer(storable.name, spacing, rightSide);
 
-            var slider = script.CreateSlider(storable, rightSide);
+            var slider = tittyMagic.CreateSlider(storable, rightSide);
             slider.valueFormat = _parameter.valueFormat;
             slider.label = "Value";
-            slider.SetActiveStyle(false);
-            slider.slider.interactable = false;
-            slider.quickButtonsEnabled = false;
-            slider.defaultButtonEnabled = false;
+            slider.SetActiveStyle(false, true);
 
             slider.slider.onValueChanged.AddListener(_ => SyncAllMultiplierSliderValues());
 
@@ -156,24 +185,30 @@ namespace TittyMagic.UI
             CreateGroupHeader(group, rightSide);
             CreateMultiplierOffsetSlider(groupParam.offsetJsf, rightSide);
             CreateMultiplierSlider(groupParam.valueJsf, rightSide);
+
+            if(_parameterGroup.allowsSoftColliderVisualization)
+            {
+                var slider = (UIDynamicSlider) elements[groupParam.offsetJsf.name];
+                slider.AddPointerUpDownListener(
+                    SoftPhysicsHandler.HidePreviewsOnPointerDown,
+                    () => SoftPhysicsHandler.ShowPreviewsOnPointerDown(group)
+                );
+            }
         }
 
         private void CreateGroupHeader(string group, bool rightSide)
         {
             var storable = new JSONStorableString(group + "Header", "");
-            elements[storable.name] = UIHelpers.HeaderTextField(script, storable, group, rightSide);
+            elements[storable.name] = UIHelpers.HeaderTextField(storable, group, rightSide);
         }
 
         private void CreateMultiplierSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
         {
             AddSpacer(storable.name, spacing, rightSide);
 
-            var slider = script.CreateSlider(storable, rightSide);
-            slider.valueFormat = "F2";
-            slider.SetActiveStyle(false);
-            slider.slider.interactable = false;
-            slider.quickButtonsEnabled = false;
-            slider.defaultButtonEnabled = false;
+            var slider = tittyMagic.CreateSlider(storable, rightSide);
+            slider.valueFormat = _parameter.valueFormat;
+            slider.SetActiveStyle(false, true);
             var uiInputField = slider.sliderValueTextFromFloat.UIInputField;
             uiInputField.contentType = InputField.ContentType.Standard;
 
@@ -199,11 +234,10 @@ namespace TittyMagic.UI
         private void SyncMultiplierSliderLabel(UIDynamicSlider slider, float value)
         {
             var textFromFloat = slider.sliderValueTextFromFloat;
-            string currentValue = (value * _parameter.valueJsf.val).ToString(_parameter.valueFormat);
             if(textFromFloat.UIInputField != null)
             {
                 slider.label = $"Multiplier: {slider.slider.value:F2}              →";
-                textFromFloat.UIInputField.text = currentValue;
+                textFromFloat.floatVal = value * _parameter.valueJsf.val;
             }
         }
 
@@ -211,7 +245,7 @@ namespace TittyMagic.UI
         {
             AddSpacer(storable.name, spacing, rightSide);
 
-            var slider = script.CreateSlider(storable, rightSide);
+            var slider = tittyMagic.CreateSlider(storable, rightSide);
             slider.valueFormat = "F2";
             slider.label = "Multiplier Offset";
             slider.slider.onValueChanged.AddListener(value => parentButton.label = ParamButtonLabel());
