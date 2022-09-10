@@ -200,20 +200,21 @@ namespace TittyMagic
                 }
             }
 
-            geometry = (DAZCharacterSelector) containingAtom.GetStorableByID("geometry");
-
-            /* Wait for skin to be ready */
+            /* Wait for geometry and skin to be ready */
             {
-                float timeout = Time.unscaledTime + 2;
-                while(Time.unscaledTime < timeout && (!geometry.selectedCharacter.ready || containingAtom.GetStorableByID("skin") == null))
+                float timeout = Time.unscaledTime + 10;
+                bool ready = false;
+                while(Time.unscaledTime < timeout && !ready)
                 {
-                    yield return null;
+                    geometry = (DAZCharacterSelector) containingAtom.GetStorableByID("geometry");
+                    ready = geometry.selectedCharacter.ready && containingAtom.GetStorableByID("skin") != null;
+                    yield return new WaitForSecondsRealtime(0.1f);
                 }
 
                 if(!geometry.selectedCharacter.ready)
                 {
                     Utils.LogError(
-                        $"Selected character {geometry.selectedCharacter.name} was not ready after 2 seconds of waiting. " +
+                        $"Selected character {geometry.selectedCharacter.name} was not ready after 10 seconds of waiting. " +
                         "Aborting plugin initization. Try reloading, and please report an issue."
                     );
                     yield break;
