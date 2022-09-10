@@ -90,15 +90,15 @@ namespace TittyMagic.Handlers
             {
                 new Group("Off", @"$off"), //match nothing
                 new Group("Both breasts", @"PhysicsMeshJoint(left|right)(areola|nipple|outer)?\d+$"),
-                new Group("Left breast", @"PhysicsMeshJointleft(areola|nipple|outer)?\d+$"),
-                new Group("Both breasts (main)", @"PhysicsMeshJoint(left|right)\d+$"),
-                new Group("Left breast (main)", @"PhysicsMeshJointleft\d+$"),
-                new Group("Both breasts (outer)", @"PhysicsMeshJoint(left|right)outer\d+$"),
-                new Group("Left breast (outer)", @"PhysicsMeshJointleftouter\d+$"),
-                new Group("Both breasts (areola)", @"PhysicsMeshJoint(left|right)areola\d+$"),
-                new Group("Left breast (areola)", @"PhysicsMeshJointleftareola\d+$"),
-                new Group("Both breasts (nipple)", @"PhysicsMeshJoint(left|right)nipple\d+$"),
-                new Group("Left breast (nipple)", @"PhysicsMeshJointleftnipple\d+$"),
+                // new Group("Left breast", @"PhysicsMeshJointleft(areola|nipple|outer)?\d+$"),
+                new Group($"Both breasts ({MAIN})", @"PhysicsMeshJoint(left|right)\d+$"),
+                // new Group($"Left breast ({MAIN})", @"PhysicsMeshJointleft\d+$"),
+                new Group($"Both breasts ({OUTER})", @"PhysicsMeshJoint(left|right)outer\d+$"),
+                // new Group($"Left breast ({OUTER})", @"PhysicsMeshJointleftouter\d+$"),
+                new Group($"Both breasts ({AREOLA})", @"PhysicsMeshJoint(left|right)areola\d+$"),
+                // new Group($"Left breast ({AREOLA})", @"PhysicsMeshJointleftareola\d+$"),
+                new Group($"Both breasts ({NIPPLE})", @"PhysicsMeshJoint(left|right)nipple\d+$"),
+                // new Group($"Left breast ({NIPPLE})", @"PhysicsMeshJointleftnipple\d+$"),
             };
             colliderVisualizer.Init(tittyMagic, groups);
             colliderVisualizer.PreviewOpacityJSON.val = 0.67f;
@@ -112,6 +112,22 @@ namespace TittyMagic.Handlers
             foreach(string option in new[] { "Select...", "Other", "All" })
             {
                 colliderVisualizer.GroupsJSON.choices.Remove(option);
+            }
+        }
+
+        public static void HidePreviewsOnPointerDown()
+        {
+            if(!showSoftVerticesColliderPreviewsJsb.val)
+            {
+                colliderVisualizer.GroupsJSON.val = "Off";
+            }
+        }
+
+        public static void ShowPreviewsOnPointerDown(string colliderGroup = null)
+        {
+            if(!showSoftVerticesColliderPreviewsJsb.val)
+            {
+                colliderVisualizer.GroupsJSON.val = $"Both breasts{(colliderGroup != null ? $" ({colliderGroup})" : "" )}";
             }
         }
 

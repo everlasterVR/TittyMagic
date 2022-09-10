@@ -111,6 +111,11 @@ namespace TittyMagic.UI
                 }
             }
 
+            foreach(var window in nestedWindows)
+            {
+                sliders.AddRange(window.GetSliders());
+            }
+
             return sliders;
         }
 

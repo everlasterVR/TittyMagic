@@ -147,6 +147,14 @@ namespace TittyMagic.UI
                 }
             });
 
+            if(_parameterGroup.allowsSoftColliderVisualization)
+            {
+                slider.AddPointerUpDownListener(
+                    SoftPhysicsHandler.HidePreviewsOnPointerDown,
+                    () => SoftPhysicsHandler.ShowPreviewsOnPointerDown()
+                );
+            }
+
             elements[storable.name] = slider;
             _offsetWhenCalibrated = storable.val;
         }
@@ -177,6 +185,15 @@ namespace TittyMagic.UI
             CreateGroupHeader(group, rightSide);
             CreateMultiplierOffsetSlider(groupParam.offsetJsf, rightSide);
             CreateMultiplierSlider(groupParam.valueJsf, rightSide);
+
+            if(_parameterGroup.allowsSoftColliderVisualization)
+            {
+                var slider = (UIDynamicSlider) elements[groupParam.offsetJsf.name];
+                slider.AddPointerUpDownListener(
+                    SoftPhysicsHandler.HidePreviewsOnPointerDown,
+                    () => SoftPhysicsHandler.ShowPreviewsOnPointerDown(group)
+                );
+            }
         }
 
         private void CreateGroupHeader(string group, bool rightSide)
