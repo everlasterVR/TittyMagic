@@ -29,7 +29,7 @@ namespace TittyMagic
 
             _skinMaterialsStorable = skinMaterialsStorable;
 
-            frictionOffsetJsf = new JSONStorableFloat("frictionOffset", 0, -0.5f, 0.5f);
+            frictionOffsetJsf = tittyMagic.NewJSONStorableFloat("frictionOffset", 0, -0.5f, 0.5f);
             frictionOffsetJsf.setCallbackFunction = _ => CalculateFriction();
 
             softColliderFrictionJsf = new JSONStorableFloat("softColliderFriction", HardCollider.DEFAULT_FRICTION, 0, 1);
