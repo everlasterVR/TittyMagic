@@ -75,14 +75,12 @@ namespace TittyMagic
                 {
                     HardColliderHandler.colliderVisualizer.ShowPreviewsJSON.val = false;
                     HardColliderHandler.colliderVisualizer.enabled = false;
-                    HardColliderHandler.colliderVisualizer.DestroyAllPreviews();
                 }
 
                 if(SoftPhysicsHandler.colliderVisualizer != null)
                 {
                     SoftPhysicsHandler.colliderVisualizer.ShowPreviewsJSON.val = false;
                     SoftPhysicsHandler.colliderVisualizer.enabled = false;
-                    SoftPhysicsHandler.colliderVisualizer.DestroyAllPreviews();
                 }
 
                 _mainWindow.GetActiveNestedWindow()?.ClosePopups();
