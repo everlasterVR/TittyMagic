@@ -22,6 +22,7 @@ namespace TittyMagic.Components
         private void OnDestroy()
         {
             onDisable.RemoveAllListeners();
+            onEnable.RemoveAllListeners();
         }
     }
 }
