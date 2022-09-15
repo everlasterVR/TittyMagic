@@ -14,7 +14,11 @@ Dotnet and DLL's: see [TittyMagic.csproj](TittyMagic.csproj).
 
 #### vam-collider-editor
 
-[vam-collider-editor branch "visualizer"](https://github.com/everlasterVR/vam-collider-editor/tree/visualizer) must be cloned in the project root. This is currently not version locked to any tag or SHA.
+[vam-collider-editor branch "visualizer"](https://github.com/everlasterVR/vam-collider-editor/tree/visualizer) is set up as a submodule.
+
+```
+git submodule init
+```
 
 #### Morphs
 
