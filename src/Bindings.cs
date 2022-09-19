@@ -26,13 +26,13 @@ namespace TittyMagic
             };
             var jsonStorableActions = new List<JSONStorableAction>
             {
-                new JSONStorableAction("OpenUI", OpenUI),
-                new JSONStorableAction("OpenUI_Control", OpenUIControl),
-                new JSONStorableAction("OpenUI_ConfigureHardColliders", OpenUIConfigureHardColliders),
-                new JSONStorableAction("OpenUI_ConfigureColliderFriction", OpenUIConfigureColliderFriction),
-                new JSONStorableAction("OpenUI_PhysicsParams", OpenUIPhysicsParams),
-                new JSONStorableAction("OpenUI_MorphMultipliers", OpenUIMorphMultipliers),
-                new JSONStorableAction("OpenUI_GravityMultipliers", OpenUIGravityMultipliers),
+                tittyMagic.NewJSONStorableAction("OpenUI", OpenUI),
+                tittyMagic.NewJSONStorableAction("OpenUI_Control", OpenUIControl),
+                tittyMagic.NewJSONStorableAction("OpenUI_ConfigureHardColliders", OpenUIConfigureHardColliders),
+                tittyMagic.NewJSONStorableAction("OpenUI_ConfigureColliderFriction", OpenUIConfigureColliderFriction),
+                tittyMagic.NewJSONStorableAction("OpenUI_PhysicsParams", OpenUIPhysicsParams),
+                tittyMagic.NewJSONStorableAction("OpenUI_MorphMultipliers", OpenUIMorphMultipliers),
+                tittyMagic.NewJSONStorableAction("OpenUI_GravityMultipliers", OpenUIGravityMultipliers),
                 new JSONStorableAction("AutoUpdateMassOn", () => StartCoroutine(DeferSetAutoUpdateMass(true))),
                 new JSONStorableAction("AutoUpdateMassOff", () => StartCoroutine(DeferSetAutoUpdateMass(false))),
                 new JSONStorableAction("CalculateBreastMass", tittyMagic.calculateBreastMass.actionCallback),
@@ -65,7 +65,7 @@ namespace TittyMagic
         {
             if(!personIsFemale)
             {
-                Utils.LogMessage("Collider friction is only supported on a female character.");
+                Utils.LogMessage("Hard colliders are only supported on a female character.");
                 return;
             }
 
