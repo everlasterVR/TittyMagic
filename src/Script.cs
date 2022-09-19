@@ -366,6 +366,8 @@ namespace TittyMagic
             }
 
             SuperController.singleton.BroadcastMessage("OnActionsProviderAvailable", this, SendMessageOptions.DontRequireReceiver);
+            SuperController.singleton.onBeforeSceneSaveHandlers += OnBeforeSceneSave;
+            SuperController.singleton.onSceneSavedHandlers += OnSceneSaved;
 
             /* Setup navigation */
             {
@@ -752,7 +754,7 @@ namespace TittyMagic
             try
             {
                 bool isFreezeGrabbing = containingAtom.grabFreezePhysics && containingAtom.mainController.isGrabbing;
-                if(!isInitialized || _isRestoringFromJson || calibration.isWaiting || isFreezeGrabbing)
+                if(!isInitialized || _isRestoringFromJson || calibration.isWaiting || isFreezeGrabbing || _isSavingScene)
                 {
                     return;
                 }
@@ -1001,6 +1003,21 @@ namespace TittyMagic
             calculateBreastMass.actionCallback();
         }
 
+        private bool _isSavingScene;
+
+        private void OnBeforeSceneSave()
+        {
+            _isSavingScene = true;
+            GravityOffsetMorphHandler.ResetAll();
+            ForceMorphHandler.ResetAll();
+            NippleErectionHandler.Reset();
+        }
+
+        private void OnSceneSaved()
+        {
+            _isSavingScene = false;
+        }
+
         private void OnDestroy()
         {
             try
@@ -1039,6 +1056,8 @@ namespace TittyMagic
 
                 _customUIGameObjects?.ForEach(Destroy);
 
+                SuperController.singleton.onSceneSavedHandlers -= OnSceneSaved;
+                SuperController.singleton.onBeforeSceneSaveHandlers -= OnBeforeSceneSave;
                 SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
             }
             catch(Exception e)
