@@ -100,13 +100,14 @@ namespace TittyMagic
                 }
             }
 
+            if(_selectedCharacter != geometry.selectedCharacter)
+            {
+                StartCoroutine(OnCharacterChangedCo());
+            }
+
             if(!tittyMagic.calibration.isInProgress)
             {
                 CheckIfRecalibrationNeeded();
-                if(_selectedCharacter != geometry.selectedCharacter)
-                {
-                    StartCoroutine(OnCharacterChangedCo());
-                }
             }
         }
 
