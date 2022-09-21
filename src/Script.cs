@@ -821,6 +821,12 @@ namespace TittyMagic
                 yield break;
             }
 
+            /* This can occur when loading a look and VaM pauses to load assets */
+            while(!geometry.selectedCharacter.ready)
+            {
+                yield return null;
+            }
+
             yield return calibration.DeferFreezeAnimation();
 
             /* Dynamic adjustments to zero (simulate static upright pose), update physics */
