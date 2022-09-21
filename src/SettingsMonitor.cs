@@ -57,7 +57,7 @@ namespace TittyMagic
             _isInitialized = true;
         }
 
-        private void Watch()
+        public void CheckSettings()
         {
             /* Enforce in-out morphs off */
             if(_breastInOut.GetBoolParamValue("enabled"))
@@ -262,7 +262,7 @@ namespace TittyMagic
 
             try
             {
-                _runner.Run(Watch);
+                _runner.Run(CheckSettings);
             }
             catch(Exception e)
             {
@@ -279,7 +279,7 @@ namespace TittyMagic
             }
 
             /* Check settings immediately when plugin enabled instead of waiting for runner to trigger */
-            Watch();
+            CheckSettings();
         }
     }
 }

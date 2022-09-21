@@ -556,5 +556,7 @@ namespace TittyMagic.Handlers
             highlightAllJsb = null;
             _scalingConfigs = null;
         }
+
+        public static bool RigidbodiesFound() => !personIsFemale || hardColliderGroups.All(group => group.HasRigidbodies());
     }
 }

@@ -125,5 +125,7 @@ namespace TittyMagic.Models
             left.RestoreDefaults(DEFAULT_MASS);
             right.RestoreDefaults(DEFAULT_MASS);
         }
+
+        public bool HasRigidbodies() => left.collider.attachedRigidbody != null && right.collider.attachedRigidbody != null;
     }
 }

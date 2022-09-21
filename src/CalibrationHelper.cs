@@ -58,8 +58,6 @@ namespace TittyMagic
                 }
             }
 
-            tittyMagic.settingsMonitor.SetEnabled(false);
-
             while(isInProgress)
             {
                 yield return null;

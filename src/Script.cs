@@ -821,10 +821,32 @@ namespace TittyMagic
                 yield break;
             }
 
-            /* This can occur when loading a look and VaM pauses to load assets */
-            while(!geometry.selectedCharacter.ready)
+            /* Ensure everything is ready for calibration to proceed in case of e.g. appearance preset load */
             {
-                yield return null;
+                /* Can occur when loading a look and VaM pauses to load assets */
+                while(!geometry.selectedCharacter.ready)
+                {
+                    yield return null;
+                }
+
+                settingsMonitor.CheckSettings();
+                settingsMonitor.SetEnabled(false);
+
+                /* Sanity check. Might occur (?) even after hard colliders are enabled by settings monitor */
+                float timeout = Time.unscaledTime + 5;
+                while(!HardColliderHandler.RigidbodiesFound() && Time.unscaledTime < timeout)
+                {
+                    yield return null;
+                }
+
+                if(!HardColliderHandler.RigidbodiesFound())
+                {
+                    Utils.LogError(
+                        "Calibration error: collider rigidbodies not found after 5 seconds of waiting. " +
+                        "Reload the plugin, and please report a bug! <3"
+                    );
+                    yield break;
+                }
             }
 
             yield return calibration.DeferFreezeAnimation();
