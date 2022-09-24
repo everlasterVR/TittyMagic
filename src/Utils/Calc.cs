@@ -35,6 +35,16 @@ namespace TittyMagic
             );
         }
 
+        public static Vector3 RelativePosition(Transform transform, Vector3 position)
+        {
+            var difference = position - transform.position;
+            return new Vector3(
+                Vector3.Dot(difference, transform.right),
+                Vector3.Dot(difference, transform.up),
+                Vector3.Dot(difference, transform.forward)
+            );
+        }
+
         public static Vector3 AveragePosition(Vector3[] positions)
         {
             var sum = Vector3.zero;

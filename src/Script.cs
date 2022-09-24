@@ -165,8 +165,8 @@ namespace TittyMagic
         private Transform _chestTransform;
         private Rigidbody _pectoralRbLeft;
         private Rigidbody _pectoralRbRight;
-        private TrackNipple _trackLeftNipple;
-        private TrackNipple _trackRightNipple;
+        private TrackBreast _trackLeftBreast;
+        private TrackBreast _trackRightBreast;
 
         private IEnumerator DeferInit()
         {
@@ -275,26 +275,11 @@ namespace TittyMagic
             settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
             settingsMonitor.Init();
 
-            /* Setup nipples tracking */
-            _trackLeftNipple = new TrackNipple(_pectoralRbLeft);
-            _trackRightNipple = new TrackNipple(_pectoralRbRight);
+            _trackLeftBreast = new TrackBreast(_pectoralRbLeft, VertexIndexGroup.leftBreastMiddle);
+            _trackRightBreast = new TrackBreast(_pectoralRbRight, VertexIndexGroup.rightBreastMiddle);
 
-            if(personIsFemale)
-            {
-                yield return DeferSetupTrackFemaleNipples();
-            }
-            else
-            {
-                _trackLeftNipple.getNipplePosition = () => Calc.AveragePosition(
-                    VertexIndexGroup.leftBreastCenter.Select(i => skin.rawSkinnedWorkingVerts[i]).ToArray()
-                );
-                _trackRightNipple.getNipplePosition = () => Calc.AveragePosition(
-                    VertexIndexGroup.rightBreastCenter.Select(i => skin.rawSkinnedWorkingVerts[i]).ToArray()
-                );
-            }
-
-            ForcePhysicsHandler.Init(_trackLeftNipple, _trackRightNipple);
-            ForceMorphHandler.Init(_trackLeftNipple, _trackRightNipple);
+            ForcePhysicsHandler.Init(_trackLeftBreast, _trackRightBreast);
+            ForceMorphHandler.Init(_trackLeftBreast, _trackRightBreast);
 
             /* Setup breast morph listening */
             BreastMorphListener.ProcessMorphs(geometry.morphBank1);
@@ -403,30 +388,6 @@ namespace TittyMagic
             {
                 isInitialized = true;
             }
-        }
-
-        private IEnumerator DeferSetupTrackFemaleNipples()
-        {
-            Rigidbody nippleRbLeft = null;
-            Rigidbody nippleRbRight = null;
-            float timeout = Time.unscaledTime + 3f;
-            while((nippleRbLeft == null || nippleRbRight == null) && Time.unscaledTime < timeout)
-            {
-                _rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
-                nippleRbLeft = _rigidbodies.Find(rb => rb.name == "lNipple");
-                nippleRbRight = _rigidbodies.Find(rb => rb.name == "rNipple");
-                yield return new WaitForSecondsRealtime(0.1f);
-            }
-
-            if(nippleRbLeft == null || nippleRbRight == null)
-            {
-                Utils.LogError("Init: failed to find nipple rigidbodies. Try: Remove the plugin, enable advanced colliders, then add the plugin.");
-                enabled = false;
-                yield break;
-            }
-
-            _trackLeftNipple.getNipplePosition = () => nippleRbLeft.position;
-            _trackRightNipple.getNipplePosition = () => nippleRbRight.position;
         }
 
         // https://github.com/vam-community/vam-plugins-interop-specs/blob/main/keybindings.md
@@ -728,18 +689,6 @@ namespace TittyMagic
 
         #region Update
 
-        private void Update()
-        {
-            try
-            {
-            }
-            catch(Exception e)
-            {
-                Utils.LogError($"Update: {e}");
-                enabled = false;
-            }
-        }
-
         private static void UpdateDynamicHandlers(float roll, float pitch)
         {
             HardColliderHandler.UpdateFriction();
@@ -765,8 +714,8 @@ namespace TittyMagic
                     return;
                 }
 
-                _trackLeftNipple.UpdateAnglesAndDepthDiff();
-                _trackRightNipple.UpdateAnglesAndDepthDiff();
+                _trackLeftBreast.UpdateAnglesAndDepthDiff();
+                _trackRightBreast.UpdateAnglesAndDepthDiff();
                 HardColliderHandler.UpdateDistanceDiffs();
 
                 var rotation = _chestTransform.rotation;
@@ -853,8 +802,8 @@ namespace TittyMagic
 
             /* Dynamic adjustments to zero (simulate static upright pose), update physics */
             {
-                _trackLeftNipple.ResetAnglesAndDepthDiff();
-                _trackRightNipple.ResetAnglesAndDepthDiff();
+                _trackLeftBreast.ResetAnglesAndDepthDiff();
+                _trackRightBreast.ResetAnglesAndDepthDiff();
                 HardColliderHandler.ResetDistanceDiffs();
                 UpdateDynamicHandlers(0, 0);
 
@@ -906,12 +855,15 @@ namespace TittyMagic
                 ForceMorphHandler.upDownExtraMultiplier =
                     Curves.Exponential1(softnessAmount, 1.73f, 1.68f, 0.88f, m: 0.93f, s: 0.56f)
                     * Curves.MorphingCurve(mass);
+
                 ForceMorphHandler.forwardExtraMultiplier =
                     Mathf.Lerp(1.00f, 1.20f, softnessAmount)
                     * Curves.DepthMorphingCurve(mass);
+
                 ForceMorphHandler.backExtraMultiplier =
                     Mathf.Lerp(0.80f, 1.00f, softnessAmount)
                     * Curves.DepthMorphingCurve(mass);
+
                 ForceMorphHandler.leftRightExtraMultiplier =
                     Curves.Exponential1(softnessAmount, 1.73f, 1.68f, 0.88f, m: 0.93f, s: 0.56f)
                     * Curves.MorphingCurve(mass);
@@ -927,8 +879,8 @@ namespace TittyMagic
                 StartCoroutine(SimulateUprightPose());
                 Action calibrateNipplesAndColliders = () =>
                 {
-                    _trackLeftNipple.Calibrate();
-                    _trackRightNipple.Calibrate();
+                    _trackLeftBreast.Calibrate();
+                    _trackRightBreast.Calibrate();
                     HardColliderHandler.CalibrateColliders();
                     HardColliderHandler.SyncAllOffsets();
                 };

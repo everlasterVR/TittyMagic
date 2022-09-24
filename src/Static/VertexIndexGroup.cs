@@ -44,6 +44,9 @@ namespace TittyMagic
         public static int[] leftBreastWidthMarkers = { 8956, 8967 };
         public static int[] rightBreastWidthMarkers = { 19622, 19633 };
 
+        public static List<int> leftBreastMiddle = new List<int> { 8911, 8930, 8943, 8947 };
+        public static List<int> rightBreastMiddle = new List<int> { 19577, 19596, 19609, 19625 };
+
         public static void Destroy()
         {
             breasts = null;
@@ -53,6 +56,8 @@ namespace TittyMagic
             rightBreastCenter = null;
             leftBreastWidthMarkers = null;
             rightBreastWidthMarkers = null;
+            leftBreastMiddle = null;
+            rightBreastMiddle = null;
         }
     }
 }

@@ -13,8 +13,8 @@ namespace TittyMagic.Handlers
         private static List<PhysicsParameterGroup> _mainParamGroups;
         private static List<PhysicsParameterGroup> _softParamGroups;
 
-        private static TrackNipple _trackLeftNipple;
-        private static TrackNipple _trackRightNipple;
+        private static TrackBreast _trackLeftBreast;
+        private static TrackBreast _trackRightBreast;
 
         private static JSONStorableFloat _baseJsf;
         private static JSONStorableFloat _upJsf;
@@ -30,12 +30,12 @@ namespace TittyMagic.Handlers
         private static float leftRightMultiplier => _baseJsf.val * _leftRightJsf.val;
 
         public static void Init(
-            TrackNipple trackLeftNipple,
-            TrackNipple trackRightNipple
+            TrackBreast trackLeftBreast,
+            TrackBreast trackRightBreast
         )
         {
-            _trackLeftNipple = trackLeftNipple;
-            _trackRightNipple = trackRightNipple;
+            _trackLeftBreast = trackLeftBreast;
+            _trackRightBreast = trackRightBreast;
 
             _baseJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsBase", 1.00f, 0.00f, 2.00f);
             _upJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsUp", 1.00f, 0.00f, 2.00f);
@@ -201,11 +201,11 @@ namespace TittyMagic.Handlers
         private static void AdjustLeftRightPhysics()
         {
             float multiplier = 0.5f * Curves.QuadraticRegression(leftRightMultiplier);
-            float effectXLeft = CalculateXEffect(_trackLeftNipple.angleX, multiplier);
-            float effectXRight = CalculateXEffect(_trackRightNipple.angleX, multiplier);
+            float effectXLeft = CalculateXEffect(_trackLeftBreast.angleX, multiplier);
+            float effectXRight = CalculateXEffect(_trackRightBreast.angleX, multiplier);
 
             // left force on left breast
-            if(_trackLeftNipple.angleX >= 0)
+            if(_trackLeftBreast.angleX >= 0)
             {
                 ResetLeftPhysics(Direction.LEFT);
                 UpdateLeftPhysics(Direction.RIGHT, effectXLeft);
@@ -218,7 +218,7 @@ namespace TittyMagic.Handlers
             }
 
             // // left force on right breast
-            if(_trackRightNipple.angleX >= 0)
+            if(_trackRightBreast.angleX >= 0)
             {
                 ResetRightPhysics(Direction.LEFT);
                 UpdateRightPhysics(Direction.RIGHT, effectXRight);
@@ -234,11 +234,11 @@ namespace TittyMagic.Handlers
         private static void AdjustUpPhysics()
         {
             float multiplier = 0.5f * Curves.QuadraticRegression(upMultiplier);
-            float effectYLeft = CalculateYEffect(_trackLeftNipple.angleY, multiplier);
-            float effectYRight = CalculateYEffect(_trackRightNipple.angleY, multiplier);
+            float effectYLeft = CalculateYEffect(_trackLeftBreast.angleY, multiplier);
+            float effectYRight = CalculateYEffect(_trackRightBreast.angleY, multiplier);
 
             // up force on left breast
-            if(_trackLeftNipple.angleY >= 0)
+            if(_trackLeftBreast.angleY >= 0)
             {
                 UpdateLeftPhysics(Direction.UP, effectYLeft);
             }
@@ -248,7 +248,7 @@ namespace TittyMagic.Handlers
             }
 
             // up force on right breast
-            if(_trackRightNipple.angleY >= 0)
+            if(_trackRightBreast.angleY >= 0)
             {
                 UpdateRightPhysics(Direction.UP, effectYRight);
             }
@@ -261,11 +261,11 @@ namespace TittyMagic.Handlers
         private static void AdjustDownPhysics()
         {
             float multiplier = 0.5f * Curves.QuadraticRegression(downMultiplier);
-            float effectYLeft = CalculateYEffect(_trackLeftNipple.angleY, multiplier);
-            float effectYRight = CalculateYEffect(_trackRightNipple.angleY, multiplier);
+            float effectYLeft = CalculateYEffect(_trackLeftBreast.angleY, multiplier);
+            float effectYRight = CalculateYEffect(_trackRightBreast.angleY, multiplier);
 
             // down force on left breast
-            if(_trackLeftNipple.angleY < 0)
+            if(_trackLeftBreast.angleY < 0)
             {
                 UpdateLeftPhysics(Direction.DOWN, effectYLeft);
             }
@@ -275,7 +275,7 @@ namespace TittyMagic.Handlers
             }
 
             // down force on right breast
-            if(_trackRightNipple.angleY < 0)
+            if(_trackRightBreast.angleY < 0)
             {
                 UpdateRightPhysics(Direction.DOWN, effectYRight);
             }
@@ -288,11 +288,11 @@ namespace TittyMagic.Handlers
         private static void AdjustForwardPhysics()
         {
             float multiplier = Curves.QuadraticRegression(forwardMultiplier);
-            float effectZLeft = CalculateZEffect(_trackLeftNipple.depthDiff, multiplier);
-            float effectZRight = CalculateZEffect(_trackRightNipple.depthDiff, multiplier);
+            float effectZLeft = CalculateZEffect(_trackLeftBreast.depthDiff, multiplier);
+            float effectZRight = CalculateZEffect(_trackRightBreast.depthDiff, multiplier);
 
             // forward force on left breast
-            if(_trackLeftNipple.depthDiff <= 0)
+            if(_trackLeftBreast.depthDiff <= 0)
             {
                 UpdateLeftPhysics(Direction.FORWARD, effectZLeft);
             }
@@ -302,7 +302,7 @@ namespace TittyMagic.Handlers
             }
 
             // forward force on right breast
-            if(_trackRightNipple.depthDiff <= 0)
+            if(_trackRightBreast.depthDiff <= 0)
             {
                 UpdateRightPhysics(Direction.FORWARD, effectZRight);
             }
@@ -315,11 +315,11 @@ namespace TittyMagic.Handlers
         private static void AdjustBackPhysics()
         {
             float multiplier = Curves.QuadraticRegression(backMultiplier);
-            float effectZLeft = CalculateZEffect(_trackLeftNipple.depthDiff, multiplier);
-            float effectZRight = CalculateZEffect(_trackRightNipple.depthDiff, multiplier);
+            float effectZLeft = CalculateZEffect(_trackLeftBreast.depthDiff, multiplier);
+            float effectZRight = CalculateZEffect(_trackRightBreast.depthDiff, multiplier);
 
             // back force on left breast
-            if(_trackLeftNipple.depthDiff > 0)
+            if(_trackLeftBreast.depthDiff > 0)
             {
                 UpdateLeftPhysics(Direction.BACK, effectZLeft);
             }
@@ -329,7 +329,7 @@ namespace TittyMagic.Handlers
             }
 
             // back force on right breast
-            if(_trackRightNipple.depthDiff > 0)
+            if(_trackRightBreast.depthDiff > 0)
             {
                 UpdateRightPhysics(Direction.BACK, effectZRight);
             }
@@ -380,8 +380,8 @@ namespace TittyMagic.Handlers
         {
             _mainParamGroups = null;
             _softParamGroups = null;
-            _trackLeftNipple = null;
-            _trackRightNipple = null;
+            _trackLeftBreast = null;
+            _trackRightBreast = null;
             _baseJsf = null;
             _upJsf = null;
             _downJsf = null;
