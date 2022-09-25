@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 using static TittyMagic.Script;
 
 namespace TittyMagic.UI
@@ -12,22 +13,11 @@ namespace TittyMagic.UI
         private readonly string _id;
         public string GetId() => _id;
 
-        protected Action buildAction;
-        protected Action closeAction;
-
         protected readonly Dictionary<string, UIDynamic> elements;
-
         protected readonly List<IWindow> nestedWindows;
 
         public IWindow GetActiveNestedWindow() => activeNestedWindow;
         protected IWindow activeNestedWindow;
-
-        public UnityAction onReturnToParent => () =>
-        {
-            activeNestedWindow.Clear();
-            activeNestedWindow = null;
-            buildAction();
-        };
 
         protected WindowBase(string id = "")
         {
@@ -64,19 +54,46 @@ namespace TittyMagic.UI
         {
             var storable = new JSONStorableString("otherSettingsHeader", "");
             AddSpacer(storable.name, spacing, rightSide);
-            elements[storable.name] = UIHelpers.HeaderTextField(storable, "Other", rightSide);
+            CreateHeaderTextField(storable, rightSide);
         }
 
-        protected void CreateBackButton(bool rightSide)
+        protected void CreateBackButton(bool rightSide, UnityAction onReturnToParent)
         {
             var button = tittyMagic.CreateButton("Return", rightSide);
             button.textColor = Color.white;
             var colors = button.button.colors;
-            colors.normalColor = UIHelpers.sliderGray;
+            colors.normalColor = Colors.sliderGray;
             colors.highlightedColor = Color.grey;
             colors.pressedColor = Color.grey;
             button.button.colors = colors;
+            button.AddListener(onReturnToParent);
             elements["backButton"] = button;
+        }
+
+        protected void CreateTitleTextField(JSONStorableString storable, int fontSize, int height, bool rightSide, int spacing = 0)
+        {
+            AddSpacer(storable.name, spacing, rightSide);
+            var textField = tittyMagic.CreateTextField(storable, rightSide);
+            textField.UItext.fontSize = fontSize;
+            textField.UItext.alignment = TextAnchor.MiddleCenter;
+            textField.backgroundColor = Color.clear;
+            var layout = textField.GetComponent<LayoutElement>();
+            layout.preferredHeight = height;
+            layout.minHeight = height;
+            elements[storable.name] = textField;
+        }
+
+        protected void CreateHeaderTextField(JSONStorableString storable, bool rightSide = false, int fontSize = 30)
+        {
+            storable.val = "\n".Size(20) + storable.val.Bold();
+            var textField = tittyMagic.CreateTextField(storable, rightSide);
+            textField.UItext.fontSize = fontSize;
+            textField.UItext.alignment = TextAnchor.LowerCenter;
+            textField.backgroundColor = Color.clear;
+            var layout = textField.GetComponent<LayoutElement>();
+            layout.preferredHeight = 62;
+            layout.minHeight = 62;
+            elements[storable.name] = textField;
         }
 
         #endregion Common elements
@@ -92,8 +109,23 @@ namespace TittyMagic.UI
             else
             {
                 elements.Clear();
-                buildAction();
+                OnBuild();
             }
+        }
+
+        protected virtual void OnBuild()
+        {
+        }
+
+        protected virtual void OnClose()
+        {
+        }
+
+        public void OnReturn()
+        {
+            activeNestedWindow.Clear();
+            activeNestedWindow = null;
+            OnBuild();
         }
 
         public List<UIDynamicSlider> GetSliders()
@@ -147,7 +179,7 @@ namespace TittyMagic.UI
                 ClearSelf();
             }
 
-            closeAction?.Invoke();
+            OnClose();
         }
 
         protected void ClearSelf() =>

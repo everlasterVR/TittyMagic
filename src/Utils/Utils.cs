@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace TittyMagic
 {
@@ -128,6 +129,12 @@ namespace TittyMagic
                 SuperController.singleton.freezeAnimationToggleAlt != null &&
                 SuperController.singleton.freezeAnimationToggleAlt.isOn;
             return mainToggleFrozen || altToggleFrozen;
+        }
+
+        public static Transform DestroyLayout(Transform transform)
+        {
+            UnityEngine.Object.Destroy(transform.GetComponent<LayoutElement>());
+            return transform;
         }
     }
 }

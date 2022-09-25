@@ -89,7 +89,7 @@ namespace TittyMagic
             _pluginUIEventsListener.onEnable.AddListener(() =>
             {
                 var background = rightUIContent.parent.parent.parent.transform.GetComponent<Image>();
-                background.color = UIHelpers.backgroundGray;
+                background.color = Colors.backgroundGray;
 
                 SoftPhysicsHandler.ReverseSyncAllowSelfCollision();
 
@@ -105,7 +105,7 @@ namespace TittyMagic
                         else
                         {
                             /* Prevent displaying hard collider window if plugin disabled */
-                            ((WindowBase) _mainWindow).onReturnToParent();
+                            _mainWindow.OnReturn();
                         }
                     }
                 }
@@ -497,7 +497,7 @@ namespace TittyMagic
 
         private Transform OpenPluginUIButton(Transform parent)
         {
-            var button = UIHelpers.DestroyLayout(this.InstantiateButton(parent));
+            var button = Utils.DestroyLayout(this.InstantiateButton(parent));
             button.GetComponent<UIDynamicButton>().label = $"<b>Open {nameof(TittyMagic)} UI</b>";
             button.GetComponent<UIDynamicButton>().button.onClick.AddListener(() => bindings.actions["OpenUI"].actionCallback());
             return button;
@@ -543,7 +543,7 @@ namespace TittyMagic
                 /* Left side */
                 var leftSide = skinMaterials2.Find("LeftSide");
                 {
-                    var fieldTransform = UIHelpers.DestroyLayout(this.InstantiateTextField(leftSide));
+                    var fieldTransform = Utils.DestroyLayout(this.InstantiateTextField(leftSide));
                     var rectTransform = fieldTransform.GetComponent<RectTransform>();
                     rectTransform.pivot = new Vector2(0, 0);
                     rectTransform.anchoredPosition = new Vector2(20f, -930);
@@ -557,7 +557,7 @@ namespace TittyMagic
                     uiDynamic.textColor = Color.white;
                 }
                 {
-                    var fieldTransform = UIHelpers.DestroyLayout(this.InstantiateTextField(leftSide));
+                    var fieldTransform = Utils.DestroyLayout(this.InstantiateTextField(leftSide));
                     var rectTransform = fieldTransform.GetComponent<RectTransform>();
                     rectTransform.pivot = new Vector2(0, 0);
                     rectTransform.anchoredPosition = new Vector2(20, -1290);
@@ -590,7 +590,7 @@ namespace TittyMagic
                 }
 
                 {
-                    var customTransform = UIHelpers.DestroyLayout(this.InstantiateToggle(rightSide));
+                    var customTransform = Utils.DestroyLayout(this.InstantiateToggle(rightSide));
                     var rectTransform = customTransform.GetComponent<RectTransform>();
                     rectTransform.pivot = new Vector2(0, 0);
                     rectTransform.anchoredPosition = new Vector2(0, -880);
@@ -605,7 +605,7 @@ namespace TittyMagic
                     enableAdaptiveFrictionToggle.label = "Use Adaptive Friction";
                 }
                 {
-                    var customTransform = UIHelpers.DestroyLayout(this.InstantiateSlider(rightSide));
+                    var customTransform = Utils.DestroyLayout(this.InstantiateSlider(rightSide));
                     var rectTransform = customTransform.GetComponent<RectTransform>();
                     rectTransform.pivot = new Vector2(0, 0);
                     rectTransform.anchoredPosition = new Vector2(0, -1020);
@@ -622,7 +622,7 @@ namespace TittyMagic
                     drySkinFrictionSlider.SetActiveStyle(FrictionHandler.adaptiveFrictionJsb.val, true);
                 }
                 {
-                    var customTransform = UIHelpers.DestroyLayout(this.InstantiateSlider(rightSide));
+                    var customTransform = Utils.DestroyLayout(this.InstantiateSlider(rightSide));
                     var rectTransform = customTransform.GetComponent<RectTransform>();
                     rectTransform.pivot = new Vector2(0, 0);
                     rectTransform.anchoredPosition = new Vector2(0, -1160);
@@ -638,7 +638,7 @@ namespace TittyMagic
                     uiDynamic.label = "Friction Offset";
                 }
                 {
-                    var customTransform = UIHelpers.DestroyLayout(this.InstantiateSlider(rightSide));
+                    var customTransform = Utils.DestroyLayout(this.InstantiateSlider(rightSide));
                     var rectTransform = customTransform.GetComponent<RectTransform>();
                     rectTransform.pivot = new Vector2(0, 0);
                     rectTransform.anchoredPosition = new Vector2(0, -1300);
@@ -1048,7 +1048,7 @@ namespace TittyMagic
                 }
                 else
                 {
-                    Utils.Log($"OnDisable: {e}");
+                    Utils.Log($"OnDestroy: {e}");
                 }
             }
         }

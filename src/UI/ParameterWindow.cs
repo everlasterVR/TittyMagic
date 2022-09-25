@@ -21,46 +21,13 @@ namespace TittyMagic.UI
 
         private readonly ColliderVisualizer _visualizer = SoftPhysicsHandler.colliderVisualizer;
 
+        private readonly UnityAction _onReturnToParent;
+
         public ParameterWindow(string id, PhysicsParameterGroup parameterGroup, UnityAction onReturnToParent) : base(id)
         {
             _parameterGroup = parameterGroup;
             _parameter = _parameterGroup.left;
-
-            buildAction = () =>
-            {
-                CreateBackButton(false);
-                elements["backButton"].AddListener(onReturnToParent);
-                if(_parameterGroup.requiresRecalibration)
-                {
-                    CreateRecalibrateButton(recalibrationAction, true);
-                }
-                else if(_parameterGroup.allowsSoftColliderVisualization)
-                {
-                    CreateVisualizationToggle(true);
-
-                    _visualizer.enabled = true;
-                    _visualizer.ShowPreviewsJSON.val = true;
-                }
-                else
-                {
-                    AddSpacer("upperRightSpacer", 50, true);
-                }
-
-                CreateTitle(false);
-                CreateApplyOnlyToLeftBreastToggle(true);
-                CreateInfoTextArea(false);
-
-                CreateOffsetSlider(true, spacing: 10);
-                CreateCurrentValueSlider(true);
-
-                /* Soft physics parameter group sections*/
-                {
-                    CreateColliderGroupSection(SoftColliderGroup.MAIN, false);
-                    CreateColliderGroupSection(SoftColliderGroup.OUTER, true);
-                    CreateColliderGroupSection(SoftColliderGroup.AREOLA, false);
-                    CreateColliderGroupSection(SoftColliderGroup.NIPPLE, true);
-                }
-            };
+            _onReturnToParent = onReturnToParent;
 
             recalibrationAction = new JSONStorableAction("recalibrationAction",
                 () =>
@@ -75,103 +42,111 @@ namespace TittyMagic.UI
                         tittyMagic.recalibratePhysics.actionCallback();
                     }
                 });
+        }
 
-            closeAction = () =>
+        protected override void OnBuild()
+        {
+            CreateBackButton(false, _onReturnToParent);
+
+            if(_parameterGroup.requiresRecalibration)
             {
-                if(_parameterGroup.allowsSoftColliderVisualization)
-                {
-                    _visualizer.ShowPreviewsJSON.val = false;
-                    _visualizer.enabled = false;
-                }
-
-                if(tittyMagic.calibration.shouldRun)
-                {
-                    tittyMagic.recalibratePhysics.actionCallback();
-                }
-            };
-        }
-
-        private void CreateVisualizationToggle(bool rightSide, int spacing = 0)
-        {
-            var storable = SoftPhysicsHandler.showSoftVerticesColliderPreviewsJsb;
-            AddSpacer(storable.name, spacing, rightSide);
-            var toggle = tittyMagic.CreateToggle(storable, rightSide);
-            toggle.label = "Show Collider Previews";
-            elements[storable.name] = toggle;
-        }
-
-        private void CreateTitle(bool rightSide)
-        {
-            var storable = new JSONStorableString("title", "");
-            var textField = UIHelpers.HeaderTextField(storable, _parameterGroup.displayName, rightSide);
-            textField.UItext.fontSize = 32;
-            elements[storable.name] = textField;
-        }
-
-        private void CreateApplyOnlyToLeftBreastToggle(bool rightSide, int spacing = 0)
-        {
-            var storable = _parameterGroup.offsetOnlyLeftBreastJsb;
-            AddSpacer(storable.name, spacing, rightSide);
-            var toggle = tittyMagic.CreateToggle(storable, rightSide);
-            toggle.label = "Apply Only To Left Breast";
-            elements[storable.name] = toggle;
-        }
-
-        private void CreateInfoTextArea(bool rightSide, int spacing = 0)
-        {
-            var storable = new JSONStorableString("infoText", _parameterGroup.infoText);
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var textField = tittyMagic.CreateTextField(storable, rightSide);
-            textField.UItext.fontSize = 28;
-            textField.height = GetId() == ParamName.MASS ? 368 : 268;
-            textField.backgroundColor = Color.clear;
-            elements[storable.name] = textField;
-        }
-
-        private void CreateOffsetSlider(bool rightSide, int spacing = 0)
-        {
-            var storable = _parameter.offsetJsf;
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var slider = tittyMagic.CreateSlider(storable, rightSide);
-            slider.valueFormat = _parameter.valueFormat;
-            slider.label = "Offset";
-
-            slider.slider.onValueChanged.AddListener(value =>
+                CreateRecalibrateButton(recalibrationAction, true);
+            }
+            else if(_parameterGroup.allowsSoftColliderVisualization)
             {
-                parentButton.label = ParamButtonLabel();
-                if(_parameterGroup.requiresRecalibration)
-                {
-                    tittyMagic.calibration.shouldRun = Math.Abs(value - _offsetWhenCalibrated) > 0.01f;
-                }
-            });
+                /* Visualization toggle */
+                var storable = SoftPhysicsHandler.showSoftVerticesColliderPreviewsJsb;
+                var toggle = tittyMagic.CreateToggle(storable, true);
+                toggle.label = "Show Collider Previews";
+                elements[storable.name] = toggle;
 
-            if(_parameterGroup.allowsSoftColliderVisualization)
+                _visualizer.enabled = true;
+                _visualizer.ShowPreviewsJSON.val = true;
+            }
+            else
             {
-                slider.AddPointerUpDownListener(
-                    SoftPhysicsHandler.HidePreviewsOnPointerDown,
-                    () => SoftPhysicsHandler.ShowPreviewsOnPointerDown()
-                );
+                AddSpacer("upperRightSpacer", 50, true);
             }
 
-            elements[storable.name] = slider;
-            _offsetWhenCalibrated = storable.val;
+            CreateHeaderTextField(new JSONStorableString("parameterHeader", _parameterGroup.displayName));
+
+            /* Apply only to left breast toggle */
+            {
+                var storable = _parameterGroup.offsetOnlyLeftBreastJsb;
+                var toggle = tittyMagic.CreateToggle(storable, true);
+                toggle.label = "Apply Only To Left Breast";
+                elements[storable.name] = toggle;
+            }
+
+            /* Info text area */
+            {
+                var storable = new JSONStorableString("infoText", _parameterGroup.infoText);
+                var textField = tittyMagic.CreateTextField(storable);
+                textField.UItext.fontSize = 28;
+                textField.height = GetId() == ParamName.MASS ? 368 : 268;
+                textField.backgroundColor = Color.clear;
+                elements[storable.name] = textField;
+            }
+
+            /* Offset slider */
+            {
+                var storable = _parameter.offsetJsf;
+                AddSpacer(storable.name, 10, true);
+
+                var slider = tittyMagic.CreateSlider(storable, true);
+                slider.valueFormat = _parameter.valueFormat;
+                slider.label = "Offset";
+                slider.slider.onValueChanged.AddListener(value =>
+                {
+                    parentButton.label = ParamButtonLabel();
+                    if(_parameterGroup.requiresRecalibration)
+                    {
+                        tittyMagic.calibration.shouldRun = Math.Abs(value - _offsetWhenCalibrated) > 0.01f;
+                    }
+                });
+
+                if(_parameterGroup.allowsSoftColliderVisualization)
+                {
+                    slider.AddPointerUpDownListener(
+                        SoftPhysicsHandler.HidePreviewsOnPointerDown,
+                        () => SoftPhysicsHandler.ShowPreviewsOnPointerDown()
+                    );
+                }
+
+                elements[storable.name] = slider;
+                _offsetWhenCalibrated = storable.val;
+            }
+
+            /* Value slider */
+            {
+                var storable = _parameter.valueJsf;
+                var slider = tittyMagic.CreateSlider(storable, true);
+                slider.valueFormat = _parameter.valueFormat;
+                slider.label = "Value";
+                slider.SetActiveStyle(false, true);
+                slider.slider.onValueChanged.AddListener(_ => SyncAllMultiplierSliderValues());
+                elements[storable.name] = slider;
+            }
+
+            /* Soft physics parameter group sections */
+            CreateColliderGroupSection(SoftColliderGroup.MAIN, false);
+            CreateColliderGroupSection(SoftColliderGroup.OUTER, true);
+            CreateColliderGroupSection(SoftColliderGroup.AREOLA, false);
+            CreateColliderGroupSection(SoftColliderGroup.NIPPLE, true);
         }
 
-        private void CreateCurrentValueSlider(bool rightSide, int spacing = 0)
+        protected override void OnClose()
         {
-            var storable = _parameter.valueJsf;
-            AddSpacer(storable.name, spacing, rightSide);
+            if(_parameterGroup.allowsSoftColliderVisualization)
+            {
+                _visualizer.ShowPreviewsJSON.val = false;
+                _visualizer.enabled = false;
+            }
 
-            var slider = tittyMagic.CreateSlider(storable, rightSide);
-            slider.valueFormat = _parameter.valueFormat;
-            slider.label = "Value";
-            slider.SetActiveStyle(false, true);
-
-            slider.slider.onValueChanged.AddListener(_ => SyncAllMultiplierSliderValues());
-
-            elements[storable.name] = slider;
+            if(tittyMagic.calibration.shouldRun)
+            {
+                tittyMagic.recalibratePhysics.actionCallback();
+            }
         }
 
         private void CreateColliderGroupSection(string group, bool rightSide)
@@ -182,9 +157,29 @@ namespace TittyMagic.UI
             }
 
             var groupParam = _parameter.groupMultiplierParams[group];
-            CreateGroupHeader(group, rightSide);
-            CreateMultiplierOffsetSlider(groupParam.offsetJsf, rightSide);
-            CreateMultiplierSlider(groupParam.valueJsf, rightSide);
+
+            CreateHeaderTextField(new JSONStorableString($"{group}Header", group), rightSide);
+
+            /* Multiplier offset slider */
+            {
+                var slider = tittyMagic.CreateSlider(groupParam.offsetJsf, rightSide);
+                slider.valueFormat = "F2";
+                slider.label = "Multiplier Offset";
+                slider.slider.onValueChanged.AddListener(value => parentButton.label = ParamButtonLabel());
+                elements[groupParam.offsetJsf.name] = slider;
+            }
+
+            /* Multiplier value slider */
+            {
+                var slider = tittyMagic.CreateSlider(groupParam.valueJsf, rightSide);
+                slider.valueFormat = _parameter.valueFormat;
+                slider.SetActiveStyle(false, true);
+                var uiInputField = slider.sliderValueTextFromFloat.UIInputField;
+                uiInputField.contentType = InputField.ContentType.Standard;
+                slider.slider.onValueChanged.AddListener(value => SyncMultiplierSliderLabel(slider, value));
+                SyncMultiplierSliderLabel(slider, groupParam.valueJsf.val);
+                elements[groupParam.valueJsf.name] = slider;
+            }
 
             if(_parameterGroup.allowsSoftColliderVisualization)
             {
@@ -194,29 +189,6 @@ namespace TittyMagic.UI
                     () => SoftPhysicsHandler.ShowPreviewsOnPointerDown(group)
                 );
             }
-        }
-
-        private void CreateGroupHeader(string group, bool rightSide)
-        {
-            var storable = new JSONStorableString(group + "Header", "");
-            elements[storable.name] = UIHelpers.HeaderTextField(storable, group, rightSide);
-        }
-
-        private void CreateMultiplierSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
-        {
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var slider = tittyMagic.CreateSlider(storable, rightSide);
-            slider.valueFormat = _parameter.valueFormat;
-            slider.SetActiveStyle(false, true);
-            var uiInputField = slider.sliderValueTextFromFloat.UIInputField;
-            uiInputField.contentType = InputField.ContentType.Standard;
-
-            slider.slider.onValueChanged.AddListener(value => SyncMultiplierSliderLabel(slider, value));
-
-            SyncMultiplierSliderLabel(slider, storable.val);
-
-            elements[storable.name] = slider;
         }
 
         public void SyncAllMultiplierSliderValues()
@@ -239,18 +211,6 @@ namespace TittyMagic.UI
                 slider.label = $"Multiplier: {slider.slider.value:F2}              →";
                 textFromFloat.floatVal = value * _parameter.valueJsf.val;
             }
-        }
-
-        private void CreateMultiplierOffsetSlider(JSONStorableFloat storable, bool rightSide, int spacing = 0)
-        {
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var slider = tittyMagic.CreateSlider(storable, rightSide);
-            slider.valueFormat = "F2";
-            slider.label = "Multiplier Offset";
-            slider.slider.onValueChanged.AddListener(value => parentButton.label = ParamButtonLabel());
-
-            elements[storable.name] = slider;
         }
 
         public string ParamButtonLabel()

@@ -10,6 +10,8 @@ namespace TittyMagic.UI
 
         void Rebuild();
 
+        void OnReturn();
+
         List<UIDynamicSlider> GetSliders();
 
         void Clear();
