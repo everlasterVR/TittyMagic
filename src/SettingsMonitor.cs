@@ -267,7 +267,7 @@ namespace TittyMagic
             }
             catch(Exception e)
             {
-                Utils.LogError($"{e}", nameof(SettingsMonitor));
+                Utils.LogError($"{nameof(SettingsMonitor)}: {e}");
                 enabled = false;
             }
         }

@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using static TittyMagic.Script;
 
 namespace TittyMagic
 {
@@ -12,14 +11,19 @@ namespace TittyMagic
     {
         public static string morphsPath { get; set; }
 
-        public static void LogError(string message, string name = "") =>
-            SuperController.LogError(Format(message, name));
+        public static void Log(string message)
+        {
+            if(Script.envIsDevelopment)
+            {
+                Debug.Log(message);
+            }
+        }
 
-        public static void LogMessage(string message, string name = "") =>
-            SuperController.LogMessage(Format(message, name));
+        public static void LogError(string message) => SuperController.LogError(Format(message));
 
-        private static string Format(string message, string name) =>
-            $"{nameof(TittyMagic)} v{VERSION}: {message}{(string.IsNullOrEmpty(name) ? "" : $" [{name}]")}";
+        public static void LogMessage(string message) => SuperController.LogMessage(Format(message));
+
+        private static string Format(string message) => $"{nameof(TittyMagic)} v{Script.VERSION}: {message}";
 
         // ReSharper disable once UnusedMember.Global
         public static MVRScript FindPluginOnAtom(Atom atom, string search)
@@ -31,7 +35,7 @@ namespace TittyMagic
         public static DAZMorph GetMorph(string file)
         {
             string uid = $"{morphsPath}/{file}.vmi";
-            var dazMorph = morphsControlUI.GetMorphByUid(uid);
+            var dazMorph = Script.morphsControlUI.GetMorphByUid(uid);
             if(dazMorph == null)
             {
                 LogError($"Morph with uid '{uid}' not found!");
@@ -58,7 +62,7 @@ namespace TittyMagic
         {
             if(Calc.RoundToDecimals(Time.unscaledTime, 10f) % every == 0)
             {
-                Debug.Log($"DebugUpdate: {str}");
+                Log(str);
             }
         }
 

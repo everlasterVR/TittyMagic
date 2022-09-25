@@ -1,5 +1,4 @@
-﻿// #define DEBUG_ON
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -73,10 +72,7 @@ namespace TittyMagic
                 }
                 catch(Exception e)
                 {
-                    // ignored
-#if DEBUG_ON
-                    Debug.Log($"Unable to add morph '{morph.morphName}'. Error: {e}");
-#endif
+                    Utils.Log($"Unable to add morph '{morph.morphName}'. Error: {e}");
                 }
             }
 
@@ -97,9 +93,6 @@ namespace TittyMagic
                 if(Math.Abs(newValue - oldValue) > 0.001f)
                 {
                     _values[i] = newValue;
-#if DEBUG_ON
-                    Debug.Log($"change detected! morph {dazMorph.uid}");
-#endif
                     return true;
                 }
             }

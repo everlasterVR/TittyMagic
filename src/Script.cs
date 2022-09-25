@@ -469,7 +469,7 @@ namespace TittyMagic
 
             if(mPectoralPhysics == null || fBreastPhysics1 == null || fBreastPhysics2 == null || fBreastPresets == null)
             {
-                Debug.Log("Failed to modify breast physics UI - could not find UI transforms.");
+                Utils.LogError("Failed to modify breast physics UI - could not find UI transforms.");
                 _modifyBreastPhysicsUIDone = true;
                 yield break;
             }
@@ -533,7 +533,7 @@ namespace TittyMagic
 
             if(skinMaterials2 == null)
             {
-                Debug.Log("Failed to modify Skin Materials UI - could not find UI transform.");
+                Utils.LogError("Failed to modify Skin Materials UI - could not find UI transform.");
                 _modifySkinMaterialsUIDone = true;
                 yield break;
             }
@@ -1046,9 +1046,9 @@ namespace TittyMagic
                 {
                     Utils.LogError($"OnDestroy: {e}");
                 }
-                else if(envIsDevelopment)
+                else
                 {
-                    Debug.Log($"OnDestroy: {e}");
+                    Utils.Log($"OnDisable: {e}");
                 }
             }
         }
@@ -1101,9 +1101,9 @@ namespace TittyMagic
                 {
                     Utils.LogError($"OnDisable: {e}");
                 }
-                else if(envIsDevelopment)
+                else
                 {
-                    Debug.Log($"OnDisable: {e}");
+                    Utils.Log($"OnDisable: {e}");
                 }
             }
         }
