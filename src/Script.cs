@@ -165,7 +165,7 @@ namespace TittyMagic
         private Rigidbody _pectoralRbRight;
         private TrackBreast _trackLeftBreast;
         private TrackBreast _trackRightBreast;
-        private List<UIMod> _UIMods;
+        private List<UIMod> _uiMods;
 
         private IEnumerator DeferInit()
         {
@@ -377,7 +377,7 @@ namespace TittyMagic
 
             /* Modify atom UI */
             var atomUIContent = containingAtom.transform.Find("UI/UIPlaceHolderModel/UIModel/Canvas/Panel/Content");
-            _UIMods = new List<UIMod>
+            _uiMods = new List<UIMod>
             {
                 NewUIMod(atomUIContent, "M Pectoral Physics", ReplaceWithPluginUIButton),
                 NewUIMod(atomUIContent, "F Breast Physics 1", ReplaceWithPluginUIButton),
@@ -385,7 +385,7 @@ namespace TittyMagic
                 NewUIMod(atomUIContent, "F Breast Presets", ReplaceWithPluginUIButton),
                 NewUIMod(atomUIContent, "Skin Materials 2", ModifySkinMaterialsUI),
             };
-            _UIMods.ForEach(uiMod => uiMod.Apply());
+            _uiMods.ForEach(uiMod => uiMod.Apply());
 
             if(!_isRestoringFromJson)
             {
@@ -950,7 +950,7 @@ namespace TittyMagic
                 _gravityWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
 
                 DestroyImmediate(_pluginUIEventsListener);
-                _UIMods.ForEach(Destroy);
+                _uiMods.ForEach(Destroy);
 
                 SuperController.singleton.onSceneSavedHandlers -= OnSceneSaved;
                 SuperController.singleton.onBeforeSceneSaveHandlers -= OnBeforeSceneSave;
@@ -985,7 +985,7 @@ namespace TittyMagic
                 SoftPhysicsHandler.SaveOriginalBoolParamValues();
                 SoftPhysicsHandler.EnableMultiplyFriction();
                 StartCalibration(true);
-                _UIMods.ForEach(go => go.SetEnabled(true));
+                _uiMods.ForEach(go => go.SetEnabled(true));
             }
             catch(Exception e)
             {
@@ -1005,7 +1005,7 @@ namespace TittyMagic
                 GravityOffsetMorphHandler.ResetAll();
                 ForceMorphHandler.ResetAll();
                 NippleErectionHandler.Reset();
-                _UIMods.ForEach(go => go.SetEnabled(false));
+                _uiMods.ForEach(go => go.SetEnabled(false));
 
             }
             catch(Exception e)
