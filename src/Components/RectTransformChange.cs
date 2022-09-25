@@ -17,14 +17,14 @@ namespace TittyMagic.Components
             rectTransform.anchoredPosition = _newPosition;
         }
 
-        public void RestoreOriginal()
-        {
-            _rectTransform.anchoredPosition = _originalPosition;
-        }
-
         public void Apply()
         {
             _rectTransform.anchoredPosition = _newPosition;
+        }
+
+        public void RestoreOriginal()
+        {
+            _rectTransform.anchoredPosition = _originalPosition;
         }
     }
 }

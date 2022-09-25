@@ -158,7 +158,6 @@ namespace TittyMagic
         }
 
         private FrequencyRunner _listenersCheckRunner;
-
         private JSONStorableFloat _scaleJsf;
         private List<Rigidbody> _rigidbodies;
         private Transform _chestTransform;
@@ -166,6 +165,7 @@ namespace TittyMagic
         private Rigidbody _pectoralRbRight;
         private TrackBreast _trackLeftBreast;
         private TrackBreast _trackRightBreast;
+        private List<UIMod> _UIMods;
 
         private IEnumerator DeferInit()
         {
@@ -375,7 +375,17 @@ namespace TittyMagic
             calibration.Init();
             settingsMonitor.SetPectoralCollisions(!personIsFemale);
 
-            ModifyAtomUI();
+            /* Modify atom UI */
+            var atomUIContent = containingAtom.transform.Find("UI/UIPlaceHolderModel/UIModel/Canvas/Panel/Content");
+            _UIMods = new List<UIMod>
+            {
+                NewUIMod(atomUIContent, "M Pectoral Physics", ReplaceWithPluginUIButton),
+                NewUIMod(atomUIContent, "F Breast Physics 1", ReplaceWithPluginUIButton),
+                NewUIMod(atomUIContent, "F Breast Physics 2", ReplaceWithPluginUIButton),
+                NewUIMod(atomUIContent, "F Breast Presets", ReplaceWithPluginUIButton),
+                NewUIMod(atomUIContent, "Skin Materials 2", ModifySkinMaterialsUI),
+            };
+            _UIMods.ForEach(uiMod => uiMod.Apply());
 
             if(!_isRestoringFromJson)
             {
@@ -403,151 +413,54 @@ namespace TittyMagic
             bindingsList.AddRange(bindings.Actions());
         }
 
-        private UnityEventsListener _atomUIEventsListener;
-
-        private void ModifyAtomUI()
+        private UIMod NewUIMod(Transform container, string targetName, Func<UIMod, IEnumerator> changesFunc)
         {
-            /* Plugin added manually.*/
-            var atomUIContent = containingAtom.transform.Find("UI/UIPlaceHolderModel/UIModel/Canvas/Panel/Content");
-            if(atomUIContent.gameObject.activeInHierarchy)
-            {
-                StartCoroutine(ModifyBreastPhysicsUI(atomUIContent));
-                StartCoroutine(ModifySkinMaterialsUI(atomUIContent));
-            }
-            /* Plugin added with trigger or programmatically without the person UI being open */
-            else
-            {
-                _atomUIEventsListener = atomUIContent.gameObject.AddComponent<UnityEventsListener>();
-                _atomUIEventsListener.onEnable.AddListener(() =>
-                {
-                    StartCoroutine(ModifyBreastPhysicsUI(atomUIContent));
-                    StartCoroutine(ModifySkinMaterialsUI(atomUIContent));
-                });
-            }
+            var uiMod = gameObject.AddComponent<UIMod>();
+            uiMod.Init(container, targetName, changesFunc);
+            return uiMod;
         }
 
-        private readonly List<GameObject> _customUIGameObjects = new List<GameObject>();
-        private readonly List<GameObject> _inactivatedUIGameObjects = new List<GameObject>();
-        private bool _modifyBreastPhysicsUIDone;
-
-        private IEnumerator ModifyBreastPhysicsUI(Transform content)
+        private IEnumerator ReplaceWithPluginUIButton(UIMod uiMod)
         {
-            // Allow modifying UI only once
-            if(_modifyBreastPhysicsUIDone)
-            {
-                yield break;
-            }
-
             while(bindings == null)
             {
                 yield return null;
             }
 
-            _modifyBreastPhysicsUIDone = true;
-
-            Transform mPectoralPhysics = null;
-            Transform fBreastPhysics1 = null;
-            Transform fBreastPhysics2 = null;
-            Transform fBreastPresets = null;
-
-            float waited = 0f;
-            while(waited < 1 && (
-                mPectoralPhysics == null ||
-                fBreastPhysics1 == null ||
-                fBreastPhysics2 == null ||
-                fBreastPresets == null
-            ))
-            {
-                waited += 0.1f;
-                yield return new WaitForSecondsRealtime(0.1f);
-                mPectoralPhysics = content.Find("M Pectoral Physics");
-                fBreastPhysics1 = content.Find("F Breast Physics 1");
-                fBreastPhysics2 = content.Find("F Breast Physics 2");
-                fBreastPresets = content.Find("F Breast Presets");
-            }
-
-            if(mPectoralPhysics == null || fBreastPhysics1 == null || fBreastPhysics2 == null || fBreastPresets == null)
-            {
-                Utils.LogError("Failed to modify breast physics UI - could not find UI transforms.");
-                _modifyBreastPhysicsUIDone = true;
-                yield break;
-            }
-
-            /* Hide elements in vanilla Breast Physics tabs, add buttons to navigate to plugin UI */
             try
             {
-                Inactivate(mPectoralPhysics);
-                Inactivate(fBreastPhysics1);
-                Inactivate(fBreastPhysics2);
-                Inactivate(fBreastPresets);
-
-                _customUIGameObjects.Add(OpenPluginUIButton(mPectoralPhysics).gameObject);
-                _customUIGameObjects.Add(OpenPluginUIButton(fBreastPhysics1).gameObject);
-                _customUIGameObjects.Add(OpenPluginUIButton(fBreastPhysics2).gameObject);
-                _customUIGameObjects.Add(OpenPluginUIButton(fBreastPresets).gameObject);
-
-                _modifyBreastPhysicsUIDone = true;
+                uiMod.InactivateChildren();
+                uiMod.AddCustomObject(OpenPluginUIButton(uiMod.target).gameObject);
             }
             catch(Exception e)
             {
-                Utils.LogError($"Error modifying breast physics UI: {e}");
+                Utils.LogError($"Error modifying {uiMod.targetName} UI: {e}");
             }
         }
 
-        private Transform OpenPluginUIButton(Transform parent)
-        {
-            var button = Utils.DestroyLayout(this.InstantiateButton(parent));
-            button.GetComponent<UIDynamicButton>().label = $"<b>Open {nameof(TittyMagic)} UI</b>";
-            button.GetComponent<UIDynamicButton>().button.onClick.AddListener(() => bindings.actions["OpenUI"].actionCallback());
-            return button;
-        }
-
-        private bool _modifySkinMaterialsUIDone;
-        private readonly List<RectTransformChange> _movedRects = new List<RectTransformChange>();
         private UIDynamicToggle enableAdaptiveFrictionToggle { get; set; }
         public UIDynamicSlider drySkinFrictionSlider { get; private set; }
 
-        private IEnumerator ModifySkinMaterialsUI(Transform content)
+        private IEnumerator ModifySkinMaterialsUI(UIMod uiMod)
         {
-            if(_modifySkinMaterialsUIDone)
-            {
-                yield break;
-            }
-
-            _modifySkinMaterialsUIDone = true;
-
             if(!personIsFemale)
             {
                 yield break;
             }
 
-            Transform skinMaterials2 = null;
-            float waited = 0f;
-            while(waited < 1 && skinMaterials2 == null)
-            {
-                waited += 0.1f;
-                yield return new WaitForSecondsRealtime(0.1f);
-                skinMaterials2 = content.Find("Skin Materials 2");
-            }
-
-            if(skinMaterials2 == null)
-            {
-                Utils.LogError("Failed to modify Skin Materials UI - could not find UI transform.");
-                _modifySkinMaterialsUIDone = true;
-                yield break;
-            }
-
             try
             {
-                /* Left side */
-                var leftSide = skinMaterials2.Find("LeftSide");
+                var leftSide = uiMod.target.Find("LeftSide");
+                var rightSide = uiMod.target.Find("RightSide");
+
+                /* Collider friction title */
                 {
                     var fieldTransform = Utils.DestroyLayout(this.InstantiateTextField(leftSide));
                     var rectTransform = fieldTransform.GetComponent<RectTransform>();
                     rectTransform.pivot = new Vector2(0, 0);
                     rectTransform.anchoredPosition = new Vector2(20f, -930);
                     rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x + 10, 100);
-                    _customUIGameObjects.Add(fieldTransform.gameObject);
+                    uiMod.AddCustomObject(fieldTransform.gameObject);
 
                     var uiDynamic = fieldTransform.GetComponent<UIDynamicTextField>();
                     uiDynamic.UItext.alignment = TextAnchor.LowerCenter;
@@ -555,13 +468,15 @@ namespace TittyMagic
                     uiDynamic.backgroundColor = Color.clear;
                     uiDynamic.textColor = Color.white;
                 }
+
+                /* Collider friction info text area */
                 {
                     var fieldTransform = Utils.DestroyLayout(this.InstantiateTextField(leftSide));
                     var rectTransform = fieldTransform.GetComponent<RectTransform>();
                     rectTransform.pivot = new Vector2(0, 0);
                     rectTransform.anchoredPosition = new Vector2(20, -1290);
                     rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x + 10, 400);
-                    _customUIGameObjects.Add(fieldTransform.gameObject);
+                    uiMod.AddCustomObject(fieldTransform.gameObject);
 
                     var uiDynamic = fieldTransform.GetComponent<UIDynamicTextField>();
                     uiDynamic.text =
@@ -577,25 +492,19 @@ namespace TittyMagic
                     uiDynamic.textColor = Color.white;
                 }
 
-                /* Right side */
-                var rightSide = skinMaterials2.Find("RightSide");
+                /* Move right side transforms */
                 foreach(Transform t in rightSide)
                 {
                     if(t.name == "SavePanel" || t.name == "RestorePanel" || t.name == "Reset")
                     {
-                        var change = new RectTransformChange(t.GetComponent<RectTransform>(), new Vector2(0, 600f));
-                        _movedRects.Add(change);
+                        uiMod.MoveTransform(t, 0, 600);
                     }
                 }
 
+                /* Adaptive friction toggle */
                 {
-                    var customTransform = Utils.DestroyLayout(this.InstantiateToggle(rightSide));
-                    var rectTransform = customTransform.GetComponent<RectTransform>();
-                    rectTransform.pivot = new Vector2(0, 0);
-                    rectTransform.anchoredPosition = new Vector2(0, -880);
-                    var sizeDelta = rectTransform.sizeDelta;
-                    rectTransform.sizeDelta = new Vector2(sizeDelta.x + 10, sizeDelta.y);
-                    _customUIGameObjects.Add(customTransform.gameObject);
+                    var customTransform = CustomToggle(rightSide, new Vector2(0, -880));
+                    uiMod.AddCustomObject(customTransform.gameObject);
 
                     enableAdaptiveFrictionToggle = customTransform.GetComponent<UIDynamicToggle>();
                     var jsf = FrictionHandler.adaptiveFrictionJsb;
@@ -603,14 +512,11 @@ namespace TittyMagic
                     toggleToJSONStorableBool.Add(enableAdaptiveFrictionToggle, jsf);
                     enableAdaptiveFrictionToggle.label = "Use Adaptive Friction";
                 }
+
+                /* Dry skin friction slider */
                 {
-                    var customTransform = Utils.DestroyLayout(this.InstantiateSlider(rightSide));
-                    var rectTransform = customTransform.GetComponent<RectTransform>();
-                    rectTransform.pivot = new Vector2(0, 0);
-                    rectTransform.anchoredPosition = new Vector2(0, -1020);
-                    var sizeDelta = rectTransform.sizeDelta;
-                    rectTransform.sizeDelta = new Vector2(sizeDelta.x + 10, sizeDelta.y);
-                    _customUIGameObjects.Add(customTransform.gameObject);
+                    var customTransform = CustomSlider(rightSide, new Vector2(0, -1020));
+                    uiMod.AddCustomObject(customTransform.gameObject);
 
                     drySkinFrictionSlider = customTransform.GetComponent<UIDynamicSlider>();
                     var jsf = FrictionHandler.drySkinFrictionJsf;
@@ -620,14 +526,11 @@ namespace TittyMagic
                     drySkinFrictionSlider.label = "Dry Skin Friction";
                     drySkinFrictionSlider.SetActiveStyle(FrictionHandler.adaptiveFrictionJsb.val, true);
                 }
+
+                /* Friction offset slider */
                 {
-                    var customTransform = Utils.DestroyLayout(this.InstantiateSlider(rightSide));
-                    var rectTransform = customTransform.GetComponent<RectTransform>();
-                    rectTransform.pivot = new Vector2(0, 0);
-                    rectTransform.anchoredPosition = new Vector2(0, -1160);
-                    var sizeDelta = rectTransform.sizeDelta;
-                    rectTransform.sizeDelta = new Vector2(sizeDelta.x + 10, sizeDelta.y);
-                    _customUIGameObjects.Add(customTransform.gameObject);
+                    var customTransform = CustomSlider(rightSide, new Vector2(0, -1160));
+                    uiMod.AddCustomObject(customTransform.gameObject);
 
                     var uiDynamic = customTransform.GetComponent<UIDynamicSlider>();
                     var jsf = FrictionHandler.frictionOffsetJsf;
@@ -636,14 +539,11 @@ namespace TittyMagic
                     sliderToJSONStorableFloat.Add(uiDynamic, jsf);
                     uiDynamic.label = "Friction Offset";
                 }
+
+                /* Soft collider friction value slider */
                 {
-                    var customTransform = Utils.DestroyLayout(this.InstantiateSlider(rightSide));
-                    var rectTransform = customTransform.GetComponent<RectTransform>();
-                    rectTransform.pivot = new Vector2(0, 0);
-                    rectTransform.anchoredPosition = new Vector2(0, -1300);
-                    var sizeDelta = rectTransform.sizeDelta;
-                    rectTransform.sizeDelta = new Vector2(sizeDelta.x + 10, sizeDelta.y);
-                    _customUIGameObjects.Add(customTransform.gameObject);
+                    var customTransform = CustomSlider(rightSide, new Vector2(0, -1300));
+                    uiMod.AddCustomObject(customTransform.gameObject);
 
                     var uiDynamic = customTransform.GetComponent<UIDynamicSlider>();
                     var jsf = FrictionHandler.softColliderFrictionJsf;
@@ -656,20 +556,39 @@ namespace TittyMagic
             }
             catch(Exception e)
             {
-                Utils.LogError($"Error modifying Skin Materials UI: {e}");
+                Utils.LogError($"Error modifying {uiMod.targetName} UI: {e}");
             }
         }
 
-        private void Inactivate(Transform t)
+        private Transform OpenPluginUIButton(Transform parent)
         {
-            foreach(Transform child in t)
-            {
-                if(child.gameObject.activeSelf)
-                {
-                    _inactivatedUIGameObjects.Add(child.gameObject);
-                    child.gameObject.SetActive(false);
-                }
-            }
+            var button = Utils.DestroyLayout(this.InstantiateButton(parent));
+            var uiDynamic = button.GetComponent<UIDynamicButton>();
+            uiDynamic.label = $"<b>Open {nameof(TittyMagic)} UI</b>";
+            uiDynamic.button.onClick.AddListener(() => bindings.actions["OpenUI"].actionCallback());
+            return button;
+        }
+
+        private Transform CustomToggle(Transform parent, Vector2 anchoredPosition)
+        {
+            var customTransform = Utils.DestroyLayout(this.InstantiateToggle(parent));
+            var rectTransform = customTransform.GetComponent<RectTransform>();
+            rectTransform.pivot = new Vector2(0, 0);
+            rectTransform.anchoredPosition = anchoredPosition;
+            var sizeDelta = rectTransform.sizeDelta;
+            rectTransform.sizeDelta = new Vector2(sizeDelta.x + 10, sizeDelta.y);
+            return customTransform;
+        }
+
+        private Transform CustomSlider(Transform parent, Vector2 anchoredPosition)
+        {
+            var customTransform = Utils.DestroyLayout(this.InstantiateSlider(parent));
+            var rectTransform = customTransform.GetComponent<RectTransform>();
+            rectTransform.pivot = new Vector2(0, 0);
+            rectTransform.anchoredPosition = anchoredPosition;
+            var sizeDelta = rectTransform.sizeDelta;
+            rectTransform.sizeDelta = new Vector2(sizeDelta.x + 10, sizeDelta.y);
+            return customTransform;
         }
 
         #endregion Init
@@ -1031,9 +950,7 @@ namespace TittyMagic
                 _gravityWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
 
                 DestroyImmediate(_pluginUIEventsListener);
-                DestroyImmediate(_atomUIEventsListener);
-
-                _customUIGameObjects?.ForEach(Destroy);
+                _UIMods.ForEach(Destroy);
 
                 SuperController.singleton.onSceneSavedHandlers -= OnSceneSaved;
                 SuperController.singleton.onBeforeSceneSaveHandlers -= OnBeforeSceneSave;
@@ -1068,9 +985,7 @@ namespace TittyMagic
                 SoftPhysicsHandler.SaveOriginalBoolParamValues();
                 SoftPhysicsHandler.EnableMultiplyFriction();
                 StartCalibration(true);
-                _inactivatedUIGameObjects?.ForEach(go => go.SetActive(false));
-                _customUIGameObjects?.ForEach(go => go.SetActive(true));
-                _movedRects?.ForEach(change => change.Apply());
+                _UIMods.ForEach(go => go.SetEnabled(true));
             }
             catch(Exception e)
             {
@@ -1090,9 +1005,8 @@ namespace TittyMagic
                 GravityOffsetMorphHandler.ResetAll();
                 ForceMorphHandler.ResetAll();
                 NippleErectionHandler.Reset();
-                _inactivatedUIGameObjects?.ForEach(go => go.SetActive(true));
-                _customUIGameObjects?.ForEach(go => go.SetActive(false));
-                _movedRects?.ForEach(change => change.RestoreOriginal());
+                _UIMods.ForEach(go => go.SetEnabled(false));
+
             }
             catch(Exception e)
             {
