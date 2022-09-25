@@ -30,7 +30,7 @@ namespace TittyMagic.UI
                 sb.Append(" prevent breasts from returning to their neutral shape normally.");
                 var storable = new JSONStorableString("forceMorphingMultipliersInfoText", sb.ToString());
 
-                var textField = tittyMagic.CreateTextField(storable, false);
+                var textField = tittyMagic.CreateTextField(storable);
                 textField.UItext.fontSize = 28;
                 textField.backgroundColor = Color.clear;
                 textField.height = 825;

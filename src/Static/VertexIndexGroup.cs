@@ -34,13 +34,6 @@ namespace TittyMagic
             19615, 19617, 19618, 19620, 19625, 19635, 19636,
         };
 
-        // subsets of leftBreast and rightBreast - vertices closest to center
-        public static List<int> leftBreastCenter = new List<int>
-            { 7197, 7208, 8902, 8904, 8905, 8908, 8909, 8911, 8915, 8917, 8922, 8924 };
-
-        public static List<int> rightBreastCenter = new List<int>
-            { 17904, 17915, 19568, 19570, 19571, 19574, 19575, 19577, 19581, 19583, 19588, 19590 };
-
         public static int[] leftBreastWidthMarkers = { 8956, 8967 };
         public static int[] rightBreastWidthMarkers = { 19622, 19633 };
 
@@ -52,8 +45,6 @@ namespace TittyMagic
             breasts = null;
             leftBreast = null;
             rightBreast = null;
-            leftBreastCenter = null;
-            rightBreastCenter = null;
             leftBreastWidthMarkers = null;
             rightBreastWidthMarkers = null;
             leftBreastMiddle = null;

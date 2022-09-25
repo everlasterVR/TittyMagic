@@ -37,7 +37,7 @@ namespace TittyMagic.Handlers
             {
                 InitColliderVisualizer();
                 showSoftVerticesColliderPreviewsJsb = tittyMagic.NewJSONStorableBool("showSoftVerticesColliders", false, shouldRegister: false);
-                showSoftVerticesColliderPreviewsJsb.setCallbackFunction = value => colliderVisualizer.GroupsJSON.val = value ? "Both breasts" : "Off";;
+                showSoftVerticesColliderPreviewsJsb.setCallbackFunction = value => colliderVisualizer.GroupsJSON.val = value ? "Both breasts" : "Off";
 
                 breastPhysicsMesh = (DAZPhysicsMesh) tittyMagic.containingAtom.GetStorableByID("BreastPhysicsMesh");
                 _breastPhysicsMeshFloatParamNames = breastPhysicsMesh.GetFloatParamNames();
@@ -127,7 +127,7 @@ namespace TittyMagic.Handlers
         {
             if(!showSoftVerticesColliderPreviewsJsb.val)
             {
-                colliderVisualizer.GroupsJSON.val = $"Both breasts{(colliderGroup != null ? $" ({colliderGroup})" : "" )}";
+                colliderVisualizer.GroupsJSON.val = $"Both breasts{(colliderGroup != null ? $" ({colliderGroup})" : "")}";
             }
         }
 
@@ -160,7 +160,13 @@ namespace TittyMagic.Handlers
             );
         }
 
-        private static SoftGroupPhysicsParameter NewSoftGroupPhysicsParameter(string paramName, string side, string group, float min = 0, float max = 2)
+        private static SoftGroupPhysicsParameter NewSoftGroupPhysicsParameter(
+            string paramName,
+            string side,
+            string group,
+            float min = 0,
+            float max = 2
+        )
         {
             string jsfName = $"{paramName}{(side == LEFT ? "" : side)}{group}";
             var valueJsf = new JSONStorableFloat($"{jsfName}Value", 1, min, max);
@@ -682,7 +688,7 @@ namespace TittyMagic.Handlers
                 group.colliderNormalOffsetNoSync = value;
             }
 
-            if (group.useSecondCollider)
+            if(group.useSecondCollider)
             {
                 group.secondColliderRadiusNoSync = value;
                 group.secondColliderNormalOffsetNoSync = value;
