@@ -89,16 +89,12 @@ namespace TittyMagic.UI
 
             /* Soft physics toggle */
             {
-                var storable = SoftPhysicsHandler.softPhysicsOnJsb;
+                var storable = SoftPhysicsHandler.breastSoftPhysicsOnJsb;
                 var toggle = tittyMagic.CreateToggle(storable, true);
                 toggle.height = 52;
-                toggle.label = "Soft Physics Enabled";
-                if(!personIsFemale)
-                {
-                    toggle.SetActiveStyle(false, true);
-                }
-
+                toggle.label = "Breast Soft Physics Enabled";
                 elements[storable.name] = toggle;
+                UpdateSoftPhysicsToggleStyle(tittyMagic.settingsMonitor.softPhysicsEnabled);
             }
 
             if(personIsFemale)
@@ -116,6 +112,25 @@ namespace TittyMagic.UI
                 {
                     CreateParamButton(group.Key, group.Value, true);
                 }
+            }
+        }
+
+        public void UpdateSoftPhysicsToggleStyle(bool softPhysicsEnabled)
+        {
+            var storable = SoftPhysicsHandler.breastSoftPhysicsOnJsb;
+            if(!elements.ContainsKey(storable.name))
+            {
+                return;
+            }
+
+            var toggle = (UIDynamicToggle) elements[storable.name];
+            if(!personIsFemale)
+            {
+                toggle.SetActiveStyle(false, true);
+            }
+            else
+            {
+                toggle.textColor = storable.val && !softPhysicsEnabled ? Color.red : Color.black;
             }
         }
 

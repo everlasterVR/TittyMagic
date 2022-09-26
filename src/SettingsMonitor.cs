@@ -2,6 +2,7 @@
 using System.Collections;
 using TittyMagic.Components;
 using TittyMagic.Handlers;
+using TittyMagic.UI;
 using UnityEngine;
 using static TittyMagic.Script;
 
@@ -42,7 +43,7 @@ namespace TittyMagic
                 /* Initialize _breastSoftPhysicsOn to same value as initialized to in
                  * SoftPhysicsHandler's own JSONStorable, prevents double calibration on init
                  */
-                _breastSoftPhysicsOn = SoftPhysicsHandler.softPhysicsOnJsb.val;
+                _breastSoftPhysicsOn = SoftPhysicsHandler.breastSoftPhysicsOnJsb.val;
                 _atomSoftPhysicsOn = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
                 _globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
             }
@@ -134,6 +135,12 @@ namespace TittyMagic
                     if(value != softPhysicsEnabled)
                     {
                         SoftPhysicsHandler.ReverseSyncSoftPhysicsOn();
+                        var physicsWindow = tittyMagic.tabs.activeWindow as PhysicsWindow;
+                        if(physicsWindow != null)
+                        {
+                            physicsWindow.UpdateSoftPhysicsToggleStyle(value);
+                        }
+
                         refreshNeeded = true;
                     }
 

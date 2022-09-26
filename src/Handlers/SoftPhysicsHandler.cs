@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using TittyMagic.Handlers.Configs;
 using TittyMagic.Models;
+using TittyMagic.UI;
 using UnityEngine;
 using static TittyMagic.ParamName;
 using static TittyMagic.Script;
@@ -26,7 +27,7 @@ namespace TittyMagic.Handlers
 
         // Group name -> Group
         public static Dictionary<string, PhysicsParameterGroup> parameterGroups { get; private set; }
-        public static JSONStorableBool softPhysicsOnJsb { get; private set; }
+        public static JSONStorableBool breastSoftPhysicsOnJsb { get; private set; }
         public static JSONStorableBool allowSelfCollisionJsb { get; private set; }
 
         private static bool _isInitialized;
@@ -68,15 +69,23 @@ namespace TittyMagic.Handlers
                 EnableMultiplyFriction();
             }
 
-            softPhysicsOnJsb = tittyMagic.NewJSONStorableBool(SOFT_PHYSICS_ON, personIsFemale, shouldRegister: personIsFemale);
-            softPhysicsOnJsb.setCallbackFunction = SyncSoftPhysicsOn;
+            breastSoftPhysicsOnJsb = tittyMagic.NewJSONStorableBool(SOFT_PHYSICS_ON, personIsFemale, shouldRegister: personIsFemale);
+            breastSoftPhysicsOnJsb.setCallbackFunction = val =>
+            {
+                SyncSoftPhysicsOn(val);
+                var physicsWindow = tittyMagic.tabs.activeWindow as PhysicsWindow;
+                if(physicsWindow != null)
+                {
+                    physicsWindow.UpdateSoftPhysicsToggleStyle(tittyMagic.settingsMonitor.softPhysicsEnabled);
+                }
+            };
 
             allowSelfCollisionJsb = tittyMagic.NewJSONStorableBool(ALLOW_SELF_COLLISION, personIsFemale, shouldRegister: personIsFemale);
             allowSelfCollisionJsb.setCallbackFunction = SyncAllowSelfCollision;
 
             if(breastPhysicsMesh == null)
             {
-                softPhysicsOnJsb.valNoCallback = false;
+                breastSoftPhysicsOnJsb.valNoCallback = false;
                 allowSelfCollisionJsb.valNoCallback = false;
             }
 
@@ -757,7 +766,7 @@ namespace TittyMagic.Handlers
         {
             if(breastPhysicsMesh != null)
             {
-                softPhysicsOnJsb.valNoCallback = breastPhysicsMesh.on;
+                breastSoftPhysicsOnJsb.valNoCallback = breastPhysicsMesh.on;
             }
         }
 
@@ -831,7 +840,7 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            SyncSoftPhysicsOn(softPhysicsOnJsb.val);
+            SyncSoftPhysicsOn(breastSoftPhysicsOnJsb.val);
             SyncAllowSelfCollision(allowSelfCollisionJsb.val);
         }
 
@@ -1049,7 +1058,7 @@ namespace TittyMagic.Handlers
             _breastPhysicsMeshFloatParamNames = null;
             _softVerticesGroups = null;
             parameterGroups = null;
-            softPhysicsOnJsb = null;
+            breastSoftPhysicsOnJsb = null;
             allowSelfCollisionJsb = null;
         }
     }

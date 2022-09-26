@@ -110,6 +110,7 @@ namespace TittyMagic
                 }
                 else if(tabs.activeWindow == _physicsWindow)
                 {
+                    ((PhysicsWindow) _physicsWindow).UpdateSoftPhysicsToggleStyle(settingsMonitor.softPhysicsEnabled);
                     var parameterWindow = _physicsWindow.GetActiveNestedWindow() as ParameterWindow;
                     if(parameterWindow != null)
                     {
