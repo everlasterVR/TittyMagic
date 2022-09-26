@@ -84,18 +84,22 @@ namespace TittyMagic.Components
 
         public void OnEnable()
         {
-            _inactivatedUIGameObjects?.ForEach(go => go.SetActive(false));
-            _customUIGameObjects?.ForEach(go => go.SetActive(true));
-            _movedRects?.ForEach(change => change.Apply());
+            _inactivatedUIGameObjects.ForEach(go => go.SetActive(false));
+            _customUIGameObjects.ForEach(go => go.SetActive(true));
+            _movedRects.ForEach(change => change.Apply());
         }
 
         public void OnDisable()
         {
-            _customUIGameObjects.ForEach(Destroy);
-            _movedRects.ForEach(change => change.RestoreOriginal());
+            _customUIGameObjects.ForEach(go => go.SetActive(false));
             _inactivatedUIGameObjects.ForEach(go => go.SetActive(true));
+            _movedRects.ForEach(change => change.RestoreOriginal());
         }
 
-        public void OnDestroy() => DestroyImmediate(_eventListener);
+        public void OnDestroy()
+        {
+            _customUIGameObjects.ForEach(Destroy);
+            DestroyImmediate(_eventListener);
+        }
     }
 }
