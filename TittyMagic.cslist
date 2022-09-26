@@ -30,7 +30,6 @@ src\Components\UIMod.cs
 src\Components\UnityEventsListener.cs
 src\Extensions\ArrayExtension.cs
 src\Extensions\ListExtension.cs
-src\Extensions\MonoBehaviourExtension.cs
 src\Extensions\MVRScriptExtension.cs
 src\Extensions\StringExtension.cs
 src\Extensions\UIDynamicExtension.cs

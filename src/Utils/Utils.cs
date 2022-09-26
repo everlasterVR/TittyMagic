@@ -136,5 +136,15 @@ namespace TittyMagic
             UnityEngine.Object.Destroy(transform.GetComponent<LayoutElement>());
             return transform;
         }
+
+        public static void Enable(MonoBehaviour monoBehaviour)
+        {
+            monoBehaviour.enabled = true;
+        }
+
+        public static void Disable(MonoBehaviour monoBehaviour)
+        {
+            monoBehaviour.enabled = false;
+        }
     }
 }

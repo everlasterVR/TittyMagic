@@ -702,7 +702,7 @@ namespace TittyMagic
                 }
 
                 settingsMonitor.CheckSettings();
-                settingsMonitor.SetEnabled(false);
+                settingsMonitor.enabled = false;
 
                 /* Sanity check. Might occur (?) even after hard colliders are enabled by settings monitor */
                 float timeout = Time.unscaledTime + 5;
@@ -983,14 +983,14 @@ namespace TittyMagic
                     return;
                 }
 
-                settingsMonitor.SetEnabled(true);
+                settingsMonitor.enabled = true;
                 HardColliderHandler.SaveOriginalUseColliders();
                 HardColliderHandler.EnableAdvColliders();
                 HardColliderHandler.EnableMultiplyFriction();
                 SoftPhysicsHandler.SaveOriginalBoolParamValues();
                 SoftPhysicsHandler.EnableMultiplyFriction();
                 StartCalibration(true);
-                _uiMods.ForEach(go => go.SetEnabled(true));
+                _uiMods.ForEach(Utils.Enable);
             }
             catch(Exception e)
             {
@@ -1002,7 +1002,7 @@ namespace TittyMagic
         {
             try
             {
-                settingsMonitor.SetEnabled(false);
+                settingsMonitor.enabled = false;
                 settingsMonitor.SetPectoralCollisions(true);
                 HardColliderHandler.RestoreOriginalPhysics();
                 MainPhysicsHandler.RestoreOriginalPhysics();
@@ -1010,8 +1010,7 @@ namespace TittyMagic
                 GravityOffsetMorphHandler.ResetAll();
                 ForceMorphHandler.ResetAll();
                 NippleErectionHandler.Reset();
-                _uiMods.ForEach(go => go.SetEnabled(false));
-
+                _uiMods.ForEach(Utils.Disable);
             }
             catch(Exception e)
             {

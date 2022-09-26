@@ -210,7 +210,7 @@ namespace TittyMagic
         {
             if(!isQueued)
             {
-                tittyMagic.settingsMonitor.SetEnabled(true);
+                tittyMagic.settingsMonitor.enabled = true;
                 isWaiting = false;
                 SuperController.singleton.SetFreezeAnimation(_wasFrozen ?? false);
                 _wasFrozen = null;
