@@ -477,11 +477,16 @@ namespace TittyMagic.Handlers
             hardColliderGroups.ForEach(group => group.UpdateDistanceDiffs(breastCenterLeft, breastCenterRight, MainPhysicsHandler.chestRb));
         }
 
-        private static Vector3 BreastCenter(IEnumerable<int> vertexIndices) =>
-            Calc.RelativePosition(
-                MainPhysicsHandler.chestRb,
-                Calc.AveragePosition(vertexIndices.Select(index => skin.rawSkinnedVerts[index]).ToArray())
-            );
+        private static Vector3 BreastCenter(int[] vertexIndices)
+        {
+            var vertices = new Vector3[vertexIndices.Length];
+            for(int i = 0; i < vertexIndices.Length; i++)
+            {
+                vertices[i] = skin.rawSkinnedVerts[vertexIndices[i]];
+            }
+
+            return Calc.RelativePosition(MainPhysicsHandler.chestRb, Calc.AveragePosition(vertices));
+        }
 
         public static void ResetDistanceDiffs()
         {

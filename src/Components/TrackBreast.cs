@@ -10,7 +10,7 @@ namespace TittyMagic.Components
         private readonly Rigidbody _chestRb;
         private readonly Transform _chestTransform;
         private readonly Rigidbody _pectoralRb;
-        private readonly List<int> _breastVertices;
+        private readonly int[] _vertexIndexGroup;
 
         private Vector3 _neutralRelativePosition;
         private Vector3 _neutralRelativePectoralPosition;
@@ -19,12 +19,12 @@ namespace TittyMagic.Components
         public float angleX { get; private set; }
         public float depthDiff { get; private set; }
 
-        public TrackBreast(Rigidbody pectoralRb, List<int> breastVertices)
+        public TrackBreast(Rigidbody pectoralRb, int[] vertexIndexGroup)
         {
             _chestRb = MainPhysicsHandler.chestRb;
             _chestTransform = _chestRb.transform;
             _pectoralRb = pectoralRb;
-            _breastVertices = breastVertices;
+            _vertexIndexGroup = vertexIndexGroup;
         }
 
         public void Calibrate()
@@ -50,8 +50,13 @@ namespace TittyMagic.Components
 
         private Vector3 RelativeBreastPosition()
         {
-            var breastPosition = Calc.AveragePosition(_breastVertices.Select(i => Script.skin.rawSkinnedWorkingVerts[i]).ToArray());
-            return Calc.RelativePosition(_chestTransform, breastPosition);
+            var vertices = new Vector3[_vertexIndexGroup.Length];
+            for(int i = 0; i < _vertexIndexGroup.Length; i++)
+            {
+                vertices[i] = Script.skin.rawSkinnedVerts[_vertexIndexGroup[i]];
+            }
+
+            return Calc.RelativePosition(_chestTransform, Calc.AveragePosition(vertices));
         }
 
         public void ResetAnglesAndDepthDiff()

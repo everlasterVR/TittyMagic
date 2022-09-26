@@ -84,9 +84,14 @@ namespace TittyMagic.Handlers
             massAmount = massParameterGroup.left.valueJsf.val / 2;
         }
 
-        private static float CalculateVolume(IEnumerable<int> vertexIndices)
+        private static float CalculateVolume(int[] vertexIndices)
         {
-            var positions = vertexIndices.Select(i => Calc.RelativePosition(chestRb, skin.rawSkinnedVerts[i])).ToList();
+            var positions = new Vector3[vertexIndices.Length];
+            for(int i = 0; i < vertexIndices.Length; i++)
+            {
+                positions[i] = Calc.RelativePosition(chestRb, skin.rawSkinnedVerts[vertexIndices[i]]);
+            }
+
             var bounds = new Bounds();
 
             /* Calculate bounds size */

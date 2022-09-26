@@ -20,14 +20,14 @@ namespace TittyMagic
 
         // excludes nipple vertices
         // excludes indexes that (for some reason) don't get updated vertex positions in DAZSkinV2.rawSkinnedVertices when male skinned person is moved around or morphed
-        public static List<int> leftBreast = new List<int>
+        public static int[] leftBreast =
         {
             2403, 2411, 2592, 7197, 7208, 8902, 8904, 8905, 8908, 8909, 8911, 8915, 8917, 8922, 8924, 8925, 8926, 8928,
             8930, 8933, 8934, 8935, 8939, 8941, 8942, 8943, 8945, 8946, 8947, 8948, 8949, 8951, 8952, 8954, 8959, 8969,
             8970,
         };
 
-        public static List<int> rightBreast = new List<int>
+        public static int[] rightBreast =
         {
             13233, 13241, 13410, 17904, 17915, 19568, 19570, 19571, 19574, 19575, 19577, 19581, 19583, 19588, 19590,
             19591, 19592, 19594, 19596, 19599, 19600, 19601, 19605, 19607, 19608, 19609, 19611, 19612, 19613, 19614,
@@ -37,8 +37,8 @@ namespace TittyMagic
         public static int[] leftBreastWidthMarkers = { 8956, 8967 };
         public static int[] rightBreastWidthMarkers = { 19622, 19633 };
 
-        public static List<int> leftBreastMiddle = new List<int> { 8911, 8930, 8943, 8947 };
-        public static List<int> rightBreastMiddle = new List<int> { 19577, 19596, 19609, 19625 };
+        public static int[] leftBreastMiddle = { 8911, 8930, 8943, 8947 };
+        public static int[] rightBreastMiddle = { 19577, 19596, 19609, 19625 };
 
         public static void Destroy()
         {
