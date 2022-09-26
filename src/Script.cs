@@ -158,7 +158,8 @@ namespace TittyMagic
         }
 
         private FrequencyRunner _listenersCheckRunner;
-        private JSONStorableFloat _scaleJsf;
+        private JSONStorableFloat _scaleJsfOrig;
+        public JSONStorableFloat scaleJsf { get; private set; }
         private List<Rigidbody> _rigidbodies;
         private Transform _chestTransform;
         private Rigidbody _pectoralRbLeft;
@@ -241,10 +242,12 @@ namespace TittyMagic
             _pectoralRbLeft = MainPhysicsHandler.breastControl.joint2.GetComponent<Rigidbody>();
             _pectoralRbRight = MainPhysicsHandler.breastControl.joint1.GetComponent<Rigidbody>();
 
-            /* Setup atom scale changed callback */
+            /* Setup atom scale changed callback via a JSONStorableFloat */
             {
-                _scaleJsf = containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale");
-                _scaleJsf.setJSONCallbackFunction = _ =>
+                _scaleJsfOrig = containingAtom.GetStorableByID("rescaleObject").GetFloatJSONParam("scale");
+                scaleJsf = new JSONStorableFloat("scaleCopy", _scaleJsfOrig.defaultVal, _scaleJsfOrig.min, _scaleJsfOrig.max);
+                scaleJsf.val = _scaleJsfOrig.val;
+                scaleJsf.setCallbackFunction = _ =>
                 {
                     if(!enabled || !isInitialized || calibration.isWaiting ||
                         containingAtom.grabFreezePhysics && containingAtom.mainController.isGrabbing)
@@ -632,6 +635,7 @@ namespace TittyMagic
                     return;
                 }
 
+                scaleJsf.val = _scaleJsfOrig.val;
                 _trackLeftBreast.UpdateAnglesAndDepthDiff();
                 _trackRightBreast.UpdateAnglesAndDepthDiff();
                 HardColliderHandler.UpdateDistanceDiffs();
@@ -943,7 +947,7 @@ namespace TittyMagic
                 geometry = null;
                 skin = null;
 
-                _scaleJsf.setJSONCallbackFunction = null;
+                scaleJsf.setJSONCallbackFunction = null;
 
                 _mainWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));
                 _morphingWindow.GetSliders().ForEach(slider => Destroy(slider.GetPointerUpDownListener()));

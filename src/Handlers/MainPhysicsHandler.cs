@@ -106,8 +106,7 @@ namespace TittyMagic.Handlers
             /* Calculate volume */
             {
                 float toCm3 = Mathf.Pow(10, 6);
-
-                float scale = tittyMagic.containingAtom.GetStorableByID("rescaleObject").GetFloatParamValue("scale");
+                float scale = tittyMagic.scaleJsf.val;
 
                 /* This somewhat accurately scales breast volume to the apparent breast size when atom scale is adjusted. */
                 float atomScaleAdjustment = 1 - Mathf.Abs(Mathf.Log10(Mathf.Pow(scale, 3)));
