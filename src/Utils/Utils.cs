@@ -137,16 +137,6 @@ namespace TittyMagic
             return transform;
         }
 
-        public static void Enable(MonoBehaviour monoBehaviour)
-        {
-            monoBehaviour.enabled = true;
-        }
-
-        public static void Disable(MonoBehaviour monoBehaviour)
-        {
-            monoBehaviour.enabled = false;
-        }
-
         public static Rigidbody FindRigidbody(Atom atom, string name) =>
             atom.GetComponentsInChildren<Rigidbody>().ToList().Find(rb => rb.name == name);
     }

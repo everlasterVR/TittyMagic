@@ -387,7 +387,10 @@ namespace TittyMagic
                 NewUIMod(atomUIContent, "F Breast Presets", ReplaceWithPluginUIButton),
                 NewUIMod(atomUIContent, "Skin Materials 2", ModifySkinMaterialsUI),
             };
-            _uiMods.ForEach(uiMod => uiMod.Apply());
+            if(enabled)
+            {
+                _uiMods.ForEach(uiMod => uiMod.Apply());
+            }
 
             if(!_isRestoringFromJson)
             {
@@ -872,6 +875,12 @@ namespace TittyMagic
             bool setMissingToDefault = true
         )
         {
+            /* Disable early to allow correct enabled value to be used during Init */
+            if(jsonClass.HasKey("enabled") && !jsonClass["enabled"].AsBool)
+            {
+                enabled = false;
+            }
+
             _isRestoringFromJson = true;
             /* Prevent overriding versionJss.val from JSON. Version stored in JSON just for information,
              * but could be intercepted here and used to save a "loadedFromVersion" value.
@@ -904,6 +913,7 @@ namespace TittyMagic
             }
 
             base.RestoreFromJSON(jsonClass, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
+
             _isRestoringFromJson = false;
             HardColliderHandler.SaveOriginalUseColliders();
             SoftPhysicsHandler.SaveOriginalBoolParamValues();
@@ -980,13 +990,13 @@ namespace TittyMagic
 
         public void OnEnable()
         {
+            if(!isInitialized)
+            {
+                return;
+            }
+
             try
             {
-                if(!isInitialized)
-                {
-                    return;
-                }
-
                 settingsMonitor.enabled = true;
                 HardColliderHandler.SaveOriginalUseColliders();
                 HardColliderHandler.EnableAdvColliders();
@@ -994,7 +1004,7 @@ namespace TittyMagic
                 SoftPhysicsHandler.SaveOriginalBoolParamValues();
                 SoftPhysicsHandler.EnableMultiplyFriction();
                 StartCalibration(calibratesMass: true);
-                _uiMods.ForEach(Utils.Enable);
+                _uiMods.ForEach(uiMod => uiMod.Enable());
             }
             catch(Exception e)
             {
@@ -1004,6 +1014,12 @@ namespace TittyMagic
 
         private void OnDisable()
         {
+            /* Prevent disable actions if disabled when restoring from JSON */
+            if(!isInitialized)
+            {
+                return;
+            }
+
             try
             {
                 settingsMonitor.enabled = false;
@@ -1014,18 +1030,11 @@ namespace TittyMagic
                 GravityOffsetMorphHandler.ResetAll();
                 ForceMorphHandler.ResetAll();
                 NippleErectionHandler.Reset();
-                _uiMods.ForEach(Utils.Disable);
+                _uiMods.ForEach(uiMod => uiMod.Disable());
             }
             catch(Exception e)
             {
-                if(isInitialized)
-                {
-                    Utils.LogError($"OnDisable: {e}");
-                }
-                else
-                {
-                    Utils.Log($"OnDisable: {e}");
-                }
+                Utils.LogError($"OnDisable: {e}");
             }
         }
     }

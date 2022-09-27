@@ -86,14 +86,21 @@ namespace TittyMagic.Components
         public void MoveTransform(Transform t, int x, int y) =>
             _movedRects.Add(new RectTransformChange(t.GetComponent<RectTransform>(), new Vector2(x, y)));
 
-        public void OnEnable()
+        public void Enable()
         {
-            _inactivatedUIGameObjects.ForEach(go => go.SetActive(false));
-            _customUIGameObjects.ForEach(go => go.SetActive(true));
-            _movedRects.ForEach(change => change.Apply());
+            if(Script.tittyMagic.isInitialized && !_modified)
+            {
+                Apply();
+            }
+            else
+            {
+                _inactivatedUIGameObjects.ForEach(go => go.SetActive(false));
+                _customUIGameObjects.ForEach(go => go.SetActive(true));
+                _movedRects.ForEach(change => change.Apply());
+            }
         }
 
-        public void OnDisable()
+        public void Disable()
         {
             _customUIGameObjects.ForEach(go => go.SetActive(false));
             _inactivatedUIGameObjects.ForEach(go => go.SetActive(true));

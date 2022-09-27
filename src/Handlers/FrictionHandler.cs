@@ -114,7 +114,7 @@ namespace TittyMagic
         /* Maximum friction that a collider can have, drops off dynamically with distance from collider's normal position */
         public static void CalculateFriction()
         {
-            if(!personIsFemale)
+            if(!personIsFemale || !tittyMagic.enabled)
             {
                 return;
             }
