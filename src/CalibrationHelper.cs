@@ -12,7 +12,6 @@ namespace TittyMagic
     public class CalibrationHelper : MonoBehaviour
     {
         private static readonly string _uid = tittyMagic.containingAtom.uid;
-        public bool isWaiting;
         public bool shouldRun;
         public bool isInProgress;
         public bool isQueued;
@@ -42,9 +41,7 @@ namespace TittyMagic
 
         public IEnumerator Begin()
         {
-            isWaiting = true;
             shouldRun = false;
-
             if(isInProgress)
             {
                 if(!isQueued && !IsBlockedByInput())
@@ -211,7 +208,6 @@ namespace TittyMagic
             if(!isQueued)
             {
                 tittyMagic.settingsMonitor.enabled = true;
-                isWaiting = false;
                 SuperController.singleton.SetFreezeAnimation(_wasFrozen ?? false);
                 _wasFrozen = null;
                 _calibrationLockJsb.val = false;

@@ -130,7 +130,6 @@ namespace TittyMagic
 
         #region Init
 
-        // ReSharper disable once MemberCanBePrivate.Global
         public bool isInitialized { get; private set; }
 
         public override void Init()
@@ -248,13 +247,14 @@ namespace TittyMagic
                 scaleJsf.val = _scaleJsfOrig.val;
                 scaleJsf.setCallbackFunction = _ =>
                 {
-                    if(!enabled || !isInitialized || calibration.isWaiting ||
-                        containingAtom.grabFreezePhysics && containingAtom.mainController.isGrabbing)
+                    bool isGrabbing = containingAtom.grabFreezePhysics && containingAtom.mainController.isGrabbing;
+                    // redundant enabled?
+                    if(!enabled || !_isCalibrated || isGrabbing)
                     {
                         return;
                     }
 
-                    if(autoUpdateJsb.val && !calibration.isWaiting)
+                    if(autoUpdateJsb.val)
                     {
                         StartCalibration(calibratesMass: true, waitsForListeners: true);
                     }
@@ -321,7 +321,7 @@ namespace TittyMagic
                 {
                     if(value)
                     {
-                        calculateBreastMass.actionCallback();
+                        StartCalibration(calibratesMass: true);
                     }
                 };
 
@@ -393,12 +393,10 @@ namespace TittyMagic
             {
                 HardColliderHandler.SaveOriginalUseColliders();
                 SoftPhysicsHandler.SaveOriginalBoolParamValues();
-                calculateBreastMass.actionCallback();
+                StartCalibration(calibratesMass: true);
             }
-            else
-            {
-                isInitialized = true;
-            }
+
+            isInitialized = true;
         }
 
         // https://github.com/vam-community/vam-plugins-interop-specs/blob/main/keybindings.md
@@ -620,15 +618,20 @@ namespace TittyMagic
 
         private void FixedUpdate()
         {
+            if(!isInitialized)
+            {
+                return;
+            }
+
             try
             {
                 bool isFreezeGrabbing = containingAtom.grabFreezePhysics && containingAtom.mainController.isGrabbing;
-                if(!isInitialized || _isRestoringFromJson || calibration.isWaiting || isFreezeGrabbing || _isSavingScene)
+                if(_isRestoringFromJson || !_isCalibrated || isFreezeGrabbing || _isSavingScene)
                 {
                     return;
                 }
 
-                if(_listenersCheckRunner.Run(BreastMorphListener.ChangeWasDetected) && autoUpdateJsb.val && !calibration.isWaiting)
+                if(_listenersCheckRunner.Run(BreastMorphListener.ChangeWasDetected) && autoUpdateJsb.val)
                 {
                     StartCalibration(calibratesMass: true, waitsForListeners: true);
                     return;
@@ -661,8 +664,11 @@ namespace TittyMagic
 
         #region Calibration
 
+        private bool _isCalibrated;
+
         public void StartCalibration(bool calibratesMass, bool waitsForListeners = false)
         {
+            _isCalibrated = false;
             if(_isRestoringFromJson)
             {
                 return;
@@ -814,7 +820,7 @@ namespace TittyMagic
             SetBreastsUseGravity(true);
             calibration.SetBreastsCollisionEnabled(true, guid);
             calibration.Finish();
-            isInitialized = true;
+            _isCalibrated = true;
         }
 
         private void SetBreastsUseGravity(bool value)
@@ -901,7 +907,7 @@ namespace TittyMagic
             _isRestoringFromJson = false;
             HardColliderHandler.SaveOriginalUseColliders();
             SoftPhysicsHandler.SaveOriginalBoolParamValues();
-            calculateBreastMass.actionCallback();
+            StartCalibration(calibratesMass: true);
         }
 
         private bool _isSavingScene;
@@ -987,7 +993,7 @@ namespace TittyMagic
                 HardColliderHandler.EnableMultiplyFriction();
                 SoftPhysicsHandler.SaveOriginalBoolParamValues();
                 SoftPhysicsHandler.EnableMultiplyFriction();
-                StartCalibration(true);
+                StartCalibration(calibratesMass: true);
                 _uiMods.ForEach(Utils.Enable);
             }
             catch(Exception e)
