@@ -47,6 +47,11 @@ namespace TittyMagic.Components
                 yield break;
             }
 
+            /* Set modified immediately to prevent double apply in case eventListener
+             * gets enabled multiple times in a short period of time
+             */
+            _modified = true;
+
             float waited = 0f;
             while(waited < 1)
             {
@@ -62,7 +67,6 @@ namespace TittyMagic.Components
             }
 
             yield return _applyChanges(this);
-            _modified = true;
         }
 
         public void InactivateChildren()
