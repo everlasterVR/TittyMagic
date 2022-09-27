@@ -146,5 +146,8 @@ namespace TittyMagic
         {
             monoBehaviour.enabled = false;
         }
+
+        public static Rigidbody FindRigidbody(Atom atom, string name) =>
+            atom.GetComponentsInChildren<Rigidbody>().ToList().Find(rb => rb.name == name);
     }
 }

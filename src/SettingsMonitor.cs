@@ -23,9 +23,6 @@ namespace TittyMagic
         private bool _atomSoftPhysicsOn;
         private bool _breastSoftPhysicsOn;
 
-        private Rigidbody _pectoralRbLeft;
-        private Rigidbody _pectoralRbRight;
-
         private bool _isInitialized;
 
         public void Init()
@@ -47,9 +44,6 @@ namespace TittyMagic
                 _atomSoftPhysicsOn = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
                 _globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
             }
-
-            _pectoralRbLeft = MainPhysicsHandler.breastControl.joint2.GetComponent<Rigidbody>();
-            _pectoralRbRight = MainPhysicsHandler.breastControl.joint1.GetComponent<Rigidbody>();
 
             /* prevent breasts being flattened due to breastInOut morphs on scene load with plugin already present */
             _breastInOut.SetBoolParamValue("enabled", true);
@@ -87,7 +81,7 @@ namespace TittyMagic
                 }
 
                 /* Disable pectoral joint rb's collisions if enabled by e.g. person atom collisions being toggled off/on */
-                if(_pectoralRbLeft.detectCollisions || _pectoralRbRight.detectCollisions)
+                if(tittyMagic.pectoralRbLeft.detectCollisions || tittyMagic.pectoralRbRight.detectCollisions)
                 {
                     SetPectoralCollisions(false);
                 }
@@ -95,7 +89,7 @@ namespace TittyMagic
             else
             {
                 /* Force enable pectoral joint rb's collisions for futa */
-                if(!_pectoralRbLeft.detectCollisions || !_pectoralRbRight.detectCollisions)
+                if(!tittyMagic.pectoralRbLeft.detectCollisions || !tittyMagic.pectoralRbRight.detectCollisions)
                 {
                     SetPectoralCollisions(true);
                 }
@@ -200,8 +194,8 @@ namespace TittyMagic
 
         public void SetPectoralCollisions(bool value)
         {
-            _pectoralRbLeft.detectCollisions = value;
-            _pectoralRbRight.detectCollisions = value;
+            tittyMagic.pectoralRbLeft.detectCollisions = value;
+            tittyMagic.pectoralRbRight.detectCollisions = value;
         }
 
         private string LocationWhereStillDisabled(bool breastSoftPhysicsOn, bool atomSoftPhysicsOn, bool globalSoftPhysicsOn)

@@ -37,8 +37,19 @@ namespace TittyMagic
         public static int[] leftBreastWidthMarkers = { 8956, 8967 };
         public static int[] rightBreastWidthMarkers = { 19622, 19633 };
 
-        public static int[] leftBreastMiddle = { 8911, 8930, 8943, 8947 };
-        public static int[] rightBreastMiddle = { 19577, 19596, 19609, 19625 };
+        public static int[] leftNippleMale = { 8911, 8930, 8943, 8947 };
+        public static int[] rightNippleMale = { 19577, 19596, 19609, 19625 };
+
+        public static int[] leftBreastMiddle =
+        {
+            7230, 7231, 7232, 7233, 7234, 7235, 7236, 7237, 7238, 7243, 7244, 7245, 7247, 8926, 8928, 8931, 8932, 8933, 8934, 8935, 8936, 8937, 8938,
+            8939, 8940, 8942,
+        };
+        public static int[] rightBreastMiddle =
+        {
+            17936, 17937, 17938, 17939, 17940, 17941, 17942, 17943, 17944, 17949, 17950, 17951, 17953, 19592, 19594, 19597, 19598, 19599, 19600,
+            19601, 19602, 19603, 19604, 19605, 19606, 19608,
+        };
 
         public static void Destroy()
         {
@@ -47,6 +58,8 @@ namespace TittyMagic
             rightBreast = null;
             leftBreastWidthMarkers = null;
             rightBreastWidthMarkers = null;
+            leftNippleMale = null;
+            rightNippleMale = null;
             leftBreastMiddle = null;
             rightBreastMiddle = null;
         }

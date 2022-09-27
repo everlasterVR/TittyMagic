@@ -156,6 +156,34 @@ namespace TittyMagic.Handlers
             }
         }
 
+        public static Rigidbody[] GetLeftBreastTrackingRBs()
+        {
+            var rigidbodies = new List<Rigidbody>();
+            foreach(var set in _softVerticesGroups[LEFT][MAIN].softVerticesSets)
+            {
+                if(VertexIndexGroup.leftBreastMiddle.Contains(set.targetVertex))
+                {
+                    rigidbodies.Add(set.jointRB);
+                }
+            }
+
+            return rigidbodies.ToArray();
+        }
+
+        public static Rigidbody[] GetRightBreastTrackingSets()
+        {
+            var rigidbodies = new List<Rigidbody>();
+            foreach(var set in _softVerticesGroups[RIGHT][MAIN].softVerticesSets)
+            {
+                if(VertexIndexGroup.rightBreastMiddle.Contains(set.targetVertex))
+                {
+                    rigidbodies.Add(set.jointRB);
+                }
+            }
+
+            return rigidbodies.ToArray();
+        }
+
         #region *** Parameter setup ***
 
         private static PhysicsParameter NewPhysicsParameter(string paramName, string side, float startingValue, float minValue, float maxValue)
@@ -441,7 +469,7 @@ namespace TittyMagic.Handlers
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_BACK_FORCE, side, 0, 0, 50.00f);
             parameter.config = new StaticPhysicsConfig(
-                15.00f,
+                13.00f,
                 // https://www.desmos.com/calculator/ww9lp03k6o
                 massCurve: x => 0.90f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.00f, 0.50f),
                 // https://www.desmos.com/calculator/uwfattbhdg

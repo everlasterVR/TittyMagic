@@ -72,7 +72,7 @@ namespace TittyMagic
             return c + s * Mathf.Pow(1 - xToLimitPow, p);
         }
 
-        // https://www.desmos.com/calculator/ykxswso5ie
+        // https://www.desmos.com/calculator/lb4dq24zwp
         public static float ForceEffectCurve(float x) => InverseSmoothStep(x, 10, 0.8f, 0f);
 
         // https://www.desmos.com/calculator/iesodcuuww

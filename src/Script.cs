@@ -161,10 +161,9 @@ namespace TittyMagic
         private FrequencyRunner _listenersCheckRunner;
         private JSONStorableFloat _scaleJsfOrig;
         public JSONStorableFloat scaleJsf { get; private set; }
-        private List<Rigidbody> _rigidbodies;
         private Transform _chestTransform;
-        private Rigidbody _pectoralRbLeft;
-        private Rigidbody _pectoralRbRight;
+        public Rigidbody pectoralRbLeft { get; private set; }
+        public Rigidbody pectoralRbRight { get; private set; }
         private TrackBreast _trackLeftBreast;
         private TrackBreast _trackRightBreast;
         private List<UIMod> _uiMods;
@@ -235,13 +234,12 @@ namespace TittyMagic
 
             morphsControlUI = personIsFemale ? geometry.morphsControlUI : geometry.morphsControlUIOtherGender;
             skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
-            _rigidbodies = containingAtom.GetComponentsInChildren<Rigidbody>().ToList();
-            MainPhysicsHandler.chestRb = _rigidbodies.Find(rb => rb.name == "chest");
+            MainPhysicsHandler.chestRb = Utils.FindRigidbody(containingAtom, "chest");
             _chestTransform = MainPhysicsHandler.chestRb.transform;
 
             MainPhysicsHandler.breastControl = (AdjustJoints) containingAtom.GetStorableByID(personIsFemale ? "BreastControl" : "PectoralControl");
-            _pectoralRbLeft = MainPhysicsHandler.breastControl.joint2.GetComponent<Rigidbody>();
-            _pectoralRbRight = MainPhysicsHandler.breastControl.joint1.GetComponent<Rigidbody>();
+            pectoralRbLeft = MainPhysicsHandler.breastControl.joint2.GetComponent<Rigidbody>();
+            pectoralRbRight = MainPhysicsHandler.breastControl.joint1.GetComponent<Rigidbody>();
 
             /* Setup atom scale changed callback via a JSONStorableFloat */
             {
@@ -278,8 +276,8 @@ namespace TittyMagic
             settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
             settingsMonitor.Init();
 
-            _trackLeftBreast = new TrackBreast(_pectoralRbLeft, VertexIndexGroup.leftBreastMiddle);
-            _trackRightBreast = new TrackBreast(_pectoralRbRight, VertexIndexGroup.rightBreastMiddle);
+            _trackLeftBreast = new TrackBreast(Side.LEFT);
+            _trackRightBreast = new TrackBreast(Side.RIGHT);
 
             ForcePhysicsHandler.Init(_trackLeftBreast, _trackRightBreast);
             ForceMorphHandler.Init(_trackLeftBreast, _trackRightBreast);
@@ -821,8 +819,8 @@ namespace TittyMagic
 
         private void SetBreastsUseGravity(bool value)
         {
-            _pectoralRbLeft.useGravity = value;
-            _pectoralRbRight.useGravity = value;
+            pectoralRbLeft.useGravity = value;
+            pectoralRbRight.useGravity = value;
         }
 
         private bool _isSimulatingUprightPose;
@@ -838,8 +836,8 @@ namespace TittyMagic
                 float rateToPhysicsRateRatio = Time.deltaTime / Time.fixedDeltaTime;
                 // simulate force of gravity when upright
                 var force = _chestTransform.up * (rateToPhysicsRateRatio * -Physics.gravity.magnitude);
-                _pectoralRbLeft.AddForce(force, ForceMode.Acceleration);
-                _pectoralRbRight.AddForce(force, ForceMode.Acceleration);
+                pectoralRbLeft.AddForce(force, ForceMode.Acceleration);
+                pectoralRbRight.AddForce(force, ForceMode.Acceleration);
 
                 yield return null;
             }
