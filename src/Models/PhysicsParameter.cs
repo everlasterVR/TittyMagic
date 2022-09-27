@@ -24,6 +24,7 @@ namespace TittyMagic.Models
         public bool dependsOnPhysicsRate { get; set; }
 
         public StaticPhysicsConfig config { get; set; }
+        public StaticPhysicsConfig altConfig { get; set; }
         public StaticPhysicsConfig quicknessOffsetConfig { get; set; }
         public StaticPhysicsConfig slownessOffsetConfig { get; set; }
         public string valueFormat { get; set; }
@@ -107,7 +108,8 @@ namespace TittyMagic.Models
 
         protected float NewBaseValue(float massValue, float softness, float quickness)
         {
-            float value = config.Calculate(massValue, softness);
+            var activeConfig = !Script.tittyMagic.settingsMonitor.softPhysicsEnabled && altConfig != null ? altConfig : config;
+            float value = activeConfig.Calculate(massValue, softness);
             if(quicknessOffsetConfig != null && quickness > 0)
             {
                 float maxQuicknessOffset = quicknessOffsetConfig.Calculate(massValue, softness);

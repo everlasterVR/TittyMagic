@@ -199,6 +199,13 @@ namespace TittyMagic.Handlers
         {
             var parameter = NewPhysicsParameter(DAMPER, side, 0, 0, 10.00f);
             parameter.config = new StaticPhysicsConfig(
+                2.00f,
+                // https://www.desmos.com/calculator/y3akvzgr1s
+                massCurve: x => 1.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.30f, 0.60f),
+                // https://www.desmos.com/calculator/nxyosar9o6
+                softnessCurve: x => -0.60f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f)
+            );
+            parameter.altConfig = new StaticPhysicsConfig(
                 1.10f,
                 // https://www.desmos.com/calculator/y3akvzgr1s
                 massCurve: x => 1.35f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.30f, 0.60f),
