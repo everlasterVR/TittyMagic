@@ -77,33 +77,32 @@ namespace TittyMagic.Handlers
         private static void AdjustUpDownMorphs(float pitch, float roll)
         {
             float multiplier = upDownExtraMultiplier * GravityPhysicsHandler.downMultiplier;
-            float upDownEffect = GravityEffectCalc.CalculateUpDownEffect(pitch, roll, multiplier);
-            float effect = offsetMorphingJsf.val * upDownEffect;
-            // leaning forward
+            float effect = offsetMorphingJsf.val * GravityEffectCalc.CalculateUpDownEffect(pitch, roll, multiplier);
             if(pitch >= 0)
             {
-                // upright
+                // leaning forward
                 if(pitch < 1)
                 {
+                    // upright
                     UpdateMorphs(Direction.DOWN, effect);
                 }
-                // upside down
                 else
                 {
+                    // upside down
                     ResetMorphs(Direction.DOWN);
                 }
             }
-            // leaning back
             else
             {
-                // upright
+                // leaning back
                 if(pitch >= -1)
                 {
+                    // upright
                     UpdateMorphs(Direction.DOWN, effect);
                 }
-                // upside down
                 else
                 {
+                    // upside down
                     ResetMorphs(Direction.DOWN);
                 }
             }

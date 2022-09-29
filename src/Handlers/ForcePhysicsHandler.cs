@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using TittyMagic.Components;
 using TittyMagic.Handlers.Configs;
@@ -47,12 +48,21 @@ namespace TittyMagic.Handlers
 
         public static void LoadSettings()
         {
-            SetupMainForcePhysicsConfigs();
-            _mainParamGroups = MainPhysicsHandler.parameterGroups.Values.ToList();
+            /* Setup main force physics configs */
+            {
+                var paramGroups = MainPhysicsHandler.parameterGroups;
+                paramGroups[CENTER_OF_GRAVITY_PERCENT].SetForcePhysicsConfigs(NewCenterOfGravityConfigs(), NewCenterOfGravityConfigs());
+                paramGroups[DAMPER].SetForcePhysicsConfigs(NewDamperConfigs(), NewDamperConfigs());
+                paramGroups[POSITION_DAMPER_Z].SetForcePhysicsConfigs(NewPositionDamperZConfigs(), NewPositionDamperZConfigs());
+                _mainParamGroups = MainPhysicsHandler.parameterGroups.Values.ToList();
+            }
 
             if(personIsFemale)
             {
-                SetupSoftForcePhysicsConfigs();
+                /* Setup soft force physics configs */
+                var paramGroups = SoftPhysicsHandler.parameterGroups;
+                paramGroups[SOFT_VERTICES_SPRING].SetForcePhysicsConfigs(NewSoftVerticesSpringConfigs(), NewSoftVerticesSpringConfigs());
+                paramGroups[SOFT_VERTICES_BACK_FORCE].SetForcePhysicsConfigs(NewSoftVerticesBackForceConfigs(), NewSoftVerticesBackForceConfigs());
                 _softParamGroups = SoftPhysicsHandler.parameterGroups.Values.ToList();
             }
         }
@@ -128,14 +138,6 @@ namespace TittyMagic.Handlers
                 },
             };
 
-        private static void SetupMainForcePhysicsConfigs()
-        {
-            var paramGroups = MainPhysicsHandler.parameterGroups;
-            paramGroups[CENTER_OF_GRAVITY_PERCENT].SetForcePhysicsConfigs(NewCenterOfGravityConfigs(), NewCenterOfGravityConfigs());
-            paramGroups[DAMPER].SetForcePhysicsConfigs(NewDamperConfigs(), NewDamperConfigs());
-            paramGroups[POSITION_DAMPER_Z].SetForcePhysicsConfigs(NewPositionDamperZConfigs(), NewPositionDamperZConfigs());
-        }
-
         private static Dictionary<string, DynamicPhysicsConfig> NewSoftVerticesSpringConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
             {
@@ -182,13 +184,6 @@ namespace TittyMagic.Handlers
                 },
             };
 
-        private static void SetupSoftForcePhysicsConfigs()
-        {
-            var paramGroups = SoftPhysicsHandler.parameterGroups;
-            paramGroups[SOFT_VERTICES_SPRING].SetForcePhysicsConfigs(NewSoftVerticesSpringConfigs(), NewSoftVerticesSpringConfigs());
-            paramGroups[SOFT_VERTICES_BACK_FORCE].SetForcePhysicsConfigs(NewSoftVerticesBackForceConfigs(), NewSoftVerticesBackForceConfigs());
-        }
-
         public static void Update()
         {
             AdjustLeftRightPhysics();
@@ -200,32 +195,34 @@ namespace TittyMagic.Handlers
 
         private static void AdjustLeftRightPhysics()
         {
-            float multiplier = 0.5f * Curves.QuadraticRegression(leftRightMultiplier);
-            float effectXLeft = CalculateXEffect(_trackLeftBreast.angleX, multiplier);
-            float effectXRight = CalculateXEffect(_trackRightBreast.angleX, multiplier);
+            Func<float, float> calculateEffect = angle =>
+                0.5f * Curves.QuadraticRegression(leftRightMultiplier)
+                * Curves.ForceEffectCurve(Mathf.Abs(angle) / 40);
 
-            // left force on left breast
+            float effectXLeft = calculateEffect(_trackLeftBreast.angleX);
             if(_trackLeftBreast.angleX >= 0)
             {
+                // left force on left breast
                 ResetLeftPhysics(Direction.LEFT);
                 UpdateLeftPhysics(Direction.RIGHT, effectXLeft);
             }
-            // right force on left breast
             else
             {
+                // right force on left breast
                 ResetLeftPhysics(Direction.RIGHT);
                 UpdateLeftPhysics(Direction.RIGHT, effectXLeft);
             }
 
-            // // left force on right breast
+            float effectXRight = calculateEffect(_trackRightBreast.angleX);
             if(_trackRightBreast.angleX >= 0)
             {
+                // left force on right breast
                 ResetRightPhysics(Direction.LEFT);
                 UpdateRightPhysics(Direction.RIGHT, effectXRight);
             }
-            // right force on right breast
             else
             {
+                // right force on right breast
                 ResetRightPhysics(Direction.RIGHT);
                 UpdateRightPhysics(Direction.LEFT, effectXRight);
             }
@@ -233,24 +230,24 @@ namespace TittyMagic.Handlers
 
         private static void AdjustUpPhysics()
         {
-            float multiplier = 0.5f * Curves.QuadraticRegression(upMultiplier);
-            float effectYLeft = CalculateYEffect(_trackLeftBreast.angleY, multiplier);
-            float effectYRight = CalculateYEffect(_trackRightBreast.angleY, multiplier);
+            Func<float, float> calculateEffect = angle =>
+                0.5f * Curves.QuadraticRegression(upMultiplier)
+                * Curves.ForceEffectCurve(Mathf.Abs(angle) / 50);
 
-            // up force on left breast
             if(_trackLeftBreast.angleY >= 0)
             {
-                UpdateLeftPhysics(Direction.UP, effectYLeft);
+                // up force on left breast
+                UpdateLeftPhysics(Direction.UP, calculateEffect(_trackLeftBreast.angleY));
             }
             else
             {
                 ResetLeftPhysics(Direction.UP);
             }
 
-            // up force on right breast
             if(_trackRightBreast.angleY >= 0)
             {
-                UpdateRightPhysics(Direction.UP, effectYRight);
+                // up force on right breast
+                UpdateRightPhysics(Direction.UP, calculateEffect(_trackRightBreast.angleY));
             }
             else
             {
@@ -260,24 +257,24 @@ namespace TittyMagic.Handlers
 
         private static void AdjustDownPhysics()
         {
-            float multiplier = 0.5f * Curves.QuadraticRegression(downMultiplier);
-            float effectYLeft = CalculateYEffect(_trackLeftBreast.angleY, multiplier);
-            float effectYRight = CalculateYEffect(_trackRightBreast.angleY, multiplier);
+            Func<float, float> calculateEffect = angle =>
+                0.5f * Curves.QuadraticRegression(downMultiplier)
+                * Curves.ForceEffectCurve(Mathf.Abs(angle) / 50);
 
-            // down force on left breast
             if(_trackLeftBreast.angleY < 0)
             {
-                UpdateLeftPhysics(Direction.DOWN, effectYLeft);
+                // down force on left breast
+                UpdateLeftPhysics(Direction.DOWN, calculateEffect(_trackLeftBreast.angleY));
             }
             else
             {
                 ResetLeftPhysics(Direction.DOWN);
             }
 
-            // down force on right breast
             if(_trackRightBreast.angleY < 0)
             {
-                UpdateRightPhysics(Direction.DOWN, effectYRight);
+                // down force on right breast
+                UpdateRightPhysics(Direction.DOWN, calculateEffect(_trackRightBreast.angleY));
             }
             else
             {
@@ -287,24 +284,24 @@ namespace TittyMagic.Handlers
 
         private static void AdjustForwardPhysics()
         {
-            float multiplier = Curves.QuadraticRegression(forwardMultiplier);
-            float effectZLeft = CalculateZEffect(_trackLeftBreast.depthDiff, multiplier);
-            float effectZRight = CalculateZEffect(_trackRightBreast.depthDiff, multiplier);
+            Func<float, float> calculateEffect = distance =>
+                Curves.QuadraticRegression(forwardMultiplier)
+                * Curves.DepthForceEffectCurve(Mathf.Abs(distance) * 8);
 
-            // forward force on left breast
             if(_trackLeftBreast.depthDiff <= 0)
             {
-                UpdateLeftPhysics(Direction.FORWARD, effectZLeft);
+                // forward force on left breast
+                UpdateLeftPhysics(Direction.FORWARD, calculateEffect(_trackLeftBreast.depthDiff));
             }
             else
             {
                 ResetLeftPhysics(Direction.FORWARD);
             }
 
-            // forward force on right breast
             if(_trackRightBreast.depthDiff <= 0)
             {
-                UpdateRightPhysics(Direction.FORWARD, effectZRight);
+                // forward force on right breast
+                UpdateRightPhysics(Direction.FORWARD, calculateEffect(_trackRightBreast.depthDiff));
             }
             else
             {
@@ -314,39 +311,30 @@ namespace TittyMagic.Handlers
 
         private static void AdjustBackPhysics()
         {
-            float multiplier = Curves.QuadraticRegression(backMultiplier);
-            float effectZLeft = CalculateZEffect(_trackLeftBreast.depthDiff, multiplier);
-            float effectZRight = CalculateZEffect(_trackRightBreast.depthDiff, multiplier);
+            Func<float, float> calculateEffect = distance =>
+                Curves.QuadraticRegression(backMultiplier)
+                * Curves.DepthForceEffectCurve(Mathf.Abs(distance) * 8);
 
-            // back force on left breast
             if(_trackLeftBreast.depthDiff > 0)
             {
-                UpdateLeftPhysics(Direction.BACK, effectZLeft);
+                // back force on left breast
+                UpdateLeftPhysics(Direction.BACK, calculateEffect(_trackLeftBreast.depthDiff));
             }
             else
             {
                 ResetLeftPhysics(Direction.BACK);
             }
 
-            // back force on right breast
             if(_trackRightBreast.depthDiff > 0)
             {
-                UpdateRightPhysics(Direction.BACK, effectZRight);
+                // back force on right breast
+                UpdateRightPhysics(Direction.BACK, calculateEffect(_trackRightBreast.depthDiff));
             }
             else
             {
                 ResetRightPhysics(Direction.BACK);
             }
         }
-
-        private static float CalculateXEffect(float angle, float multiplier) =>
-            multiplier * Curves.ForceEffectCurve(Mathf.Abs(angle) / 40);
-
-        private static float CalculateYEffect(float angle, float multiplier) =>
-            multiplier * Curves.ForceEffectCurve(Mathf.Abs(angle) / 50);
-
-        private static float CalculateZEffect(float distance, float multiplier) =>
-            multiplier * Curves.ForceEffectCurve(Mathf.Abs(distance) * 8);
 
         private static void UpdateLeftPhysics(string direction, float effect)
         {

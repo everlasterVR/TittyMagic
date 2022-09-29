@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using TittyMagic.Components;
 using TittyMagic.Handlers.Configs;
@@ -11,10 +12,6 @@ namespace TittyMagic.Handlers
     {
         private static TrackBreast _trackLeftBreast;
         private static TrackBreast _trackRightBreast;
-
-        private static float _pitchMultiplier;
-        private static float _rollMultiplier;
-        private static float _leanBackFixerMultiplier;
 
         private static Dictionary<string, List<MorphConfig>> _configSets;
 
@@ -89,51 +86,51 @@ namespace TittyMagic.Handlers
 
         public static void Update(float roll, float pitch)
         {
-            _rollMultiplier = CalculateRollMultiplier(roll);
-            _pitchMultiplier = CalculatePitchMultiplier(pitch, roll);
-            _leanBackFixerMultiplier = CalculateLeanBackFixerMultiplier(pitch, roll);
+            float pitchMultiplier = Mathf.Lerp(0.80f, 1f, GravityEffectCalc.CalculateDiffFromHorizontal(pitch, roll));
+            float rollMultiplier = Mathf.Lerp(1.25f, 1f, Mathf.Abs(roll));
+            float leanBackFixerMultiplier = CalculateLeanBackFixerMultiplier(pitch, roll);
 
-            AdjustUpMorphs();
-            AdjustDownMorphs();
+            AdjustUpMorphs(pitchMultiplier);
+            AdjustDownMorphs(pitchMultiplier);
             AdjustForwardMorphs();
-            AdjustBackMorphs();
-            AdjustLeftRightMorphs();
+            AdjustBackMorphs(leanBackFixerMultiplier);
+            AdjustLeftRightMorphs(rollMultiplier);
         }
 
-        private static void AdjustUpMorphs()
+        private static void AdjustUpMorphs(float pitchMultiplier)
         {
-            float multiplier = Curves.QuadraticRegression(upMultiplier) * upDownExtraMultiplier;
-            float effectYLeft = CalculateYEffect(_trackLeftBreast.angleY, multiplier);
-            float effectYRight = CalculateYEffect(_trackRightBreast.angleY, multiplier);
-            float angleYCenter = (_trackRightBreast.angleY + _trackLeftBreast.angleY) / 2;
-            float effectYCenter = CalculateYEffect(angleYCenter, multiplier);
+            Func<float, float> calculateEffect = angle =>
+                upDownExtraMultiplier
+                * Curves.QuadraticRegression(upMultiplier)
+                * Curves.ForceEffectCurve(pitchMultiplier * Mathf.Abs(angle) / 75);
 
-            // up force on left breast
             if(_trackLeftBreast.angleY >= 0)
             {
-                UpdateMorphs(Direction.UP_L, effectYLeft);
+                // up force on left breast
+                UpdateMorphs(Direction.UP_L, calculateEffect(_trackLeftBreast.angleY));
             }
-            // down force on left breast
             else
             {
+                // down force on left breast
                 ResetMorphs(Direction.UP_L);
             }
 
-            // up force on right breast
             if(_trackRightBreast.angleY >= 0)
             {
-                UpdateMorphs(Direction.UP_R, effectYRight);
+                // up force on right breast
+                UpdateMorphs(Direction.UP_R, calculateEffect(_trackRightBreast.angleY));
             }
-            // down force on right breast
             else
             {
+                // down force on right breast
                 ResetMorphs(Direction.UP_R);
             }
 
-            // up force on average of left and right breast
+            float angleYCenter = (_trackRightBreast.angleY + _trackLeftBreast.angleY) / 2;
             if(angleYCenter >= 0)
             {
-                UpdateMorphs(Direction.UP_C, effectYCenter);
+                // up force on average of left and right breast
+                UpdateMorphs(Direction.UP_C, calculateEffect(angleYCenter));
             }
             else
             {
@@ -141,157 +138,156 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private static void AdjustDownMorphs()
+        private static void AdjustDownMorphs(float pitchMultiplier)
         {
-            float multiplier = Curves.QuadraticRegression(downMultiplier) * upDownExtraMultiplier;
-            float effectYLeft = CalculateYEffect(_trackLeftBreast.angleY, multiplier);
-            float effectYRight = CalculateYEffect(_trackRightBreast.angleY, multiplier);
+            Func<float, float> calculateEffect = angle =>
+                upDownExtraMultiplier
+                * Curves.QuadraticRegression(downMultiplier)
+                * Curves.ForceEffectCurve(pitchMultiplier * Mathf.Abs(angle) / 75);
 
-            // up force on left breast
             if(_trackLeftBreast.angleY >= 0)
             {
+                // up force on left breast
                 ResetMorphs(Direction.DOWN_L);
             }
-            // down force on left breast
             else
             {
-                UpdateMorphs(Direction.DOWN_L, effectYLeft);
+                // down force on left breast
+                UpdateMorphs(Direction.DOWN_L, calculateEffect(_trackLeftBreast.angleY));
             }
 
-            // up force on right breast
             if(_trackRightBreast.angleY >= 0)
             {
+                // up force on right breast
                 ResetMorphs(Direction.DOWN_R);
             }
-            // down force on right breast
             else
             {
-                UpdateMorphs(Direction.DOWN_R, effectYRight);
+                // down force on right breast
+                UpdateMorphs(Direction.DOWN_R, calculateEffect(_trackRightBreast.angleY));
             }
         }
 
         private static void AdjustForwardMorphs()
         {
-            float multiplier = Curves.QuadraticRegression(forwardMultiplier) * forwardExtraMultiplier;
-            float effectZLeft = CalculateZEffect(_trackLeftBreast.depthDiff, multiplier);
-            float effectZRight = CalculateZEffect(_trackRightBreast.depthDiff, multiplier);
-            float depthDiffCenter = (_trackLeftBreast.depthDiff + _trackRightBreast.depthDiff) / 2;
-            float effectZCenter = CalculateZEffect(depthDiffCenter, multiplier);
+            Func<float, float> calculateEffect = distance =>
+                forwardExtraMultiplier
+                * Curves.QuadraticRegression(forwardMultiplier)
+                * Curves.ForceEffectCurve(Mathf.Abs(distance) * 10.8f);
 
-            // forward force on left breast
             if(_trackLeftBreast.depthDiff <= 0)
             {
-                UpdateMorphs(Direction.FORWARD_L, effectZLeft);
+                // forward force on left breast
+                UpdateMorphs(Direction.FORWARD_L, calculateEffect(_trackLeftBreast.depthDiff));
             }
-            // back force on left breast
             else
             {
+                // back force on left breast
                 ResetMorphs(Direction.FORWARD_L);
             }
 
-            // forward force on right breast
             if(_trackRightBreast.depthDiff <= 0)
             {
-                UpdateMorphs(Direction.FORWARD_R, effectZRight);
+                // forward force on right breast
+                UpdateMorphs(Direction.FORWARD_R, calculateEffect(_trackRightBreast.depthDiff));
             }
-            // back force on right breast
             else
             {
+                // back force on right breast
                 ResetMorphs(Direction.FORWARD_R);
             }
 
-            // forward force on average of left and right breast
+            float depthDiffCenter = (_trackLeftBreast.depthDiff + _trackRightBreast.depthDiff) / 2;
             if(depthDiffCenter <= 0)
             {
-                UpdateMorphs(Direction.FORWARD_C, effectZCenter);
+                // forward force on average of left and right breast
+                UpdateMorphs(Direction.FORWARD_C, calculateEffect(depthDiffCenter));
             }
-            // back force on average of left and right breast
             else
             {
+                // back force on average of left and right breast
                 ResetMorphs(Direction.FORWARD_C);
             }
         }
 
-        private static void AdjustBackMorphs()
+        private static void AdjustBackMorphs(float leanBackFixerMultiplier)
         {
-            float multiplier = _leanBackFixerMultiplier * Curves.QuadraticRegression(backMultiplier) * backExtraMultiplier;
-            float effectZLeft = CalculateZEffect(_trackLeftBreast.depthDiff, multiplier);
-            float effectZRight = CalculateZEffect(_trackRightBreast.depthDiff, multiplier);
-            float depthDiffCenter = (_trackLeftBreast.depthDiff + _trackRightBreast.depthDiff) / 2;
-            float effectZCenter = CalculateZEffect(depthDiffCenter, multiplier);
+            Func<float, float> calculateEffect = distance =>
+                backExtraMultiplier
+                * leanBackFixerMultiplier
+                * Curves.QuadraticRegression(backMultiplier)
+                * Curves.ForceEffectCurve(Mathf.Abs(distance) * 10.8f);
 
-            // forward force on left breast
             if(_trackLeftBreast.depthDiff <= 0)
             {
+                // forward force on left breast
                 ResetMorphs(Direction.BACK_L);
             }
-            // back force on left breast
             else
             {
-                UpdateMorphs(Direction.BACK_L, effectZLeft);
+                // back force on left breast
+                UpdateMorphs(Direction.BACK_L, calculateEffect(_trackLeftBreast.depthDiff));
             }
 
-            // forward force on right breast
             if(_trackRightBreast.depthDiff <= 0)
             {
+                // forward force on right breast
                 ResetMorphs(Direction.BACK_R);
             }
-            // back force on right breast
             else
             {
-                UpdateMorphs(Direction.BACK_R, effectZRight);
+                // back force on right breast
+                UpdateMorphs(Direction.BACK_R, calculateEffect(_trackRightBreast.depthDiff));
             }
 
-            // forward force on average of left and right breast
+            float depthDiffCenter = (_trackLeftBreast.depthDiff + _trackRightBreast.depthDiff) / 2;
             if(depthDiffCenter <= 0)
             {
+                // forward force on average of left and right breast
                 ResetMorphs(Direction.BACK_C);
             }
-            // back force on average of left and right breast
             else
             {
-                UpdateMorphs(Direction.BACK_C, effectZCenter);
+                // back force on average of left and right breast
+                UpdateMorphs(Direction.BACK_C, calculateEffect(depthDiffCenter));
             }
         }
 
-        private static void AdjustLeftRightMorphs()
+        private static void AdjustLeftRightMorphs(float rollMultiplier)
         {
-            float multiplier = Curves.QuadraticRegression(leftRightMultiplier) * leftRightExtraMultiplier;
-            float effectXLeft = CalculateXEffect(_trackLeftBreast.angleX, multiplier);
-            float effectXRight = CalculateXEffect(_trackRightBreast.angleX, multiplier);
+            Func<float, float> calculateEffect = angle =>
+                leftRightExtraMultiplier
+                * Curves.QuadraticRegression(leftRightMultiplier)
+                * Curves.ForceEffectCurve(rollMultiplier * Mathf.Abs(angle) / 60);
 
-            // left force on left breast
+            float effectXLeft = calculateEffect(_trackLeftBreast.angleX);
             if(_trackLeftBreast.angleX >= 0)
             {
+                // left force on left breast
                 ResetMorphs(Direction.LEFT_L);
                 UpdateMorphs(Direction.RIGHT_L, effectXLeft);
             }
-            // right force on left breast
             else
             {
+                // right force on left breast
                 ResetMorphs(Direction.RIGHT_L);
                 UpdateMorphs(Direction.LEFT_L, effectXLeft);
             }
 
-            // left force on right breast
+            float effectXRight = calculateEffect(_trackRightBreast.angleX);
             if(_trackRightBreast.angleX >= 0)
             {
+                // left force on right breast
                 ResetMorphs(Direction.LEFT_R);
                 UpdateMorphs(Direction.RIGHT_R, effectXRight);
             }
-            // right force on right breast
             else
             {
+                // right force on right breast
                 ResetMorphs(Direction.RIGHT_R);
                 UpdateMorphs(Direction.LEFT_R, effectXRight);
             }
         }
-
-        private static float CalculateRollMultiplier(float roll) =>
-            Mathf.Lerp(1.25f, 1f, Mathf.Abs(roll));
-
-        private static float CalculatePitchMultiplier(float pitch, float roll) =>
-            Mathf.Lerp(0.80f, 1f, GravityEffectCalc.CalculateDiffFromHorizontal(pitch, roll)); // same for upright and upside down
 
         private static float CalculateLeanBackFixerMultiplier(float pitch, float roll)
         {
@@ -305,15 +301,6 @@ namespace TittyMagic.Handlers
             float minTarget2 = Mathf.Lerp(minTarget1, 1.00f, Mathf.Abs(roll * roll));
             return Mathf.Lerp(minTarget2, 1.00f, diff);
         }
-
-        private static float CalculateYEffect(float angle, float multiplier) =>
-            multiplier * Curves.ForceEffectCurve(_pitchMultiplier * Mathf.Abs(angle) / 75);
-
-        private static float CalculateZEffect(float distance, float multiplier) =>
-            multiplier * Curves.ForceEffectCurve(Mathf.Abs(distance) * 10.8f);
-
-        private static float CalculateXEffect(float angle, float multiplier) =>
-            multiplier * Curves.ForceEffectCurve(_rollMultiplier * Mathf.Abs(angle) / 60);
 
         private static void UpdateMorphs(string configSetName, float effect)
         {

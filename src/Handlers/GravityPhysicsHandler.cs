@@ -42,7 +42,11 @@ namespace TittyMagic.Handlers
 
         public static void LoadSettings()
         {
-            SetupGravityPhysicsConfigs();
+            var paramGroups = MainPhysicsHandler.parameterGroups;
+            paramGroups[SPRING].SetGravityPhysicsConfigs(NewSpringConfigs(), NewSpringConfigs());
+            paramGroups[POSITION_SPRING_Z].SetGravityPhysicsConfigs(NewPositionSpringZConfigs(), NewPositionSpringZConfigs());
+            paramGroups[TARGET_ROTATION_X].SetGravityPhysicsConfigs(NewPositionTargetRotationXConfigs(), NewPositionTargetRotationXConfigs());
+            paramGroups[TARGET_ROTATION_Y].SetGravityPhysicsConfigs(NewPositionTargetRotationYConfigs(), NewPositionTargetRotationYConfigs());
             _paramGroups = MainPhysicsHandler.parameterGroups.Values.ToList();
         }
 
@@ -171,15 +175,6 @@ namespace TittyMagic.Handlers
                 },
             };
 
-        private static void SetupGravityPhysicsConfigs()
-        {
-            var paramGroups = MainPhysicsHandler.parameterGroups;
-            paramGroups[SPRING].SetGravityPhysicsConfigs(NewSpringConfigs(), NewSpringConfigs());
-            paramGroups[POSITION_SPRING_Z].SetGravityPhysicsConfigs(NewPositionSpringZConfigs(), NewPositionSpringZConfigs());
-            paramGroups[TARGET_ROTATION_X].SetGravityPhysicsConfigs(NewPositionTargetRotationXConfigs(), NewPositionTargetRotationXConfigs());
-            paramGroups[TARGET_ROTATION_Y].SetGravityPhysicsConfigs(NewPositionTargetRotationYConfigs(), NewPositionTargetRotationYConfigs());
-        }
-
         public static void Update(float roll, float pitch)
         {
             float smoothRoll = Calc.SmoothStep(roll);
@@ -196,15 +191,15 @@ namespace TittyMagic.Handlers
         private static void AdjustLeftRightPhysics(float roll)
         {
             float effect = GravityEffectCalc.CalculateRollEffect(roll, leftRightMultiplier);
-            // left
             if(roll >= 0)
             {
+                // left
                 ResetPhysics(Direction.RIGHT);
                 UpdatePhysics(Direction.LEFT, effect);
             }
-            // right
             else
             {
+                // right
                 ResetPhysics(Direction.LEFT);
                 UpdatePhysics(Direction.RIGHT, effect);
             }
@@ -213,14 +208,14 @@ namespace TittyMagic.Handlers
         private static void AdjustUpPhysics(float pitch, float roll)
         {
             float effect = GravityEffectCalc.CalculateUpDownEffect(pitch, roll, upMultiplier);
-            // leaning forward,  upside down
             if(pitch >= 1)
             {
+                // leaning forward,  upside down
                 UpdatePhysics(Direction.UP, effect);
             }
-            // leaning back, upside down
             else if(pitch < -1)
             {
+                // leaning back, upside down
                 UpdatePhysics(Direction.UP, effect);
             }
             else
@@ -232,14 +227,14 @@ namespace TittyMagic.Handlers
         private static void AdjustDownPhysics(float pitch, float roll)
         {
             float effect = GravityEffectCalc.CalculateUpDownEffect(pitch, roll, downMultiplier);
-            // leaning forward, upright
             if(pitch >= 0 && pitch < 1)
             {
+                // leaning forward, upright
                 UpdatePhysics(Direction.DOWN, effect);
             }
-            // leaning back
             else if(pitch >= -1 && pitch < 0)
             {
+                // leaning back
                 UpdatePhysics(Direction.DOWN, effect);
             }
             else
@@ -251,22 +246,23 @@ namespace TittyMagic.Handlers
         private static void AdjustForwardPhysics(float pitch, float roll)
         {
             float effect = GravityEffectCalc.CalculateDepthEffect(pitch, roll, forwardMultiplier);
-            // leaning forward
             if(pitch >= 0)
             {
-                // upright
+                // leaning forward
                 if(pitch < 1)
                 {
+                    // upright
                     UpdatePhysics(Direction.FORWARD, effect);
                 }
-                // upside down
                 else
                 {
+                    // upside down
                     UpdatePhysics(Direction.FORWARD, effect);
                 }
             }
             else
             {
+                // leaning back
                 ResetPhysics(Direction.FORWARD);
             }
         }
@@ -274,17 +270,17 @@ namespace TittyMagic.Handlers
         private static void AdjustBackPhysics(float pitch, float roll)
         {
             float effect = GravityEffectCalc.CalculateDepthEffect(pitch, roll, backMultiplier);
-            // leaning back
             if(pitch < 0)
             {
-                // upright
+                // leaning back
                 if(pitch >= -1)
                 {
+                    // upright
                     UpdatePhysics(Direction.BACK, effect);
                 }
-                // upside down
                 else
                 {
+                    // upside down
                     UpdatePhysics(Direction.BACK, effect);
                 }
             }

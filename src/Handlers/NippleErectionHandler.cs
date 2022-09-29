@@ -24,7 +24,9 @@ namespace TittyMagic.Handlers
             _morphConfig = new MorphConfigBase("TM_NippleErection", 1.0f);
             if(personIsFemale)
             {
-                SetupPhysicsConfigs();
+                var paramGroups = SoftPhysicsHandler.parameterGroups;
+                paramGroups[SOFT_VERTICES_SPRING].SetNippleErectionConfigs(NewSpringConfigs(), NewSpringConfigs());
+                paramGroups[SOFT_VERTICES_DAMPER].SetNippleErectionConfigs(NewDamperConfigs(), NewDamperConfigs());
                 _paramGroups = SoftPhysicsHandler.parameterGroups.Values.ToList();
             }
         }
@@ -86,13 +88,6 @@ namespace TittyMagic.Handlers
                     }
                 },
             };
-
-        private static void SetupPhysicsConfigs()
-        {
-            var paramGroups = SoftPhysicsHandler.parameterGroups;
-            paramGroups[SOFT_VERTICES_SPRING].SetNippleErectionConfigs(NewSpringConfigs(), NewSpringConfigs());
-            paramGroups[SOFT_VERTICES_DAMPER].SetNippleErectionConfigs(NewDamperConfigs(), NewDamperConfigs());
-        }
 
         public static void Update()
         {
