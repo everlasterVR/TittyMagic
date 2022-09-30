@@ -44,6 +44,7 @@ namespace TittyMagic.Handlers
         {
             var paramGroups = MainPhysicsHandler.parameterGroups;
             paramGroups[SPRING].SetGravityPhysicsConfigs(NewSpringConfigs(), NewSpringConfigs());
+            paramGroups[DAMPER].SetGravityPhysicsConfigs(NewDamperConfigs(), NewDamperConfigs());
             paramGroups[POSITION_SPRING_Z].SetGravityPhysicsConfigs(NewPositionSpringZConfigs(), NewPositionSpringZConfigs());
             paramGroups[TARGET_ROTATION_X].SetGravityPhysicsConfigs(NewPositionTargetRotationXConfigs(), NewPositionTargetRotationXConfigs());
             paramGroups[TARGET_ROTATION_Y].SetGravityPhysicsConfigs(NewPositionTargetRotationYConfigs(), NewPositionTargetRotationYConfigs());
@@ -94,6 +95,56 @@ namespace TittyMagic.Handlers
                         massMultiplier: -6.4f,
                         softnessMultiplier: -25.6f,
                         isNegative: true,
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        massCurve: MainPhysicsHandler.InvertMass
+                    )
+                },
+            };
+
+        private static Dictionary<string, DynamicPhysicsConfig> NewDamperConfigs() =>
+            new Dictionary<string, DynamicPhysicsConfig>
+            {
+                {
+                    Direction.UP, new DynamicPhysicsConfig(
+                        massMultiplier: 0.25f,
+                        softnessMultiplier: 1.00f,
+                        isNegative: false,
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        massCurve: MainPhysicsHandler.InvertMass
+                    )
+                },
+                {
+                    Direction.BACK, new DynamicPhysicsConfig(
+                        massMultiplier: 0.25f,
+                        softnessMultiplier: 1.00f,
+                        isNegative: false,
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        massCurve: MainPhysicsHandler.InvertMass
+                    )
+                },
+                {
+                    Direction.FORWARD, new DynamicPhysicsConfig(
+                        massMultiplier: 0.25f,
+                        softnessMultiplier: 1.00f,
+                        isNegative: false,
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        massCurve: MainPhysicsHandler.InvertMass
+                    )
+                },
+                {
+                    Direction.LEFT, new DynamicPhysicsConfig(
+                        massMultiplier: 0.25f,
+                        softnessMultiplier: 1.00f,
+                        isNegative: false,
+                        applyMethod: ApplyMethod.ADDITIVE,
+                        massCurve: MainPhysicsHandler.InvertMass
+                    )
+                },
+                {
+                    Direction.RIGHT, new DynamicPhysicsConfig(
+                        massMultiplier: 0.25f,
+                        softnessMultiplier: 1.00f,
+                        isNegative: false,
                         applyMethod: ApplyMethod.ADDITIVE,
                         massCurve: MainPhysicsHandler.InvertMass
                     )

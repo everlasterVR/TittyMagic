@@ -52,7 +52,6 @@ namespace TittyMagic.Handlers
             {
                 var paramGroups = MainPhysicsHandler.parameterGroups;
                 paramGroups[CENTER_OF_GRAVITY_PERCENT].SetForcePhysicsConfigs(NewCenterOfGravityConfigs(), NewCenterOfGravityConfigs());
-                paramGroups[DAMPER].SetForcePhysicsConfigs(NewDamperConfigs(), NewDamperConfigs());
                 paramGroups[POSITION_DAMPER_Z].SetForcePhysicsConfigs(NewPositionDamperZConfigs(), NewPositionDamperZConfigs());
                 _mainParamGroups = MainPhysicsHandler.parameterGroups.Values.ToList();
             }
@@ -87,29 +86,6 @@ namespace TittyMagic.Handlers
                         isNegative: false,
                         applyMethod: ApplyMethod.ADDITIVE,
                         massCurve: MainPhysicsHandler.InvertMass,
-                        softnessCurve: Curves.ForcePhysicsSoftnessCurve
-                    )
-                },
-            };
-
-        private static Dictionary<string, DynamicPhysicsConfig> NewDamperConfigs() =>
-            new Dictionary<string, DynamicPhysicsConfig>
-            {
-                {
-                    Direction.BACK, new DynamicPhysicsConfig(
-                        massMultiplier: 0.50f,
-                        softnessMultiplier: 0.37f,
-                        isNegative: false,
-                        applyMethod: ApplyMethod.ADDITIVE,
-                        softnessCurve: Curves.ForcePhysicsSoftnessCurve
-                    )
-                },
-                {
-                    Direction.FORWARD, new DynamicPhysicsConfig(
-                        massMultiplier: 0.50f,
-                        softnessMultiplier: 0.37f,
-                        isNegative: false,
-                        applyMethod: ApplyMethod.ADDITIVE,
                         softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
                 },
