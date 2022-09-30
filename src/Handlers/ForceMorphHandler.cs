@@ -284,23 +284,23 @@ namespace TittyMagic.Handlers
         {
             new MorphConfig($"DN/DN Breast Move Down {side}",
                 false,
-                1.2f,
-                0.4f
+                0.9f,
+                0.3f
             ),
             new MorphConfig($"DN/DN Breast Rotate Up Reverse {side}",
                 false,
-                0.9f,
-                0.3f
+                0.675f,
+                0.225f
             ),
             new MorphConfig($"DN/DN Breasts Natural {side}",
                 false,
-                0.9f,
-                0.3f
+                0.675f,
+                0.225f
             ),
             new MorphConfig($"DN/DN Breasts Under Curve {side}",
                 false,
-                1.2f,
-                0.4f
+                0.9f,
+                0.3f
             ),
         };
 
