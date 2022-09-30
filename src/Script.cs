@@ -798,7 +798,15 @@ namespace TittyMagic
                     Curves.Exponential1(softnessAmount, 1.73f, 1.68f, 0.88f, m: 0.93f, s: 0.56f)
                     * Curves.MorphingCurve(mass);
 
-                GravityOffsetMorphHandler.upDownExtraMultiplier = 1.16f - mass;
+                // https://www.desmos.com/calculator/z10fwnpvul
+                GravityOffsetMorphHandler.upDownExtraMultiplier = Curves.Exponential1(MainPhysicsHandler.normalizedInvertedRealMass,
+                    0.26f,
+                    2.60f,
+                    5.38f,
+                    a: 0.84f,
+                    m: 0.50f,
+                    s: 0.33f
+                );
             }
 
             HardColliderHandler.UpdateFrictionSizeMultipliers();
@@ -853,9 +861,6 @@ namespace TittyMagic
         }
 
         #endregion Calibration
-
-        public string PluginPath() =>
-            $@"{this.GetPackagePath()}Custom\Scripts\everlaster\TittyMagic";
 
         public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
         {

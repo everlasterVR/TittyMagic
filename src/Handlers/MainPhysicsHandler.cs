@@ -35,6 +35,7 @@ namespace TittyMagic.Handlers
         public static float normalizedMass => Mathf.InverseLerp(0, 1.45f, massAmount);
         public static float normalizedRealMass => Mathf.InverseLerp(0, 1.50f, realMassAmount);
         public static float normalizedInvertedMass => Mathf.InverseLerp(0, 1.45f, InvertMass(massAmount));
+        public static float normalizedInvertedRealMass => Mathf.InverseLerp(0, 1.45f, InvertMass(realMassAmount));
 
         public static MassParameterGroup massParameterGroup { get; private set; }
 
