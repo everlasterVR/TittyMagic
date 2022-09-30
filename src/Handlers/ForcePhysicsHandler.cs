@@ -61,7 +61,6 @@ namespace TittyMagic.Handlers
                 /* Setup soft force physics configs */
                 var paramGroups = SoftPhysicsHandler.parameterGroups;
                 paramGroups[SOFT_VERTICES_SPRING].SetForcePhysicsConfigs(NewSoftVerticesSpringConfigs(), NewSoftVerticesSpringConfigs());
-                paramGroups[SOFT_VERTICES_BACK_FORCE].SetForcePhysicsConfigs(NewSoftVerticesBackForceConfigs(), NewSoftVerticesBackForceConfigs());
                 _softParamGroups = SoftPhysicsHandler.parameterGroups.Values.ToList();
             }
         }
@@ -131,31 +130,6 @@ namespace TittyMagic.Handlers
                         softnessMultiplier: 100f,
                         isNegative: false,
                         applyMethod: ApplyMethod.ADDITIVE
-                    )
-                },
-            };
-
-        private static Dictionary<string, DynamicPhysicsConfig> NewSoftVerticesBackForceConfigs() =>
-            new Dictionary<string, DynamicPhysicsConfig>
-            {
-                {
-                    Direction.BACK, new DynamicPhysicsConfig(
-                        massMultiplier: -20f,
-                        softnessMultiplier: 0f,
-                        isNegative: true,
-                        applyMethod: ApplyMethod.ADDITIVE,
-                        // https://www.desmos.com/calculator/hnhlbofgmz
-                        massCurve: x => Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.15f, 0.70f)
-                    )
-                },
-                {
-                    Direction.FORWARD, new DynamicPhysicsConfig(
-                        massMultiplier: -20f,
-                        softnessMultiplier: 0f,
-                        isNegative: true,
-                        applyMethod: ApplyMethod.ADDITIVE,
-                        // https://www.desmos.com/calculator/hnhlbofgmz
-                        massCurve: x => Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.15f, 0.70f)
                     )
                 },
             };

@@ -469,21 +469,16 @@ namespace TittyMagic.Handlers
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_BACK_FORCE, side, 0, 0, 50.00f);
             parameter.config = new StaticPhysicsConfig(
-                13.00f,
-                // https://www.desmos.com/calculator/ww9lp03k6o
-                massCurve: x => 0.90f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.00f, 0.50f),
-                // https://www.desmos.com/calculator/uwfattbhdg
-                softnessCurve: x => -0.78f * Curves.Exponential1(x, 2.34f, 1.76f, 1.01f)
+                0.50f,
+                massCurve: x => 30.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.38f, 0.85f)
             );
             parameter.quicknessOffsetConfig = new StaticPhysicsConfig(
-                -2.00f,
-                massCurve: x => -0.90f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.00f, 0.50f),
-                softnessCurve: x => 0.82f * Curves.Exponential1(x, 2.34f, 1.76f, 1.01f)
+                -0.50f,
+                massCurve: x => 15.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.38f, 0.85f)
             );
             parameter.slownessOffsetConfig = new StaticPhysicsConfig(
-                2.00f,
-                massCurve: x => 0.90f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.00f, 0.50f),
-                softnessCurve: x => -0.82f * Curves.Exponential1(x, 2.34f, 1.76f, 1.01f)
+                5.00f,
+                massCurve: x => 0.70f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.38f, 0.85f)
             );
             parameter.valueFormat = "F2";
 
