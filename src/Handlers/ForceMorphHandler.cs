@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using TittyMagic.Components;
 using TittyMagic.Handlers.Configs;
 using UnityEngine;
@@ -49,40 +48,665 @@ namespace TittyMagic.Handlers
         public static void LoadSettings() =>
             _configSets = new Dictionary<string, List<MorphConfig>>
             {
-                { Direction.UP_L, LoadSettingsFromFile(Direction.UP, "upForce", " L") },
-                { Direction.UP_R, LoadSettingsFromFile(Direction.UP, "upForce", " R") },
-                { Direction.UP_C, LoadSettingsFromFile(Direction.UP, "upForceCenter") },
-                { Direction.DOWN_L, LoadSettingsFromFile(Direction.DOWN, "downForce", " L") },
-                { Direction.DOWN_R, LoadSettingsFromFile(Direction.DOWN, "downForce", " R") },
-                { Direction.BACK_L, LoadSettingsFromFile(Direction.BACK, "backForce", " L") },
-                { Direction.BACK_R, LoadSettingsFromFile(Direction.BACK, "backForce", " R") },
-                { Direction.BACK_C, LoadSettingsFromFile(Direction.BACK, "backForceCenter") },
-                { Direction.FORWARD_L, LoadSettingsFromFile(Direction.FORWARD, "forwardForce", " L") },
-                { Direction.FORWARD_R, LoadSettingsFromFile(Direction.FORWARD, "forwardForce", " R") },
-                { Direction.FORWARD_C, LoadSettingsFromFile(Direction.FORWARD, "forwardForceCenter") },
-                { Direction.LEFT_L, LoadSettingsFromFile(Direction.LEFT, "leftForceL") },
-                { Direction.LEFT_R, LoadSettingsFromFile(Direction.LEFT, "leftForceR") },
-                { Direction.RIGHT_L, LoadSettingsFromFile(Direction.RIGHT, "rightForceL") },
-                { Direction.RIGHT_R, LoadSettingsFromFile(Direction.RIGHT, "rightForceR") },
+                { Direction.UP_L, UpForceConfigs("L") },
+                { Direction.UP_R, UpForceConfigs("R") },
+                { Direction.UP_C, UpForceCenterConfigs() },
+                { Direction.DOWN_L, DownForceConfigs("L") },
+                { Direction.DOWN_R, DownForceConfigs("R") },
+                { Direction.BACK_L, BackForceConfigs("L") },
+                { Direction.BACK_R, BackForceConfigs("R") },
+                { Direction.BACK_C, BackForceCenterConfigs() },
+                { Direction.FORWARD_L, ForwardForceConfigs("L") },
+                { Direction.FORWARD_R, ForwardForceConfigs("R") },
+                { Direction.FORWARD_C, ForwardForceCenterConfigs() },
+                { Direction.LEFT_L, LeftForceLeftConfigs() },
+                { Direction.LEFT_R, LeftForceRightConfigs() },
+                { Direction.RIGHT_L, RightForceLeftConfigs() },
+                { Direction.RIGHT_R, RightForceRightConfigs() },
             };
 
-        private static List<MorphConfig> LoadSettingsFromFile(string subDir, string fileName, string morphNameSuffix = null)
-        {
-            string path = $@"{tittyMagic.PluginPath()}\settings\morphmultipliers\female\{fileName}.json";
-            var jsonClass = tittyMagic.LoadJSON(path).AsObject;
+        #region Morph configs
 
-            return jsonClass.Keys.Select(name =>
-                {
-                    string morphName = string.IsNullOrEmpty(morphNameSuffix) ? name : name + $"{morphNameSuffix}";
-                    return new MorphConfig(
-                        $"{subDir}/{morphName}",
-                        jsonClass[name]["IsNegative"].AsBool,
-                        jsonClass[name]["Multiplier1"].AsFloat,
-                        jsonClass[name]["Multiplier2"].AsFloat
-                    );
-                })
-                .ToList();
-        }
+        private static List<MorphConfig> UpForceConfigs(string side) => new List<MorphConfig>
+        {
+            new MorphConfig($"UP/UP Breast Height {side}",
+                false,
+                1.6f,
+                1.1f
+            ),
+            new MorphConfig($"UP/UP Breast Sag1 {side}",
+                true,
+                -0.5f,
+                -0.3f
+            ),
+            new MorphConfig($"UP/UP Breast Sag2 {side}",
+                true,
+                -2.3f,
+                -0.5f
+            ),
+            new MorphConfig($"UP/UP Breasts Natural {side}",
+                true,
+                -0.65f,
+                -0.4f
+            ),
+            new MorphConfig($"UP/UP Breast Rotate Up {side}",
+                false,
+                0.5f,
+                0.2f
+            ),
+            new MorphConfig($"UP/UP Breast Top Curve2 {side}",
+                true,
+                -0.5f,
+                -0.85f
+            ),
+            new MorphConfig($"UP/UP Breasts Implants {side}",
+                false,
+                0.25f,
+                0.05f
+            ),
+            new MorphConfig($"UP/UP Breast Diameter {side}",
+                false,
+                0.05f,
+                0.35f
+            ),
+            new MorphConfig($"UP/UP Breast Diameter(Pose) {side}",
+                false,
+                0.3f,
+                0.2f
+            ),
+            new MorphConfig($"UP/UP Breast Width {side}",
+                false,
+                0.2f,
+                0.3f
+            ),
+            new MorphConfig($"UP/UP Breast Zero {side}",
+                false,
+                0.22f,
+                0.2f
+            ),
+            new MorphConfig($"UP/UP Breast flat(Fixed) {side}",
+                false,
+                0.65f,
+                0.1f
+            ),
+            new MorphConfig($"UP/UP Breasts Hang Forward {side}",
+                false,
+                0.2f,
+                0.7f
+            ),
+            new MorphConfig($"UP/UP BreastsShape2 {side}",
+                false,
+                1.5f,
+                0.35f
+            ),
+            new MorphConfig($"UP/UP Breast Height Lower {side}",
+                true,
+                -1.5f,
+                -0.4f
+            ),
+            new MorphConfig($"UP/UP Breast Move Up {side}",
+                false,
+                0.6f,
+                0.12f
+            ),
+            new MorphConfig($"UP/UP Breasts Flatten {side}",
+                false,
+                0.8f,
+                0.6f
+            ),
+            new MorphConfig($"UP/UP Breast Pointed {side}",
+                false,
+                1f,
+                1f
+            ),
+            new MorphConfig($"UP/UP Breasts TogetherApart {side}",
+                false,
+                1f,
+                -0.2f
+            ),
+            new MorphConfig($"UP/UP Breast look up {side}",
+                false,
+                0f,
+                0.3f
+            ),
+            new MorphConfig($"UP/UP Breast Top Curve1 {side}",
+                true,
+                0.1f,
+                -0.55f
+            ),
+            new MorphConfig($"UP/UP Breasts Height {side}",
+                true,
+                -1f,
+                0f
+            ),
+            new MorphConfig($"UP/UP Breasts Under Curve {side}",
+                true,
+                -0.4f,
+                -0.6f
+            ),
+            new MorphConfig($"UP/UP ChestUnderBreast {side}",
+                false,
+                1.15f,
+                0.2f
+            ),
+            new MorphConfig($"UP/UP Breast Under Smoother1 {side}",
+                false,
+                0.3f,
+                0.1f
+            ),
+            new MorphConfig($"UP/UP Breast Under Smoother2 {side}",
+                false,
+                0.4f,
+                0.2f
+            ),
+            new MorphConfig($"UP/UP Breast Under Smoother3 {side}",
+                false,
+                0.35f,
+                0.25f
+            ),
+            new MorphConfig($"UP/UP Breast Under Smoother4 {side}",
+                false,
+                0.48f,
+                0.09f
+            ),
+            new MorphConfig($"UP/UP Breast Height Upper {side}",
+                false,
+                1.7f,
+                0f
+            ),
+            new MorphConfig($"UP/UP Breasts Upward Slope {side}",
+                false,
+                1.3f,
+                2f
+            ),
+            new MorphConfig($"UP/UP Chest Height {side}",
+                true,
+                -0.55f,
+                0.15f
+            ),
+            new MorphConfig($"UP/UP Breast upper down {side}",
+                true,
+                -0.8f,
+                -0.5f
+            ),
+            new MorphConfig($"UP/UP Breasts Small Top Slope {side}",
+                true,
+                -0.11f,
+                0f
+            ),
+            new MorphConfig($"UP/UP Areolae Depth {side}",
+                false,
+                0.2f,
+                0.2f
+            ),
+        };
+
+        private static List<MorphConfig> UpForceCenterConfigs() => new List<MorphConfig>
+        {
+            new MorphConfig("UP/UP Center Gap Smooth",
+                false,
+                1.7f,
+                0.2f
+            ),
+            new MorphConfig("UP/UP Center Gap Depth",
+                true,
+                -0.5f,
+                -0.8f
+            ),
+            new MorphConfig("UP/UP Center Gap Height",
+                false,
+                1.2f,
+                0.5f
+            ),
+            new MorphConfig("UP/UP Centre Gap Wide",
+                false,
+                0.5f,
+                0.25f
+            ),
+            new MorphConfig("UP/UP Center Gap UpDown",
+                false,
+                2f,
+                -0.3f
+            ),
+            new MorphConfig("UP/UP Chest Smoother",
+                false,
+                2.37f,
+                0.42f
+            ),
+            new MorphConfig("UP/UP ChestSmoothCenter",
+                false,
+                3f,
+                0.84f
+            ),
+        };
+
+        private static List<MorphConfig> DownForceConfigs(string side) => new List<MorphConfig>
+        {
+            new MorphConfig($"DN/DN Breast Move Down {side}",
+                false,
+                1.2f,
+                0.4f
+            ),
+            new MorphConfig($"DN/DN Breast Rotate Up Reverse {side}",
+                false,
+                0.9f,
+                0.3f
+            ),
+            new MorphConfig($"DN/DN Breasts Natural {side}",
+                false,
+                0.9f,
+                0.3f
+            ),
+            new MorphConfig($"DN/DN Breasts Under Curve {side}",
+                false,
+                1.2f,
+                0.4f
+            ),
+        };
+
+        private static List<MorphConfig> BackForceConfigs(string side) => new List<MorphConfig>
+        {
+            new MorphConfig($"BK/BK Breast Diameter(Pose) {side}",
+                true,
+                -0.3f,
+                -0.5f
+            ),
+            new MorphConfig($"BK/BK Breast Diameter {side}",
+                false,
+                0.6f,
+                0.3f
+            ),
+            new MorphConfig($"BK/BK Breast flat(Fixed) {side}",
+                false,
+                0.3f,
+                0f
+            ),
+            new MorphConfig($"BK/BK Breast Move Up {side}",
+                true,
+                -0.2f,
+                -0.4f
+            ),
+            new MorphConfig($"BK/BK Breast Pointed {side}",
+                true,
+                -0.15f,
+                -0.4f
+            ),
+            new MorphConfig($"BK/BK Breast Top Curve1 {side}",
+                true,
+                -0.65f,
+                -0.3f
+            ),
+            new MorphConfig($"BK/BK Breast Top Curve2 {side}",
+                false,
+                0.5f,
+                0.15f
+            ),
+            new MorphConfig($"BK/BK Breast Under Smoother1 {side}",
+                false,
+                0.35f,
+                0.1f
+            ),
+            new MorphConfig($"BK/BK Breast Under Smoother2 {side}",
+                false,
+                0f,
+                0.2f
+            ),
+            new MorphConfig($"BK/BK Breast Under Smoother3 {side}",
+                false,
+                0.3f,
+                0.45f
+            ),
+            new MorphConfig($"BK/BK Breast Zero {side}",
+                false,
+                -0.1f,
+                0.15f
+            ),
+            new MorphConfig($"BK/BK Breasts Flatten {side}",
+                false,
+                3.3f,
+                1.5f
+            ),
+            new MorphConfig($"BK/BK Breasts Hang Forward {side}",
+                true,
+                -0.2f,
+                -0.4f
+            ),
+            new MorphConfig($"BK/BK Breasts Implants {side}",
+                true,
+                -0.05f,
+                0f
+            ),
+            new MorphConfig($"BK/BK Breasts Natural {side}",
+                false,
+                0.1f,
+                0.2f
+            ),
+            new MorphConfig($"BK/BK Breasts TogetherApart {side}",
+                false,
+                0.4f,
+                0.8f
+            ),
+            new MorphConfig($"BK/BK Depth Squash {side}",
+                false,
+                1.2f,
+                0.2f
+            ),
+            new MorphConfig($"BK/BK Rotate X Out {side}",
+                false,
+                -0.1f,
+                1f
+            ),
+        };
+
+        private static List<MorphConfig> BackForceCenterConfigs() => new List<MorphConfig>
+        {
+            new MorphConfig("BK/BK Sternum Depth",
+                true,
+                0.1f,
+                -0.4f
+            ),
+            new MorphConfig("BK/BK Sternum Width",
+                true,
+                -0.3f,
+                -0.3f
+            ),
+            new MorphConfig("BK/BK Center Gap Depth",
+                true,
+                0f,
+                -0.4f
+            ),
+        };
+
+        private static List<MorphConfig> ForwardForceConfigs(string side) => new List<MorphConfig>
+        {
+            new MorphConfig($"FW/FW Breast Diameter(Pose) {side}",
+                false,
+                0.4f,
+                0.2f
+            ),
+            new MorphConfig($"FW/FW Breast Height2 {side}",
+                true,
+                -0.4f,
+                -0.2f
+            ),
+            new MorphConfig($"FW/FW Breast Rotate Down {side}",
+                true,
+                -0.2f,
+                -0.1f
+            ),
+            new MorphConfig($"FW/FW Breast Width {side}",
+                true,
+                -0.25f,
+                -0.125f
+            ),
+            new MorphConfig($"FW/FW Breast Depth {side}",
+                false,
+                0.88f,
+                0.44f
+            ),
+            new MorphConfig($"FW/FW Breast Small {side}",
+                false,
+                0.5f,
+                0.25f
+            ),
+            new MorphConfig($"FW/FW Breast Round {side}",
+                true,
+                -1.1f,
+                -0.55f
+            ),
+        };
+
+        private static List<MorphConfig> ForwardForceCenterConfigs() => new List<MorphConfig>
+        {
+            new MorphConfig("FW/FW Sternum Width",
+                false,
+                0.412f,
+                0.14f
+            ),
+            new MorphConfig("FW/FW ChestSeparateBreasts",
+                false,
+                0f,
+                0.3f
+            ),
+        };
+
+        private static List<MorphConfig> LeftForceLeftConfigs() => new List<MorphConfig>
+        {
+            new MorphConfig("LT/LT Breasts Shift S2S Left L",
+                false,
+                2f,
+                -0.5f
+            ),
+            new MorphConfig("LT/LT Breasts Hang Forward L",
+                true,
+                -1f,
+                0.3f
+            ),
+            new MorphConfig("LT/LT Breast Width L",
+                true,
+                -0.2f,
+                -0.45f
+            ),
+            new MorphConfig("LT/LT Breast Rotate X Out L",
+                true,
+                -0.6f,
+                0.3f
+            ),
+            new MorphConfig("LT/LT Breast Rotate X In L",
+                true,
+                -0.3f,
+                0.15f
+            ),
+            new MorphConfig("LT/LT Breast Move S2S Out L",
+                false,
+                0.2f,
+                -0.1f
+            ),
+            new MorphConfig("LT/LT Breast Diameter L",
+                true,
+                -0.2f,
+                -0.2f
+            ),
+            new MorphConfig("LT/LT Breast Under Smoother2 L",
+                false,
+                0.1f,
+                0.4f
+            ),
+            new MorphConfig("LT/LT Breast Under Smoother3 L",
+                false,
+                0.4f,
+                0.4f
+            ),
+        };
+
+        private static List<MorphConfig> LeftForceRightConfigs() => new List<MorphConfig>
+        {
+            new MorphConfig("LT/LT Breasts Shift S2S Left R",
+                false,
+                2f,
+                -0.5f
+            ),
+            new MorphConfig("LT/LT Breast Rotate X Out R",
+                true,
+                -1.5f,
+                0.25f
+            ),
+            new MorphConfig("LT/LT Breasts Flatten R",
+                true,
+                -0.4f,
+                -0.2f
+            ),
+            new MorphConfig("LT/LT Breast Width R",
+                false,
+                0.3f,
+                0.4f
+            ),
+            new MorphConfig("LT/LT Breast Rotate X In R",
+                false,
+                0.2f,
+                0f
+            ),
+            new MorphConfig("LT/LT Breasts Hang Forward R",
+                false,
+                0.3f,
+                0f
+            ),
+            new MorphConfig("LT/LT Areola S2S R",
+                false,
+                0.5f,
+                2f
+            ),
+            new MorphConfig("LT/LT Breast Diameter R",
+                true,
+                -0.2f,
+                -0.2f
+            ),
+            new MorphConfig("LT/LT Breast Depth Squash R",
+                false,
+                0.2f,
+                2f
+            ),
+            new MorphConfig("LT/LT Breast Move S2S In R",
+                false,
+                0f,
+                0.3f
+            ),
+            new MorphConfig("LT/LT Breasts Implants R",
+                true,
+                0.1f,
+                -0.1f
+            ),
+            new MorphConfig("LT/LT Breast Under Smoother2 R",
+                false,
+                0.1f,
+                0.4f
+            ),
+            new MorphConfig("LT/LT Breast Under Smoother3 R",
+                false,
+                0.4f,
+                0.4f
+            ),
+        };
+
+        private static List<MorphConfig> RightForceLeftConfigs() => new List<MorphConfig>
+        {
+            new MorphConfig("RT/RT Breasts Shift S2S Right L",
+                false,
+                2f,
+                -0.5f
+            ),
+            new MorphConfig("RT/RT Breast Rotate X Out L",
+                true,
+                -1.5f,
+                0.25f
+            ),
+            new MorphConfig("RT/RT Breasts Flatten L",
+                true,
+                -0.4f,
+                -0.2f
+            ),
+            new MorphConfig("RT/RT Breast Width L",
+                false,
+                0.3f,
+                0.4f
+            ),
+            new MorphConfig("RT/RT Breast Rotate X In L",
+                false,
+                0.2f,
+                0f
+            ),
+            new MorphConfig("RT/RT Breasts Hang Forward L",
+                false,
+                0.3f,
+                0f
+            ),
+            new MorphConfig("RT/RT Areola S2S L",
+                false,
+                0.5f,
+                2f
+            ),
+            new MorphConfig("RT/RT Breast Diameter L",
+                true,
+                -0.2f,
+                -0.2f
+            ),
+            new MorphConfig("RT/RT Breast Depth Squash L",
+                false,
+                0.2f,
+                2f
+            ),
+            new MorphConfig("RT/RT Breast Move S2S In L",
+                false,
+                0f,
+                0.3f
+            ),
+            new MorphConfig("RT/RT Breasts Implants L",
+                true,
+                0.1f,
+                -0.1f
+            ),
+            new MorphConfig("RT/RT Breast Under Smoother2 L",
+                false,
+                0.1f,
+                0.4f
+            ),
+            new MorphConfig("RT/RT Breast Under Smoother3 L",
+                false,
+                0.4f,
+                0.4f
+            ),
+        };
+
+        private static List<MorphConfig> RightForceRightConfigs() => new List<MorphConfig>
+        {
+            new MorphConfig("RT/RT Breasts Shift S2S Right R",
+                false,
+                2f,
+                -0.5f
+            ),
+            new MorphConfig("RT/RT Breasts Hang Forward R",
+                true,
+                -1f,
+                0.3f
+            ),
+            new MorphConfig("RT/RT Breast Width R",
+                true,
+                -0.2f,
+                -0.45f
+            ),
+            new MorphConfig("RT/RT Breast Rotate X Out R",
+                true,
+                -0.6f,
+                0.3f
+            ),
+            new MorphConfig("RT/RT Breast Rotate X In R",
+                true,
+                -0.3f,
+                0.15f
+            ),
+            new MorphConfig("RT/RT Breast Move S2S Out R",
+                false,
+                0.2f,
+                -0.1f
+            ),
+            new MorphConfig("RT/RT Breast Diameter R",
+                true,
+                -0.2f,
+                -0.2f
+            ),
+            new MorphConfig("RT/RT Breast Under Smoother2 R",
+                false,
+                0.1f,
+                0.4f
+            ),
+            new MorphConfig("RT/RT Breast Under Smoother3 R",
+                false,
+                0.4f,
+                0.4f
+            ),
+        };
+
+        #endregion Morph configs
 
         public static void Update(float roll, float pitch)
         {

@@ -164,19 +164,6 @@
     <Compile Include="vam-collider-editor\src\UIPopupExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="settings\morphmultipliers\female\backForce.json" />
-    <None Include="settings\morphmultipliers\female\backForceCenter.json" />
-    <None Include="settings\morphmultipliers\female\downForce.json" />
-    <None Include="settings\morphmultipliers\female\forwardForce.json" />
-    <None Include="settings\morphmultipliers\female\forwardForceCenter.json" />
-    <None Include="settings\morphmultipliers\female\leftForceL.json" />
-    <None Include="settings\morphmultipliers\female\leftForceR.json" />
-    <None Include="settings\morphmultipliers\female\rightForceL.json" />
-    <None Include="settings\morphmultipliers\female\rightForceR.json" />
-    <None Include="settings\morphmultipliers\female\upForce.json" />
-    <None Include="settings\morphmultipliers\female\upForceCenter.json" />
-    <None Include="settings\morphmultipliers\offset\upright.json" />
-    <None Include="settings\morphmultipliers\nippleErection.json" />
     <None Include=".gitignore" />
     <None Include="meta.json" />
     <None Include="README.md" />

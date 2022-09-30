@@ -17,54 +17,34 @@ namespace TittyMagic.Handlers
             offsetMorphingJsf.setCallbackFunction = value => tittyMagic.calibration.shouldRun = true;
         }
 
-        public static void LoadSettings() =>
-            _configSets = new Dictionary<string, List<MorphConfig>>
-            {
-                { Direction.DOWN, LoadSettingsFromFile(Direction.DOWN, "upright", true) },
-            };
-
-        private static List<MorphConfig> LoadSettingsFromFile(string subDir, string fileName, bool hasSeparateLeftRightConfigs = false)
+        public static void LoadSettings() => _configSets = new Dictionary<string, List<MorphConfig>>
         {
-            string path = $@"{tittyMagic.PluginPath()}\settings\morphmultipliers\offset\{fileName}.json";
-            var jsonClass = tittyMagic.LoadJSON(path).AsObject;
-
-            var configs = new List<MorphConfig>();
-            foreach(string name in jsonClass.Keys)
             {
-                if(hasSeparateLeftRightConfigs)
+                Direction.DOWN, new List<MorphConfig>
                 {
-                    configs.Add(
-                        new MorphConfig(
-                            $"{subDir}/{name} L",
-                            jsonClass[name]["IsNegative"].AsBool,
-                            jsonClass[name]["Multiplier1"].AsFloat,
-                            jsonClass[name]["Multiplier2"].AsFloat
-                        )
-                    );
-                    configs.Add(
-                        new MorphConfig(
-                            $"{subDir}/{name} R",
-                            jsonClass[name]["IsNegative"].AsBool,
-                            jsonClass[name]["Multiplier1"].AsFloat,
-                            jsonClass[name]["Multiplier2"].AsFloat
-                        )
-                    );
+                    new MorphConfig("DN/DN Breast Rotate Up L",
+                        false,
+                        0.76f,
+                        0.57f
+                    ),
+                    new MorphConfig("DN/DN Breast Rotate Up R",
+                        false,
+                        0.76f,
+                        0.57f
+                    ),
+                    new MorphConfig("DN/DN Breasts Natural Reverse L",
+                        false,
+                        0.36f,
+                        0.27f
+                    ),
+                    new MorphConfig("DN/DN Breasts Natural Reverse R",
+                        false,
+                        0.37f,
+                        0.27f
+                    ),
                 }
-                else
-                {
-                    configs.Add(
-                        new MorphConfig(
-                            $"{subDir}/{name}",
-                            jsonClass[name]["IsNegative"].AsBool,
-                            jsonClass[name]["Multiplier1"].AsFloat,
-                            jsonClass[name]["Multiplier2"].AsFloat
-                        )
-                    );
-                }
-            }
-
-            return configs;
-        }
+            },
+        };
 
         public static void Update(float roll, float pitch)
         {
