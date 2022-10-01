@@ -147,7 +147,7 @@ namespace TittyMagic.Handlers
         {
             Func<float, float> calculateEffect = angle =>
                 0.5f * Curves.QuadraticRegression(leftRightMultiplier)
-                * Curves.ForceEffectCurve(Mathf.Abs(angle) / 40);
+                * Curves.ForceEffectCurve(Mathf.Abs(angle) / 40, 1.46f, 1.00f);
 
             float effectXLeft = calculateEffect(_trackLeftBreast.angleX);
             if(_trackLeftBreast.angleX >= 0)
@@ -182,7 +182,7 @@ namespace TittyMagic.Handlers
         {
             Func<float, float> calculateEffect = angle =>
                 0.5f * Curves.QuadraticRegression(upMultiplier)
-                * Curves.ForceEffectCurve(Mathf.Abs(angle) / 50);
+                * Curves.ForceEffectCurve(Mathf.Abs(angle) / 40, 1.46f, 1.00f);
 
             if(_trackLeftBreast.angleY >= 0)
             {
@@ -209,7 +209,7 @@ namespace TittyMagic.Handlers
         {
             Func<float, float> calculateEffect = angle =>
                 0.5f * Curves.QuadraticRegression(downMultiplier)
-                * Curves.ForceEffectCurve(Mathf.Abs(angle) / 50);
+                * Curves.ForceEffectCurve(Mathf.Abs(angle) / 40, 1.46f, 1.00f);
 
             if(_trackLeftBreast.angleY < 0)
             {
