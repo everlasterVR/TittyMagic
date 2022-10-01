@@ -30,6 +30,7 @@ namespace TittyMagic
                 tittyMagic.NewJSONStorableAction("OpenUI_Control", OpenUIControl),
                 tittyMagic.NewJSONStorableAction("OpenUI_ConfigureHardColliders", OpenUIConfigureHardColliders),
                 tittyMagic.NewJSONStorableAction("OpenUI_ConfigureColliderFriction", OpenUIConfigureColliderFriction),
+                tittyMagic.NewJSONStorableAction("OpenUI_Experimental", OpenUIExperimental),
                 tittyMagic.NewJSONStorableAction("OpenUI_PhysicsParams", OpenUIPhysicsParams),
                 tittyMagic.NewJSONStorableAction("OpenUI_MorphMultipliers", OpenUIMorphMultipliers),
                 tittyMagic.NewJSONStorableAction("OpenUI_GravityMultipliers", OpenUIGravityMultipliers),
@@ -74,11 +75,18 @@ namespace TittyMagic
                 {
                     tittyMagic.NavigateToMainWindow();
                     var mainWindow = (MainWindow) tittyMagic.tabs.activeWindow;
-                    var hardCollidersWindow = mainWindow.GetActiveNestedWindow() as HardCollidersWindow;
-                    if(hardCollidersWindow == null)
+                    var nestedWindow = mainWindow.GetActiveNestedWindow();
+                    if(nestedWindow is HardCollidersWindow)
                     {
-                        mainWindow.configureHardColliders.actionCallback();
+                        return;
                     }
+
+                    if(nestedWindow != null)
+                    {
+                        nestedWindow.Clear();
+                    }
+
+                    mainWindow.configureHardColliders.actionCallback();
                 }
             ));
         }
@@ -99,11 +107,37 @@ namespace TittyMagic
             {
                 tittyMagic.NavigateToMainWindow();
                 var mainWindow = (MainWindow) tittyMagic.tabs.activeWindow;
-                var devWindow = mainWindow.GetActiveNestedWindow() as DevWindow;
-                if(devWindow == null)
+                var nestedWindow = mainWindow.GetActiveNestedWindow();
+                if(nestedWindow is DevWindow)
                 {
-                    mainWindow.openDevWindow.actionCallback();
+                    return;
                 }
+
+                if(nestedWindow != null)
+                {
+                    nestedWindow.Clear();
+                }
+
+                mainWindow.openDevWindow.actionCallback();
+            }));
+
+        private void OpenUIExperimental() =>
+            StartCoroutine(SelectPluginUI(postAction: () =>
+            {
+                tittyMagic.NavigateToMainWindow();
+                var mainWindow = (MainWindow) tittyMagic.tabs.activeWindow;
+                var nestedWindow = mainWindow.GetActiveNestedWindow();
+                if(nestedWindow is ExperimentalWindow)
+                {
+                    return;
+                }
+
+                if(nestedWindow != null)
+                {
+                    nestedWindow.Clear();
+                }
+
+                mainWindow.openExperimentalWindow.actionCallback();
             }));
 
         // adapted from Timeline v4.3.1 (c) acidbubbles

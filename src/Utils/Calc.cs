@@ -92,5 +92,21 @@ namespace TittyMagic
 
             return result;
         }
+
+        public static Vector3[] ExponentialMovingAverage(Vector3[] source, float k)
+        {
+            var result = new Vector3[source.Length];
+            result[source.Length - 1] = source[source.Length - 1];
+            for(int i = source.Length - 2; i >= 0; i--)
+            {
+                result[i] = new Vector3(
+                    k * source[i].x + (1 - k) * result[i + 1].x,
+                    k * source[i].y + (1 - k) * result[i + 1].y,
+                    k * source[i].z + (1 - k) * result[i + 1].z
+                );
+            }
+
+            return result;
+        }
     }
 }

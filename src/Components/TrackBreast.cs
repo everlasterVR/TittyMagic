@@ -13,6 +13,9 @@ namespace TittyMagic.Components
         private readonly int[] _nippleVertexIndices;
         private readonly Func<Vector3> _calculateRelativePosition;
 
+        private Vector3[] _relativePositions;
+        public float weightingRatio { private get; set; }
+
         private Vector3 _neutralRelativePosition;
         private Vector3 _neutralRelativePectoralPosition;
 
@@ -31,7 +34,7 @@ namespace TittyMagic.Components
                     if(personIsFemale)
                     {
                         _softVertexJointRBs = SoftPhysicsHandler.GetLeftBreastTrackingRBs();
-                        _calculateRelativePosition = RelativeBreastPosition;
+                        _calculateRelativePosition = SmoothRelativePosition;
                     }
                     else
                     {
@@ -45,7 +48,7 @@ namespace TittyMagic.Components
                     if(personIsFemale)
                     {
                         _softVertexJointRBs = SoftPhysicsHandler.GetRightBreastTrackingSets();
-                        _calculateRelativePosition = RelativeBreastPosition;
+                        _calculateRelativePosition = SmoothRelativePosition;
                     }
                     else
                     {
@@ -55,6 +58,30 @@ namespace TittyMagic.Components
 
                     break;
             }
+        }
+
+        public void SetMovingAveragePeriod(int value)
+        {
+            var tmpArray = new Vector3[value];
+
+            if(_relativePositions == null)
+            {
+                for(int i = 0; i < tmpArray.Length; i++)
+                {
+                    tmpArray[i] = _neutralRelativePosition;
+                }
+            }
+            else
+            {
+                for(int i = 0; i < tmpArray.Length; i++)
+                {
+                    tmpArray[i] = i < _relativePositions.Length
+                        ? _relativePositions[i]
+                        : tmpArray[i - 1];
+                }
+            }
+
+            _relativePositions = tmpArray;
         }
 
         public void Calibrate()
@@ -76,6 +103,13 @@ namespace TittyMagic.Components
             );
 
             depthDiff = (_neutralRelativePectoralPosition - Calc.RelativePosition(_chestRb, _pectoralRb.position)).z;
+        }
+
+        private Vector3 SmoothRelativePosition()
+        {
+            Array.Copy(_relativePositions, 0, _relativePositions, 1, _relativePositions.Length - 1);
+            _relativePositions[0] = RelativeBreastPosition();
+            return Calc.ExponentialMovingAverage(_relativePositions, weightingRatio)[0];
         }
 
         private Vector3 RelativeBreastPosition()

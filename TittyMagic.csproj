@@ -126,6 +126,7 @@
     <Compile Include="src\Script.cs" />
     <Compile Include="src\UI\Components\NavigationButton.cs" />
     <Compile Include="src\UI\DevWindow.cs" />
+    <Compile Include="src\UI\ExperimentalWindow.cs" />
     <Compile Include="src\UI\HardCollidersWindow.cs" />
     <Compile Include="src\UI\GravityWindow.cs" />
     <Compile Include="src\UI\MainWindow.cs" />

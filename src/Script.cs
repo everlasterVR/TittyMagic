@@ -38,6 +38,8 @@ namespace TittyMagic
         public JSONStorableBool autoUpdateJsb { get; private set; }
         public JSONStorableFloat softnessJsf { get; private set; }
         public JSONStorableFloat quicknessJsf { get; private set; }
+        public JSONStorableFloat smoothingPeriodJsf { get; private set; }
+        public JSONStorableFloat smoothingWeightingRatioJsf { get; private set; }
 
         public CalibrationHelper calibration { get; private set; }
 
@@ -94,17 +96,21 @@ namespace TittyMagic
 
                 if(tabs.activeWindow == _mainWindow)
                 {
-                    if(_mainWindow?.GetActiveNestedWindow() != null)
+                    var nestedWindow = _mainWindow?.GetActiveNestedWindow();
+                    if(!enabled)
                     {
-                        if(enabled && HardColliderHandler.colliderVisualizer != null)
+                        if(nestedWindow != null)
+                        {
+                            /* Prevent displaying nested window if plugin disabled */
+                            _mainWindow.OnReturn();
+                        }
+                    }
+                    else if(nestedWindow is HardCollidersWindow || nestedWindow is DevWindow)
+                    {
+                        if(HardColliderHandler.colliderVisualizer != null)
                         {
                             HardColliderHandler.colliderVisualizer.enabled = true;
                             HardColliderHandler.colliderVisualizer.ShowPreviewsJSON.val = true;
-                        }
-                        else
-                        {
-                            /* Prevent displaying hard collider window if plugin disabled */
-                            _mainWindow.OnReturn();
                         }
                     }
                 }
@@ -306,6 +312,8 @@ namespace TittyMagic
                 autoUpdateJsb = this.NewJSONStorableBool("autoUpdateMass", true);
                 softnessJsf = this.NewJSONStorableFloat("breastSoftness", 70f, 0f, 100f);
                 quicknessJsf = this.NewJSONStorableFloat("breastQuickness", 70f, 0f, 100f);
+                smoothingPeriodJsf = this.NewJSONStorableFloat("morphSmoothingPeriod", 3, 2, 10);
+                smoothingWeightingRatioJsf = this.NewJSONStorableFloat("morphSmoothingWeightingRatio", 0.50f, 0.00f, 1.00f);
 
                 recalibratePhysics = this.NewJSONStorableAction(
                     "recalibratePhysics",
@@ -340,6 +348,12 @@ namespace TittyMagic
                         StartCalibration(calibratesMass: false, waitsForListeners: true);
                     }
                 };
+
+                smoothingPeriodJsf.setCallbackFunction = SetSmoothingPeriod;
+                SetSmoothingPeriod(smoothingPeriodJsf.val);
+
+                smoothingWeightingRatioJsf.setCallbackFunction = SetWeightingRatio;
+                SetWeightingRatio(smoothingWeightingRatioJsf.val);
             }
 
             /* Create custom bindings and subscribe to Keybindings.
@@ -414,6 +428,19 @@ namespace TittyMagic
 
             bindingsList.Add(bindings.Namespace());
             bindingsList.AddRange(bindings.Actions());
+        }
+
+        private void SetSmoothingPeriod(float value)
+        {
+            int period = (int) Mathf.Round(value);
+            _trackLeftBreast.SetMovingAveragePeriod(period);
+            _trackRightBreast.SetMovingAveragePeriod(period);
+        }
+
+        private void SetWeightingRatio(float value)
+        {
+            _trackLeftBreast.weightingRatio = value;
+            _trackRightBreast.weightingRatio = value;
         }
 
         private UIMod NewUIMod(Transform container, string targetName, Func<UIMod, IEnumerator> changesFunc)

@@ -13,6 +13,7 @@ namespace TittyMagic.UI
         private readonly PhysicsParameter _massParameter;
         public JSONStorableAction configureHardColliders { get; }
         private JSONStorableAction configureColliderFriction { get; }
+        public JSONStorableAction openExperimentalWindow { get; }
         public JSONStorableAction openDevWindow { get; }
 
         public MainWindow()
@@ -49,6 +50,22 @@ namespace TittyMagic.UI
                 }
             );
 
+            openExperimentalWindow = new JSONStorableAction(
+                "openExperimentalWindow",
+                () =>
+                {
+                    if(!tittyMagic.enabled)
+                    {
+                        Utils.LogMessage("Enable the plugin before opening the experimental features UI.");
+                        return;
+                    }
+
+                    ClearSelf();
+                    activeNestedWindow = nestedWindows.Find(window => window.GetId() == nameof(ExperimentalWindow));
+                    activeNestedWindow.Rebuild();
+                }
+            );
+
             if(envIsDevelopment)
             {
                 openDevWindow = new JSONStorableAction(
@@ -66,6 +83,7 @@ namespace TittyMagic.UI
 
             if(personIsFemale)
             {
+                nestedWindows.Add(new ExperimentalWindow(nameof(ExperimentalWindow), OnReturn));
                 nestedWindows.Add(new HardCollidersWindow(nameof(HardCollidersWindow), OnReturn));
             }
         }
@@ -193,6 +211,21 @@ namespace TittyMagic.UI
                 storable.RegisterButton(button);
                 button.buttonText.alignment = TextAnchor.MiddleLeft;
                 button.label = "  Configure Collider Friction...";
+                button.height = 52;
+                elements[storable.name] = button;
+            }
+
+            /* Configure collider friction button */
+            if(personIsFemale)
+            {
+                var storable = openExperimentalWindow;
+                AddSpacer(storable.name, 15, true);
+                var button = tittyMagic.CreateButton(storable.name, true);
+                storable.RegisterButton(button);
+                button.buttonText.alignment = TextAnchor.MiddleLeft;
+                button.label = "  Experimental Features";
+                button.buttonColor = new Color(1, 0.33f, 0.33f);
+                button.textColor = Color.white;
                 button.height = 52;
                 elements[storable.name] = button;
             }
