@@ -45,7 +45,7 @@ namespace TittyMagic
         // https://www.desmos.com/calculator/clksuexht8
         public static float SpringZSoftnessCurve(float x) => Exponential1(x, 2.11f, 1.21f, 0.88f);
 
-        // https://www.desmos.com/calculator/uejk7yri1f
+        // https://www.desmos.com/calculator/b2kgumbqnt
         public static float Exponential1(float x, float b, float p, float q, float a = 1, float m = 1, float s = 0) =>
             m * ((1 - b) * Mathf.Pow(a * x + s, p) + b * Mathf.Pow(a * x + s, q));
 
@@ -72,6 +72,12 @@ namespace TittyMagic
 
         // https://www.desmos.com/calculator/lb4dq24zwp
         public static float DepthForceEffectCurve(float x) => InverseSmoothStep(x, 10, 0.8f, 0f);
+
+        // https://www.desmos.com/calculator/b6gwvvbyu4
+        public static float ColliderForceSoftnessCurve(float x) => InverseSmoothStep(x, 1.00f, 0.63f, 0.04f);
+
+        // https://www.desmos.com/calculator/urejidnpcg
+        public static float ColliderForceMassCurve(float x) => InverseSmoothStep(x, 1.00f, 0.32f, 0.70f);
 
         // https://www.desmos.com/calculator/iesodcuuww
         public static float ColliderRadiusAndPositionSizeCurve(float x) => InverseSmoothStep(x, 1.00f, 0.35f, 0.06f);

@@ -114,8 +114,9 @@ namespace TittyMagic.Handlers
                     {
                         {
                             COLLISION_FORCE, new Scaler(
-                                offset: 0.010f,
-                                range: new float[] { 0, 1 }
+                                offset: -0.011f,
+                                range: new float[] { 0, 1 },
+                                massCurve: x => 0.0145f * Curves.ColliderForceMassCurve(x)
                             )
                         },
                         {
@@ -152,9 +153,10 @@ namespace TittyMagic.Handlers
                     {
                         {
                             COLLISION_FORCE, new Scaler(
-                                offset: 0.025f,
+                                offset: 0.009f,
                                 range: new float[] { 0, 1 },
-                                softnessCurve: x => -0.020f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
+                                softnessCurve: x => -0.020f * Curves.ColliderForceSoftnessCurve(x),
+                                massCurve: x => 0.0145f * Curves.ColliderForceMassCurve(x)
                             )
                         },
                         {
@@ -192,9 +194,10 @@ namespace TittyMagic.Handlers
                     {
                         {
                             COLLISION_FORCE, new Scaler(
-                                offset: 0.015f,
+                                offset: 0.002f,
                                 range: new float[] { 0, 1 },
-                                softnessCurve: x => -0.020f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
+                                softnessCurve: x => -0.020f * Curves.ColliderForceSoftnessCurve(x),
+                                massCurve: x => 0.011f * Curves.ColliderForceMassCurve(x)
                             )
                         },
                         {
@@ -231,9 +234,10 @@ namespace TittyMagic.Handlers
                     {
                         {
                             COLLISION_FORCE, new Scaler(
-                                offset: -0.010f,
+                                offset: 0.009f,
                                 range: new float[] { 0, 1 },
-                                softnessCurve: x => -0.020f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
+                                softnessCurve: x => -0.020f * Curves.ColliderForceSoftnessCurve(x),
+                                massCurve: x => 0.0145f * Curves.ColliderForceMassCurve(x)
                             )
                         },
                         {
@@ -271,9 +275,10 @@ namespace TittyMagic.Handlers
                     {
                         {
                             COLLISION_FORCE, new Scaler(
-                                offset: 0.035f,
+                                offset: 0.009f,
                                 range: new float[] { 0, 1 },
-                                softnessCurve: x => -0.055f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
+                                softnessCurve: x => -0.020f * Curves.ColliderForceSoftnessCurve(x),
+                                massCurve: x => 0.0145f * Curves.ColliderForceMassCurve(x)
                             )
                         },
                         {
