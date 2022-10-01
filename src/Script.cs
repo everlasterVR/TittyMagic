@@ -312,7 +312,7 @@ namespace TittyMagic
                 autoUpdateJsb = this.NewJSONStorableBool("autoUpdateMass", true);
                 softnessJsf = this.NewJSONStorableFloat("breastSoftness", 70f, 0f, 100f);
                 quicknessJsf = this.NewJSONStorableFloat("breastQuickness", 70f, 0f, 100f);
-                smoothingPeriodJsf = this.NewJSONStorableFloat("morphSmoothingPeriod", 3, 2, 10);
+                smoothingPeriodJsf = this.NewJSONStorableFloat("morphSmoothingPeriod", 1, 1, 10);
                 smoothingWeightingRatioJsf = this.NewJSONStorableFloat("morphSmoothingWeightingRatio", 0.50f, 0.00f, 1.00f);
 
                 recalibratePhysics = this.NewJSONStorableAction(
