@@ -167,6 +167,14 @@ namespace TittyMagic.Handlers
                 }
             }
 
+            foreach(var set in _softVerticesGroups[LEFT][AREOLA].softVerticesSets)
+            {
+                if(VertexIndexGroup.leftAreolaMiddle.Contains(set.targetVertex))
+                {
+                    rigidbodies.Add(set.jointRB);
+                }
+            }
+
             return rigidbodies.ToArray();
         }
 
@@ -176,6 +184,14 @@ namespace TittyMagic.Handlers
             foreach(var set in _softVerticesGroups[RIGHT][MAIN].softVerticesSets)
             {
                 if(VertexIndexGroup.rightBreastMiddle.Contains(set.targetVertex))
+                {
+                    rigidbodies.Add(set.jointRB);
+                }
+            }
+
+            foreach(var set in _softVerticesGroups[RIGHT][AREOLA].softVerticesSets)
+            {
+                if(VertexIndexGroup.rightAreolaMiddle.Contains(set.targetVertex))
                 {
                     rigidbodies.Add(set.jointRB);
                 }

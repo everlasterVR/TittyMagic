@@ -52,6 +52,9 @@ namespace TittyMagic
             19614,
         };
 
+        public static int[] leftAreolaMiddle = { 7945, 7946, 7947, 7950, 7958, 7966 };
+        public static int[] rightAreolaMiddle = { 18623, 18624, 18625, 18628, 18636, 18644 };
+
         public static void Destroy()
         {
             breasts = null;
@@ -63,6 +66,8 @@ namespace TittyMagic
             rightNippleMale = null;
             leftBreastMiddle = null;
             rightBreastMiddle = null;
+            leftAreolaMiddle = null;
+            rightAreolaMiddle = null;
         }
     }
 }
