@@ -75,6 +75,7 @@ src\UI\HardCollidersWindow.cs
 src\UI\IWindow.cs
 src\UI\MainWindow.cs
 src\UI\MorphingWindow.cs
+src\UI\OptionsWindow.cs
 src\UI\ParameterWindow.cs
 src\UI\PhysicsWindow.cs
 src\UI\Tabs.cs

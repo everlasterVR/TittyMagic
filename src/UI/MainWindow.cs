@@ -11,16 +11,27 @@ namespace TittyMagic.UI
     public class MainWindow : WindowBase
     {
         private readonly PhysicsParameter _massParameter;
-        public JSONStorableAction configureHardColliders { get; }
-        private JSONStorableAction configureColliderFriction { get; }
-        public JSONStorableAction openExperimentalWindow { get; }
-        public JSONStorableAction openDevWindow { get; }
+        public JSONStorableAction openOptionsWindowAction { get; }
+        public JSONStorableAction configureHardCollidersAction { get; }
+        private JSONStorableAction configureColliderFrictionAction { get; }
+        public JSONStorableAction openExperimentalWindowAction { get; }
+        public JSONStorableAction openDevWindowAction { get; }
 
         public MainWindow()
         {
             _massParameter = MainPhysicsHandler.massParameterGroup.left;
 
-            configureHardColliders = new JSONStorableAction(
+            openOptionsWindowAction = new JSONStorableAction(
+                "openOptions",
+                () =>
+                {
+                    ClearSelf();
+                    activeNestedWindow = nestedWindows.Find(window => window.GetId() == nameof(OptionsWindow));
+                    activeNestedWindow.Rebuild();
+                }
+            );
+
+            configureHardCollidersAction = new JSONStorableAction(
                 "configureHardColliders",
                 () =>
                 {
@@ -36,7 +47,7 @@ namespace TittyMagic.UI
                 }
             );
 
-            configureColliderFriction = new JSONStorableAction(
+            configureColliderFrictionAction = new JSONStorableAction(
                 "configureColliderFriction",
                 () =>
                 {
@@ -50,7 +61,7 @@ namespace TittyMagic.UI
                 }
             );
 
-            openExperimentalWindow = new JSONStorableAction(
+            openExperimentalWindowAction = new JSONStorableAction(
                 "openExperimentalWindow",
                 () =>
                 {
@@ -68,7 +79,7 @@ namespace TittyMagic.UI
 
             if(envIsDevelopment)
             {
-                openDevWindow = new JSONStorableAction(
+                openDevWindowAction = new JSONStorableAction(
                     "openDevWindow",
                     () =>
                     {
@@ -80,6 +91,8 @@ namespace TittyMagic.UI
 
                 nestedWindows.Add(new DevWindow(nameof(DevWindow), OnReturn));
             }
+
+            nestedWindows.Add(new OptionsWindow(nameof(OptionsWindow), OnReturn));
 
             if(personIsFemale)
             {
@@ -105,16 +118,12 @@ namespace TittyMagic.UI
                 sb.Append("\n\n");
                 sb.Append("<b><i>Breast quickness</i></b> causes slow motion at low values");
                 sb.Append(" and realistically responsive behavior at high values.");
-                sb.Append("\n\n");
+                sb.Append("\n\n\n");
                 sb.Append("<b><i>Breast mass</i></b> is estimated from volume. Since it represents size, other physics");
                 sb.Append(" parameters are adjusted based on its value. Calculating mass also recalibrates physics.");
-                sb.Append("\n\n");
-                sb.Append("<b><i>Auto-update mass</i></b> enables calculating mass automatically when changes in breast");
-                sb.Append(" morphs are detected. Disabling it prevents repeated recalibration when using other plugins");
-                sb.Append(" that animate morphs.");
                 if(personIsFemale)
                 {
-                    sb.Append("\n\n");
+                    sb.Append("\n\n\n\n\n\n\n");
                     sb.Append("<b><i>Hard colliders</i></b> make breasts both easier to move");
                     sb.Append(" when touched and better at maintaining their volume and shape.");
                     sb.Append("\n\n");
@@ -123,7 +132,7 @@ namespace TittyMagic.UI
                 }
 
                 var storable = new JSONStorableString("infoText", sb.ToString());
-                AddSpacer(storable.name, 35, false);
+                AddSpacer(storable.name, 35);
                 var textField = tittyMagic.CreateTextField(storable);
                 textField.UItext.fontSize = 28;
                 textField.backgroundColor = Color.clear;
@@ -133,10 +142,21 @@ namespace TittyMagic.UI
 
             CreateRecalibrateButton(tittyMagic.recalibratePhysics, true);
 
+            /* Open options window */
+            {
+                var storable = openOptionsWindowAction;
+                var button = tittyMagic.CreateButton(storable.name, true);
+                storable.RegisterButton(button);
+                button.buttonText.alignment = TextAnchor.MiddleLeft;
+                button.label = "  Show Calibration Options...";
+                button.height = 52;
+                elements[storable.name] = button;
+            }
+
             /* Softness slider */
             {
                 var storable = tittyMagic.softnessJsf;
-                AddSpacer(storable.name, 65, true);
+                AddSpacer(storable.name, 5, true);
                 var slider = tittyMagic.CreateSlider(storable, true);
                 slider.valueFormat = "F0";
                 slider.slider.wholeNumbers = true;
@@ -158,15 +178,6 @@ namespace TittyMagic.UI
 
             /* Calculate breast mass button */
             CreateRecalibrateButton(tittyMagic.calculateBreastMass, true, spacing: 15);
-
-            /* Auto update toggle */
-            {
-                var storable = tittyMagic.autoUpdateJsb;
-                var toggle = tittyMagic.CreateToggle(storable, true);
-                toggle.height = 52;
-                toggle.label = "Auto-Update Mass";
-                elements[storable.name] = toggle;
-            }
 
             /* Mass offset slider */
             {
@@ -192,7 +203,7 @@ namespace TittyMagic.UI
             /* Configure hard colliders button */
             if(personIsFemale)
             {
-                var storable = configureHardColliders;
+                var storable = configureHardCollidersAction;
                 AddSpacer(storable.name, 15, true);
                 var button = tittyMagic.CreateButton(storable.name, true);
                 storable.RegisterButton(button);
@@ -205,7 +216,7 @@ namespace TittyMagic.UI
             /* Configure collider friction button */
             if(personIsFemale)
             {
-                var storable = configureColliderFriction;
+                var storable = configureColliderFrictionAction;
                 AddSpacer(storable.name, 15, true);
                 var button = tittyMagic.CreateButton(storable.name, true);
                 storable.RegisterButton(button);
@@ -215,10 +226,10 @@ namespace TittyMagic.UI
                 elements[storable.name] = button;
             }
 
-            /* Configure collider friction button */
+            /* Open experimental window */
             if(personIsFemale)
             {
-                var storable = openExperimentalWindow;
+                var storable = openExperimentalWindowAction;
                 AddSpacer(storable.name, 15, true);
                 var button = tittyMagic.CreateButton(storable.name, true);
                 storable.RegisterButton(button);

@@ -35,13 +35,12 @@ namespace TittyMagic
 
         public JSONStorableAction recalibratePhysics { get; private set; }
         public JSONStorableAction calculateBreastMass { get; private set; }
-        public JSONStorableBool autoUpdateJsb { get; private set; }
         public JSONStorableFloat softnessJsf { get; private set; }
         public JSONStorableFloat quicknessJsf { get; private set; }
         public JSONStorableFloat smoothingPeriodJsf { get; private set; }
         public JSONStorableFloat smoothingWeightingRatioJsf { get; private set; }
 
-        public CalibrationHelper calibration { get; private set; }
+        public CalibrationHelper calibrationHelper { get; private set; }
 
         #region InitUI
 
@@ -59,7 +58,7 @@ namespace TittyMagic
 
             _pluginUIEventsListener.onDisable.AddListener(() =>
             {
-                if(enabled && calibration.shouldRun)
+                if(enabled && calibrationHelper.shouldRun)
                 {
                     var activeParameterWindow = tabs.activeWindow?.GetActiveNestedWindow() as ParameterWindow;
                     if(activeParameterWindow != null)
@@ -260,7 +259,7 @@ namespace TittyMagic
                         return;
                     }
 
-                    if(autoUpdateJsb.val)
+                    if(calibrationHelper.autoUpdateJsb.val)
                     {
                         StartCalibration(calibratesMass: true, waitsForListeners: true);
                     }
@@ -309,30 +308,7 @@ namespace TittyMagic
 
             /* Setup storables */
             {
-                autoUpdateJsb = this.NewJSONStorableBool("autoUpdateMass", true);
                 softnessJsf = this.NewJSONStorableFloat("breastSoftness", 70f, 0f, 100f);
-                quicknessJsf = this.NewJSONStorableFloat("breastQuickness", 70f, 0f, 100f);
-                smoothingPeriodJsf = this.NewJSONStorableFloat("morphSmoothingPeriod", 1, 1, 10);
-                smoothingWeightingRatioJsf = this.NewJSONStorableFloat("morphSmoothingWeightingRatio", 0.50f, 0.00f, 1.00f);
-
-                recalibratePhysics = this.NewJSONStorableAction(
-                    "recalibratePhysics",
-                    () => StartCalibration(calibratesMass: false)
-                );
-
-                calculateBreastMass = this.NewJSONStorableAction(
-                    "calculateBreastMass",
-                    () => StartCalibration(calibratesMass: true)
-                );
-
-                autoUpdateJsb.setCallbackFunction = value =>
-                {
-                    if(value)
-                    {
-                        StartCalibration(calibratesMass: true);
-                    }
-                };
-
                 softnessJsf.setCallbackFunction = value =>
                 {
                     if(Mathf.Abs(value - softnessAmount) > 0.001f)
@@ -341,6 +317,7 @@ namespace TittyMagic
                     }
                 };
 
+                quicknessJsf = this.NewJSONStorableFloat("breastQuickness", 70f, 0f, 100f);
                 quicknessJsf.setCallbackFunction = value =>
                 {
                     if(Mathf.Abs(value - quicknessAmount) > 0.001f)
@@ -349,11 +326,16 @@ namespace TittyMagic
                     }
                 };
 
+                smoothingPeriodJsf = this.NewJSONStorableFloat("morphSmoothingPeriod", 1, 1, 10);
                 smoothingPeriodJsf.setCallbackFunction = SetSmoothingPeriod;
                 SetSmoothingPeriod(smoothingPeriodJsf.val);
 
+                smoothingWeightingRatioJsf = this.NewJSONStorableFloat("morphSmoothingWeightingRatio", 0.50f, 0.00f, 1.00f);
                 smoothingWeightingRatioJsf.setCallbackFunction = SetWeightingRatio;
                 SetWeightingRatio(smoothingWeightingRatioJsf.val);
+
+                recalibratePhysics = this.NewJSONStorableAction("recalibratePhysics", () => StartCalibration(calibratesMass: false));
+                calculateBreastMass = this.NewJSONStorableAction("calculateBreastMass", () => StartCalibration(calibratesMass: true));
             }
 
             /* Create custom bindings and subscribe to Keybindings.
@@ -369,6 +351,10 @@ namespace TittyMagic
             SuperController.singleton.onBeforeSceneSaveHandlers += OnBeforeSceneSave;
             SuperController.singleton.onSceneSavedHandlers += OnSceneSaved;
 
+            Integration.Init();
+            calibrationHelper = gameObject.AddComponent<CalibrationHelper>();
+            calibrationHelper.Init();
+
             /* Setup navigation */
             {
                 _mainWindow = new MainWindow();
@@ -383,12 +369,8 @@ namespace TittyMagic
                 tabs.CreateNavigationButton(_gravityWindow, "Gravity Multipliers", NavigateToGravityWindow);
             }
 
-            NavigateToMainWindow();
-
             /* Finish init */
-            Integration.Init();
-            calibration = gameObject.AddComponent<CalibrationHelper>();
-            calibration.Init();
+            NavigateToMainWindow();
             settingsMonitor.SetPectoralCollisions(!personIsFemale);
 
             /* Modify atom UI */
@@ -661,7 +643,7 @@ namespace TittyMagic
                     return;
                 }
 
-                if(_listenersCheckRunner.Run(BreastMorphListener.ChangeWasDetected) && autoUpdateJsb.val)
+                if(_listenersCheckRunner.Run(BreastMorphListener.ChangeWasDetected) && calibrationHelper.autoUpdateJsb.val)
                 {
                     StartCalibration(calibratesMass: true, waitsForListeners: true);
                     return;
@@ -704,7 +686,7 @@ namespace TittyMagic
                 return;
             }
 
-            if(calibration.isInProgress && calibration.IsBlockedByInput())
+            if(calibrationHelper.isInProgress && calibrationHelper.IsBlockedByInput())
             {
                 return;
             }
@@ -720,10 +702,10 @@ namespace TittyMagic
 
         private IEnumerator CalibrationCo(bool calibratesMass, bool waitsForListeners)
         {
-            yield return calibration.Begin();
-            if(calibration.isCancelling)
+            yield return calibrationHelper.Begin();
+            if(calibrationHelper.isCancelling)
             {
-                calibration.isCancelling = false;
+                calibrationHelper.isCancelling = false;
                 yield break;
             }
 
@@ -755,7 +737,7 @@ namespace TittyMagic
                 }
             }
 
-            yield return calibration.DeferFreezeAnimation();
+            yield return calibrationHelper.DeferPauseAnimation();
 
             /* Dynamic adjustments to zero (simulate static upright pose), update physics */
             {
@@ -771,7 +753,7 @@ namespace TittyMagic
 
             if(waitsForListeners)
             {
-                yield return calibration.WaitForListeners();
+                yield return calibrationHelper.WaitForListeners();
             }
 
             SoftPhysicsHandler.SyncSoftPhysics();
@@ -784,8 +766,14 @@ namespace TittyMagic
              * Mass is calculated multiple times because each new mass value changes the exact breast
              * shape and therefore the estimated volume.
              */
-            var guid = Guid.NewGuid();
-            calibration.SetBreastsCollisionEnabled(false, guid);
+
+            Guid? collisionToggleGuid = null;
+            if(calibrationHelper.disableBreastCollisionJsb.val)
+            {
+                collisionToggleGuid = Guid.NewGuid();
+                calibrationHelper.SetBreastsCollisionEnabled(false, collisionToggleGuid.Value);
+            }
+
             SetBreastsUseGravity(false);
 
             Action updateMass = () =>
@@ -797,7 +785,7 @@ namespace TittyMagic
                 }
             };
             yield return new WaitForSeconds(0.3f);
-            yield return calibration.WaitAndRepeat(updateMass, 5, 0.1f);
+            yield return calibrationHelper.WaitAndRepeat(updateMass, 5, 0.1f);
 
             /* Update physics */
             MainPhysicsHandler.UpdatePhysics();
@@ -849,15 +837,19 @@ namespace TittyMagic
                     HardColliderHandler.CalibrateColliders();
                     HardColliderHandler.SyncAllOffsets();
                 };
-                yield return calibration.WaitAndRepeat(calibrateNipplesAndColliders, 24, 0.05f);
+                yield return calibrationHelper.WaitAndRepeat(calibrateNipplesAndColliders, 24, 0.05f);
                 HardColliderHandler.SyncCollidersMass();
                 HardColliderHandler.SyncAllOffsets();
                 _isSimulatingUprightPose = false;
             }
 
             SetBreastsUseGravity(true);
-            calibration.SetBreastsCollisionEnabled(true, guid);
-            calibration.Finish();
+            if(collisionToggleGuid.HasValue)
+            {
+                calibrationHelper.SetBreastsCollisionEnabled(true, collisionToggleGuid.Value);
+            }
+
+            calibrationHelper.Finish();
             _isCalibrated = true;
         }
 
@@ -971,12 +963,11 @@ namespace TittyMagic
         {
             try
             {
-                Destroy(calibration);
+                Destroy(calibrationHelper);
                 Destroy(settingsMonitor);
                 Destroy(bindings);
 
                 /* Nullify static reference fields to let GC collect unreachable instances */
-                CalibrationHelper.Destroy();
                 ForceMorphHandler.Destroy();
                 ForcePhysicsHandler.Destroy();
                 FrictionHandler.Destroy();

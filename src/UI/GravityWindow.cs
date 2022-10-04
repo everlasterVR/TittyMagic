@@ -75,7 +75,7 @@ namespace TittyMagic.UI
 
         protected override void OnClose()
         {
-            if(tittyMagic.calibration.shouldRun)
+            if(tittyMagic.calibrationHelper.shouldRun)
             {
                 tittyMagic.recalibratePhysics.actionCallback();
             }

@@ -100,7 +100,7 @@ namespace TittyMagic
                 StartCoroutine(OnCharacterChangedCo());
             }
 
-            if(!tittyMagic.calibration.isInProgress)
+            if(!tittyMagic.calibrationHelper.isInProgress)
             {
                 CheckIfRecalibrationNeeded();
             }

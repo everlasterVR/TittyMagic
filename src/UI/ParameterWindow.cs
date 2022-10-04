@@ -101,7 +101,7 @@ namespace TittyMagic.UI
                     parentButton.label = ParamButtonLabel();
                     if(_parameterGroup.requiresRecalibration)
                     {
-                        tittyMagic.calibration.shouldRun = Math.Abs(value - _offsetWhenCalibrated) > 0.01f;
+                        tittyMagic.calibrationHelper.shouldRun = Math.Abs(value - _offsetWhenCalibrated) > 0.01f;
                     }
                 });
 
@@ -143,7 +143,7 @@ namespace TittyMagic.UI
                 _visualizer.enabled = false;
             }
 
-            if(tittyMagic.calibration.shouldRun)
+            if(tittyMagic.calibrationHelper.shouldRun)
             {
                 tittyMagic.recalibratePhysics.actionCallback();
             }

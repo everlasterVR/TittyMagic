@@ -12,20 +12,61 @@ namespace TittyMagic
     public class CalibrationHelper : MonoBehaviour
     {
         private static readonly string _uid = tittyMagic.containingAtom.uid;
+        public const string CALIBRATION_LOCK = "calibrationLock";
+
         public bool shouldRun;
         public bool isInProgress;
         public bool isQueued;
         public bool isCancelling;
-        private bool? _wasFrozen;
-        private Dictionary<Guid, Dictionary<string, bool>> _saveCollisionEnabled;
+        private bool? _isGlobalFrozen;
+        private bool? _isPlaying;
+        private MotionAnimationMaster _motionAnimationMaster;
 
         private JSONStorableBool _calibrationLockJsb;
-        public const string CALIBRATION_LOCK = "calibrationLock";
+        public JSONStorableBool autoUpdateJsb { get; private set; }
+        public JSONStorableBool freezeMotionSoundJsb { get; private set; }
+        public JSONStorableBool pauseSceneAnimationJsb { get; private set; }
+        public JSONStorableBool disableBreastCollisionJsb { get; private set; }
 
         public void Init()
         {
+            _motionAnimationMaster = SuperController.singleton.motionAnimationMaster;
             _calibrationLockJsb = tittyMagic.NewJSONStorableBool(CALIBRATION_LOCK, false);
-            _saveCollisionEnabled = new Dictionary<Guid, Dictionary<string, bool>>();
+
+            freezeMotionSoundJsb = tittyMagic.NewJSONStorableBool("freezeMotionSoundWhenCalibrating", true);
+            freezeMotionSoundJsb.setCallbackFunction = value =>
+            {
+                if(value)
+                {
+                    pauseSceneAnimationJsb.val = false;
+                }
+
+                var optionsWindow = tittyMagic.tabs.activeWindow.GetActiveNestedWindow() as OptionsWindow;
+                if(optionsWindow != null)
+                {
+                    optionsWindow.UpdatePauseSceneAnimationToggleStyle();
+                }
+            };
+
+            pauseSceneAnimationJsb = tittyMagic.NewJSONStorableBool("pauseSceneAnimationWhenCalibrating", false);
+            pauseSceneAnimationJsb.setCallbackFunction = value =>
+            {
+                if(value && freezeMotionSoundJsb.val)
+                {
+                    pauseSceneAnimationJsb.valNoCallback = false;
+                }
+            };
+
+            disableBreastCollisionJsb = tittyMagic.NewJSONStorableBool("disableBreastCollisionCalibrating", true);
+
+            autoUpdateJsb = tittyMagic.NewJSONStorableBool("autoUpdateMass", true);
+            autoUpdateJsb.setCallbackFunction = value =>
+            {
+                if(value)
+                {
+                    tittyMagic.StartCalibration(calibratesMass: true);
+                }
+            };
         }
 
         public bool IsBlockedByInput()
@@ -64,7 +105,7 @@ namespace TittyMagic
             isInProgress = true;
         }
 
-        public IEnumerator DeferFreezeAnimation()
+        public IEnumerator DeferPauseAnimation()
         {
             while(OtherCalibrationInProgress())
             {
@@ -72,10 +113,23 @@ namespace TittyMagic
             }
 
             _calibrationLockJsb.val = true;
-            if(_wasFrozen == null)
+
+            if(pauseSceneAnimationJsb.val && _isPlaying == null)
             {
-                _wasFrozen = _wasFrozen ?? Utils.AnimationIsFrozen();
-                SuperController.singleton.SetFreezeAnimation(true);
+                _isPlaying = _motionAnimationMaster.activeWhilePlaying.activeSelf;
+                if(_isPlaying.Value)
+                {
+                    _motionAnimationMaster.StopPlayback();
+                }
+            }
+
+            if(freezeMotionSoundJsb.val && _isGlobalFrozen == null)
+            {
+                _isGlobalFrozen = Utils.GlobalAnimationIsFrozen();
+                if(!_isGlobalFrozen.Value)
+                {
+                    SuperController.singleton.SetFreezeAnimation(true);
+                }
             }
         }
 
@@ -128,7 +182,7 @@ namespace TittyMagic
             }
         }
 
-        private static IEnumerable<PhysicsSimulator> _breastSimulators = tittyMagic.containingAtom.physicsSimulators
+        private readonly IEnumerable<PhysicsSimulator> _breastSimulators = tittyMagic.containingAtom.physicsSimulators
             .Where(simulator => new[]
             {
                 "AutoColliderFemaleAutoColliderslPectoral1",
@@ -147,13 +201,15 @@ namespace TittyMagic
                 "AutoColliderFemaleAutoCollidersrNippleGPU",
             }.Contains(simulator.name));
 
-        private static IEnumerable<PhysicsSimulatorJSONStorable> _breastSimulatorStorables = tittyMagic.containingAtom.physicsSimulatorsStorable
+        private readonly IEnumerable<PhysicsSimulatorJSONStorable> _breastSimulatorStorables = tittyMagic.containingAtom.physicsSimulatorsStorable
             .Where(storable => new[]
             {
                 "rNippleControl",
                 "lNippleControl",
                 "BreastPhysicsMesh",
             }.Contains(storable.name));
+
+        private readonly Dictionary<Guid, Dictionary<string, bool>> _saveCollisionEnabled = new Dictionary<Guid, Dictionary<string, bool>>();
 
         public void SetBreastsCollisionEnabled(bool value, Guid guid)
         {
@@ -208,18 +264,30 @@ namespace TittyMagic
             if(!isQueued)
             {
                 tittyMagic.settingsMonitor.enabled = true;
-                SuperController.singleton.SetFreezeAnimation(_wasFrozen ?? false);
-                _wasFrozen = null;
+                if(_isGlobalFrozen.HasValue)
+                {
+                    if(!_isGlobalFrozen.Value)
+                    {
+                        SuperController.singleton.SetFreezeAnimation(false);
+                    }
+
+                    _isGlobalFrozen = null;
+                }
+
+                if(_isPlaying.HasValue)
+                {
+                    if(_isPlaying.Value)
+                    {
+                        _motionAnimationMaster.StartPlayback();
+                    }
+
+                    _isPlaying = null;
+                }
+
                 _calibrationLockJsb.val = false;
             }
 
             isInProgress = false;
-        }
-
-        public static void Destroy()
-        {
-            _breastSimulators = null;
-            _breastSimulatorStorables = null;
         }
     }
 }

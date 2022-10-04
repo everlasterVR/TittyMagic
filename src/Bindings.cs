@@ -31,6 +31,7 @@ namespace TittyMagic
                 tittyMagic.NewJSONStorableAction("OpenUI_ConfigureHardColliders", OpenUIConfigureHardColliders),
                 tittyMagic.NewJSONStorableAction("OpenUI_ConfigureColliderFriction", OpenUIConfigureColliderFriction),
                 tittyMagic.NewJSONStorableAction("OpenUI_Experimental", OpenUIExperimental),
+                tittyMagic.NewJSONStorableAction("OpenUI_Options", OpenUIOptions),
                 tittyMagic.NewJSONStorableAction("OpenUI_PhysicsParams", OpenUIPhysicsParams),
                 tittyMagic.NewJSONStorableAction("OpenUI_MorphMultipliers", OpenUIMorphMultipliers),
                 tittyMagic.NewJSONStorableAction("OpenUI_GravityMultipliers", OpenUIGravityMultipliers),
@@ -64,31 +65,16 @@ namespace TittyMagic
 
         private void OpenUIConfigureHardColliders()
         {
+            OpenUIControl();
+
             if(!personIsFemale)
             {
                 Utils.LogMessage("Hard colliders are only supported on a female character.");
                 return;
             }
 
-            StartCoroutine(SelectPluginUI(
-                postAction: () =>
-                {
-                    tittyMagic.NavigateToMainWindow();
-                    var mainWindow = (MainWindow) tittyMagic.tabs.activeWindow;
-                    var nestedWindow = mainWindow.GetActiveNestedWindow();
-                    if(nestedWindow is HardCollidersWindow)
-                    {
-                        return;
-                    }
-
-                    if(nestedWindow != null)
-                    {
-                        nestedWindow.Clear();
-                    }
-
-                    mainWindow.configureHardColliders.actionCallback();
-                }
-            ));
+            var mainWindow = (MainWindow) tittyMagic.tabs.activeWindow;
+            OpenNestedWindow<HardCollidersWindow>(mainWindow, mainWindow.configureHardCollidersAction);
         }
 
         private void OpenUIConfigureColliderFriction()
@@ -102,43 +88,42 @@ namespace TittyMagic
             StartCoroutine(SelectContainingAtomTab(tittyMagic.enabled ? "Skin Materials 2" : "Plugins"));
         }
 
-        private void OpenUIDev() =>
-            StartCoroutine(SelectPluginUI(postAction: () =>
+        private void OpenUIDev()
+        {
+            OpenUIControl();
+            var mainWindow = (MainWindow) tittyMagic.tabs.activeWindow;
+            OpenNestedWindow<DevWindow>(mainWindow, mainWindow.openDevWindowAction);
+        }
+
+        private void OpenUIExperimental()
+        {
+            OpenUIControl();
+            var mainWindow = (MainWindow) tittyMagic.tabs.activeWindow;
+            OpenNestedWindow<ExperimentalWindow>(mainWindow, mainWindow.openExperimentalWindowAction);
+        }
+
+        private void OpenUIOptions()
+        {
+            OpenUIControl();
+            var mainWindow = (MainWindow) tittyMagic.tabs.activeWindow;
+            OpenNestedWindow<OptionsWindow>(mainWindow, mainWindow.openOptionsWindowAction);
+        }
+
+        private static void OpenNestedWindow<T>(MainWindow mainWindow, JSONStorableAction openAction)
+        {
+            var nestedWindow = mainWindow.GetActiveNestedWindow();
+            if(nestedWindow is T)
             {
-                tittyMagic.NavigateToMainWindow();
-                var mainWindow = (MainWindow) tittyMagic.tabs.activeWindow;
-                var nestedWindow = mainWindow.GetActiveNestedWindow();
-                if(nestedWindow is DevWindow)
-                {
-                    return;
-                }
+                return;
+            }
 
-                if(nestedWindow != null)
-                {
-                    nestedWindow.Clear();
-                }
-
-                mainWindow.openDevWindow.actionCallback();
-            }));
-
-        private void OpenUIExperimental() =>
-            StartCoroutine(SelectPluginUI(postAction: () =>
+            if(nestedWindow != null)
             {
-                tittyMagic.NavigateToMainWindow();
-                var mainWindow = (MainWindow) tittyMagic.tabs.activeWindow;
-                var nestedWindow = mainWindow.GetActiveNestedWindow();
-                if(nestedWindow is ExperimentalWindow)
-                {
-                    return;
-                }
+                nestedWindow.Clear();
+            }
 
-                if(nestedWindow != null)
-                {
-                    nestedWindow.Clear();
-                }
-
-                mainWindow.openExperimentalWindow.actionCallback();
-            }));
+            openAction.actionCallback();
+        }
 
         // adapted from Timeline v4.3.1 (c) acidbubbles
         private static IEnumerator SelectPluginUI(Action postAction = null)
@@ -221,7 +206,7 @@ namespace TittyMagic
                 yield return null;
             }
 
-            tittyMagic.autoUpdateJsb.val = value;
+            tittyMagic.calibrationHelper.autoUpdateJsb.val = value;
         }
     }
 }

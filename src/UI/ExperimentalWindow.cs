@@ -1,6 +1,4 @@
 using System.Text;
-using TittyMagic.Models;
-using TittyMagic.Handlers;
 using UnityEngine;
 using UnityEngine.Events;
 using static TittyMagic.Script;

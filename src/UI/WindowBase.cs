@@ -27,7 +27,7 @@ namespace TittyMagic.UI
 
         #region Common elements
 
-        protected void AddSpacer(string name, int height, bool rightSide) =>
+        protected void AddSpacer(string name, int height, bool rightSide = false) =>
             elements[$"{name}Spacer"] = tittyMagic.NewSpacer(height, rightSide);
 
         protected void CreateRecalibrateButton(JSONStorableAction storable, bool rightSide, int spacing = 0)

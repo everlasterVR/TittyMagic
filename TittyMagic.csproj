@@ -131,6 +131,7 @@
     <Compile Include="src\UI\GravityWindow.cs" />
     <Compile Include="src\UI\MainWindow.cs" />
     <Compile Include="src\UI\MorphingWindow.cs" />
+    <Compile Include="src\UI\OptionsWindow.cs" />
     <Compile Include="src\UI\ParameterWindow.cs" />
     <Compile Include="src\UI\Tabs.cs" />
     <Compile Include="src\UI\PhysicsWindow.cs" />

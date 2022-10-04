@@ -32,12 +32,12 @@ namespace TittyMagic.Handlers
             backJsf = tittyMagic.NewJSONStorableFloat("gravityPhysicsBack", 1.00f, 0.00f, 2.00f);
             leftRightJsf = tittyMagic.NewJSONStorableFloat("gravityPhysicsLeftRight", 1.00f, 0.00f, 2.00f);
 
-            baseJsf.setCallbackFunction = _ => tittyMagic.calibration.shouldRun = true;
-            upJsf.setCallbackFunction = _ => tittyMagic.calibration.shouldRun = true;
-            downJsf.setCallbackFunction = _ => tittyMagic.calibration.shouldRun = true;
-            forwardJsf.setCallbackFunction = _ => tittyMagic.calibration.shouldRun = true;
-            backJsf.setCallbackFunction = _ => tittyMagic.calibration.shouldRun = true;
-            leftRightJsf.setCallbackFunction = _ => tittyMagic.calibration.shouldRun = true;
+            baseJsf.setCallbackFunction = _ => tittyMagic.calibrationHelper.shouldRun = true;
+            upJsf.setCallbackFunction = _ => tittyMagic.calibrationHelper.shouldRun = true;
+            downJsf.setCallbackFunction = _ => tittyMagic.calibrationHelper.shouldRun = true;
+            forwardJsf.setCallbackFunction = _ => tittyMagic.calibrationHelper.shouldRun = true;
+            backJsf.setCallbackFunction = _ => tittyMagic.calibrationHelper.shouldRun = true;
+            leftRightJsf.setCallbackFunction = _ => tittyMagic.calibrationHelper.shouldRun = true;
         }
 
         public static void LoadSettings()
