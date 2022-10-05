@@ -12,17 +12,16 @@ namespace TittyMagic
     public class CalibrationHelper : MonoBehaviour
     {
         private static readonly string _uid = tittyMagic.containingAtom.uid;
-        public const string CALIBRATION_LOCK = "calibrationLock";
 
         public bool shouldRun;
-        public bool isInProgress;
         public bool isQueued;
         public bool isCancelling;
         private bool? _isGlobalFrozen;
         private bool? _isPlaying;
+        private bool _deferToOtherInstance;
         private MotionAnimationMaster _motionAnimationMaster;
 
-        private JSONStorableBool _calibrationLockJsb;
+        public JSONStorableBool isCalibratingJsb { get; private set; }
         public JSONStorableBool autoUpdateJsb { get; private set; }
         public JSONStorableBool freezeMotionSoundJsb { get; private set; }
         public JSONStorableBool pauseSceneAnimationJsb { get; private set; }
@@ -31,7 +30,7 @@ namespace TittyMagic
         public void Init()
         {
             _motionAnimationMaster = SuperController.singleton.motionAnimationMaster;
-            _calibrationLockJsb = tittyMagic.NewJSONStorableBool(CALIBRATION_LOCK, false);
+            isCalibratingJsb = tittyMagic.NewJSONStorableBool("isCalibrating", false);
 
             freezeMotionSoundJsb = tittyMagic.NewJSONStorableBool("freezeMotionSoundWhenCalibrating", true);
             freezeMotionSoundJsb.setCallbackFunction = value =>
@@ -83,7 +82,7 @@ namespace TittyMagic
         public IEnumerator Begin()
         {
             shouldRun = false;
-            if(isInProgress)
+            if(isCalibratingJsb.val)
             {
                 if(!isQueued && !IsBlockedByInput())
                 {
@@ -96,25 +95,20 @@ namespace TittyMagic
                 }
             }
 
-            while(isInProgress)
+            while(isCalibratingJsb.val)
             {
                 yield return null;
             }
 
             isQueued = false;
-            isInProgress = true;
-        }
+            isCalibratingJsb.val = true;
 
-        public IEnumerator DeferPauseAnimation()
-        {
-            while(OtherCalibrationInProgress())
+            /* The instance which started calibrating first has control over pausing */
+            if(OtherCalibrationInProgress())
             {
-                yield return new WaitForSeconds(0.1f);
+                _deferToOtherInstance = true;
             }
-
-            _calibrationLockJsb.val = true;
-
-            if(pauseSceneAnimationJsb.val && _isPlaying == null)
+            else if(pauseSceneAnimationJsb.val && _isPlaying == null)
             {
                 _isPlaying = _motionAnimationMaster.activeWhilePlaying.activeSelf;
                 if(_isPlaying.Value)
@@ -122,8 +116,7 @@ namespace TittyMagic
                     _motionAnimationMaster.StopPlayback();
                 }
             }
-
-            if(freezeMotionSoundJsb.val && _isGlobalFrozen == null)
+            else if(freezeMotionSoundJsb.val && _isGlobalFrozen == null)
             {
                 _isGlobalFrozen = Utils.GlobalAnimationIsFrozen();
                 if(!_isGlobalFrozen.Value)
@@ -133,15 +126,15 @@ namespace TittyMagic
             }
         }
 
-        private static bool OtherCalibrationInProgress()
+        private bool OtherCalibrationInProgress()
         {
             try
             {
                 foreach(var instance in Integration.otherInstances)
                 {
-                    if(instance != null && instance.GetBoolParamNames().Contains(CALIBRATION_LOCK))
+                    if(instance != null && instance.GetBoolParamNames().Contains(isCalibratingJsb.name))
                     {
-                        bool response = instance.GetBoolParamValue(CALIBRATION_LOCK);
+                        bool response = instance.GetBoolParamValue(isCalibratingJsb.name);
                         if(response)
                         {
                             /* Another instance is currently calibrating. */
@@ -259,11 +252,15 @@ namespace TittyMagic
             }
         }
 
-        public void Finish()
+        public IEnumerator DeferFinish()
         {
-            if(!isQueued)
+            if(!_deferToOtherInstance && !isQueued)
             {
-                tittyMagic.settingsMonitor.enabled = true;
+                while(OtherCalibrationInProgress())
+                {
+                    yield return new WaitForSecondsRealtime(0.1f);
+                }
+
                 if(_isGlobalFrozen.HasValue)
                 {
                     if(!_isGlobalFrozen.Value)
@@ -284,10 +281,11 @@ namespace TittyMagic
                     _isPlaying = null;
                 }
 
-                _calibrationLockJsb.val = false;
+                tittyMagic.settingsMonitor.enabled = true;
             }
 
-            isInProgress = false;
+            isCalibratingJsb.val = false;
+            _deferToOtherInstance = false;
         }
     }
 }

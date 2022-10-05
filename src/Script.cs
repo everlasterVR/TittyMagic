@@ -694,7 +694,7 @@ namespace TittyMagic
                 return;
             }
 
-            if(calibrationHelper.isInProgress && calibrationHelper.IsBlockedByInput())
+            if(calibrationHelper.isCalibratingJsb.val && calibrationHelper.IsBlockedByInput())
             {
                 return;
             }
@@ -710,13 +710,6 @@ namespace TittyMagic
 
         private IEnumerator CalibrationCo(bool calibratesMass, bool waitsForListeners)
         {
-            yield return calibrationHelper.Begin();
-            if(calibrationHelper.isCancelling)
-            {
-                calibrationHelper.isCancelling = false;
-                yield break;
-            }
-
             /* Ensure everything is ready for calibration to proceed in case of e.g. appearance preset load */
             {
                 /* Can occur when loading a look and VaM pauses to load assets */
@@ -745,7 +738,12 @@ namespace TittyMagic
                 }
             }
 
-            yield return calibrationHelper.DeferPauseAnimation();
+            yield return calibrationHelper.Begin();
+            if(calibrationHelper.isCancelling)
+            {
+                calibrationHelper.isCancelling = false;
+                yield break;
+            }
 
             /* Dynamic adjustments to zero (simulate static upright pose), update physics */
             {
@@ -857,7 +855,7 @@ namespace TittyMagic
                 calibrationHelper.SetBreastsCollisionEnabled(true, collisionToggleGuid.Value);
             }
 
-            calibrationHelper.Finish();
+            yield return calibrationHelper.DeferFinish();
             _isCalibrated = true;
         }
 
@@ -892,7 +890,7 @@ namespace TittyMagic
         public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
         {
             var jsonClass = base.GetJSON(includePhysical, includeAppearance, forceStore);
-            jsonClass.Remove(CalibrationHelper.CALIBRATION_LOCK);
+            jsonClass.Remove(calibrationHelper.isCalibratingJsb.name);
             needsStore = true;
             return jsonClass;
         }
