@@ -150,6 +150,14 @@ namespace TittyMagic
                 if(containingAtom.type != "Person")
                 {
                     Utils.LogError($"Add to a Person atom, not {containingAtom.type}");
+                    enabled = false;
+                    return;
+                }
+
+                if(Utils.PluginIsDuplicate(containingAtom, storeId))
+                {
+                    Utils.LogError($"Person already has an instance of {nameof(TittyMagic)}.");
+                    enabled = false;
                     return;
                 }
 

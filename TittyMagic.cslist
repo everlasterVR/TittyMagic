@@ -29,6 +29,7 @@ src\Components\TrackBreast.cs
 src\Components\UIMod.cs
 src\Components\UnityEventsListener.cs
 src\Extensions\ArrayExtension.cs
+src\Extensions\AtomExtension.cs
 src\Extensions\ListExtension.cs
 src\Extensions\MVRScriptExtension.cs
 src\Extensions\StringExtension.cs

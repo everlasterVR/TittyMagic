@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -156,6 +157,13 @@ namespace TittyMagic
                     WalkAndGetRigidbodyAttributes(t, rbAttrs);
                 }
             }
+        }
+
+        public static bool PluginIsDuplicate(Atom atom, string storeId)
+        {
+            var regex = new Regex(@"^plugin#\d+_TittyMagic.Script", RegexOptions.Compiled);
+            var storables = atom.FindStorablesByRegexMatch(regex);
+            return storables.Exists(storable => storable.storeId != storeId);
         }
     }
 }

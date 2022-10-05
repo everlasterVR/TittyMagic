@@ -139,7 +139,7 @@ namespace TittyMagic
             {
                 foreach(var instance in Integration.otherInstances)
                 {
-                    if(instance != null)
+                    if(instance != null && instance.GetBoolParamNames().Contains(CALIBRATION_LOCK))
                     {
                         bool response = instance.GetBoolParamValue(CALIBRATION_LOCK);
                         if(response)
