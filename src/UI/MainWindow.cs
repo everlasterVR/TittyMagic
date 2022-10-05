@@ -118,12 +118,12 @@ namespace TittyMagic.UI
                 sb.Append("\n\n");
                 sb.Append("<b><i>Breast quickness</i></b> causes slow motion at low values");
                 sb.Append(" and realistically responsive behavior at high values.");
-                sb.Append("\n\n\n");
+                sb.Append("\n\n\n\n\n");
                 sb.Append("<b><i>Breast mass</i></b> is estimated from volume. Since it represents size, other physics");
                 sb.Append(" parameters are adjusted based on its value. Calculating mass also recalibrates physics.");
                 if(personIsFemale)
                 {
-                    sb.Append("\n\n\n\n\n\n\n");
+                    sb.Append("\n\n\n\n\n");
                     sb.Append("<b><i>Hard colliders</i></b> make breasts both easier to move");
                     sb.Append(" when touched and better at maintaining their volume and shape.");
                     sb.Append("\n\n");

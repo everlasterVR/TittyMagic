@@ -16,7 +16,6 @@ namespace TittyMagic.Handlers
 
         public static JSONStorableFloat baseJsf { get; private set; }
         public static JSONStorableFloat upJsf { get; private set; }
-        public static JSONStorableFloat downJsf { get; private set; }
         public static JSONStorableFloat forwardJsf { get; private set; }
         public static JSONStorableFloat backJsf { get; private set; }
         public static JSONStorableFloat leftRightJsf { get; private set; }
@@ -27,7 +26,6 @@ namespace TittyMagic.Handlers
         public static float leftRightExtraMultiplier { get; set; }
 
         private static float upMultiplier => baseJsf.val * upJsf.val;
-        private static float downMultiplier => baseJsf.val * downJsf.val;
         private static float forwardMultiplier => baseJsf.val * forwardJsf.val;
         private static float backMultiplier => baseJsf.val * backJsf.val;
         private static float leftRightMultiplier => baseJsf.val * leftRightJsf.val;
@@ -39,7 +37,6 @@ namespace TittyMagic.Handlers
 
             baseJsf = tittyMagic.NewJSONStorableFloat("forceMorphingBase", 1.00f, 0.00f, 2.00f);
             upJsf = tittyMagic.NewJSONStorableFloat("forceMorphingUp", 1.00f, 0.00f, 2.00f);
-            downJsf = tittyMagic.NewJSONStorableFloat("forceMorphingDown", 1.00f, 0.00f, 2.00f);
             forwardJsf = tittyMagic.NewJSONStorableFloat("forceMorphingForward", 1.00f, 0.00f, 2.00f);
             backJsf = tittyMagic.NewJSONStorableFloat("forceMorphingBack", 1.00f, 0.00f, 2.00f);
             leftRightJsf = tittyMagic.NewJSONStorableFloat("forceMorphingLeftRight", 1.00f, 0.00f, 2.00f);
@@ -51,8 +48,6 @@ namespace TittyMagic.Handlers
                 { Direction.UP_L, UpForceConfigs("L") },
                 { Direction.UP_R, UpForceConfigs("R") },
                 { Direction.UP_C, UpForceCenterConfigs() },
-                { Direction.DOWN_L, DownForceConfigs("L") },
-                { Direction.DOWN_R, DownForceConfigs("R") },
                 { Direction.BACK_L, BackForceConfigs("L") },
                 { Direction.BACK_R, BackForceConfigs("R") },
                 { Direction.BACK_C, BackForceCenterConfigs() },
@@ -277,30 +272,6 @@ namespace TittyMagic.Handlers
                 false,
                 3f,
                 0.84f
-            ),
-        };
-
-        private static List<MorphConfig> DownForceConfigs(string side) => new List<MorphConfig>
-        {
-            new MorphConfig($"DN/DN Breast Move Down {side}",
-                false,
-                0.9f,
-                0.3f
-            ),
-            new MorphConfig($"DN/DN Breast Rotate Up Reverse {side}",
-                false,
-                0.675f,
-                0.225f
-            ),
-            new MorphConfig($"DN/DN Breasts Natural {side}",
-                false,
-                0.675f,
-                0.225f
-            ),
-            new MorphConfig($"DN/DN Breasts Under Curve {side}",
-                false,
-                0.9f,
-                0.3f
             ),
         };
 
@@ -712,7 +683,6 @@ namespace TittyMagic.Handlers
         {
             float diffFromHorizontal = GravityEffectCalc.CalculateDiffFromHorizontal(pitch, roll);
             AdjustUpMorphs(diffFromHorizontal);
-            AdjustDownMorphs(diffFromHorizontal);
             AdjustForwardMorphs();
             AdjustBackMorphs(roll, pitch);
             AdjustLeftMorphs(Mathf.Abs(roll));
@@ -761,40 +731,6 @@ namespace TittyMagic.Handlers
             else
             {
                 ResetMorphs(Direction.UP_C);
-            }
-        }
-
-        private static void AdjustDownMorphs(float diffFromHorizontal)
-        {
-            float pitchMultiplier = Mathf.Lerp(0.80f, 1f, diffFromHorizontal);
-            float curveBParam = Mathf.Lerp(1.46f, 1.52f, 1 - diffFromHorizontal);
-            float curveQParam = Mathf.Lerp(1.00f, 1.10f, 1 - diffFromHorizontal);
-
-            Func<float, float> calculateEffect = angle =>
-                upDownExtraMultiplier
-                * Curves.QuadraticRegression(downMultiplier)
-                * Curves.ForceEffectCurve(pitchMultiplier * Mathf.Abs(angle) / 75, curveBParam, curveQParam);
-
-            if(_trackLeftBreast.angleY >= 0)
-            {
-                // up force on left breast
-                ResetMorphs(Direction.DOWN_L);
-            }
-            else
-            {
-                // down force on left breast
-                UpdateMorphs(Direction.DOWN_L, calculateEffect(_trackLeftBreast.angleY));
-            }
-
-            if(_trackRightBreast.angleY >= 0)
-            {
-                // up force on right breast
-                ResetMorphs(Direction.DOWN_R);
-            }
-            else
-            {
-                // down force on right breast
-                UpdateMorphs(Direction.DOWN_R, calculateEffect(_trackRightBreast.angleY));
             }
         }
 
@@ -993,7 +929,6 @@ namespace TittyMagic.Handlers
             _configSets = null;
             baseJsf = null;
             upJsf = null;
-            downJsf = null;
             forwardJsf = null;
             backJsf = null;
             leftRightJsf = null;
