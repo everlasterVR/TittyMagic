@@ -260,15 +260,13 @@ namespace TittyMagic
                 scaleJsf.val = _scaleJsfOrig.val;
                 scaleJsf.setCallbackFunction = _ =>
                 {
-                    bool isGrabbing = containingAtom.grabFreezePhysics && containingAtom.mainController.isGrabbing;
-                    // redundant enabled?
-                    if(!enabled || !_isCalibrated || isGrabbing)
-                    {
-                        return;
-                    }
-
                     if(calibrationHelper.autoUpdateJsb.val)
                     {
+                        if(!enabled || calibrationHelper.isCalibratingJsb.val || containingAtom.IsFreezeGrabbing())
+                        {
+                            return;
+                        }
+
                         StartCalibration(calibratesMass: true, waitsForListeners: true);
                     }
                 };
@@ -645,8 +643,7 @@ namespace TittyMagic
 
             try
             {
-                bool isFreezeGrabbing = containingAtom.grabFreezePhysics && containingAtom.mainController.isGrabbing;
-                if(_isRestoringFromJson || !_isCalibrated || isFreezeGrabbing || _isSavingScene)
+                if(_isRestoringFromJson || calibrationHelper.isCalibratingJsb.val || _isSavingScene || containingAtom.IsFreezeGrabbing())
                 {
                     return;
                 }
@@ -684,17 +681,14 @@ namespace TittyMagic
 
         #region Calibration
 
-        private bool _isCalibrated;
-
         public void StartCalibration(bool calibratesMass, bool waitsForListeners = false)
         {
-            _isCalibrated = false;
             if(_isRestoringFromJson)
             {
                 return;
             }
 
-            if(calibrationHelper.isCalibratingJsb.val && calibrationHelper.IsBlockedByInput())
+            if(_isRestoringFromJson || calibrationHelper.isCalibratingJsb.val && calibrationHelper.IsBlockedByInput())
             {
                 return;
             }
@@ -856,7 +850,6 @@ namespace TittyMagic
             }
 
             yield return calibrationHelper.DeferFinish();
-            _isCalibrated = true;
         }
 
         private void SetBreastsUseGravity(bool value)

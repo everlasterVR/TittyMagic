@@ -109,8 +109,8 @@ namespace TittyMagic.UI
             /* Auto-update mass info text */
             {
                 var sb = new StringBuilder();
-                sb.Append("Calibrate automatically and updates breast mass when changes in breast morphs are detected.");
-                sb.Append(" Disabling this prevents repeated recalibrations due to animation of non-pose morphs (e.g. by other plugins).");
+                sb.Append("Calibrate automatically and update breast mass when changes in breast morphs are detected.");
+                sb.Append(" Disabling this prevents repeated calibrations due to animation of non-pose morphs (e.g. by other plugins).");
 
                 var storable = new JSONStorableString("autoUpdateInfoText", sb.ToString());
                 var textField = tittyMagic.CreateTextField(storable, true);

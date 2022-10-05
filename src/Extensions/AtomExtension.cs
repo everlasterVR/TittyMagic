@@ -10,4 +10,6 @@ public static class AtomExtension
             .Select(atom.GetStorableByID)
             .ToList()
             .Prune();
+
+    public static bool IsFreezeGrabbing(this Atom atom) => atom.grabFreezePhysics && atom.mainController.isGrabbing;
 }

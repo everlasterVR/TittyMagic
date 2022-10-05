@@ -95,12 +95,11 @@ namespace TittyMagic
                 }
             }
 
-            while(isCalibratingJsb.val)
+            while(isQueued)
             {
                 yield return null;
             }
 
-            isQueued = false;
             isCalibratingJsb.val = true;
 
             /* The instance which started calibrating first has control over pausing */
@@ -284,7 +283,15 @@ namespace TittyMagic
                 tittyMagic.settingsMonitor.enabled = true;
             }
 
-            isCalibratingJsb.val = false;
+            if(!isQueued)
+            {
+                isCalibratingJsb.val = false;
+            }
+            else
+            {
+                isQueued = false;
+            }
+
             _deferToOtherInstance = false;
         }
     }
