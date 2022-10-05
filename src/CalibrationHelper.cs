@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TittyMagic.Handlers;
 using TittyMagic.UI;
 using UnityEngine;
 using static TittyMagic.Script;
@@ -205,6 +206,12 @@ namespace TittyMagic
 
         public void SetBreastsCollisionEnabled(bool value, Guid guid)
         {
+            if(!personIsFemale)
+            {
+                HardColliderHandler.SetPectoralCollisions(value);
+                return;
+            }
+
             if(!value)
             {
                 try

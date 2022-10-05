@@ -568,5 +568,11 @@ namespace TittyMagic.Handlers
         }
 
         public static bool RigidbodiesFound() => !personIsFemale || hardColliderGroups.All(group => group.HasRigidbodies());
+
+        public static void SetPectoralCollisions(bool value)
+        {
+            tittyMagic.pectoralRbLeft.detectCollisions = value;
+            tittyMagic.pectoralRbRight.detectCollisions = value;
+        }
     }
 }

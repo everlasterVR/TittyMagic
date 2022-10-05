@@ -83,7 +83,7 @@ namespace TittyMagic
                 /* Disable pectoral joint rb's collisions if enabled by e.g. person atom collisions being toggled off/on */
                 if(tittyMagic.pectoralRbLeft.detectCollisions || tittyMagic.pectoralRbRight.detectCollisions)
                 {
-                    SetPectoralCollisions(false);
+                    HardColliderHandler.SetPectoralCollisions(false);
                 }
             }
             else
@@ -91,7 +91,7 @@ namespace TittyMagic
                 /* Force enable pectoral joint rb's collisions for futa */
                 if(!tittyMagic.pectoralRbLeft.detectCollisions || !tittyMagic.pectoralRbRight.detectCollisions)
                 {
-                    SetPectoralCollisions(true);
+                    HardColliderHandler.SetPectoralCollisions(true);
                 }
             }
 
@@ -190,12 +190,6 @@ namespace TittyMagic
                 skin = geometry.containingAtom.GetComponentInChildren<DAZCharacter>().skin;
                 FrictionHandler.Refresh(tittyMagic.containingAtom.GetStorableByID("skin"));
             }
-        }
-
-        public void SetPectoralCollisions(bool value)
-        {
-            tittyMagic.pectoralRbLeft.detectCollisions = value;
-            tittyMagic.pectoralRbRight.detectCollisions = value;
         }
 
         private string LocationWhereStillDisabled(bool breastSoftPhysicsOn, bool atomSoftPhysicsOn, bool globalSoftPhysicsOn)

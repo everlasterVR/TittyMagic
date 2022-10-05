@@ -377,7 +377,7 @@ namespace TittyMagic
 
             /* Finish init */
             NavigateToMainWindow();
-            settingsMonitor.SetPectoralCollisions(!personIsFemale);
+            HardColliderHandler.SetPectoralCollisions(!personIsFemale);
 
             /* Modify atom UI */
             var atomUIContent = containingAtom.transform.Find("UI/UIPlaceHolderModel/UIModel/Canvas/Panel/Content");
@@ -1045,7 +1045,7 @@ namespace TittyMagic
             try
             {
                 settingsMonitor.enabled = false;
-                settingsMonitor.SetPectoralCollisions(true);
+                HardColliderHandler.SetPectoralCollisions(true);
                 HardColliderHandler.RestoreOriginalPhysics();
                 MainPhysicsHandler.RestoreOriginalPhysics();
                 SoftPhysicsHandler.RestoreOriginalPhysics();
