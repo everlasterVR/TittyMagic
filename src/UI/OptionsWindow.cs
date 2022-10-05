@@ -62,8 +62,8 @@ namespace TittyMagic.UI
             /* Pause scene animation info text */
             {
                 var sb = new StringBuilder();
-                sb.Append("Pause scene animation during calibration. Warning: this has no effect on other animation");
-                sb.Append(" (Animation Pattern, Timeline or other plugin, etc.).");
+                sb.Append("Pause scene animation during calibration. Warning: this has no effect on other animation sources");
+                sb.Append(" (Animation Pattern, Timeline or other plugin, Cycle Forces, etc.).");
 
                 var storable = new JSONStorableString("pauseSceneAnimationInfoText", sb.ToString());
                 var textField = tittyMagic.CreateTextField(storable);
@@ -90,30 +90,6 @@ namespace TittyMagic.UI
 
                 var storable = new JSONStorableString("collisionInfoText", sb.ToString());
                 var textField = tittyMagic.CreateTextField(storable);
-                textField.UItext.fontSize = 26;
-                textField.backgroundColor = Color.clear;
-                textField.height = 150;
-                elements[storable.name] = textField;
-            }
-
-            /* Auto-update mass toggle */
-            {
-                var storable = _calibrationHelper.autoUpdateJsb;
-                AddSpacer(storable.name, 80, true);
-                var toggle = tittyMagic.CreateToggle(storable, true);
-                toggle.height = 52;
-                toggle.label = "Auto-Update Mass";
-                elements[storable.name] = toggle;
-            }
-
-            /* Auto-update mass info text */
-            {
-                var sb = new StringBuilder();
-                sb.Append("Calibrate automatically and update breast mass when changes in breast morphs are detected.");
-                sb.Append(" Disabling this prevents repeated calibrations due to animation of non-pose morphs (e.g. by other plugins).");
-
-                var storable = new JSONStorableString("autoUpdateInfoText", sb.ToString());
-                var textField = tittyMagic.CreateTextField(storable, true);
                 textField.UItext.fontSize = 26;
                 textField.backgroundColor = Color.clear;
                 textField.height = 150;

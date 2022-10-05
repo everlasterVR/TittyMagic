@@ -118,12 +118,16 @@ namespace TittyMagic.UI
                 sb.Append("\n\n");
                 sb.Append("<b><i>Breast quickness</i></b> causes slow motion at low values");
                 sb.Append(" and realistically responsive behavior at high values.");
-                sb.Append("\n\n\n\n\n");
+                sb.Append("\n\n");
                 sb.Append("<b><i>Breast mass</i></b> is estimated from volume. Since it represents size, other physics");
                 sb.Append(" parameters are adjusted based on its value. Calculating mass also recalibrates physics.");
+                sb.Append("\n\n");
+                sb.Append("<b><i>Auto-update mass</i></b> enables calculating mass automatically when changes in breast");
+                sb.Append(" morphs are detected. Disabling it prevents repeated calibrations due to animation of");
+                sb.Append(" non-pose morphs (e.g. by other plugins).");
                 if(personIsFemale)
                 {
-                    sb.Append("\n\n\n\n\n");
+                    sb.Append("\n\n");
                     sb.Append("<b><i>Hard colliders</i></b> make breasts both easier to move");
                     sb.Append(" when touched and better at maintaining their volume and shape.");
                     sb.Append("\n\n");
@@ -156,7 +160,7 @@ namespace TittyMagic.UI
             /* Softness slider */
             {
                 var storable = tittyMagic.softnessJsf;
-                AddSpacer(storable.name, 5, true);
+                AddSpacer(storable.name, 15, true);
                 var slider = tittyMagic.CreateSlider(storable, true);
                 slider.valueFormat = "F0";
                 slider.slider.wholeNumbers = true;
@@ -178,6 +182,15 @@ namespace TittyMagic.UI
 
             /* Calculate breast mass button */
             CreateRecalibrateButton(tittyMagic.calculateBreastMass, true, spacing: 15);
+
+            /* Auto update toggle */
+            {
+                var storable = tittyMagic.calibrationHelper.autoUpdateJsb;
+                var toggle = tittyMagic.CreateToggle(storable, true);
+                toggle.height = 52;
+                toggle.label = "Auto-Update Mass";
+                elements[storable.name] = toggle;
+            }
 
             /* Mass offset slider */
             {
@@ -217,7 +230,6 @@ namespace TittyMagic.UI
             if(personIsFemale)
             {
                 var storable = configureColliderFrictionAction;
-                AddSpacer(storable.name, 15, true);
                 var button = tittyMagic.CreateButton(storable.name, true);
                 storable.RegisterButton(button);
                 button.buttonText.alignment = TextAnchor.MiddleLeft;
@@ -230,7 +242,6 @@ namespace TittyMagic.UI
             if(personIsFemale)
             {
                 var storable = openExperimentalWindowAction;
-                AddSpacer(storable.name, 15, true);
                 var button = tittyMagic.CreateButton(storable.name, true);
                 storable.RegisterButton(button);
                 button.buttonText.alignment = TextAnchor.MiddleLeft;
