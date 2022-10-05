@@ -212,16 +212,19 @@ namespace TittyMagic
 
             /* Wait for geometry and skin to be ready */
             {
-                float timeout = Time.unscaledTime + 10;
-                bool ready = false;
-                while(Time.unscaledTime < timeout && !ready)
+                const float timeout = 10;
+                float limit = Time.unscaledTime + timeout;
+                bool characterReady = false;
+                bool skinReady = false;
+                while(Time.unscaledTime < limit && !characterReady && !skinReady)
                 {
                     geometry = (DAZCharacterSelector) containingAtom.GetStorableByID("geometry");
-                    ready = geometry.selectedCharacter.ready && containingAtom.GetStorableByID("skin") != null;
+                    characterReady = geometry.selectedCharacter.ready;
+                    skinReady = geometry.selectedCharacter.name == "femaledummy" || containingAtom.GetStorableByID("skin") != null;
                     yield return new WaitForSecondsRealtime(0.1f);
                 }
 
-                if(!geometry.selectedCharacter.ready)
+                if(!characterReady)
                 {
                     Utils.LogError(
                         $"Selected character {geometry.selectedCharacter.name} was not ready after 10 seconds of waiting. " +
@@ -230,10 +233,10 @@ namespace TittyMagic
                     yield break;
                 }
 
-                if(containingAtom.GetStorableByID("skin") == null)
+                if(!skinReady)
                 {
                     Utils.LogError(
-                        "Person skin materials not found after 2 seconds of waiting. " +
+                        $"Person skin materials not found after {timeout} seconds of waiting. " +
                         "Aborting plugin initization. Try reloading, and please report an issue."
                     );
                     yield break;
@@ -282,7 +285,7 @@ namespace TittyMagic
             GravityPhysicsHandler.Init();
             GravityOffsetMorphHandler.Init();
             NippleErectionHandler.Init();
-            FrictionHandler.Init(containingAtom.GetStorableByID("skin"));
+            FrictionHandler.Init();
 
             settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
             settingsMonitor.Init();
@@ -389,6 +392,7 @@ namespace TittyMagic
                 NewUIMod(atomUIContent, "F Breast Presets", ReplaceWithPluginUIButton),
                 NewUIMod(atomUIContent, "Skin Materials 2", ModifySkinMaterialsUI),
             };
+
             if(enabled)
             {
                 _uiMods.ForEach(uiMod => uiMod.Apply());
@@ -461,7 +465,7 @@ namespace TittyMagic
 
         private IEnumerator ModifySkinMaterialsUI(UIMod uiMod)
         {
-            if(!personIsFemale)
+            if(!FrictionHandler.enabled)
             {
                 yield break;
             }
@@ -879,6 +883,21 @@ namespace TittyMagic
         }
 
         #endregion Calibration
+
+        public void ReinitFrictionHandlerAndUI()
+        {
+            FrictionHandler.Refresh();
+
+            var frictionUIMod = _uiMods.Find(uiMod => uiMod.targetName == "Skin Materials 2");
+            if(FrictionHandler.enabled)
+            {
+                frictionUIMod.Enable();
+            }
+            else
+            {
+                frictionUIMod.Disable();
+            }
+        }
 
         public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
         {

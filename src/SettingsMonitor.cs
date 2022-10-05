@@ -188,7 +188,7 @@ namespace TittyMagic
             {
                 _selectedCharacter = geometry.selectedCharacter;
                 skin = geometry.containingAtom.GetComponentInChildren<DAZCharacter>().skin;
-                FrictionHandler.Refresh(tittyMagic.containingAtom.GetStorableByID("skin"));
+                tittyMagic.ReinitFrictionHandlerAndUI();
             }
         }
 

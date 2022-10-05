@@ -20,14 +20,14 @@ namespace TittyMagic
         private static JSONStorableFloat _glossJsf;
         private static JSONStorableFloat _specularBumpinessJsf;
 
-        public static void Init(JSONStorable skinMaterialsStorable)
+        public static bool enabled { get; private set; }
+
+        public static void Init()
         {
             if(!personIsFemale)
             {
                 return;
             }
-
-            _skinMaterialsStorable = skinMaterialsStorable;
 
             frictionOffsetJsf = tittyMagic.NewJSONStorableFloat("frictionOffset", 0, -0.5f, 0.5f);
             frictionOffsetJsf.setCallbackFunction = _ => CalculateFriction();
@@ -49,11 +49,32 @@ namespace TittyMagic
             drySkinFrictionJsf = tittyMagic.NewJSONStorableFloat("drySkinFriction", 0.750f, 0.000f, 1.000f);
             drySkinFrictionJsf.setCallbackFunction = _ => CalculateFriction();
 
-            _glossJsf = _skinMaterialsStorable.GetFloatJSONParam("Gloss");
-            _glossJsf.setJSONCallbackFunction = _ => CalculateFriction();
+            _skinMaterialsStorable = tittyMagic.containingAtom.GetStorableByID("skin");
+            if(_skinMaterialsStorable == null)
+            {
+                enabled = false;
+            }
+            else
+            {
+                ResetGlossAndSpecularStorables();
+                enabled = true;
+            }
+        }
 
-            _specularBumpinessJsf = _skinMaterialsStorable.GetFloatJSONParam("Specular Bumpiness");
-            _specularBumpinessJsf.setJSONCallbackFunction = _ => CalculateFriction();
+        public static void Refresh()
+        {
+            _skinMaterialsStorable = tittyMagic.containingAtom.GetStorableByID("skin");
+            if(!personIsFemale || _skinMaterialsStorable == null)
+            {
+                enabled = false;
+            }
+            else
+            {
+                ResetGlossAndSpecularStorables();
+                LoadSettings();
+                CalculateFriction();
+                enabled = true;
+            }
         }
 
         private static DynamicPhysicsConfig NewSoftVerticesColliderRadiusConfig() =>
@@ -67,7 +88,7 @@ namespace TittyMagic
 
         public static void LoadSettings()
         {
-            if(!personIsFemale)
+            if(!enabled)
             {
                 return;
             }
@@ -98,23 +119,19 @@ namespace TittyMagic
             SoftPhysicsHandler.SyncFriction(friction);
         }
 
-        public static void Refresh(JSONStorable skinMaterialsStorable)
+        private static void ResetGlossAndSpecularStorables()
         {
-            _skinMaterialsStorable = skinMaterialsStorable;
-
             _glossJsf = _skinMaterialsStorable.GetFloatJSONParam("Gloss");
             _glossJsf.setJSONCallbackFunction = _ => CalculateFriction();
 
             _specularBumpinessJsf = _skinMaterialsStorable.GetFloatJSONParam("Specular Bumpiness");
             _specularBumpinessJsf.setJSONCallbackFunction = _ => CalculateFriction();
-
-            CalculateFriction();
         }
 
         /* Maximum friction that a collider can have, drops off dynamically with distance from collider's normal position */
         public static void CalculateFriction()
         {
-            if(!personIsFemale || !tittyMagic.enabled)
+            if(!enabled || !tittyMagic.enabled)
             {
                 return;
             }
@@ -160,9 +177,13 @@ namespace TittyMagic
 
         public static void Destroy()
         {
-            if(personIsFemale)
+            if(_glossJsf != null)
             {
                 _glossJsf.setJSONCallbackFunction = null;
+            }
+
+            if(_specularBumpinessJsf != null)
+            {
                 _specularBumpinessJsf.setJSONCallbackFunction = null;
             }
 
