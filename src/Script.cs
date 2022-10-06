@@ -212,22 +212,23 @@ namespace TittyMagic
 
             /* Wait for geometry and skin to be ready */
             {
-                const float timeout = 10;
-                float limit = Time.unscaledTime + timeout;
+                const float timeout = 15;
+                float timePassed = 0;
                 bool characterReady = false;
                 bool skinReady = false;
-                while(Time.unscaledTime < limit && !characterReady && !skinReady)
+                while(timePassed < timeout && !characterReady && !skinReady)
                 {
+                    timePassed += Time.unscaledDeltaTime;
                     geometry = (DAZCharacterSelector) containingAtom.GetStorableByID("geometry");
                     characterReady = geometry.selectedCharacter.ready;
                     skinReady = geometry.selectedCharacter.name == "femaledummy" || containingAtom.GetStorableByID("skin") != null;
-                    yield return new WaitForSecondsRealtime(0.1f);
+                    yield return new WaitForSecondsRealtime(0.5f);
                 }
 
                 if(!characterReady)
                 {
                     Utils.LogError(
-                        $"Selected character {geometry.selectedCharacter.name} was not ready after 10 seconds of waiting. " +
+                        $"Selected character {geometry.selectedCharacter.name} was not ready after 120 seconds of waiting. " +
                         "Aborting plugin initization. Try reloading, and please report an issue."
                     );
                     yield break;
