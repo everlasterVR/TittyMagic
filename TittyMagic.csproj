@@ -86,6 +86,8 @@
     <Compile Include="src\Components\RectTransformChange.cs" />
     <Compile Include="src\Components\Scaler.cs" />
     <Compile Include="src\Components\TrackBreast.cs" />
+    <Compile Include="src\Components\TrackFemaleBreast.cs" />
+    <Compile Include="src\Components\TrackFutaBreast.cs" />
     <Compile Include="src\Components\UIMod.cs" />
     <Compile Include="src\Components\UnityEventsListener.cs" />
     <Compile Include="src\Components\PointerUpDownListener.cs" />

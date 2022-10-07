@@ -290,8 +290,16 @@ namespace TittyMagic
             settingsMonitor = gameObject.AddComponent<SettingsMonitor>();
             settingsMonitor.Init();
 
-            _trackLeftBreast = new TrackBreast(Side.LEFT);
-            _trackRightBreast = new TrackBreast(Side.RIGHT);
+            if(personIsFemale)
+            {
+                _trackLeftBreast = new TrackFemaleBreast(Side.LEFT);
+                _trackRightBreast = new TrackFemaleBreast(Side.RIGHT);
+            }
+            else
+            {
+                _trackLeftBreast = new TrackFutaBreast(Side.LEFT);
+                _trackRightBreast = new TrackFutaBreast(Side.RIGHT);
+            }
 
             ForcePhysicsHandler.Init(_trackLeftBreast, _trackRightBreast);
             ForceMorphHandler.Init(_trackLeftBreast, _trackRightBreast);
@@ -425,14 +433,14 @@ namespace TittyMagic
         private void SetSmoothingPeriod(float value)
         {
             int period = (int) Mathf.Round(value);
-            _trackLeftBreast.SetMovingAveragePeriod(period);
-            _trackRightBreast.SetMovingAveragePeriod(period);
+            ((TrackFemaleBreast) _trackLeftBreast).SetMovingAveragePeriod(period);
+            ((TrackFemaleBreast) _trackRightBreast).SetMovingAveragePeriod(period);
         }
 
         private void SetWeightingRatio(float value)
         {
-            _trackLeftBreast.weightingRatio = value;
-            _trackRightBreast.weightingRatio = value;
+            ((TrackFemaleBreast) _trackLeftBreast).weightingRatio = value;
+            ((TrackFemaleBreast) _trackRightBreast).weightingRatio = value;
         }
 
         private UIMod NewUIMod(Transform container, string targetName, Func<UIMod, IEnumerator> changesFunc)

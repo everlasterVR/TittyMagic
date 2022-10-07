@@ -26,6 +26,8 @@ src\Components\PointerUpDownListener.cs
 src\Components\RectTransformChange.cs
 src\Components\Scaler.cs
 src\Components\TrackBreast.cs
+src\Components\TrackFemaleBreast.cs
+src\Components\TrackFutaBreast.cs
 src\Components\UIMod.cs
 src\Components\UnityEventsListener.cs
 src\Extensions\ArrayExtension.cs
