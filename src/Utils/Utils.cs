@@ -122,7 +122,7 @@ namespace TittyMagic
             }
         }
 
-        public static bool GlobalAnimationIsFrozen()
+        public static bool GlobalAnimationFrozen()
         {
             bool mainToggleFrozen =
                 SuperController.singleton.freezeAnimationToggle != null &&

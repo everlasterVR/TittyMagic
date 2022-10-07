@@ -13,7 +13,7 @@ namespace TittyMagic.Models
             left.offsetJsf.setCallbackFunction = value =>
             {
                 left.UpdateOffsetValue(value);
-                float rightValue = rightIsInverted ? -value : value;
+                float rightValue = rightInverted ? -value : value;
                 right.UpdateOffsetValue(offsetOnlyLeftBreastJsb.val ? 0 : rightValue);
             };
 

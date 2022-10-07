@@ -64,7 +64,7 @@ namespace TittyMagic
                         !morph.group.Contains("Pose/") &&
                         !_excludeMorphsNames.Contains(morph.morphName) &&
                         !listenedMorphs.ContainsKey(morph) &&
-                        IsInSet(morph, VertexIndexGroup.breasts, FILTER_STRENGTH)
+                        InSet(morph, VertexIndexGroup.breasts, FILTER_STRENGTH)
                     )
                     {
                         listenedMorphs.Add(morph, morph.morphValue);
@@ -100,7 +100,7 @@ namespace TittyMagic
             return false;
         }
 
-        private static bool IsInSet(DAZMorph morph, ICollection<int> vertices, float filterStrength)
+        private static bool InSet(DAZMorph morph, ICollection<int> vertices, float filterStrength)
         {
             if(morph.deltas == null)
             {

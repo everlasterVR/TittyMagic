@@ -23,7 +23,7 @@ namespace TittyMagic
         private bool _atomSoftPhysicsOn;
         private bool _breastSoftPhysicsOn;
 
-        private bool _isInitialized;
+        private bool _initialized;
 
         public void Init()
         {
@@ -49,7 +49,7 @@ namespace TittyMagic
             _breastInOut.SetBoolParamValue("enabled", true);
             _breastInOut.SetBoolParamValue("enabled", false);
 
-            _isInitialized = true;
+            _initialized = true;
         }
 
         public void CheckSettings()
@@ -100,7 +100,7 @@ namespace TittyMagic
                 StartCoroutine(OnCharacterChangedCo());
             }
 
-            if(!tittyMagic.calibrationHelper.isCalibratingJsb.val)
+            if(!tittyMagic.calibrationHelper.calibratingJsb.val)
             {
                 CheckIfRecalibrationNeeded();
             }
@@ -251,7 +251,7 @@ namespace TittyMagic
 
         private void Update()
         {
-            if(!_isInitialized)
+            if(!_initialized)
             {
                 return;
             }
@@ -269,7 +269,7 @@ namespace TittyMagic
 
         private void OnEnable()
         {
-            if(!_isInitialized)
+            if(!_initialized)
             {
                 return;
             }

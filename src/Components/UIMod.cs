@@ -88,7 +88,7 @@ namespace TittyMagic.Components
 
         public void Enable()
         {
-            if(Script.tittyMagic.isInitialized && !_modified)
+            if(Script.tittyMagic.initialized && !_modified)
             {
                 Apply();
             }

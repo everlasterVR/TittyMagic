@@ -30,7 +30,7 @@ namespace TittyMagic.Handlers
         public static JSONStorableBool breastSoftPhysicsOnJsb { get; private set; }
         public static JSONStorableBool allowSelfCollisionJsb { get; private set; }
 
-        private static bool _isInitialized;
+        private static bool _initialized;
 
         public static void Init()
         {
@@ -89,7 +89,7 @@ namespace TittyMagic.Handlers
                 allowSelfCollisionJsb.valNoCallback = false;
             }
 
-            _isInitialized = true;
+            _initialized = true;
         }
 
         private static void InitColliderVisualizer()
@@ -951,7 +951,7 @@ namespace TittyMagic.Handlers
 
         public static void RestoreOriginalPhysics()
         {
-            if(!_isInitialized || breastPhysicsMesh == null)
+            if(!_initialized || breastPhysicsMesh == null)
             {
                 return;
             }

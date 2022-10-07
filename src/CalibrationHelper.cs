@@ -14,15 +14,16 @@ namespace TittyMagic
     {
         private static readonly string _uid = tittyMagic.containingAtom.uid;
 
-        public bool shouldRun;
-        public bool isQueued;
-        public bool isCancelling;
-        private bool? _isGlobalFrozen;
-        private bool? _isPlaying;
+        public bool shouldRun { get; set; }
+        public bool cancelling { get; set; }
+
+        private bool _queued;
+        private bool? _globalFrozen;
+        private bool? _playing;
         private bool _deferToOtherInstance;
         private MotionAnimationMaster _motionAnimationMaster;
 
-        public JSONStorableBool isCalibratingJsb { get; private set; }
+        public JSONStorableBool calibratingJsb { get; private set; }
         public JSONStorableBool autoUpdateJsb { get; private set; }
         public JSONStorableBool freezeMotionSoundJsb { get; private set; }
         public JSONStorableBool pauseSceneAnimationJsb { get; private set; }
@@ -31,7 +32,7 @@ namespace TittyMagic
         public void Init()
         {
             _motionAnimationMaster = SuperController.singleton.motionAnimationMaster;
-            isCalibratingJsb = tittyMagic.NewJSONStorableBool("isCalibrating", false);
+            calibratingJsb = tittyMagic.NewJSONStorableBool("calibrating", false);
 
             freezeMotionSoundJsb = tittyMagic.NewJSONStorableBool("freezeMotionSoundWhenCalibrating", true);
             freezeMotionSoundJsb.setCallbackFunction = value =>
@@ -69,12 +70,12 @@ namespace TittyMagic
             };
         }
 
-        public bool IsBlockedByInput()
+        public bool BlockedByInput()
         {
             var mainWindow = tittyMagic.tabs.activeWindow as MainWindow;
             if(mainWindow != null)
             {
-                return mainWindow.GetSlidersForRefresh().Any(slider => slider.PointerIsDown());
+                return mainWindow.GetSlidersForRefresh().Any(slider => slider.PointerDown());
             }
 
             return false;
@@ -83,43 +84,43 @@ namespace TittyMagic
         public IEnumerator Begin()
         {
             shouldRun = false;
-            if(isCalibratingJsb.val)
+            if(calibratingJsb.val)
             {
-                if(!isQueued && !IsBlockedByInput())
+                if(!_queued && !BlockedByInput())
                 {
-                    isQueued = true;
+                    _queued = true;
                 }
                 else
                 {
-                    isCancelling = true;
+                    cancelling = true;
                     yield break;
                 }
             }
 
-            while(isQueued)
+            while(_queued)
             {
                 yield return null;
             }
 
-            isCalibratingJsb.val = true;
+            calibratingJsb.val = true;
 
             /* The instance which started calibrating first has control over pausing */
             if(OtherCalibrationInProgress())
             {
                 _deferToOtherInstance = true;
             }
-            else if(pauseSceneAnimationJsb.val && _isPlaying == null)
+            else if(pauseSceneAnimationJsb.val && _playing == null)
             {
-                _isPlaying = _motionAnimationMaster.activeWhilePlaying.activeSelf;
-                if(_isPlaying.Value)
+                _playing = _motionAnimationMaster.activeWhilePlaying.activeSelf;
+                if(_playing.Value)
                 {
                     _motionAnimationMaster.StopPlayback();
                 }
             }
-            else if(freezeMotionSoundJsb.val && _isGlobalFrozen == null)
+            else if(freezeMotionSoundJsb.val && _globalFrozen == null)
             {
-                _isGlobalFrozen = Utils.GlobalAnimationIsFrozen();
-                if(!_isGlobalFrozen.Value)
+                _globalFrozen = Utils.GlobalAnimationFrozen();
+                if(!_globalFrozen.Value)
                 {
                     SuperController.singleton.SetFreezeAnimation(true);
                 }
@@ -132,9 +133,9 @@ namespace TittyMagic
             {
                 foreach(var instance in Integration.otherInstances)
                 {
-                    if(instance != null && instance.GetBoolParamNames().Contains(isCalibratingJsb.name))
+                    if(instance != null && instance.GetBoolParamNames().Contains(calibratingJsb.name))
                     {
-                        bool response = instance.GetBoolParamValue(isCalibratingJsb.name);
+                        bool response = instance.GetBoolParamValue(calibratingJsb.name);
                         if(response)
                         {
                             /* Another instance is currently calibrating. */
@@ -156,7 +157,7 @@ namespace TittyMagic
         {
             yield return new WaitForSeconds(0.33f);
 
-            while(BreastMorphListener.ChangeWasDetected() || IsBlockedByInput())
+            while(BreastMorphListener.ChangeWasDetected() || BlockedByInput())
             {
                 yield return new WaitForSeconds(0.1f);
             }
@@ -260,43 +261,43 @@ namespace TittyMagic
 
         public IEnumerator DeferFinish()
         {
-            if(!_deferToOtherInstance && !isQueued)
+            if(!_deferToOtherInstance && !_queued)
             {
                 while(OtherCalibrationInProgress())
                 {
                     yield return new WaitForSecondsRealtime(0.1f);
                 }
 
-                if(_isGlobalFrozen.HasValue)
+                if(_globalFrozen.HasValue)
                 {
-                    if(!_isGlobalFrozen.Value)
+                    if(!_globalFrozen.Value)
                     {
                         SuperController.singleton.SetFreezeAnimation(false);
                     }
 
-                    _isGlobalFrozen = null;
+                    _globalFrozen = null;
                 }
 
-                if(_isPlaying.HasValue)
+                if(_playing.HasValue)
                 {
-                    if(_isPlaying.Value)
+                    if(_playing.Value)
                     {
                         _motionAnimationMaster.StartPlayback();
                     }
 
-                    _isPlaying = null;
+                    _playing = null;
                 }
 
                 tittyMagic.settingsMonitor.enabled = true;
             }
 
-            if(!isQueued)
+            if(!_queued)
             {
-                isCalibratingJsb.val = false;
+                calibratingJsb.val = false;
             }
             else
             {
-                isQueued = false;
+                _queued = false;
             }
 
             _deferToOtherInstance = false;

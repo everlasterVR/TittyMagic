@@ -128,7 +128,7 @@ namespace TittyMagic
         // adapted from Timeline v4.3.1 (c) acidbubbles
         private static IEnumerator SelectPluginUI(Action postAction = null)
         {
-            while(!tittyMagic.isInitialized)
+            while(!tittyMagic.initialized)
             {
                 yield return null;
             }
@@ -201,7 +201,7 @@ namespace TittyMagic
 
         private static IEnumerator DeferSetAutoUpdateMass(bool value)
         {
-            while(!tittyMagic.isInitialized)
+            while(!tittyMagic.initialized)
             {
                 yield return null;
             }

@@ -38,7 +38,7 @@ namespace TittyMagic.Handlers
                     SoftColliderGroup.NIPPLE, new DynamicPhysicsConfig(
                         massMultiplier: 0.5f,
                         softnessMultiplier: 0.0f,
-                        isNegative: false,
+                        negative: false,
                         applyMethod: ApplyMethod.MULTIPLICATIVE,
                         massCurve: MainPhysicsHandler.InvertMass
                     )
@@ -50,7 +50,7 @@ namespace TittyMagic.Handlers
                     SoftColliderGroup.AREOLA, new DynamicPhysicsConfig(
                         massMultiplier: 0.25f,
                         softnessMultiplier: 0.00f,
-                        isNegative: false,
+                        negative: false,
                         applyMethod: ApplyMethod.MULTIPLICATIVE,
                         massCurve: MainPhysicsHandler.InvertMass
                     )
@@ -67,7 +67,7 @@ namespace TittyMagic.Handlers
                     SoftColliderGroup.NIPPLE, new DynamicPhysicsConfig(
                         massMultiplier: 0.5f,
                         softnessMultiplier: 0.0f,
-                        isNegative: false,
+                        negative: false,
                         applyMethod: ApplyMethod.MULTIPLICATIVE,
                         massCurve: MainPhysicsHandler.InvertMass
                     )
@@ -79,7 +79,7 @@ namespace TittyMagic.Handlers
                     SoftColliderGroup.AREOLA, new DynamicPhysicsConfig(
                         massMultiplier: 0.25f,
                         softnessMultiplier: 0.00f,
-                        isNegative: false,
+                        negative: false,
                         applyMethod: ApplyMethod.MULTIPLICATIVE,
                         massCurve: MainPhysicsHandler.InvertMass
                     )

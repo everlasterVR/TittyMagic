@@ -39,7 +39,7 @@ namespace TittyMagic.Handlers
 
         public static MassParameterGroup massParameterGroup { get; private set; }
 
-        private static bool _isInitialized;
+        private static bool _initialized;
 
         public static void Init()
         {
@@ -72,7 +72,7 @@ namespace TittyMagic.Handlers
                 TARGET_ROTATION_Z,
             };
 
-            _isInitialized = true;
+            _initialized = true;
         }
 
         public static void UpdateMassValueAndAmounts()
@@ -330,7 +330,7 @@ namespace TittyMagic.Handlers
             )
             {
                 requiresRecalibration = true,
-                rightIsInverted = true,
+                rightInverted = true,
             };
 
             var targetRotationX = new PhysicsParameterGroup(
@@ -349,7 +349,7 @@ namespace TittyMagic.Handlers
             )
             {
                 requiresRecalibration = true,
-                rightIsInverted = true,
+                rightInverted = true,
             };
 
             massParameterGroup.SetOffsetCallbackFunctions();
@@ -628,7 +628,7 @@ namespace TittyMagic.Handlers
 
         public static void RestoreOriginalPhysics()
         {
-            if(!_isInitialized)
+            if(!_initialized)
             {
                 return;
             }

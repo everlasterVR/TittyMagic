@@ -135,12 +135,11 @@ namespace TittyMagic
 
         #region Init
 
-        public bool isInitialized { get; private set; }
+        public bool initialized { get; private set; }
 
         public override void Init()
         {
             tittyMagic = this;
-
             try
             {
                 /* Used to store version in save JSON and communicate version to other plugin instances */
@@ -266,7 +265,7 @@ namespace TittyMagic
                 {
                     if(calibrationHelper.autoUpdateJsb.val)
                     {
-                        if(!enabled || calibrationHelper.isCalibratingJsb.val || containingAtom.IsFreezeGrabbing())
+                        if(!enabled || calibrationHelper.calibratingJsb.val || containingAtom.FreezeGrabbing())
                         {
                             return;
                         }
@@ -399,14 +398,14 @@ namespace TittyMagic
                 _uiMods.ForEach(uiMod => uiMod.Apply());
             }
 
-            if(!_isRestoringFromJson)
+            if(!_restoringFromJson)
             {
                 HardColliderHandler.SaveOriginalUseColliders();
                 SoftPhysicsHandler.SaveOriginalBoolParamValues();
                 StartCalibration(calibratesMass: true);
             }
 
-            isInitialized = true;
+            initialized = true;
         }
 
         // https://github.com/vam-community/vam-plugins-interop-specs/blob/main/keybindings.md
@@ -641,14 +640,14 @@ namespace TittyMagic
 
         private void FixedUpdate()
         {
-            if(!isInitialized)
+            if(!initialized)
             {
                 return;
             }
 
             try
             {
-                if(_isRestoringFromJson || calibrationHelper.isCalibratingJsb.val || _isSavingScene || containingAtom.IsFreezeGrabbing())
+                if(_restoringFromJson || calibrationHelper.calibratingJsb.val || _savingScene || containingAtom.FreezeGrabbing())
                 {
                     return;
                 }
@@ -688,12 +687,12 @@ namespace TittyMagic
 
         public void StartCalibration(bool calibratesMass, bool waitsForListeners = false)
         {
-            if(_isRestoringFromJson)
+            if(_restoringFromJson)
             {
                 return;
             }
 
-            if(_isRestoringFromJson || calibrationHelper.isCalibratingJsb.val && calibrationHelper.IsBlockedByInput())
+            if(_restoringFromJson || calibrationHelper.calibratingJsb.val && calibrationHelper.BlockedByInput())
             {
                 return;
             }
@@ -738,9 +737,9 @@ namespace TittyMagic
             }
 
             yield return calibrationHelper.Begin();
-            if(calibrationHelper.isCancelling)
+            if(calibrationHelper.cancelling)
             {
-                calibrationHelper.isCancelling = false;
+                calibrationHelper.cancelling = false;
                 yield break;
             }
 
@@ -903,12 +902,12 @@ namespace TittyMagic
         public override JSONClass GetJSON(bool includePhysical = true, bool includeAppearance = true, bool forceStore = false)
         {
             var jsonClass = base.GetJSON(includePhysical, includeAppearance, forceStore);
-            jsonClass.Remove(calibrationHelper.isCalibratingJsb.name);
+            jsonClass.Remove(calibrationHelper.calibratingJsb.name);
             needsStore = true;
             return jsonClass;
         }
 
-        private bool _isRestoringFromJson;
+        private bool _restoringFromJson;
 
         public override void RestoreFromJSON(
             JSONClass jsonClass,
@@ -924,7 +923,7 @@ namespace TittyMagic
                 enabled = false;
             }
 
-            _isRestoringFromJson = true;
+            _restoringFromJson = true;
             /* Prevent overriding versionJss.val from JSON. Version stored in JSON just for information,
              * but could be intercepted here and used to save a "loadedFromVersion" value.
              */
@@ -950,24 +949,24 @@ namespace TittyMagic
             bool setMissingToDefault
         )
         {
-            while(!isInitialized)
+            while(!initialized)
             {
                 yield return null;
             }
 
             base.RestoreFromJSON(jsonClass, restorePhysical, restoreAppearance, presetAtoms, setMissingToDefault);
 
-            _isRestoringFromJson = false;
+            _restoringFromJson = false;
             HardColliderHandler.SaveOriginalUseColliders();
             SoftPhysicsHandler.SaveOriginalBoolParamValues();
             StartCalibration(calibratesMass: true);
         }
 
-        private bool _isSavingScene;
+        private bool _savingScene;
 
         private void OnBeforeSceneSave()
         {
-            _isSavingScene = true;
+            _savingScene = true;
             GravityOffsetMorphHandler.ResetAll();
             ForceMorphHandler.ResetAll();
             NippleErectionHandler.Reset();
@@ -975,7 +974,7 @@ namespace TittyMagic
 
         private void OnSceneSaved()
         {
-            _isSavingScene = false;
+            _savingScene = false;
         }
 
         private void OnDestroy()
@@ -1019,7 +1018,7 @@ namespace TittyMagic
             }
             catch(Exception e)
             {
-                if(isInitialized)
+                if(initialized)
                 {
                     Utils.LogError($"OnDestroy: {e}");
                 }
@@ -1032,7 +1031,7 @@ namespace TittyMagic
 
         public void OnEnable()
         {
-            if(!isInitialized)
+            if(!initialized)
             {
                 return;
             }
@@ -1057,7 +1056,7 @@ namespace TittyMagic
         private void OnDisable()
         {
             /* Prevent disable actions if disabled when restoring from JSON */
-            if(!isInitialized)
+            if(!initialized)
             {
                 return;
             }

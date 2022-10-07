@@ -11,5 +11,5 @@ public static class AtomExtension
             .ToList()
             .Prune();
 
-    public static bool IsFreezeGrabbing(this Atom atom) => atom.grabFreezePhysics && atom.mainController.isGrabbing;
+    public static bool FreezeGrabbing(this Atom atom) => atom.grabFreezePhysics && atom.mainController.isGrabbing;
 }
