@@ -85,33 +85,33 @@ namespace TittyMagic.Handlers
         {
             new MorphConfig($"UP/UP Breast Height {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 1.60f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 1.10f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.70f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.35f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breast Sag1 {side}",
                 true,
-                new JSONStorableFloat("softMultiplier", -0.50f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.30f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", -0.75f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.25f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breast Sag2 {side}",
                 true,
-                new JSONStorableFloat("softMultiplier", -2.30f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.50f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", -1.00f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.33f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breasts Natural {side}",
                 true,
-                new JSONStorableFloat("softMultiplier", -0.65f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.40f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", -0.75f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.25f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breast Rotate Up {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.50f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.20f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 3.00f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.80f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breast Top Curve2 {side}",
                 true,
-                new JSONStorableFloat("softMultiplier", -0.50f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.85f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", -0.80f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.80f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breasts Implants {side}",
                 false,
@@ -120,37 +120,32 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig($"UP/UP Breast Diameter {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.05f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.35f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.48f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.16f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breast Diameter(Pose) {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.30f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.20f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 1.50f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.50f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breast Width {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.20f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.30f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.21f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.07f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breast Zero {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.22f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.20f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.36f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.18f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breast flat(Fixed) {side}",
                 false,
                 new JSONStorableFloat("softMultiplier", 0.65f, -3.00f, 3.00f),
                 new JSONStorableFloat("massMultiplier", 0.10f, -3.00f, 3.00f)
             ),
-            new MorphConfig($"UP/UP Breasts Hang Forward {side}",
-                false,
-                new JSONStorableFloat("softMultiplier", 0.20f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.70f, -3.00f, 3.00f)
-            ),
             new MorphConfig($"UP/UP BreastsShape2 {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 1.50f, -3.00f, 3.00f),
+                new JSONStorableFloat("softMultiplier", 1.80f, -3.00f, 3.00f),
                 new JSONStorableFloat("massMultiplier", 0.35f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breast Height Lower {side}",
@@ -160,53 +155,43 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig($"UP/UP Breast Move Up {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.60f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.12f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.50f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.17f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breasts Flatten {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.80f, -3.00f, 3.00f),
+                new JSONStorableFloat("softMultiplier", 0.60f, -3.00f, 3.00f),
                 new JSONStorableFloat("massMultiplier", 0.60f, -3.00f, 3.00f)
-            ),
-            new MorphConfig($"UP/UP Breast Pointed {side}",
-                false,
-                new JSONStorableFloat("softMultiplier", 1.00f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 1.00f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breasts TogetherApart {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 1.00f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.20f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.90f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.30f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breast look up {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.00f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.30f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.50f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.25f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breast Top Curve1 {side}",
                 true,
-                new JSONStorableFloat("softMultiplier", 0.10f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.55f, -3.00f, 3.00f)
-            ),
-            new MorphConfig($"UP/UP Breasts Height {side}",
-                true,
-                new JSONStorableFloat("softMultiplier", -1.00f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.00f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", -0.50f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.25f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breasts Under Curve {side}",
                 true,
-                new JSONStorableFloat("softMultiplier", -0.40f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.60f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", -1.50f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.50f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP ChestUnderBreast {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 1.15f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.20f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.80f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.25f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breast Under Smoother1 {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.30f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.10f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.25f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.00f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breast Under Smoother2 {side}",
                 false,
@@ -215,43 +200,38 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig($"UP/UP Breast Under Smoother3 {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.35f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.25f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.15f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.15f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breast Under Smoother4 {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.48f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.09f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.30f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.10f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breast Height Upper {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 1.70f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.00f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.50f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.50f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breasts Upward Slope {side}",
                 false,
                 new JSONStorableFloat("softMultiplier", 1.30f, -3.00f, 3.00f),
                 new JSONStorableFloat("massMultiplier", 2.00f, -3.00f, 3.00f)
             ),
-            new MorphConfig($"UP/UP Chest Height {side}",
-                true,
-                new JSONStorableFloat("softMultiplier", -0.55f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.15f, -3.00f, 3.00f)
-            ),
             new MorphConfig($"UP/UP Breast upper down {side}",
-                true,
-                new JSONStorableFloat("softMultiplier", -0.80f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.50f, -3.00f, 3.00f)
+                false,
+                new JSONStorableFloat("softMultiplier", 0.15f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.05f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breasts Small Top Slope {side}",
-                true,
-                new JSONStorableFloat("softMultiplier", -0.11f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.00f, -3.00f, 3.00f)
+                false,
+                new JSONStorableFloat("softMultiplier", 0.06f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.02f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Areolae Depth {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.20f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.20f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.30f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.10f, -3.00f, 3.00f)
             ),
         };
 
@@ -284,8 +264,8 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig("UP/UP Chest Smoother",
                 false,
-                new JSONStorableFloat("softMultiplier", 2.37f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.42f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 3.00f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.75f, -3.00f, 3.00f)
             ),
             new MorphConfig("UP/UP ChestSmoothCenter",
                 false,
@@ -711,8 +691,8 @@ namespace TittyMagic.Handlers
         private static void AdjustUpMorphs(float diffFromHorizontal)
         {
             float pitchMultiplier = Mathf.Lerp(0.80f, 1f, diffFromHorizontal);
-            float curveBParam = Mathf.Lerp(1.46f, 1.52f, diffFromHorizontal);
-            float curveQParam = Mathf.Lerp(1.00f, 1.10f, diffFromHorizontal);
+            float curveBParam = Mathf.Lerp(1.46f, 1.50f, diffFromHorizontal);
+            float curveQParam = Mathf.Lerp(1.00f, 1.06f, diffFromHorizontal);
 
             Func<float, float> calculateEffect = angle =>
                 upDownExtraMultiplier
@@ -841,13 +821,13 @@ namespace TittyMagic.Handlers
         private static void AdjustLeftMorphs(float roll)
         {
             float rollAngleMulti = Mathf.Lerp(1.25f, 1f, roll);
-            float curveBParam = Mathf.Lerp(1.46f, 1.52f, roll);
-            float curveQParam = Mathf.Lerp(1.00f, 1.10f, roll);
+            float curveBParam = Mathf.Lerp(1.46f, 1.50f, roll);
+            float curveQParam = Mathf.Lerp(1.00f, 1.06f, roll);
 
             Func<float, float> calculateEffect = angle =>
                 leftRightExtraMultiplier
                 * Curves.QuadraticRegression(leftRightMultiplier)
-                * Curves.ForceEffectCurve(rollAngleMulti * Mathf.Abs(angle) / 60, curveBParam, curveQParam);
+                * Curves.SideForceEffectCurve(rollAngleMulti * Mathf.Abs(angle) / 60, curveBParam, curveQParam);
 
             if(_trackLeftBreast.angleX >= 0)
             {
@@ -881,7 +861,7 @@ namespace TittyMagic.Handlers
             Func<float, float> calculateEffect = angle =>
                 leftRightExtraMultiplier
                 * Curves.QuadraticRegression(leftRightMultiplier)
-                * Curves.ForceEffectCurve(rollAngleMulti * Mathf.Abs(angle) / 60, curveBParam, curveQParam);
+                * Curves.SideForceEffectCurve(rollAngleMulti * Mathf.Abs(angle) / 60, curveBParam, curveQParam);
 
             if(_trackLeftBreast.angleX >= 0)
             {
