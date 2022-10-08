@@ -155,8 +155,8 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig($"UP/UP Breast Move Up {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.50f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.17f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.80f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.25f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breasts Flatten {side}",
                 false,
@@ -692,12 +692,12 @@ namespace TittyMagic.Handlers
         {
             float pitchMultiplier = Mathf.Lerp(0.80f, 1f, diffFromHorizontal);
             float curveBParam = Mathf.Lerp(1.46f, 1.50f, diffFromHorizontal);
-            float curveQParam = Mathf.Lerp(1.00f, 1.06f, diffFromHorizontal);
+            float curveQParam = Mathf.Lerp(1.00f, 1.05f, diffFromHorizontal);
 
             Func<float, float> calculateEffect = angle =>
                 upDownExtraMultiplier
                 * Curves.QuadraticRegression(upMultiplier)
-                * Curves.ForceEffectCurve(pitchMultiplier * Mathf.Abs(angle) / 75, curveBParam, curveQParam);
+                * Curves.YForceEffectCurve(pitchMultiplier * Mathf.Abs(angle) / 75, curveBParam, curveQParam);
 
             if(_trackLeftBreast.angleY >= 0)
             {
@@ -827,7 +827,7 @@ namespace TittyMagic.Handlers
             Func<float, float> calculateEffect = angle =>
                 leftRightExtraMultiplier
                 * Curves.QuadraticRegression(leftRightMultiplier)
-                * Curves.SideForceEffectCurve(rollAngleMulti * Mathf.Abs(angle) / 60, curveBParam, curveQParam);
+                * Curves.XForceEffectCurve(rollAngleMulti * Mathf.Abs(angle) / 60, curveBParam, curveQParam);
 
             if(_trackLeftBreast.angleX >= 0)
             {
@@ -861,7 +861,7 @@ namespace TittyMagic.Handlers
             Func<float, float> calculateEffect = angle =>
                 leftRightExtraMultiplier
                 * Curves.QuadraticRegression(leftRightMultiplier)
-                * Curves.SideForceEffectCurve(rollAngleMulti * Mathf.Abs(angle) / 60, curveBParam, curveQParam);
+                * Curves.XForceEffectCurve(rollAngleMulti * Mathf.Abs(angle) / 60, curveBParam, curveQParam);
 
             if(_trackLeftBreast.angleX >= 0)
             {
