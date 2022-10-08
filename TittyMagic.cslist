@@ -72,6 +72,7 @@ src\CalibrationHelper.cs
 src\UI\Components\NavigationButton.cs
 src\UI\Colors.cs
 src\UI\DevWindow.cs
+src\UI\DevMorphWindow.cs
 src\UI\ExperimentalWindow.cs
 src\UI\GravityWindow.cs
 src\UI\HardCollidersWindow.cs

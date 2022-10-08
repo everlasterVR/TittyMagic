@@ -16,6 +16,7 @@ namespace TittyMagic.UI
         private JSONStorableAction configureColliderFrictionAction { get; }
         public JSONStorableAction openExperimentalWindowAction { get; }
         public JSONStorableAction openDevWindowAction { get; }
+        public JSONStorableAction openDevMorphWindowAction { get; }
 
         public MainWindow()
         {
@@ -90,6 +91,18 @@ namespace TittyMagic.UI
                 );
 
                 nestedWindows.Add(new DevWindow(nameof(DevWindow), OnReturn));
+
+                openDevMorphWindowAction = new JSONStorableAction(
+                    "openDevMorphWindow",
+                    () =>
+                    {
+                        ClearSelf();
+                        activeNestedWindow = nestedWindows.Find(window => window.GetId() == nameof(DevMorphWindow));
+                        activeNestedWindow.Rebuild();
+                    }
+                );
+
+                nestedWindows.Add(new DevMorphWindow(nameof(DevMorphWindow), OnReturn));
             }
 
             nestedWindows.Add(new OptionsWindow(nameof(OptionsWindow), OnReturn));

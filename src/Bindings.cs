@@ -43,6 +43,7 @@ namespace TittyMagic
             if(envIsDevelopment)
             {
                 jsonStorableActions.Add(new JSONStorableAction("OpenUI_Dev", OpenUIDev));
+                jsonStorableActions.Add(new JSONStorableAction("OpenUI_DevMorph", OpenUIDevMorph));
             }
 
             actions = jsonStorableActions.ToDictionary(action => action.name, action => action);
@@ -93,6 +94,13 @@ namespace TittyMagic
             OpenUIControl();
             var mainWindow = (MainWindow) tittyMagic.tabs.activeWindow;
             OpenNestedWindow<DevWindow>(mainWindow, mainWindow.openDevWindowAction);
+        }
+
+        private void OpenUIDevMorph()
+        {
+            OpenUIControl();
+            var mainWindow = (MainWindow) tittyMagic.tabs.activeWindow;
+            OpenNestedWindow<DevMorphWindow>(mainWindow, mainWindow.openDevMorphWindowAction);
         }
 
         private void OpenUIExperimental()

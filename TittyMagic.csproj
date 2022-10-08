@@ -128,6 +128,7 @@
     <Compile Include="src\Handlers\MainPhysicsHandler.cs" />
     <Compile Include="src\Script.cs" />
     <Compile Include="src\UI\Components\NavigationButton.cs" />
+    <Compile Include="src\UI\DevMorphWindow.cs" />
     <Compile Include="src\UI\DevWindow.cs" />
     <Compile Include="src\UI\ExperimentalWindow.cs" />
     <Compile Include="src\UI\HardCollidersWindow.cs" />

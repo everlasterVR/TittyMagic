@@ -24,23 +24,23 @@ namespace TittyMagic.Handlers
                 {
                     new MorphConfig("DN/DN Breast Rotate Up L",
                         false,
-                        0.76f,
-                        0.57f
+                        new JSONStorableFloat("softnessMultiplier", 0.76f, 0, 3),
+                        new JSONStorableFloat("massMultiplier", 0.57f, 0, 3)
                     ),
                     new MorphConfig("DN/DN Breast Rotate Up R",
                         false,
-                        0.76f,
-                        0.57f
+                        new JSONStorableFloat("softnessMultiplier", 0.76f, 0, 3),
+                        new JSONStorableFloat("massMultiplier", 0.57f, 0, 3)
                     ),
                     new MorphConfig("DN/DN Breasts Natural Reverse L",
                         false,
-                        0.36f,
-                        0.27f
+                        new JSONStorableFloat("softnessMultiplier", 0.36f, 0, 3),
+                        new JSONStorableFloat("massMultiplier", 0.27f, 0, 3)
                     ),
                     new MorphConfig("DN/DN Breasts Natural Reverse R",
                         false,
-                        0.37f,
-                        0.27f
+                        new JSONStorableFloat("softnessMultiplier", 0.37f, 0, 3),
+                        new JSONStorableFloat("massMultiplier", 0.27f, 0, 3)
                     ),
                 }
             },
@@ -98,7 +98,7 @@ namespace TittyMagic.Handlers
         private static void UpdateValue(MorphConfig config, float effect, float mass, float softness)
         {
             float value =
-                softness * config.softnessMultiplier * effect +
+                softness * config.softMultiplier * effect +
                 mass * config.massMultiplier * effect;
             bool inRange = config.isNegative ? value < 0 : value > 0;
             config.morph.morphValue = inRange ? Calc.RoundToDecimals(value, 1000f) : 0;
