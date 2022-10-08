@@ -129,6 +129,9 @@ namespace TittyMagic
                     if(value != softPhysicsEnabled)
                     {
                         SoftPhysicsHandler.ReverseSyncSoftPhysicsOn();
+                        ((TrackFemaleBreast) tittyMagic.trackLeftBreast).SetCalculateBreastPosition(value);
+                        ((TrackFemaleBreast) tittyMagic.trackRightBreast).SetCalculateBreastPosition(value);
+
                         var physicsWindow = tittyMagic.tabs.activeWindow as PhysicsWindow;
                         if(physicsWindow != null)
                         {

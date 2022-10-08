@@ -175,8 +175,8 @@ namespace TittyMagic
         private Transform _chestTransform;
         public Rigidbody pectoralRbLeft { get; private set; }
         public Rigidbody pectoralRbRight { get; private set; }
-        private TrackBreast _trackLeftBreast;
-        private TrackBreast _trackRightBreast;
+        public TrackBreast trackLeftBreast { get; private set; }
+        public TrackBreast trackRightBreast { get; private set; }
         private List<UIMod> _uiMods;
 
         private IEnumerator DeferInit()
@@ -292,17 +292,17 @@ namespace TittyMagic
 
             if(personIsFemale)
             {
-                _trackLeftBreast = new TrackFemaleBreast(Side.LEFT);
-                _trackRightBreast = new TrackFemaleBreast(Side.RIGHT);
+                trackLeftBreast = new TrackFemaleBreast(Side.LEFT);
+                trackRightBreast = new TrackFemaleBreast(Side.RIGHT);
             }
             else
             {
-                _trackLeftBreast = new TrackFutaBreast(Side.LEFT);
-                _trackRightBreast = new TrackFutaBreast(Side.RIGHT);
+                trackLeftBreast = new TrackFutaBreast(Side.LEFT);
+                trackRightBreast = new TrackFutaBreast(Side.RIGHT);
             }
 
-            ForcePhysicsHandler.Init(_trackLeftBreast, _trackRightBreast);
-            ForceMorphHandler.Init(_trackLeftBreast, _trackRightBreast);
+            ForcePhysicsHandler.Init();
+            ForceMorphHandler.Init();
 
             /* Setup breast morph listening */
             BreastMorphListener.ProcessMorphs(geometry.morphBank1);
@@ -433,14 +433,14 @@ namespace TittyMagic
         private void SetSmoothingPeriod(float value)
         {
             int period = (int) Mathf.Round(value);
-            ((TrackFemaleBreast) _trackLeftBreast).SetMovingAveragePeriod(period);
-            ((TrackFemaleBreast) _trackRightBreast).SetMovingAveragePeriod(period);
+            ((TrackFemaleBreast) trackLeftBreast).SetMovingAveragePeriod(period);
+            ((TrackFemaleBreast) trackRightBreast).SetMovingAveragePeriod(period);
         }
 
         private void SetWeightingRatio(float value)
         {
-            ((TrackFemaleBreast) _trackLeftBreast).weightingRatio = value;
-            ((TrackFemaleBreast) _trackRightBreast).weightingRatio = value;
+            ((TrackFemaleBreast) trackLeftBreast).weightingRatio = value;
+            ((TrackFemaleBreast) trackRightBreast).weightingRatio = value;
         }
 
         private UIMod NewUIMod(Transform container, string targetName, Func<UIMod, IEnumerator> changesFunc)
@@ -667,8 +667,8 @@ namespace TittyMagic
                 }
 
                 scaleJsf.val = _scaleJsfOrig.val;
-                _trackLeftBreast.UpdateAnglesAndDepthDiff();
-                _trackRightBreast.UpdateAnglesAndDepthDiff();
+                trackLeftBreast.UpdateAnglesAndDepthDiff();
+                trackRightBreast.UpdateAnglesAndDepthDiff();
                 HardColliderHandler.UpdateDistanceDiffs();
 
                 var rotation = _chestTransform.rotation;
@@ -753,8 +753,8 @@ namespace TittyMagic
 
             /* Dynamic adjustments to zero (simulate static upright pose), update physics */
             {
-                _trackLeftBreast.ResetAnglesAndDepthDiff();
-                _trackRightBreast.ResetAnglesAndDepthDiff();
+                trackLeftBreast.ResetAnglesAndDepthDiff();
+                trackRightBreast.ResetAnglesAndDepthDiff();
                 HardColliderHandler.ResetDistanceDiffs();
                 UpdateDynamicHandlers(0, 0);
 
@@ -844,8 +844,8 @@ namespace TittyMagic
                 StartCoroutine(SimulateUprightPose());
                 Action calibrateNipplesAndColliders = () =>
                 {
-                    _trackLeftBreast.Calibrate();
-                    _trackRightBreast.Calibrate();
+                    trackLeftBreast.Calibrate();
+                    trackRightBreast.Calibrate();
                     HardColliderHandler.CalibrateColliders();
                     HardColliderHandler.SyncAllOffsets();
                 };

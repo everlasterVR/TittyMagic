@@ -30,10 +30,10 @@ namespace TittyMagic.Handlers
         private static float backMultiplier => baseJsf.val * backJsf.val;
         private static float leftRightMultiplier => baseJsf.val * leftRightJsf.val;
 
-        public static void Init(TrackBreast trackLeftBreast, TrackBreast trackRightBreast)
+        public static void Init()
         {
-            _trackLeftBreast = trackLeftBreast;
-            _trackRightBreast = trackRightBreast;
+            _trackLeftBreast = tittyMagic.trackLeftBreast;
+            _trackRightBreast = tittyMagic.trackRightBreast;
 
             baseJsf = tittyMagic.NewJSONStorableFloat("forceMorphingBase", 1.00f, 0.00f, 2.00f);
             upJsf = tittyMagic.NewJSONStorableFloat("forceMorphingUp", 1.00f, 0.00f, 2.00f);

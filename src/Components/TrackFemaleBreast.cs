@@ -7,6 +7,7 @@ namespace TittyMagic.Components
 {
     public class TrackFemaleBreast : TrackBreast
     {
+        private readonly Rigidbody _nippleRb;
         private readonly Rigidbody[] _softVertexJointRBs;
 
         private Vector3[] _relativePositions;
@@ -16,15 +17,30 @@ namespace TittyMagic.Components
         {
             if(side == Side.LEFT)
             {
+                _nippleRb = Utils.FindRigidbody(tittyMagic.containingAtom, "lNipple");
                 _softVertexJointRBs = SoftPhysicsHandler.GetLeftBreastTrackingRBs();
-                calculateBreastRelativePosition = SmoothBreastRelativePosition;
+                SetCalculateBreastPosition(tittyMagic.settingsMonitor.softPhysicsEnabled);
                 calculateBreastDepth = () => PectoralRelativeDepth(tittyMagic.pectoralRbLeft);
             }
             else if(side == Side.RIGHT)
             {
+                _nippleRb = Utils.FindRigidbody(tittyMagic.containingAtom, "rNipple");
                 _softVertexJointRBs = SoftPhysicsHandler.GetRightBreastTrackingSets();
                 calculateBreastRelativePosition = SmoothBreastRelativePosition;
+                SetCalculateBreastPosition(tittyMagic.settingsMonitor.softPhysicsEnabled);
                 calculateBreastDepth = () => PectoralRelativeDepth(tittyMagic.pectoralRbRight);
+            }
+        }
+
+        public void SetCalculateBreastPosition(bool softPhysicsOn)
+        {
+            if(softPhysicsOn)
+            {
+                calculateBreastRelativePosition = SmoothBreastRelativePosition;
+            }
+            else
+            {
+                calculateBreastRelativePosition = () => Calc.RelativePosition(chestRb, _nippleRb.position);
             }
         }
 
