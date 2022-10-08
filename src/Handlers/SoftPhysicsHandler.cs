@@ -69,7 +69,7 @@ namespace TittyMagic.Handlers
                 EnableMultiplyFriction();
             }
 
-            breastSoftPhysicsOnJsb = tittyMagic.NewJSONStorableBool(SOFT_PHYSICS_ON, personIsFemale, shouldRegister: personIsFemale);
+            breastSoftPhysicsOnJsb = tittyMagic.NewJSONStorableBool(SOFT_PHYSICS_ON, breastPhysicsMesh.on, shouldRegister: personIsFemale);
             breastSoftPhysicsOnJsb.setCallbackFunction = val =>
             {
                 SyncSoftPhysicsOn(val);
