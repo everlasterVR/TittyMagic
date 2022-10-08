@@ -489,16 +489,16 @@ namespace TittyMagic.Handlers
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_BACK_FORCE, side, 0, 0, 50.00f);
             parameter.config = new StaticPhysicsConfig(
-                0.50f,
-                massCurve: x => 30.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.38f, 0.85f)
+                0.40f,
+                massCurve: x => 30.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.50f, 0.88f)
             );
             parameter.quicknessOffsetConfig = new StaticPhysicsConfig(
-                -0.50f,
-                massCurve: x => 15.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.38f, 0.85f)
+                -0.40f,
+                massCurve: x => 15.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.50f, 0.88f)
             );
             parameter.slownessOffsetConfig = new StaticPhysicsConfig(
                 5.00f,
-                massCurve: x => 0.70f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.38f, 0.85f)
+                massCurve: x => 0.70f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.25f, 0.70f)
             );
             parameter.valueFormat = "F2";
 

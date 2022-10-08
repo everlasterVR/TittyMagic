@@ -343,11 +343,11 @@ namespace TittyMagic
                     }
                 };
 
-                smoothingPeriodJsf = this.NewJSONStorableFloat("morphSmoothingPeriod", 1, 1, 10);
+                smoothingPeriodJsf = this.NewJSONStorableFloat("morphSmoothingPeriod", 4, 1, 10);
                 smoothingPeriodJsf.setCallbackFunction = SetSmoothingPeriod;
                 SetSmoothingPeriod(smoothingPeriodJsf.val);
 
-                smoothingWeightingRatioJsf = this.NewJSONStorableFloat("morphSmoothingWeightingRatio", 0.50f, 0.00f, 1.00f);
+                smoothingWeightingRatioJsf = this.NewJSONStorableFloat("morphSmoothingWeightingRatio", 0.60f, 0.00f, 1.00f);
                 smoothingWeightingRatioJsf.setCallbackFunction = SetWeightingRatio;
                 SetWeightingRatio(smoothingWeightingRatioJsf.val);
 
