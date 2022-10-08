@@ -754,6 +754,16 @@ namespace TittyMagic
                 }
             }
 
+            if(containingAtom.isPhysicsFrozen)
+            {
+                Utils.LogMessage("Calibration will start when Person atom physics is unfrozen.");
+            }
+
+            while(containingAtom.isPhysicsFrozen)
+            {
+                yield return null;
+            }
+
             yield return calibrationHelper.Begin();
             if(calibrationHelper.cancelling)
             {
