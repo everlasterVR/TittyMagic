@@ -46,8 +46,8 @@ namespace TittyMagic.Handlers
             paramGroups[SPRING].SetGravityPhysicsConfigs(NewSpringConfigs(), NewSpringConfigs());
             paramGroups[DAMPER].SetGravityPhysicsConfigs(NewDamperConfigs(), NewDamperConfigs());
             paramGroups[POSITION_SPRING_Z].SetGravityPhysicsConfigs(NewPositionSpringZConfigs(), NewPositionSpringZConfigs());
-            paramGroups[TARGET_ROTATION_X].SetGravityPhysicsConfigs(NewPositionTargetRotationXConfigs(), NewPositionTargetRotationXConfigs());
-            paramGroups[TARGET_ROTATION_Y].SetGravityPhysicsConfigs(NewPositionTargetRotationYConfigs(), NewPositionTargetRotationYConfigs());
+            paramGroups[TARGET_ROTATION_X].SetGravityPhysicsConfigs(NewTargetRotationXConfigs(), NewTargetRotationXConfigs());
+            paramGroups[TARGET_ROTATION_Y].SetGravityPhysicsConfigs(NewTargetRotationYConfigs(), NewTargetRotationYConfigs());
             _paramGroups = MainPhysicsHandler.parameterGroups.Values.ToList();
         }
 
@@ -176,13 +176,13 @@ namespace TittyMagic.Handlers
                 },
             };
 
-        private static Dictionary<string, DynamicPhysicsConfig> NewPositionTargetRotationXConfigs() =>
+        private static Dictionary<string, DynamicPhysicsConfig> NewTargetRotationXConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
             {
                 {
                     Direction.DOWN, new DynamicPhysicsConfig(
                         massMultiplier: 0,
-                        softnessMultiplier: -16.00f,
+                        softnessMultiplier: -12.00f,
                         negative: true,
                         applyMethod: ApplyMethod.ADDITIVE,
                         softnessCurve: Curves.TargetRotationSoftnessCurve
@@ -191,7 +191,7 @@ namespace TittyMagic.Handlers
                 {
                     Direction.UP, new DynamicPhysicsConfig(
                         massMultiplier: 0,
-                        softnessMultiplier: 18.00f,
+                        softnessMultiplier: 15.00f,
                         negative: false,
                         applyMethod: ApplyMethod.ADDITIVE,
                         softnessCurve: Curves.TargetRotationSoftnessCurve
@@ -199,13 +199,13 @@ namespace TittyMagic.Handlers
                 },
             };
 
-        private static Dictionary<string, DynamicPhysicsConfig> NewPositionTargetRotationYConfigs() =>
+        private static Dictionary<string, DynamicPhysicsConfig> NewTargetRotationYConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
             {
                 {
                     Direction.LEFT, new DynamicPhysicsConfig(
                         massMultiplier: 0,
-                        softnessMultiplier: -16.00f,
+                        softnessMultiplier: -15.00f,
                         negative: true,
                         applyMethod: ApplyMethod.ADDITIVE,
                         softnessCurve: Curves.TargetRotationSoftnessCurve
@@ -214,7 +214,7 @@ namespace TittyMagic.Handlers
                 {
                     Direction.RIGHT, new DynamicPhysicsConfig(
                         massMultiplier: 0,
-                        softnessMultiplier: 16.00f,
+                        softnessMultiplier: 15.00f,
                         negative: false,
                         applyMethod: ApplyMethod.ADDITIVE,
                         softnessCurve: Curves.TargetRotationSoftnessCurve
