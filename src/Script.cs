@@ -432,6 +432,11 @@ namespace TittyMagic
 
         private void SetSmoothingPeriod(float value)
         {
+            if(!personIsFemale)
+            {
+                return;
+            }
+
             int period = (int) Mathf.Round(value);
             ((TrackFemaleBreast) trackLeftBreast).SetMovingAveragePeriod(period);
             ((TrackFemaleBreast) trackRightBreast).SetMovingAveragePeriod(period);
@@ -439,6 +444,11 @@ namespace TittyMagic
 
         private void SetWeightingRatio(float value)
         {
+            if(!personIsFemale)
+            {
+                return;
+            }
+
             ((TrackFemaleBreast) trackLeftBreast).weightingRatio = value;
             ((TrackFemaleBreast) trackRightBreast).weightingRatio = value;
         }
