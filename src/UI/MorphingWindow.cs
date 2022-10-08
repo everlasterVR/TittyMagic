@@ -25,13 +25,9 @@ namespace TittyMagic.UI
                 sb.Append("\n\n");
                 sb.Append("Anything that causes the breast to move will cause morphing: collision, gravity");
                 sb.Append(" or any kind of animation.");
-
-                if(!personIsFemale)
-                {
-                    sb.Append("\n\n");
-                    sb.Append("Too high multipliers for up and left/right directions can");
-                    sb.Append(" prevent breasts from returning to their neutral shape normally.");
-                }
+                sb.Append("\n\n");
+                sb.Append("Too high multipliers for up and left/right directions can");
+                sb.Append(" prevent breasts from returning to their neutral shape normally.");
 
                 var storable = new JSONStorableString("forceMorphingMultipliersInfoText", sb.ToString());
 
