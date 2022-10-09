@@ -213,9 +213,10 @@ namespace TittyMagic
             {
                 const float timeout = 15;
                 float timePassed = 0;
+
                 bool characterReady = false;
                 bool skinReady = false;
-                while(timePassed < timeout && !characterReady && !skinReady)
+                while(timePassed < timeout && !(characterReady && skinReady))
                 {
                     timePassed += Time.unscaledDeltaTime;
                     geometry = (DAZCharacterSelector) containingAtom.GetStorableByID("geometry");
