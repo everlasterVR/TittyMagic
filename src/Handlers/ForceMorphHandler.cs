@@ -681,13 +681,10 @@ namespace TittyMagic.Handlers
         private static void AdjustUpMorphs(float diffFromHorizontal)
         {
             float pitchMultiplier = Mathf.Lerp(0.80f, 1f, diffFromHorizontal);
-            float curveBParam = Mathf.Lerp(1.46f, 1.50f, diffFromHorizontal);
-            float curveQParam = Mathf.Lerp(1.00f, 1.05f, diffFromHorizontal);
-
             Func<float, float> calculateEffect = angle =>
                 upDownExtraMultiplier
                 * Curves.QuadraticRegression(upMultiplier)
-                * Curves.YForceEffectCurve(pitchMultiplier * Mathf.Abs(angle) / 75, curveBParam, curveQParam);
+                * Curves.YForceEffectCurve(pitchMultiplier * Mathf.Abs(angle) / 75);
 
             if(_trackLeftBreast.angleY >= 0)
             {
@@ -811,13 +808,11 @@ namespace TittyMagic.Handlers
         private static void AdjustLeftMorphs(float roll)
         {
             float rollAngleMulti = Mathf.Lerp(1.25f, 1f, roll);
-            float curveBParam = Mathf.Lerp(1.46f, 1.50f, roll);
-            float curveQParam = Mathf.Lerp(1.00f, 1.06f, roll);
 
             Func<float, float> calculateEffect = angle =>
                 leftRightExtraMultiplier
                 * Curves.QuadraticRegression(leftRightMultiplier)
-                * Curves.XForceEffectCurve(rollAngleMulti * Mathf.Abs(angle) / 60, curveBParam, curveQParam);
+                * Curves.XForceEffectCurve(rollAngleMulti * Mathf.Abs(angle) / 60);
 
             if(_trackLeftBreast.angleX >= 0)
             {
@@ -845,13 +840,11 @@ namespace TittyMagic.Handlers
         private static void AdjustRightMorphs(float roll)
         {
             float rollAngleMulti = Mathf.Lerp(1.25f, 1f, roll);
-            float curveBParam = Mathf.Lerp(1.50f, 1.61f, 1 - roll);
-            float curveQParam = Mathf.Lerp(1.02f, 1.15f, 1 - roll);
 
             Func<float, float> calculateEffect = angle =>
                 leftRightExtraMultiplier
                 * Curves.QuadraticRegression(leftRightMultiplier)
-                * Curves.XForceEffectCurve(rollAngleMulti * Mathf.Abs(angle) / 60, curveBParam, curveQParam);
+                * Curves.XForceEffectCurve(rollAngleMulti * Mathf.Abs(angle) / 60);
 
             if(_trackLeftBreast.angleX >= 0)
             {

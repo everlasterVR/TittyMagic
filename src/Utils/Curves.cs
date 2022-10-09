@@ -68,8 +68,8 @@ namespace TittyMagic
         }
 
         // https://www.desmos.com/calculator/tyltxvn0fj
-        public static float YForceEffectCurve(float x, float b, float q) => Exponential1(x, b, 3.20f, q, a: 1, m: 0.47f);
-        public static float XForceEffectCurve(float x, float b, float q) => Exponential1(x, b, 3.20f, q, a: 1, m: 0.65f);
+        public static float YForceEffectCurve(float x) => Exponential1(x, 1.50f, 3.20f, 1.05f, a: 1, m: 0.51f);
+        public static float XForceEffectCurve(float x) => Exponential1(x, 1.46f, 3.20f, 1.00f, a: 1, m: 0.65f);
 
         // https://www.desmos.com/calculator/lb4dq24zwp
         public static float DepthForceEffectCurve(float x) => InverseSmoothStep(x, 10, 0.8f, 0f);
