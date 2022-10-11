@@ -34,40 +34,11 @@ namespace TittyMagic
             19615, 19617, 19618, 19620, 19625, 19635, 19636,
         };
 
-        public static int[] leftBreastWidthMarkers = { 8956, 8967 };
-        public static int[] rightBreastWidthMarkers = { 19622, 19633 };
-
-        public static int[] leftNippleMale = { 8911, 8930, 8943, 8947 };
-        public static int[] rightNippleMale = { 19577, 19596, 19609, 19625 };
-
-        public static int[] leftBreastMiddle =
-        {
-            7230, 7231, 7232, 7233, 7234, 7235, 7236, 7237, 7238, 7239, 7243, 7244, 7245, 7246, 7247, 8925, 8926, 8927, 8928, 8929, 8930, 8931, 8932,
-            8933, 8934, 8935, 8936, 8937, 8938, 8939, 8940, 8941, 8942, 8943, 8944, 8945, 8946, 8947, 8948,
-        };
-        public static int[] rightBreastMiddle =
-        {
-            17936, 17937, 17938, 17939, 17940, 17941, 17942, 17943, 17944, 17945, 17949, 17950, 17951, 17952, 17953, 19591, 19592, 19593, 19594,
-            19595, 19596, 19597, 19598, 19599, 19600, 19601, 19602, 19603, 19604, 19605, 19606, 19607, 19608, 19609, 19610, 19611, 19612, 19613,
-            19614,
-        };
-
-        public static int[] leftAreolaMiddle = { 7945, 7946, 7947, 7950, 7958, 7966 };
-        public static int[] rightAreolaMiddle = { 18623, 18624, 18625, 18628, 18636, 18644 };
-
         public static void Destroy()
         {
             breasts = null;
             leftBreast = null;
             rightBreast = null;
-            leftBreastWidthMarkers = null;
-            rightBreastWidthMarkers = null;
-            leftNippleMale = null;
-            rightNippleMale = null;
-            leftBreastMiddle = null;
-            rightBreastMiddle = null;
-            leftAreolaMiddle = null;
-            rightAreolaMiddle = null;
         }
     }
 }

@@ -8,9 +8,14 @@ namespace TittyMagic.Components
     public class TrackFemaleBreast : TrackBreast
     {
         private readonly Rigidbody _nippleRb;
-        private readonly Rigidbody[] _softVertexJointRBs;
+        private readonly Rigidbody _pectoralRb;
+
+        private readonly Rigidbody[] _softVertexCenterJointRBs;
+        private readonly Rigidbody[] _softVertexTipJointRBs;
+        private readonly Rigidbody[] _softVertexOuterJointRBs;
 
         private Vector3[] _relativePositions;
+        private float[] _relativeDepths;
         public float weightingRatio { private get; set; }
 
         public TrackFemaleBreast(string side)
@@ -18,78 +23,115 @@ namespace TittyMagic.Components
             if(side == Side.LEFT)
             {
                 _nippleRb = Utils.FindRigidbody(tittyMagic.containingAtom, "lNipple");
-                _softVertexJointRBs = SoftPhysicsHandler.GetLeftBreastTrackingRBs();
-                calculateBreastDepth = () => PectoralRelativeDepth(tittyMagic.pectoralRbLeft);
+                _pectoralRb = tittyMagic.pectoralRbLeft;
             }
             else if(side == Side.RIGHT)
             {
                 _nippleRb = Utils.FindRigidbody(tittyMagic.containingAtom, "rNipple");
-                _softVertexJointRBs = SoftPhysicsHandler.GetRightBreastTrackingSets();
-                calculateBreastRelativePosition = SmoothBreastRelativePosition;
-                calculateBreastDepth = () => PectoralRelativeDepth(tittyMagic.pectoralRbRight);
+                _pectoralRb = tittyMagic.pectoralRbRight;
             }
 
-            SetCalculateBreastPosition(tittyMagic.settingsMonitor.softPhysicsEnabled);
+            _softVertexCenterJointRBs = SoftPhysicsHandler.GetBreastCenterTrackingRigidbodies(side);
+            _softVertexTipJointRBs = SoftPhysicsHandler.GetBreastTipTrackingRigidbodies(side);
+            _softVertexOuterJointRBs = SoftPhysicsHandler.GetTrackingRigidbodies(side, SoftColliderGroup.OUTER);
+
+            SetCalculateFunctions(tittyMagic.settingsMonitor.softPhysicsEnabled);
         }
 
-        public void SetCalculateBreastPosition(bool softPhysicsOn)
+        public void SetCalculateFunctions(bool softPhysicsOn)
         {
             if(softPhysicsOn)
             {
                 calculateBreastRelativePosition = SmoothBreastRelativePosition;
+                calculateBreastRelativeDepth = SmoothBreastRelativeDepth;
             }
             else
             {
                 calculateBreastRelativePosition = () => Calc.RelativePosition(chestRb, _nippleRb.position);
+                calculateBreastRelativeDepth = () => Calc.RelativePosition(chestRb, _pectoralRb.position).z;
             }
         }
 
         public void SetMovingAveragePeriod(int value)
         {
-            var tmpArray = new Vector3[value];
-
-            if(_relativePositions == null)
+            /* Breast relative positions */
             {
-                for(int i = 0; i < tmpArray.Length; i++)
+                var tmpArray = new Vector3[value];
+
+                if(_relativePositions == null)
                 {
-                    tmpArray[i] = breastPositionBase;
+                    for(int i = 0; i < tmpArray.Length; i++)
+                    {
+                        tmpArray[i] = breastPositionBase;
+                    }
                 }
-            }
-            else
-            {
-                for(int i = 0; i < tmpArray.Length; i++)
+                else
                 {
-                    tmpArray[i] = i < _relativePositions.Length
-                        ? _relativePositions[i]
-                        : tmpArray[i - 1];
+                    for(int i = 0; i < tmpArray.Length; i++)
+                    {
+                        tmpArray[i] = i < _relativePositions.Length
+                            ? _relativePositions[i]
+                            : tmpArray[i - 1];
+                    }
                 }
+
+                _relativePositions = tmpArray;
             }
 
-            _relativePositions = tmpArray;
+            /* Breast relative depths */
+            {
+                float[] tmpArray = new float[value];
+
+                if(_relativeDepths == null)
+                {
+                    for(int i = 0; i < tmpArray.Length; i++)
+                    {
+                        tmpArray[i] = breastDepthBase;
+                    }
+                }
+                else
+                {
+                    for(int i = 0; i < tmpArray.Length; i++)
+                    {
+                        tmpArray[i] = i < _relativeDepths.Length
+                            ? _relativeDepths[i]
+                            : tmpArray[i - 1];
+                    }
+                }
+
+                _relativeDepths = tmpArray;
+            }
         }
 
         private Vector3 SmoothBreastRelativePosition()
         {
             Array.Copy(_relativePositions, 0, _relativePositions, 1, _relativePositions.Length - 1);
-            _relativePositions[0] = RelativeBreastPosition();
+            _relativePositions[0] = Calc.RelativePosition(chestRb, CalculatePosition(_softVertexCenterJointRBs));
             return Calc.ExponentialMovingAverage(_relativePositions, weightingRatio)[0];
         }
 
-        private Vector3 RelativeBreastPosition()
+        private float SmoothBreastRelativeDepth()
         {
-            var positions = new Vector3[_softVertexJointRBs.Length];
-            for(int i = 0; i < _softVertexJointRBs.Length; i++)
-            {
-                positions[i] = _softVertexJointRBs[i].position;
-            }
+            var tipToPectoral = Calc.RelativePosition(_pectoralRb, CalculatePosition(_softVertexTipJointRBs));
+            var outerToPectoral = Calc.RelativePosition(_pectoralRb, CalculatePosition(_softVertexOuterJointRBs));
 
-            return Calc.RelativePosition(chestRb, Calc.AveragePosition(positions));
+            Array.Copy(_relativeDepths, 0, _relativeDepths, 1, _relativeDepths.Length - 1);
+            _relativeDepths[0] =
+                0.5f * Calc.RelativePosition(chestRb, _pectoralRb.position).z
+                + 0.5f * (tipToPectoral - outerToPectoral).z;
+
+            return Calc.ExponentialMovingAverage(_relativeDepths, weightingRatio)[0];
         }
 
-        private float PectoralRelativeDepth(Rigidbody pectoralRb)
+        private static Vector3 CalculatePosition(Rigidbody[] rigidbodies)
         {
-            var position = Calc.RelativePosition(chestRb, pectoralRb.position);
-            return position.z;
+            var positions = new Vector3[rigidbodies.Length];
+            for(int i = 0; i < rigidbodies.Length; i++)
+            {
+                positions[i] = rigidbodies[i].position;
+            }
+
+            return Calc.AveragePosition(positions);
         }
     }
 }

@@ -13,10 +13,10 @@ namespace TittyMagic.Components
         public float depthDiff { get; private set; }
 
         protected Vector3 breastPositionBase;
-        private float _breastDepthBase;
+        protected float breastDepthBase;
 
         protected Func<Vector3> calculateBreastRelativePosition;
-        protected Func<float> calculateBreastDepth;
+        protected Func<float> calculateBreastRelativeDepth;
 
         protected TrackBreast()
         {
@@ -26,7 +26,7 @@ namespace TittyMagic.Components
         public void Calibrate()
         {
             breastPositionBase = calculateBreastRelativePosition();
-            _breastDepthBase = calculateBreastDepth();
+            breastDepthBase = calculateBreastRelativeDepth();
         }
 
         public void UpdateAnglesAndDepthDiff()
@@ -41,7 +41,7 @@ namespace TittyMagic.Components
                 new Vector2(relativePos.z, relativePos.x)
             );
 
-            depthDiff = _breastDepthBase - calculateBreastDepth();
+            depthDiff = breastDepthBase - calculateBreastRelativeDepth();
         }
 
         public void ResetAnglesAndDepthDiff()

@@ -11,15 +11,15 @@ namespace TittyMagic.Components
         {
             if(side == Side.LEFT)
             {
-                _nippleVertexIndices = VertexIndexGroup.leftNippleMale;
+                _nippleVertexIndices = new[] { 8911, 8930, 8943, 8947 };
                 calculateBreastRelativePosition = RelativeNippleSkinPosition;
-                calculateBreastDepth = () => PectoralRelativeDepth(tittyMagic.pectoralRbLeft);
+                calculateBreastRelativeDepth = () => Calc.RelativePosition(chestRb, tittyMagic.pectoralRbLeft.position).z;
             }
             else if(side == Side.RIGHT)
             {
-                _nippleVertexIndices = VertexIndexGroup.rightNippleMale;
+                _nippleVertexIndices = new[] { 19577, 19596, 19609, 19625 };
                 calculateBreastRelativePosition = RelativeNippleSkinPosition;
-                calculateBreastDepth = () => PectoralRelativeDepth(tittyMagic.pectoralRbRight);
+                calculateBreastRelativeDepth = () => Calc.RelativePosition(chestRb, tittyMagic.pectoralRbRight.position).z;
             }
         }
 
@@ -32,12 +32,6 @@ namespace TittyMagic.Components
             }
 
             return Calc.RelativePosition(chestRb.transform, Calc.AveragePosition(vertices));
-        }
-
-        private float PectoralRelativeDepth(Rigidbody pectoralRb)
-        {
-            var position = Calc.RelativePosition(chestRb, pectoralRb.position);
-            return position.z;
         }
     }
 }

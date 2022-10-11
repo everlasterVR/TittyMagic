@@ -419,8 +419,9 @@ namespace TittyMagic.Handlers
 
         public static void UpdateFrictionSizeMultipliers()
         {
-            _frictionSizeMultiplierLeft = FrictionSizeMultiplier(VertexIndexGroup.leftBreastWidthMarkers);
-            _frictionSizeMultiplierRight = FrictionSizeMultiplier(VertexIndexGroup.rightBreastWidthMarkers);
+            /* int[]: left and right skin width markers */
+            _frictionSizeMultiplierLeft = FrictionSizeMultiplier(new[] { 8956, 8967 });
+            _frictionSizeMultiplierRight = FrictionSizeMultiplier(new[] { 19622, 19633 });
         }
 
         private static float FrictionSizeMultiplier(int[] indices)

@@ -233,7 +233,7 @@ namespace TittyMagic.Handlers
         {
             Func<float, float> calculateEffect = distance =>
                 Curves.QuadraticRegression(forwardMultiplier)
-                * Curves.DepthForceEffectCurve(Mathf.Abs(distance) * 8);
+                * Curves.ZForceEffectCurve(Mathf.Abs(distance) * 10);
 
             if(_trackLeftBreast.depthDiff <= 0)
             {
@@ -260,7 +260,7 @@ namespace TittyMagic.Handlers
         {
             Func<float, float> calculateEffect = distance =>
                 Curves.QuadraticRegression(backMultiplier)
-                * Curves.DepthForceEffectCurve(Mathf.Abs(distance) * 8);
+                * Curves.ZForceEffectCurve(Mathf.Abs(distance) * 10);
 
             if(_trackLeftBreast.depthDiff > 0)
             {
