@@ -655,7 +655,7 @@ namespace TittyMagic.Handlers
 
         public static void Update(float roll, float pitch)
         {
-            float diffFromHorizontal = GravityEffectCalc.CalculateDiffFromHorizontal(pitch, roll);
+            float diffFromHorizontal = GravityEffectCalc.DiffFromHorizontal(pitch, roll);
             AdjustUpMorphs(diffFromHorizontal);
             AdjustForwardMorphs();
             AdjustBackMorphs(roll, pitch);

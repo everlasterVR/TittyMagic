@@ -648,15 +648,6 @@ namespace TittyMagic
 
         #region Update
 
-        private static void UpdateDynamicHandlers(float roll, float pitch)
-        {
-            HardColliderHandler.UpdateFriction();
-            ForcePhysicsHandler.Update();
-            GravityPhysicsHandler.Update(roll, pitch);
-            ForceMorphHandler.Update(roll, pitch);
-            GravityOffsetMorphHandler.Update(roll, pitch);
-        }
-
         private void FixedUpdate()
         {
             if(!initialized)
@@ -686,7 +677,11 @@ namespace TittyMagic
                 float roll = Calc.Roll(rotation);
                 float pitch = Calc.Pitch(rotation);
 
-                UpdateDynamicHandlers(roll, pitch);
+                HardColliderHandler.UpdateFriction();
+                ForcePhysicsHandler.Update();
+                GravityPhysicsHandler.Update();
+                ForceMorphHandler.Update(roll, pitch);
+                GravityOffsetMorphHandler.Update(roll, pitch);
 
                 if(envIsDevelopment)
                 {
@@ -777,7 +772,12 @@ namespace TittyMagic
                 trackLeftBreast.ResetAnglesAndDepthDiff();
                 trackRightBreast.ResetAnglesAndDepthDiff();
                 HardColliderHandler.ResetDistanceDiffs();
-                UpdateDynamicHandlers(0, 0);
+
+                HardColliderHandler.UpdateFriction();
+                ForcePhysicsHandler.Update();
+                GravityPhysicsHandler.SimulateUpright();
+                ForceMorphHandler.Update(0, 0);
+                GravityOffsetMorphHandler.Update(0, 0);
 
                 MainPhysicsHandler.UpdatePhysics();
                 SoftPhysicsHandler.UpdatePhysics();
@@ -897,8 +897,11 @@ namespace TittyMagic
         {
             while(_isSimulatingUprightPose)
             {
-                // simulate upright pose
-                UpdateDynamicHandlers(roll: 0, pitch: 0);
+                HardColliderHandler.UpdateFriction();
+                ForcePhysicsHandler.Update();
+                GravityPhysicsHandler.SimulateUpright();
+                ForceMorphHandler.Update(0, 0);
+                GravityOffsetMorphHandler.Update(0, 0);
 
                 // scale force to be correct for the given fps vs physics rate, for some reason this produces an accurate calibration result
                 float rateToPhysicsRateRatio = Time.deltaTime / Time.fixedDeltaTime;

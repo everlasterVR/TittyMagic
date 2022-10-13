@@ -5,11 +5,11 @@ namespace TittyMagic.Handlers
     public static class GravityEffectCalc
     {
         // div by 2 because softness and mass affect equally
-        public static float CalculateRollEffect(float roll, float multiplier) =>
+        public static float RollEffect(float roll, float multiplier) =>
             Mathf.Abs(roll) * multiplier / 2;
 
         // ReSharper disable once UnusedMember.Global
-        public static float CalculateUpEffect(
+        public static float UpEffect(
             float pitch,
             float roll,
             float multiplier,
@@ -21,10 +21,10 @@ namespace TittyMagic.Handlers
         }
 
         // ReSharper disable once UnusedMember.Global
-        public static float CalculateDownEffect(float pitch, float roll, float multiplier) =>
+        public static float DownEffect(float pitch, float roll, float multiplier) =>
             (2 - Mathf.Abs(pitch) / 2) * RollMultiplier(roll) * multiplier / 2;
 
-        public static float CalculateDepthEffect(float pitch, float roll, float multiplier) =>
+        public static float DepthEffect(float pitch, float roll, float multiplier) =>
             DepthAdjustByAngle(pitch) * RollMultiplier(roll) * multiplier / 2;
 
         private static float DepthAdjustByAngle(float pitch)
@@ -53,7 +53,7 @@ namespace TittyMagic.Handlers
             return 2 + pitch;
         }
 
-        public static float CalculateUpDownEffect(float pitch, float roll, float multiplier) =>
+        public static float UpDownEffect(float pitch, float roll, float multiplier) =>
             UpDownAdjustByAngle(pitch) *
             RollMultiplier(roll) *
             multiplier / 2;
@@ -84,7 +84,7 @@ namespace TittyMagic.Handlers
             return -pitch - 1;
         }
 
-        public static float CalculateDiffFromHorizontal(float pitch, float roll) =>
+        public static float DiffFromHorizontal(float pitch, float roll) =>
             2 * (0.5f - Mathf.Abs(pitch)) * RollMultiplier(roll);
 
         private static float RollMultiplier(float roll) => 1 - Mathf.Abs(roll);
