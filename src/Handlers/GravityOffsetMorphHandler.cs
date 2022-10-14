@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using TittyMagic.Handlers.Configs;
 using static TittyMagic.Script;
+using static TittyMagic.Direction;
 
 namespace TittyMagic.Handlers
 {
@@ -20,7 +21,7 @@ namespace TittyMagic.Handlers
         public static void LoadSettings() => _configSets = new Dictionary<string, List<MorphConfig>>
         {
             {
-                Direction.DOWN, new List<MorphConfig>
+                DOWN, new List<MorphConfig>
                 {
                     new MorphConfig("DN/DN Breast Rotate Up L",
                         false,
@@ -58,32 +59,32 @@ namespace TittyMagic.Handlers
         {
             float multiplier = upDownExtraMultiplier * GravityPhysicsHandler.downMultiplier;
             float effect = offsetMorphingJsf.val * GravityEffectCalc.UpDownEffect(pitch, roll, multiplier);
-            if(pitch >= 0)
+            if(pitch > 0)
             {
                 // leaning forward
                 if(pitch < 1)
                 {
                     // upright
-                    UpdateMorphs(Direction.DOWN, effect);
+                    UpdateMorphs(DOWN, effect);
                 }
                 else
                 {
                     // upside down
-                    ResetMorphs(Direction.DOWN);
+                    ResetMorphs(DOWN);
                 }
             }
             else
             {
                 // leaning back
-                if(pitch >= -1)
+                if(pitch > -1)
                 {
                     // upright
-                    UpdateMorphs(Direction.DOWN, effect);
+                    UpdateMorphs(DOWN, effect);
                 }
                 else
                 {
                     // upside down
-                    ResetMorphs(Direction.DOWN);
+                    ResetMorphs(DOWN);
                 }
             }
         }
