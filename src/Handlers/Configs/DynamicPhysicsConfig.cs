@@ -32,6 +32,7 @@ namespace TittyMagic.Handlers.Configs
         public float Calculate(float effect, float mass, float softness)
         {
             float value = effect * (
+                baseMultiplier +
                 _softnessCurve(softness) * softnessMultiplier +
                 _massCurve(mass) * massMultiplier
             );

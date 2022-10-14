@@ -75,7 +75,7 @@ namespace TittyMagic.Handlers
             };
             colliderVisualizer.XRayPreviewsJSON.setJSONCallbackFunction = _ => SyncSizeAuto();
 
-            baseForceJsf = tittyMagic.NewJSONStorableFloat("baseCollisionForce", 0.50f, 0.01f, 1.50f);
+            baseForceJsf = tittyMagic.NewJSONStorableFloat("baseCollisionForce", 0.75f, 0.01f, 1.50f);
             baseForceJsf.setCallbackFunction = _ => SyncCollidersMass();
             highlightAllJsb = tittyMagic.NewJSONStorableBool("highlightAllHardColliders", false, shouldRegister: false);
             highlightAllJsb.setCallbackFunction = value => colliderVisualizer.PreviewOpacityJSON.val = value ? 1.00f : 0.67f;

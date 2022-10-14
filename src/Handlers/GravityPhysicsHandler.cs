@@ -187,6 +187,9 @@ namespace TittyMagic.Handlers
                         applyMethod: ApplyMethod.ADDITIVE,
                         softnessCurve: Curves.TargetRotationSoftnessCurve
                     )
+                    {
+                        baseMultiplier = -2.00f,
+                    }
                 },
                 {
                     Direction.UP, new DynamicPhysicsConfig(
@@ -196,6 +199,9 @@ namespace TittyMagic.Handlers
                         applyMethod: ApplyMethod.ADDITIVE,
                         softnessCurve: Curves.TargetRotationSoftnessCurve
                     )
+                    {
+                        baseMultiplier = 2.36f,
+                    }
                 },
             };
 
@@ -210,6 +216,9 @@ namespace TittyMagic.Handlers
                         applyMethod: ApplyMethod.ADDITIVE,
                         softnessCurve: Curves.TargetRotationSoftnessCurve
                     )
+                    {
+                        baseMultiplier = -2.36f,
+                    }
                 },
                 {
                     Direction.RIGHT, new DynamicPhysicsConfig(
@@ -219,6 +228,9 @@ namespace TittyMagic.Handlers
                         applyMethod: ApplyMethod.ADDITIVE,
                         softnessCurve: Curves.TargetRotationSoftnessCurve
                     )
+                    {
+                        baseMultiplier = 2.36f,
+                    }
                 },
             };
 
