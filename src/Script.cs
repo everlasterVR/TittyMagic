@@ -673,15 +673,11 @@ namespace TittyMagic
                 trackRightBreast.Update();
                 HardColliderHandler.UpdateDistanceDiffs();
 
-                var rotation = _chestTransform.rotation;
-                float roll = Calc.Roll(rotation);
-                float pitch = Calc.Pitch(rotation);
-
                 HardColliderHandler.UpdateFriction();
                 ForcePhysicsHandler.Update();
                 GravityPhysicsHandler.Update();
-                ForceMorphHandler.Update(roll, pitch);
-                GravityOffsetMorphHandler.Update(roll, pitch);
+                ForceMorphHandler.Update();
+                GravityOffsetMorphHandler.Update();
 
                 if(envIsDevelopment)
                 {
@@ -776,8 +772,8 @@ namespace TittyMagic
                 HardColliderHandler.UpdateFriction();
                 ForcePhysicsHandler.Update();
                 GravityPhysicsHandler.SimulateUpright();
-                ForceMorphHandler.Update(0, 0);
-                GravityOffsetMorphHandler.Update(0, 0);
+                ForceMorphHandler.SimulateUpright();
+                GravityOffsetMorphHandler.SimulateUpright();
 
                 MainPhysicsHandler.UpdatePhysics();
                 SoftPhysicsHandler.UpdatePhysics();
@@ -900,8 +896,8 @@ namespace TittyMagic
                 HardColliderHandler.UpdateFriction();
                 ForcePhysicsHandler.Update();
                 GravityPhysicsHandler.SimulateUpright();
-                ForceMorphHandler.Update(0, 0);
-                GravityOffsetMorphHandler.Update(0, 0);
+                ForceMorphHandler.SimulateUpright();
+                GravityOffsetMorphHandler.SimulateUpright();
 
                 // scale force to be correct for the given fps vs physics rate, for some reason this produces an accurate calibration result
                 float rateToPhysicsRateRatio = Time.deltaTime / Time.fixedDeltaTime;

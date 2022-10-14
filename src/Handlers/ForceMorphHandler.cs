@@ -653,28 +653,39 @@ namespace TittyMagic.Handlers
 
         #endregion Morph configs
 
-        public static void Update(float roll, float pitch)
+        public static void Update()
         {
-            float diffFromHorizontal = GravityEffectCalc.DiffFromHorizontal(pitch, roll);
-            AdjustUpMorphs(diffFromHorizontal);
+            var rotationLeft = tittyMagic.pectoralRbLeft.rotation;
+            var rotationRight = tittyMagic.pectoralRbRight.rotation;
+            float rollLeft = Calc.Roll(rotationLeft);
+            float rollRight = -Calc.Roll(rotationRight);
+            float pitchLeft = 2 * Calc.Pitch(rotationLeft);
+            float pitchRight = 2 * Calc.Pitch(rotationRight);
+
+            AdjustUpMorphs(rollLeft, rollRight, pitchLeft, pitchRight);
             AdjustForwardMorphs();
-            AdjustBackMorphs(roll, pitch);
-            AdjustLeftMorphs(Mathf.Abs(roll));
-            AdjustRightMorphs(Mathf.Abs(roll));
+            AdjustBackMorphs(rollLeft, rollRight, pitchLeft, pitchRight);
+
+            float rollAngleMultiLeft = Mathf.Lerp(1.25f, 1f, Mathf.Abs(rollLeft));
+            float rollAngleMultiRight = Mathf.Lerp(1.25f, 1f, Mathf.Abs(rollRight));
+            AdjustLeftMorphs(rollAngleMultiLeft, rollAngleMultiRight);
+            AdjustRightMorphs(rollAngleMultiLeft, rollAngleMultiRight);
         }
 
-        private static void AdjustUpMorphs(float diffFromHorizontal)
+        private static void AdjustUpMorphs(float rollLeft, float rollRight, float pitchLeft, float pitchRight)
         {
-            float pitchMultiplier = Mathf.Lerp(0.80f, 1f, diffFromHorizontal);
-            Func<float, float> calculateEffect = angle =>
+            Func<float, float, float> calculateEffect = (angle, pitchMultiplier) =>
                 upDownExtraMultiplier
                 * Curves.QuadraticRegression(upMultiplier)
                 * Curves.YForceEffectCurve(pitchMultiplier * Mathf.Abs(angle) / 75);
 
+            float pitchMultiplierLeft = Mathf.Lerp(0.80f, 1f, GravityEffectCalc.DiffFromHorizontal(pitchLeft, rollLeft));
+            float pitchMultiplierRight = Mathf.Lerp(0.80f, 1f, GravityEffectCalc.DiffFromHorizontal(pitchRight, rollRight));
+
             if(_trackLeftBreast.angleY >= 0)
             {
                 // up force on left breast
-                UpdateMorphs(Direction.UP_L, calculateEffect(_trackLeftBreast.angleY));
+                UpdateMorphs(Direction.UP_L, calculateEffect(_trackLeftBreast.angleY, pitchMultiplierLeft));
             }
             else
             {
@@ -685,7 +696,7 @@ namespace TittyMagic.Handlers
             if(_trackRightBreast.angleY >= 0)
             {
                 // up force on right breast
-                UpdateMorphs(Direction.UP_R, calculateEffect(_trackRightBreast.angleY));
+                UpdateMorphs(Direction.UP_R, calculateEffect(_trackRightBreast.angleY, pitchMultiplierRight));
             }
             else
             {
@@ -694,10 +705,11 @@ namespace TittyMagic.Handlers
             }
 
             float angleYCenter = (_trackRightBreast.angleY + _trackLeftBreast.angleY) / 2;
+            float pitchMultiplierCenter = (pitchMultiplierLeft + pitchMultiplierRight) / 2;
             if(angleYCenter >= 0)
             {
                 // up force on average of left and right breast
-                UpdateMorphs(Direction.UP_C, calculateEffect(angleYCenter));
+                UpdateMorphs(Direction.UP_C, calculateEffect(angleYCenter, pitchMultiplierCenter));
             }
             else
             {
@@ -747,11 +759,14 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private static void AdjustBackMorphs(float roll, float pitch)
+        private static void AdjustBackMorphs(float rollLeft, float rollRight, float pitchLeft, float pitchRight)
         {
-            Func<float, float> calculateEffect = distance =>
+            float leanBackFixedMultiLeft = CalculateLeanBackFixerMultiplier(pitchLeft, rollLeft);
+            float leanBackFixedMultiRight = CalculateLeanBackFixerMultiplier(pitchRight, rollRight);
+
+            Func<float, float, float> calculateEffect = (distance, leanBackFixedMulti) =>
                 backExtraMultiplier
-                * CalculateLeanBackFixerMultiplier(pitch, roll)
+                * leanBackFixedMulti
                 * Curves.QuadraticRegression(backMultiplier)
                 * Curves.ZForceEffectCurve(Mathf.Abs(distance) * 13.5f);
 
@@ -763,7 +778,7 @@ namespace TittyMagic.Handlers
             else
             {
                 // back force on left breast
-                UpdateMorphs(Direction.BACK_L, calculateEffect(_trackLeftBreast.depthDiff));
+                UpdateMorphs(Direction.BACK_L, calculateEffect(_trackLeftBreast.depthDiff, leanBackFixedMultiLeft));
             }
 
             if(_trackRightBreast.depthDiff <= 0)
@@ -774,10 +789,11 @@ namespace TittyMagic.Handlers
             else
             {
                 // back force on right breast
-                UpdateMorphs(Direction.BACK_R, calculateEffect(_trackRightBreast.depthDiff));
+                UpdateMorphs(Direction.BACK_R, calculateEffect(_trackRightBreast.depthDiff, leanBackFixedMultiRight));
             }
 
             float depthDiffCenter = (_trackLeftBreast.depthDiff + _trackRightBreast.depthDiff) / 2;
+            float leanBackFixedMultiCenter = (leanBackFixedMultiLeft + leanBackFixedMultiRight) / 2;
             if(depthDiffCenter <= 0)
             {
                 // forward force on average of left and right breast
@@ -786,15 +802,13 @@ namespace TittyMagic.Handlers
             else
             {
                 // back force on average of left and right breast
-                UpdateMorphs(Direction.BACK_C, calculateEffect(depthDiffCenter));
+                UpdateMorphs(Direction.BACK_C, calculateEffect(depthDiffCenter, leanBackFixedMultiCenter));
             }
         }
 
-        private static void AdjustLeftMorphs(float roll)
+        private static void AdjustLeftMorphs(float rollAngleMultiLeft, float rollAngleMultiRight)
         {
-            float rollAngleMulti = Mathf.Lerp(1.25f, 1f, roll);
-
-            Func<float, float> calculateEffect = angle =>
+            Func<float, float, float> calculateEffect = (angle, rollAngleMulti) =>
                 leftRightExtraMultiplier
                 * Curves.QuadraticRegression(leftRightMultiplier)
                 * Curves.XForceEffectCurve(rollAngleMulti * Mathf.Abs(angle) / 60);
@@ -802,7 +816,7 @@ namespace TittyMagic.Handlers
             if(_trackLeftBreast.angleX >= 0)
             {
                 // left force on left breast
-                UpdateMorphs(Direction.RIGHT_L, calculateEffect(_trackLeftBreast.angleX));
+                UpdateMorphs(Direction.RIGHT_L, calculateEffect(_trackLeftBreast.angleX, rollAngleMultiLeft));
             }
             else
             {
@@ -813,7 +827,7 @@ namespace TittyMagic.Handlers
             if(_trackRightBreast.angleX >= 0)
             {
                 // left force on right breast
-                UpdateMorphs(Direction.RIGHT_R, calculateEffect(_trackRightBreast.angleX));
+                UpdateMorphs(Direction.RIGHT_R, calculateEffect(_trackRightBreast.angleX, rollAngleMultiRight));
             }
             else
             {
@@ -822,11 +836,9 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private static void AdjustRightMorphs(float roll)
+        private static void AdjustRightMorphs(float rollAngleMultiLeft, float rollAngleMultiRight)
         {
-            float rollAngleMulti = Mathf.Lerp(1.25f, 1f, roll);
-
-            Func<float, float> calculateEffect = angle =>
+            Func<float, float, float> calculateEffect = (angle, rollAngleMulti) =>
                 leftRightExtraMultiplier
                 * Curves.QuadraticRegression(leftRightMultiplier)
                 * Curves.XForceEffectCurve(rollAngleMulti * Mathf.Abs(angle) / 60);
@@ -839,7 +851,7 @@ namespace TittyMagic.Handlers
             else
             {
                 // right force on left breast
-                UpdateMorphs(Direction.LEFT_L, calculateEffect(_trackLeftBreast.angleX));
+                UpdateMorphs(Direction.LEFT_L, calculateEffect(_trackLeftBreast.angleX, rollAngleMultiLeft));
             }
 
             if(_trackRightBreast.angleX >= 0)
@@ -850,7 +862,7 @@ namespace TittyMagic.Handlers
             else
             {
                 // right force on right breast
-                UpdateMorphs(Direction.LEFT_R, calculateEffect(_trackRightBreast.angleX));
+                UpdateMorphs(Direction.LEFT_R, calculateEffect(_trackRightBreast.angleX, rollAngleMultiRight));
             }
         }
 
@@ -882,6 +894,15 @@ namespace TittyMagic.Handlers
 
             bool inRange = config.isNegative ? value < 0 : value > 0;
             config.morph.morphValue = inRange ? Calc.RoundToDecimals(value, 1000f) : 0;
+        }
+
+        public static void SimulateUpright()
+        {
+            AdjustUpMorphs(0, 0, 0, 0);
+            AdjustForwardMorphs();
+            AdjustBackMorphs(0, 0, 0, 0);
+            AdjustLeftMorphs(0, 0);
+            AdjustRightMorphs(0, 0);
         }
 
         public static void ResetAll() => configSets?.Keys.ToList().ForEach(ResetMorphs);

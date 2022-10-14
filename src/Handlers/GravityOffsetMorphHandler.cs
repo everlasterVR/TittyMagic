@@ -46,15 +46,15 @@ namespace TittyMagic.Handlers
             },
         };
 
-        public static void Update(float roll, float pitch)
+        public static void Update()
         {
-            float smoothRoll = Calc.SmoothStep(roll);
-            float smoothPitch = 2 * Calc.SmoothStep(pitch);
-
-            AdjustUpDownMorphs(smoothPitch, smoothRoll);
+            var rotation = MainPhysicsHandler.chestRb.rotation;
+            float roll = Calc.SmoothStep(Calc.Roll(rotation));
+            float pitch = 2 * Calc.SmoothStep(Calc.Pitch(rotation));
+            AdjustUpDownMorphs(roll, pitch);
         }
 
-        private static void AdjustUpDownMorphs(float pitch, float roll)
+        private static void AdjustUpDownMorphs(float roll, float pitch)
         {
             float multiplier = upDownExtraMultiplier * GravityPhysicsHandler.downMultiplier;
             float effect = offsetMorphingJsf.val * GravityEffectCalc.UpDownEffect(pitch, roll, multiplier);
@@ -103,6 +103,8 @@ namespace TittyMagic.Handlers
             bool inRange = config.isNegative ? value < 0 : value > 0;
             config.morph.morphValue = inRange ? Calc.RoundToDecimals(value, 1000f) : 0;
         }
+
+        public static void SimulateUpright() => AdjustUpDownMorphs(0, 0);
 
         public static void ResetAll() => _configSets?.Keys.ToList().ForEach(ResetMorphs);
 

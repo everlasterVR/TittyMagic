@@ -369,16 +369,11 @@ namespace TittyMagic.Handlers
 
         public static void SimulateUpright()
         {
-            const float rollLeft = 0;
-            const float rollRight = 0;
-            const float pitchLeft = 0;
-            const float pitchRight = 0;
-
-            AdjustLeftRightPhysics(rollLeft, rollRight);
-            AdjustUpPhysics(pitchLeft, pitchRight, rollLeft, rollRight);
-            AdjustDownPhysics(pitchLeft, pitchRight, rollLeft, rollRight);
-            AdjustForwardPhysics(pitchLeft, pitchRight, rollLeft, rollRight);
-            AdjustBackPhysics(pitchLeft, pitchRight, rollLeft, rollRight);
+            AdjustLeftRightPhysics(0, 0);
+            AdjustUpPhysics(0, 0, 0, 0);
+            AdjustDownPhysics(0, 0, 0, 0);
+            AdjustForwardPhysics(0, 0, 0, 0);
+            AdjustBackPhysics(0, 0, 0, 0);
         }
 
         private static void ResetPhysics(string direction) =>
