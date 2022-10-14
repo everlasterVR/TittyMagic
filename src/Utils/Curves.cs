@@ -67,10 +67,10 @@ namespace TittyMagic
             return c + s * Mathf.Pow(1 - xToLimitPow, p);
         }
 
-        // https://www.desmos.com/calculator/tyltxvn0fj
-        public static float YForceEffectCurve(float x) => Exponential1(x, 1.50f, 3.20f, 1.05f, a: 1, m: 0.51f);
+        // https://www.desmos.com/calculator/lbozrc4qx4
+        public static float YForceEffectCurve(float x) => Exponential1(x, 1.52f, 3.00f, 1.11f, a: 1, m: 0.53f);
 
-        public static float XForceEffectCurve(float x) => Exponential1(x, 1.46f, 3.20f, 1.00f, a: 1, m: 0.65f);
+        public static float XForceEffectCurve(float x) => Exponential1(x, 1.52f, 3.00f, 1.11f, a: 1, m: 0.65f);
 
         // https://www.desmos.com/calculator/1fptwso1km
         public static float ZForceEffectCurve(float x) => Exponential1(x, 1.42f, 3.20f, 1.15f, a: 1, m: 0.90f);
