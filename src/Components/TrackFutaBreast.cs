@@ -12,15 +12,17 @@ namespace TittyMagic.Components
             if(side == Side.LEFT)
             {
                 _nippleVertexIndices = new[] { 8911, 8930, 8943, 8947 };
-                calculateBreastRelativePosition = RelativeNippleSkinPosition;
                 calculateBreastRelativeDepth = () => Calc.RelativePosition(chestRb, tittyMagic.pectoralRbLeft.position).z;
             }
             else if(side == Side.RIGHT)
             {
                 _nippleVertexIndices = new[] { 19577, 19596, 19609, 19625 };
-                calculateBreastRelativePosition = RelativeNippleSkinPosition;
                 calculateBreastRelativeDepth = () => Calc.RelativePosition(chestRb, tittyMagic.pectoralRbRight.position).z;
             }
+
+            calculateBreastRelativeAngleX = CalculateXAngle;
+            calculateBreastRelativeAngleY = CalculateYAngle;
+            calculateBreastRelativePosition = RelativeNippleSkinPosition;
         }
 
         private Vector3 RelativeNippleSkinPosition()

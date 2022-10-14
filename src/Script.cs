@@ -669,8 +669,8 @@ namespace TittyMagic
                 }
 
                 scaleJsf.val = _scaleJsfOrig.val;
-                trackLeftBreast.UpdateAnglesAndDepthDiff();
-                trackRightBreast.UpdateAnglesAndDepthDiff();
+                trackLeftBreast.Update();
+                trackRightBreast.Update();
                 HardColliderHandler.UpdateDistanceDiffs();
 
                 var rotation = _chestTransform.rotation;
@@ -769,8 +769,8 @@ namespace TittyMagic
 
             /* Dynamic adjustments to zero (simulate static upright pose), update physics */
             {
-                trackLeftBreast.ResetAnglesAndDepthDiff();
-                trackRightBreast.ResetAnglesAndDepthDiff();
+                trackLeftBreast.Reset();
+                trackRightBreast.Reset();
                 HardColliderHandler.ResetDistanceDiffs();
 
                 HardColliderHandler.UpdateFriction();

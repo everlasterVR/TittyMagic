@@ -14,7 +14,8 @@ namespace TittyMagic.Components
         private readonly Rigidbody[] _softVertexTipJointRBs;
         private readonly Rigidbody[] _softVertexOuterJointRBs;
 
-        private Vector3[] _relativePositions;
+        private float[] _relativeAnglesX;
+        private float[] _relativeAnglesY;
         private float[] _relativeDepths;
         public float weightingRatio { private get; set; }
 
@@ -42,40 +43,68 @@ namespace TittyMagic.Components
         {
             if(softPhysicsOn)
             {
-                calculateBreastRelativePosition = SmoothBreastRelativePosition;
+                calculateBreastRelativePosition = () => Calc.RelativePosition(chestRb, CalculatePosition(_softVertexCenterJointRBs));
+                calculateBreastRelativeAngleX = SmoothBreastRelativeAngleX;
+                calculateBreastRelativeAngleY = SmoothBreastRelativeAngleY;
                 calculateBreastRelativeDepth = SmoothBreastRelativeDepth;
             }
             else
             {
                 calculateBreastRelativePosition = () => Calc.RelativePosition(chestRb, _nippleRb.position);
+                calculateBreastRelativeAngleX = CalculateXAngle;
+                calculateBreastRelativeAngleY = CalculateYAngle;
                 calculateBreastRelativeDepth = () => Calc.RelativePosition(chestRb, _pectoralRb.position).z;
             }
         }
 
         public void SetMovingAveragePeriod(int value)
         {
-            /* Breast relative positions */
+            /* Breast relative angles X */
             {
-                var tmpArray = new Vector3[value];
+                float[] tmpArray = new float[value];
 
-                if(_relativePositions == null)
+                if(_relativeAnglesX == null)
                 {
                     for(int i = 0; i < tmpArray.Length; i++)
                     {
-                        tmpArray[i] = breastPositionBase;
+                        tmpArray[i] = 0;
                     }
                 }
                 else
                 {
                     for(int i = 0; i < tmpArray.Length; i++)
                     {
-                        tmpArray[i] = i < _relativePositions.Length
-                            ? _relativePositions[i]
+                        tmpArray[i] = i < _relativeAnglesX.Length
+                            ? _relativeAnglesX[i]
                             : tmpArray[i - 1];
                     }
                 }
 
-                _relativePositions = tmpArray;
+                _relativeAnglesX = tmpArray;
+            }
+
+            /* Breast relative angles Y */
+            {
+                float[] tmpArray = new float[value];
+
+                if(_relativeAnglesY == null)
+                {
+                    for(int i = 0; i < tmpArray.Length; i++)
+                    {
+                        tmpArray[i] = 0;
+                    }
+                }
+                else
+                {
+                    for(int i = 0; i < tmpArray.Length; i++)
+                    {
+                        tmpArray[i] = i < _relativeAnglesY.Length
+                            ? _relativeAnglesY[i]
+                            : tmpArray[i - 1];
+                    }
+                }
+
+                _relativeAnglesY = tmpArray;
             }
 
             /* Breast relative depths */
@@ -103,11 +132,18 @@ namespace TittyMagic.Components
             }
         }
 
-        private Vector3 SmoothBreastRelativePosition()
+        private float SmoothBreastRelativeAngleX()
         {
-            Array.Copy(_relativePositions, 0, _relativePositions, 1, _relativePositions.Length - 1);
-            _relativePositions[0] = Calc.RelativePosition(chestRb, CalculatePosition(_softVertexCenterJointRBs));
-            return Calc.ExponentialMovingAverage(_relativePositions, weightingRatio)[0];
+            Array.Copy(_relativeAnglesX, 0, _relativeAnglesX, 1, _relativeAnglesX.Length - 1);
+            _relativeAnglesX[0] = CalculateXAngle();
+            return Calc.ExponentialMovingAverage(_relativeAnglesX, weightingRatio)[0];
+        }
+
+        private float SmoothBreastRelativeAngleY()
+        {
+            Array.Copy(_relativeAnglesY, 0, _relativeAnglesY, 1, _relativeAnglesY.Length - 1);
+            _relativeAnglesY[0] = CalculateYAngle();
+            return Calc.ExponentialMovingAverage(_relativeAnglesY, weightingRatio)[0];
         }
 
         private float SmoothBreastRelativeDepth()
