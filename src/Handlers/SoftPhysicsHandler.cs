@@ -318,19 +318,19 @@ namespace TittyMagic.Handlers
                 {
                     OUTER, new StaticPhysicsConfig(
                         1.00f,
-                        softnessCurve: x => 0.20f * Curves.DeemphasizeMiddle(x)
+                        softnessCurve: x => 0.144f * Curves.DeemphasizeMiddle(x)
                     )
                 },
                 {
                     AREOLA, new StaticPhysicsConfig(
                         1.25f,
-                        softnessCurve: x => 1.00f * Curves.DeemphasizeMiddle(x)
+                        softnessCurve: x => 0.72f * Curves.DeemphasizeMiddle(x)
                     )
                 },
                 {
                     NIPPLE, new StaticPhysicsConfig(
                         1.40f,
-                        softnessCurve: x => 1.00f * Curves.DeemphasizeMiddle(x)
+                        softnessCurve: x => 0.72f * Curves.DeemphasizeMiddle(x)
                     )
                 },
             };
@@ -371,13 +371,13 @@ namespace TittyMagic.Handlers
                 {
                     MAIN, new StaticPhysicsConfig(
                         1.00f,
-                        softnessCurve: x => 0.13f * Curves.DeemphasizeMiddle(x)
+                        softnessCurve: x => 0.094f * Curves.DeemphasizeMiddle(x)
                     )
                 },
                 {
                     OUTER, new StaticPhysicsConfig(
                         1.00f,
-                        softnessCurve: x => -0.20f * Curves.DeemphasizeMiddle(x)
+                        softnessCurve: x => -0.144f * Curves.DeemphasizeMiddle(x)
                     )
                 },
                 {
@@ -386,7 +386,7 @@ namespace TittyMagic.Handlers
                 {
                     NIPPLE, new StaticPhysicsConfig(
                         1.00f,
-                        softnessCurve: x => -0.13f * Curves.DeemphasizeMiddle(x)
+                        softnessCurve: x => -0.094f * Curves.DeemphasizeMiddle(x)
                     )
                 },
             };

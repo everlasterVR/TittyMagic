@@ -37,7 +37,7 @@ namespace TittyMagic
         public static float ForcePhysicsSoftnessCurve(float x) => Exponential1(x, 1.60f, 2.29f, 1.00f);
 
         // https://www.desmos.com/calculator/b8hxt91gkf
-        public static float DeemphasizeMiddle(float x) => Exponential1(x, 3.00f, 3.53f, 1.22f, a: 1.20f, m: 0.72f);
+        public static float DeemphasizeMiddle(float x) => Exponential1(x, 3.00f, 3.53f, 1.22f, a: 1.20f);
 
         // https://www.desmos.com/calculator/ldejemzr2a
         public static float TargetRotationSoftnessCurve(float x) => Exponential1(x, 3.00f, 1.35f, 1.00f);
@@ -46,8 +46,8 @@ namespace TittyMagic
         public static float SpringZSoftnessCurve(float x) => Exponential1(x, 2.11f, 1.21f, 0.88f);
 
         // https://www.desmos.com/calculator/b2kgumbqnt
-        public static float Exponential1(float x, float b, float p, float q, float a = 1, float m = 1, float s = 0) =>
-            m * ((1 - b) * Mathf.Pow(a * x + s, p) + b * Mathf.Pow(a * x + s, q));
+        public static float Exponential1(float x, float b, float p, float q, float a = 1, float s = 0) =>
+            (1 - b) * Mathf.Pow(a * x + s, p) + b * Mathf.Pow(a * x + s, q);
 
         // https://www.desmos.com/calculator/6pxtrvvyby
         public static float Exponential2(float x, float c, float s = 0)
@@ -68,12 +68,12 @@ namespace TittyMagic
         }
 
         // https://www.desmos.com/calculator/lbozrc4qx4
-        public static float YForceEffectCurve(float x) => Exponential1(x, 1.52f, 3.00f, 1.11f, a: 1, m: 0.53f);
+        public static float YForceEffectCurve(float x) => Exponential1(x, 1.52f, 3.00f, 1.11f);
 
-        public static float XForceEffectCurve(float x) => Exponential1(x, 1.52f, 3.00f, 1.11f, a: 1, m: 0.65f);
+        public static float XForceEffectCurve(float x) => Exponential1(x, 1.52f, 3.00f, 1.11f);
 
         // https://www.desmos.com/calculator/1fptwso1km
-        public static float ZForceEffectCurve(float x) => Exponential1(x, 1.42f, 3.20f, 1.15f, a: 1, m: 0.90f);
+        public static float ZForceEffectCurve(float x) => Exponential1(x, 1.42f, 3.20f, 1.15f);
 
         // https://www.desmos.com/calculator/b6gwvvbyu4
         public static float ColliderForceSoftnessCurve(float x) => InverseSmoothStep(x, 1.00f, 0.63f, 0.04f);

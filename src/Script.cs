@@ -826,29 +826,31 @@ namespace TittyMagic
             {
                 float mass = MainPhysicsHandler.realMassAmount;
 
-                ForceMorphHandler.upDownExtraMultiplier =
-                    Curves.Exponential1(softnessAmount, 1.73f, 1.68f, 0.88f, m: 0.93f, s: 0.56f)
+                ForceMorphHandler.upExtraMultiplier =
+                    0.493f
+                    * Curves.Exponential1(softnessAmount, 1.73f, 1.68f, 0.88f, s: 0.56f)
                     * Curves.MorphingCurve(mass);
 
                 ForceMorphHandler.forwardExtraMultiplier =
-                    Mathf.Lerp(1.00f, 1.20f, softnessAmount)
+                    Mathf.Lerp(0.90f, 1.08f, softnessAmount)
                     * Curves.DepthMorphingCurve(mass);
 
                 ForceMorphHandler.backExtraMultiplier =
-                    Mathf.Lerp(0.80f, 1.00f, softnessAmount)
+                    Mathf.Lerp(0.72f, 0.90f, softnessAmount)
                     * Curves.DepthMorphingCurve(mass);
 
                 ForceMorphHandler.leftRightExtraMultiplier =
-                    Curves.Exponential1(softnessAmount, 1.73f, 1.68f, 0.88f, m: 0.93f, s: 0.56f)
+                    0.605f
+                    * Curves.Exponential1(softnessAmount, 1.73f, 1.68f, 0.88f, s: 0.56f)
                     * Curves.MorphingCurve(mass);
 
                 // https://www.desmos.com/calculator/z10fwnpvul
-                GravityOffsetMorphHandler.upDownExtraMultiplier = Curves.Exponential1(MainPhysicsHandler.normalizedInvertedRealMass,
+                GravityOffsetMorphHandler.upDownExtraMultiplier = 0.50f * Curves.Exponential1(
+                    MainPhysicsHandler.normalizedInvertedRealMass,
                     0.26f,
                     2.60f,
                     5.38f,
                     a: 0.84f,
-                    m: 0.50f,
                     s: 0.33f
                 );
             }

@@ -143,7 +143,8 @@ namespace TittyMagic.Handlers
         private static void AdjustLeftRightPhysics()
         {
             Func<float, float> calculateEffect = angle =>
-                0.5f * Curves.QuadraticRegression(leftRightMultiplier)
+                0.325f
+                * Curves.QuadraticRegression(leftRightMultiplier)
                 * Curves.XForceEffectCurve(Mathf.Abs(angle) / 40);
 
             float effectXLeft = calculateEffect(_trackLeftBreast.angleX);
@@ -178,7 +179,8 @@ namespace TittyMagic.Handlers
         private static void AdjustUpPhysics()
         {
             Func<float, float> calculateEffect = angle =>
-                0.5f * Curves.QuadraticRegression(upMultiplier)
+                0.265f
+                * Curves.QuadraticRegression(upMultiplier)
                 * Curves.YForceEffectCurve(Mathf.Abs(angle) / 40);
 
             if(_trackLeftBreast.angleY >= 0)
@@ -205,7 +207,8 @@ namespace TittyMagic.Handlers
         private static void AdjustDownPhysics()
         {
             Func<float, float> calculateEffect = angle =>
-                0.5f * Curves.QuadraticRegression(downMultiplier)
+                0.265f
+                * Curves.QuadraticRegression(downMultiplier)
                 * Curves.YForceEffectCurve(Mathf.Abs(angle) / 40);
 
             if(_trackLeftBreast.angleY < 0)
@@ -232,7 +235,8 @@ namespace TittyMagic.Handlers
         private static void AdjustForwardPhysics()
         {
             Func<float, float> calculateEffect = distance =>
-                Curves.QuadraticRegression(forwardMultiplier)
+                0.90f
+                * Curves.QuadraticRegression(forwardMultiplier)
                 * Curves.ZForceEffectCurve(Mathf.Abs(distance) * 10);
 
             if(_trackLeftBreast.depthDiff <= 0)
@@ -259,7 +263,8 @@ namespace TittyMagic.Handlers
         private static void AdjustBackPhysics()
         {
             Func<float, float> calculateEffect = distance =>
-                Curves.QuadraticRegression(backMultiplier)
+                0.90f
+                * Curves.QuadraticRegression(backMultiplier)
                 * Curves.ZForceEffectCurve(Mathf.Abs(distance) * 10);
 
             if(_trackLeftBreast.depthDiff > 0)

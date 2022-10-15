@@ -21,7 +21,7 @@ namespace TittyMagic.Handlers
         public static JSONStorableFloat backJsf { get; private set; }
         public static JSONStorableFloat leftRightJsf { get; private set; }
 
-        public static float upDownExtraMultiplier { get; set; }
+        public static float upExtraMultiplier { get; set; }
         public static float forwardExtraMultiplier { get; set; }
         public static float backExtraMultiplier { get; set; }
         public static float leftRightExtraMultiplier { get; set; }
@@ -685,7 +685,7 @@ namespace TittyMagic.Handlers
             float pitchMultiplierRight = 0;
 
             Func<float, float, float> calculateEffect = (angle, pitchMultiplier) =>
-                upDownExtraMultiplier
+                upExtraMultiplier
                 * Curves.QuadraticRegression(upMultiplier)
                 * Curves.YForceEffectCurve(pitchMultiplier * Mathf.Abs(angle) / 75);
 
@@ -728,7 +728,8 @@ namespace TittyMagic.Handlers
 
         private static void AdjustForwardMorphs()
         {
-            Func<float, float> calculateEffect = distance => forwardExtraMultiplier
+            Func<float, float> calculateEffect = distance =>
+                forwardExtraMultiplier
                 * Curves.QuadraticRegression(forwardMultiplier)
                 * Curves.ZForceEffectCurve(Mathf.Abs(distance) * 13.5f);
 
