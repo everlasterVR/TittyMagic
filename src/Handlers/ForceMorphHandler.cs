@@ -916,11 +916,11 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private static void UpdateMorphs(string configSetName, float effect)
+        private static void UpdateMorphs(string direction, float effect)
         {
             float mass = MainPhysicsHandler.realMassAmount;
             const float softness = 0.62f;
-            configSets[configSetName].ForEach(config => UpdateValue(config, effect, mass, softness));
+            configSets[direction].ForEach(config => UpdateValue(config, effect, mass, softness));
         }
 
         private static void UpdateValue(MorphConfig config, float effect, float mass, float softness)

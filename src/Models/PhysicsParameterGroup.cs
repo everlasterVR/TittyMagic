@@ -103,18 +103,6 @@ namespace TittyMagic.Models
             right.gravityPhysicsConfigs = rightConfigs;
         }
 
-        public void UpdateGravityValue(string direction, float effectLeft, float effectRight, float massValue, float softness)
-        {
-            left.UpdateGravityValue(direction, effectLeft, massValue, softness);
-            right.UpdateGravityValue(direction, effectRight, massValue, softness);
-        }
-
-        public void ResetGravityValue(string direction)
-        {
-            left.ResetGravityValue(direction);
-            right.ResetGravityValue(direction);
-        }
-
         public void SetForcePhysicsConfigs(
             Dictionary<string, DynamicPhysicsConfig> leftConfigs,
             Dictionary<string, DynamicPhysicsConfig> rightConfigs

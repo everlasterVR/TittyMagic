@@ -146,8 +146,13 @@ namespace TittyMagic.Handlers
             _backMultiplier = 0.90f;
         }
 
+        private static float _mass;
+        private static float _softness;
+
         public static void Update()
         {
+            _mass = MainPhysicsHandler.realMassAmount;
+            _softness = tittyMagic.softnessAmount;
             AdjustLeftRightPhysics();
             AdjustUpPhysics();
             AdjustDownPhysics();
@@ -163,31 +168,31 @@ namespace TittyMagic.Handlers
                 * Curves.XForceEffectCurve(Mathf.Abs(angle) / 40);
 
             float effectXLeft = calculateEffect(_trackLeftBreast.angleX);
-            if(_trackLeftBreast.angleX >= 0)
+            if(_trackLeftBreast.angleX > 0)
             {
                 // left force on left breast
-                ResetLeftPhysics(Direction.LEFT);
-                UpdateLeftPhysics(Direction.RIGHT, effectXLeft);
+                ResetLeftBreast(Direction.LEFT);
+                UpdateLeftBreast(Direction.RIGHT, effectXLeft);
             }
             else
             {
                 // right force on left breast
-                ResetLeftPhysics(Direction.RIGHT);
-                UpdateLeftPhysics(Direction.RIGHT, effectXLeft);
+                ResetLeftBreast(Direction.RIGHT);
+                UpdateLeftBreast(Direction.RIGHT, effectXLeft);
             }
 
             float effectXRight = calculateEffect(_trackRightBreast.angleX);
-            if(_trackRightBreast.angleX >= 0)
+            if(_trackRightBreast.angleX > 0)
             {
                 // left force on right breast
-                ResetRightPhysics(Direction.LEFT);
-                UpdateRightPhysics(Direction.RIGHT, effectXRight);
+                ResetRightBreast(Direction.LEFT);
+                UpdateRightBreast(Direction.RIGHT, effectXRight);
             }
             else
             {
                 // right force on right breast
-                ResetRightPhysics(Direction.RIGHT);
-                UpdateRightPhysics(Direction.LEFT, effectXRight);
+                ResetRightBreast(Direction.RIGHT);
+                UpdateRightBreast(Direction.LEFT, effectXRight);
             }
         }
 
@@ -201,21 +206,21 @@ namespace TittyMagic.Handlers
             if(_trackLeftBreast.angleY >= 0)
             {
                 // up force on left breast
-                UpdateLeftPhysics(Direction.UP, calculateEffect(_trackLeftBreast.angleY));
+                UpdateLeftBreast(Direction.UP, calculateEffect(_trackLeftBreast.angleY));
             }
             else
             {
-                ResetLeftPhysics(Direction.UP);
+                ResetLeftBreast(Direction.UP);
             }
 
             if(_trackRightBreast.angleY >= 0)
             {
                 // up force on right breast
-                UpdateRightPhysics(Direction.UP, calculateEffect(_trackRightBreast.angleY));
+                UpdateRightBreast(Direction.UP, calculateEffect(_trackRightBreast.angleY));
             }
             else
             {
-                ResetRightPhysics(Direction.UP);
+                ResetRightBreast(Direction.UP);
             }
         }
 
@@ -229,21 +234,21 @@ namespace TittyMagic.Handlers
             if(_trackLeftBreast.angleY < 0)
             {
                 // down force on left breast
-                UpdateLeftPhysics(Direction.DOWN, calculateEffect(_trackLeftBreast.angleY));
+                UpdateLeftBreast(Direction.DOWN, calculateEffect(_trackLeftBreast.angleY));
             }
             else
             {
-                ResetLeftPhysics(Direction.DOWN);
+                ResetLeftBreast(Direction.DOWN);
             }
 
             if(_trackRightBreast.angleY < 0)
             {
                 // down force on right breast
-                UpdateRightPhysics(Direction.DOWN, calculateEffect(_trackRightBreast.angleY));
+                UpdateRightBreast(Direction.DOWN, calculateEffect(_trackRightBreast.angleY));
             }
             else
             {
-                ResetRightPhysics(Direction.DOWN);
+                ResetRightBreast(Direction.DOWN);
             }
         }
 
@@ -257,21 +262,21 @@ namespace TittyMagic.Handlers
             if(_trackLeftBreast.depthDiff <= 0)
             {
                 // forward force on left breast
-                UpdateLeftPhysics(Direction.FORWARD, calculateEffect(_trackLeftBreast.depthDiff));
+                UpdateLeftBreast(Direction.FORWARD, calculateEffect(_trackLeftBreast.depthDiff));
             }
             else
             {
-                ResetLeftPhysics(Direction.FORWARD);
+                ResetLeftBreast(Direction.FORWARD);
             }
 
             if(_trackRightBreast.depthDiff <= 0)
             {
                 // forward force on right breast
-                UpdateRightPhysics(Direction.FORWARD, calculateEffect(_trackRightBreast.depthDiff));
+                UpdateRightBreast(Direction.FORWARD, calculateEffect(_trackRightBreast.depthDiff));
             }
             else
             {
-                ResetRightPhysics(Direction.FORWARD);
+                ResetRightBreast(Direction.FORWARD);
             }
         }
 
@@ -285,47 +290,43 @@ namespace TittyMagic.Handlers
             if(_trackLeftBreast.depthDiff > 0)
             {
                 // back force on left breast
-                UpdateLeftPhysics(Direction.BACK, calculateEffect(_trackLeftBreast.depthDiff));
+                UpdateLeftBreast(Direction.BACK, calculateEffect(_trackLeftBreast.depthDiff));
             }
             else
             {
-                ResetLeftPhysics(Direction.BACK);
+                ResetLeftBreast(Direction.BACK);
             }
 
             if(_trackRightBreast.depthDiff > 0)
             {
                 // back force on right breast
-                UpdateRightPhysics(Direction.BACK, calculateEffect(_trackRightBreast.depthDiff));
+                UpdateRightBreast(Direction.BACK, calculateEffect(_trackRightBreast.depthDiff));
             }
             else
             {
-                ResetRightPhysics(Direction.BACK);
+                ResetRightBreast(Direction.BACK);
             }
         }
 
-        private static void UpdateLeftPhysics(string direction, float effect)
+        private static void UpdateLeftBreast(string direction, float effect)
         {
-            float mass = MainPhysicsHandler.realMassAmount;
-            float softness = tittyMagic.softnessAmount;
-            _mainParamGroups.ForEach(group => group.left.UpdateForceValue(direction, effect, mass, softness));
-            _softParamGroups?.ForEach(group => group.left.UpdateForceValue(direction, effect, mass, softness));
+            _mainParamGroups.ForEach(group => group.left.UpdateForceValue(direction, effect, _mass, _softness));
+            _softParamGroups?.ForEach(group => group.left.UpdateForceValue(direction, effect, _mass, _softness));
         }
 
-        private static void UpdateRightPhysics(string direction, float effect)
+        private static void UpdateRightBreast(string direction, float effect)
         {
-            float mass = MainPhysicsHandler.realMassAmount;
-            float softness = tittyMagic.softnessAmount;
-            _mainParamGroups.ForEach(group => group.right.UpdateForceValue(direction, effect, mass, softness));
-            _softParamGroups?.ForEach(group => group.right.UpdateForceValue(direction, effect, mass, softness));
+            _mainParamGroups.ForEach(group => group.right.UpdateForceValue(direction, effect, _mass, _softness));
+            _softParamGroups?.ForEach(group => group.right.UpdateForceValue(direction, effect, _mass, _softness));
         }
 
-        private static void ResetLeftPhysics(string direction)
+        private static void ResetLeftBreast(string direction)
         {
             _mainParamGroups.ForEach(group => group.left.ResetForceValue(direction));
             _softParamGroups?.ForEach(group => group.left.ResetForceValue(direction));
         }
 
-        private static void ResetRightPhysics(string direction)
+        private static void ResetRightBreast(string direction)
         {
             _mainParamGroups.ForEach(group => group.right.ResetForceValue(direction));
             _softParamGroups?.ForEach(group => group.right.ResetForceValue(direction));
