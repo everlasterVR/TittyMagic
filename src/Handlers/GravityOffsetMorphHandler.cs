@@ -10,7 +10,6 @@ namespace TittyMagic.Handlers
         private static Dictionary<string, List<MorphConfig>> _configSets;
 
         public static JSONStorableFloat offsetMorphingJsf { get; private set; }
-        public static float upDownExtraMultiplier { get; set; }
 
         public static void Init()
         {
@@ -47,6 +46,21 @@ namespace TittyMagic.Handlers
             },
         };
 
+        private static float _upDownExtraMultiplier;
+
+        public static void SetMultipliers(float mass)
+        {
+            // https://www.desmos.com/calculator/z10fwnpvul
+            _upDownExtraMultiplier = 0.50f * Curves.Exponential1(
+                mass,
+                0.26f,
+                2.60f,
+                5.38f,
+                a: 0.84f,
+                s: 0.33f
+            );
+        }
+
         public static void Update()
         {
             var rotation = MainPhysicsHandler.chestRb.rotation;
@@ -57,7 +71,7 @@ namespace TittyMagic.Handlers
 
         private static void AdjustUpDownMorphs(float roll, float pitch)
         {
-            float multiplier = upDownExtraMultiplier * GravityPhysicsHandler.downMultiplier;
+            float multiplier = _upDownExtraMultiplier * GravityPhysicsHandler.downMultiplier;
             float effect = offsetMorphingJsf.val * GravityEffectCalc.UpDownEffect(pitch, roll, multiplier);
             if(pitch > 0)
             {

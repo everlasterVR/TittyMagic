@@ -131,6 +131,21 @@ namespace TittyMagic.Handlers
                 },
             };
 
+        private static float _leftRightMultiplier;
+        private static float _upMultiplier;
+        private static float _downMultiplier;
+        private static float _forwardMultiplier;
+        private static float _backMultiplier;
+
+        public static void SetMultipliers()
+        {
+            _leftRightMultiplier = 0.325f;
+            _upMultiplier = 0.265f;
+            _downMultiplier = 0.265f;
+            _forwardMultiplier = 0.90f;
+            _backMultiplier = 0.90f;
+        }
+
         public static void Update()
         {
             AdjustLeftRightPhysics();
@@ -143,7 +158,7 @@ namespace TittyMagic.Handlers
         private static void AdjustLeftRightPhysics()
         {
             Func<float, float> calculateEffect = angle =>
-                0.325f
+                _leftRightMultiplier
                 * Curves.QuadraticRegression(leftRightMultiplier)
                 * Curves.XForceEffectCurve(Mathf.Abs(angle) / 40);
 
@@ -179,7 +194,7 @@ namespace TittyMagic.Handlers
         private static void AdjustUpPhysics()
         {
             Func<float, float> calculateEffect = angle =>
-                0.265f
+                _upMultiplier
                 * Curves.QuadraticRegression(upMultiplier)
                 * Curves.YForceEffectCurve(Mathf.Abs(angle) / 40);
 
@@ -207,7 +222,7 @@ namespace TittyMagic.Handlers
         private static void AdjustDownPhysics()
         {
             Func<float, float> calculateEffect = angle =>
-                0.265f
+                _downMultiplier
                 * Curves.QuadraticRegression(downMultiplier)
                 * Curves.YForceEffectCurve(Mathf.Abs(angle) / 40);
 
@@ -235,7 +250,7 @@ namespace TittyMagic.Handlers
         private static void AdjustForwardPhysics()
         {
             Func<float, float> calculateEffect = distance =>
-                0.90f
+                _forwardMultiplier
                 * Curves.QuadraticRegression(forwardMultiplier)
                 * Curves.ZForceEffectCurve(Mathf.Abs(distance) * 10);
 
@@ -263,7 +278,7 @@ namespace TittyMagic.Handlers
         private static void AdjustBackPhysics()
         {
             Func<float, float> calculateEffect = distance =>
-                0.90f
+                _backMultiplier
                 * Curves.QuadraticRegression(backMultiplier)
                 * Curves.ZForceEffectCurve(Mathf.Abs(distance) * 10);
 

@@ -816,46 +816,17 @@ namespace TittyMagic
             yield return new WaitForSeconds(0.3f);
             yield return calibrationHelper.WaitAndRepeat(updateMass, 5, 0.1f);
 
+            /* Set mass and softness based multipliers */
+            ForceMorphHandler.SetMultipliers(MainPhysicsHandler.realMassAmount, softnessAmount);
+            ForcePhysicsHandler.SetMultipliers();
+            GravityOffsetMorphHandler.SetMultipliers(MainPhysicsHandler.normalizedInvertedRealMass);
+            HardColliderHandler.UpdateFrictionSizeMultipliers();
+
             /* Update physics */
             MainPhysicsHandler.UpdatePhysics();
             SoftPhysicsHandler.UpdatePhysics();
             NippleErectionHandler.Update();
             FrictionHandler.CalculateFriction();
-
-            /* Set extra multipliers */
-            {
-                float mass = MainPhysicsHandler.realMassAmount;
-
-                ForceMorphHandler.upExtraMultiplier =
-                    0.493f
-                    * Curves.Exponential1(softnessAmount, 1.73f, 1.68f, 0.88f, s: 0.56f)
-                    * Curves.MorphingCurve(mass);
-
-                ForceMorphHandler.forwardExtraMultiplier =
-                    Mathf.Lerp(0.90f, 1.08f, softnessAmount)
-                    * Curves.DepthMorphingCurve(mass);
-
-                ForceMorphHandler.backExtraMultiplier =
-                    Mathf.Lerp(0.72f, 0.90f, softnessAmount)
-                    * Curves.DepthMorphingCurve(mass);
-
-                ForceMorphHandler.leftRightExtraMultiplier =
-                    0.605f
-                    * Curves.Exponential1(softnessAmount, 1.73f, 1.68f, 0.88f, s: 0.56f)
-                    * Curves.MorphingCurve(mass);
-
-                // https://www.desmos.com/calculator/z10fwnpvul
-                GravityOffsetMorphHandler.upDownExtraMultiplier = 0.50f * Curves.Exponential1(
-                    MainPhysicsHandler.normalizedInvertedRealMass,
-                    0.26f,
-                    2.60f,
-                    5.38f,
-                    a: 0.84f,
-                    s: 0.33f
-                );
-            }
-
-            HardColliderHandler.UpdateFrictionSizeMultipliers();
 
             /* Calibrate nipples tracking and colliders */
             {

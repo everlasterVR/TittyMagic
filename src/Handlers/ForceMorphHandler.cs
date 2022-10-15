@@ -21,11 +21,6 @@ namespace TittyMagic.Handlers
         public static JSONStorableFloat backJsf { get; private set; }
         public static JSONStorableFloat leftRightJsf { get; private set; }
 
-        public static float upExtraMultiplier { get; set; }
-        public static float forwardExtraMultiplier { get; set; }
-        public static float backExtraMultiplier { get; set; }
-        public static float leftRightExtraMultiplier { get; set; }
-
         private static float upMultiplier => baseJsf.val * upJsf.val;
         private static float forwardMultiplier => baseJsf.val * forwardJsf.val;
         private static float backMultiplier => baseJsf.val * backJsf.val;
@@ -654,6 +649,33 @@ namespace TittyMagic.Handlers
 
         #endregion Morph configs
 
+        private static float _upSoftnessMultiplier;
+        private static float _upMassMultiplier;
+
+        private static float _forwardSoftnessMultiplier;
+        private static float _forwardMassMultiplier;
+
+        private static float _backSoftnessMultiplier;
+        private static float _backMassMultiplier;
+
+        private static float _leftRightSoftnessMultiplier;
+        private static float _leftRightMassMultiplier;
+
+        public static void SetMultipliers(float mass, float softness)
+        {
+            _upSoftnessMultiplier = Curves.Exponential1(softness, 1.73f, 1.68f, 0.88f, s: 0.56f);
+            _upMassMultiplier = 0.493f * Curves.MassMorphingCurve(mass);
+
+            _forwardSoftnessMultiplier = Mathf.Lerp(1.00f, 1.20f, softness);
+            _forwardMassMultiplier = 0.90f * Curves.DepthMassMorphingCurve(mass);
+
+            _backSoftnessMultiplier = Mathf.Lerp(0.80f, 1.00f, softness);
+            _backMassMultiplier = 0.90f * Curves.DepthMassMorphingCurve(mass);
+
+            _leftRightSoftnessMultiplier = Curves.Exponential1(softness, 1.73f, 1.68f, 0.88f, s: 0.56f);
+            _leftRightMassMultiplier = 0.605f * Curves.MassMorphingCurve(mass);
+        }
+
         private static float _rollL;
         private static float _rollR;
         private static float _pitchL;
@@ -685,7 +707,8 @@ namespace TittyMagic.Handlers
             float pitchMultiplierRight = 0;
 
             Func<float, float, float> calculateEffect = (angle, pitchMultiplier) =>
-                upExtraMultiplier
+                _upSoftnessMultiplier
+                * _upMassMultiplier
                 * Curves.QuadraticRegression(upMultiplier)
                 * Curves.YForceEffectCurve(pitchMultiplier * Mathf.Abs(angle) / 75);
 
@@ -729,7 +752,8 @@ namespace TittyMagic.Handlers
         private static void AdjustForwardMorphs()
         {
             Func<float, float> calculateEffect = distance =>
-                forwardExtraMultiplier
+                _forwardSoftnessMultiplier
+                * _forwardMassMultiplier
                 * Curves.QuadraticRegression(forwardMultiplier)
                 * Curves.ZForceEffectCurve(Mathf.Abs(distance) * 13.5f);
 
@@ -788,7 +812,8 @@ namespace TittyMagic.Handlers
             float leanBackFixedMultiRight = CalculateLeanBackFixerMultiplier(_pitchR, _rollR);
 
             Func<float, float, float> calculateEffect = (distance, leanBackFixedMulti) =>
-                backExtraMultiplier
+                _backSoftnessMultiplier
+                * _backMassMultiplier
                 * leanBackFixedMulti
                 * Curves.QuadraticRegression(backMultiplier)
                 * Curves.ZForceEffectCurve(Mathf.Abs(distance) * 13.5f);
@@ -832,7 +857,8 @@ namespace TittyMagic.Handlers
         private static void AdjustLeftMorphs()
         {
             Func<float, float, float> calculateEffect = (angle, rollAngleMulti) =>
-                leftRightExtraMultiplier
+                _leftRightSoftnessMultiplier
+                * _leftRightMassMultiplier
                 * Curves.QuadraticRegression(leftRightMultiplier)
                 * Curves.XForceEffectCurve(rollAngleMulti * Mathf.Abs(angle) / 60);
 
@@ -862,7 +888,8 @@ namespace TittyMagic.Handlers
         private static void AdjustRightMorphs()
         {
             Func<float, float, float> calculateEffect = (angle, rollAngleMulti) =>
-                leftRightExtraMultiplier
+                _leftRightSoftnessMultiplier
+                * _leftRightMassMultiplier
                 * Curves.QuadraticRegression(leftRightMultiplier)
                 * Curves.XForceEffectCurve(rollAngleMulti * Mathf.Abs(angle) / 60);
 
