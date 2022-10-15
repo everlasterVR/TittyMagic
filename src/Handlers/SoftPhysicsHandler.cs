@@ -210,12 +210,6 @@ namespace TittyMagic.Handlers
             return rigidbodies.ToArray();
         }
 
-        private static IEnumerable<Rigidbody> GetNippleTrackingRigidbody(string side) =>
-            _softVerticesGroups[side][NIPPLE].softVerticesSets.Select(set => set.jointRB).ToArray();
-
-        public static Rigidbody[] GetBreastTipTrackingRigidbodies(string side) =>
-            GetTrackingRigidbodies(side, AREOLA).Concat(GetNippleTrackingRigidbody(side)).ToArray();
-
         public static Rigidbody[] GetBreastCenterTrackingRigidbodies(string side) =>
             GetTrackingRigidbodies(side, MAIN).Concat(GetTrackingRigidbodies(side, AREOLA)).ToArray();
 

@@ -33,7 +33,7 @@ namespace TittyMagic.Components
             }
 
             _softVertexCenterJointRBs = SoftPhysicsHandler.GetBreastCenterTrackingRigidbodies(side);
-            _softVertexTipJointRBs = SoftPhysicsHandler.GetBreastTipTrackingRigidbodies(side);
+            _softVertexTipJointRBs = SoftPhysicsHandler.GetTrackingRigidbodies(side, SoftColliderGroup.AREOLA);
             _softVertexOuterJointRBs = SoftPhysicsHandler.GetTrackingRigidbodies(side, SoftColliderGroup.OUTER);
 
             SetCalculateFunctions(tittyMagic.settingsMonitor.softPhysicsEnabled);
