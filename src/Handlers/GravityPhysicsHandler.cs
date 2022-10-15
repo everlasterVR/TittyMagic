@@ -247,12 +247,15 @@ namespace TittyMagic.Handlers
             _mass = MainPhysicsHandler.massAmount;
             _softness = tittyMagic.softnessAmount;
 
-            var rotationL = tittyMagic.pectoralRbLeft.rotation;
-            var rotationR = tittyMagic.pectoralRbRight.rotation;
-            _rollL = Calc.SmoothStep(Calc.Roll(rotationL));
-            _rollR = Calc.SmoothStep(Calc.Roll(rotationR));
-            _pitchL = 2 * Calc.SmoothStep(Calc.Pitch(rotationL));
-            _pitchR = 2 * Calc.SmoothStep(Calc.Pitch(rotationR));
+            var lPectoralRotation = tittyMagic.pectoralRbLeft.rotation;
+            var rPectoralRotation = tittyMagic.pectoralRbRight.rotation;
+            float lPectoralRoll = Calc.Roll(lPectoralRotation);
+            float rPectoralRoll = Calc.Roll(rPectoralRotation);
+            float chestRoll = Calc.Roll(MainPhysicsHandler.chestRb.rotation);
+            _rollL = Calc.SmoothStep((lPectoralRoll + chestRoll) / 2);
+            _rollR = Calc.SmoothStep((rPectoralRoll + chestRoll) / 2);
+            _pitchL = 2 * Calc.SmoothStep(Calc.Pitch(lPectoralRotation));
+            _pitchR = 2 * Calc.SmoothStep(Calc.Pitch(rPectoralRotation));
 
             // for some reason, if left right is adjusted after down, down physics is not correctly applied
             AdjustLeftRightPhysics();
