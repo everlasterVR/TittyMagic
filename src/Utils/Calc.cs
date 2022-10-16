@@ -22,7 +22,7 @@ namespace TittyMagic
                 ? Mathf.SmoothStep(0, 1, val)
                 : -Mathf.SmoothStep(0, 1, -val);
 
-        public static float RoundToDecimals(float value, float roundFactor) =>
+        public static float RoundToDecimals(float value, float roundFactor = 1000f) =>
             Mathf.Round(value * roundFactor) / roundFactor;
 
         public static Vector3 RelativePosition(Rigidbody origin, Vector3 position)

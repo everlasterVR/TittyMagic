@@ -269,8 +269,8 @@ namespace TittyMagic.Handlers
         {
             new MorphConfig($"BK/BK Breast Diameter {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 1.20f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.40f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 1.10f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.37f, -3.00f, 3.00f)
             ),
             new MorphConfig($"BK/BK Breast flat(Fixed) {side}",
                 false,
@@ -314,18 +314,18 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig($"BK/BK Breasts Flatten {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 1.50f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.50f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 1.60f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.53f, -3.00f, 3.00f)
             ),
             new MorphConfig($"BK/BK Breasts Hang Forward {side}",
                 true,
-                new JSONStorableFloat("softMultiplier", -0.20f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.07f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", -0.40f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.10f, -3.00f, 3.00f)
             ),
             new MorphConfig($"BK/BK Breasts Implants {side}",
                 true,
-                new JSONStorableFloat("softMultiplier", -0.06f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.04f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", -0.09f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.03f, -3.00f, 3.00f)
             ),
             new MorphConfig($"BK/BK Breasts TogetherApart {side}",
                 false,
@@ -334,8 +334,8 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig($"BK/BK Depth Squash {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 1.80f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.60f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 1.50f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.50f, -3.00f, 3.00f)
             ),
         };
 
@@ -368,17 +368,17 @@ namespace TittyMagic.Handlers
             new MorphConfig($"FW/FW Breast Height2 {side}",
                 true,
                 new JSONStorableFloat("softMultiplier", -0.40f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.20f, -3.00f, 3.00f)
+                new JSONStorableFloat("massMultiplier", -0.10f, -3.00f, 3.00f)
             ),
             new MorphConfig($"FW/FW Breast Rotate Down {side}",
                 true,
-                new JSONStorableFloat("softMultiplier", -0.20f, -3.00f, 3.00f),
+                new JSONStorableFloat("softMultiplier", -0.40f, -3.00f, 3.00f),
                 new JSONStorableFloat("massMultiplier", -0.10f, -3.00f, 3.00f)
             ),
             new MorphConfig($"FW/FW Breast Width {side}",
                 true,
-                new JSONStorableFloat("softMultiplier", -0.25f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.12f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", -0.50f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.17f, -3.00f, 3.00f)
             ),
             new MorphConfig($"FW/FW Breast Depth {side}",
                 false,
@@ -392,8 +392,8 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig($"FW/FW Breast Round {side}",
                 true,
-                new JSONStorableFloat("softMultiplier", -1.10f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.55f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", -1.50f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.50f, -3.00f, 3.00f)
             ),
         };
 
@@ -415,8 +415,8 @@ namespace TittyMagic.Handlers
         {
             new MorphConfig("LT/LT Breasts Shift S2S Left L",
                 false,
-                new JSONStorableFloat("softMultiplier", 1.50f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.30f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.50f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.10f, -3.00f, 3.00f)
             ),
             new MorphConfig("LT/LT Breasts Hang Forward L",
                 true,
@@ -425,8 +425,8 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig("LT/LT Breast Width L",
                 true,
-                new JSONStorableFloat("softMultiplier", -0.30f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.10f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", -0.40f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.13f, -3.00f, 3.00f)
             ),
             new MorphConfig("LT/LT Breast Rotate X Out L",
                 true,
@@ -435,13 +435,8 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig("LT/LT Breast Rotate X In L",
                 true,
-                new JSONStorableFloat("softMultiplier", -0.30f, -3.00f, 3.00f),
+                new JSONStorableFloat("softMultiplier", 0.92f, -3.00f, 3.00f),
                 new JSONStorableFloat("massMultiplier", -0.10f, -3.00f, 3.00f)
-            ),
-            new MorphConfig("LT/LT Breast Move S2S Out L",
-                false,
-                new JSONStorableFloat("softMultiplier", 0.30f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.10f, -3.00f, 3.00f)
             ),
             new MorphConfig("LT/LT Breast Diameter L",
                 true,
@@ -479,8 +474,8 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig("LT/LT Breast Width R",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.30f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.40f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 1.10f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.50f, -3.00f, 3.00f)
             ),
             new MorphConfig("LT/LT Breast Rotate X In R",
                 false,
@@ -548,8 +543,8 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig("RT/RT Breast Width L",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.30f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.40f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 1.10f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.50f, -3.00f, 3.00f)
             ),
             new MorphConfig("RT/RT Breast Rotate X In L",
                 false,
@@ -602,8 +597,8 @@ namespace TittyMagic.Handlers
         {
             new MorphConfig("RT/RT Breasts Shift S2S Right R",
                 false,
-                new JSONStorableFloat("softMultiplier", 1.50f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.30f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.50f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.10f, -3.00f, 3.00f)
             ),
             new MorphConfig("RT/RT Breasts Hang Forward R",
                 true,
@@ -612,8 +607,8 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig("RT/RT Breast Width R",
                 true,
-                new JSONStorableFloat("softMultiplier", -0.30f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.10f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", -0.40f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.13f, -3.00f, 3.00f)
             ),
             new MorphConfig("RT/RT Breast Rotate X Out R",
                 true,
@@ -624,11 +619,6 @@ namespace TittyMagic.Handlers
                 true,
                 new JSONStorableFloat("softMultiplier", -0.30f, -3.00f, 3.00f),
                 new JSONStorableFloat("massMultiplier", -0.10f, -3.00f, 3.00f)
-            ),
-            new MorphConfig("RT/RT Breast Move S2S Out R",
-                false,
-                new JSONStorableFloat("softMultiplier", 0.30f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.10f, -3.00f, 3.00f)
             ),
             new MorphConfig("RT/RT Breast Diameter R",
                 true,
@@ -649,6 +639,75 @@ namespace TittyMagic.Handlers
 
         #endregion Morph configs
 
+        private const float MIN_MASS = 0.10f;
+        private const float MAX_MASS = 1.50f;
+
+        private static float _upBaseMassFactor;
+        private static float _forwardBaseMassFactor;
+        private static float _backBaseMassFactor;
+        private static float _leftRightBaseMassFactor;
+
+        private static float UpBaseMassFactor(float mass)
+        {
+            const float cutoff1 = 0.27f;
+            const float cutoff2 = 0.70f;
+
+            if(mass < cutoff1)
+            {
+                float ratioToCutoff1 = (mass - MIN_MASS) / (cutoff1 - MIN_MASS);
+                return Mathf.Lerp(37.0f, 50.0f, ratioToCutoff1);
+            }
+
+            if(mass < cutoff2)
+            {
+                float ratioFromCutoff1To2 = (mass - cutoff1) / (cutoff2 - cutoff1);
+                return Mathf.Lerp(50.0f, 55.4f, Curves.Exponential1(ratioFromCutoff1To2, 1.76f, 1.43f, 0.67f));
+            }
+
+            float ratioFromCutoff2 = (mass - cutoff2) / (MAX_MASS - cutoff2);
+            return Mathf.Lerp(47.10f, 55.40f, 1 - ratioFromCutoff2);
+        }
+
+        private static float ForwardBaseMassFactor(float mass)
+        {
+            const float cutoff1 = 0.27f;
+            const float cutoff2 = 0.45f;
+
+            if(mass < cutoff1)
+            {
+                float ratioToCutoff1 = (mass - MIN_MASS) / (cutoff1 - MIN_MASS);
+                return Mathf.Lerp(21.6f, 31.0f, 1 - ratioToCutoff1);
+            }
+
+            if(mass > cutoff2)
+            {
+                float ratioFromCutoff2 = (mass - cutoff2) / (MAX_MASS - cutoff2);
+                return Mathf.Lerp(21.6f, 29.0f, Mathf.Pow(ratioFromCutoff2, 1.75f));
+            }
+
+            return 21.6f;
+        }
+
+        // ReSharper disable once UnusedParameter.Local
+        private static float BackBaseMassFactor(float _) =>
+            0.8f * _forwardBaseMassFactor;
+
+        // https://www.desmos.com/calculator/fusmae0li0
+        private static float LeftRightBaseMassFactor(float mass)
+        {
+            const float cutoff1 = 0.45f;
+            if(mass < cutoff1)
+            {
+                float ratioToCutoff1 = (mass - MIN_MASS) / (cutoff1 - MIN_MASS);
+                // https://www.desmos.com/calculator/sz5l5hsiw3
+                return Mathf.Lerp(33.4f, 40.0f, Curves.InverseSmoothStep(ratioToCutoff1, 1, -0.16f, 0));
+            }
+
+            float ratioFromCutoff1 = (mass - cutoff1) / (MAX_MASS - cutoff1);
+            // https://www.desmos.com/calculator/fbihhkssnl
+            return Mathf.Lerp(27.8f, 40.0f, 1 - Curves.InverseSmoothStep(ratioFromCutoff1, 1, -0.33f, 0));
+        }
+
         private static float _upSoftnessMultiplier;
         private static float _upMassMultiplier;
 
@@ -663,17 +722,22 @@ namespace TittyMagic.Handlers
 
         public static void SetMultipliers(float mass, float softness)
         {
+            _upBaseMassFactor = UpBaseMassFactor(mass);
+            _forwardBaseMassFactor = ForwardBaseMassFactor(mass);
+            _backBaseMassFactor = BackBaseMassFactor(mass);
+            _leftRightBaseMassFactor = LeftRightBaseMassFactor(mass);
+
             _upSoftnessMultiplier = Curves.Exponential1(softness, 1.73f, 1.68f, 0.88f, s: 0.56f);
-            _upMassMultiplier = 0.493f * Curves.MassMorphingCurve(mass);
+            _upMassMultiplier = 0.0075f * _upBaseMassFactor * Curves.MassMorphingCurve(mass);
 
             _forwardSoftnessMultiplier = Mathf.Lerp(1.00f, 1.20f, softness);
-            _forwardMassMultiplier = 0.90f * Curves.DepthMassMorphingCurve(mass);
+            _forwardMassMultiplier = 12.50f / _forwardBaseMassFactor * Curves.DepthMassMorphingCurve(mass);
 
             _backSoftnessMultiplier = Mathf.Lerp(0.80f, 1.00f, softness);
-            _backMassMultiplier = 0.90f * Curves.DepthMassMorphingCurve(mass);
+            _backMassMultiplier = 12.50f / _backBaseMassFactor * Curves.DepthMassMorphingCurve(mass);
 
             _leftRightSoftnessMultiplier = Curves.Exponential1(softness, 1.73f, 1.68f, 0.88f, s: 0.56f);
-            _leftRightMassMultiplier = 0.605f * Curves.MassMorphingCurve(mass);
+            _leftRightMassMultiplier = 0.0109f * _leftRightBaseMassFactor * Curves.MassMorphingCurve(mass);
         }
 
         private static float _rollL;
@@ -701,22 +765,24 @@ namespace TittyMagic.Handlers
             AdjustRightMorphs();
         }
 
+        private static float UpEffect(float angle, float pitchMultiplier) =>
+            pitchMultiplier
+            * _upSoftnessMultiplier
+            * _upMassMultiplier
+            * Curves.QuadraticRegression(upMultiplier)
+            * Curves.YForceEffectCurve(Mathf.Abs(angle) / _upBaseMassFactor);
+
         private static void AdjustUpMorphs()
         {
             float pitchMultiplierLeft = 0;
             float pitchMultiplierRight = 0;
 
-            Func<float, float, float> calculateEffect = (angle, pitchMultiplier) =>
-                _upSoftnessMultiplier
-                * _upMassMultiplier
-                * Curves.QuadraticRegression(upMultiplier)
-                * Curves.YForceEffectCurve(pitchMultiplier * Mathf.Abs(angle) / 75);
-
             if(_trackLeftBreast.angleY >= 0)
             {
                 // up force on left breast
+                // TODO try without
                 pitchMultiplierLeft = Mathf.Lerp(0.80f, 1f, GravityEffectCalc.DiffFromHorizontal(_pitchL, _rollL));
-                UpdateMorphs(UP_L, calculateEffect(_trackLeftBreast.angleY, pitchMultiplierLeft));
+                UpdateMorphs(UP_L, UpEffect(_trackLeftBreast.angleY, pitchMultiplierLeft));
             }
             else
             {
@@ -728,7 +794,7 @@ namespace TittyMagic.Handlers
             {
                 // up force on right breast
                 pitchMultiplierRight = Mathf.Lerp(0.80f, 1f, GravityEffectCalc.DiffFromHorizontal(_pitchR, _rollR));
-                UpdateMorphs(UP_R, calculateEffect(_trackRightBreast.angleY, pitchMultiplierRight));
+                UpdateMorphs(UP_R, UpEffect(_trackRightBreast.angleY, pitchMultiplierRight));
             }
             else
             {
@@ -741,7 +807,7 @@ namespace TittyMagic.Handlers
             {
                 // up force on average of left and right breast
                 float pitchMultiplierCenter = (pitchMultiplierLeft + pitchMultiplierRight) / 2;
-                UpdateMorphs(UP_C, calculateEffect(angleYCenter, pitchMultiplierCenter));
+                UpdateMorphs(UP_C, UpEffect(angleYCenter, pitchMultiplierCenter));
             }
             else
             {
@@ -749,18 +815,18 @@ namespace TittyMagic.Handlers
             }
         }
 
+        private static float ForwardEffect(float depthDiff) =>
+            _forwardSoftnessMultiplier
+            * _forwardMassMultiplier
+            * Curves.QuadraticRegression(forwardMultiplier)
+            * Curves.ZForceEffectCurve(Mathf.Abs(depthDiff) * _forwardBaseMassFactor);
+
         private static void AdjustForwardMorphs()
         {
-            Func<float, float> calculateEffect = distance =>
-                _forwardSoftnessMultiplier
-                * _forwardMassMultiplier
-                * Curves.QuadraticRegression(forwardMultiplier)
-                * Curves.ZForceEffectCurve(Mathf.Abs(distance) * 13.5f);
-
             if(_trackLeftBreast.depthDiff < 0)
             {
                 // forward force on left breast
-                UpdateMorphs(FORWARD_L, calculateEffect(_trackLeftBreast.depthDiff));
+                UpdateMorphs(FORWARD_L, ForwardEffect(_trackLeftBreast.depthDiff));
             }
             else
             {
@@ -771,8 +837,7 @@ namespace TittyMagic.Handlers
             if(_trackRightBreast.depthDiff < 0)
             {
                 // forward force on right breast
-                // gRight = 2.25f * GravityEffectCalc.DepthEffect(pitchRight, rollRight, forwardMultiplier);
-                UpdateMorphs(FORWARD_R, calculateEffect(_trackRightBreast.depthDiff));
+                UpdateMorphs(FORWARD_R, ForwardEffect(_trackRightBreast.depthDiff));
             }
             else
             {
@@ -784,7 +849,7 @@ namespace TittyMagic.Handlers
             if(depthDiffCenter < 0)
             {
                 // forward force on average of left and right breast
-                UpdateMorphs(FORWARD_C, calculateEffect(depthDiffCenter));
+                UpdateMorphs(FORWARD_C, ForwardEffect(depthDiffCenter));
             }
             else
             {
@@ -806,17 +871,17 @@ namespace TittyMagic.Handlers
             return Mathf.Lerp(minTarget2, 1.00f, diff);
         }
 
+        private static float BackEffect(float depthDiff, float leanBackFixedMulti) =>
+            _backSoftnessMultiplier
+            * _backMassMultiplier
+            * leanBackFixedMulti
+            * Curves.QuadraticRegression(backMultiplier)
+            * Curves.ZForceEffectCurve(Mathf.Abs(depthDiff) * _backBaseMassFactor);
+
         private static void AdjustBackMorphs()
         {
             float leanBackFixedMultiLeft = CalculateLeanBackFixerMultiplier(_pitchL, _rollL);
             float leanBackFixedMultiRight = CalculateLeanBackFixerMultiplier(_pitchR, _rollR);
-
-            Func<float, float, float> calculateEffect = (distance, leanBackFixedMulti) =>
-                _backSoftnessMultiplier
-                * _backMassMultiplier
-                * leanBackFixedMulti
-                * Curves.QuadraticRegression(backMultiplier)
-                * Curves.ZForceEffectCurve(Mathf.Abs(distance) * 13.5f);
 
             if(_trackLeftBreast.depthDiff < 0)
             {
@@ -826,7 +891,7 @@ namespace TittyMagic.Handlers
             else
             {
                 // back force on left breast
-                UpdateMorphs(BACK_L, calculateEffect(_trackLeftBreast.depthDiff, leanBackFixedMultiLeft));
+                UpdateMorphs(BACK_L, BackEffect(_trackLeftBreast.depthDiff, leanBackFixedMultiLeft));
             }
 
             if(_trackRightBreast.depthDiff < 0)
@@ -837,7 +902,7 @@ namespace TittyMagic.Handlers
             else
             {
                 // back force on right breast
-                UpdateMorphs(BACK_R, calculateEffect(_trackRightBreast.depthDiff, leanBackFixedMultiRight));
+                UpdateMorphs(BACK_R, BackEffect(_trackRightBreast.depthDiff, leanBackFixedMultiRight));
             }
 
             float depthDiffCenter = (_trackLeftBreast.depthDiff + _trackRightBreast.depthDiff) / 2;
@@ -850,22 +915,22 @@ namespace TittyMagic.Handlers
             else
             {
                 // back force on average of left and right breast
-                UpdateMorphs(BACK_C, calculateEffect(depthDiffCenter, leanBackFixedMultiCenter));
+                UpdateMorphs(BACK_C, BackEffect(depthDiffCenter, leanBackFixedMultiCenter));
             }
         }
 
+        private static float LeftRightEffect(float angle, float rollAngleMulti) =>
+            _leftRightSoftnessMultiplier
+            * _leftRightMassMultiplier
+            * Curves.QuadraticRegression(leftRightMultiplier)
+            * Curves.XForceEffectCurve(rollAngleMulti * Mathf.Abs(angle) / _leftRightBaseMassFactor);
+
         private static void AdjustLeftMorphs()
         {
-            Func<float, float, float> calculateEffect = (angle, rollAngleMulti) =>
-                _leftRightSoftnessMultiplier
-                * _leftRightMassMultiplier
-                * Curves.QuadraticRegression(leftRightMultiplier)
-                * Curves.XForceEffectCurve(rollAngleMulti * Mathf.Abs(angle) / 60);
-
             if(_trackLeftBreast.angleX >= 0)
             {
                 // left force on left breast
-                UpdateMorphs(RIGHT_L, calculateEffect(_trackLeftBreast.angleX, _rollAngleMultiL));
+                UpdateMorphs(RIGHT_L, LeftRightEffect(_trackLeftBreast.angleX, _rollAngleMultiL));
             }
             else
             {
@@ -876,7 +941,7 @@ namespace TittyMagic.Handlers
             if(_trackRightBreast.angleX >= 0)
             {
                 // left force on right breast
-                UpdateMorphs(RIGHT_R, calculateEffect(_trackRightBreast.angleX, _rollAngleMultiR));
+                UpdateMorphs(RIGHT_R, LeftRightEffect(_trackRightBreast.angleX, _rollAngleMultiR));
             }
             else
             {
@@ -930,7 +995,7 @@ namespace TittyMagic.Handlers
                 mass * config.massMultiplier * effect / 2;
 
             bool inRange = config.isNegative ? value < 0 : value > 0;
-            config.morph.morphValue = inRange ? Calc.RoundToDecimals(value, 1000f) : 0;
+            config.morph.morphValue = inRange ? Calc.RoundToDecimals(value) : 0;
         }
 
         public static void SimulateUpright()

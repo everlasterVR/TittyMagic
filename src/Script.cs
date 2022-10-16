@@ -104,7 +104,7 @@ namespace TittyMagic
                             _mainWindow.OnReturn();
                         }
                     }
-                    else if(nestedWindow is HardCollidersWindow || nestedWindow is DevWindow)
+                    else if(nestedWindow is HardCollidersWindow)
                     {
                         if(HardColliderHandler.colliderVisualizer != null)
                         {
@@ -112,6 +112,14 @@ namespace TittyMagic
                             HardColliderHandler.colliderVisualizer.ShowPreviewsJSON.val = true;
                         }
                     }
+                    // else if(nestedWindow is DevWindow)
+                    // {
+                    //     if(HardColliderHandler.colliderVisualizer != null)
+                    //     {
+                    //         HardColliderHandler.colliderVisualizer.enabled = true;
+                    //         HardColliderHandler.colliderVisualizer.ShowPreviewsJSON.val = true;
+                    //     }
+                    // }
                 }
                 else if(tabs.activeWindow == _physicsWindow)
                 {

@@ -28,6 +28,8 @@ namespace TittyMagic.UI
                 elements[storable.name] = chooser;
             }
 
+            CreateRecalibrateButton(tittyMagic.recalibratePhysics, true);
+
             /* Left debug info area */
             {
                 _leftDebugArea = new JSONStorableString("leftDebugArea", "");
@@ -38,8 +40,8 @@ namespace TittyMagic.UI
                 _hardColliderGroups = HardColliderHandler.hardColliderGroups.ToArray();
             }
 
-            HardColliderHandler.colliderVisualizer.enabled = true;
-            HardColliderHandler.colliderVisualizer.ShowPreviewsJSON.val = true;
+            // HardColliderHandler.colliderVisualizer.enabled = true;
+            // HardColliderHandler.colliderVisualizer.ShowPreviewsJSON.val = true;
         }
 
         protected override void OnClose()
@@ -56,20 +58,20 @@ namespace TittyMagic.UI
             var sb = new StringBuilder();
             sb.Append("\n");
 
-            for(int i = 0; i < _hardColliderGroups.Length; i++)
-            {
-                var group = _hardColliderGroups[i];
-                var leftPos = group.left.collider.attachedRigidbody.position;
-                float x = Calc.RoundToDecimals(leftPos.x, 1000f);
-                float y = Calc.RoundToDecimals(leftPos.y, 1000f);
-                float z = Calc.RoundToDecimals(leftPos.z, 1000f);
-                sb.Append($"{group.id} {x} {y} {z}");
-
-                if(i != _hardColliderGroups.Length - 1)
-                {
-                    sb.Append("\n\n");
-                }
-            }
+            // for(int i = 0; i < _hardColliderGroups.Length; i++)
+            // {
+            //     var group = _hardColliderGroups[i];
+            //     var leftPos = group.left.collider.attachedRigidbody.position;
+            //     float x = Calc.RoundToDecimals(leftPos.x);
+            //     float y = Calc.RoundToDecimals(leftPos.y);
+            //     float z = Calc.RoundToDecimals(leftPos.z);
+            //     sb.Append($"{group.id} {x} {y} {z}");
+            //
+            //     if(i != _hardColliderGroups.Length - 1)
+            //     {
+            //         sb.Append("\n\n");
+            //     }
+            // }
 
             _leftDebugArea.val = sb.ToString();
         }
