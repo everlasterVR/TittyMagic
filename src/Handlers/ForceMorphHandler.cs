@@ -720,6 +720,9 @@ namespace TittyMagic.Handlers
         private static float _leftRightSoftnessMultiplier;
         private static float _leftRightMassMultiplier;
 
+        // https://www.desmos.com/calculator/kkbbepyp4j
+        private static float SoftnessCurve(float softness) => 1.1f * Curves.Exponential1(softness, 1.76f, 1.67f, 0.74f, a: 0.9f, s: 0.13f);
+
         public static void SetMultipliers(float mass, float softness)
         {
             _upBaseMassFactor = UpBaseMassFactor(mass);
@@ -727,16 +730,16 @@ namespace TittyMagic.Handlers
             _backBaseMassFactor = BackBaseMassFactor(mass);
             _leftRightBaseMassFactor = LeftRightBaseMassFactor(mass);
 
-            _upSoftnessMultiplier = Curves.Exponential1(softness, 1.73f, 1.68f, 0.88f, s: 0.56f);
+            _upSoftnessMultiplier = SoftnessCurve(softness);
             _upMassMultiplier = 0.0075f * _upBaseMassFactor * Curves.MassMorphingCurve(mass);
 
-            _forwardSoftnessMultiplier = Mathf.Lerp(1.00f, 1.20f, softness);
+            _forwardSoftnessMultiplier = 1.16f * SoftnessCurve(softness);
             _forwardMassMultiplier = 12.50f / _forwardBaseMassFactor * Curves.DepthMassMorphingCurve(mass);
 
-            _backSoftnessMultiplier = Mathf.Lerp(0.80f, 1.00f, softness);
+            _backSoftnessMultiplier = SoftnessCurve(softness);
             _backMassMultiplier = 12.50f / _backBaseMassFactor * Curves.DepthMassMorphingCurve(mass);
 
-            _leftRightSoftnessMultiplier = Curves.Exponential1(softness, 1.73f, 1.68f, 0.88f, s: 0.56f);
+            _leftRightSoftnessMultiplier = SoftnessCurve(softness);
             _leftRightMassMultiplier = 0.0109f * _leftRightBaseMassFactor * Curves.MassMorphingCurve(mass);
         }
 
