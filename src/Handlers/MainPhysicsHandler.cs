@@ -184,10 +184,10 @@ namespace TittyMagic.Handlers
         {
             var parameter = NewPhysicsParameter(SPRING, side, 10, 10, 100);
             parameter.config = new StaticPhysicsConfig(
-                60f,
-                massCurve: x => 0.14f * x,
+                64f,
+                massCurve: x => 0.10f * x,
                 // https://www.desmos.com/calculator/nxyosar9o6
-                softnessCurve: x => -0.40f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f)
+                softnessCurve: x => -0.50f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f)
             );
             parameter.quicknessOffsetConfig = new StaticPhysicsConfig(24f);
             parameter.slownessOffsetConfig = new StaticPhysicsConfig(-12f);
@@ -200,7 +200,7 @@ namespace TittyMagic.Handlers
         {
             var parameter = NewPhysicsParameter(DAMPER, side, 0, 0, 10.00f);
             parameter.config = new StaticPhysicsConfig(
-                1.60f,
+                1.28f,
                 // https://www.desmos.com/calculator/y3akvzgr1s
                 massCurve: x => 1.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.30f, 0.60f),
                 // https://www.desmos.com/calculator/nxyosar9o6
