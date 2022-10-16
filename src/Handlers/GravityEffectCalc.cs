@@ -85,7 +85,7 @@ namespace TittyMagic.Handlers
         }
 
         public static float DiffFromHorizontal(float pitch, float roll) =>
-            2 * (0.5f - Mathf.Abs(pitch)) * RollMultiplier(roll);
+            Mathf.Abs(Mathf.Abs(pitch) - 1f) * RollMultiplier(roll);
 
         private static float RollMultiplier(float roll) => 1 - Mathf.Abs(roll);
     }

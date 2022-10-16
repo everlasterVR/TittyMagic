@@ -721,7 +721,7 @@ namespace TittyMagic.Handlers
         private static float _leftRightMassMultiplier;
 
         // https://www.desmos.com/calculator/kkbbepyp4j
-        private static float SoftnessCurve(float softness) => 1.1f * Curves.Exponential1(softness, 1.76f, 1.67f, 0.74f, a: 0.9f, s: 0.13f);
+        private static float SoftnessCurve(float softness) => 1.04f * Curves.Exponential1(softness, 1.76f, 1.67f, 0.74f, a: 0.9f, s: 0.13f);
 
         public static void SetMultipliers(float mass, float softness)
         {
@@ -731,7 +731,7 @@ namespace TittyMagic.Handlers
             _leftRightBaseMassFactor = LeftRightBaseMassFactor(mass);
 
             _upSoftnessMultiplier = SoftnessCurve(softness);
-            _upMassMultiplier = 0.0075f * _upBaseMassFactor * Curves.MassMorphingCurve(mass);
+            _upMassMultiplier = 0.0069f * _upBaseMassFactor * Curves.MassMorphingCurve(mass);
 
             _forwardSoftnessMultiplier = 1.16f * SoftnessCurve(softness);
             _forwardMassMultiplier = 12.50f / _forwardBaseMassFactor * Curves.DepthMassMorphingCurve(mass);
@@ -783,8 +783,7 @@ namespace TittyMagic.Handlers
             if(_trackLeftBreast.angleY >= 0)
             {
                 // up force on left breast
-                // TODO try without
-                pitchMultiplierLeft = Mathf.Lerp(0.80f, 1f, GravityEffectCalc.DiffFromHorizontal(_pitchL, _rollL));
+                pitchMultiplierLeft = Mathf.Lerp(0.67f, 1f, GravityEffectCalc.DiffFromHorizontal(_pitchL, _rollL));
                 UpdateMorphs(UP_L, UpEffect(_trackLeftBreast.angleY, pitchMultiplierLeft));
             }
             else
@@ -796,7 +795,7 @@ namespace TittyMagic.Handlers
             if(_trackRightBreast.angleY >= 0)
             {
                 // up force on right breast
-                pitchMultiplierRight = Mathf.Lerp(0.80f, 1f, GravityEffectCalc.DiffFromHorizontal(_pitchR, _rollR));
+                pitchMultiplierRight = Mathf.Lerp(0.67f, 1f, GravityEffectCalc.DiffFromHorizontal(_pitchR, _rollR));
                 UpdateMorphs(UP_R, UpEffect(_trackRightBreast.angleY, pitchMultiplierRight));
             }
             else
