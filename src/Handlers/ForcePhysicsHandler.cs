@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using TittyMagic.Components;
 using TittyMagic.Handlers.Configs;
@@ -18,29 +17,19 @@ namespace TittyMagic.Handlers
         private static TrackBreast _trackRightBreast;
 
         private static JSONStorableFloat _baseJsf;
-        private static JSONStorableFloat _upJsf;
-        private static JSONStorableFloat _downJsf;
         private static JSONStorableFloat _forwardJsf;
         private static JSONStorableFloat _backJsf;
-        private static JSONStorableFloat _leftRightJsf;
 
-        private static float upMultiplier => _baseJsf.val * _upJsf.val;
-        private static float downMultiplier => _baseJsf.val * _downJsf.val;
         private static float forwardMultiplier => _baseJsf.val * _forwardJsf.val;
         private static float backMultiplier => _baseJsf.val * _backJsf.val;
-        private static float leftRightMultiplier => _baseJsf.val * _leftRightJsf.val;
 
         public static void Init()
         {
             _trackLeftBreast = tittyMagic.trackLeftBreast;
             _trackRightBreast = tittyMagic.trackRightBreast;
-
             _baseJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsBase", 1.00f, 0.00f, 2.00f);
-            _upJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsUp", 1.00f, 0.00f, 2.00f);
-            _downJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsDown", 1.00f, 0.00f, 2.00f);
             _forwardJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsForward", 1.00f, 0.00f, 2.00f);
             _backJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsBack", 1.00f, 0.00f, 2.00f);
-            _leftRightJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsLeftRight", 1.00f, 0.00f, 2.00f);
         }
 
         public static void LoadSettings()
@@ -67,7 +56,7 @@ namespace TittyMagic.Handlers
             {
                 {
                     Direction.BACK, new DynamicPhysicsConfig(
-                        massMultiplier: -0.390f,
+                        massMultiplier: -0.130f,
                         softnessMultiplier: -0.130f,
                         negative: true,
                         applyMethod: ApplyMethod.ADDITIVE,
@@ -77,7 +66,7 @@ namespace TittyMagic.Handlers
                 },
                 {
                     Direction.FORWARD, new DynamicPhysicsConfig(
-                        massMultiplier: 0.390f,
+                        massMultiplier: 0.130f,
                         softnessMultiplier: 0.130f,
                         negative: false,
                         applyMethod: ApplyMethod.ADDITIVE,
@@ -116,7 +105,7 @@ namespace TittyMagic.Handlers
                 {
                     Direction.BACK, new DynamicPhysicsConfig(
                         massMultiplier: 0f,
-                        softnessMultiplier: -50f,
+                        softnessMultiplier: -30f,
                         negative: true,
                         applyMethod: ApplyMethod.ADDITIVE
                     )
@@ -124,24 +113,18 @@ namespace TittyMagic.Handlers
                 {
                     Direction.FORWARD, new DynamicPhysicsConfig(
                         massMultiplier: 0f,
-                        softnessMultiplier: 100f,
+                        softnessMultiplier: 40f,
                         negative: false,
                         applyMethod: ApplyMethod.ADDITIVE
                     )
                 },
             };
 
-        private static float _leftRightMultiplier;
-        private static float _upMultiplier;
-        private static float _downMultiplier;
         private static float _forwardMultiplier;
         private static float _backMultiplier;
 
         public static void SetMultipliers()
         {
-            _leftRightMultiplier = 0.325f;
-            _upMultiplier = 0.265f;
-            _downMultiplier = 0.265f;
             _forwardMultiplier = 0.90f;
             _backMultiplier = 0.90f;
         }
@@ -153,116 +136,21 @@ namespace TittyMagic.Handlers
         {
             _mass = MainPhysicsHandler.realMassAmount;
             _softness = tittyMagic.softnessAmount;
-            AdjustLeftRightPhysics();
-            AdjustUpPhysics();
-            AdjustDownPhysics();
             AdjustForwardPhysics();
             AdjustBackPhysics();
         }
 
-        private static void AdjustLeftRightPhysics()
-        {
-            Func<float, float> calculateEffect = angle =>
-                _leftRightMultiplier
-                * Curves.QuadraticRegression(leftRightMultiplier)
-                * Curves.XForceEffectCurve(Mathf.Abs(angle) / 40);
-
-            float effectXLeft = calculateEffect(_trackLeftBreast.angleX);
-            if(_trackLeftBreast.angleX > 0)
-            {
-                // left force on left breast
-                ResetLeftBreast(Direction.LEFT);
-                UpdateLeftBreast(Direction.RIGHT, effectXLeft);
-            }
-            else
-            {
-                // right force on left breast
-                ResetLeftBreast(Direction.RIGHT);
-                UpdateLeftBreast(Direction.RIGHT, effectXLeft);
-            }
-
-            float effectXRight = calculateEffect(_trackRightBreast.angleX);
-            if(_trackRightBreast.angleX > 0)
-            {
-                // left force on right breast
-                ResetRightBreast(Direction.LEFT);
-                UpdateRightBreast(Direction.RIGHT, effectXRight);
-            }
-            else
-            {
-                // right force on right breast
-                ResetRightBreast(Direction.RIGHT);
-                UpdateRightBreast(Direction.LEFT, effectXRight);
-            }
-        }
-
-        private static void AdjustUpPhysics()
-        {
-            Func<float, float> calculateEffect = angle =>
-                _upMultiplier
-                * Curves.QuadraticRegression(upMultiplier)
-                * Curves.YForceEffectCurve(Mathf.Abs(angle) / 40);
-
-            if(_trackLeftBreast.angleY >= 0)
-            {
-                // up force on left breast
-                UpdateLeftBreast(Direction.UP, calculateEffect(_trackLeftBreast.angleY));
-            }
-            else
-            {
-                ResetLeftBreast(Direction.UP);
-            }
-
-            if(_trackRightBreast.angleY >= 0)
-            {
-                // up force on right breast
-                UpdateRightBreast(Direction.UP, calculateEffect(_trackRightBreast.angleY));
-            }
-            else
-            {
-                ResetRightBreast(Direction.UP);
-            }
-        }
-
-        private static void AdjustDownPhysics()
-        {
-            Func<float, float> calculateEffect = angle =>
-                _downMultiplier
-                * Curves.QuadraticRegression(downMultiplier)
-                * Curves.YForceEffectCurve(Mathf.Abs(angle) / 40);
-
-            if(_trackLeftBreast.angleY < 0)
-            {
-                // down force on left breast
-                UpdateLeftBreast(Direction.DOWN, calculateEffect(_trackLeftBreast.angleY));
-            }
-            else
-            {
-                ResetLeftBreast(Direction.DOWN);
-            }
-
-            if(_trackRightBreast.angleY < 0)
-            {
-                // down force on right breast
-                UpdateRightBreast(Direction.DOWN, calculateEffect(_trackRightBreast.angleY));
-            }
-            else
-            {
-                ResetRightBreast(Direction.DOWN);
-            }
-        }
+        private static float ForwardEffect(float distance) =>
+            _forwardMultiplier
+            * Curves.QuadraticRegression(forwardMultiplier)
+            * Curves.ZForceEffectCurve(Mathf.Abs(distance) * 27f);
 
         private static void AdjustForwardPhysics()
         {
-            Func<float, float> calculateEffect = distance =>
-                _forwardMultiplier
-                * Curves.QuadraticRegression(forwardMultiplier)
-                * Curves.ZForceEffectCurve(Mathf.Abs(distance) * 10);
-
             if(_trackLeftBreast.depthDiff <= 0)
             {
                 // forward force on left breast
-                UpdateLeftBreast(Direction.FORWARD, calculateEffect(_trackLeftBreast.depthDiff));
+                UpdateLeftBreast(Direction.FORWARD, ForwardEffect(_trackLeftBreast.depthDiff));
             }
             else
             {
@@ -272,7 +160,7 @@ namespace TittyMagic.Handlers
             if(_trackRightBreast.depthDiff <= 0)
             {
                 // forward force on right breast
-                UpdateRightBreast(Direction.FORWARD, calculateEffect(_trackRightBreast.depthDiff));
+                UpdateRightBreast(Direction.FORWARD, ForwardEffect(_trackRightBreast.depthDiff));
             }
             else
             {
@@ -280,17 +168,17 @@ namespace TittyMagic.Handlers
             }
         }
 
+        private static float BackEffect(float distance) =>
+            _backMultiplier
+            * Curves.QuadraticRegression(backMultiplier)
+            * Curves.ZForceEffectCurve(Mathf.Abs(distance) * 20.50f);
+
         private static void AdjustBackPhysics()
         {
-            Func<float, float> calculateEffect = distance =>
-                _backMultiplier
-                * Curves.QuadraticRegression(backMultiplier)
-                * Curves.ZForceEffectCurve(Mathf.Abs(distance) * 10);
-
             if(_trackLeftBreast.depthDiff > 0)
             {
                 // back force on left breast
-                UpdateLeftBreast(Direction.BACK, calculateEffect(_trackLeftBreast.depthDiff));
+                UpdateLeftBreast(Direction.BACK, BackEffect(_trackLeftBreast.depthDiff));
             }
             else
             {
@@ -300,7 +188,7 @@ namespace TittyMagic.Handlers
             if(_trackRightBreast.depthDiff > 0)
             {
                 // back force on right breast
-                UpdateRightBreast(Direction.BACK, calculateEffect(_trackRightBreast.depthDiff));
+                UpdateRightBreast(Direction.BACK, BackEffect(_trackRightBreast.depthDiff));
             }
             else
             {
@@ -339,11 +227,8 @@ namespace TittyMagic.Handlers
             _trackLeftBreast = null;
             _trackRightBreast = null;
             _baseJsf = null;
-            _upJsf = null;
-            _downJsf = null;
             _forwardJsf = null;
             _backJsf = null;
-            _leftRightJsf = null;
         }
     }
 }
