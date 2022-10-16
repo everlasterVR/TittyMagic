@@ -37,8 +37,6 @@ namespace TittyMagic
         public JSONStorableAction calculateBreastMass { get; private set; }
         public JSONStorableFloat softnessJsf { get; private set; }
         public JSONStorableFloat quicknessJsf { get; private set; }
-        public JSONStorableFloat smoothingPeriodJsf { get; private set; }
-        public JSONStorableFloat smoothingWeightingRatioJsf { get; private set; }
 
         public CalibrationHelper calibrationHelper { get; private set; }
 
@@ -352,14 +350,6 @@ namespace TittyMagic
                     }
                 };
 
-                smoothingPeriodJsf = this.NewJSONStorableFloat("morphSmoothingPeriod", 1, 1, 10);
-                smoothingPeriodJsf.setCallbackFunction = SetSmoothingPeriod;
-                SetSmoothingPeriod(smoothingPeriodJsf.val);
-
-                smoothingWeightingRatioJsf = this.NewJSONStorableFloat("morphSmoothingWeightingRatio", 0.50f, 0.00f, 1.00f);
-                smoothingWeightingRatioJsf.setCallbackFunction = SetWeightingRatio;
-                SetWeightingRatio(smoothingWeightingRatioJsf.val);
-
                 recalibratePhysics = this.NewJSONStorableAction("recalibratePhysics", () => StartCalibration(calibratesMass: false));
                 calculateBreastMass = this.NewJSONStorableAction("calculateBreastMass", () => StartCalibration(calibratesMass: true));
             }
@@ -437,29 +427,6 @@ namespace TittyMagic
 
             bindingsList.Add(bindings.Namespace());
             bindingsList.AddRange(bindings.Actions());
-        }
-
-        private void SetSmoothingPeriod(float value)
-        {
-            if(!personIsFemale)
-            {
-                return;
-            }
-
-            int period = (int) Mathf.Round(value);
-            ((TrackFemaleBreast) trackLeftBreast).SetMovingAveragePeriod(period);
-            ((TrackFemaleBreast) trackRightBreast).SetMovingAveragePeriod(period);
-        }
-
-        private void SetWeightingRatio(float value)
-        {
-            if(!personIsFemale)
-            {
-                return;
-            }
-
-            ((TrackFemaleBreast) trackLeftBreast).weightingRatio = value;
-            ((TrackFemaleBreast) trackRightBreast).weightingRatio = value;
         }
 
         private UIMod NewUIMod(Transform container, string targetName, Func<UIMod, IEnumerator> changesFunc)

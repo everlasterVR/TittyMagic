@@ -30,7 +30,6 @@ namespace TittyMagic
                 tittyMagic.NewJSONStorableAction("OpenUI_Control", OpenUIControl),
                 tittyMagic.NewJSONStorableAction("OpenUI_ConfigureHardColliders", OpenUIConfigureHardColliders),
                 tittyMagic.NewJSONStorableAction("OpenUI_ConfigureColliderFriction", OpenUIConfigureColliderFriction),
-                tittyMagic.NewJSONStorableAction("OpenUI_Experimental", OpenUIExperimental),
                 tittyMagic.NewJSONStorableAction("OpenUI_Options", OpenUIOptions),
                 tittyMagic.NewJSONStorableAction("OpenUI_PhysicsParams", OpenUIPhysicsParams),
                 tittyMagic.NewJSONStorableAction("OpenUI_MorphMultipliers", OpenUIMorphMultipliers),
@@ -44,6 +43,7 @@ namespace TittyMagic
             {
                 jsonStorableActions.Add(new JSONStorableAction("OpenUI_Dev", OpenUIDev));
                 jsonStorableActions.Add(new JSONStorableAction("OpenUI_DevMorph", OpenUIDevMorph));
+                jsonStorableActions.Add(new JSONStorableAction("OpenUI_Experimental", OpenUIExperimental));
             }
 
             actions = jsonStorableActions.ToDictionary(action => action.name, action => action);
