@@ -21,7 +21,7 @@ namespace TittyMagic.Models
         public bool usesRealMass { get; set; }
         public bool requiresRecalibration { get; set; }
         public bool allowsSoftColliderVisualization { get; set; }
-        public bool rightIsInverted { get; set; }
+        public bool rightInverted { get; set; }
         public JSONStorableBool offsetOnlyLeftBreastJsb { get; }
 
         public PhysicsParameter left { get; }
@@ -45,7 +45,7 @@ namespace TittyMagic.Models
 
             offsetOnlyLeftBreastJsb.setCallbackFunction = value =>
             {
-                float rightValue = rightIsInverted ? -left.offsetJsf.val : left.offsetJsf.val;
+                float rightValue = rightInverted ? -left.offsetJsf.val : left.offsetJsf.val;
                 right.UpdateOffsetValue(value ? 0 : rightValue);
                 foreach(var param in right.groupMultiplierParams)
                 {
@@ -59,7 +59,7 @@ namespace TittyMagic.Models
             left.offsetJsf.setCallbackFunction = value =>
             {
                 left.UpdateOffsetValue(value);
-                float rightValue = rightIsInverted ? -value : value;
+                float rightValue = rightInverted ? -value : value;
                 right.UpdateOffsetValue(offsetOnlyLeftBreastJsb.val ? 0 : rightValue);
             };
         }
@@ -101,18 +101,6 @@ namespace TittyMagic.Models
         {
             left.gravityPhysicsConfigs = leftConfigs;
             right.gravityPhysicsConfigs = rightConfigs;
-        }
-
-        public void UpdateGravityValue(string direction, float effect, float massValue, float softness)
-        {
-            left.UpdateGravityValue(direction, effect, massValue, softness);
-            right.UpdateGravityValue(direction, effect, massValue, softness);
-        }
-
-        public void ResetGravityValue(string direction)
-        {
-            left.ResetGravityValue(direction);
-            right.ResetGravityValue(direction);
         }
 
         public void SetForcePhysicsConfigs(

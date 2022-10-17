@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using TittyMagic.Handlers.Configs;
 using TittyMagic.Models;
+using TittyMagic.UI;
 using UnityEngine;
 using static TittyMagic.ParamName;
 using static TittyMagic.Script;
@@ -23,13 +24,14 @@ namespace TittyMagic.Handlers
 
         // Left/Right -> Group name -> Group
         private static Dictionary<string, Dictionary<string, DAZPhysicsMeshSoftVerticesGroup>> _softVerticesGroups;
+        private static Dictionary<string, Dictionary<string, int[]>> _vertexIndices;
 
         // Group name -> Group
         public static Dictionary<string, PhysicsParameterGroup> parameterGroups { get; private set; }
-        public static JSONStorableBool softPhysicsOnJsb { get; private set; }
+        public static JSONStorableBool breastSoftPhysicsOnJsb { get; private set; }
         public static JSONStorableBool allowSelfCollisionJsb { get; private set; }
 
-        private static bool _isInitialized;
+        private static bool _initialized;
 
         public static void Init()
         {
@@ -37,7 +39,7 @@ namespace TittyMagic.Handlers
             {
                 InitColliderVisualizer();
                 showSoftVerticesColliderPreviewsJsb = tittyMagic.NewJSONStorableBool("showSoftVerticesColliders", false, shouldRegister: false);
-                showSoftVerticesColliderPreviewsJsb.setCallbackFunction = value => colliderVisualizer.GroupsJSON.val = value ? "Both breasts" : "Off";;
+                showSoftVerticesColliderPreviewsJsb.setCallbackFunction = value => colliderVisualizer.GroupsJSON.val = value ? "Both breasts" : "Off";
 
                 breastPhysicsMesh = (DAZPhysicsMesh) tittyMagic.containingAtom.GetStorableByID("BreastPhysicsMesh");
                 _breastPhysicsMeshFloatParamNames = breastPhysicsMesh.GetFloatParamNames();
@@ -64,23 +66,70 @@ namespace TittyMagic.Handlers
                         }
                     },
                 };
+                _vertexIndices = new Dictionary<string, Dictionary<string, int[]>>
+                {
+                    {
+                        LEFT, new Dictionary<string, int[]>
+                        {
+                            {
+                                MAIN,
+                                new[]
+                                {
+                                    7230, 7231, 7232, 7233, 7234, 7235, 7236, 7237, 7238, 7239, 7243, 7244, 7245,
+                                    7246, 7247, 8925, 8926, 8927, 8928, 8929, 8930, 8931, 8932, 8933, 8934, 8935,
+                                    8936, 8937, 8938, 8939, 8940, 8941, 8942, 8943, 8944, 8945, 8946, 8947, 8948,
+                                }
+                            },
+                            { OUTER, new[] { 17, 137, 2403, 2407, 2410, 2418, 2596, 7248, 8848, 8849 } },
+                            { AREOLA, new[] { 7945, 7946, 7947, 7950, 7958, 7966 } },
+                        }
+                    },
+                    {
+                        RIGHT, new Dictionary<string, int[]>
+                        {
+                            {
+                                MAIN,
+                                new[]
+                                {
+                                    17936, 17937, 17938, 17939, 17940, 17941, 17942, 17943, 17944, 17945, 17949, 17950, 17951,
+                                    17952, 17953, 19591, 19592, 19593, 19594, 19595, 19596, 19597, 19598, 19599, 19600, 19601,
+                                    19602, 19603, 19604, 19605, 19606, 19607, 19608, 19609, 19610, 19611, 19612, 19613, 19614,
+                                }
+                            },
+                            { OUTER, new[] { 10945, 11065, 13233, 13237, 13240, 13248, 13412, 17954, 19519, 19520 } },
+                            { AREOLA, new[] { 18623, 18624, 18625, 18628, 18636, 18644 } },
+                        }
+                    },
+                };
 
                 EnableMultiplyFriction();
             }
 
-            softPhysicsOnJsb = tittyMagic.NewJSONStorableBool(SOFT_PHYSICS_ON, personIsFemale, shouldRegister: personIsFemale);
-            softPhysicsOnJsb.setCallbackFunction = SyncSoftPhysicsOn;
+            breastSoftPhysicsOnJsb = tittyMagic.NewJSONStorableBool(
+                SOFT_PHYSICS_ON,
+                personIsFemale && breastPhysicsMesh.on,
+                shouldRegister: personIsFemale
+            );
+            breastSoftPhysicsOnJsb.setCallbackFunction = val =>
+            {
+                SyncSoftPhysicsOn(val);
+                var physicsWindow = tittyMagic.tabs.activeWindow as PhysicsWindow;
+                if(physicsWindow != null)
+                {
+                    physicsWindow.UpdateSoftPhysicsToggleStyle(tittyMagic.settingsMonitor.softPhysicsEnabled);
+                }
+            };
 
             allowSelfCollisionJsb = tittyMagic.NewJSONStorableBool(ALLOW_SELF_COLLISION, personIsFemale, shouldRegister: personIsFemale);
             allowSelfCollisionJsb.setCallbackFunction = SyncAllowSelfCollision;
 
             if(breastPhysicsMesh == null)
             {
-                softPhysicsOnJsb.valNoCallback = false;
+                breastSoftPhysicsOnJsb.valNoCallback = false;
                 allowSelfCollisionJsb.valNoCallback = false;
             }
 
-            _isInitialized = true;
+            _initialized = true;
         }
 
         private static void InitColliderVisualizer()
@@ -127,7 +176,7 @@ namespace TittyMagic.Handlers
         {
             if(!showSoftVerticesColliderPreviewsJsb.val)
             {
-                colliderVisualizer.GroupsJSON.val = $"Both breasts{(colliderGroup != null ? $" ({colliderGroup})" : "" )}";
+                colliderVisualizer.GroupsJSON.val = $"Both breasts{(colliderGroup != null ? $" ({colliderGroup})" : "")}";
             }
         }
 
@@ -147,6 +196,23 @@ namespace TittyMagic.Handlers
             }
         }
 
+        public static Rigidbody[] GetTrackingRigidbodies(string side, string group)
+        {
+            var rigidbodies = new List<Rigidbody>();
+            foreach(var set in _softVerticesGroups[side][group].softVerticesSets)
+            {
+                if(_vertexIndices[side][group].Contains(set.targetVertex))
+                {
+                    rigidbodies.Add(set.jointRB);
+                }
+            }
+
+            return rigidbodies.ToArray();
+        }
+
+        public static Rigidbody[] GetBreastCenterTrackingRigidbodies(string side) =>
+            GetTrackingRigidbodies(side, MAIN).Concat(GetTrackingRigidbodies(side, AREOLA)).ToArray();
+
         #region *** Parameter setup ***
 
         private static PhysicsParameter NewPhysicsParameter(string paramName, string side, float startingValue, float minValue, float maxValue)
@@ -160,7 +226,13 @@ namespace TittyMagic.Handlers
             );
         }
 
-        private static SoftGroupPhysicsParameter NewSoftGroupPhysicsParameter(string paramName, string side, string group, float min = 0, float max = 2)
+        private static SoftGroupPhysicsParameter NewSoftGroupPhysicsParameter(
+            string paramName,
+            string side,
+            string group,
+            float min = 0,
+            float max = 2
+        )
         {
             string jsfName = $"{paramName}{(side == LEFT ? "" : side)}{group}";
             var valueJsf = new JSONStorableFloat($"{jsfName}Value", 1, min, max);
@@ -175,7 +247,7 @@ namespace TittyMagic.Handlers
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_SPRING, side, 0, 0, 500);
             parameter.config = new StaticPhysicsConfig(
-                180f,
+                120f,
                 softnessCurve: x => -0.62f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
             );
             parameter.valueFormat = "F0";
@@ -224,17 +296,17 @@ namespace TittyMagic.Handlers
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_DAMPER, side, 0, 0, 5.00f);
             parameter.config = new StaticPhysicsConfig(
-                0.85f,
+                0.68f,
                 massCurve: x => 0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
                 softnessCurve: x => -0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
             );
             parameter.quicknessOffsetConfig = new StaticPhysicsConfig(
-                -0.15f,
+                -0.12f,
                 massCurve: x => -0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
                 softnessCurve: x => 0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
             );
             parameter.slownessOffsetConfig = new StaticPhysicsConfig(
-                0.15f,
+                0.12f,
                 massCurve: x => 0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
                 softnessCurve: x => -0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
             );
@@ -246,19 +318,19 @@ namespace TittyMagic.Handlers
                 {
                     OUTER, new StaticPhysicsConfig(
                         1.00f,
-                        softnessCurve: x => 0.20f * Curves.DeemphasizeMiddle(x)
+                        softnessCurve: x => 0.144f * Curves.DeemphasizeMiddle(x)
                     )
                 },
                 {
                     AREOLA, new StaticPhysicsConfig(
                         1.25f,
-                        softnessCurve: x => 1.00f * Curves.DeemphasizeMiddle(x)
+                        softnessCurve: x => 0.72f * Curves.DeemphasizeMiddle(x)
                     )
                 },
                 {
                     NIPPLE, new StaticPhysicsConfig(
                         1.40f,
-                        softnessCurve: x => 1.00f * Curves.DeemphasizeMiddle(x)
+                        softnessCurve: x => 0.72f * Curves.DeemphasizeMiddle(x)
                     )
                 },
             };
@@ -278,11 +350,11 @@ namespace TittyMagic.Handlers
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_MASS, side, 0, 0.001f, 0.300f);
             parameter.config = new StaticPhysicsConfig(
-                0.040f,
+                0.027f,
                 // https://www.desmos.com/calculator/inmadsqhj2
                 softnessCurve: x => 1.00f * Curves.Exponential1(x, 2.30f, 1.74f, 1.17f),
                 // https://www.desmos.com/calculator/gsyidpluyg
-                massCurve: x => 2.25f * Curves.Exponential1(2 / 3f * x, 1.91f, 1.7f, 0.82f)
+                massCurve: x => 2.67f * Curves.Exponential1(2 / 3f * x, 1.91f, 1.7f, 0.82f)
             );
             parameter.quicknessOffsetConfig = new StaticPhysicsConfig(
                 -0.022f,
@@ -299,13 +371,13 @@ namespace TittyMagic.Handlers
                 {
                     MAIN, new StaticPhysicsConfig(
                         1.00f,
-                        softnessCurve: x => 0.13f * Curves.DeemphasizeMiddle(x)
+                        softnessCurve: x => 0.094f * Curves.DeemphasizeMiddle(x)
                     )
                 },
                 {
                     OUTER, new StaticPhysicsConfig(
                         1.00f,
-                        softnessCurve: x => -0.20f * Curves.DeemphasizeMiddle(x)
+                        softnessCurve: x => -0.144f * Curves.DeemphasizeMiddle(x)
                     )
                 },
                 {
@@ -314,7 +386,7 @@ namespace TittyMagic.Handlers
                 {
                     NIPPLE, new StaticPhysicsConfig(
                         1.00f,
-                        softnessCurve: x => -0.13f * Curves.DeemphasizeMiddle(x)
+                        softnessCurve: x => -0.094f * Curves.DeemphasizeMiddle(x)
                     )
                 },
             };
@@ -334,10 +406,10 @@ namespace TittyMagic.Handlers
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_COLLIDER_RADIUS, side, 0, 0, 0.060f);
             parameter.config = new StaticPhysicsConfig(
-                0.016f,
+                0.017f,
                 // https://www.desmos.com/calculator/rotof03irg
-                massCurve: x => 1.78f * Curves.Exponential1(2 / 3f * x, 1.42f, 4.25f, 1.17f),
-                softnessCurve: x => 0.18f * x
+                massCurve: x => 1.85f * Curves.Exponential1(2 / 3f * x, 1.42f, 4.25f, 1.17f),
+                softnessCurve: x => 0.20f * x
             );
             parameter.valueFormat = "F4";
 
@@ -362,8 +434,8 @@ namespace TittyMagic.Handlers
 
         private static PhysicsParameter NewColliderAdditionalNormalOffsetParameter(string side)
         {
-            var parameter = NewPhysicsParameter(SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, side, 0, -0.010f, 0.010f);
-            parameter.config = new StaticPhysicsConfig(0.001f);
+            var parameter = NewPhysicsParameter(SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, side, 0, -0.0050f, 0.0050f);
+            parameter.config = new StaticPhysicsConfig(0.0005f);
             parameter.valueFormat = "F4";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
@@ -389,26 +461,18 @@ namespace TittyMagic.Handlers
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_DISTANCE_LIMIT, side, 0, 0, 0.100f);
             parameter.config = new StaticPhysicsConfig(
-                0.019f,
-                massCurve: x => 2.4f * x,
-                softnessCurve: x => 0.4f * x
-            );
-            parameter.quicknessOffsetConfig = new StaticPhysicsConfig(
-                0.003f,
-                softnessCurve: _ => 4.0f
-            );
-            parameter.slownessOffsetConfig = new StaticPhysicsConfig(
-                -0.001f,
-                softnessCurve: _ => 4.0f
+                0.016f,
+                massCurve: x => 2.45f * x,
+                softnessCurve: x => 0.52f * x
             );
             parameter.valueFormat = "F3";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
                 { MAIN, new StaticPhysicsConfig(1.00f) },
-                { OUTER, new StaticPhysicsConfig(1.00f) },
-                { AREOLA, new StaticPhysicsConfig(1.10f) },
-                { NIPPLE, new StaticPhysicsConfig(1.20f) },
+                { OUTER, new StaticPhysicsConfig(1.25f) },
+                { AREOLA, new StaticPhysicsConfig(1.25f) },
+                { NIPPLE, new StaticPhysicsConfig(1.50f) },
             };
 
             foreach(string group in allGroups)
@@ -426,21 +490,16 @@ namespace TittyMagic.Handlers
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_BACK_FORCE, side, 0, 0, 50.00f);
             parameter.config = new StaticPhysicsConfig(
-                15.00f,
-                // https://www.desmos.com/calculator/ww9lp03k6o
-                massCurve: x => 0.90f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.00f, 0.50f),
-                // https://www.desmos.com/calculator/uwfattbhdg
-                softnessCurve: x => -0.78f * Curves.Exponential1(x, 2.34f, 1.76f, 1.01f)
+                0.40f,
+                massCurve: x => 30.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.50f, 0.88f)
             );
             parameter.quicknessOffsetConfig = new StaticPhysicsConfig(
-                -2.00f,
-                massCurve: x => -0.90f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.00f, 0.50f),
-                softnessCurve: x => 0.82f * Curves.Exponential1(x, 2.34f, 1.76f, 1.01f)
+                -0.40f,
+                massCurve: x => 15.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.50f, 0.88f)
             );
             parameter.slownessOffsetConfig = new StaticPhysicsConfig(
-                2.00f,
-                massCurve: x => 0.90f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.00f, 0.50f),
-                softnessCurve: x => -0.82f * Curves.Exponential1(x, 2.34f, 1.76f, 1.01f)
+                5.00f,
+                massCurve: x => 0.70f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.25f, 0.70f)
             );
             parameter.valueFormat = "F2";
 
@@ -682,7 +741,7 @@ namespace TittyMagic.Handlers
                 group.colliderNormalOffsetNoSync = value;
             }
 
-            if (group.useSecondCollider)
+            if(group.useSecondCollider)
             {
                 group.secondColliderRadiusNoSync = value;
                 group.secondColliderNormalOffsetNoSync = value;
@@ -751,7 +810,7 @@ namespace TittyMagic.Handlers
         {
             if(breastPhysicsMesh != null)
             {
-                softPhysicsOnJsb.valNoCallback = breastPhysicsMesh.on;
+                breastSoftPhysicsOnJsb.valNoCallback = breastPhysicsMesh.on;
             }
         }
 
@@ -825,7 +884,7 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            SyncSoftPhysicsOn(softPhysicsOnJsb.val);
+            SyncSoftPhysicsOn(breastSoftPhysicsOnJsb.val);
             SyncAllowSelfCollision(allowSelfCollisionJsb.val);
         }
 
@@ -897,7 +956,7 @@ namespace TittyMagic.Handlers
 
         public static void RestoreOriginalPhysics()
         {
-            if(!_isInitialized || breastPhysicsMesh == null)
+            if(!_initialized || breastPhysicsMesh == null)
             {
                 return;
             }
@@ -1042,8 +1101,9 @@ namespace TittyMagic.Handlers
             breastPhysicsMesh = null;
             _breastPhysicsMeshFloatParamNames = null;
             _softVerticesGroups = null;
+            _vertexIndices = null;
             parameterGroups = null;
-            softPhysicsOnJsb = null;
+            breastSoftPhysicsOnJsb = null;
             allowSelfCollisionJsb = null;
         }
     }

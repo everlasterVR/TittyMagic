@@ -5,6 +5,6 @@ bin/
 obj/
 local/
 publish/
+todo/
 .mega
 *.fav
-todo.md

@@ -22,7 +22,7 @@ namespace TittyMagic
                 ? Mathf.SmoothStep(0, 1, val)
                 : -Mathf.SmoothStep(0, 1, -val);
 
-        public static float RoundToDecimals(float value, float roundFactor) =>
+        public static float RoundToDecimals(float value, float roundFactor = 1000f) =>
             Mathf.Round(value * roundFactor) / roundFactor;
 
         public static Vector3 RelativePosition(Rigidbody origin, Vector3 position)
@@ -32,6 +32,16 @@ namespace TittyMagic
                 Vector3.Dot(difference, origin.transform.right),
                 Vector3.Dot(difference, origin.transform.up),
                 Vector3.Dot(difference, origin.transform.forward)
+            );
+        }
+
+        public static Vector3 RelativePosition(Transform transform, Vector3 position)
+        {
+            var difference = position - transform.position;
+            return new Vector3(
+                Vector3.Dot(difference, transform.right),
+                Vector3.Dot(difference, transform.up),
+                Vector3.Dot(difference, transform.forward)
             );
         }
 
@@ -78,6 +88,22 @@ namespace TittyMagic
             for(int i = source.Length - 2; i >= 0; i--)
             {
                 result[i] = k * source[i] + (1 - k) * result[i + 1];
+            }
+
+            return result;
+        }
+
+        public static Vector3[] ExponentialMovingAverage(Vector3[] source, float k)
+        {
+            var result = new Vector3[source.Length];
+            result[source.Length - 1] = source[source.Length - 1];
+            for(int i = source.Length - 2; i >= 0; i--)
+            {
+                result[i] = new Vector3(
+                    k * source[i].x + (1 - k) * result[i + 1].x,
+                    k * source[i].y + (1 - k) * result[i + 1].y,
+                    k * source[i].z + (1 - k) * result[i + 1].z
+                );
             }
 
             return result;

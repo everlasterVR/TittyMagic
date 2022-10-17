@@ -9,33 +9,76 @@ namespace TittyMagic.UI
 {
     public class MorphingWindow : WindowBase
     {
-        public MorphingWindow()
+        protected override void OnBuild()
         {
-            buildAction = () =>
+            CreateHeaderTextField(new JSONStorableString("forceMorphingHeader", "Directional Force Morphing"));
+
+            /* Morphing info text area */
             {
-                CreateForceMorphingHeader(false);
-                CreateMorphingInfoTextArea(false);
+                var sb = new StringBuilder();
+                sb.Append("\n".Size(12));
+                sb.Append("Adjust how much breast shape is dynamically adjusted with morphs.");
+                sb.Append("\n\n");
+                sb.Append("The amount of morphing is based on the breast's movement away from its");
+                sb.Append(" neutral position relative to the chest. The neutral position is estimated as the");
+                sb.Append(" position when the person is in an upright pose and only the force of gravity is applied.");
+                sb.Append("\n\n");
+                sb.Append("Anything that causes the breast to move will cause morphing: collision, gravity");
+                sb.Append(" or any kind of animation.");
+                sb.Append("\n\n");
+                sb.Append("Too high multipliers for up and left/right directions can");
+                sb.Append(" prevent breasts from returning to their neutral shape normally.");
 
-                CreateBaseMultiplierSlider(ForceMorphHandler.baseJsf, true, spacing: 72);
-                CreateMultiplierSlider(ForceMorphHandler.upJsf, "Up", true, spacing: 5);
-                CreateMultiplierSlider(ForceMorphHandler.downJsf, "Down", true);
-                CreateMultiplierSlider(ForceMorphHandler.forwardJsf, "Forward", true);
-                CreateMultiplierSlider(ForceMorphHandler.backJsf, "Back", true);
-                CreateMultiplierSlider(ForceMorphHandler.leftRightJsf, "Left / Right", true);
+                var storable = new JSONStorableString("forceMorphingMultipliersInfoText", sb.ToString());
 
-                CreateOtherSettingsHeader(false);
-                CreateNippleErectionSlider(false);
-                CreateNippleErectionInfoTextArea(true, spacing: 50);
+                var textField = tittyMagic.CreateTextField(storable);
+                textField.UItext.fontSize = 28;
+                textField.backgroundColor = Color.clear;
+                textField.height = 825;
+                elements[storable.name] = textField;
+            }
 
-                elements[ForceMorphHandler.baseJsf.name].AddListener(UpdateAllSliderColors);
-                UpdateAllSliderColors(0);
-            };
-        }
+            CreateBaseMultiplierSlider(ForceMorphHandler.baseJsf, true, spacing: 72);
+            CreateMultiplierSlider(ForceMorphHandler.upJsf, "Up", true, spacing: 5);
+            CreateMultiplierSlider(ForceMorphHandler.forwardJsf, "Forward", true);
+            CreateMultiplierSlider(ForceMorphHandler.backJsf, "Back", true);
+            CreateMultiplierSlider(ForceMorphHandler.leftRightJsf, "Left / Right", true);
+            CreateOtherSettingsHeader(false);
 
-        private void CreateForceMorphingHeader(bool rightSide)
-        {
-            var storable = new JSONStorableString("forceMorphingHeader", "");
-            elements[storable.name] = UIHelpers.HeaderTextField(storable, "Directional Force Morphing", rightSide);
+            /* Nipple erection slider */
+            {
+                var storable = NippleErectionHandler.nippleErectionJsf;
+                var slider = tittyMagic.CreateSlider(storable);
+                slider.valueFormat = "F2";
+                slider.label = "Nipple Erection";
+                elements[storable.name] = slider;
+            }
+
+            /* Nipple erection info text area */
+            {
+                var sb = new StringBuilder();
+                sb.Append("\n".Size(12));
+                if(personIsFemale)
+                {
+                    sb.Append("Expand nipple morphs and harden nipple physics.");
+                }
+                else
+                {
+                    sb.Append("Expand nipple morphs.");
+                }
+
+                var storable = new JSONStorableString("nippleErectionInfoText", sb.ToString());
+                AddSpacer(storable.name, 190, true);
+
+                var textField = tittyMagic.CreateTextField(storable, true);
+                textField.UItext.fontSize = 28;
+                textField.height = 115;
+                textField.backgroundColor = Color.clear;
+                elements[storable.name] = textField;
+            }
+
+            elements[ForceMorphHandler.baseJsf.name].AddListener(UpdateAllSliderColors);
+            UpdateAllSliderColors(0);
         }
 
         private void CreateMultiplierSlider(JSONStorableFloat storable, string label, bool rightSide, int spacing = 0)
@@ -48,69 +91,9 @@ namespace TittyMagic.UI
             elements[storable.name] = slider;
         }
 
-        private void CreateMorphingInfoTextArea(bool rightSide, int spacing = 0)
-        {
-            var sb = new StringBuilder();
-            sb.Append("\n".Size(12));
-            sb.Append("Adjust how much breast shape is dynamically adjusted with morphs.");
-            sb.Append("\n\n");
-            sb.Append("The amount of morphing is based nipple's movement away from its");
-            sb.Append(" neutral position. The neutral position is where the nipple is when");
-            sb.Append(" the person is standing up and only the force of gravity is applied.");
-            sb.Append("\n\n");
-            sb.Append("Anything that causes the nipple to move will cause morphing:");
-            sb.Append(" collision, gravity or any kind of animation.");
-            sb.Append("\n\n");
-            sb.Append("Too high multipliers for up, down and left/right directions can");
-            sb.Append(" prevent breasts from returning to their neutral shape normally.");
-            var storable = new JSONStorableString("forceMorphingMultipliersInfoText", sb.ToString());
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var textField = tittyMagic.CreateTextField(storable, rightSide);
-            textField.UItext.fontSize = 28;
-            textField.backgroundColor = Color.clear;
-            textField.height = 825;
-            elements[storable.name] = textField;
-        }
-
-        private void CreateNippleErectionSlider(bool rightSide, int spacing = 0)
-        {
-            var storable = NippleErectionHandler.nippleErectionJsf;
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var slider = tittyMagic.CreateSlider(storable, rightSide);
-            slider.valueFormat = "F2";
-            slider.label = "Nipple Erection";
-            elements[storable.name] = slider;
-        }
-
-        private void CreateNippleErectionInfoTextArea(bool rightSide, int spacing = 0)
-        {
-            var sb = new StringBuilder();
-            sb.Append("\n".Size(12));
-            if(personIsFemale)
-            {
-                sb.Append("Expand nipple morphs and harden nipple physics.");
-            }
-            else
-            {
-                sb.Append("Expand nipple morphs.");
-            }
-
-            var storable = new JSONStorableString("nippleErectionInfoText", sb.ToString());
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var textField = tittyMagic.CreateTextField(storable, rightSide);
-            textField.UItext.fontSize = 28;
-            textField.height = 115;
-            textField.backgroundColor = Color.clear;
-            elements[storable.name] = textField;
-        }
-
         private void UpdateAllSliderColors(float _)
         {
             UpdateSliderColor(ForceMorphHandler.upJsf);
-            UpdateSliderColor(ForceMorphHandler.downJsf);
             UpdateSliderColor(ForceMorphHandler.forwardJsf);
             UpdateSliderColor(ForceMorphHandler.backJsf);
             UpdateSliderColor(ForceMorphHandler.leftRightJsf);

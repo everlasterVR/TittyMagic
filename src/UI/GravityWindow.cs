@@ -9,42 +9,76 @@ namespace TittyMagic.UI
 {
     public class GravityWindow : WindowBase
     {
-        public GravityWindow()
+        protected override void OnBuild()
         {
-            buildAction = () =>
+            CreateHeaderTextField(new JSONStorableString("breastGravityHeader", "Breast Gravity"));
+
+            /* Gravity physics info text area */
             {
-                CreateBreastGravityHeader(false);
-                CreateGravityPhysicsInfoTextArea(false);
+                var sb = new StringBuilder();
+                sb.Append("\n".Size(12));
+                sb.Append("Adjust the effect of gravity on breasts.");
+                sb.Append("\n\n");
+                sb.Append("Which slider takes effect depends on the person's orientation (or pose).");
+                sb.Append(" For example, <i>Up</i> gravity is applied when the person is upside down");
+                sb.Append(" and gravity pulls breasts <i>up</i> relative to the chest.");
+                sb.Append("\n\n");
+                sb.Append("Breast gravity feeds into directional force morphing: the more breasts are");
+                sb.Append(" pulled by gravity, the more they will morph as well.");
+                sb.Append("\n\n");
+                sb.Append("Adjusting the sliders lets you preview the effect, but the final result requires a recalibration.");
+                sb.Append(" Recalibrate with the button or by navigating away from this window.");
+                var storable = new JSONStorableString("gravityPhysicsMultipliersInfoText", sb.ToString());
+                var textField = tittyMagic.CreateTextField(storable);
+                textField.UItext.fontSize = 28;
+                textField.height = 825;
+                textField.backgroundColor = Color.clear;
+                elements[storable.name] = textField;
+            }
 
-                CreateRecalibrateButton(tittyMagic.recalibratePhysics, true);
-                CreateBaseMultiplierSlider(GravityPhysicsHandler.baseJsf, true, spacing: 5);
-                CreateMultiplierSlider(GravityPhysicsHandler.upJsf, "Up", true, spacing: 5);
-                CreateMultiplierSlider(GravityPhysicsHandler.downJsf, "Down", true);
-                CreateMultiplierSlider(GravityPhysicsHandler.forwardJsf, "Forward", true);
-                CreateMultiplierSlider(GravityPhysicsHandler.backJsf, "Back", true);
-                CreateMultiplierSlider(GravityPhysicsHandler.leftRightJsf, "Left / Right", true);
+            CreateRecalibrateButton(tittyMagic.recalibratePhysics, true);
+            CreateBaseMultiplierSlider(GravityPhysicsHandler.baseJsf, true, spacing: 5);
+            CreateMultiplierSlider(GravityPhysicsHandler.upJsf, "Up", true, spacing: 5);
+            CreateMultiplierSlider(GravityPhysicsHandler.downJsf, "Down", true);
+            CreateMultiplierSlider(GravityPhysicsHandler.forwardJsf, "Forward", true);
+            CreateMultiplierSlider(GravityPhysicsHandler.backJsf, "Back", true);
+            CreateMultiplierSlider(GravityPhysicsHandler.leftRightJsf, "Left / Right", true);
+            CreateOtherSettingsHeader(false);
 
-                CreateOtherSettingsHeader(false);
-                CreateOffsetMorphingSlider(false);
-                CreateOffsetMorphingInfoTextArea(true, spacing: 50);
-
-                elements[GravityPhysicsHandler.baseJsf.name].AddListener(UpdateAllSliderColors);
-                UpdateAllSliderColors(0);
-            };
-
-            closeAction = () =>
+            /* Offset morphing slider */
             {
-                if(tittyMagic.calibration.shouldRun)
-                {
-                    tittyMagic.recalibratePhysics.actionCallback();
-                }
-            };
+                var storable = GravityOffsetMorphHandler.offsetMorphingJsf;
+                var slider = tittyMagic.CreateSlider(storable);
+                slider.valueFormat = "F2";
+                slider.label = "Down Offset Morphing";
+                elements[storable.name] = slider;
+            }
+
+            /* Offset morphing info text area */
+            {
+                var sb = new StringBuilder();
+                sb.Append("\n".Size(12));
+                sb.Append("Compensate for the droop caused by Down gravity.");
+                var storable = new JSONStorableString("offsetMorphingInfoText", sb.ToString());
+                AddSpacer(storable.name, 50, true);
+
+                var textField = tittyMagic.CreateTextField(storable, true);
+                textField.UItext.fontSize = 28;
+                textField.height = 115;
+                textField.backgroundColor = Color.clear;
+                elements[storable.name] = textField;
+            }
+
+            elements[GravityPhysicsHandler.baseJsf.name].AddListener(UpdateAllSliderColors);
+            UpdateAllSliderColors(0);
         }
 
-        private void CreateBreastGravityHeader(bool rightSide)
+        protected override void OnClose()
         {
-            var storable = new JSONStorableString("breastGravityHeader", "");
-            elements[storable.name] = UIHelpers.HeaderTextField(storable, "Breast Gravity", rightSide);
+            if(tittyMagic.calibrationHelper.shouldRun)
+            {
+                tittyMagic.recalibratePhysics.actionCallback();
+            }
         }
 
         private void CreateMultiplierSlider(JSONStorableFloat storable, string label, bool rightSide, int spacing = 0)
@@ -55,57 +89,6 @@ namespace TittyMagic.UI
             slider.label = label;
             slider.AddListener((float _) => UpdateSliderColor(storable));
             elements[storable.name] = slider;
-        }
-
-        private void CreateGravityPhysicsInfoTextArea(bool rightSide, int spacing = 0)
-        {
-            var sb = new StringBuilder();
-            sb.Append("\n".Size(12));
-            sb.Append("Adjust the effect of gravity on breasts.");
-            sb.Append("\n\n");
-            sb.Append("Which slider takes effect depends on the person's orientation (or pose).");
-            sb.Append(" For example, <i>Up</i> gravity is applied when the person is upside down");
-            sb.Append(" and gravity pulls breasts <i>up</i> relative to the chest.");
-            sb.Append("\n\n");
-            sb.Append("Breast gravity feeds into directional force morphing: the more breasts are");
-            sb.Append(" pulled by gravity, the more they will morph as well.");
-            sb.Append("\n\n");
-            sb.Append("Adjusting the sliders lets you preview the effect, but the final result requires a recalibration.");
-            sb.Append(" Recalibrate with the button or by navigating away from this window.");
-            var storable = new JSONStorableString("gravityPhysicsMultipliersInfoText", sb.ToString());
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var textField = tittyMagic.CreateTextField(storable, rightSide);
-            textField.UItext.fontSize = 28;
-            textField.height = 825;
-            textField.backgroundColor = Color.clear;
-            elements[storable.name] = textField;
-        }
-
-        private void CreateOffsetMorphingSlider(bool rightSide, int spacing = 0)
-        {
-            var storable = GravityOffsetMorphHandler.offsetMorphingJsf;
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var slider = tittyMagic.CreateSlider(storable, rightSide);
-            slider.valueFormat = "F2";
-            slider.label = "Down Offset Morphing";
-            elements[storable.name] = slider;
-        }
-
-        private void CreateOffsetMorphingInfoTextArea(bool rightSide, int spacing = 0)
-        {
-            var sb = new StringBuilder();
-            sb.Append("\n".Size(12));
-            sb.Append("Compensate for the droop caused by Down gravity.");
-            var storable = new JSONStorableString("offsetMorphingInfoText", sb.ToString());
-            AddSpacer(storable.name, spacing, rightSide);
-
-            var textField = tittyMagic.CreateTextField(storable, rightSide);
-            textField.UItext.fontSize = 28;
-            textField.height = 115;
-            textField.backgroundColor = Color.clear;
-            elements[storable.name] = textField;
         }
 
         private void UpdateAllSliderColors(float _)

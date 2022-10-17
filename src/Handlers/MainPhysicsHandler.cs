@@ -35,10 +35,11 @@ namespace TittyMagic.Handlers
         public static float normalizedMass => Mathf.InverseLerp(0, 1.45f, massAmount);
         public static float normalizedRealMass => Mathf.InverseLerp(0, 1.50f, realMassAmount);
         public static float normalizedInvertedMass => Mathf.InverseLerp(0, 1.45f, InvertMass(massAmount));
+        public static float normalizedInvertedRealMass => Mathf.InverseLerp(0, 1.45f, InvertMass(realMassAmount));
 
         public static MassParameterGroup massParameterGroup { get; private set; }
 
-        private static bool _isInitialized;
+        private static bool _initialized;
 
         public static void Init()
         {
@@ -71,7 +72,7 @@ namespace TittyMagic.Handlers
                 TARGET_ROTATION_Z,
             };
 
-            _isInitialized = true;
+            _initialized = true;
         }
 
         public static void UpdateMassValueAndAmounts()
@@ -84,9 +85,14 @@ namespace TittyMagic.Handlers
             massAmount = massParameterGroup.left.valueJsf.val / 2;
         }
 
-        private static float CalculateVolume(IEnumerable<int> vertexIndices)
+        private static float CalculateVolume(int[] vertexIndices)
         {
-            var positions = vertexIndices.Select(i => Calc.RelativePosition(chestRb, skin.rawSkinnedVerts[i])).ToList();
+            var positions = new Vector3[vertexIndices.Length];
+            for(int i = 0; i < vertexIndices.Length; i++)
+            {
+                positions[i] = Calc.RelativePosition(chestRb, skin.rawSkinnedVerts[vertexIndices[i]]);
+            }
+
             var bounds = new Bounds();
 
             /* Calculate bounds size */
@@ -106,8 +112,7 @@ namespace TittyMagic.Handlers
             /* Calculate volume */
             {
                 float toCm3 = Mathf.Pow(10, 6);
-
-                float scale = tittyMagic.containingAtom.GetStorableByID("rescaleObject").GetFloatParamValue("scale");
+                float scale = tittyMagic.scaleJsf.val;
 
                 /* This somewhat accurately scales breast volume to the apparent breast size when atom scale is adjusted. */
                 float atomScaleAdjustment = 1 - Mathf.Abs(Mathf.Log10(Mathf.Pow(scale, 3)));
@@ -179,10 +184,10 @@ namespace TittyMagic.Handlers
         {
             var parameter = NewPhysicsParameter(SPRING, side, 10, 10, 100);
             parameter.config = new StaticPhysicsConfig(
-                60f,
-                massCurve: x => 0.14f * x,
+                64f,
+                massCurve: x => 0.10f * x,
                 // https://www.desmos.com/calculator/nxyosar9o6
-                softnessCurve: x => -0.40f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f)
+                softnessCurve: x => -0.50f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f)
             );
             parameter.quicknessOffsetConfig = new StaticPhysicsConfig(24f);
             parameter.slownessOffsetConfig = new StaticPhysicsConfig(-12f);
@@ -195,6 +200,13 @@ namespace TittyMagic.Handlers
         {
             var parameter = NewPhysicsParameter(DAMPER, side, 0, 0, 10.00f);
             parameter.config = new StaticPhysicsConfig(
+                1.28f,
+                // https://www.desmos.com/calculator/y3akvzgr1s
+                massCurve: x => 1.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.30f, 0.60f),
+                // https://www.desmos.com/calculator/nxyosar9o6
+                softnessCurve: x => -0.60f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f)
+            );
+            parameter.altConfig = new StaticPhysicsConfig(
                 1.10f,
                 // https://www.desmos.com/calculator/y3akvzgr1s
                 massCurve: x => 1.35f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.30f, 0.60f),
@@ -318,7 +330,7 @@ namespace TittyMagic.Handlers
             )
             {
                 requiresRecalibration = true,
-                rightIsInverted = true,
+                rightInverted = true,
             };
 
             var targetRotationX = new PhysicsParameterGroup(
@@ -337,7 +349,7 @@ namespace TittyMagic.Handlers
             )
             {
                 requiresRecalibration = true,
-                rightIsInverted = true,
+                rightInverted = true,
             };
 
             massParameterGroup.SetOffsetCallbackFunctions();
@@ -616,7 +628,7 @@ namespace TittyMagic.Handlers
 
         public static void RestoreOriginalPhysics()
         {
-            if(!_isInitialized)
+            if(!_initialized)
             {
                 return;
             }

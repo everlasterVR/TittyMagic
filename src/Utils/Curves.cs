@@ -19,7 +19,7 @@ namespace TittyMagic
         ) => a * Mathf.Pow(x, p) + b * Mathf.Pow(x, q) + c * x;
 
         // https://www.desmos.com/calculator/eicoieuczv
-        public static float DepthMorphingCurve(float mass)
+        public static float DepthMassMorphingCurve(float mass)
         {
             const float a = 10.1f;
             const float b = 2.86f;
@@ -33,26 +33,17 @@ namespace TittyMagic
 
         public static float SoftnessBaseCurve(float x) => Exponential1(x, 6.44f, 1.27f, 1.15f);
 
-        // https://www.desmos.com/calculator/shbc4eckoe
         public static float ForcePhysicsSoftnessCurve(float x) => Exponential1(x, 1.60f, 2.29f, 1.00f);
 
-        // https://www.desmos.com/calculator/b8hxt91gkf
-        public static float DeemphasizeMiddle(float x) => Exponential1(x, 3.00f, 3.53f, 1.22f, a: 1.20f, m: 0.72f);
+        public static float DeemphasizeMiddle(float x) => Exponential1(x, 3.00f, 3.53f, 1.22f, a: 1.20f);
 
-        // https://www.desmos.com/calculator/rvwvufzdtn
-        public static float TargetRotationMassCurve(float x) => Exponential1(2 / 3f * x, 4.00f, 0.75f, 0.61f);
-
-        public static float DownTargetRotationMassCurve(float x) => Exponential1(2 / 3f * x, 3.50f, 0.64f, 0.48f);
-
-        // https://www.desmos.com/calculator/ldejemzr2a
         public static float TargetRotationSoftnessCurve(float x) => Exponential1(x, 3.00f, 1.35f, 1.00f);
 
-        // https://www.desmos.com/calculator/clksuexht8
         public static float SpringZSoftnessCurve(float x) => Exponential1(x, 2.11f, 1.21f, 0.88f);
 
-        // https://www.desmos.com/calculator/uejk7yri1f
-        public static float Exponential1(float x, float b, float p, float q, float a = 1, float m = 1, float s = 0) =>
-            m * ((1 - b) * Mathf.Pow(a * x + s, p) + b * Mathf.Pow(a * x + s, q));
+        // https://www.desmos.com/calculator/5oelumf0ae
+        public static float Exponential1(float x, float b, float p, float q, float a = 1, float s = 0) =>
+            (1 - b) * Mathf.Pow(a * x + s, p) + b * Mathf.Pow(a * x + s, q);
 
         // https://www.desmos.com/calculator/6pxtrvvyby
         public static float Exponential2(float x, float c, float s = 0)
@@ -62,7 +53,7 @@ namespace TittyMagic
         }
 
         // https://www.desmos.com/calculator/mpmm8lzvs2
-        public static float MorphingCurve(float mass) => Exponential3(mass, 2.17f, 1.59f, 1.50f, 1.30f, 1.70f);
+        public static float MassMorphingCurve(float mass) => Exponential3(mass, 2.17f, 1.59f, 1.50f, 1.30f, 1.70f);
 
         // https://www.desmos.com/calculator/mpmm8lzvs2
         // ReSharper disable once MemberCanBePrivate.Global
@@ -72,8 +63,17 @@ namespace TittyMagic
             return c + s * Mathf.Pow(1 - xToLimitPow, p);
         }
 
-        // https://www.desmos.com/calculator/ykxswso5ie
-        public static float ForceEffectCurve(float x) => InverseSmoothStep(x, 10, 0.8f, 0f);
+        public static float YForceEffectCurve(float x) => Exponential1(x, 1.52f, 3.00f, 1.11f);
+
+        public static float XForceEffectCurve(float x) => Exponential1(x, 1.52f, 3.00f, 1.11f);
+
+        public static float ZForceEffectCurve(float x) => Exponential1(x, 1.42f, 3.20f, 1.15f);
+
+        // https://www.desmos.com/calculator/b6gwvvbyu4
+        public static float ColliderForceSoftnessCurve(float x) => InverseSmoothStep(x, 1.00f, 0.63f, 0.04f);
+
+        // https://www.desmos.com/calculator/urejidnpcg
+        public static float ColliderForceMassCurve(float x) => InverseSmoothStep(x, 1.00f, 0.32f, 0.70f);
 
         // https://www.desmos.com/calculator/iesodcuuww
         public static float ColliderRadiusAndPositionSizeCurve(float x) => InverseSmoothStep(x, 1.00f, 0.35f, 0.06f);

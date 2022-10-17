@@ -1,5 +1,4 @@
-﻿// #define DEBUG_ON
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -65,7 +64,7 @@ namespace TittyMagic
                         !morph.group.Contains("Pose/") &&
                         !_excludeMorphsNames.Contains(morph.morphName) &&
                         !listenedMorphs.ContainsKey(morph) &&
-                        IsInSet(morph, VertexIndexGroup.breasts, FILTER_STRENGTH)
+                        InSet(morph, VertexIndexGroup.breasts, FILTER_STRENGTH)
                     )
                     {
                         listenedMorphs.Add(morph, morph.morphValue);
@@ -73,10 +72,7 @@ namespace TittyMagic
                 }
                 catch(Exception e)
                 {
-                    // ignored
-#if DEBUG_ON
-                    Debug.Log($"Unable to add morph '{morph.morphName}'. Error: {e}");
-#endif
+                    Utils.Log($"Unable to add morph '{morph.morphName}'. Error: {e}");
                 }
             }
 
@@ -97,9 +93,6 @@ namespace TittyMagic
                 if(Math.Abs(newValue - oldValue) > 0.001f)
                 {
                     _values[i] = newValue;
-#if DEBUG_ON
-                    Debug.Log($"change detected! morph {dazMorph.uid}");
-#endif
                     return true;
                 }
             }
@@ -107,7 +100,7 @@ namespace TittyMagic
             return false;
         }
 
-        private static bool IsInSet(DAZMorph morph, ICollection<int> vertices, float filterStrength)
+        private static bool InSet(DAZMorph morph, ICollection<int> vertices, float filterStrength)
         {
             if(morph.deltas == null)
             {

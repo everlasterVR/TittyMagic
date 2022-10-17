@@ -54,13 +54,7 @@ namespace TittyMagic
             try
             {
                 var regex = new Regex(@"^plugin#\d+_TittyMagic.Script", RegexOptions.Compiled);
-                otherInstance = atom
-                    .GetStorableIDs()
-                    .Where(id => regex.IsMatch(id))
-                    .Select(atom.GetStorableByID)
-                    .ToList()
-                    .Prune()
-                    .FirstOrDefault(FindOtherInstanceStorable);
+                otherInstance = atom.FindStorablesByRegexMatch(regex).FirstOrDefault(FindOtherInstanceStorable);
             }
             catch(Exception e)
             {

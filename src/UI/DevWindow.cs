@@ -9,69 +9,69 @@ namespace TittyMagic.UI
 {
     public class DevWindow : WindowBase
     {
+        private readonly UnityAction _onReturnToParent;
+
         public DevWindow(string id, UnityAction onReturnToParent) : base(id)
         {
-            buildAction = () =>
-            {
-                CreateBackButton(false);
-                CreateColliderGroupChooser(true);
-                CreateLeftDebugArea();
-                elements["backButton"].AddListener(onReturnToParent);
-                HardColliderHandler.colliderVisualizer.enabled = true;
-                HardColliderHandler.colliderVisualizer.ShowPreviewsJSON.val = true;
-            };
-
-            closeAction = () =>
-            {
-                HardColliderHandler.colliderVisualizer.ShowPreviewsJSON.val = false;
-                HardColliderHandler.colliderVisualizer.enabled = false;
-            };
+            _onReturnToParent = onReturnToParent;
         }
 
-        private void CreateColliderGroupChooser(bool rightSide, int spacing = 0)
+        protected override void OnBuild()
         {
-            var storable = HardColliderHandler.colliderGroupsJsc;
-            elements[$"{storable.name}Spacer"] = tittyMagic.NewSpacer(spacing, rightSide);
+            CreateBackButton(false, _onReturnToParent);
 
-            var chooser = tittyMagic.CreatePopupAuto(storable, rightSide, 360f);
-            chooser.popup.labelText.color = Color.black;
+            /* Collider group chooser */
+            {
+                var storable = HardColliderHandler.colliderGroupsJsc;
+                var chooser = tittyMagic.CreatePopupAuto(storable, true, 360f);
+                chooser.popup.labelText.color = Color.black;
+                elements[storable.name] = chooser;
+            }
 
-            elements[storable.name] = chooser;
+            CreateRecalibrateButton(tittyMagic.recalibratePhysics, true);
+
+            /* Left debug info area */
+            {
+                _leftDebugArea = new JSONStorableString("leftDebugArea", "");
+                var textField = tittyMagic.CreateTextField(_leftDebugArea, rightSide: false);
+                textField.UItext.fontSize = 28;
+                textField.height = 1070;
+                elements[_leftDebugArea.name] = textField;
+                _hardColliderGroups = HardColliderHandler.hardColliderGroups.ToArray();
+            }
+
+            // HardColliderHandler.colliderVisualizer.enabled = true;
+            // HardColliderHandler.colliderVisualizer.ShowPreviewsJSON.val = true;
+        }
+
+        protected override void OnClose()
+        {
+            HardColliderHandler.colliderVisualizer.ShowPreviewsJSON.val = false;
+            HardColliderHandler.colliderVisualizer.enabled = false;
         }
 
         private JSONStorableString _leftDebugArea;
         private HardColliderGroup[] _hardColliderGroups;
-
-        private void CreateLeftDebugArea()
-        {
-            _leftDebugArea = new JSONStorableString("leftDebugArea", "");
-            var textField = tittyMagic.CreateTextField(_leftDebugArea, rightSide: false);
-            textField.UItext.fontSize = 28;
-            textField.height = 1070;
-            elements[_leftDebugArea.name] = textField;
-
-            _hardColliderGroups = HardColliderHandler.hardColliderGroups.ToArray();
-        }
 
         public void UpdateLeftDebugInfo()
         {
             var sb = new StringBuilder();
             sb.Append("\n");
 
-            for(int i = 0; i < _hardColliderGroups.Length; i++)
-            {
-                var group = _hardColliderGroups[i];
-                var leftPos = group.left.collider.attachedRigidbody.position;
-                float x = Calc.RoundToDecimals(leftPos.x, 1000f);
-                float y = Calc.RoundToDecimals(leftPos.y, 1000f);
-                float z = Calc.RoundToDecimals(leftPos.z, 1000f);
-                sb.Append($"{group.id} {x} {y} {z}");
-
-                if(i != _hardColliderGroups.Length - 1)
-                {
-                    sb.Append("\n\n");
-                }
-            }
+            // for(int i = 0; i < _hardColliderGroups.Length; i++)
+            // {
+            //     var group = _hardColliderGroups[i];
+            //     var leftPos = group.left.collider.attachedRigidbody.position;
+            //     float x = Calc.RoundToDecimals(leftPos.x);
+            //     float y = Calc.RoundToDecimals(leftPos.y);
+            //     float z = Calc.RoundToDecimals(leftPos.z);
+            //     sb.Append($"{group.id} {x} {y} {z}");
+            //
+            //     if(i != _hardColliderGroups.Length - 1)
+            //     {
+            //         sb.Append("\n\n");
+            //     }
+            // }
 
             _leftDebugArea.val = sb.ToString();
         }

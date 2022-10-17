@@ -5,7 +5,7 @@ namespace TittyMagic.Handlers.Configs
     public class DynamicPhysicsConfig
     {
         public float baseMultiplier { get; set; }
-        private bool isNegative { get; }
+        private bool negative { get; }
         private float softnessMultiplier { get; }
         private float massMultiplier { get; }
         public string applyMethod { get; }
@@ -15,7 +15,7 @@ namespace TittyMagic.Handlers.Configs
         public DynamicPhysicsConfig(
             float massMultiplier,
             float softnessMultiplier,
-            bool isNegative,
+            bool negative,
             string applyMethod,
             Func<float, float> massCurve = null,
             Func<float, float> softnessCurve = null
@@ -23,7 +23,7 @@ namespace TittyMagic.Handlers.Configs
         {
             this.massMultiplier = massMultiplier;
             this.softnessMultiplier = softnessMultiplier;
-            this.isNegative = isNegative;
+            this.negative = negative;
             this.applyMethod = applyMethod;
             _massCurve = massCurve ?? (x => x);
             _softnessCurve = softnessCurve ?? (x => x);
@@ -32,6 +32,7 @@ namespace TittyMagic.Handlers.Configs
         public float Calculate(float effect, float mass, float softness)
         {
             float value = effect * (
+                baseMultiplier +
                 _softnessCurve(softness) * softnessMultiplier +
                 _massCurve(mass) * massMultiplier
             );
@@ -52,8 +53,8 @@ namespace TittyMagic.Handlers.Configs
 
         private float LimitToRange(float value)
         {
-            bool isInRange = isNegative ? value < 0 : value > 0;
-            return isInRange ? value : 0;
+            bool inRange = negative ? value < 0 : value > 0;
+            return inRange ? value : 0;
         }
     }
 }

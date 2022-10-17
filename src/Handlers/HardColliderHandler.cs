@@ -114,34 +114,35 @@ namespace TittyMagic.Handlers
                     {
                         {
                             COLLISION_FORCE, new Scaler(
-                                offset: 0.010f,
-                                range: new float[] { 0, 1 }
+                                offset: -0.011f,
+                                range: new float[] { 0, 1 },
+                                massCurve: x => 0.0145f * Curves.ColliderForceMassCurve(x)
                             )
                         },
                         {
                             COLLIDER_RADIUS, new Scaler(
-                                offset: -0.43f,
+                                offset: -0.26f,
                                 range: new float[] { 0, 40 },
                                 massCurve: x => 0.27f * Curves.ColliderRadiusAndPositionSizeCurve(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_X, new Scaler(
-                                offset: -0.35f,
+                                offset: -0.09f,
                                 range: new float[] { 0, 40 },
                                 massCurve: x => -0.32f * Curves.ColliderRadiusAndPositionSizeCurve(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_Y, new Scaler(
-                                offset: 0.30f,
+                                offset: 0.35f,
                                 range: new float[] { 0, 40 },
                                 massCurve: x => 0.38f * Curves.ColliderRadiusAndPositionSizeCurve(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_Z, new Scaler(
-                                offset: -0.25f,
+                                offset: -0.12f,
                                 range: new float[] { 0, 40 }
                             )
                         },
@@ -152,16 +153,17 @@ namespace TittyMagic.Handlers
                     {
                         {
                             COLLISION_FORCE, new Scaler(
-                                offset: 0.025f,
+                                offset: 0.009f,
                                 range: new float[] { 0, 1 },
-                                softnessCurve: x => -0.020f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
+                                softnessCurve: x => -0.020f * Curves.ColliderForceSoftnessCurve(x),
+                                massCurve: x => 0.0145f * Curves.ColliderForceMassCurve(x)
                             )
                         },
                         {
                             COLLIDER_RADIUS, new Scaler(
-                                offset: -0.72f,
+                                offset: -0.56f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => -0.08f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
+                                massCurve: x => -0.15f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
@@ -173,16 +175,16 @@ namespace TittyMagic.Handlers
                         },
                         {
                             COLLIDER_CENTER_Y, new Scaler(
-                                offset: -0.15f,
+                                offset: -0.08f,
                                 range: new float[] { 0, 40 },
                                 massCurve: x => -0.11f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_Z, new Scaler(
-                                offset: -0.80f,
+                                offset: -0.43f,
                                 range: new float[] { 0, 40 },
-                                massCurve: x => 0.03f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
+                                massCurve: x => -0.07f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                     }
@@ -192,14 +194,15 @@ namespace TittyMagic.Handlers
                     {
                         {
                             COLLISION_FORCE, new Scaler(
-                                offset: 0.015f,
+                                offset: -0.004f,
                                 range: new float[] { 0, 1 },
-                                softnessCurve: x => -0.020f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
+                                softnessCurve: x => -0.020f * Curves.ColliderForceSoftnessCurve(x),
+                                massCurve: x => 0.011f * Curves.ColliderForceMassCurve(x)
                             )
                         },
                         {
                             COLLIDER_RADIUS, new Scaler(
-                                offset: -0.30f,
+                                offset: -0.19f,
                                 range: new float[] { 0, 40 },
                                 massCurve: x => -0.94f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
@@ -213,13 +216,13 @@ namespace TittyMagic.Handlers
                         },
                         {
                             COLLIDER_CENTER_Y, new Scaler(
-                                offset: 0.15f,
+                                offset: 0.21f,
                                 range: new float[] { 0, 40 }
                             )
                         },
                         {
                             COLLIDER_CENTER_Z, new Scaler(
-                                offset: -0.24f,
+                                offset: -0.19f,
                                 range: new float[] { 0, 40 },
                                 massCurve: x => -0.42f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
@@ -231,21 +234,22 @@ namespace TittyMagic.Handlers
                     {
                         {
                             COLLISION_FORCE, new Scaler(
-                                offset: -0.010f,
+                                offset: 0.003f,
                                 range: new float[] { 0, 1 },
-                                softnessCurve: x => -0.020f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
+                                softnessCurve: x => -0.020f * Curves.ColliderForceSoftnessCurve(x),
+                                massCurve: x => 0.0145f * Curves.ColliderForceMassCurve(x)
                             )
                         },
                         {
                             COLLIDER_RADIUS, new Scaler(
-                                offset: -0.40f,
+                                offset: -0.28f,
                                 range: new float[] { 0, 40 },
                                 massCurve: x => -0.62f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_X, new Scaler(
-                                offset: -0.17f,
+                                offset: -0.32f,
                                 range: new float[] { 0, 40 },
                                 massCurve: x => 0.42f * Curves.ColliderRadiusAndPositionSizeCurve(x)
                             )
@@ -259,7 +263,7 @@ namespace TittyMagic.Handlers
                         },
                         {
                             COLLIDER_CENTER_Z, new Scaler(
-                                offset: -0.24f,
+                                offset: -0.13f,
                                 range: new float[] { 0, 40 },
                                 massCurve: x => 0.12f * Curves.ColliderRadiusAndPositionSizeCurve(x)
                             )
@@ -271,35 +275,36 @@ namespace TittyMagic.Handlers
                     {
                         {
                             COLLISION_FORCE, new Scaler(
-                                offset: 0.035f,
+                                offset: 0.003f,
                                 range: new float[] { 0, 1 },
-                                softnessCurve: x => -0.055f * Curves.InverseSmoothStep(x, 1.00f, 0.70f, 0.00f)
+                                softnessCurve: x => -0.020f * Curves.ColliderForceSoftnessCurve(x),
+                                massCurve: x => 0.0145f * Curves.ColliderForceMassCurve(x)
                             )
                         },
                         {
                             COLLIDER_RADIUS, new Scaler(
-                                offset: -0.58f,
+                                offset: -0.41f,
                                 range: new float[] { 0, 40 },
                                 massCurve: x => -1.24f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_X, new Scaler(
-                                offset: -0.17f,
+                                offset: -0.37f,
                                 range: new float[] { 0, 40 },
                                 massCurve: x => -0.84f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_Y, new Scaler(
-                                offset: 0.90f,
+                                offset: 0.76f,
                                 range: new float[] { 0, 40 },
                                 massCurve: x => 0.65f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
                         },
                         {
                             COLLIDER_CENTER_Z, new Scaler(
-                                offset: -0.26f,
+                                offset: -0.29f,
                                 range: new float[] { 0, 40 },
                                 massCurve: x => 0.18f * Curves.ColliderRadiusAndPositionSizeCurve2(x)
                             )
@@ -414,8 +419,9 @@ namespace TittyMagic.Handlers
 
         public static void UpdateFrictionSizeMultipliers()
         {
-            _frictionSizeMultiplierLeft = FrictionSizeMultiplier(VertexIndexGroup.leftBreastWidthMarkers);
-            _frictionSizeMultiplierRight = FrictionSizeMultiplier(VertexIndexGroup.rightBreastWidthMarkers);
+            /* int[]: left and right skin width markers */
+            _frictionSizeMultiplierLeft = FrictionSizeMultiplier(new[] { 8956, 8967 });
+            _frictionSizeMultiplierRight = FrictionSizeMultiplier(new[] { 19622, 19633 });
         }
 
         private static float FrictionSizeMultiplier(int[] indices)
@@ -477,11 +483,16 @@ namespace TittyMagic.Handlers
             hardColliderGroups.ForEach(group => group.UpdateDistanceDiffs(breastCenterLeft, breastCenterRight, MainPhysicsHandler.chestRb));
         }
 
-        private static Vector3 BreastCenter(IEnumerable<int> vertexIndices) =>
-            Calc.RelativePosition(
-                MainPhysicsHandler.chestRb,
-                Calc.AveragePosition(vertexIndices.Select(index => skin.rawSkinnedVerts[index]).ToArray())
-            );
+        private static Vector3 BreastCenter(int[] vertexIndices)
+        {
+            var vertices = new Vector3[vertexIndices.Length];
+            for(int i = 0; i < vertexIndices.Length; i++)
+            {
+                vertices[i] = skin.rawSkinnedVerts[vertexIndices[i]];
+            }
+
+            return Calc.RelativePosition(MainPhysicsHandler.chestRb, Calc.AveragePosition(vertices));
+        }
 
         public static void ResetDistanceDiffs()
         {
@@ -558,5 +569,11 @@ namespace TittyMagic.Handlers
         }
 
         public static bool RigidbodiesFound() => !personIsFemale || hardColliderGroups.All(group => group.HasRigidbodies());
+
+        public static void SetPectoralCollisions(bool value)
+        {
+            tittyMagic.pectoralRbLeft.detectCollisions = value;
+            tittyMagic.pectoralRbRight.detectCollisions = value;
+        }
     }
 }

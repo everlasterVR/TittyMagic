@@ -1,10 +1,12 @@
 // ReSharper disable UnusedMember.Global
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
-using static TittyMagic.Script;
+using UnityEngine.UI;
 
 namespace TittyMagic
 {
@@ -12,14 +14,19 @@ namespace TittyMagic
     {
         public static string morphsPath { get; set; }
 
-        public static void LogError(string message, string name = "") =>
-            SuperController.LogError(Format(message, name));
+        public static void Log(string message)
+        {
+            if(Script.envIsDevelopment)
+            {
+                Debug.Log(message);
+            }
+        }
 
-        public static void LogMessage(string message, string name = "") =>
-            SuperController.LogMessage(Format(message, name));
+        public static void LogError(string message) => SuperController.LogError(Format(message));
 
-        private static string Format(string message, string name) =>
-            $"{nameof(TittyMagic)} v{VERSION}: {message}{(string.IsNullOrEmpty(name) ? "" : $" [{name}]")}";
+        public static void LogMessage(string message) => SuperController.LogMessage(Format(message));
+
+        private static string Format(string message) => $"{nameof(TittyMagic)} v{Script.VERSION}: {message}";
 
         // ReSharper disable once UnusedMember.Global
         public static MVRScript FindPluginOnAtom(Atom atom, string search)
@@ -31,7 +38,7 @@ namespace TittyMagic
         public static DAZMorph GetMorph(string file)
         {
             string uid = $"{morphsPath}/{file}.vmi";
-            var dazMorph = morphsControlUI.GetMorphByUid(uid);
+            var dazMorph = Script.morphsControlUI.GetMorphByUid(uid);
             if(dazMorph == null)
             {
                 LogError($"Morph with uid '{uid}' not found!");
@@ -58,7 +65,7 @@ namespace TittyMagic
         {
             if(Calc.RoundToDecimals(Time.unscaledTime, 10f) % every == 0)
             {
-                Debug.Log($"DebugUpdate: {str}");
+                Log(str);
             }
         }
 
@@ -115,7 +122,7 @@ namespace TittyMagic
             }
         }
 
-        public static bool AnimationIsFrozen()
+        public static bool GlobalAnimationFrozen()
         {
             bool mainToggleFrozen =
                 SuperController.singleton.freezeAnimationToggle != null &&
@@ -124,6 +131,39 @@ namespace TittyMagic
                 SuperController.singleton.freezeAnimationToggleAlt != null &&
                 SuperController.singleton.freezeAnimationToggleAlt.isOn;
             return mainToggleFrozen || altToggleFrozen;
+        }
+
+        public static Transform DestroyLayout(Transform transform)
+        {
+            UnityEngine.Object.Destroy(transform.GetComponent<LayoutElement>());
+            return transform;
+        }
+
+        public static Rigidbody FindRigidbody(Atom atom, string name) =>
+            atom.GetComponentsInChildren<Rigidbody>().ToList().Find(rb => rb.name == name);
+
+        public static void WalkAndGetRigidbodyAttributes(Transform atomTransform, List<RigidbodyAttributes> rbAttrs)
+        {
+            var component1 = atomTransform.GetComponent<RigidbodyAttributes>();
+            if(component1 != null)
+            {
+                rbAttrs.Add(component1);
+            }
+
+            foreach(Transform t in atomTransform)
+            {
+                if(!(bool) (UnityEngine.Object) t.GetComponent<Atom>())
+                {
+                    WalkAndGetRigidbodyAttributes(t, rbAttrs);
+                }
+            }
+        }
+
+        public static bool PluginIsDuplicate(Atom atom, string storeId)
+        {
+            var regex = new Regex(@"^plugin#\d+_TittyMagic.Script", RegexOptions.Compiled);
+            var storables = atom.FindStorablesByRegexMatch(regex);
+            return storables.Exists(storable => storable.storeId != storeId);
         }
     }
 }

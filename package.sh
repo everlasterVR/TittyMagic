@@ -23,9 +23,6 @@ mkdir -p $resource_dir/vam-collider-editor
 cp -r vam-collider-editor/src $resource_dir/vam-collider-editor
 cp -r vam-collider-editor/*.md $resource_dir/vam-collider-editor
 
-mkdir -p $resource_dir/settings
-cp -r settings/morphmultipliers $resource_dir/settings/
-
 morphs_dir=$work_dir/Custom/Atom/Person/Morphs/female/$creator_name/$resource_name
 mkdir -p $morphs_dir
 cp -r local/Morphs/* $morphs_dir/

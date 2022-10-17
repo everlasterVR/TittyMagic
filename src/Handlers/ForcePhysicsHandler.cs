@@ -13,46 +13,40 @@ namespace TittyMagic.Handlers
         private static List<PhysicsParameterGroup> _mainParamGroups;
         private static List<PhysicsParameterGroup> _softParamGroups;
 
-        private static TrackNipple _trackLeftNipple;
-        private static TrackNipple _trackRightNipple;
+        private static TrackBreast _trackLeftBreast;
+        private static TrackBreast _trackRightBreast;
 
         private static JSONStorableFloat _baseJsf;
-        private static JSONStorableFloat _upJsf;
-        private static JSONStorableFloat _downJsf;
         private static JSONStorableFloat _forwardJsf;
         private static JSONStorableFloat _backJsf;
-        private static JSONStorableFloat _leftRightJsf;
 
-        private static float upMultiplier => _baseJsf.val * _upJsf.val;
-        private static float downMultiplier => _baseJsf.val * _downJsf.val;
         private static float forwardMultiplier => _baseJsf.val * _forwardJsf.val;
         private static float backMultiplier => _baseJsf.val * _backJsf.val;
-        private static float leftRightMultiplier => _baseJsf.val * _leftRightJsf.val;
 
-        public static void Init(
-            TrackNipple trackLeftNipple,
-            TrackNipple trackRightNipple
-        )
+        public static void Init()
         {
-            _trackLeftNipple = trackLeftNipple;
-            _trackRightNipple = trackRightNipple;
-
+            _trackLeftBreast = tittyMagic.trackLeftBreast;
+            _trackRightBreast = tittyMagic.trackRightBreast;
             _baseJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsBase", 1.00f, 0.00f, 2.00f);
-            _upJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsUp", 1.00f, 0.00f, 2.00f);
-            _downJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsDown", 1.00f, 0.00f, 2.00f);
             _forwardJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsForward", 1.00f, 0.00f, 2.00f);
             _backJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsBack", 1.00f, 0.00f, 2.00f);
-            _leftRightJsf = tittyMagic.NewJSONStorableFloat("forcePhysicsLeftRight", 1.00f, 0.00f, 2.00f);
         }
 
         public static void LoadSettings()
         {
-            SetupMainForcePhysicsConfigs();
-            _mainParamGroups = MainPhysicsHandler.parameterGroups.Values.ToList();
+            /* Setup main force physics configs */
+            {
+                var paramGroups = MainPhysicsHandler.parameterGroups;
+                paramGroups[CENTER_OF_GRAVITY_PERCENT].SetForcePhysicsConfigs(NewCenterOfGravityConfigs(), NewCenterOfGravityConfigs());
+                paramGroups[POSITION_DAMPER_Z].SetForcePhysicsConfigs(NewPositionDamperZConfigs(), NewPositionDamperZConfigs());
+                _mainParamGroups = MainPhysicsHandler.parameterGroups.Values.ToList();
+            }
 
             if(personIsFemale)
             {
-                SetupSoftForcePhysicsConfigs();
+                /* Setup soft force physics configs */
+                var paramGroups = SoftPhysicsHandler.parameterGroups;
+                paramGroups[SOFT_VERTICES_SPRING].SetForcePhysicsConfigs(NewSoftVerticesSpringConfigs(), NewSoftVerticesSpringConfigs());
                 _softParamGroups = SoftPhysicsHandler.parameterGroups.Values.ToList();
             }
         }
@@ -62,9 +56,9 @@ namespace TittyMagic.Handlers
             {
                 {
                     Direction.BACK, new DynamicPhysicsConfig(
-                        massMultiplier: -0.390f,
+                        massMultiplier: -0.130f,
                         softnessMultiplier: -0.130f,
-                        isNegative: true,
+                        negative: true,
                         applyMethod: ApplyMethod.ADDITIVE,
                         massCurve: MainPhysicsHandler.InvertMass,
                         softnessCurve: Curves.ForcePhysicsSoftnessCurve
@@ -72,34 +66,11 @@ namespace TittyMagic.Handlers
                 },
                 {
                     Direction.FORWARD, new DynamicPhysicsConfig(
-                        massMultiplier: 0.390f,
+                        massMultiplier: 0.130f,
                         softnessMultiplier: 0.130f,
-                        isNegative: false,
+                        negative: false,
                         applyMethod: ApplyMethod.ADDITIVE,
                         massCurve: MainPhysicsHandler.InvertMass,
-                        softnessCurve: Curves.ForcePhysicsSoftnessCurve
-                    )
-                },
-            };
-
-        private static Dictionary<string, DynamicPhysicsConfig> NewDamperConfigs() =>
-            new Dictionary<string, DynamicPhysicsConfig>
-            {
-                {
-                    Direction.BACK, new DynamicPhysicsConfig(
-                        massMultiplier: 0.50f,
-                        softnessMultiplier: 0.37f,
-                        isNegative: false,
-                        applyMethod: ApplyMethod.ADDITIVE,
-                        softnessCurve: Curves.ForcePhysicsSoftnessCurve
-                    )
-                },
-                {
-                    Direction.FORWARD, new DynamicPhysicsConfig(
-                        massMultiplier: 0.50f,
-                        softnessMultiplier: 0.37f,
-                        isNegative: false,
-                        applyMethod: ApplyMethod.ADDITIVE,
                         softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
                 },
@@ -112,7 +83,7 @@ namespace TittyMagic.Handlers
                     Direction.BACK, new DynamicPhysicsConfig(
                         massMultiplier: 0f,
                         softnessMultiplier: -9f,
-                        isNegative: true,
+                        negative: true,
                         applyMethod: ApplyMethod.ADDITIVE,
                         softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
@@ -121,20 +92,12 @@ namespace TittyMagic.Handlers
                     Direction.FORWARD, new DynamicPhysicsConfig(
                         massMultiplier: 0f,
                         softnessMultiplier: -9f,
-                        isNegative: true,
+                        negative: true,
                         applyMethod: ApplyMethod.ADDITIVE,
                         softnessCurve: Curves.ForcePhysicsSoftnessCurve
                     )
                 },
             };
-
-        private static void SetupMainForcePhysicsConfigs()
-        {
-            var paramGroups = MainPhysicsHandler.parameterGroups;
-            paramGroups[CENTER_OF_GRAVITY_PERCENT].SetForcePhysicsConfigs(NewCenterOfGravityConfigs(), NewCenterOfGravityConfigs());
-            paramGroups[DAMPER].SetForcePhysicsConfigs(NewDamperConfigs(), NewDamperConfigs());
-            paramGroups[POSITION_DAMPER_Z].SetForcePhysicsConfigs(NewPositionDamperZConfigs(), NewPositionDamperZConfigs());
-        }
 
         private static Dictionary<string, DynamicPhysicsConfig> NewSoftVerticesSpringConfigs() =>
             new Dictionary<string, DynamicPhysicsConfig>
@@ -142,235 +105,116 @@ namespace TittyMagic.Handlers
                 {
                     Direction.BACK, new DynamicPhysicsConfig(
                         massMultiplier: 0f,
-                        softnessMultiplier: -50f,
-                        isNegative: true,
+                        softnessMultiplier: -30f,
+                        negative: true,
                         applyMethod: ApplyMethod.ADDITIVE
                     )
                 },
                 {
                     Direction.FORWARD, new DynamicPhysicsConfig(
                         massMultiplier: 0f,
-                        softnessMultiplier: 100f,
-                        isNegative: false,
+                        softnessMultiplier: 40f,
+                        negative: false,
                         applyMethod: ApplyMethod.ADDITIVE
                     )
                 },
             };
 
-        private static Dictionary<string, DynamicPhysicsConfig> NewSoftVerticesBackForceConfigs() =>
-            new Dictionary<string, DynamicPhysicsConfig>
-            {
-                {
-                    Direction.BACK, new DynamicPhysicsConfig(
-                        massMultiplier: -20f,
-                        softnessMultiplier: 0f,
-                        isNegative: true,
-                        applyMethod: ApplyMethod.ADDITIVE,
-                        // https://www.desmos.com/calculator/hnhlbofgmz
-                        massCurve: x => Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.15f, 0.70f)
-                    )
-                },
-                {
-                    Direction.FORWARD, new DynamicPhysicsConfig(
-                        massMultiplier: -20f,
-                        softnessMultiplier: 0f,
-                        isNegative: true,
-                        applyMethod: ApplyMethod.ADDITIVE,
-                        // https://www.desmos.com/calculator/hnhlbofgmz
-                        massCurve: x => Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.15f, 0.70f)
-                    )
-                },
-            };
+        private static float _forwardMultiplier;
+        private static float _backMultiplier;
 
-        private static void SetupSoftForcePhysicsConfigs()
+        public static void SetMultipliers()
         {
-            var paramGroups = SoftPhysicsHandler.parameterGroups;
-            paramGroups[SOFT_VERTICES_SPRING].SetForcePhysicsConfigs(NewSoftVerticesSpringConfigs(), NewSoftVerticesSpringConfigs());
-            paramGroups[SOFT_VERTICES_BACK_FORCE].SetForcePhysicsConfigs(NewSoftVerticesBackForceConfigs(), NewSoftVerticesBackForceConfigs());
+            _forwardMultiplier = 0.90f;
+            _backMultiplier = 0.90f;
         }
+
+        private static float _mass;
+        private static float _softness;
 
         public static void Update()
         {
-            AdjustLeftRightPhysics();
-            AdjustUpPhysics();
-            AdjustDownPhysics();
+            _mass = MainPhysicsHandler.realMassAmount;
+            _softness = tittyMagic.softnessAmount;
             AdjustForwardPhysics();
             AdjustBackPhysics();
         }
 
-        private static void AdjustLeftRightPhysics()
-        {
-            float multiplier = 0.5f * Curves.QuadraticRegression(leftRightMultiplier);
-            float effectXLeft = CalculateXEffect(_trackLeftNipple.angleX, multiplier);
-            float effectXRight = CalculateXEffect(_trackRightNipple.angleX, multiplier);
-
-            // left force on left breast
-            if(_trackLeftNipple.angleX >= 0)
-            {
-                ResetLeftPhysics(Direction.LEFT);
-                UpdateLeftPhysics(Direction.RIGHT, effectXLeft);
-            }
-            // right force on left breast
-            else
-            {
-                ResetLeftPhysics(Direction.RIGHT);
-                UpdateLeftPhysics(Direction.RIGHT, effectXLeft);
-            }
-
-            // // left force on right breast
-            if(_trackRightNipple.angleX >= 0)
-            {
-                ResetRightPhysics(Direction.LEFT);
-                UpdateRightPhysics(Direction.RIGHT, effectXRight);
-            }
-            // right force on right breast
-            else
-            {
-                ResetRightPhysics(Direction.RIGHT);
-                UpdateRightPhysics(Direction.LEFT, effectXRight);
-            }
-        }
-
-        private static void AdjustUpPhysics()
-        {
-            float multiplier = 0.5f * Curves.QuadraticRegression(upMultiplier);
-            float effectYLeft = CalculateYEffect(_trackLeftNipple.angleY, multiplier);
-            float effectYRight = CalculateYEffect(_trackRightNipple.angleY, multiplier);
-
-            // up force on left breast
-            if(_trackLeftNipple.angleY >= 0)
-            {
-                UpdateLeftPhysics(Direction.UP, effectYLeft);
-            }
-            else
-            {
-                ResetLeftPhysics(Direction.UP);
-            }
-
-            // up force on right breast
-            if(_trackRightNipple.angleY >= 0)
-            {
-                UpdateRightPhysics(Direction.UP, effectYRight);
-            }
-            else
-            {
-                ResetRightPhysics(Direction.UP);
-            }
-        }
-
-        private static void AdjustDownPhysics()
-        {
-            float multiplier = 0.5f * Curves.QuadraticRegression(downMultiplier);
-            float effectYLeft = CalculateYEffect(_trackLeftNipple.angleY, multiplier);
-            float effectYRight = CalculateYEffect(_trackRightNipple.angleY, multiplier);
-
-            // down force on left breast
-            if(_trackLeftNipple.angleY < 0)
-            {
-                UpdateLeftPhysics(Direction.DOWN, effectYLeft);
-            }
-            else
-            {
-                ResetLeftPhysics(Direction.DOWN);
-            }
-
-            // down force on right breast
-            if(_trackRightNipple.angleY < 0)
-            {
-                UpdateRightPhysics(Direction.DOWN, effectYRight);
-            }
-            else
-            {
-                ResetRightPhysics(Direction.DOWN);
-            }
-        }
+        private static float ForwardEffect(float distance) =>
+            _forwardMultiplier
+            * Curves.QuadraticRegression(forwardMultiplier)
+            * Curves.ZForceEffectCurve(Mathf.Abs(distance) * 27f);
 
         private static void AdjustForwardPhysics()
         {
-            float multiplier = Curves.QuadraticRegression(forwardMultiplier);
-            float effectZLeft = CalculateZEffect(_trackLeftNipple.depthDiff, multiplier);
-            float effectZRight = CalculateZEffect(_trackRightNipple.depthDiff, multiplier);
-
-            // forward force on left breast
-            if(_trackLeftNipple.depthDiff <= 0)
+            if(_trackLeftBreast.depthDiff <= 0)
             {
-                UpdateLeftPhysics(Direction.FORWARD, effectZLeft);
+                // forward force on left breast
+                UpdateLeftBreast(Direction.FORWARD, ForwardEffect(_trackLeftBreast.depthDiff));
             }
             else
             {
-                ResetLeftPhysics(Direction.FORWARD);
+                ResetLeftBreast(Direction.FORWARD);
             }
 
-            // forward force on right breast
-            if(_trackRightNipple.depthDiff <= 0)
+            if(_trackRightBreast.depthDiff <= 0)
             {
-                UpdateRightPhysics(Direction.FORWARD, effectZRight);
+                // forward force on right breast
+                UpdateRightBreast(Direction.FORWARD, ForwardEffect(_trackRightBreast.depthDiff));
             }
             else
             {
-                ResetRightPhysics(Direction.FORWARD);
+                ResetRightBreast(Direction.FORWARD);
             }
         }
+
+        private static float BackEffect(float distance) =>
+            _backMultiplier
+            * Curves.QuadraticRegression(backMultiplier)
+            * Curves.ZForceEffectCurve(Mathf.Abs(distance) * 20.50f);
 
         private static void AdjustBackPhysics()
         {
-            float multiplier = Curves.QuadraticRegression(backMultiplier);
-            float effectZLeft = CalculateZEffect(_trackLeftNipple.depthDiff, multiplier);
-            float effectZRight = CalculateZEffect(_trackRightNipple.depthDiff, multiplier);
-
-            // back force on left breast
-            if(_trackLeftNipple.depthDiff > 0)
+            if(_trackLeftBreast.depthDiff > 0)
             {
-                UpdateLeftPhysics(Direction.BACK, effectZLeft);
+                // back force on left breast
+                UpdateLeftBreast(Direction.BACK, BackEffect(_trackLeftBreast.depthDiff));
             }
             else
             {
-                ResetLeftPhysics(Direction.BACK);
+                ResetLeftBreast(Direction.BACK);
             }
 
-            // back force on right breast
-            if(_trackRightNipple.depthDiff > 0)
+            if(_trackRightBreast.depthDiff > 0)
             {
-                UpdateRightPhysics(Direction.BACK, effectZRight);
+                // back force on right breast
+                UpdateRightBreast(Direction.BACK, BackEffect(_trackRightBreast.depthDiff));
             }
             else
             {
-                ResetRightPhysics(Direction.BACK);
+                ResetRightBreast(Direction.BACK);
             }
         }
 
-        private static float CalculateXEffect(float angle, float multiplier) =>
-            multiplier * Curves.ForceEffectCurve(Mathf.Abs(angle) / 40);
-
-        private static float CalculateYEffect(float angle, float multiplier) =>
-            multiplier * Curves.ForceEffectCurve(Mathf.Abs(angle) / 50);
-
-        private static float CalculateZEffect(float distance, float multiplier) =>
-            multiplier * Curves.ForceEffectCurve(Mathf.Abs(distance) * 8);
-
-        private static void UpdateLeftPhysics(string direction, float effect)
+        private static void UpdateLeftBreast(string direction, float effect)
         {
-            float mass = MainPhysicsHandler.realMassAmount;
-            float softness = tittyMagic.softnessAmount;
-            _mainParamGroups.ForEach(group => group.left.UpdateForceValue(direction, effect, mass, softness));
-            _softParamGroups?.ForEach(group => group.left.UpdateForceValue(direction, effect, mass, softness));
+            _mainParamGroups.ForEach(group => group.left.UpdateForceValue(direction, effect, _mass, _softness));
+            _softParamGroups?.ForEach(group => group.left.UpdateForceValue(direction, effect, _mass, _softness));
         }
 
-        private static void UpdateRightPhysics(string direction, float effect)
+        private static void UpdateRightBreast(string direction, float effect)
         {
-            float mass = MainPhysicsHandler.realMassAmount;
-            float softness = tittyMagic.softnessAmount;
-            _mainParamGroups.ForEach(group => group.right.UpdateForceValue(direction, effect, mass, softness));
-            _softParamGroups?.ForEach(group => group.right.UpdateForceValue(direction, effect, mass, softness));
+            _mainParamGroups.ForEach(group => group.right.UpdateForceValue(direction, effect, _mass, _softness));
+            _softParamGroups?.ForEach(group => group.right.UpdateForceValue(direction, effect, _mass, _softness));
         }
 
-        private static void ResetLeftPhysics(string direction)
+        private static void ResetLeftBreast(string direction)
         {
             _mainParamGroups.ForEach(group => group.left.ResetForceValue(direction));
             _softParamGroups?.ForEach(group => group.left.ResetForceValue(direction));
         }
 
-        private static void ResetRightPhysics(string direction)
+        private static void ResetRightBreast(string direction)
         {
             _mainParamGroups.ForEach(group => group.right.ResetForceValue(direction));
             _softParamGroups?.ForEach(group => group.right.ResetForceValue(direction));
@@ -380,14 +224,11 @@ namespace TittyMagic.Handlers
         {
             _mainParamGroups = null;
             _softParamGroups = null;
-            _trackLeftNipple = null;
-            _trackRightNipple = null;
+            _trackLeftBreast = null;
+            _trackRightBreast = null;
             _baseJsf = null;
-            _upJsf = null;
-            _downJsf = null;
             _forwardJsf = null;
             _backJsf = null;
-            _leftRightJsf = null;
         }
     }
 }

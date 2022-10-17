@@ -3,8 +3,6 @@ namespace TittyMagic
     public static class Direction
     {
         public const string DOWN = "DN";
-        public const string DOWN_L = "DN_L";
-        public const string DOWN_R = "DN_R";
         public const string UP = "UP";
         public const string UP_L = "UP_L";
         public const string UP_R = "UP_R";

@@ -2,6 +2,7 @@
 using System.Collections;
 using TittyMagic.Components;
 using TittyMagic.Handlers;
+using TittyMagic.UI;
 using UnityEngine;
 using static TittyMagic.Script;
 
@@ -22,10 +23,7 @@ namespace TittyMagic
         private bool _atomSoftPhysicsOn;
         private bool _breastSoftPhysicsOn;
 
-        private Rigidbody _pectoralRbLeft;
-        private Rigidbody _pectoralRbRight;
-
-        private bool _isInitialized;
+        private bool _initialized;
 
         public void Init()
         {
@@ -42,19 +40,16 @@ namespace TittyMagic
                 /* Initialize _breastSoftPhysicsOn to same value as initialized to in
                  * SoftPhysicsHandler's own JSONStorable, prevents double calibration on init
                  */
-                _breastSoftPhysicsOn = SoftPhysicsHandler.softPhysicsOnJsb.val;
+                _breastSoftPhysicsOn = SoftPhysicsHandler.breastSoftPhysicsOnJsb.val;
                 _atomSoftPhysicsOn = _softBodyPhysicsEnabler.GetBoolParamValue("enabled");
                 _globalSoftPhysicsOn = UserPreferences.singleton.softPhysics;
             }
-
-            _pectoralRbLeft = MainPhysicsHandler.breastControl.joint2.GetComponent<Rigidbody>();
-            _pectoralRbRight = MainPhysicsHandler.breastControl.joint1.GetComponent<Rigidbody>();
 
             /* prevent breasts being flattened due to breastInOut morphs on scene load with plugin already present */
             _breastInOut.SetBoolParamValue("enabled", true);
             _breastInOut.SetBoolParamValue("enabled", false);
 
-            _isInitialized = true;
+            _initialized = true;
         }
 
         public void CheckSettings()
@@ -86,17 +81,17 @@ namespace TittyMagic
                 }
 
                 /* Disable pectoral joint rb's collisions if enabled by e.g. person atom collisions being toggled off/on */
-                if(_pectoralRbLeft.detectCollisions || _pectoralRbRight.detectCollisions)
+                if(tittyMagic.pectoralRbLeft.detectCollisions || tittyMagic.pectoralRbRight.detectCollisions)
                 {
-                    SetPectoralCollisions(false);
+                    HardColliderHandler.SetPectoralCollisions(false);
                 }
             }
             else
             {
                 /* Force enable pectoral joint rb's collisions for futa */
-                if(!_pectoralRbLeft.detectCollisions || !_pectoralRbRight.detectCollisions)
+                if(!tittyMagic.pectoralRbLeft.detectCollisions || !tittyMagic.pectoralRbRight.detectCollisions)
                 {
-                    SetPectoralCollisions(true);
+                    HardColliderHandler.SetPectoralCollisions(true);
                 }
             }
 
@@ -105,7 +100,7 @@ namespace TittyMagic
                 StartCoroutine(OnCharacterChangedCo());
             }
 
-            if(!tittyMagic.calibration.isInProgress)
+            if(!tittyMagic.calibrationHelper.calibratingJsb.val)
             {
                 CheckIfRecalibrationNeeded();
             }
@@ -134,6 +129,15 @@ namespace TittyMagic
                     if(value != softPhysicsEnabled)
                     {
                         SoftPhysicsHandler.ReverseSyncSoftPhysicsOn();
+                        ((TrackFemaleBreast) tittyMagic.trackLeftBreast).SetCalculateFunctions(value);
+                        ((TrackFemaleBreast) tittyMagic.trackRightBreast).SetCalculateFunctions(value);
+
+                        var physicsWindow = tittyMagic.tabs.activeWindow as PhysicsWindow;
+                        if(physicsWindow != null)
+                        {
+                            physicsWindow.UpdateSoftPhysicsToggleStyle(value);
+                        }
+
                         refreshNeeded = true;
                     }
 
@@ -187,14 +191,8 @@ namespace TittyMagic
             {
                 _selectedCharacter = geometry.selectedCharacter;
                 skin = geometry.containingAtom.GetComponentInChildren<DAZCharacter>().skin;
-                FrictionHandler.Refresh(tittyMagic.containingAtom.GetStorableByID("skin"));
+                tittyMagic.ReinitFrictionHandlerAndUI();
             }
-        }
-
-        public void SetPectoralCollisions(bool value)
-        {
-            _pectoralRbLeft.detectCollisions = value;
-            _pectoralRbRight.detectCollisions = value;
         }
 
         private string LocationWhereStillDisabled(bool breastSoftPhysicsOn, bool atomSoftPhysicsOn, bool globalSoftPhysicsOn)
@@ -256,7 +254,7 @@ namespace TittyMagic
 
         private void Update()
         {
-            if(!_isInitialized)
+            if(!_initialized)
             {
                 return;
             }
@@ -267,14 +265,14 @@ namespace TittyMagic
             }
             catch(Exception e)
             {
-                Utils.LogError($"{e}", nameof(SettingsMonitor));
+                Utils.LogError($"{nameof(SettingsMonitor)}: {e}");
                 enabled = false;
             }
         }
 
         private void OnEnable()
         {
-            if(!_isInitialized)
+            if(!_initialized)
             {
                 return;
             }

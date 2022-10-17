@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
+using TittyMagic.UI.Components;
 using static TittyMagic.Script;
 
 namespace TittyMagic.UI
@@ -16,8 +18,8 @@ namespace TittyMagic.UI
 
         public Tabs(RectTransform leftUIContent, RectTransform rightUIContent)
         {
-            _leftGroupTransform = UIHelpers.CreateHorizontalLayoutGroup(leftUIContent).transform;
-            _rightGroupTransform = UIHelpers.CreateHorizontalLayoutGroup(rightUIContent).transform;
+            _leftGroupTransform = CreateHorizontalLayoutGroup(leftUIContent).transform;
+            _rightGroupTransform = CreateHorizontalLayoutGroup(rightUIContent).transform;
             _tabButtons = new Dictionary<IWindow, NavigationButton>();
         }
 
@@ -38,6 +40,21 @@ namespace TittyMagic.UI
                 .Where(kvp => kvp.Key != window)
                 .ToList()
                 .ForEach(kvp => kvp.Value.SetInactive());
+        }
+
+        private static HorizontalLayoutGroup CreateHorizontalLayoutGroup(RectTransform uiContent)
+        {
+            var verticalLayoutGroup = uiContent.GetComponent<VerticalLayoutGroup>();
+
+            var gameObj = new GameObject();
+            gameObj.transform.SetParent(verticalLayoutGroup.transform, false);
+
+            var horizontalLayoutGroup = gameObj.AddComponent<HorizontalLayoutGroup>();
+            horizontalLayoutGroup.spacing = 16f;
+            horizontalLayoutGroup.childForceExpandWidth = true;
+            horizontalLayoutGroup.childControlHeight = false;
+
+            return horizontalLayoutGroup;
         }
     }
 }

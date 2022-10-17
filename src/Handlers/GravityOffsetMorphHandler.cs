@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using TittyMagic.Handlers.Configs;
 using static TittyMagic.Script;
+using static TittyMagic.Direction;
 
 namespace TittyMagic.Handlers
 {
@@ -9,102 +10,95 @@ namespace TittyMagic.Handlers
         private static Dictionary<string, List<MorphConfig>> _configSets;
 
         public static JSONStorableFloat offsetMorphingJsf { get; private set; }
-        public static float upDownExtraMultiplier { get; set; }
 
         public static void Init()
         {
             offsetMorphingJsf = tittyMagic.NewJSONStorableFloat("gravityOffsetMorphing", 1.00f, 0.00f, 2.00f);
-            offsetMorphingJsf.setCallbackFunction = value => tittyMagic.calibration.shouldRun = true;
+            offsetMorphingJsf.setCallbackFunction = value => tittyMagic.calibrationHelper.shouldRun = true;
         }
 
-        public static void LoadSettings() =>
-            _configSets = new Dictionary<string, List<MorphConfig>>
-            {
-                { Direction.DOWN, LoadSettingsFromFile(Direction.DOWN, "upright", true) },
-            };
-
-        private static List<MorphConfig> LoadSettingsFromFile(string subDir, string fileName, bool hasSeparateLeftRightConfigs = false)
+        public static void LoadSettings() => _configSets = new Dictionary<string, List<MorphConfig>>
         {
-            string path = $@"{tittyMagic.PluginPath()}\settings\morphmultipliers\offset\{fileName}.json";
-            var jsonClass = tittyMagic.LoadJSON(path).AsObject;
-
-            var configs = new List<MorphConfig>();
-            foreach(string name in jsonClass.Keys)
             {
-                if(hasSeparateLeftRightConfigs)
+                DOWN, new List<MorphConfig>
                 {
-                    configs.Add(
-                        new MorphConfig(
-                            $"{subDir}/{name} L",
-                            jsonClass[name]["IsNegative"].AsBool,
-                            jsonClass[name]["Multiplier1"].AsFloat,
-                            jsonClass[name]["Multiplier2"].AsFloat
-                        )
-                    );
-                    configs.Add(
-                        new MorphConfig(
-                            $"{subDir}/{name} R",
-                            jsonClass[name]["IsNegative"].AsBool,
-                            jsonClass[name]["Multiplier1"].AsFloat,
-                            jsonClass[name]["Multiplier2"].AsFloat
-                        )
-                    );
+                    new MorphConfig("DN/DN Breast Rotate Up L",
+                        false,
+                        new JSONStorableFloat("softnessMultiplier", 0.76f, 0, 3),
+                        new JSONStorableFloat("massMultiplier", 0.57f, 0, 3)
+                    ),
+                    new MorphConfig("DN/DN Breast Rotate Up R",
+                        false,
+                        new JSONStorableFloat("softnessMultiplier", 0.76f, 0, 3),
+                        new JSONStorableFloat("massMultiplier", 0.57f, 0, 3)
+                    ),
+                    new MorphConfig("DN/DN Breasts Natural Reverse L",
+                        false,
+                        new JSONStorableFloat("softnessMultiplier", 0.36f, 0, 3),
+                        new JSONStorableFloat("massMultiplier", 0.27f, 0, 3)
+                    ),
+                    new MorphConfig("DN/DN Breasts Natural Reverse R",
+                        false,
+                        new JSONStorableFloat("softnessMultiplier", 0.37f, 0, 3),
+                        new JSONStorableFloat("massMultiplier", 0.27f, 0, 3)
+                    ),
                 }
-                else
-                {
-                    configs.Add(
-                        new MorphConfig(
-                            $"{subDir}/{name}",
-                            jsonClass[name]["IsNegative"].AsBool,
-                            jsonClass[name]["Multiplier1"].AsFloat,
-                            jsonClass[name]["Multiplier2"].AsFloat
-                        )
-                    );
-                }
-            }
+            },
+        };
 
-            return configs;
+        private static float _upDownExtraMultiplier;
+
+        public static void SetMultipliers(float mass)
+        {
+            // https://www.desmos.com/calculator/z10fwnpvul
+            _upDownExtraMultiplier = 0.50f * Curves.Exponential1(
+                mass,
+                0.26f,
+                2.60f,
+                5.38f,
+                a: 0.84f,
+                s: 0.33f
+            );
         }
 
-        public static void Update(float roll, float pitch)
+        public static void Update()
         {
-            float smoothRoll = Calc.SmoothStep(roll);
-            float smoothPitch = 2 * Calc.SmoothStep(pitch);
-
-            AdjustUpDownMorphs(smoothPitch, smoothRoll);
+            var rotation = MainPhysicsHandler.chestRb.rotation;
+            float roll = Calc.SmoothStep(Calc.Roll(rotation));
+            float pitch = 2 * Calc.SmoothStep(Calc.Pitch(rotation));
+            AdjustUpDownMorphs(roll, pitch);
         }
 
-        private static void AdjustUpDownMorphs(float pitch, float roll)
+        private static void AdjustUpDownMorphs(float roll, float pitch)
         {
-            float multiplier = upDownExtraMultiplier * GravityPhysicsHandler.downMultiplier;
-            float upDownEffect = GravityEffectCalc.CalculateUpDownEffect(pitch, roll, multiplier);
-            float effect = offsetMorphingJsf.val * upDownEffect;
-            // leaning forward
-            if(pitch >= 0)
+            float multiplier = _upDownExtraMultiplier * GravityPhysicsHandler.downMultiplier;
+            float effect = offsetMorphingJsf.val * GravityEffectCalc.UpDownEffect(pitch, roll, multiplier);
+            if(pitch > 0)
             {
-                // upright
+                // leaning forward
                 if(pitch < 1)
                 {
-                    UpdateMorphs(Direction.DOWN, effect);
+                    // upright
+                    UpdateMorphs(DOWN, effect);
                 }
-                // upside down
                 else
                 {
-                    ResetMorphs(Direction.DOWN);
+                    // upside down
+                    ResetMorphs(DOWN);
                 }
             }
-            // leaning back
             else
             {
-                // upright
-                if(pitch >= -1)
+                // leaning back
+                if(pitch > -1)
                 {
-                    UpdateMorphs(Direction.DOWN, effect);
+                    // upright
+                    UpdateMorphs(DOWN, effect);
                 }
-                // upside down
                 else
                 {
-                    ResetMorphs(Direction.DOWN);
+                    // upside down
+                    ResetMorphs(DOWN);
                 }
             }
         }
@@ -119,11 +113,13 @@ namespace TittyMagic.Handlers
         private static void UpdateValue(MorphConfig config, float effect, float mass, float softness)
         {
             float value =
-                softness * config.softnessMultiplier * effect +
+                softness * config.softMultiplier * effect +
                 mass * config.massMultiplier * effect;
             bool inRange = config.isNegative ? value < 0 : value > 0;
-            config.morph.morphValue = inRange ? Calc.RoundToDecimals(value, 1000f) : 0;
+            config.morph.morphValue = inRange ? Calc.RoundToDecimals(value) : 0;
         }
+
+        public static void SimulateUpright() => AdjustUpDownMorphs(0, 0);
 
         public static void ResetAll() => _configSets?.Keys.ToList().ForEach(ResetMorphs);
 
