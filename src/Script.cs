@@ -28,9 +28,9 @@ namespace TittyMagic
         public Bindings bindings { get; private set; }
 
         private IWindow _mainWindow;
+        private IWindow _physicsWindow;
         private IWindow _morphingWindow;
         private IWindow _gravityWindow;
-        private IWindow _physicsWindow;
         public Tabs tabs { get; private set; }
 
         public JSONStorableAction recalibratePhysics { get; private set; }
@@ -193,7 +193,7 @@ namespace TittyMagic
                 yield return null;
             }
 
-            /* Wait for plugin permissions to be accepted */
+            /* Wait for other plugin permissions to be accepted */
             var confirmPanel = SuperController.singleton.errorLogPanel.parent.Find("UserConfirmCanvas");
             while(confirmPanel != null && confirmPanel.childCount > 0)
             {
@@ -374,9 +374,9 @@ namespace TittyMagic
             /* Setup navigation */
             {
                 _mainWindow = new MainWindow();
+                _physicsWindow = new PhysicsWindow();
                 _morphingWindow = new MorphingWindow();
                 _gravityWindow = new GravityWindow();
-                _physicsWindow = new PhysicsWindow();
 
                 tabs = new Tabs(leftUIContent, rightUIContent);
                 tabs.CreateNavigationButton(_mainWindow, "Control", NavigateToMainWindow);

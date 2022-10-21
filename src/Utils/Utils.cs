@@ -1,6 +1,5 @@
 // ReSharper disable UnusedMember.Global
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -141,23 +140,6 @@ namespace TittyMagic
 
         public static Rigidbody FindRigidbody(Atom atom, string name) =>
             atom.GetComponentsInChildren<Rigidbody>().ToList().Find(rb => rb.name == name);
-
-        public static void WalkAndGetRigidbodyAttributes(Transform atomTransform, List<RigidbodyAttributes> rbAttrs)
-        {
-            var component1 = atomTransform.GetComponent<RigidbodyAttributes>();
-            if(component1 != null)
-            {
-                rbAttrs.Add(component1);
-            }
-
-            foreach(Transform t in atomTransform)
-            {
-                if(!(bool) (UnityEngine.Object) t.GetComponent<Atom>())
-                {
-                    WalkAndGetRigidbodyAttributes(t, rbAttrs);
-                }
-            }
-        }
 
         public static bool PluginIsDuplicate(Atom atom, string storeId)
         {
