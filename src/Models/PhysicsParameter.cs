@@ -127,11 +127,6 @@ namespace TittyMagic.Models
 
         public void UpdateGravityValue(string direction, float effect, float massValue, float softness)
         {
-            if(gravityPhysicsConfigs == null || !gravityPhysicsConfigs.ContainsKey(direction))
-            {
-                return;
-            }
-
             var dpConfig = gravityPhysicsConfigs[direction];
             float gravityValue = dpConfig.Calculate(effect, massValue, softness);
 

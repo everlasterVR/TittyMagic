@@ -5,17 +5,6 @@ namespace TittyMagic
 {
     public static class Calc
     {
-        public static float Roll(Quaternion q) =>
-            2 * InverseLerpToPi(Mathf.Asin(2 * q.x * q.y + 2 * q.z * q.w));
-
-        public static float Pitch(Quaternion q) =>
-            InverseLerpToPi(Mathf.Atan2(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * q.x * q.x - 2 * q.z * q.z));
-
-        private static float InverseLerpToPi(float val) =>
-            val > 0
-                ? Mathf.InverseLerp(0, Mathf.PI, val)
-                : -Mathf.InverseLerp(0, Mathf.PI, -val);
-
         // value returned is smoothed (for better animation) i.e. no longer maps linearly to the actual rotation angle
         public static float SmoothStep(float val) =>
             val > 0

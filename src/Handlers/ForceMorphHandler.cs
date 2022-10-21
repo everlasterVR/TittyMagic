@@ -752,12 +752,10 @@ namespace TittyMagic.Handlers
 
         public static void Update()
         {
-            var lPectoralRotation = tittyMagic.pectoralRbLeft.rotation;
-            var rPectoralRotation = tittyMagic.pectoralRbRight.rotation;
-            _rollL = Calc.Roll(lPectoralRotation);
-            _rollR = -Calc.Roll(rPectoralRotation);
-            _pitchL = 2 * Calc.Pitch(lPectoralRotation);
-            _pitchR = 2 * Calc.Pitch(rPectoralRotation);
+            _rollL = GravityEffectCalc.pectoralRollL;
+            _rollR = -GravityEffectCalc.pectoralRollR;
+            _pitchL = 2 * GravityEffectCalc.pectoralPitchL;
+            _pitchR = 2 * GravityEffectCalc.pectoralPitchR;
             _rollAngleMultiL = Mathf.Lerp(1.25f, 1f, Mathf.Abs(_rollL));
             _rollAngleMultiR = Mathf.Lerp(1.25f, 1f, Mathf.Abs(_rollR));
 

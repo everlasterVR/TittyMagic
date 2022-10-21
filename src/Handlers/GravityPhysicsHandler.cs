@@ -9,7 +9,7 @@ namespace TittyMagic.Handlers
 {
     public static class GravityPhysicsHandler
     {
-        private static List<PhysicsParameterGroup> _paramGroups;
+        private static Dictionary<string, PhysicsParameterGroup[]> _paramGroups;
 
         public static JSONStorableFloat baseJsf { get; private set; }
         public static JSONStorableFloat upJsf { get; private set; }
@@ -49,7 +49,41 @@ namespace TittyMagic.Handlers
             paramGroups[POSITION_SPRING_Z].SetGravityPhysicsConfigs(NewPositionSpringZConfigs(), NewPositionSpringZConfigs());
             paramGroups[TARGET_ROTATION_X].SetGravityPhysicsConfigs(NewTargetRotationXConfigs(), NewTargetRotationXConfigs());
             paramGroups[TARGET_ROTATION_Y].SetGravityPhysicsConfigs(NewTargetRotationYConfigs(), NewTargetRotationYConfigs());
-            _paramGroups = MainPhysicsHandler.parameterGroups.Values.ToList();
+            _paramGroups = new Dictionary<string, PhysicsParameterGroup[]>();
+            _paramGroups[UP] = new[]
+            {
+                paramGroups[SPRING],
+                paramGroups[DAMPER],
+                paramGroups[TARGET_ROTATION_X],
+            };
+            _paramGroups[DOWN] = new[]
+            {
+                paramGroups[TARGET_ROTATION_X],
+            };
+            _paramGroups[FORWARD] = new[]
+            {
+                paramGroups[SPRING],
+                paramGroups[DAMPER],
+                paramGroups[POSITION_SPRING_Z],
+            };
+            _paramGroups[BACK] = new[]
+            {
+                paramGroups[SPRING],
+                paramGroups[DAMPER],
+                paramGroups[POSITION_SPRING_Z],
+            };
+            _paramGroups[LEFT] = new[]
+            {
+                paramGroups[SPRING],
+                paramGroups[DAMPER],
+                paramGroups[TARGET_ROTATION_Y],
+            };
+            _paramGroups[RIGHT] = new[]
+            {
+                paramGroups[SPRING],
+                paramGroups[DAMPER],
+                paramGroups[TARGET_ROTATION_Y],
+            };
         }
 
         private static Dictionary<string, DynamicPhysicsConfig> NewSpringConfigs() =>
@@ -246,23 +280,15 @@ namespace TittyMagic.Handlers
         {
             _mass = MainPhysicsHandler.massAmount;
             _softness = tittyMagic.softnessAmount;
-
-            var lPectoralRotation = tittyMagic.pectoralRbLeft.rotation;
-            var rPectoralRotation = tittyMagic.pectoralRbRight.rotation;
-            float lPectoralRoll = Calc.Roll(lPectoralRotation);
-            float rPectoralRoll = Calc.Roll(rPectoralRotation);
-            float chestRoll = Calc.Roll(MainPhysicsHandler.chestRb.rotation);
-            _rollL = Calc.SmoothStep((lPectoralRoll + chestRoll) / 2);
-            _rollR = Calc.SmoothStep((rPectoralRoll + chestRoll) / 2);
-            _pitchL = 2 * Calc.SmoothStep(Calc.Pitch(lPectoralRotation));
-            _pitchR = 2 * Calc.SmoothStep(Calc.Pitch(rPectoralRotation));
+            _rollL = Calc.SmoothStep((GravityEffectCalc.pectoralRollL + GravityEffectCalc.chestRoll) / 2);
+            _rollR = Calc.SmoothStep((GravityEffectCalc.pectoralRollR + GravityEffectCalc.chestRoll) / 2);
+            _pitchL = 2 * Calc.SmoothStep(GravityEffectCalc.pectoralPitchL);
+            _pitchR = 2 * Calc.SmoothStep(GravityEffectCalc.pectoralPitchR);
 
             // for some reason, if left right is adjusted after down, down physics is not correctly applied
             AdjustLeftRightPhysics();
-            AdjustUpPhysics();
-            AdjustDownPhysics();
-            AdjustForwardPhysics();
-            AdjustBackPhysics();
+            AdjustVerticalPhysics();
+            AdjustHorizontalPhysics();
         }
 
         private static void AdjustLeftRightPhysics()
@@ -292,117 +318,83 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private static void AdjustUpPhysics()
+        private static void AdjustVerticalPhysics()
         {
-            float effectL = GravityEffectCalc.UpDownEffect(_pitchL, _rollL, upMultiplier);
+            float effectL = GravityEffectCalc.UpDownAdjustByAngle(_pitchL) * GravityEffectCalc.RollMultiplier(_rollL) / 2;
+            float effectR = GravityEffectCalc.UpDownAdjustByAngle(_pitchR) * GravityEffectCalc.RollMultiplier(_rollR) / 2;
+
             if(_pitchL > 1 || _pitchL < -1)
             {
                 // upside down, leaning forward or back
-                UpdateLeftBreast(UP, effectL);
+                ResetLeftBreast(DOWN);
+                UpdateLeftBreast(UP, effectL * upMultiplier);
             }
             else
             {
                 ResetLeftBreast(UP);
+                UpdateLeftBreast(DOWN, effectL * downMultiplier);
             }
 
-            float effectR = GravityEffectCalc.UpDownEffect(_pitchR, _rollR, upMultiplier);
             if(_pitchR > 1 || _pitchR < -1)
             {
                 // upside down, leaning forward or back
-                UpdateRightBreast(UP, effectR);
+                ResetRightBreast(DOWN);
+                UpdateRightBreast(UP, effectR * upMultiplier);
             }
             else
             {
                 ResetRightBreast(UP);
+                UpdateRightBreast(DOWN, effectR * downMultiplier);
             }
         }
 
-        private static void AdjustDownPhysics()
+        private static void AdjustHorizontalPhysics()
         {
-            float effectL = GravityEffectCalc.UpDownEffect(_pitchL, _rollL, downMultiplier);
-            if(_pitchL > -1 && _pitchL < 1)
-            {
-                // upright, leaning forward or back
-                UpdateLeftBreast(DOWN, effectL);
-            }
-            else
-            {
-                ResetLeftBreast(DOWN);
-            }
+            float effectL = GravityEffectCalc.DepthAdjustByAngle(_pitchL) * GravityEffectCalc.RollMultiplier(_rollL) / 2;
+            float effectR = GravityEffectCalc.DepthAdjustByAngle(_pitchR) * GravityEffectCalc.RollMultiplier(_rollR) / 2;
 
-            float effectR = GravityEffectCalc.UpDownEffect(_pitchR, _rollR, downMultiplier);
-            if(_pitchR > -1 && _pitchR < 1)
-            {
-                // upright, leaning forward or back
-                UpdateRightBreast(DOWN, effectR);
-            }
-            else
-            {
-                ResetRightBreast(DOWN);
-            }
-        }
-
-        private static void AdjustForwardPhysics()
-        {
-            float effectL = GravityEffectCalc.DepthEffect(_pitchL, _rollL, forwardMultiplier);
             if(_pitchL > 0)
             {
                 // leaning forward, upright or upside down
-                UpdateLeftBreast(FORWARD, effectL);
+                ResetLeftBreast(BACK);
+                UpdateLeftBreast(FORWARD, effectL * forwardMultiplier);
             }
             else
             {
                 // leaning back
                 ResetLeftBreast(FORWARD);
+                UpdateLeftBreast(BACK, effectL * backMultiplier);
             }
 
-            float effectR = GravityEffectCalc.DepthEffect(_pitchR, _rollR, forwardMultiplier);
             if(_pitchR > 0)
             {
                 // leaning forward, upright or upside down
-                UpdateRightBreast(FORWARD, effectR);
+                ResetRightBreast(BACK);
+                UpdateRightBreast(FORWARD, effectR * forwardMultiplier);
             }
             else
             {
                 // leaning back
+                UpdateRightBreast(BACK, effectR * backMultiplier);
                 ResetRightBreast(FORWARD);
             }
         }
 
-        private static void AdjustBackPhysics()
+        private static void UpdateLeftBreast(string direction, float effect)
         {
-            float effectL = GravityEffectCalc.DepthEffect(_pitchL, _rollL, backMultiplier);
-            if(_pitchL < 0)
+            foreach(var group in _paramGroups[direction])
             {
-                // leaning back, upright or upside down
-                UpdateLeftBreast(BACK, effectL);
-            }
-            else
-            {
-                ResetLeftBreast(BACK);
-            }
-
-            float effectR = GravityEffectCalc.DepthEffect(_pitchR, _rollR, backMultiplier);
-            if(_pitchR < 0)
-            {
-                // leaning back, upright or upside down
-                UpdateRightBreast(BACK, effectR);
-            }
-            else
-            {
-                ResetRightBreast(BACK);
+                group.left.UpdateGravityValue(direction, effect, _mass, _softness);
             }
         }
 
-        private static void UpdateLeftBreast(string direction, float effect) =>
-            _paramGroups.ForEach(paramGroup =>
-                paramGroup.left.UpdateGravityValue(direction, effect, _mass, _softness)
-            );
-
-        private static void UpdateRightBreast(string direction, float effect) =>
-            _paramGroups.ForEach(paramGroup =>
-                paramGroup.right.UpdateGravityValue(direction, effect, _mass, _softness)
-            );
+        private static void UpdateRightBreast(string direction, float effect)
+        {
+            foreach(var group in _paramGroups[direction])
+            {
+                group.right.UpdateGravityValue(direction, effect, _mass, _softness);
+            }
+        }
 
         public static void SimulateUpright()
         {
@@ -414,17 +406,25 @@ namespace TittyMagic.Handlers
             _pitchR = 0;
 
             AdjustLeftRightPhysics();
-            AdjustUpPhysics();
-            AdjustDownPhysics();
-            AdjustForwardPhysics();
-            AdjustBackPhysics();
+            AdjustVerticalPhysics();
+            AdjustHorizontalPhysics();
         }
 
-        private static void ResetLeftBreast(string direction) =>
-            _paramGroups.ForEach(paramGroup => paramGroup.left.ResetGravityValue(direction));
+        private static void ResetLeftBreast(string direction)
+        {
+            foreach(var group in _paramGroups[direction])
+            {
+                group.left.ResetGravityValue(direction);
+            }
+        }
 
-        private static void ResetRightBreast(string direction) =>
-            _paramGroups.ForEach(paramGroup => paramGroup.right.ResetGravityValue(direction));
+        private static void ResetRightBreast(string direction)
+        {
+            foreach(var group in _paramGroups[direction])
+            {
+                group.right.ResetGravityValue(direction);
+            }
+        }
 
         public static void Destroy()
         {

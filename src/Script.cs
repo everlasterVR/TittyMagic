@@ -647,6 +647,7 @@ namespace TittyMagic
                 trackLeftBreast.Update();
                 trackRightBreast.Update();
                 HardColliderHandler.UpdateDistanceDiffs();
+                GravityEffectCalc.CalculateAngles(pectoralRbLeft, pectoralRbRight);
 
                 HardColliderHandler.UpdateFriction();
                 ForcePhysicsHandler.Update();

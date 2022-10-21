@@ -5,13 +5,14 @@ using TittyMagic.Handlers.Configs;
 using TittyMagic.Models;
 using static TittyMagic.Script;
 using static TittyMagic.ParamName;
+using static TittyMagic.Direction;
 
 namespace TittyMagic.Handlers
 {
     public static class ForcePhysicsHandler
     {
-        private static List<PhysicsParameterGroup> _mainParamGroups;
-        private static List<PhysicsParameterGroup> _softParamGroups;
+        private static Dictionary<string, PhysicsParameterGroup[]> _mainParamGroups;
+        private static Dictionary<string, PhysicsParameterGroup[]> _softParamGroups;
 
         private static TrackBreast _trackLeftBreast;
         private static TrackBreast _trackRightBreast;
@@ -39,7 +40,17 @@ namespace TittyMagic.Handlers
                 var paramGroups = MainPhysicsHandler.parameterGroups;
                 paramGroups[CENTER_OF_GRAVITY_PERCENT].SetForcePhysicsConfigs(NewCenterOfGravityConfigs(), NewCenterOfGravityConfigs());
                 paramGroups[POSITION_DAMPER_Z].SetForcePhysicsConfigs(NewPositionDamperZConfigs(), NewPositionDamperZConfigs());
-                _mainParamGroups = MainPhysicsHandler.parameterGroups.Values.ToList();
+                _mainParamGroups = new Dictionary<string, PhysicsParameterGroup[]>();
+                _mainParamGroups[BACK] = new[]
+                {
+                    paramGroups[CENTER_OF_GRAVITY_PERCENT],
+                    paramGroups[POSITION_DAMPER_Z],
+                };
+                _mainParamGroups[FORWARD] = new[]
+                {
+                    paramGroups[CENTER_OF_GRAVITY_PERCENT],
+                    paramGroups[POSITION_DAMPER_Z],
+                };
             }
 
             if(personIsFemale)
@@ -47,7 +58,15 @@ namespace TittyMagic.Handlers
                 /* Setup soft force physics configs */
                 var paramGroups = SoftPhysicsHandler.parameterGroups;
                 paramGroups[SOFT_VERTICES_SPRING].SetForcePhysicsConfigs(NewSoftVerticesSpringConfigs(), NewSoftVerticesSpringConfigs());
-                _softParamGroups = SoftPhysicsHandler.parameterGroups.Values.ToList();
+                _softParamGroups = new Dictionary<string, PhysicsParameterGroup[]>();
+                _softParamGroups[BACK] = new[]
+                {
+                    paramGroups[SOFT_VERTICES_SPRING],
+                };
+                _softParamGroups[FORWARD] = new[]
+                {
+                    paramGroups[SOFT_VERTICES_SPRING],
+                };
             }
         }
 
@@ -55,7 +74,7 @@ namespace TittyMagic.Handlers
             new Dictionary<string, DynamicPhysicsConfig>
             {
                 {
-                    Direction.BACK, new DynamicPhysicsConfig(
+                    BACK, new DynamicPhysicsConfig(
                         massMultiplier: -0.130f,
                         softnessMultiplier: -0.130f,
                         negative: true,
@@ -65,7 +84,7 @@ namespace TittyMagic.Handlers
                     )
                 },
                 {
-                    Direction.FORWARD, new DynamicPhysicsConfig(
+                    FORWARD, new DynamicPhysicsConfig(
                         massMultiplier: 0.130f,
                         softnessMultiplier: 0.130f,
                         negative: false,
@@ -80,7 +99,7 @@ namespace TittyMagic.Handlers
             new Dictionary<string, DynamicPhysicsConfig>
             {
                 {
-                    Direction.BACK, new DynamicPhysicsConfig(
+                    BACK, new DynamicPhysicsConfig(
                         massMultiplier: 0f,
                         softnessMultiplier: -9f,
                         negative: true,
@@ -89,7 +108,7 @@ namespace TittyMagic.Handlers
                     )
                 },
                 {
-                    Direction.FORWARD, new DynamicPhysicsConfig(
+                    FORWARD, new DynamicPhysicsConfig(
                         massMultiplier: 0f,
                         softnessMultiplier: -9f,
                         negative: true,
@@ -103,7 +122,7 @@ namespace TittyMagic.Handlers
             new Dictionary<string, DynamicPhysicsConfig>
             {
                 {
-                    Direction.BACK, new DynamicPhysicsConfig(
+                    BACK, new DynamicPhysicsConfig(
                         massMultiplier: 0f,
                         softnessMultiplier: -30f,
                         negative: true,
@@ -111,7 +130,7 @@ namespace TittyMagic.Handlers
                     )
                 },
                 {
-                    Direction.FORWARD, new DynamicPhysicsConfig(
+                    FORWARD, new DynamicPhysicsConfig(
                         massMultiplier: 0f,
                         softnessMultiplier: 40f,
                         negative: false,
@@ -150,21 +169,21 @@ namespace TittyMagic.Handlers
             if(_trackLeftBreast.depthDiff <= 0)
             {
                 // forward force on left breast
-                UpdateLeftBreast(Direction.FORWARD, ForwardEffect(_trackLeftBreast.depthDiff));
+                UpdateLeftBreast(FORWARD, ForwardEffect(_trackLeftBreast.depthDiff));
             }
             else
             {
-                ResetLeftBreast(Direction.FORWARD);
+                ResetLeftBreast(FORWARD);
             }
 
             if(_trackRightBreast.depthDiff <= 0)
             {
                 // forward force on right breast
-                UpdateRightBreast(Direction.FORWARD, ForwardEffect(_trackRightBreast.depthDiff));
+                UpdateRightBreast(FORWARD, ForwardEffect(_trackRightBreast.depthDiff));
             }
             else
             {
-                ResetRightBreast(Direction.FORWARD);
+                ResetRightBreast(FORWARD);
             }
         }
 
@@ -178,46 +197,86 @@ namespace TittyMagic.Handlers
             if(_trackLeftBreast.depthDiff > 0)
             {
                 // back force on left breast
-                UpdateLeftBreast(Direction.BACK, BackEffect(_trackLeftBreast.depthDiff));
+                UpdateLeftBreast(BACK, BackEffect(_trackLeftBreast.depthDiff));
             }
             else
             {
-                ResetLeftBreast(Direction.BACK);
+                ResetLeftBreast(BACK);
             }
 
             if(_trackRightBreast.depthDiff > 0)
             {
                 // back force on right breast
-                UpdateRightBreast(Direction.BACK, BackEffect(_trackRightBreast.depthDiff));
+                UpdateRightBreast(BACK, BackEffect(_trackRightBreast.depthDiff));
             }
             else
             {
-                ResetRightBreast(Direction.BACK);
+                ResetRightBreast(BACK);
             }
         }
 
         private static void UpdateLeftBreast(string direction, float effect)
         {
-            _mainParamGroups.ForEach(group => group.left.UpdateForceValue(direction, effect, _mass, _softness));
-            _softParamGroups?.ForEach(group => group.left.UpdateForceValue(direction, effect, _mass, _softness));
+            foreach(var group in _mainParamGroups[direction])
+            {
+                group.left.UpdateForceValue(direction, effect, _mass, _softness);
+            }
+
+            if(_softParamGroups != null)
+            {
+                foreach(var group in _softParamGroups[direction])
+                {
+                    group.left.UpdateForceValue(direction, effect, _mass, _softness);
+                }
+            }
         }
 
         private static void UpdateRightBreast(string direction, float effect)
         {
-            _mainParamGroups.ForEach(group => group.right.UpdateForceValue(direction, effect, _mass, _softness));
-            _softParamGroups?.ForEach(group => group.right.UpdateForceValue(direction, effect, _mass, _softness));
+            foreach(var group in _mainParamGroups[direction])
+            {
+                group.right.UpdateForceValue(direction, effect, _mass, _softness);
+            }
+
+            if(_softParamGroups != null)
+            {
+                foreach(var group in _softParamGroups[direction])
+                {
+                    group.right.UpdateForceValue(direction, effect, _mass, _softness);
+                }
+            }
         }
 
         private static void ResetLeftBreast(string direction)
         {
-            _mainParamGroups.ForEach(group => group.left.ResetForceValue(direction));
-            _softParamGroups?.ForEach(group => group.left.ResetForceValue(direction));
+            foreach(var group in _mainParamGroups[direction])
+            {
+                group.left.ResetForceValue(direction);
+            }
+
+            if(_softParamGroups != null)
+            {
+                foreach(var group in _softParamGroups[direction])
+                {
+                    group.left.ResetForceValue(direction);
+                }
+            }
         }
 
         private static void ResetRightBreast(string direction)
         {
-            _mainParamGroups.ForEach(group => group.right.ResetForceValue(direction));
-            _softParamGroups?.ForEach(group => group.right.ResetForceValue(direction));
+            foreach(var group in _mainParamGroups[direction])
+            {
+                group.right.ResetForceValue(direction);
+            }
+
+            if(_softParamGroups != null)
+            {
+                foreach(var group in _softParamGroups[direction])
+                {
+                    group.right.ResetForceValue(direction);
+                }
+            }
         }
 
         public static void Destroy()

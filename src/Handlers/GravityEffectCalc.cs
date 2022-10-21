@@ -4,6 +4,37 @@ namespace TittyMagic.Handlers
 {
     public static class GravityEffectCalc
     {
+        public static float pectoralRollL { get; private set; }
+        public static float pectoralPitchL { get; private set; }
+        public static float pectoralRollR { get; private set; }
+        public static float pectoralPitchR { get; private set; }
+        public static float chestRoll { get; private set; }
+        public static float chestPitch { get; private set; }
+
+        public static void CalculateAngles(Rigidbody pectoralRbLeft, Rigidbody pectoralRbRight)
+        {
+            var lPectoralRotation = pectoralRbLeft.rotation;
+            var rPectoralRotation = pectoralRbRight.rotation;
+
+            pectoralRollL = Roll(lPectoralRotation);
+            pectoralPitchL = Pitch(lPectoralRotation);
+            pectoralRollR = Roll(rPectoralRotation);
+            pectoralPitchR = Pitch(rPectoralRotation);
+            chestRoll = Roll(MainPhysicsHandler.chestRb.rotation);
+            chestPitch = Pitch(MainPhysicsHandler.chestRb.rotation);
+        }
+
+        private static float Roll(Quaternion q) =>
+            2 * InverseLerpToPi(Mathf.Asin(2 * q.x * q.y + 2 * q.z * q.w));
+
+        private static float Pitch(Quaternion q) =>
+            InverseLerpToPi(Mathf.Atan2(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * q.x * q.x - 2 * q.z * q.z));
+
+        private static float InverseLerpToPi(float val) =>
+            val > 0
+                ? Mathf.InverseLerp(0, Mathf.PI, val)
+                : -Mathf.InverseLerp(0, Mathf.PI, -val);
+
         // div by 2 because softness and mass affect equally
         public static float RollEffect(float roll, float multiplier) =>
             Mathf.Abs(roll) * multiplier / 2;
@@ -24,10 +55,7 @@ namespace TittyMagic.Handlers
         public static float DownEffect(float pitch, float roll, float multiplier) =>
             (2 - Mathf.Abs(pitch) / 2) * RollMultiplier(roll) * multiplier / 2;
 
-        public static float DepthEffect(float pitch, float roll, float multiplier) =>
-            DepthAdjustByAngle(pitch) * RollMultiplier(roll) * multiplier / 2;
-
-        private static float DepthAdjustByAngle(float pitch)
+        public static float DepthAdjustByAngle(float pitch)
         {
             // leaning forward
             if(pitch >= 0)
@@ -53,12 +81,7 @@ namespace TittyMagic.Handlers
             return 2 + pitch;
         }
 
-        public static float UpDownEffect(float pitch, float roll, float multiplier) =>
-            UpDownAdjustByAngle(pitch) *
-            RollMultiplier(roll) *
-            multiplier / 2;
-
-        private static float UpDownAdjustByAngle(float pitch)
+        public static float UpDownAdjustByAngle(float pitch)
         {
             // leaning forward
             if(pitch >= 0)
@@ -87,6 +110,6 @@ namespace TittyMagic.Handlers
         public static float DiffFromHorizontal(float pitch, float roll) =>
             Mathf.Abs(Mathf.Abs(pitch) - 1f) * RollMultiplier(roll);
 
-        private static float RollMultiplier(float roll) => 1 - Mathf.Abs(roll);
+        public static float RollMultiplier(float roll) => 1 - Mathf.Abs(roll);
     }
 }

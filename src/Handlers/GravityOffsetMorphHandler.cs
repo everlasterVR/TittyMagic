@@ -63,16 +63,21 @@ namespace TittyMagic.Handlers
 
         public static void Update()
         {
-            var rotation = MainPhysicsHandler.chestRb.rotation;
-            float roll = Calc.SmoothStep(Calc.Roll(rotation));
-            float pitch = 2 * Calc.SmoothStep(Calc.Pitch(rotation));
+            float roll = Calc.SmoothStep(GravityEffectCalc.chestRoll);
+            float pitch = 2 * Calc.SmoothStep(GravityEffectCalc.chestPitch);
             AdjustUpDownMorphs(roll, pitch);
         }
 
         private static void AdjustUpDownMorphs(float roll, float pitch)
         {
             float multiplier = _upDownExtraMultiplier * GravityPhysicsHandler.downMultiplier;
-            float effect = offsetMorphingJsf.val * GravityEffectCalc.UpDownEffect(pitch, roll, multiplier);
+            float effect =
+                offsetMorphingJsf.val *
+                multiplier *
+                GravityEffectCalc.UpDownAdjustByAngle(pitch) *
+                GravityEffectCalc.RollMultiplier(roll)
+                / 2;
+
             if(pitch > 0)
             {
                 // leaning forward
