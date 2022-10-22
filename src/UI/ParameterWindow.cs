@@ -90,7 +90,9 @@ namespace TittyMagic.UI
 
             /* Offset slider */
             {
-                var storable = _parameter.offsetJsf;
+                var storable = GetId() == ParamName.TARGET_ROTATION_Z
+                    ? GravityPhysicsHandler.targetRotationZJsf
+                    : _parameter.offsetJsf;
                 AddSpacer(storable.name, 10, true);
 
                 var slider = tittyMagic.CreateSlider(storable, true);

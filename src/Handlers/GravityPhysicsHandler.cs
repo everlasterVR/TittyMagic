@@ -17,6 +17,7 @@ namespace TittyMagic.Handlers
         public static JSONStorableFloat forwardJsf { get; private set; }
         public static JSONStorableFloat backJsf { get; private set; }
         public static JSONStorableFloat leftRightJsf { get; private set; }
+        public static JSONStorableFloat targetRotationZJsf { get; private set; }
 
         private static float upMultiplier => baseJsf.val * upJsf.val;
         public static float downMultiplier => baseJsf.val * downJsf.val;
@@ -32,6 +33,7 @@ namespace TittyMagic.Handlers
             forwardJsf = tittyMagic.NewJSONStorableFloat("gravityPhysicsForward", 1.00f, 0.00f, 2.00f);
             backJsf = tittyMagic.NewJSONStorableFloat("gravityPhysicsBack", 1.00f, 0.00f, 2.00f);
             leftRightJsf = tittyMagic.NewJSONStorableFloat("gravityPhysicsLeftRight", 1.00f, 0.00f, 2.00f);
+            targetRotationZJsf = tittyMagic.NewJSONStorableFloat("targetRotationZ", 0.00f, -30.00f, 30.00f);
 
             baseJsf.setCallbackFunction = _ => tittyMagic.calibrationHelper.shouldRun = true;
             upJsf.setCallbackFunction = _ => tittyMagic.calibrationHelper.shouldRun = true;
@@ -49,16 +51,19 @@ namespace TittyMagic.Handlers
             paramGroups[POSITION_SPRING_Z].SetGravityPhysicsConfigs(PositionSpringZConfigs());
             paramGroups[TARGET_ROTATION_X].SetGravityPhysicsConfigs(TargetRotationXConfigs());
             paramGroups[TARGET_ROTATION_Y].SetGravityPhysicsConfigs(TargetRotationYConfigs());
+            paramGroups[TARGET_ROTATION_Z].SetGravityPhysicsConfigs(TargetRotationZConfigs());
             _paramGroups = new Dictionary<string, PhysicsParameterGroup[]>();
             _paramGroups[UP] = new[]
             {
                 paramGroups[SPRING],
                 paramGroups[DAMPER],
                 paramGroups[TARGET_ROTATION_X],
+                paramGroups[TARGET_ROTATION_Z],
             };
             _paramGroups[DOWN] = new[]
             {
                 paramGroups[TARGET_ROTATION_X],
+                paramGroups[TARGET_ROTATION_Z],
             };
             _paramGroups[FORWARD] = new[]
             {
@@ -336,6 +341,44 @@ namespace TittyMagic.Handlers
                 { LEFT, leftConfig },
                 { RIGHT, rightConfig },
             };
+            return new Dictionary<string, Dictionary<string, DynamicPhysicsConfig>>
+            {
+                { Side.LEFT, leftBreast },
+                { Side.RIGHT, rightBreast },
+            };
+        }
+
+        private static DynamicPhysicsConfig NewRotationZConfig() =>
+            new DynamicPhysicsConfig(
+                massMultiplier: 0,
+                softnessMultiplier: 0,
+                applyMethod: ApplyMethod.ADDITIVE
+            )
+            {
+                baseMultiplier = 0,
+            };
+
+        private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> TargetRotationZConfigs()
+        {
+            var leftBreast = new Dictionary<string, DynamicPhysicsConfig>
+            {
+                { UP, NewRotationZConfig() },
+                { DOWN, NewRotationZConfig() },
+            };
+            var rightBreast = new Dictionary<string, DynamicPhysicsConfig>
+            {
+                { UP, NewRotationZConfig() },
+                { DOWN, NewRotationZConfig() },
+            };
+
+            targetRotationZJsf.setCallbackFunction = value =>
+            {
+                leftBreast[UP].baseMultiplier = 2 * -value;
+                leftBreast[DOWN].baseMultiplier = 2 * value;
+                rightBreast[UP].baseMultiplier = 2 * value;
+                rightBreast[DOWN].baseMultiplier = 2 * -value;
+            };
+
             return new Dictionary<string, Dictionary<string, DynamicPhysicsConfig>>
             {
                 { Side.LEFT, leftBreast },

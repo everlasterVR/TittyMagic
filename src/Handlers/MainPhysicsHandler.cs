@@ -258,9 +258,17 @@ namespace TittyMagic.Handlers
 
         private static PhysicsParameter NewTargetRotationZParameter(string side)
         {
-            var parameter = NewPhysicsParameter(TARGET_ROTATION_Z, side, 0, -30.00f, 30.00f);
-            parameter.config = new StaticPhysicsConfig(0.00f);
-            parameter.valueFormat = "F2";
+            string jsfName = $"{TARGET_ROTATION_Z}{(side == LEFT ? "" : side)}";
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0, -30.00f, 30.00f);
+            var parameter = new PhysicsParameter(
+                valueJsf,
+                baseValueJsf: new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
+                offsetJsf: new JSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max)
+            )
+            {
+                config = new StaticPhysicsConfig(0.00f),
+                valueFormat = "F2",
+            };
             return parameter;
         }
 
@@ -346,7 +354,7 @@ namespace TittyMagic.Handlers
             var targetRotationZ = new PhysicsParameterGroup(leftZParam, rightZParam, "Twist Angle Target")
             {
                 requiresRecalibration = true,
-                rightInverted = true,
+                rightInverted = true, // correct but has no effect because offset not adjusted directly
             };
 
             massParameterGroup.SetOffsetCallbackFunctions();
@@ -674,7 +682,7 @@ namespace TittyMagic.Handlers
                 sb.Append(" Negative values pull breasts down, positive values push them up.");
                 sb.Append("\n\n");
                 sb.Append("The offset shifts the center around which the final angle is calculated");
-                sb.Append(" based on chest angle (see Gravity Multipliers)");
+                sb.Append(" based on the person's pose (see Gravity Multipliers).");
                 targetRotationXText = sb.ToString();
             }
 
@@ -691,6 +699,10 @@ namespace TittyMagic.Handlers
             {
                 var sb = new StringBuilder();
                 sb.Append("Forward axis target angle of the pectoral joint.");
+                sb.Append("\n\n");
+                sb.Append("The final value depends on the person's pose. The offset determines the max angle");
+                sb.Append(" when the person is upright. The angle is inverted when upside down and zero when");
+                sb.Append(" horizontal.");
                 targetRotationZtext = sb.ToString();
             }
 
