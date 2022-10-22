@@ -70,10 +70,10 @@ namespace TittyMagic
             }
             else
             {
+                enabled = true;
                 ResetGlossAndSpecularStorables();
                 LoadSettings();
                 CalculateFriction();
-                enabled = true;
             }
         }
 
