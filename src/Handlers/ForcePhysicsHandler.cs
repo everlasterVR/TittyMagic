@@ -38,8 +38,8 @@ namespace TittyMagic.Handlers
             /* Setup main force physics configs */
             {
                 var paramGroups = MainPhysicsHandler.parameterGroups;
-                paramGroups[CENTER_OF_GRAVITY_PERCENT].SetForcePhysicsConfigs(NewCenterOfGravityConfigs(), NewCenterOfGravityConfigs());
-                paramGroups[POSITION_DAMPER_Z].SetForcePhysicsConfigs(NewPositionDamperZConfigs(), NewPositionDamperZConfigs());
+                paramGroups[CENTER_OF_GRAVITY_PERCENT].SetForcePhysicsConfigs(CenterOfGravityConfigs());
+                paramGroups[POSITION_DAMPER_Z].SetForcePhysicsConfigs(PositionDamperZConfigs());
                 _mainParamGroups = new Dictionary<string, PhysicsParameterGroup[]>();
                 _mainParamGroups[BACK] = new[]
                 {
@@ -57,7 +57,7 @@ namespace TittyMagic.Handlers
             {
                 /* Setup soft force physics configs */
                 var paramGroups = SoftPhysicsHandler.parameterGroups;
-                paramGroups[SOFT_VERTICES_SPRING].SetForcePhysicsConfigs(NewSoftVerticesSpringConfigs(), NewSoftVerticesSpringConfigs());
+                paramGroups[SOFT_VERTICES_SPRING].SetForcePhysicsConfigs(SoftVerticesSpringConfigs());
                 _softParamGroups = new Dictionary<string, PhysicsParameterGroup[]>();
                 _softParamGroups[BACK] = new[]
                 {
@@ -70,74 +70,116 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private static Dictionary<string, DynamicPhysicsConfig> NewCenterOfGravityConfigs() =>
-            new Dictionary<string, DynamicPhysicsConfig>
+        private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> CenterOfGravityConfigs()
+        {
+            var backConfig = new DynamicPhysicsConfig(
+                massMultiplier: -0.130f,
+                softnessMultiplier: -0.130f,
+                applyMethod: ApplyMethod.ADDITIVE,
+                massCurve: MainPhysicsHandler.InvertMass,
+                softnessCurve: Curves.ForcePhysicsSoftnessCurve
+            )
             {
-                {
-                    BACK, new DynamicPhysicsConfig(
-                        massMultiplier: -0.130f,
-                        softnessMultiplier: -0.130f,
-                        negative: true,
-                        applyMethod: ApplyMethod.ADDITIVE,
-                        massCurve: MainPhysicsHandler.InvertMass,
-                        softnessCurve: Curves.ForcePhysicsSoftnessCurve
-                    )
-                },
-                {
-                    FORWARD, new DynamicPhysicsConfig(
-                        massMultiplier: 0.130f,
-                        softnessMultiplier: 0.130f,
-                        negative: false,
-                        applyMethod: ApplyMethod.ADDITIVE,
-                        massCurve: MainPhysicsHandler.InvertMass,
-                        softnessCurve: Curves.ForcePhysicsSoftnessCurve
-                    )
-                },
+                negative = true,
             };
+            var forwardConfig = new DynamicPhysicsConfig(
+                massMultiplier: 0.130f,
+                softnessMultiplier: 0.130f,
+                applyMethod: ApplyMethod.ADDITIVE,
+                massCurve: MainPhysicsHandler.InvertMass,
+                softnessCurve: Curves.ForcePhysicsSoftnessCurve
+            )
+            {
+                negative = false,
+            };
+            var leftBreast = new Dictionary<string, DynamicPhysicsConfig>
+            {
+                { BACK, backConfig },
+                { FORWARD, forwardConfig },
+            };
+            var rightBreast = new Dictionary<string, DynamicPhysicsConfig>
+            {
+                { BACK, backConfig },
+                { FORWARD, forwardConfig },
+            };
+            return new Dictionary<string, Dictionary<string, DynamicPhysicsConfig>>
+            {
+                { Side.LEFT, leftBreast },
+                { Side.RIGHT, rightBreast },
+            };
+        }
 
-        private static Dictionary<string, DynamicPhysicsConfig> NewPositionDamperZConfigs() =>
-            new Dictionary<string, DynamicPhysicsConfig>
+        private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> PositionDamperZConfigs()
+        {
+            var backConfig = new DynamicPhysicsConfig(
+                massMultiplier: 0f,
+                softnessMultiplier: -9f,
+                applyMethod: ApplyMethod.ADDITIVE,
+                softnessCurve: Curves.ForcePhysicsSoftnessCurve
+            )
             {
-                {
-                    BACK, new DynamicPhysicsConfig(
-                        massMultiplier: 0f,
-                        softnessMultiplier: -9f,
-                        negative: true,
-                        applyMethod: ApplyMethod.ADDITIVE,
-                        softnessCurve: Curves.ForcePhysicsSoftnessCurve
-                    )
-                },
-                {
-                    FORWARD, new DynamicPhysicsConfig(
-                        massMultiplier: 0f,
-                        softnessMultiplier: -9f,
-                        negative: true,
-                        applyMethod: ApplyMethod.ADDITIVE,
-                        softnessCurve: Curves.ForcePhysicsSoftnessCurve
-                    )
-                },
+                negative = true,
             };
+            var forwardConfig = new DynamicPhysicsConfig(
+                massMultiplier: 0f,
+                softnessMultiplier: -9f,
+                applyMethod: ApplyMethod.ADDITIVE,
+                softnessCurve: Curves.ForcePhysicsSoftnessCurve
+            )
+            {
+                negative = true,
+            };
+            var leftBreast = new Dictionary<string, DynamicPhysicsConfig>
+            {
+                { BACK, backConfig },
+                { FORWARD, forwardConfig },
+            };
+            var rightBreast = new Dictionary<string, DynamicPhysicsConfig>
+            {
+                { BACK, backConfig },
+                { FORWARD, forwardConfig },
+            };
+            return new Dictionary<string, Dictionary<string, DynamicPhysicsConfig>>
+            {
+                { Side.LEFT, leftBreast },
+                { Side.RIGHT, rightBreast },
+            };
+        }
 
-        private static Dictionary<string, DynamicPhysicsConfig> NewSoftVerticesSpringConfigs() =>
-            new Dictionary<string, DynamicPhysicsConfig>
+        private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> SoftVerticesSpringConfigs()
+        {
+            var backConfig = new DynamicPhysicsConfig(
+                massMultiplier: 0f,
+                softnessMultiplier: -30f,
+                applyMethod: ApplyMethod.ADDITIVE
+            )
             {
-                {
-                    BACK, new DynamicPhysicsConfig(
-                        massMultiplier: 0f,
-                        softnessMultiplier: -30f,
-                        negative: true,
-                        applyMethod: ApplyMethod.ADDITIVE
-                    )
-                },
-                {
-                    FORWARD, new DynamicPhysicsConfig(
-                        massMultiplier: 0f,
-                        softnessMultiplier: 40f,
-                        negative: false,
-                        applyMethod: ApplyMethod.ADDITIVE
-                    )
-                },
+                negative = true,
             };
+            var forwardConfig = new DynamicPhysicsConfig(
+                massMultiplier: 0f,
+                softnessMultiplier: 40f,
+                applyMethod: ApplyMethod.ADDITIVE
+            )
+            {
+                negative = true,
+            };
+            var leftBreast = new Dictionary<string, DynamicPhysicsConfig>
+            {
+                { BACK, backConfig },
+                { FORWARD, forwardConfig },
+            };
+            var rightBreast = new Dictionary<string, DynamicPhysicsConfig>
+            {
+                { BACK, backConfig },
+                { FORWARD, forwardConfig },
+            };
+            return new Dictionary<string, Dictionary<string, DynamicPhysicsConfig>>
+            {
+                { Side.LEFT, leftBreast },
+                { Side.RIGHT, rightBreast },
+            };
+        }
 
         private static float _forwardMultiplier;
         private static float _backMultiplier;

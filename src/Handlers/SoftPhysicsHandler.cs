@@ -612,7 +612,7 @@ namespace TittyMagic.Handlers
             )
             {
                 usesRealMass = true,
-                allowsSoftColliderVisualization = true,
+                hasSoftColliderVisualization = true,
             };
 
             var softVerticesColliderAdditionalNormalOffset = new PhysicsParameterGroup(
@@ -621,7 +621,7 @@ namespace TittyMagic.Handlers
                 "Fat Collider Depth"
             )
             {
-                allowsSoftColliderVisualization = true,
+                hasSoftColliderVisualization = true,
             };
 
             var softVerticesDistanceLimit = new PhysicsParameterGroup(

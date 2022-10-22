@@ -20,7 +20,7 @@ namespace TittyMagic.Models
 
         public bool usesRealMass { get; set; }
         public bool requiresRecalibration { get; set; }
-        public bool allowsSoftColliderVisualization { get; set; }
+        public bool hasSoftColliderVisualization { get; set; }
         public bool rightInverted { get; set; }
         public JSONStorableBool offsetOnlyLeftBreastJsb { get; }
 
@@ -94,22 +94,16 @@ namespace TittyMagic.Models
             right.UpdateNippleErectionGroupValues(massValue, softness, nippleErection);
         }
 
-        public void SetGravityPhysicsConfigs(
-            Dictionary<string, DynamicPhysicsConfig> leftConfigs,
-            Dictionary<string, DynamicPhysicsConfig> rightConfigs
-        )
+        public void SetGravityPhysicsConfigs(Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> configs)
         {
-            left.gravityPhysicsConfigs = leftConfigs;
-            right.gravityPhysicsConfigs = rightConfigs;
+            left.gravityPhysicsConfigs = configs[Side.LEFT];
+            right.gravityPhysicsConfigs = configs[Side.RIGHT];
         }
 
-        public void SetForcePhysicsConfigs(
-            Dictionary<string, DynamicPhysicsConfig> leftConfigs,
-            Dictionary<string, DynamicPhysicsConfig> rightConfigs
-        )
+        public void SetForcePhysicsConfigs(Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> configs)
         {
-            left.forcePhysicsConfigs = leftConfigs;
-            right.forcePhysicsConfigs = rightConfigs;
+            left.forcePhysicsConfigs = configs[Side.LEFT];
+            right.forcePhysicsConfigs = configs[Side.RIGHT];
         }
 
         public void SetFrictionConfig(DynamicPhysicsConfig leftConfig, DynamicPhysicsConfig rightConfig)

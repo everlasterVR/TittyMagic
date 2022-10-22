@@ -38,24 +38,24 @@ namespace TittyMagic.Handlers
                     SoftColliderGroup.NIPPLE, new DynamicPhysicsConfig(
                         massMultiplier: 0.5f,
                         softnessMultiplier: 0.0f,
-                        negative: false,
                         applyMethod: ApplyMethod.MULTIPLICATIVE,
                         massCurve: MainPhysicsHandler.InvertMass
                     )
                     {
                         baseMultiplier = 0.5f,
+                        negative = false,
                     }
                 },
                 {
                     SoftColliderGroup.AREOLA, new DynamicPhysicsConfig(
                         massMultiplier: 0.25f,
                         softnessMultiplier: 0.00f,
-                        negative: false,
                         applyMethod: ApplyMethod.MULTIPLICATIVE,
                         massCurve: MainPhysicsHandler.InvertMass
                     )
                     {
                         baseMultiplier = 0.25f,
+                        negative = false,
                     }
                 },
             };
@@ -67,24 +67,24 @@ namespace TittyMagic.Handlers
                     SoftColliderGroup.NIPPLE, new DynamicPhysicsConfig(
                         massMultiplier: 0.5f,
                         softnessMultiplier: 0.0f,
-                        negative: false,
                         applyMethod: ApplyMethod.MULTIPLICATIVE,
                         massCurve: MainPhysicsHandler.InvertMass
                     )
                     {
                         baseMultiplier = 0.5f,
+                        negative = false,
                     }
                 },
                 {
                     SoftColliderGroup.AREOLA, new DynamicPhysicsConfig(
                         massMultiplier: 0.25f,
                         softnessMultiplier: 0.00f,
-                        negative: false,
                         applyMethod: ApplyMethod.MULTIPLICATIVE,
                         massCurve: MainPhysicsHandler.InvertMass
                     )
                     {
                         baseMultiplier = 0.25f,
+                        negative = false,
                     }
                 },
             };

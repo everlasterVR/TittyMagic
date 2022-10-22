@@ -52,7 +52,7 @@ namespace TittyMagic.UI
             {
                 CreateRecalibrateButton(recalibrationAction, true);
             }
-            else if(_parameterGroup.allowsSoftColliderVisualization)
+            else if(_parameterGroup.hasSoftColliderVisualization)
             {
                 /* Visualization toggle */
                 var storable = SoftPhysicsHandler.showSoftVerticesColliderPreviewsJsb;
@@ -105,7 +105,7 @@ namespace TittyMagic.UI
                     }
                 });
 
-                if(_parameterGroup.allowsSoftColliderVisualization)
+                if(_parameterGroup.hasSoftColliderVisualization)
                 {
                     slider.AddPointerUpDownListener(
                         SoftPhysicsHandler.HidePreviewsOnPointerDown,
@@ -137,7 +137,7 @@ namespace TittyMagic.UI
 
         protected override void OnClose()
         {
-            if(_parameterGroup.allowsSoftColliderVisualization)
+            if(_parameterGroup.hasSoftColliderVisualization)
             {
                 _visualizer.ShowPreviewsJSON.val = false;
                 _visualizer.enabled = false;
@@ -181,7 +181,7 @@ namespace TittyMagic.UI
                 elements[groupParam.valueJsf.name] = slider;
             }
 
-            if(_parameterGroup.allowsSoftColliderVisualization)
+            if(_parameterGroup.hasSoftColliderVisualization)
             {
                 var slider = (UIDynamicSlider) elements[groupParam.offsetJsf.name];
                 slider.AddPointerUpDownListener(

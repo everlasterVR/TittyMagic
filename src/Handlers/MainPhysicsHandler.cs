@@ -245,7 +245,6 @@ namespace TittyMagic.Handlers
             var parameter = NewPhysicsParameter(TARGET_ROTATION_Y, side, 0, -20.00f, 20.00f);
             parameter.config = new StaticPhysicsConfig(0.00f);
             parameter.valueFormat = "F2";
-            parameter.sync = value => SyncTargetRotationY(side, value);
             return parameter;
         }
 
@@ -254,7 +253,6 @@ namespace TittyMagic.Handlers
             var parameter = NewPhysicsParameter(TARGET_ROTATION_X, side, 0, -20.00f, 20.00f);
             parameter.config = new StaticPhysicsConfig(0.00f);
             parameter.valueFormat = "F2";
-            parameter.sync = value => SyncTargetRotationX(side, value);
             return parameter;
         }
 
@@ -263,7 +261,6 @@ namespace TittyMagic.Handlers
             var parameter = NewPhysicsParameter(TARGET_ROTATION_Z, side, 0, -30.00f, 30.00f);
             parameter.config = new StaticPhysicsConfig(0.00f);
             parameter.valueFormat = "F2";
-            parameter.sync = value => SyncTargetRotationZ(side, value);
             return parameter;
         }
 
@@ -323,30 +320,30 @@ namespace TittyMagic.Handlers
                 dependsOnPhysicsRate = true,
             };
 
-            var targetRotationY = new PhysicsParameterGroup(
-                NewTargetRotationYParameter(LEFT),
-                NewTargetRotationYParameter(RIGHT),
-                "Right/Left Angle Target"
-            )
+            var leftXParam = NewTargetRotationXParameter(LEFT);
+            var leftYParam = NewTargetRotationYParameter(LEFT);
+            var leftZParam = NewTargetRotationZParameter(LEFT);
+            leftXParam.sync = x => SyncTargetRotation(LEFT, x, leftYParam.valueJsf.val, leftZParam.valueJsf.val);
+            //y and z have no sync callback, handled by x sync as a side effect
+
+            var rightXParam = NewTargetRotationXParameter(RIGHT);
+            var rightYParam = NewTargetRotationYParameter(RIGHT);
+            var rightZParam = NewTargetRotationZParameter(RIGHT);
+            rightXParam.sync = x => SyncTargetRotation(RIGHT, x, rightYParam.valueJsf.val, rightZParam.valueJsf.val);
+            //y and z have no sync callback, handled by x sync as a side effect
+
+            var targetRotationX = new PhysicsParameterGroup(leftXParam, rightXParam, "Up/Down Angle Target")
+            {
+                requiresRecalibration = true,
+            };
+
+            var targetRotationY = new PhysicsParameterGroup(leftYParam, rightYParam, "Right/Left Angle Target")
             {
                 requiresRecalibration = true,
                 rightInverted = true,
             };
 
-            var targetRotationX = new PhysicsParameterGroup(
-                NewTargetRotationXParameter(LEFT),
-                NewTargetRotationXParameter(RIGHT),
-                "Up/Down Angle Target"
-            )
-            {
-                requiresRecalibration = true,
-            };
-
-            var targetRotationZ = new PhysicsParameterGroup(
-                NewTargetRotationZParameter(LEFT),
-                NewTargetRotationZParameter(RIGHT),
-                "Twist Angle Target"
-            )
+            var targetRotationZ = new PhysicsParameterGroup(leftZParam, rightZParam, "Twist Angle Target")
             {
                 requiresRecalibration = true,
                 rightInverted = true,
@@ -532,8 +529,7 @@ namespace TittyMagic.Handlers
             rb.WakeUp();
         }
 
-        // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
-        private static void SyncTargetRotationX(string side, float targetRotationX)
+        private static void SyncTargetRotation(string side, float targetRotationX, float targetRotationY, float targetRotationZ)
         {
             if(!tittyMagic.enabled)
             {
@@ -542,59 +538,20 @@ namespace TittyMagic.Handlers
 
             if(side == LEFT)
             {
-                breastControl.smoothedJoint2TargetRotation.x = targetRotationX;
                 var rotation = breastControl.smoothedJoint2TargetRotation;
-                rotation.x = -rotation.x;
+                rotation.x = -targetRotationX;
+                rotation.y = -targetRotationY;
+                rotation.z = targetRotationZ;
+                breastControl.smoothedJoint2TargetRotation = rotation;
                 _dazBones[side].baseJointRotation = rotation;
             }
             else if(side == RIGHT)
             {
-                breastControl.smoothedJoint1TargetRotation.x = targetRotationX;
                 var rotation = breastControl.smoothedJoint1TargetRotation;
-                rotation.x = -rotation.x;
-                _dazBones[side].baseJointRotation = rotation;
-            }
-        }
-
-        // Reimplements AdjustJoints.cs methods SyncTargetRotation and SetTargetRotation
-        private static void SyncTargetRotationY(string side, float targetRotationY)
-        {
-            if(!tittyMagic.enabled)
-            {
-                return;
-            }
-
-            if(side == LEFT)
-            {
-                breastControl.smoothedJoint2TargetRotation.y = -targetRotationY;
-                var rotation = breastControl.smoothedJoint2TargetRotation;
-                _dazBones[side].baseJointRotation = rotation;
-            }
-            else if(side == RIGHT)
-            {
-                breastControl.smoothedJoint1TargetRotation.y = -targetRotationY;
-                var rotation = breastControl.smoothedJoint1TargetRotation;
-                _dazBones[side].baseJointRotation = rotation;
-            }
-        }
-
-        private static void SyncTargetRotationZ(string side, float targetRotationZ)
-        {
-            if(!tittyMagic.enabled)
-            {
-                return;
-            }
-
-            if(side == LEFT)
-            {
-                breastControl.smoothedJoint2TargetRotation.z = targetRotationZ;
-                var rotation = breastControl.smoothedJoint2TargetRotation;
-                _dazBones[side].baseJointRotation = rotation;
-            }
-            else if(side == RIGHT)
-            {
-                breastControl.smoothedJoint1TargetRotation.z = targetRotationZ;
-                var rotation = breastControl.smoothedJoint1TargetRotation;
+                rotation.x = -targetRotationX;
+                rotation.y = -targetRotationY;
+                rotation.z = targetRotationZ;
+                breastControl.smoothedJoint1TargetRotation = rotation;
                 _dazBones[side].baseJointRotation = rotation;
             }
         }
