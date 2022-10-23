@@ -32,10 +32,10 @@ namespace TittyMagic.Handlers
 
         // hack. 1.5f because 3f is the max mass and massValue is actual mass / 2
         public static float InvertMass(float x) => 1.5f - x;
-        public static float normalizedMass => Mathf.InverseLerp(0, 1.45f, massAmount);
-        public static float normalizedRealMass => Mathf.InverseLerp(0, 1.50f, realMassAmount);
-        public static float normalizedInvertedMass => Mathf.InverseLerp(0, 1.45f, InvertMass(massAmount));
-        public static float normalizedInvertedRealMass => Mathf.InverseLerp(0, 1.45f, InvertMass(realMassAmount));
+        public static float NormalizeMass(float x) => Mathf.InverseLerp(0, 1.45f, x);
+        public static float normalizedMass => NormalizeMass(massAmount);
+        public static float normalizedInvertedMass => NormalizeMass(InvertMass(massAmount));
+        public static float normalizedInvertedRealMass => NormalizeMass(InvertMass(realMassAmount));
 
         public static MassParameterGroup massParameterGroup { get; private set; }
 
@@ -222,9 +222,9 @@ namespace TittyMagic.Handlers
         {
             var parameter = NewPhysicsParameter(POSITION_SPRING_Z, side, 0, 0, 1000);
             parameter.config = new StaticPhysicsConfig(
-                690f,
-                massCurve: x => -0.25f * InvertMass(x),
-                softnessCurve: x => -0.26f * Curves.SpringZSoftnessCurve(x)
+                720f,
+                massCurve: x => -0.14f * InvertMass(x),
+                softnessCurve: x => -0.45f * x
             );
             parameter.valueFormat = "F0";
             parameter.sync = value => SyncJointPositionZDriveSpring(_joints[side], _pectoralRbs[side], value);

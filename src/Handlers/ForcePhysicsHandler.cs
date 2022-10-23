@@ -112,8 +112,8 @@ namespace TittyMagic.Handlers
         private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> PositionDamperZConfigs()
         {
             var backConfig = new DynamicPhysicsConfig(
-                massMultiplier: 0f,
-                softnessMultiplier: -9f,
+                massMultiplier: 4f,
+                softnessMultiplier: -8f,
                 applyMethod: ApplyMethod.ADDITIVE,
                 softnessCurve: Curves.ForcePhysicsSoftnessCurve
             )
@@ -121,8 +121,8 @@ namespace TittyMagic.Handlers
                 negative = true,
             };
             var forwardConfig = new DynamicPhysicsConfig(
-                massMultiplier: 0f,
-                softnessMultiplier: -9f,
+                massMultiplier: 4f,
+                softnessMultiplier: -8f,
                 applyMethod: ApplyMethod.ADDITIVE,
                 softnessCurve: Curves.ForcePhysicsSoftnessCurve
             )

@@ -395,7 +395,7 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            float mass = MainPhysicsHandler.normalizedRealMass;
+            float mass = Mathf.InverseLerp(0, 1.50f, MainPhysicsHandler.realMassAmount);
             float softness = tittyMagic.softnessAmount;
             hardColliderGroups.ForEach(group =>
             {

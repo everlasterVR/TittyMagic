@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using TittyMagic.Handlers.Configs;
 using TittyMagic.Models;
 using static TittyMagic.Script;
@@ -233,24 +234,28 @@ namespace TittyMagic.Handlers
 
         private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> PositionSpringZConfigs()
         {
+            Func<float, float> normalizeInvertMass = x => MainPhysicsHandler.NormalizeMass(MainPhysicsHandler.InvertMass(x));
             var backConfig = new DynamicPhysicsConfig(
-                massMultiplier: -230f,
-                softnessMultiplier: -170f,
+                massMultiplier: -125f,
+                softnessMultiplier: -50f,
                 applyMethod: ApplyMethod.ADDITIVE,
-                massCurve: MainPhysicsHandler.InvertMass,
+                // https://www.desmos.com/calculator/po08nsvnfa
+                massCurve: x => Curves.Exponential1(normalizeInvertMass(x), 0.3f, 10f, 0.84f, a: 1.01f),
                 softnessCurve: Curves.SpringZSoftnessCurve
             )
             {
+                baseMultiplier = -125f,
                 negative = true,
             };
             var forwardConfig = new DynamicPhysicsConfig(
-                massMultiplier: -230f,
-                softnessMultiplier: -170f,
+                massMultiplier: -125f,
+                softnessMultiplier: -50f,
                 applyMethod: ApplyMethod.ADDITIVE,
-                massCurve: MainPhysicsHandler.InvertMass,
+                massCurve: x => Curves.Exponential1(normalizeInvertMass(x), 0.3f, 10f, 0.84f, a: 1.01f),
                 softnessCurve: Curves.SpringZSoftnessCurve
             )
             {
+                baseMultiplier = -125f,
                 negative = true,
             };
             var leftBreast = new Dictionary<string, DynamicPhysicsConfig>
