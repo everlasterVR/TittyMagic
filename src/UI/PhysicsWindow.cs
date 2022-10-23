@@ -72,7 +72,7 @@ namespace TittyMagic.UI
                 var sb = new StringBuilder();
                 if(personIsFemale)
                 {
-                    sb.Append("Physics of each breast's soft tissue is simulated with 111 small colliders and their associated joints.");
+                    sb.Append("The physics of each breast's soft tissue is simulated with 111 small colliders and their associated joints.");
                 }
                 else
                 {

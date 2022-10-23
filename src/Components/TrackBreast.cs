@@ -15,7 +15,7 @@ namespace TittyMagic.Components
         private Vector3 _relativePosition;
         private Vector2 _breastAngleXBaseVector;
         private Vector2 _breastAngleYBaseVector;
-        protected float breastDepthBase;
+        private float _breastDepthBase;
 
         protected Func<Vector3> calculateBreastRelativePosition;
         protected Func<float> calculateBreastRelativeAngleX;
@@ -38,7 +38,7 @@ namespace TittyMagic.Components
             _relativePosition = calculateBreastRelativePosition();
             _breastAngleXBaseVector = new Vector2(_relativePosition.z, _relativePosition.x);
             _breastAngleYBaseVector = new Vector2(_relativePosition.z, _relativePosition.y);
-            breastDepthBase = calculateBreastRelativeDepth();
+            _breastDepthBase = calculateBreastRelativeDepth();
         }
 
         public void Update()
@@ -46,7 +46,7 @@ namespace TittyMagic.Components
             _relativePosition = calculateBreastRelativePosition();
             angleX = calculateBreastRelativeAngleX();
             angleY = calculateBreastRelativeAngleY();
-            depthDiff = breastDepthBase - calculateBreastRelativeDepth();
+            depthDiff = _breastDepthBase - calculateBreastRelativeDepth();
         }
 
         public void Reset()

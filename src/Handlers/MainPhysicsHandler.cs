@@ -645,7 +645,7 @@ namespace TittyMagic.Handlers
                 var sb = new StringBuilder();
                 sb.Append("Magnitude of the spring that pushes the pectoral joint towards its angle target.");
                 sb.Append("\n\n");
-                sb.Append("The angle target is defined by the Up/Down and Left/Right Angle Target parameters.");
+                sb.Append("The angle target is defined by the Up/Down, Left/Right and Twist Angle Target parameters.");
                 springText = sb.ToString();
             }
 
