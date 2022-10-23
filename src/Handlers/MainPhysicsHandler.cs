@@ -153,25 +153,26 @@ namespace TittyMagic.Handlers
         {
             string jsfName = $"{MASS}{(side == LEFT ? "" : side)}";
             var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.100f, 0.100f, 3.000f);
-            var parameter = new MassParameter(
-                valueJsf,
-                baseValueJsf: new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
-                offsetJsf: tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, shouldRegister: side == LEFT)
-            );
-            parameter.valueFormat = "F3";
-            parameter.sync = value => SyncMass(_pectoralRbs[side], value);
-            return parameter;
+            return new MassParameter
+            {
+                valueJsf = valueJsf,
+                baseValueJsf = new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
+                offsetJsf = tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, shouldRegister: side == LEFT),
+                valueFormat = "F3",
+                sync = value => SyncMass(_pectoralRbs[side], value),
+            };
         }
 
         private static PhysicsParameter NewPhysicsParameter(string paramName, string side, float startingValue, float minValue, float maxValue)
         {
             string jsfName = $"{paramName}{(side == LEFT ? "" : side)}";
             var valueJsf = new JSONStorableFloat($"{jsfName}Value", startingValue, minValue, maxValue);
-            return new PhysicsParameter(
-                valueJsf,
-                baseValueJsf: new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
-                offsetJsf: tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, shouldRegister: side == LEFT)
-            );
+            return new PhysicsParameter
+            {
+                valueJsf = valueJsf,
+                baseValueJsf = new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
+                offsetJsf = tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, shouldRegister: side == LEFT),
+            };
         }
 
         private static PhysicsParameter NewCenterOfGravityParameter(string side)
@@ -285,76 +286,62 @@ namespace TittyMagic.Handlers
 
         private static PhysicsParameter NewTargetRotationZParameter(string side)
         {
-            string jsfName = $"{TARGET_ROTATION_Z}{(side == LEFT ? "" : side)}";
-            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0, -30.00f, 30.00f);
-            var parameter = new PhysicsParameter(
-                valueJsf,
-                baseValueJsf: new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
-                offsetJsf: new JSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max)
-            )
+            var parameter = NewPhysicsParameter(TARGET_ROTATION_Z, side, 0, -30.00f, 30.00f);
+            parameter.config = new StaticPhysicsConfig
             {
-                config = new StaticPhysicsConfig
-                {
-                    baseValue = 0.00f,
-                },
-                valueFormat = "F2",
+                baseValue = 0.00f,
             };
+            parameter.valueFormat = "F2";
             return parameter;
         }
 
         private static void SetupPhysicsParameterGroups()
         {
-            massParameterGroup = new MassParameterGroup(
-                NewMassParameter(LEFT),
-                NewMassParameter(RIGHT),
-                "Breast Mass"
-            )
+            massParameterGroup = new MassParameterGroup
             {
+                displayName = "Breast Mass",
+                left = NewMassParameter(LEFT),
+                right = NewMassParameter(RIGHT),
                 requiresCalibration = true,
             };
 
-            var centerOfGravityPercent = new PhysicsParameterGroup(
-                NewCenterOfGravityParameter(LEFT),
-                NewCenterOfGravityParameter(RIGHT),
-                "Center Of Gravity"
-            )
+            var centerOfGravityPercent = new PhysicsParameterGroup
             {
+                displayName = "Center Of Gravity",
+                left = NewCenterOfGravityParameter(LEFT),
+                right = NewCenterOfGravityParameter(RIGHT),
                 requiresCalibration = true,
             };
 
-            var spring = new PhysicsParameterGroup(
-                NewSpringParameter(LEFT),
-                NewSpringParameter(RIGHT),
-                "Spring"
-            )
+            var spring = new PhysicsParameterGroup
             {
+                displayName = "Spring",
+                left = NewSpringParameter(LEFT),
+                right = NewSpringParameter(RIGHT),
                 requiresCalibration = true,
             };
 
-            var damper = new PhysicsParameterGroup(
-                NewDamperParameter(LEFT),
-                NewDamperParameter(RIGHT),
-                "Damper"
-            )
+            var damper = new PhysicsParameterGroup
             {
+                displayName = "Damper",
+                left = NewDamperParameter(LEFT),
+                right = NewDamperParameter(RIGHT),
                 dependsOnPhysicsRate = true,
             };
 
-            var positionSpringZ = new PhysicsParameterGroup(
-                NewPositionSpringZParameter(LEFT),
-                NewPositionSpringZParameter(RIGHT),
-                "In/Out Spring"
-            )
+            var positionSpringZ = new PhysicsParameterGroup
             {
+                displayName = "In/Out Spring",
+                left = NewPositionSpringZParameter(LEFT),
+                right = NewPositionSpringZParameter(RIGHT),
                 requiresCalibration = true,
             };
 
-            var positionDamperZ = new PhysicsParameterGroup(
-                NewPositionDamperZParameter(LEFT),
-                NewPositionDamperZParameter(RIGHT),
-                "In/Out Damper"
-            )
+            var positionDamperZ = new PhysicsParameterGroup
             {
+                displayName = "In/Out Damper",
+                left = NewPositionDamperZParameter(LEFT),
+                right = NewPositionDamperZParameter(RIGHT),
                 dependsOnPhysicsRate = true,
             };
 
@@ -370,19 +357,28 @@ namespace TittyMagic.Handlers
             rightXParam.sync = x => SyncTargetRotation(RIGHT, x, rightYParam.valueJsf.val, rightZParam.valueJsf.val);
             //y and z have no sync callback, handled by x sync as a side effect
 
-            var targetRotationX = new PhysicsParameterGroup(leftXParam, rightXParam, "Up/Down Angle Target")
+            var targetRotationX = new PhysicsParameterGroup
             {
+                displayName = "Up/Down Angle Target",
+                left = leftXParam,
+                right = rightXParam,
                 requiresCalibration = true,
             };
 
-            var targetRotationY = new PhysicsParameterGroup(leftYParam, rightYParam, "Right/Left Angle Target")
+            var targetRotationY = new PhysicsParameterGroup
             {
+                displayName = "Right/Left Angle Target",
+                left = leftYParam,
+                right = rightYParam,
                 requiresCalibration = true,
                 rightInverted = true,
             };
 
-            var targetRotationZ = new PhysicsParameterGroup(leftZParam, rightZParam, "Twist Angle Target")
+            var targetRotationZ = new PhysicsParameterGroup
             {
+                displayName = "Twist Angle Target",
+                left = leftZParam,
+                right = rightZParam,
                 requiresCalibration = true,
                 rightInverted = true, // correct but has no effect because offset not adjusted directly
             };

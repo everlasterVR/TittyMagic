@@ -8,11 +8,6 @@ namespace TittyMagic.Models
         public DynamicPhysicsConfig nippleErectionConfig { get; set; }
         private float _nippleErectionMultiplier = 1;
 
-        public SoftGroupPhysicsParameter(JSONStorableFloat valueJsf, JSONStorableFloat baseValueJsf, JSONStorableFloat offsetJsf)
-            : base(valueJsf, baseValueJsf, offsetJsf)
-        {
-        }
-
         public void Sync()
         {
             float baseValue = _nippleErectionMultiplier * baseValueJsf.val;
@@ -46,7 +41,7 @@ namespace TittyMagic.Models
                 return;
             }
 
-            float nippleErectionValue = nippleErectionConfig.CalculateNippleGroupValue(nippleErection, massValue, softness);
+            float nippleErectionValue = nippleErectionConfig.Calculate(nippleErection, massValue, softness);
             switch(nippleErectionConfig.applyMethod)
             {
                 case ApplyMethod.MULTIPLICATIVE:

@@ -5,7 +5,7 @@ namespace TittyMagic.Models
 {
     public class PhysicsParameterGroup
     {
-        public string displayName { get; }
+        public string displayName { get; set; }
         public string infoText { get; set; }
 
         public bool dependsOnPhysicsRate
@@ -24,14 +24,11 @@ namespace TittyMagic.Models
         public bool rightInverted { get; set; }
         public JSONStorableBool offsetOnlyLeftBreastJsb { get; }
 
-        public PhysicsParameter left { get; }
-        public PhysicsParameter right { get; }
+        public PhysicsParameter left { get; set; }
+        public PhysicsParameter right { get; set; }
 
-        public PhysicsParameterGroup(PhysicsParameter left, PhysicsParameter right, string displayName)
+        public PhysicsParameterGroup()
         {
-            this.left = left;
-            this.right = right;
-            this.displayName = displayName;
             offsetOnlyLeftBreastJsb = new JSONStorableBool("offsetOnlyLeftBreast", false);
         }
 

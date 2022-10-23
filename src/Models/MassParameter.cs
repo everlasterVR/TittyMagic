@@ -2,11 +2,6 @@ namespace TittyMagic.Models
 {
     public class MassParameter : PhysicsParameter
     {
-        public MassParameter(JSONStorableFloat valueJsf, JSONStorableFloat baseValueJsf, JSONStorableFloat offsetJsf)
-            : base(valueJsf, baseValueJsf, offsetJsf)
-        {
-        }
-
         private void Sync()
         {
             float value = offsetJsf.val + baseValueJsf.val;

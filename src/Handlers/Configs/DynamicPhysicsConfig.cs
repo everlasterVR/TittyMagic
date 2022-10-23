@@ -22,19 +22,8 @@ namespace TittyMagic.Handlers.Configs
         {
             float value = effect * (
                 baseMultiplier +
-                softnessCurve(softness) * softnessMultiplier +
-                massCurve(mass) * massMultiplier
-            );
-
-            return negative.HasValue ? LimitToRange(value, negative.Value) : value;
-        }
-
-        public float CalculateNippleGroupValue(float effect, float mass, float softness)
-        {
-            float value = effect * (
-                baseMultiplier +
-                softnessCurve(softness) * softnessMultiplier +
-                massCurve(mass) * massMultiplier
+                softnessMultiplier * softnessCurve(softness) +
+                massMultiplier * massCurve(mass)
             );
 
             return negative.HasValue ? LimitToRange(value, negative.Value) : value;

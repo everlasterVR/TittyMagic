@@ -16,6 +16,8 @@ namespace TittyMagic.Handlers.Configs
         }
 
         public float Calculate(float mass, float softness) =>
-            baseValue * (1 + massCurve(mass) + softnessCurve(softness));
+            baseValue +
+            baseValue * massCurve(mass) +
+            baseValue * softnessCurve(softness);
     }
 }

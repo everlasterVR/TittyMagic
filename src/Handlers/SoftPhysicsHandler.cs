@@ -227,11 +227,12 @@ namespace TittyMagic.Handlers
         {
             string jsfName = $"{paramName}{(side == LEFT ? "" : side)}";
             var valueJsf = new JSONStorableFloat($"{jsfName}Value", startingValue, minValue, maxValue);
-            return new PhysicsParameter(
-                valueJsf,
-                baseValueJsf: new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
-                offsetJsf: tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, shouldRegister: side == LEFT)
-            );
+            return new PhysicsParameter
+            {
+                valueJsf = valueJsf,
+                baseValueJsf = new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
+                offsetJsf = tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, shouldRegister: side == LEFT),
+            };
         }
 
         private static SoftGroupPhysicsParameter NewSoftGroupPhysicsParameter(
@@ -244,11 +245,12 @@ namespace TittyMagic.Handlers
         {
             string jsfName = $"{paramName}{(side == LEFT ? "" : side)}{group}";
             var valueJsf = new JSONStorableFloat($"{jsfName}Value", 1, min, max);
-            return new SoftGroupPhysicsParameter(
-                valueJsf,
-                baseValueJsf: new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
-                offsetJsf: tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, shouldRegister: side == LEFT)
-            );
+            return new SoftGroupPhysicsParameter
+            {
+                valueJsf = valueJsf,
+                baseValueJsf = new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
+                offsetJsf = tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, shouldRegister: side == LEFT),
+            };
         }
 
         private static PhysicsParameter NewSpringParameter(string side)
@@ -330,12 +332,7 @@ namespace TittyMagic.Handlers
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                {
-                    MAIN, new StaticPhysicsConfig
-                    {
-                        baseValue = 1.00f,
-                    }
-                },
+                { MAIN, NewDefaultGroupConfig() },
                 {
                     OUTER, new StaticPhysicsConfig
                     {
@@ -409,12 +406,7 @@ namespace TittyMagic.Handlers
                         softnessCurve = x => -0.144f * Curves.DeemphasizeMiddle(x),
                     }
                 },
-                {
-                    AREOLA, new StaticPhysicsConfig
-                    {
-                        baseValue = 1.00f,
-                    }
-                },
+                { AREOLA, NewDefaultGroupConfig() },
                 {
                     NIPPLE, new StaticPhysicsConfig
                     {
@@ -449,18 +441,8 @@ namespace TittyMagic.Handlers
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                {
-                    MAIN, new StaticPhysicsConfig
-                    {
-                        baseValue = 1.00f,
-                    }
-                },
-                {
-                    OUTER, new StaticPhysicsConfig
-                    {
-                        baseValue = 1.00f,
-                    }
-                },
+                { MAIN, NewDefaultGroupConfig() },
+                { OUTER, NewDefaultGroupConfig() },
                 {
                     AREOLA, new StaticPhysicsConfig
                     {
@@ -494,35 +476,7 @@ namespace TittyMagic.Handlers
                 baseValue = 0.0005f,
             };
             parameter.valueFormat = "F4";
-
-            var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
-            {
-                {
-                    MAIN, new StaticPhysicsConfig
-                    {
-                        baseValue = 1.00f,
-                    }
-                },
-                {
-                    OUTER, new StaticPhysicsConfig
-                    {
-                        baseValue = 1.00f,
-                    }
-                },
-                {
-                    AREOLA, new StaticPhysicsConfig
-                    {
-                        baseValue = 1.00f,
-                    }
-                },
-                {
-                    NIPPLE, new StaticPhysicsConfig
-                    {
-                        baseValue = 1.00f,
-                    }
-                },
-            };
-
+            var groupConfigs = NewDefaultGroupConfigs();
             foreach(string group in allGroups)
             {
                 var groupParam = NewSoftGroupPhysicsParameter(SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, side, group);
@@ -547,12 +501,7 @@ namespace TittyMagic.Handlers
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                {
-                    MAIN, new StaticPhysicsConfig
-                    {
-                        baseValue = 1.00f,
-                    }
-                },
+                { MAIN, NewDefaultGroupConfig() },
                 {
                     OUTER, new StaticPhysicsConfig
                     {
@@ -606,18 +555,8 @@ namespace TittyMagic.Handlers
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                {
-                    MAIN, new StaticPhysicsConfig
-                    {
-                        baseValue = 1.00f,
-                    }
-                },
-                {
-                    OUTER, new StaticPhysicsConfig
-                    {
-                        baseValue = 1.00f,
-                    }
-                },
+                { MAIN, NewDefaultGroupConfig() },
+                { OUTER, NewDefaultGroupConfig() },
                 {
                     AREOLA, new StaticPhysicsConfig
                     {
@@ -653,35 +592,7 @@ namespace TittyMagic.Handlers
                 baseValue = 50.00f,
             };
             parameter.valueFormat = "F2";
-
-            var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
-            {
-                {
-                    MAIN, new StaticPhysicsConfig
-                    {
-                        baseValue = 1.00f,
-                    }
-                },
-                {
-                    OUTER, new StaticPhysicsConfig
-                    {
-                        baseValue = 1.00f,
-                    }
-                },
-                {
-                    AREOLA, new StaticPhysicsConfig
-                    {
-                        baseValue = 1.00f,
-                    }
-                },
-                {
-                    NIPPLE, new StaticPhysicsConfig
-                    {
-                        baseValue = 1.00f,
-                    }
-                },
-            };
-
+            var groupConfigs = NewDefaultGroupConfigs();
             foreach(string group in allGroups)
             {
                 var groupParam = NewSoftGroupPhysicsParameter(SOFT_VERTICES_BACK_FORCE_MAX_FORCE, side, group);
@@ -701,35 +612,7 @@ namespace TittyMagic.Handlers
                 baseValue = 0.001f,
             };
             parameter.valueFormat = "F3";
-
-            var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
-            {
-                {
-                    MAIN, new StaticPhysicsConfig
-                    {
-                        baseValue = 1.00f,
-                    }
-                },
-                {
-                    OUTER, new StaticPhysicsConfig
-                    {
-                        baseValue = 1.00f,
-                    }
-                },
-                {
-                    AREOLA, new StaticPhysicsConfig
-                    {
-                        baseValue = 1.00f,
-                    }
-                },
-                {
-                    NIPPLE, new StaticPhysicsConfig
-                    {
-                        baseValue = 1.00f,
-                    }
-                },
-            };
-
+            var groupConfigs = NewDefaultGroupConfigs();
             foreach(string group in allGroups)
             {
                 var groupParam = NewSoftGroupPhysicsParameter(SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE, side, group);
@@ -741,74 +624,90 @@ namespace TittyMagic.Handlers
             return parameter;
         }
 
+        private static StaticPhysicsConfig NewDefaultGroupConfig() =>
+            new StaticPhysicsConfig
+            {
+                baseValue = 1.00f,
+            };
+
+        private static Dictionary<string, StaticPhysicsConfig> NewDefaultGroupConfigs() =>
+            new Dictionary<string, StaticPhysicsConfig>
+            {
+                { MAIN, NewDefaultGroupConfig() },
+                { OUTER, NewDefaultGroupConfig() },
+                { AREOLA, NewDefaultGroupConfig() },
+                { NIPPLE, NewDefaultGroupConfig() },
+            };
+
         private static void SetupPhysicsParameterGroups()
         {
-            var softVerticesSpring = new PhysicsParameterGroup(
-                NewSpringParameter(LEFT),
-                NewSpringParameter(RIGHT),
-                "Fat Spring"
-            );
-
-            var softVerticesDamper = new PhysicsParameterGroup(
-                NewDamperParameter(LEFT),
-                NewDamperParameter(RIGHT),
-                "Fat Damper"
-            )
+            var softVerticesSpring = new PhysicsParameterGroup
             {
+                displayName = "Fat Spring",
+                left = NewSpringParameter(LEFT),
+                right = NewSpringParameter(RIGHT),
+            };
+
+            var softVerticesDamper = new PhysicsParameterGroup
+            {
+                displayName = "Fat Damper",
+                left = NewDamperParameter(LEFT),
+                right = NewDamperParameter(RIGHT),
                 dependsOnPhysicsRate = true,
             };
 
-            var softVerticesMass = new PhysicsParameterGroup(
-                NewSoftVerticesMassParameter(LEFT),
-                NewSoftVerticesMassParameter(RIGHT),
-                "Fat Mass"
-            );
-
-            var softVerticesColliderRadius = new PhysicsParameterGroup(
-                NewColliderRadiusParameter(LEFT),
-                NewColliderRadiusParameter(RIGHT),
-                "Fat Collider Radius"
-            )
+            var softVerticesMass = new PhysicsParameterGroup
             {
+                displayName = "Fat Mass",
+                left = NewSoftVerticesMassParameter(LEFT),
+                right = NewSoftVerticesMassParameter(RIGHT),
+            };
+
+            var softVerticesColliderRadius = new PhysicsParameterGroup
+            {
+                displayName = "Fat Collider Radius",
+                left = NewColliderRadiusParameter(LEFT),
+                right = NewColliderRadiusParameter(RIGHT),
                 usesRealMass = true,
                 hasSoftColliderVisualization = true,
             };
 
-            var softVerticesColliderAdditionalNormalOffset = new PhysicsParameterGroup(
-                NewColliderAdditionalNormalOffsetParameter(LEFT),
-                NewColliderAdditionalNormalOffsetParameter(RIGHT),
-                "Fat Collider Depth"
-            )
+            var softVerticesColliderAdditionalNormalOffset = new PhysicsParameterGroup
             {
+                displayName = "Fat Collider Depth",
+                left = NewColliderAdditionalNormalOffsetParameter(LEFT),
+                right = NewColliderAdditionalNormalOffsetParameter(RIGHT),
                 hasSoftColliderVisualization = true,
             };
 
-            var softVerticesDistanceLimit = new PhysicsParameterGroup(
-                NewDistanceLimitParameter(LEFT),
-                NewDistanceLimitParameter(RIGHT),
-                "Fat Distance Limit"
-            )
+            var softVerticesDistanceLimit = new PhysicsParameterGroup
             {
+                displayName = "Fat Distance Limit",
+                left = NewDistanceLimitParameter(LEFT),
+                right = NewDistanceLimitParameter(RIGHT),
                 usesRealMass = true,
             };
 
-            var softVerticesBackForce = new PhysicsParameterGroup(
-                NewBackForceParameter(LEFT),
-                NewBackForceParameter(RIGHT),
-                "Fat Back Force"
-            );
+            var softVerticesBackForce = new PhysicsParameterGroup
+            {
+                displayName = "Fat Back Force",
+                left = NewBackForceParameter(LEFT),
+                right = NewBackForceParameter(RIGHT),
+            };
 
-            var softVerticesBackForceMaxForce = new PhysicsParameterGroup(
-                NewBackForceMaxForceParameter(LEFT),
-                NewBackForceMaxForceParameter(RIGHT),
-                "Fat Bk Force Max Force"
-            );
+            var softVerticesBackForceMaxForce = new PhysicsParameterGroup
+            {
+                displayName = "Fat Bk Force Max Force",
+                left = NewBackForceMaxForceParameter(LEFT),
+                right = NewBackForceMaxForceParameter(RIGHT),
+            };
 
-            var softVerticesBackForceThresholdDistance = new PhysicsParameterGroup(
-                NewBackForceThresholdDistanceParameter(LEFT),
-                NewBackForceThresholdDistanceParameter(RIGHT),
-                "Fat Bk Force Threshold"
-            );
+            var softVerticesBackForceThresholdDistance = new PhysicsParameterGroup
+            {
+                displayName = "Fat Bk Force Threshold",
+                left = NewBackForceThresholdDistanceParameter(LEFT),
+                right = NewBackForceThresholdDistanceParameter(RIGHT),
+            };
 
             softVerticesSpring.SetOffsetCallbackFunctions();
             softVerticesDamper.SetOffsetCallbackFunctions();

@@ -8,9 +8,9 @@ namespace TittyMagic.Models
 {
     public class PhysicsParameter
     {
-        public JSONStorableFloat valueJsf { get; }
-        public JSONStorableFloat baseValueJsf { get; }
-        public JSONStorableFloat offsetJsf { get; }
+        public JSONStorableFloat valueJsf { get; set; }
+        public JSONStorableFloat baseValueJsf { get; set; }
+        public JSONStorableFloat offsetJsf { get; set; }
 
         public Dictionary<string, DynamicPhysicsConfig> gravityPhysicsConfigs { get; set; }
         private readonly Dictionary<string, float> _additiveGravityAdjustments;
@@ -32,15 +32,11 @@ namespace TittyMagic.Models
 
         public Dictionary<string, SoftGroupPhysicsParameter> groupMultiplierParams { get; }
 
-        public PhysicsParameter(JSONStorableFloat valueJsf, JSONStorableFloat baseValueJsf, JSONStorableFloat offsetJsf)
+        public PhysicsParameter()
         {
-            this.valueJsf = valueJsf;
-            this.baseValueJsf = baseValueJsf;
-            this.offsetJsf = offsetJsf;
             groupMultiplierParams = new Dictionary<string, SoftGroupPhysicsParameter>();
             _additiveGravityAdjustments = new Dictionary<string, float>();
             additiveForceAdjustments = new Dictionary<string, float>();
-            _additiveFrictionAdjustment = 0;
         }
 
         private void Sync()

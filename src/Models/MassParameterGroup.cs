@@ -4,10 +4,6 @@ namespace TittyMagic.Models
 {
     public class MassParameterGroup : PhysicsParameterGroup
     {
-        public MassParameterGroup(PhysicsParameter left, PhysicsParameter right, string displayName) : base(left, right, displayName)
-        {
-        }
-
         public new void SetOffsetCallbackFunctions()
         {
             left.offsetJsf.setCallbackFunction = value =>

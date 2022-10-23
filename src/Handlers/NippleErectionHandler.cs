@@ -31,51 +31,51 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private static Dictionary<string, DynamicPhysicsConfig> NewSpringConfigs() =>
-            new Dictionary<string, DynamicPhysicsConfig>
+        private static Dictionary<string, DynamicPhysicsConfig> NewSpringConfigs()
+        {
+            var nippleConfig = new DynamicPhysicsConfig
             {
-                {
-                    SoftColliderGroup.NIPPLE, new DynamicPhysicsConfig
-                    {
-                        massMultiplier = 0.5f,
-                        applyMethod = ApplyMethod.MULTIPLICATIVE,
-                        massCurve = MainPhysicsHandler.InvertMass,
-                        baseMultiplier = 0.5f,
-                    }
-                },
-                {
-                    SoftColliderGroup.AREOLA, new DynamicPhysicsConfig
-                    {
-                        massMultiplier = 0.25f,
-                        applyMethod = ApplyMethod.MULTIPLICATIVE,
-                        massCurve = MainPhysicsHandler.InvertMass,
-                        baseMultiplier = 0.25f,
-                    }
-                },
+                baseMultiplier = 0.50f,
+                massMultiplier = 0.50f,
+                applyMethod = ApplyMethod.MULTIPLICATIVE,
+                massCurve = MainPhysicsHandler.InvertMass,
             };
+            var areolaConfig = new DynamicPhysicsConfig
+            {
+                baseMultiplier = 0.25f,
+                massMultiplier = 0.25f,
+                applyMethod = ApplyMethod.MULTIPLICATIVE,
+                massCurve = MainPhysicsHandler.InvertMass,
+            };
+            return new Dictionary<string, DynamicPhysicsConfig>
+            {
+                { SoftColliderGroup.NIPPLE, nippleConfig },
+                { SoftColliderGroup.AREOLA, areolaConfig },
+            };
+        }
 
-        private static Dictionary<string, DynamicPhysicsConfig> NewDamperConfigs() =>
-            new Dictionary<string, DynamicPhysicsConfig>
+        private static Dictionary<string, DynamicPhysicsConfig> NewDamperConfigs()
+        {
+            var nippleConfig = new DynamicPhysicsConfig
             {
-                {
-                    SoftColliderGroup.NIPPLE, new DynamicPhysicsConfig
-                    {
-                        massMultiplier = 0.5f,
-                        applyMethod = ApplyMethod.MULTIPLICATIVE,
-                        massCurve = MainPhysicsHandler.InvertMass,
-                        baseMultiplier = 0.5f,
-                    }
-                },
-                {
-                    SoftColliderGroup.AREOLA, new DynamicPhysicsConfig
-                    {
-                        massMultiplier = 0.25f,
-                        applyMethod = ApplyMethod.MULTIPLICATIVE,
-                        massCurve = MainPhysicsHandler.InvertMass,
-                        baseMultiplier = 0.25f,
-                    }
-                },
+                baseMultiplier = 0.50f,
+                massMultiplier = 0.50f,
+                applyMethod = ApplyMethod.MULTIPLICATIVE,
+                massCurve = MainPhysicsHandler.InvertMass,
             };
+            var areolaConfig = new DynamicPhysicsConfig
+            {
+                baseMultiplier = 0.25f,
+                massMultiplier = 0.25f,
+                applyMethod = ApplyMethod.MULTIPLICATIVE,
+                massCurve = MainPhysicsHandler.InvertMass,
+            };
+            return new Dictionary<string, DynamicPhysicsConfig>
+            {
+                { SoftColliderGroup.NIPPLE, nippleConfig },
+                { SoftColliderGroup.AREOLA, areolaConfig },
+            };
+        }
 
         public static void Update()
         {
