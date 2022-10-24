@@ -51,7 +51,7 @@ namespace TittyMagic.UI
 
         protected void CreateOtherSettingsHeader(bool rightSide, int spacing = 0)
         {
-            var storable = new JSONStorableString("otherSettingsHeader", "");
+            var storable = new JSONStorableString("otherSettingsHeader", "Other");
             AddSpacer(storable.name, spacing, rightSide);
             CreateHeaderTextField(storable, rightSide);
         }
