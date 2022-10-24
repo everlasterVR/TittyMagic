@@ -42,7 +42,8 @@ namespace TittyMagic.UI
             CreateMultiplierSlider(ForceMorphHandler.upJsf, "Up", true, spacing: 5);
             CreateMultiplierSlider(ForceMorphHandler.forwardJsf, "Forward", true);
             CreateMultiplierSlider(ForceMorphHandler.backJsf, "Back", true);
-            CreateMultiplierSlider(ForceMorphHandler.leftRightJsf, "Left / Right", true);
+            CreateMultiplierSlider(ForceMorphHandler.sidewaysInJsf, "Sideways In", true);
+            CreateMultiplierSlider(ForceMorphHandler.sidewaysOutJsf, "Sideways Out", true);
             CreateOtherSettingsHeader(false);
 
             /* Nipple erection slider */
@@ -68,7 +69,7 @@ namespace TittyMagic.UI
                 }
 
                 var storable = new JSONStorableString("nippleErectionInfoText", sb.ToString());
-                AddSpacer(storable.name, 190, true);
+                AddSpacer(storable.name, 50, true);
 
                 var textField = tittyMagic.CreateTextField(storable, true);
                 textField.UItext.fontSize = 28;
@@ -96,7 +97,8 @@ namespace TittyMagic.UI
             UpdateSliderColor(ForceMorphHandler.upJsf);
             UpdateSliderColor(ForceMorphHandler.forwardJsf);
             UpdateSliderColor(ForceMorphHandler.backJsf);
-            UpdateSliderColor(ForceMorphHandler.leftRightJsf);
+            UpdateSliderColor(ForceMorphHandler.sidewaysInJsf);
+            UpdateSliderColor(ForceMorphHandler.sidewaysOutJsf);
         }
 
         private void UpdateSliderColor(JSONStorableFloat storable)

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TittyMagic.Components;
 using TittyMagic.Handlers.Configs;
 using UnityEngine;
@@ -19,12 +18,14 @@ namespace TittyMagic.Handlers
         public static JSONStorableFloat upJsf { get; private set; }
         public static JSONStorableFloat forwardJsf { get; private set; }
         public static JSONStorableFloat backJsf { get; private set; }
-        public static JSONStorableFloat leftRightJsf { get; private set; }
+        public static JSONStorableFloat sidewaysInJsf { get; private set; }
+        public static JSONStorableFloat sidewaysOutJsf { get; private set; }
 
         private static float upMultiplier => baseJsf.val * upJsf.val;
         private static float forwardMultiplier => baseJsf.val * forwardJsf.val;
         private static float backMultiplier => baseJsf.val * backJsf.val;
-        private static float leftRightMultiplier => baseJsf.val * leftRightJsf.val;
+        private static float sidewaysInMultiplier => baseJsf.val * sidewaysInJsf.val;
+        private static float sidewaysOutMultiplier => baseJsf.val * sidewaysOutJsf.val;
 
         public static JSONStorableStringChooser directionChooser { get; private set; }
 
@@ -37,7 +38,8 @@ namespace TittyMagic.Handlers
             upJsf = tittyMagic.NewJSONStorableFloat("forceMorphingUp", 1.00f, 0.00f, 2.00f);
             forwardJsf = tittyMagic.NewJSONStorableFloat("forceMorphingForward", 1.00f, 0.00f, 2.00f);
             backJsf = tittyMagic.NewJSONStorableFloat("forceMorphingBack", 1.00f, 0.00f, 2.00f);
-            leftRightJsf = tittyMagic.NewJSONStorableFloat("forceMorphingLeftRight", 1.00f, 0.00f, 2.00f);
+            sidewaysInJsf = tittyMagic.NewJSONStorableFloat("forceMorphingSidewaysIn", 1.00f, 0.00f, 2.00f);
+            sidewaysOutJsf = tittyMagic.NewJSONStorableFloat("forceMorphingSidewaysOut", 1.00f, 0.00f, 2.00f);
         }
 
         public static void LoadSettings()
@@ -415,8 +417,8 @@ namespace TittyMagic.Handlers
         {
             new MorphConfig("LT/LT Breasts Shift S2S Left L",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.50f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.10f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 1.50f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.50f, -3.00f, 3.00f)
             ),
             new MorphConfig("LT/LT Breasts Hang Forward L",
                 true,
@@ -425,17 +427,17 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig("LT/LT Breast Width L",
                 true,
-                new JSONStorableFloat("softMultiplier", -0.40f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.13f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", -0.60f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.20f, -3.00f, 3.00f)
             ),
             new MorphConfig("LT/LT Breast Rotate X Out L",
                 true,
                 new JSONStorableFloat("softMultiplier", -0.60f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.30f, -3.00f, 3.00f)
+                new JSONStorableFloat("massMultiplier", 0.20f, -3.00f, 3.00f)
             ),
             new MorphConfig("LT/LT Breast Rotate X In L",
                 true,
-                new JSONStorableFloat("softMultiplier", 0.92f, -3.00f, 3.00f),
+                new JSONStorableFloat("softMultiplier", -0.30f, -3.00f, 3.00f),
                 new JSONStorableFloat("massMultiplier", -0.10f, -3.00f, 3.00f)
             ),
             new MorphConfig("LT/LT Breast Diameter L",
@@ -459,13 +461,13 @@ namespace TittyMagic.Handlers
         {
             new MorphConfig("LT/LT Breasts Shift S2S Left R",
                 false,
-                new JSONStorableFloat("softMultiplier", 2.00f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.50f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 1.50f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.30f, -3.00f, 3.00f)
             ),
             new MorphConfig("LT/LT Breast Rotate X Out R",
                 true,
-                new JSONStorableFloat("softMultiplier", -1.50f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.25f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", -0.84f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.28f, -3.00f, 3.00f)
             ),
             new MorphConfig("LT/LT Breasts Flatten R",
                 true,
@@ -474,7 +476,7 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig("LT/LT Breast Width R",
                 false,
-                new JSONStorableFloat("softMultiplier", 1.10f, -3.00f, 3.00f),
+                new JSONStorableFloat("softMultiplier", 0.90f, -3.00f, 3.00f),
                 new JSONStorableFloat("massMultiplier", -0.50f, -3.00f, 3.00f)
             ),
             new MorphConfig("LT/LT Breast Rotate X In R",
@@ -484,13 +486,13 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig("LT/LT Breasts Hang Forward R",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.30f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.00f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.20f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.07f, -3.00f, 3.00f)
             ),
             new MorphConfig("LT/LT Areola S2S R",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.50f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 2.00f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.60f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 1.80f, -3.00f, 3.00f)
             ),
             new MorphConfig("LT/LT Breast Diameter R",
                 true,
@@ -528,13 +530,13 @@ namespace TittyMagic.Handlers
         {
             new MorphConfig("RT/RT Breasts Shift S2S Right L",
                 false,
-                new JSONStorableFloat("softMultiplier", 2.00f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.50f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 1.50f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.30f, -3.00f, 3.00f)
             ),
             new MorphConfig("RT/RT Breast Rotate X Out L",
                 true,
-                new JSONStorableFloat("softMultiplier", -1.50f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.25f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", -0.84f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.28f, -3.00f, 3.00f)
             ),
             new MorphConfig("RT/RT Breasts Flatten L",
                 true,
@@ -543,7 +545,7 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig("RT/RT Breast Width L",
                 false,
-                new JSONStorableFloat("softMultiplier", 1.10f, -3.00f, 3.00f),
+                new JSONStorableFloat("softMultiplier", 0.90f, -3.00f, 3.00f),
                 new JSONStorableFloat("massMultiplier", -0.50f, -3.00f, 3.00f)
             ),
             new MorphConfig("RT/RT Breast Rotate X In L",
@@ -553,13 +555,13 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig("RT/RT Breasts Hang Forward L",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.30f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.00f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.20f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.07f, -3.00f, 3.00f)
             ),
             new MorphConfig("RT/RT Areola S2S L",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.50f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 2.00f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.60f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 1.80f, -3.00f, 3.00f)
             ),
             new MorphConfig("RT/RT Breast Diameter L",
                 true,
@@ -597,8 +599,8 @@ namespace TittyMagic.Handlers
         {
             new MorphConfig("RT/RT Breasts Shift S2S Right R",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.50f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.10f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 1.50f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.50f, -3.00f, 3.00f)
             ),
             new MorphConfig("RT/RT Breasts Hang Forward R",
                 true,
@@ -613,7 +615,7 @@ namespace TittyMagic.Handlers
             new MorphConfig("RT/RT Breast Rotate X Out R",
                 true,
                 new JSONStorableFloat("softMultiplier", -0.60f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.30f, -3.00f, 3.00f)
+                new JSONStorableFloat("massMultiplier", 0.20f, -3.00f, 3.00f)
             ),
             new MorphConfig("RT/RT Breast Rotate X In R",
                 true,
@@ -717,8 +719,8 @@ namespace TittyMagic.Handlers
         private static float _backSoftnessMultiplier;
         private static float _backMassMultiplier;
 
-        private static float _leftRightSoftnessMultiplier;
-        private static float _leftRightMassMultiplier;
+        private static float _sidewaysSoftnessMultiplier;
+        private static float _sidewaysMassMultiplier;
 
         // https://www.desmos.com/calculator/kkbbepyp4j
         private static float SoftnessCurve(float softness) => 1.04f * Curves.Exponential1(softness, 1.76f, 1.67f, 0.74f, a: 0.9f, s: 0.13f);
@@ -739,8 +741,8 @@ namespace TittyMagic.Handlers
             _backSoftnessMultiplier = SoftnessCurve(softness);
             _backMassMultiplier = 12.50f / _backBaseMassFactor * Curves.DepthMassMorphingCurve(mass);
 
-            _leftRightSoftnessMultiplier = SoftnessCurve(softness);
-            _leftRightMassMultiplier = 0.0109f * _leftRightBaseMassFactor * Curves.MassMorphingCurve(mass);
+            _sidewaysSoftnessMultiplier = SoftnessCurve(softness);
+            _sidewaysMassMultiplier = 0.0109f * _leftRightBaseMassFactor * Curves.MassMorphingCurve(mass);
         }
 
         private static float _rollL;
@@ -762,7 +764,7 @@ namespace TittyMagic.Handlers
             AdjustUpMorphs();
             AdjustForwardMorphs();
             AdjustBackMorphs();
-            AdjustLeftRightMorphs();
+            AdjustSidewaysMorphs();
         }
 
         private static float UpEffect(float angle, float pitchMultiplier) =>
@@ -918,38 +920,38 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private static float LeftRightEffect(float angle, float rollAngleMulti) =>
-            _leftRightSoftnessMultiplier
-            * _leftRightMassMultiplier
-            * Curves.QuadraticRegression(leftRightMultiplier)
+        private static float SidewaysEffect(float angle, float multiplier, float rollAngleMulti) =>
+            _sidewaysSoftnessMultiplier
+            * _sidewaysMassMultiplier
+            * Curves.QuadraticRegression(multiplier)
             * Curves.XForceEffectCurve(rollAngleMulti * Mathf.Abs(angle) / _leftRightBaseMassFactor);
 
-        private static void AdjustLeftRightMorphs()
+        private static void AdjustSidewaysMorphs()
         {
             if(_trackLeftBreast.angleX >= 0)
             {
-                // left force on left breast
+                // right force on left breast
                 ResetMorphs(LEFT_L);
-                UpdateMorphs(RIGHT_L, LeftRightEffect(_trackLeftBreast.angleX, _rollAngleMultiL));
+                UpdateMorphs(RIGHT_L, SidewaysEffect(_trackLeftBreast.angleX, sidewaysInMultiplier, _rollAngleMultiL));
             }
             else
             {
-                // right force on left breast
+                // left force on left breast
                 ResetMorphs(RIGHT_L);
-                UpdateMorphs(LEFT_L, LeftRightEffect(_trackLeftBreast.angleX, _rollAngleMultiL));
+                UpdateMorphs(LEFT_L, SidewaysEffect(_trackLeftBreast.angleX, sidewaysOutMultiplier, _rollAngleMultiL));
             }
 
             if(_trackRightBreast.angleX >= 0)
             {
-                // left force on right breast
+                // right force on right breast
                 ResetMorphs(LEFT_R);
-                UpdateMorphs(RIGHT_R, LeftRightEffect(_trackRightBreast.angleX, _rollAngleMultiR));
+                UpdateMorphs(RIGHT_R, SidewaysEffect(_trackRightBreast.angleX, sidewaysOutMultiplier, _rollAngleMultiR));
             }
             else
             {
-                // right force on right breast
+                // left force on right breast
                 ResetMorphs(RIGHT_R);
-                UpdateMorphs(LEFT_R, LeftRightEffect(_trackRightBreast.angleX, _rollAngleMultiR));
+                UpdateMorphs(LEFT_R, SidewaysEffect(_trackRightBreast.angleX, sidewaysInMultiplier, _rollAngleMultiR));
             }
         }
 
@@ -981,7 +983,7 @@ namespace TittyMagic.Handlers
             AdjustUpMorphs();
             AdjustForwardMorphs();
             AdjustBackMorphs();
-            AdjustLeftRightMorphs();
+            AdjustSidewaysMorphs();
         }
 
         public static void ResetAll() => configSets?.Keys.ToList().ForEach(ResetMorphs);
@@ -998,7 +1000,8 @@ namespace TittyMagic.Handlers
             upJsf = null;
             forwardJsf = null;
             backJsf = null;
-            leftRightJsf = null;
+            sidewaysInJsf = null;
+            sidewaysOutJsf = null;
         }
     }
 }

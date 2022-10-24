@@ -909,6 +909,12 @@ namespace TittyMagic
                 jsonClass["version"] = $"{VERSION}";
             }
 
+            if(jsonClass.HasKey("forceMorphingLeftRight"))
+            {
+                jsonClass["forceMorphingSidewaysIn"] = jsonClass["forceMorphingLeftRight"];
+                jsonClass["forceMorphingSidewaysOut"] = jsonClass["forceMorphingLeftRight"];
+            }
+
             StartCoroutine(DeferRestoreFromJSON(
                 jsonClass,
                 restorePhysical,
