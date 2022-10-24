@@ -762,8 +762,7 @@ namespace TittyMagic.Handlers
             AdjustUpMorphs();
             AdjustForwardMorphs();
             AdjustBackMorphs();
-            AdjustLeftMorphs();
-            AdjustRightMorphs();
+            AdjustLeftRightMorphs();
         }
 
         private static float UpEffect(float angle, float pitchMultiplier) =>
@@ -925,59 +924,32 @@ namespace TittyMagic.Handlers
             * Curves.QuadraticRegression(leftRightMultiplier)
             * Curves.XForceEffectCurve(rollAngleMulti * Mathf.Abs(angle) / _leftRightBaseMassFactor);
 
-        private static void AdjustLeftMorphs()
+        private static void AdjustLeftRightMorphs()
         {
             if(_trackLeftBreast.angleX >= 0)
             {
                 // left force on left breast
+                ResetMorphs(LEFT_L);
                 UpdateMorphs(RIGHT_L, LeftRightEffect(_trackLeftBreast.angleX, _rollAngleMultiL));
             }
             else
             {
                 // right force on left breast
                 ResetMorphs(RIGHT_L);
-            }
-
-            if(_trackRightBreast.angleX >= 0)
-            {
-                // left force on right breast
-                UpdateMorphs(RIGHT_R, LeftRightEffect(_trackRightBreast.angleX, _rollAngleMultiR));
-            }
-            else
-            {
-                // right force on right breast
-                ResetMorphs(RIGHT_R);
-            }
-        }
-
-        private static void AdjustRightMorphs()
-        {
-            Func<float, float, float> calculateEffect = (angle, rollAngleMulti) =>
-                _leftRightSoftnessMultiplier
-                * _leftRightMassMultiplier
-                * Curves.QuadraticRegression(leftRightMultiplier)
-                * Curves.XForceEffectCurve(rollAngleMulti * Mathf.Abs(angle) / 60);
-
-            if(_trackLeftBreast.angleX >= 0)
-            {
-                // left force on left breast
-                ResetMorphs(LEFT_L);
-            }
-            else
-            {
-                // right force on left breast
-                UpdateMorphs(LEFT_L, calculateEffect(_trackLeftBreast.angleX, _rollAngleMultiL));
+                UpdateMorphs(LEFT_L, LeftRightEffect(_trackLeftBreast.angleX, _rollAngleMultiL));
             }
 
             if(_trackRightBreast.angleX >= 0)
             {
                 // left force on right breast
                 ResetMorphs(LEFT_R);
+                UpdateMorphs(RIGHT_R, LeftRightEffect(_trackRightBreast.angleX, _rollAngleMultiR));
             }
             else
             {
                 // right force on right breast
-                UpdateMorphs(LEFT_R, calculateEffect(_trackRightBreast.angleX, _rollAngleMultiR));
+                ResetMorphs(RIGHT_R);
+                UpdateMorphs(LEFT_R, LeftRightEffect(_trackRightBreast.angleX, _rollAngleMultiR));
             }
         }
 
@@ -1009,8 +981,7 @@ namespace TittyMagic.Handlers
             AdjustUpMorphs();
             AdjustForwardMorphs();
             AdjustBackMorphs();
-            AdjustLeftMorphs();
-            AdjustRightMorphs();
+            AdjustLeftRightMorphs();
         }
 
         public static void ResetAll() => configSets?.Keys.ToList().ForEach(ResetMorphs);
