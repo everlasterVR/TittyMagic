@@ -106,43 +106,21 @@ namespace TittyMagic.Handlers
             });
         }
 
+        private static DynamicPhysicsConfig NewDamperConfig() => new DynamicPhysicsConfig
+        {
+            massMultiplier = 0.25f,
+            softnessMultiplier = 1.00f,
+            applyMethod = ApplyMethod.ADDITIVE,
+            massCurve = MainPhysicsHandler.InvertMass,
+        };
+
         private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> DamperConfigs()
         {
-            var upConfig = new DynamicPhysicsConfig
-            {
-                massMultiplier = 0.25f,
-                softnessMultiplier = 1.00f,
-                applyMethod = ApplyMethod.ADDITIVE,
-                massCurve = MainPhysicsHandler.InvertMass,
-            };
-            var backConfig = new DynamicPhysicsConfig
-            {
-                massMultiplier = 0.25f,
-                softnessMultiplier = 1.00f,
-                applyMethod = ApplyMethod.ADDITIVE,
-                massCurve = MainPhysicsHandler.InvertMass,
-            };
-            var forwardConfig = new DynamicPhysicsConfig
-            {
-                massMultiplier = 0.25f,
-                softnessMultiplier = 1.00f,
-                applyMethod = ApplyMethod.ADDITIVE,
-                massCurve = MainPhysicsHandler.InvertMass,
-            };
-            var leftConfig = new DynamicPhysicsConfig
-            {
-                massMultiplier = 0.25f,
-                softnessMultiplier = 1.00f,
-                applyMethod = ApplyMethod.ADDITIVE,
-                massCurve = MainPhysicsHandler.InvertMass,
-            };
-            var rightConfig = new DynamicPhysicsConfig
-            {
-                massMultiplier = 0.25f,
-                softnessMultiplier = 1.00f,
-                applyMethod = ApplyMethod.ADDITIVE,
-                massCurve = MainPhysicsHandler.InvertMass,
-            };
+            var upConfig = NewDamperConfig();
+            var backConfig = NewDamperConfig();
+            var forwardConfig = NewDamperConfig();
+            var leftConfig = NewDamperConfig();
+            var rightConfig = NewDamperConfig();
             return ConfigPair(new Dictionary<string, DynamicPhysicsConfig>
             {
                 { UP, upConfig },
