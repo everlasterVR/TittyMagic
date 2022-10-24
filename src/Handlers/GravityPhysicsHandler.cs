@@ -378,10 +378,11 @@ namespace TittyMagic.Handlers
 
             targetRotationZJsf.setCallbackFunction = value =>
             {
-                leftBreast[UP].baseMultiplier = 2 * -value;
-                leftBreast[DOWN].baseMultiplier = 2 * value;
-                rightBreast[UP].baseMultiplier = 2 * value;
-                rightBreast[DOWN].baseMultiplier = 2 * -value;
+                float rounded = Calc.RoundToDecimals(2 * value);
+                leftBreast[UP].baseMultiplier = -rounded;
+                leftBreast[DOWN].baseMultiplier = rounded;
+                rightBreast[UP].baseMultiplier = rounded;
+                rightBreast[DOWN].baseMultiplier = -rounded;
             };
 
             return new Dictionary<string, Dictionary<string, DynamicPhysicsConfig>>

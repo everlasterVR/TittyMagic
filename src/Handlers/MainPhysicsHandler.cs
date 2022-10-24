@@ -537,6 +537,8 @@ namespace TittyMagic.Handlers
             rb.WakeUp();
         }
 
+        private static bool _prevTargetRotationZZero;
+
         private static void SyncTargetRotation(string side, float targetRotationX, float targetRotationY, float targetRotationZ)
         {
             if(!tittyMagic.enabled)
@@ -549,7 +551,11 @@ namespace TittyMagic.Handlers
                 var rotation = breastControl.smoothedJoint2TargetRotation;
                 rotation.x = -targetRotationX;
                 rotation.y = -targetRotationY;
-                rotation.z = targetRotationZ;
+                if(!_prevTargetRotationZZero)
+                {
+                    rotation.z = targetRotationZ;
+                }
+
                 breastControl.smoothedJoint2TargetRotation = rotation;
                 _dazBones[side].baseJointRotation = rotation;
             }
@@ -558,10 +564,16 @@ namespace TittyMagic.Handlers
                 var rotation = breastControl.smoothedJoint1TargetRotation;
                 rotation.x = -targetRotationX;
                 rotation.y = -targetRotationY;
-                rotation.z = targetRotationZ;
+                if(!_prevTargetRotationZZero)
+                {
+                    rotation.z = targetRotationZ;
+                }
+
                 breastControl.smoothedJoint1TargetRotation = rotation;
                 _dazBones[side].baseJointRotation = rotation;
             }
+
+            _prevTargetRotationZZero = GravityPhysicsHandler.targetRotationZJsf.val == 0;
         }
 
         #endregion *** Sync functions ***
