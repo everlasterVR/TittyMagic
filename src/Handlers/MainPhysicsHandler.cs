@@ -58,6 +58,11 @@ namespace TittyMagic.Handlers
                 { LEFT, _joints[LEFT].GetComponent<DAZBone>() },
                 { RIGHT, _joints[RIGHT].GetComponent<DAZBone>() },
             };
+            _rotationZZeroCount = new Dictionary<string, int>
+            {
+                { LEFT, 0 },
+                { RIGHT, 0 },
+            };
 
             _breastControlFloatParamNames = new List<string>
             {
@@ -537,8 +542,6 @@ namespace TittyMagic.Handlers
             rb.WakeUp();
         }
 
-        private static bool _prevTargetRotationZZero;
-
         private static void SyncTargetRotation(string side, float targetRotationX, float targetRotationY, float targetRotationZ)
         {
             if(!tittyMagic.enabled)
@@ -546,34 +549,44 @@ namespace TittyMagic.Handlers
                 return;
             }
 
+            var rotation = UpdateRotationXYZ(side, targetRotationX, targetRotationY, targetRotationZ);
             if(side == LEFT)
             {
-                var rotation = breastControl.smoothedJoint2TargetRotation;
-                rotation.x = -targetRotationX;
-                rotation.y = -targetRotationY;
-                if(!_prevTargetRotationZZero)
-                {
-                    rotation.z = targetRotationZ;
-                }
-
                 breastControl.smoothedJoint2TargetRotation = rotation;
-                _dazBones[side].baseJointRotation = rotation;
             }
             else if(side == RIGHT)
             {
-                var rotation = breastControl.smoothedJoint1TargetRotation;
-                rotation.x = -targetRotationX;
-                rotation.y = -targetRotationY;
-                if(!_prevTargetRotationZZero)
-                {
-                    rotation.z = targetRotationZ;
-                }
-
                 breastControl.smoothedJoint1TargetRotation = rotation;
-                _dazBones[side].baseJointRotation = rotation;
             }
 
-            _prevTargetRotationZZero = GravityPhysicsHandler.targetRotationZJsf.val == 0;
+            _dazBones[side].baseJointRotation = rotation;
+        }
+
+        private static Dictionary<string, int> _rotationZZeroCount;
+
+        private static Vector3 UpdateRotationXYZ(string side, float targetRotationX, float targetRotationY, float targetRotationZ)
+        {
+            var rotation = side == RIGHT
+                ? breastControl.smoothedJoint1TargetRotation
+                : breastControl.smoothedJoint2TargetRotation;
+            rotation.x = -targetRotationX;
+            rotation.y = -targetRotationY;
+
+            bool noTargetRotationZ = GravityPhysicsHandler.targetRotationZJsf.val == 0;
+            if(_rotationZZeroCount[side] < 3)
+            {
+                rotation.z = targetRotationZ;
+                if(noTargetRotationZ)
+                {
+                    _rotationZZeroCount[side]++;
+                }
+            }
+            else if(!noTargetRotationZ)
+            {
+                _rotationZZeroCount[side] = 0;
+            }
+
+            return rotation;
         }
 
         #endregion *** Sync functions ***

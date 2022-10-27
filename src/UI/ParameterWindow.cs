@@ -219,7 +219,11 @@ namespace TittyMagic.UI
         {
             string label = $"  {_parameterGroup.displayName}";
             var groupOffsetStorables = _parameter.groupMultiplierParams.Select(kvp => kvp.Value.offsetJsf);
-            if(_parameter.offsetJsf.val != 0 || groupOffsetStorables.Any(jsf => jsf.val != 0))
+            if(GetId() == ParamName.TARGET_ROTATION_Z && GravityPhysicsHandler.targetRotationZJsf.val != 0)
+            {
+                label += " *".Bold();
+            }
+            else if(_parameter.offsetJsf.val != 0 || groupOffsetStorables.Any(jsf => jsf.val != 0))
             {
                 label += " *".Bold();
             }
