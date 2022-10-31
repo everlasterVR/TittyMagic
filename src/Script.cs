@@ -34,9 +34,13 @@ namespace TittyMagic
         public Tabs tabs { get; private set; }
 
         public JSONStorableAction recalibratePhysics { get; private set; }
+
         public JSONStorableAction calculateBreastMass { get; private set; }
+
         public JSONStorableFloat softnessJsf { get; private set; }
         public JSONStorableFloat quicknessJsf { get; private set; }
+        private JSONStorableFloat _softnessNoCallbackJsf;
+        private JSONStorableFloat _quicknessNoCallbackJsf;
 
         public CalibrationHelper calibrationHelper { get; private set; }
 
@@ -332,6 +336,7 @@ namespace TittyMagic
 
             /* Setup storables */
             {
+                _softnessNoCallbackJsf = this.NewJSONStorableFloat("breastSoftnessNoCallback", 70f, 0f, 100f);
                 softnessJsf = this.NewJSONStorableFloat("breastSoftness", 70f, 0f, 100f);
                 softnessJsf.setCallbackFunction = value =>
                 {
@@ -339,8 +344,11 @@ namespace TittyMagic
                     {
                         StartCalibration(calibratesMass: false, waitsForListeners: true);
                     }
+
+                    _softnessNoCallbackJsf.valNoCallback = value;
                 };
 
+                _quicknessNoCallbackJsf = this.NewJSONStorableFloat("breastQuicknessNoCallback", 70f, 0f, 100f);
                 quicknessJsf = this.NewJSONStorableFloat("breastQuickness", 70f, 0f, 100f);
                 quicknessJsf.setCallbackFunction = value =>
                 {
@@ -348,7 +356,12 @@ namespace TittyMagic
                     {
                         StartCalibration(calibratesMass: false, waitsForListeners: true);
                     }
+
+                    _quicknessNoCallbackJsf.valNoCallback = value;
                 };
+
+                _softnessNoCallbackJsf.setCallbackFunction = value => softnessJsf.valNoCallback = value;
+                _quicknessNoCallbackJsf.setCallbackFunction = value => quicknessJsf.valNoCallback = value;
 
                 recalibratePhysics = this.NewJSONStorableAction("recalibratePhysics", () => StartCalibration(calibratesMass: false));
                 calculateBreastMass = this.NewJSONStorableAction("calculateBreastMass", () => StartCalibration(calibratesMass: true));
@@ -880,6 +893,8 @@ namespace TittyMagic
         {
             var jsonClass = base.GetJSON(includePhysical, includeAppearance, forceStore);
             jsonClass.Remove(calibrationHelper.calibratingJsb.name);
+            jsonClass.Remove(_softnessNoCallbackJsf.name);
+            jsonClass.Remove(_quicknessNoCallbackJsf.name);
             needsStore = true;
             return jsonClass;
         }

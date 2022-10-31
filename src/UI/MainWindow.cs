@@ -171,7 +171,6 @@ namespace TittyMagic.UI
                 AddSpacer(storable.name, 15, true);
                 var slider = tittyMagic.CreateSlider(storable, true);
                 slider.valueFormat = "F0";
-                slider.slider.wholeNumbers = true;
                 slider.label = "Breast Softness";
                 slider.AddPointerUpDownListener();
                 elements[storable.name] = slider;
@@ -182,7 +181,6 @@ namespace TittyMagic.UI
                 var storable = tittyMagic.quicknessJsf;
                 var slider = tittyMagic.CreateSlider(storable, true);
                 slider.valueFormat = "F0";
-                slider.slider.wholeNumbers = true;
                 slider.label = "Breast Quickness";
                 slider.AddPointerUpDownListener();
                 elements[storable.name] = slider;
