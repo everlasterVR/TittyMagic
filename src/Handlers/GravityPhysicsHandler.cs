@@ -92,53 +92,23 @@ namespace TittyMagic.Handlers
             };
         }
 
+        private static DynamicPhysicsConfig NewSpringConfig() => new DynamicPhysicsConfig(
+            massMultiplier: -3.0f,
+            softnessMultiplier: -12.0f,
+            applyMethod: ApplyMethod.ADDITIVE,
+            massCurve: MainPhysicsHandler.InvertMass
+        )
+        {
+            negative = true,
+        };
+
         private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> SpringConfigs()
         {
-            var upConfig = new DynamicPhysicsConfig(
-                massMultiplier: -4.0f,
-                softnessMultiplier: -16.0f,
-                applyMethod: ApplyMethod.ADDITIVE,
-                massCurve: MainPhysicsHandler.InvertMass
-            )
-            {
-                negative = true,
-            };
-            var backConfig = new DynamicPhysicsConfig(
-                massMultiplier: -4.0f,
-                softnessMultiplier: -16.0f,
-                applyMethod: ApplyMethod.ADDITIVE,
-                massCurve: MainPhysicsHandler.InvertMass
-            )
-            {
-                negative = true,
-            };
-            var forwardConfig = new DynamicPhysicsConfig(
-                massMultiplier: -4.0f,
-                softnessMultiplier: -16.0f,
-                applyMethod: ApplyMethod.ADDITIVE,
-                massCurve: MainPhysicsHandler.InvertMass
-            )
-            {
-                negative = true,
-            };
-            var leftConfig = new DynamicPhysicsConfig(
-                massMultiplier: -4.0f,
-                softnessMultiplier: -16.0f,
-                applyMethod: ApplyMethod.ADDITIVE,
-                massCurve: MainPhysicsHandler.InvertMass
-            )
-            {
-                negative = true,
-            };
-            var rightConfig = new DynamicPhysicsConfig(
-                massMultiplier: -4.0f,
-                softnessMultiplier: -16.0f,
-                applyMethod: ApplyMethod.ADDITIVE,
-                massCurve: MainPhysicsHandler.InvertMass
-            )
-            {
-                negative = true,
-            };
+            var upConfig = NewSpringConfig();
+            var backConfig = NewSpringConfig();
+            var forwardConfig = NewSpringConfig();
+            var leftConfig = NewSpringConfig();
+            var rightConfig = NewSpringConfig();
             var leftBreast = new Dictionary<string, DynamicPhysicsConfig>
             {
                 { UP, upConfig },
@@ -279,22 +249,22 @@ namespace TittyMagic.Handlers
         {
             var upConfig = new DynamicPhysicsConfig(
                 massMultiplier: 0,
-                softnessMultiplier: 16.50f,
+                softnessMultiplier: 11.00f,
                 applyMethod: ApplyMethod.ADDITIVE,
                 softnessCurve: Curves.TargetRotationSoftnessCurve
             )
             {
-                baseMultiplier = 2.36f,
+                baseMultiplier = 1.60f,
                 negative = false,
             };
             var downConfig = new DynamicPhysicsConfig(
                 massMultiplier: 0,
-                softnessMultiplier: -14.00f,
+                softnessMultiplier: -9.40f,
                 applyMethod: ApplyMethod.ADDITIVE,
                 softnessCurve: Curves.TargetRotationSoftnessCurve
             )
             {
-                baseMultiplier = -2.00f,
+                baseMultiplier = -1.34f,
                 negative = true,
             };
             var leftBreast = new Dictionary<string, DynamicPhysicsConfig>
@@ -318,12 +288,12 @@ namespace TittyMagic.Handlers
         {
             var leftConfig = new DynamicPhysicsConfig(
                 massMultiplier: 0,
-                softnessMultiplier: -16.50f,
+                softnessMultiplier: -11.00f,
                 applyMethod: ApplyMethod.ADDITIVE,
                 softnessCurve: Curves.TargetRotationSoftnessCurve
             )
             {
-                baseMultiplier = -2.36f,
+                baseMultiplier = -1.60f,
                 negative = true,
             };
             var rightConfig = new DynamicPhysicsConfig(
@@ -333,7 +303,7 @@ namespace TittyMagic.Handlers
                 softnessCurve: Curves.TargetRotationSoftnessCurve
             )
             {
-                baseMultiplier = 2.36f,
+                baseMultiplier = 1.60f,
                 negative = false,
             };
             var leftBreast = new Dictionary<string, DynamicPhysicsConfig>

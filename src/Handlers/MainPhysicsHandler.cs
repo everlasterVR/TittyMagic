@@ -189,7 +189,7 @@ namespace TittyMagic.Handlers
         {
             var parameter = NewPhysicsParameter(SPRING, side, 10, 10, 100);
             parameter.config = new StaticPhysicsConfig(
-                64f,
+                57f,
                 massCurve: x => 0.10f * x,
                 // https://www.desmos.com/calculator/nxyosar9o6
                 softnessCurve: x => -0.50f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f)

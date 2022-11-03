@@ -726,7 +726,7 @@ namespace TittyMagic.Handlers
         private static float SoftnessCurve(float softness) => 1.04f * Curves.Exponential1(softness, 1.76f, 1.67f, 0.74f, a: 0.9f, s: 0.13f);
 
         // https://www.desmos.com/calculator/6e11w5zfn7
-        private static float BackSoftnessCurve(float softness) => 1.04f * Curves.Exponential1(softness, 2.28f, 1.38f, 0.73f, a: 0.9f, s: 0.01f);
+        private static float BackSoftnessCurve(float softness) => 1.04f * Curves.Exponential1(softness, 2.58f, 1.38f, 0.67f, a: 0.7f, s: 0.01f);
 
         public static void SetMultipliers(float mass, float softness)
         {
@@ -823,7 +823,7 @@ namespace TittyMagic.Handlers
             _forwardSoftnessMultiplier
             * _forwardMassMultiplier
             * Curves.QuadraticRegression(forwardMultiplier)
-            * Curves.ZForceEffectCurve(Mathf.Abs(depthDiff) * _forwardBaseMassFactor);
+            * 1.1f * Curves.ZForceEffectCurve(Mathf.Abs(depthDiff) * _forwardBaseMassFactor);
 
         private static void AdjustForwardMorphs()
         {
@@ -884,8 +884,8 @@ namespace TittyMagic.Handlers
 
         private static void AdjustBackMorphs()
         {
-            float leanBackFixedMultiLeft = CalculateLeanBackFixerMultiplier(_pitchL, _rollL);
-            float leanBackFixedMultiRight = CalculateLeanBackFixerMultiplier(_pitchR, _rollR);
+            float leanBackFixerMultiLeft = CalculateLeanBackFixerMultiplier(_pitchL, _rollL);
+            float leanBackFixerMultiRight = CalculateLeanBackFixerMultiplier(_pitchR, _rollR);
 
             if(_trackLeftBreast.depthDiff < 0)
             {
@@ -895,7 +895,7 @@ namespace TittyMagic.Handlers
             else
             {
                 // back force on left breast
-                UpdateMorphs(BACK_L, BackEffect(_trackLeftBreast.depthDiff, leanBackFixedMultiLeft));
+                UpdateMorphs(BACK_L, BackEffect(_trackLeftBreast.depthDiff, leanBackFixerMultiLeft));
             }
 
             if(_trackRightBreast.depthDiff < 0)
@@ -906,11 +906,11 @@ namespace TittyMagic.Handlers
             else
             {
                 // back force on right breast
-                UpdateMorphs(BACK_R, BackEffect(_trackRightBreast.depthDiff, leanBackFixedMultiRight));
+                UpdateMorphs(BACK_R, BackEffect(_trackRightBreast.depthDiff, leanBackFixerMultiRight));
             }
 
             float depthDiffCenter = (_trackLeftBreast.depthDiff + _trackRightBreast.depthDiff) / 2;
-            float leanBackFixedMultiCenter = (leanBackFixedMultiLeft + leanBackFixedMultiRight) / 2;
+            float leanBackFixedMultiCenter = (leanBackFixerMultiLeft + leanBackFixerMultiRight) / 2;
             if(depthDiffCenter < 0)
             {
                 // forward force on average of left and right breast
