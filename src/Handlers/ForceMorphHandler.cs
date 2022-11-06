@@ -104,7 +104,7 @@ namespace TittyMagic.Handlers
             new MorphConfig($"UP/UP Breast Rotate Up {side}",
                 false,
                 new JSONStorableFloat("softMultiplier", 0.80f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.20f, -3.00f, 3.00f)
+                new JSONStorableFloat("massMultiplier", 0.50f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breast Top Curve2 {side}",
                 true,
@@ -113,13 +113,13 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig($"UP/UP Breasts Implants {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.25f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.05f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.36f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.12f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breast Diameter {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.48f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.16f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 2.00f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.50f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breast Diameter(Pose) {side}",
                 false,
@@ -129,12 +129,12 @@ namespace TittyMagic.Handlers
             new MorphConfig($"UP/UP Breast Width {side}",
                 false,
                 new JSONStorableFloat("softMultiplier", 0.21f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.07f, -3.00f, 3.00f)
+                new JSONStorableFloat("massMultiplier", 0.09f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breast Zero {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.36f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.18f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.24f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.08f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breast flat(Fixed) {side}",
                 false,
@@ -164,7 +164,7 @@ namespace TittyMagic.Handlers
             new MorphConfig($"UP/UP Breasts TogetherApart {side}",
                 false,
                 new JSONStorableFloat("softMultiplier", 0.90f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.30f, -3.00f, 3.00f)
+                new JSONStorableFloat("massMultiplier", 0.60f, -3.00f, 3.00f)
             ),
             new MorphConfig($"UP/UP Breast Top Curve1 {side}",
                 true,
@@ -819,18 +819,34 @@ namespace TittyMagic.Handlers
             }
         }
 
-        private static float ForwardEffect(float depthDiff) =>
+        private static float CalculateUpsideDownFixerMultiplier(float pitch, float roll)
+        {
+            if(pitch > -1 && pitch < 1)
+            {
+                return 1;
+            }
+
+            // return 1;
+            float effect = GravityEffectCalc.UpDownAdjustByAngle(pitch) * GravityEffectCalc.RollMultiplier(roll) / 2;
+            return 1 - effect;
+        }
+
+        private static float ForwardEffect(float depthDiff, float upsideDownFixerMulti) =>
             _forwardSoftnessMultiplier
             * _forwardMassMultiplier
+            * upsideDownFixerMulti
             * Curves.QuadraticRegression(forwardMultiplier)
             * 1.1f * Curves.ZForceEffectCurve(Mathf.Abs(depthDiff) * _forwardBaseMassFactor);
 
         private static void AdjustForwardMorphs()
         {
+            float upsideDownFixerMultiLeft = CalculateUpsideDownFixerMultiplier(_pitchL, _rollL);
+            float upsideDownFixerMultiRight = CalculateUpsideDownFixerMultiplier(_pitchR, _rollR);
+
             if(_trackLeftBreast.depthDiff < 0)
             {
                 // forward force on left breast
-                UpdateMorphs(FORWARD_L, ForwardEffect(_trackLeftBreast.depthDiff));
+                UpdateMorphs(FORWARD_L, ForwardEffect(_trackLeftBreast.depthDiff, upsideDownFixerMultiLeft));
             }
             else
             {
@@ -841,7 +857,7 @@ namespace TittyMagic.Handlers
             if(_trackRightBreast.depthDiff < 0)
             {
                 // forward force on right breast
-                UpdateMorphs(FORWARD_R, ForwardEffect(_trackRightBreast.depthDiff));
+                UpdateMorphs(FORWARD_R, ForwardEffect(_trackRightBreast.depthDiff, upsideDownFixerMultiRight));
             }
             else
             {
@@ -850,10 +866,11 @@ namespace TittyMagic.Handlers
             }
 
             float depthDiffCenter = (_trackLeftBreast.depthDiff + _trackRightBreast.depthDiff) / 2;
+            float upsideDownFixerMultiCenter = (upsideDownFixerMultiLeft + upsideDownFixerMultiRight) / 2;
             if(depthDiffCenter < 0)
             {
                 // forward force on average of left and right breast
-                UpdateMorphs(FORWARD_C, ForwardEffect(depthDiffCenter));
+                UpdateMorphs(FORWARD_C, ForwardEffect(depthDiffCenter, upsideDownFixerMultiCenter));
             }
             else
             {
