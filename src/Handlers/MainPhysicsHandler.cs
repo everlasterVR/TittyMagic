@@ -239,7 +239,7 @@ namespace TittyMagic.Handlers
         private static PhysicsParameter NewPositionDamperZParameter(string side)
         {
             var parameter = NewPhysicsParameter(POSITION_DAMPER_Z, side, 0, 0, 100);
-            parameter.config = new StaticPhysicsConfig(8f);
+            parameter.config = new StaticPhysicsConfig(11f);
             parameter.valueFormat = "F0";
             parameter.sync = value => SyncJointPositionZDriveDamper(_joints[side], _pectoralRbs[side], value);
             return parameter;

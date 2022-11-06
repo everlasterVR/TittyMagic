@@ -18,8 +18,11 @@ namespace TittyMagic
             float q = 1
         ) => a * Mathf.Pow(x, p) + b * Mathf.Pow(x, q) + c * x;
 
+        public static float ForwardMassMorphingCurve(float mass) =>
+            Mathf.Lerp(2.5f, 3.6f, InverseSmoothStep(1.5f - mass, 1.5f, 0.52f, 0.93f));
+
         // https://www.desmos.com/calculator/eicoieuczv
-        public static float DepthMassMorphingCurve(float mass)
+        public static float BackMassMorphingCurve(float mass)
         {
             const float a = 10.1f;
             const float b = 2.86f;

@@ -379,23 +379,23 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig($"FW/FW Breast Width {side}",
                 true,
-                new JSONStorableFloat("softMultiplier", -0.50f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.17f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", -0.24f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.08f, -3.00f, 3.00f)
             ),
             new MorphConfig($"FW/FW Breast Depth {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.88f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.44f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 1.60f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.08f, -3.00f, 3.00f)
             ),
             new MorphConfig($"FW/FW Breast Small {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.50f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.25f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.64f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", 0.18f, -3.00f, 3.00f)
             ),
             new MorphConfig($"FW/FW Breast Round {side}",
                 true,
-                new JSONStorableFloat("softMultiplier", -1.50f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", -0.50f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", -1.80f, -3.00f, 3.00f),
+                new JSONStorableFloat("massMultiplier", -0.60f, -3.00f, 3.00f)
             ),
         };
 
@@ -739,10 +739,10 @@ namespace TittyMagic.Handlers
             _upMassMultiplier = 0.0069f * _upBaseMassFactor * Curves.MassMorphingCurve(mass);
 
             _forwardSoftnessMultiplier = 1.16f * SoftnessCurve(softness);
-            _forwardMassMultiplier = 12.50f / _forwardBaseMassFactor * Curves.DepthMassMorphingCurve(mass);
+            _forwardMassMultiplier = 12.50f / _forwardBaseMassFactor * Curves.ForwardMassMorphingCurve(mass);
 
             _backSoftnessMultiplier = BackSoftnessCurve(softness);
-            _backMassMultiplier = 12.50f / _backBaseMassFactor * Curves.DepthMassMorphingCurve(mass);
+            _backMassMultiplier = 12.50f / _backBaseMassFactor * Curves.BackMassMorphingCurve(mass);
 
             _sidewaysSoftnessMultiplier = SoftnessCurve(softness);
             _sidewaysMassMultiplier = 0.0109f * _leftRightBaseMassFactor * Curves.MassMorphingCurve(mass);
