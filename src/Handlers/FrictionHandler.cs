@@ -56,7 +56,7 @@ namespace TittyMagic
             }
             else
             {
-                ResetGlossAndSpecularStorables();
+                SetGlossAndSpecularStorables();
                 enabled = true;
             }
         }
@@ -71,7 +71,7 @@ namespace TittyMagic
             else
             {
                 enabled = true;
-                ResetGlossAndSpecularStorables();
+                SetGlossAndSpecularStorables();
                 LoadSettings();
                 CalculateFriction();
             }
@@ -121,7 +121,7 @@ namespace TittyMagic
             SoftPhysicsHandler.SyncFriction(friction);
         }
 
-        private static void ResetGlossAndSpecularStorables()
+        private static void SetGlossAndSpecularStorables()
         {
             _glossJsf = _skinMaterialsStorable.GetFloatJSONParam("Gloss");
             _glossJsf.setJSONCallbackFunction = _ => CalculateFriction();
@@ -133,7 +133,7 @@ namespace TittyMagic
         /* Maximum friction that a collider can have, drops off dynamically with distance from collider's normal position */
         public static void CalculateFriction()
         {
-            if(!enabled || !tittyMagic.enabled)
+            if(!enabled || !tittyMagic.enabled || _glossJsf == null || _specularBumpinessJsf == null)
             {
                 return;
             }
