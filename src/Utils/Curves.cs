@@ -18,8 +18,9 @@ namespace TittyMagic
             float q = 1
         ) => a * Mathf.Pow(x, p) + b * Mathf.Pow(x, q) + c * x;
 
+        // https://www.desmos.com/calculator/wpslsllmab
         public static float ForwardMassMorphingCurve(float mass) =>
-            Mathf.Lerp(2.5f, 3.6f, InverseSmoothStep(1.5f - mass, 1.5f, 0.52f, 0.93f));
+            Mathf.Lerp(2.5f, 3.55f, InverseSmoothStep(1.5f - mass, 1.5f, 0.53f, 0.95f));
 
         // https://www.desmos.com/calculator/eicoieuczv
         public static float BackMassMorphingCurve(float mass)
