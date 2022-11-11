@@ -191,7 +191,7 @@ namespace TittyMagic
             {
                 _selectedCharacter = geometry.selectedCharacter;
                 skin = geometry.containingAtom.GetComponentInChildren<DAZCharacter>().skin;
-                tittyMagic.ReinitFrictionHandlerAndUI();
+                StartCoroutine(tittyMagic.ReinitFrictionHandlerAndUI());
             }
         }
 

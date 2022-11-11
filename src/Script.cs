@@ -219,39 +219,24 @@ namespace TittyMagic
                 }
             }
 
-            /* Wait for geometry and skin to be ready */
+            const int timeout = 15;
+            yield return WaitForGeometryAndSkinReady(timeout);
+            if(!_characterReady)
             {
-                const float timeout = 15;
-                float timePassed = 0;
+                Utils.LogError(
+                    $"Selected character {geometry.selectedCharacter.name} was not ready after {timeout} seconds of waiting. " +
+                    "Aborting plugin initization. Try reloading, and please report an issue."
+                );
+                yield break;
+            }
 
-                bool characterReady = false;
-                bool skinReady = false;
-                while(timePassed < timeout && !(characterReady && skinReady))
-                {
-                    timePassed += Time.unscaledDeltaTime;
-                    geometry = (DAZCharacterSelector) containingAtom.GetStorableByID("geometry");
-                    characterReady = geometry.selectedCharacter.ready;
-                    skinReady = geometry.selectedCharacter.name == "femaledummy" || containingAtom.GetStorableByID("skin") != null;
-                    yield return new WaitForSecondsRealtime(0.5f);
-                }
-
-                if(!characterReady)
-                {
-                    Utils.LogError(
-                        $"Selected character {geometry.selectedCharacter.name} was not ready after 120 seconds of waiting. " +
-                        "Aborting plugin initization. Try reloading, and please report an issue."
-                    );
-                    yield break;
-                }
-
-                if(!skinReady)
-                {
-                    Utils.LogError(
-                        $"Person skin materials not found after {timeout} seconds of waiting. " +
-                        "Aborting plugin initization. Try reloading, and please report an issue."
-                    );
-                    yield break;
-                }
+            if(!_skinReady)
+            {
+                Utils.LogError(
+                    $"Person skin materials not found after {timeout} seconds of waiting. " +
+                    "Aborting plugin initization. Try reloading, and please report an issue."
+                );
+                yield break;
             }
 
             personIsFemale = !geometry.selectedCharacter.isMale;
@@ -426,6 +411,22 @@ namespace TittyMagic
             }
 
             initialized = true;
+        }
+
+        private bool _characterReady;
+        private bool _skinReady;
+
+        private IEnumerator WaitForGeometryAndSkinReady(int timeout)
+        {
+            float timePassed = 0;
+            while(timePassed < timeout && !(_characterReady && _skinReady))
+            {
+                timePassed += Time.unscaledDeltaTime;
+                geometry = (DAZCharacterSelector) containingAtom.GetStorableByID("geometry");
+                _characterReady = geometry.selectedCharacter.ready;
+                _skinReady = geometry.selectedCharacter.name == "femaledummy" || containingAtom.GetStorableByID("skin") != null;
+                yield return new WaitForSecondsRealtime(0.5f);
+            }
         }
 
         // https://github.com/vam-community/vam-plugins-interop-specs/blob/main/keybindings.md
@@ -874,8 +875,22 @@ namespace TittyMagic
 
         #endregion Calibration
 
-        public void ReinitFrictionHandlerAndUI()
+        public IEnumerator ReinitFrictionHandlerAndUI()
         {
+            const int timeout = 15;
+            yield return WaitForGeometryAndSkinReady(timeout);
+            if(!_characterReady)
+            {
+                Debug.Log($"Selected character {geometry.selectedCharacter.name} was not ready after {timeout} seconds of waiting.");
+                yield break;
+            }
+
+            if(!_skinReady)
+            {
+                Debug.Log($"Person skin materials not found after {timeout} seconds of waiting.");
+                yield break;
+            }
+
             FrictionHandler.Refresh();
 
             var frictionUIMod = _uiMods.Find(uiMod => uiMod.targetName == "Skin Materials 2");
