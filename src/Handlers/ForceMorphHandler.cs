@@ -183,23 +183,23 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig($"UP/UP Breast Under Smoother1 {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.25f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.00f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.25f, -1.50f, 1.50f),
+                new JSONStorableFloat("massMultiplier", 0.00f, -1.50f, 1.50f)
             ),
             new MorphConfig($"UP/UP Breast Under Smoother2 {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.40f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.20f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.40f, -1.50f, 1.50f),
+                new JSONStorableFloat("massMultiplier", 0.20f, -1.50f, 1.50f)
             ),
             new MorphConfig($"UP/UP Breast Under Smoother3 {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.15f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.15f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.15f, -1.50f, 1.50f),
+                new JSONStorableFloat("massMultiplier", 0.15f, -1.50f, 1.50f)
             ),
             new MorphConfig($"UP/UP Breast Under Smoother4 {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.30f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.10f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.30f, -1.50f, 1.50f),
+                new JSONStorableFloat("massMultiplier", 0.10f, -1.50f, 1.50f)
             ),
             new MorphConfig($"UP/UP Breast Height Upper {side}",
                 false,
@@ -296,18 +296,18 @@ namespace TittyMagic.Handlers
             ),
             new MorphConfig($"BK/BK Breast Under Smoother1 {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.70f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.35f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.70f, -1.50f, 1.50f),
+                new JSONStorableFloat("massMultiplier", 0.35f, -1.50f, 1.50f)
             ),
             new MorphConfig($"BK/BK Breast Under Smoother2 {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.07f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.21f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.07f, -1.50f, 1.50f),
+                new JSONStorableFloat("massMultiplier", 0.21f, -1.50f, 1.50f)
             ),
             new MorphConfig($"BK/BK Breast Under Smoother3 {side}",
                 false,
-                new JSONStorableFloat("softMultiplier", 0.60f, -3.00f, 3.00f),
-                new JSONStorableFloat("massMultiplier", 0.20f, -3.00f, 3.00f)
+                new JSONStorableFloat("softMultiplier", 0.60f, -1.50f, 1.50f),
+                new JSONStorableFloat("massMultiplier", 0.20f, -1.50f, 1.50f)
             ),
             new MorphConfig($"BK/BK Breast Zero {side}",
                 false,
