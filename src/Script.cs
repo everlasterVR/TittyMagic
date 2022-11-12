@@ -19,7 +19,7 @@ namespace TittyMagic
 
         public static GenerateDAZMorphsControlUI morphsControlUI { get; private set; }
         public static DAZCharacterSelector geometry { get; private set; }
-        public static DAZSkinV2 skin { get; set; }
+        public static DAZSkinV2 skin { get; private set; }
 
         public float softnessAmount { get; private set; }
         public float quicknessAmount { get; private set; }
@@ -429,6 +429,36 @@ namespace TittyMagic
             }
         }
 
+        public IEnumerator RefreshSkin()
+        {
+            _characterReady = false;
+            _skinReady = false;
+            skin = null;
+
+            const int timeout = 15;
+            yield return WaitForGeometryAndSkinReady(timeout);
+
+            if(!_characterReady)
+            {
+                Utils.LogError(
+                    $"Selected character {geometry.selectedCharacter.name} was not ready after {timeout} seconds of waiting. " +
+                    "Try reloading, and please report an issue."
+                );
+                yield break;
+            }
+
+            if(!_skinReady)
+            {
+                Utils.LogError(
+                    $"Person skin materials not found after {timeout} seconds of waiting. " +
+                    "Try reloading, and please report an issue."
+                );
+                yield break;
+            }
+
+            skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
+        }
+
         // https://github.com/vam-community/vam-plugins-interop-specs/blob/main/keybindings.md
         public void OnBindingsListRequested(List<object> bindingsList)
         {
@@ -646,7 +676,11 @@ namespace TittyMagic
 
             try
             {
-                if(_restoringFromJson || calibrationHelper.calibratingJsb.val || _savingScene || containingAtom.FreezeGrabbing())
+                if(_restoringFromJson ||
+                    calibrationHelper.calibratingJsb.val ||
+                    skin == null ||
+                    _savingScene ||
+                    containingAtom.FreezeGrabbing())
                 {
                     return;
                 }
@@ -677,7 +711,6 @@ namespace TittyMagic
             catch(Exception e)
             {
                 Utils.LogError($"FixedUpdate: {e}");
-                enabled = false;
             }
         }
 
@@ -875,24 +908,9 @@ namespace TittyMagic
 
         #endregion Calibration
 
-        public IEnumerator ReinitFrictionHandlerAndUI()
+        public void ReinitFrictionHandlerAndUI()
         {
-            const int timeout = 15;
-            yield return WaitForGeometryAndSkinReady(timeout);
-            if(!_characterReady)
-            {
-                Debug.Log($"Selected character {geometry.selectedCharacter.name} was not ready after {timeout} seconds of waiting.");
-                yield break;
-            }
-
-            if(!_skinReady)
-            {
-                Debug.Log($"Person skin materials not found after {timeout} seconds of waiting.");
-                yield break;
-            }
-
             FrictionHandler.Refresh();
-
             var frictionUIMod = _uiMods.Find(uiMod => uiMod.targetName == "Skin Materials 2");
             if(FrictionHandler.enabled)
             {

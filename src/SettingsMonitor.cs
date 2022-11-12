@@ -189,9 +189,9 @@ namespace TittyMagic
             }
             else
             {
+                yield return tittyMagic.RefreshSkin();
                 _selectedCharacter = geometry.selectedCharacter;
-                skin = geometry.containingAtom.GetComponentInChildren<DAZCharacter>().skin;
-                StartCoroutine(tittyMagic.ReinitFrictionHandlerAndUI());
+                tittyMagic.ReinitFrictionHandlerAndUI();
             }
         }
 
