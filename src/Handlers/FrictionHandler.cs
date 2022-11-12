@@ -1,3 +1,4 @@
+using System;
 using TittyMagic.Handlers.Configs;
 using TittyMagic.Handlers;
 using TittyMagic.Models;
@@ -133,48 +134,55 @@ namespace TittyMagic
         /* Maximum friction that a collider can have, drops off dynamically with distance from collider's normal position */
         public static void CalculateFriction()
         {
-            if(!enabled || !tittyMagic.enabled || _glossJsf == null || _specularBumpinessJsf == null)
+            try
             {
-                return;
-            }
-
-            if(!adaptiveFrictionJsb.val)
-            {
-                float friction = Mathf.Clamp(HardCollider.DEFAULT_FRICTION + frictionOffsetJsf.val, 0, 1);
-                maxHardColliderFriction = friction;
-                softColliderFrictionJsf.valNoCallback = friction;
-            }
-            else
-            {
-                float normalizedLinearGloss = Mathf.InverseLerp(2.000f, 8.000f, _glossJsf.val);
-                float normalizedSpecBump = Mathf.InverseLerp(_specularBumpinessJsf.min, _specularBumpinessJsf.max, _specularBumpinessJsf.val);
-
-                /* Gloss based multiplier for how much effect bumpiness has on friction
-                 * https://www.desmos.com/calculator/ieiybdviqs
-                 */
-                float bumpinessEffectMultiplier = Curves.InverseSmoothStep(normalizedLinearGloss, 1, 0.40f, 0.33f);
-
-                /* Inverse of gloss determines the minimum value for friction along a curve.
-                 * https://www.desmos.com/calculator/8jwemyzuwr
-                 */
-                float minFriction = drySkinFrictionJsf.val * (1 - Curves.InverseSmoothStep(normalizedLinearGloss, 1, 0.56f, 0.86f));
-
-                /* Hard colliders */
+                if(!enabled || tittyMagic == null || !tittyMagic.enabled || _glossJsf == null || _specularBumpinessJsf == null)
                 {
-                    float specBumpComponent = 0.50f * bumpinessEffectMultiplier * normalizedSpecBump;
-                    float friction = 0.80f * Mathf.Lerp(minFriction, 1.000f, specBumpComponent);
-                    maxHardColliderFriction = Mathf.Clamp(friction + frictionOffsetJsf.val, 0, 1);
+                    return;
                 }
 
-                /* Soft colliders */
+                if(!adaptiveFrictionJsb.val)
                 {
-                    float specBumpComponent = 0.60f * bumpinessEffectMultiplier * normalizedSpecBump;
-                    float friction = Mathf.Lerp(minFriction, 1.000f, specBumpComponent);
-                    softColliderFrictionJsf.valNoCallback = Mathf.Clamp(friction + frictionOffsetJsf.val, 0, 1);
+                    float friction = Mathf.Clamp(HardCollider.DEFAULT_FRICTION + frictionOffsetJsf.val, 0, 1);
+                    maxHardColliderFriction = friction;
+                    softColliderFrictionJsf.valNoCallback = friction;
                 }
-            }
+                else
+                {
+                    float normalizedLinearGloss = Mathf.InverseLerp(2.000f, 8.000f, _glossJsf.val);
+                    float normalizedSpecBump = Mathf.InverseLerp(_specularBumpinessJsf.min, _specularBumpinessJsf.max, _specularBumpinessJsf.val);
 
-            UpdateSoftColliders(softColliderFrictionJsf.val);
+                    /* Gloss based multiplier for how much effect bumpiness has on friction
+                     * https://www.desmos.com/calculator/ieiybdviqs
+                     */
+                    float bumpinessEffectMultiplier = Curves.InverseSmoothStep(normalizedLinearGloss, 1, 0.40f, 0.33f);
+
+                    /* Inverse of gloss determines the minimum value for friction along a curve.
+                     * https://www.desmos.com/calculator/8jwemyzuwr
+                     */
+                    float minFriction = drySkinFrictionJsf.val * (1 - Curves.InverseSmoothStep(normalizedLinearGloss, 1, 0.56f, 0.86f));
+
+                    /* Hard colliders */
+                    {
+                        float specBumpComponent = 0.50f * bumpinessEffectMultiplier * normalizedSpecBump;
+                        float friction = 0.80f * Mathf.Lerp(minFriction, 1.000f, specBumpComponent);
+                        maxHardColliderFriction = Mathf.Clamp(friction + frictionOffsetJsf.val, 0, 1);
+                    }
+
+                    /* Soft colliders */
+                    {
+                        float specBumpComponent = 0.60f * bumpinessEffectMultiplier * normalizedSpecBump;
+                        float friction = Mathf.Lerp(minFriction, 1.000f, specBumpComponent);
+                        softColliderFrictionJsf.valNoCallback = Mathf.Clamp(friction + frictionOffsetJsf.val, 0, 1);
+                    }
+                }
+
+                UpdateSoftColliders(softColliderFrictionJsf.val);
+            }
+            catch(Exception e)
+            {
+                Debug.Log($"{nameof(CalculateFriction)}: Error occurred {e}");
+            }
         }
 
         public static void Destroy()
