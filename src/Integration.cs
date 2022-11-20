@@ -53,12 +53,12 @@ namespace TittyMagic
             JSONStorable otherInstance = null;
             try
             {
-                var regex = new Regex(@"^plugin#\d+_TittyMagic.Script", RegexOptions.Compiled);
+                var regex = new Regex($@"^plugin#\d+_{nameof(TittyMagic)}.{nameof(Script)}", RegexOptions.Compiled);
                 otherInstance = atom.FindStorablesByRegexMatch(regex).FirstOrDefault(FindOtherInstanceStorable);
             }
             catch(Exception e)
             {
-                Utils.LogError($"Error finding TittyMagic instance from Atom {atom.uid}: {e}");
+                Utils.LogError($"Error finding {nameof(TittyMagic)} instance from Atom {atom.uid}: {e}");
             }
 
             if(otherInstance != null &&

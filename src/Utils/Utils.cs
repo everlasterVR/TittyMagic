@@ -157,7 +157,7 @@ namespace TittyMagic
 
         public static bool PluginIsDuplicate(Atom atom, string storeId)
         {
-            var regex = new Regex(@"^plugin#\d+_TittyMagic.Script", RegexOptions.Compiled);
+            var regex = new Regex($@"^plugin#\d+_{nameof(TittyMagic)}.{nameof(Script)}", RegexOptions.Compiled);
             var storables = atom.FindStorablesByRegexMatch(regex);
             return storables.Exists(storable => storable.storeId != storeId);
         }
