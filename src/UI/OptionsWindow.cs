@@ -19,7 +19,7 @@ namespace TittyMagic.UI
         protected override void OnBuild()
         {
             CreateBackButton(false, _onReturnToParent);
-            CreateRecalibrateButton(tittyMagic.recalibratePhysics, true);
+            CreateCalibrateButton(tittyMagic.calibrate, true);
 
             /* Header */
             {

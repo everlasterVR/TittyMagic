@@ -308,7 +308,7 @@ namespace TittyMagic.Handlers
                 "Breast Mass"
             )
             {
-                requiresRecalibration = true,
+                requiresCalibration = true,
             };
 
             var centerOfGravityPercent = new PhysicsParameterGroup(
@@ -317,7 +317,7 @@ namespace TittyMagic.Handlers
                 "Center Of Gravity"
             )
             {
-                requiresRecalibration = true,
+                requiresCalibration = true,
             };
 
             var spring = new PhysicsParameterGroup(
@@ -326,7 +326,7 @@ namespace TittyMagic.Handlers
                 "Spring"
             )
             {
-                requiresRecalibration = true,
+                requiresCalibration = true,
             };
 
             var damper = new PhysicsParameterGroup(
@@ -344,7 +344,7 @@ namespace TittyMagic.Handlers
                 "In/Out Spring"
             )
             {
-                requiresRecalibration = true,
+                requiresCalibration = true,
             };
 
             var positionDamperZ = new PhysicsParameterGroup(
@@ -370,18 +370,18 @@ namespace TittyMagic.Handlers
 
             var targetRotationX = new PhysicsParameterGroup(leftXParam, rightXParam, "Up/Down Angle Target")
             {
-                requiresRecalibration = true,
+                requiresCalibration = true,
             };
 
             var targetRotationY = new PhysicsParameterGroup(leftYParam, rightYParam, "Right/Left Angle Target")
             {
-                requiresRecalibration = true,
+                requiresCalibration = true,
                 rightInverted = true,
             };
 
             var targetRotationZ = new PhysicsParameterGroup(leftZParam, rightZParam, "Twist Angle Target")
             {
-                requiresRecalibration = true,
+                requiresCalibration = true,
                 rightInverted = true, // correct but has no effect because offset not adjusted directly
             };
 

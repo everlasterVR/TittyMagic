@@ -19,7 +19,7 @@ namespace TittyMagic.Models
         }
 
         public bool usesRealMass { get; set; }
-        public bool requiresRecalibration { get; set; }
+        public bool requiresCalibration { get; set; }
         public bool hasSoftColliderVisualization { get; set; }
         public bool rightInverted { get; set; }
         public JSONStorableBool offsetOnlyLeftBreastJsb { get; }

@@ -28,7 +28,7 @@ namespace TittyMagic.UI
                 elements[storable.name] = chooser;
             }
 
-            CreateRecalibrateButton(tittyMagic.recalibratePhysics, true);
+            CreateCalibrateButton(tittyMagic.calibrate, true);
 
             /* Left debug info area */
             {

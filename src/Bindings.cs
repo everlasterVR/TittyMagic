@@ -37,7 +37,7 @@ namespace TittyMagic
                 new JSONStorableAction("AutoUpdateMassOn", () => StartCoroutine(DeferSetAutoUpdateMass(true))),
                 new JSONStorableAction("AutoUpdateMassOff", () => StartCoroutine(DeferSetAutoUpdateMass(false))),
                 new JSONStorableAction("CalculateBreastMass", tittyMagic.calculateBreastMass.actionCallback),
-                new JSONStorableAction("RecalibratePhysics", tittyMagic.recalibratePhysics.actionCallback),
+                new JSONStorableAction("CalibratePhysicsAndMorphs", tittyMagic.calibrate.actionCallback),
             };
             if(envIsDevelopment)
             {

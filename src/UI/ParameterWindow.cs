@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using TittyMagic.Handlers;
 using TittyMagic.Models;
@@ -14,7 +13,7 @@ namespace TittyMagic.UI
         private readonly PhysicsParameterGroup _parameterGroup;
         private readonly PhysicsParameter _parameter;
 
-        public JSONStorableAction recalibrationAction { get; }
+        public JSONStorableAction calibrationAction { get; }
         private float _offsetWhenCalibrated;
 
         public UIDynamicButton parentButton { private get; set; }
@@ -29,7 +28,7 @@ namespace TittyMagic.UI
             _parameter = _parameterGroup.left;
             _onReturnToParent = onReturnToParent;
 
-            recalibrationAction = new JSONStorableAction("recalibrationAction",
+            calibrationAction = new JSONStorableAction("calibrationAction",
                 () =>
                 {
                     _offsetWhenCalibrated = _parameter.offsetJsf.val;
@@ -39,7 +38,7 @@ namespace TittyMagic.UI
                     }
                     else
                     {
-                        tittyMagic.recalibratePhysics.actionCallback();
+                        tittyMagic.calibrate.actionCallback();
                     }
                 });
         }
@@ -48,9 +47,9 @@ namespace TittyMagic.UI
         {
             CreateBackButton(false, _onReturnToParent);
 
-            if(_parameterGroup.requiresRecalibration)
+            if(_parameterGroup.requiresCalibration)
             {
-                CreateRecalibrateButton(recalibrationAction, true);
+                CreateCalibrateButton(calibrationAction, true);
             }
             else if(_parameterGroup.hasSoftColliderVisualization)
             {
@@ -101,9 +100,9 @@ namespace TittyMagic.UI
                 slider.slider.onValueChanged.AddListener(value =>
                 {
                     parentButton.label = ParamButtonLabel();
-                    if(_parameterGroup.requiresRecalibration)
+                    if(_parameterGroup.requiresCalibration)
                     {
-                        tittyMagic.calibrationHelper.shouldRun = Math.Abs(value - _offsetWhenCalibrated) > 0.01f;
+                        tittyMagic.calibrationHelper.shouldRun = Mathf.Abs(value - _offsetWhenCalibrated) > 0.01f;
                     }
                 });
 
@@ -147,7 +146,7 @@ namespace TittyMagic.UI
 
             if(tittyMagic.calibrationHelper.shouldRun)
             {
-                tittyMagic.recalibratePhysics.actionCallback();
+                tittyMagic.calibrate.actionCallback();
             }
         }
 

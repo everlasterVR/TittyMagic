@@ -30,10 +30,10 @@ namespace TittyMagic.UI
         protected void AddSpacer(string name, int height, bool rightSide = false) =>
             elements[$"{name}Spacer"] = tittyMagic.NewSpacer(height, rightSide);
 
-        protected void CreateRecalibrateButton(JSONStorableAction storable, bool rightSide, int spacing = 0)
+        protected void CreateCalibrateButton(JSONStorableAction storable, bool rightSide, int spacing = 0)
         {
             AddSpacer(storable.name, spacing, rightSide);
-            string label = storable == tittyMagic.calculateBreastMass ? "Calculate Breast Mass" : "Recalibrate Physics";
+            string label = storable == tittyMagic.calculateBreastMass ? "Calculate Breast Mass" : "Calibrate Physics And Morphs";
             var button = tittyMagic.CreateButton(label, rightSide);
             storable.RegisterButton(button);
             button.height = 52;

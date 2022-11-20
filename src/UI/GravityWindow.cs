@@ -27,7 +27,7 @@ namespace TittyMagic.UI
                 sb.Append(" pulled by gravity, the more they will morph as well.");
                 sb.Append("\n\n");
                 sb.Append("Adjusting the sliders lets you preview the effect, but the final result requires a recalibration.");
-                sb.Append(" Recalibrate with the button or by navigating away from this window.");
+                sb.Append(" Calibrate with the button or by navigating away from this window.");
                 var storable = new JSONStorableString("gravityPhysicsMultipliersInfoText", sb.ToString());
                 var textField = tittyMagic.CreateTextField(storable);
                 textField.UItext.fontSize = 28;
@@ -36,7 +36,7 @@ namespace TittyMagic.UI
                 elements[storable.name] = textField;
             }
 
-            CreateRecalibrateButton(tittyMagic.recalibratePhysics, true);
+            CreateCalibrateButton(tittyMagic.calibrate, true);
             CreateBaseMultiplierSlider(GravityPhysicsHandler.baseJsf, true, spacing: 5);
             CreateMultiplierSlider(GravityPhysicsHandler.upJsf, "Up", true, spacing: 5);
             CreateMultiplierSlider(GravityPhysicsHandler.downJsf, "Down", true);
@@ -77,7 +77,7 @@ namespace TittyMagic.UI
         {
             if(tittyMagic.calibrationHelper.shouldRun)
             {
-                tittyMagic.recalibratePhysics.actionCallback();
+                tittyMagic.calibrate.actionCallback();
             }
         }
 

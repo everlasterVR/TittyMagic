@@ -102,11 +102,11 @@ namespace TittyMagic
 
             if(!tittyMagic.calibrationHelper.calibratingJsb.val)
             {
-                CheckIfRecalibrationNeeded();
+                CheckIfCalibrationNeeded();
             }
         }
 
-        private void CheckIfRecalibrationNeeded()
+        private void CheckIfCalibrationNeeded()
         {
             bool refreshNeeded = false;
             bool rateDependentRefreshNeeded = false;

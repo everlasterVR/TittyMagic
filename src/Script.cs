@@ -32,7 +32,7 @@ namespace TittyMagic
         private IWindow _gravityWindow;
         public Tabs tabs { get; private set; }
 
-        public JSONStorableAction recalibratePhysics { get; private set; }
+        public JSONStorableAction calibrate { get; private set; }
 
         public JSONStorableAction calculateBreastMass { get; private set; }
 
@@ -64,11 +64,11 @@ namespace TittyMagic
                     var activeParameterWindow = tabs.activeWindow?.GetActiveNestedWindow() as ParameterWindow;
                     if(activeParameterWindow != null)
                     {
-                        activeParameterWindow.recalibrationAction.actionCallback();
+                        activeParameterWindow.calibrationAction.actionCallback();
                     }
                     else
                     {
-                        recalibratePhysics.actionCallback();
+                        calibrate.actionCallback();
                     }
                 }
 
@@ -334,7 +334,7 @@ namespace TittyMagic
                 _softnessNoCallbackJsf.setCallbackFunction = value => softnessJsf.valNoCallback = value;
                 _quicknessNoCallbackJsf.setCallbackFunction = value => quicknessJsf.valNoCallback = value;
 
-                recalibratePhysics = this.NewJSONStorableAction("recalibratePhysics", () => StartCalibration(calibratesMass: false));
+                calibrate = this.NewJSONStorableAction("calibratePhysicsAndMorphs", () => StartCalibration(calibratesMass: false));
                 calculateBreastMass = this.NewJSONStorableAction("calculateBreastMass", () => StartCalibration(calibratesMass: true));
             }
 
@@ -718,7 +718,7 @@ namespace TittyMagic
 
             if(!enabled)
             {
-                Utils.LogMessage("Enable the plugin to recalibrate.");
+                Utils.LogMessage("Enable the plugin to calibrate it.");
                 return;
             }
 

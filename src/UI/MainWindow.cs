@@ -128,7 +128,7 @@ namespace TittyMagic.UI
                 sb.Append(" and realistically responsive behavior at high values.");
                 sb.Append("\n\n");
                 sb.Append("<b><i>Breast mass</i></b> is estimated from volume. Since it represents size, other physics");
-                sb.Append(" parameters are adjusted based on its value. Calculating mass also recalibrates physics.");
+                sb.Append(" parameters are adjusted based on its value. Calculating mass also calibrates the plugin.");
                 sb.Append("\n\n");
                 sb.Append("<b><i>Auto-update mass</i></b> enables calculating mass automatically when changes in breast");
                 sb.Append(" morphs are detected. Disabling it prevents repeated calibrations due to animation of");
@@ -152,7 +152,7 @@ namespace TittyMagic.UI
                 elements[storable.name] = textField;
             }
 
-            CreateRecalibrateButton(tittyMagic.recalibratePhysics, true);
+            CreateCalibrateButton(tittyMagic.calibrate, true);
 
             /* Open options window */
             {
@@ -187,7 +187,7 @@ namespace TittyMagic.UI
             }
 
             /* Calculate breast mass button */
-            CreateRecalibrateButton(tittyMagic.calculateBreastMass, true, spacing: 15);
+            CreateCalibrateButton(tittyMagic.calculateBreastMass, true, spacing: 15);
 
             /* Auto update toggle */
             {
