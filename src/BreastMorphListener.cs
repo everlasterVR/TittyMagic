@@ -6,7 +6,7 @@ namespace TittyMagic
 {
     public static class BreastMorphListener
     {
-        private static List<string> _excludeMorphsNames = new List<string>
+        private static HashSet<string> _excludeMorphsNames = new HashSet<string>
         {
             "FBMFitnessDetails",
             "FBMHeight",
@@ -76,8 +76,20 @@ namespace TittyMagic
                 }
             }
 
-            _morphs = listenedMorphs.Keys.ToArray();
-            _values = listenedMorphs.Values.ToArray();
+            if(_morphs == null)
+            {
+                _morphs = listenedMorphs.Keys.ToArray();
+                _values = listenedMorphs.Values.ToArray();
+            }
+            else
+            {
+                var tmpMorphs = _morphs.ToList();
+                tmpMorphs.AddRange(listenedMorphs.Keys);
+                _morphs = tmpMorphs.ToArray();
+                var tmpValues = _values.ToList();
+                tmpValues.AddRange(listenedMorphs.Values);
+                _values = tmpValues.ToArray();
+            }
         }
 
         private static DAZMorph[] _morphs;

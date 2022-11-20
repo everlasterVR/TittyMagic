@@ -54,24 +54,20 @@ namespace TittyMagic.Models
             };
         }
 
-        private void CreateOffsetPairCallback()
-        {
+        private void CreateOffsetPairCallback() =>
             left.offsetJsf.setCallbackFunction = value =>
             {
                 left.UpdateOffsetValue(value);
                 float rightValue = rightInverted ? -value : value;
                 right.UpdateOffsetValue(offsetOnlyLeftBreastJsb.val ? 0 : rightValue);
             };
-        }
 
-        private void CreateOffsetPairCallback(SoftGroupPhysicsParameter leftGroupParam, SoftGroupPhysicsParameter rightGroupParam)
-        {
+        private void CreateOffsetPairCallback(SoftGroupPhysicsParameter leftGroupParam, SoftGroupPhysicsParameter rightGroupParam) =>
             leftGroupParam.offsetJsf.setCallbackFunction = value =>
             {
                 leftGroupParam.UpdateOffsetValue(value);
                 rightGroupParam.UpdateOffsetValue(offsetOnlyLeftBreastJsb.val ? 0 : value);
             };
-        }
 
         public void UpdateValue(float massValue, float softness, float quickness)
         {
