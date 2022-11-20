@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using SimpleJSON;
 using TittyMagic.Components;
 using TittyMagic.Handlers;
@@ -781,6 +782,7 @@ namespace TittyMagic
                 HardColliderHandler.UpdateFriction();
                 ForcePhysicsHandler.Update();
                 GravityPhysicsHandler.SimulateUpright();
+                ZeroDuplicateMorphs();
                 ForceMorphHandler.SimulateUpright();
                 GravityOffsetMorphHandler.SimulateUpright();
 
@@ -861,6 +863,25 @@ namespace TittyMagic
             }
 
             yield return calibrationHelper.DeferFinish();
+        }
+
+        private void ZeroDuplicateMorphs()
+        {
+            var versionRegex = new Regex(@"\.\d+$", RegexOptions.Compiled);
+            string packageId = this.GetPackageId();
+            string packageName = versionRegex.Split(packageId)[0];
+            foreach(var morph in Utils.morphsControlUI.morphBank1.morphs)
+            {
+                if(
+                    morph.isInPackage &&
+                    morph.morphValue != 0 &&
+                    morph.packageUid.StartsWith(packageName) &&
+                    morph.packageUid != packageId
+                )
+                {
+                    morph.morphValue = 0;
+                }
+            }
         }
 
         private void SetBreastsUseGravity(bool value)
