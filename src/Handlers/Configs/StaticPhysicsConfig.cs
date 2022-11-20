@@ -4,23 +4,18 @@ namespace TittyMagic.Handlers.Configs
 {
     public class StaticPhysicsConfig
     {
-        private readonly float _baseValue; // value at min mass and min softness
+        public float baseValue { private get; set; } // value at min mass and min softness
 
-        private readonly Func<float, float> _massCurve;
-        private readonly Func<float, float> _softnessCurve;
+        public Func<float, float> massCurve { private get; set; }
+        public Func<float, float> softnessCurve { private get; set; }
 
-        public StaticPhysicsConfig(
-            float baseValue,
-            Func<float, float> massCurve = null,
-            Func<float, float> softnessCurve = null
-        )
+        public StaticPhysicsConfig()
         {
-            _baseValue = baseValue;
-            _massCurve = massCurve ?? (x => 0);
-            _softnessCurve = softnessCurve ?? (x => 0);
+            massCurve = x => 0;
+            softnessCurve = x => 0;
         }
 
         public float Calculate(float mass, float softness) =>
-            _baseValue * (1 + _massCurve(mass) + _softnessCurve(softness));
+            baseValue * (1 + massCurve(mass) + softnessCurve(softness));
     }
 }

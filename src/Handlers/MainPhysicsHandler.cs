@@ -175,11 +175,12 @@ namespace TittyMagic.Handlers
         private static PhysicsParameter NewCenterOfGravityParameter(string side)
         {
             var parameter = NewPhysicsParameter(CENTER_OF_GRAVITY_PERCENT, side, 0, 0, 1.00f);
-            parameter.config = new StaticPhysicsConfig(
-                0.60f,
-                massCurve: x => 0.25f * x,
-                softnessCurve: x => 0.08f * x
-            );
+            parameter.config = new StaticPhysicsConfig
+            {
+                baseValue = 0.60f,
+                massCurve = x => 0.25f * x,
+                softnessCurve = x => 0.08f * x,
+            };
             parameter.valueFormat = "F2";
             parameter.sync = value => SyncCenterOfGravity(_pectoralRbs[side], value);
             return parameter;
@@ -188,14 +189,21 @@ namespace TittyMagic.Handlers
         private static PhysicsParameter NewSpringParameter(string side)
         {
             var parameter = NewPhysicsParameter(SPRING, side, 10, 10, 100);
-            parameter.config = new StaticPhysicsConfig(
-                57f,
-                massCurve: x => 0.10f * x,
+            parameter.config = new StaticPhysicsConfig
+            {
+                baseValue = 57f,
+                massCurve = x => 0.10f * x,
                 // https://www.desmos.com/calculator/nxyosar9o6
-                softnessCurve: x => -0.50f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f)
-            );
-            parameter.quicknessOffsetConfig = new StaticPhysicsConfig(24f);
-            parameter.slownessOffsetConfig = new StaticPhysicsConfig(-12f);
+                softnessCurve = x => -0.50f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f),
+            };
+            parameter.quicknessOffsetConfig = new StaticPhysicsConfig
+            {
+                baseValue = 24f,
+            };
+            parameter.slownessOffsetConfig = new StaticPhysicsConfig
+            {
+                baseValue = -12f,
+            };
             parameter.valueFormat = "F0";
             parameter.sync = value => SyncJointSpring(_joints[side], _pectoralRbs[side], value);
             return parameter;
@@ -204,20 +212,22 @@ namespace TittyMagic.Handlers
         private static PhysicsParameter NewDamperParameter(string side)
         {
             var parameter = NewPhysicsParameter(DAMPER, side, 0, 0, 10.00f);
-            parameter.config = new StaticPhysicsConfig(
-                1.28f,
+            parameter.config = new StaticPhysicsConfig
+            {
+                baseValue = 1.28f,
                 // https://www.desmos.com/calculator/y3akvzgr1s
-                massCurve: x => 1.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.30f, 0.60f),
+                massCurve = x => 1.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.30f, 0.60f),
                 // https://www.desmos.com/calculator/nxyosar9o6
-                softnessCurve: x => -0.60f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f)
-            );
-            parameter.altConfig = new StaticPhysicsConfig(
-                1.10f,
+                softnessCurve = x => -0.60f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f),
+            };
+            parameter.altConfig = new StaticPhysicsConfig
+            {
+                baseValue = 1.10f,
                 // https://www.desmos.com/calculator/y3akvzgr1s
-                massCurve: x => 1.35f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.30f, 0.60f),
+                massCurve = x => 1.35f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.30f, 0.60f),
                 // https://www.desmos.com/calculator/nxyosar9o6
-                softnessCurve: x => -0.80f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f)
-            );
+                softnessCurve = x => -0.80f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f),
+            };
             parameter.valueFormat = "F2";
             parameter.sync = value => SyncJointDamper(_joints[side], _pectoralRbs[side], value);
             return parameter;
@@ -226,11 +236,12 @@ namespace TittyMagic.Handlers
         private static PhysicsParameter NewPositionSpringZParameter(string side)
         {
             var parameter = NewPhysicsParameter(POSITION_SPRING_Z, side, 0, 0, 1000);
-            parameter.config = new StaticPhysicsConfig(
-                720f,
-                massCurve: x => -0.14f * InvertMass(x),
-                softnessCurve: x => -0.45f * x
-            );
+            parameter.config = new StaticPhysicsConfig
+            {
+                baseValue = 720f,
+                massCurve = x => -0.14f * InvertMass(x),
+                softnessCurve = x => -0.45f * x,
+            };
             parameter.valueFormat = "F0";
             parameter.sync = value => SyncJointPositionZDriveSpring(_joints[side], _pectoralRbs[side], value);
             return parameter;
@@ -239,7 +250,10 @@ namespace TittyMagic.Handlers
         private static PhysicsParameter NewPositionDamperZParameter(string side)
         {
             var parameter = NewPhysicsParameter(POSITION_DAMPER_Z, side, 0, 0, 100);
-            parameter.config = new StaticPhysicsConfig(11f);
+            parameter.config = new StaticPhysicsConfig
+            {
+                baseValue = 11f,
+            };
             parameter.valueFormat = "F0";
             parameter.sync = value => SyncJointPositionZDriveDamper(_joints[side], _pectoralRbs[side], value);
             return parameter;
@@ -248,7 +262,10 @@ namespace TittyMagic.Handlers
         private static PhysicsParameter NewTargetRotationYParameter(string side)
         {
             var parameter = NewPhysicsParameter(TARGET_ROTATION_Y, side, 0, -20.00f, 20.00f);
-            parameter.config = new StaticPhysicsConfig(0.00f);
+            parameter.config = new StaticPhysicsConfig
+            {
+                baseValue = 0.00f,
+            };
             parameter.valueFormat = "F2";
             return parameter;
         }
@@ -256,7 +273,10 @@ namespace TittyMagic.Handlers
         private static PhysicsParameter NewTargetRotationXParameter(string side)
         {
             var parameter = NewPhysicsParameter(TARGET_ROTATION_X, side, 0, -20.00f, 20.00f);
-            parameter.config = new StaticPhysicsConfig(0.00f);
+            parameter.config = new StaticPhysicsConfig
+            {
+                baseValue = 0.00f,
+            };
             parameter.valueFormat = "F2";
             return parameter;
         }
@@ -271,7 +291,10 @@ namespace TittyMagic.Handlers
                 offsetJsf: new JSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max)
             )
             {
-                config = new StaticPhysicsConfig(0.00f),
+                config = new StaticPhysicsConfig
+                {
+                    baseValue = 0.00f,
+                },
                 valueFormat = "F2",
             };
             return parameter;

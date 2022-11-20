@@ -48,9 +48,9 @@ namespace TittyMagic
             }
         }
 
-        public static DAZMorph GetMorph(string file)
+        public static DAZMorph GetMorph(string fileName)
         {
-            string uid = $"{_morphsPath}/{file}.vmi";
+            string uid = $"{_morphsPath}/{fileName}.vmi";
             var dazMorph = morphsControlUI.GetMorphByUid(uid);
             if(dazMorph == null)
             {

@@ -246,38 +246,43 @@ namespace TittyMagic.Handlers
         private static PhysicsParameter NewSpringParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_SPRING, side, 0, 0, 500);
-            parameter.config = new StaticPhysicsConfig(
-                120f,
-                softnessCurve: x => -0.62f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
-            );
+            parameter.config = new StaticPhysicsConfig
+            {
+                baseValue = 120f,
+                softnessCurve = x => -0.62f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f),
+            };
             parameter.valueFormat = "F0";
 
             Func<float, float> groupSoftnessCurve = x => Curves.Exponential1(x, 1.90f, 1.74f, 1.17f);
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
                 {
-                    MAIN, new StaticPhysicsConfig(
-                        3.80f,
-                        softnessCurve: x => (1 / 3.80f - 1) * groupSoftnessCurve(x)
-                    )
+                    MAIN, new StaticPhysicsConfig
+                    {
+                        baseValue = 3.80f,
+                        softnessCurve = x => (1 / 3.80f - 1) * groupSoftnessCurve(x),
+                    }
                 },
                 {
-                    OUTER, new StaticPhysicsConfig(
-                        4.60f,
-                        softnessCurve: x => (1 / 4.60f - 1) * groupSoftnessCurve(x)
-                    )
+                    OUTER, new StaticPhysicsConfig
+                    {
+                        baseValue = 4.60f,
+                        softnessCurve = x => (1 / 4.60f - 1) * groupSoftnessCurve(x),
+                    }
                 },
                 {
-                    AREOLA, new StaticPhysicsConfig(
-                        4.80f,
-                        softnessCurve: x => (1 / 4.80f - 1) * groupSoftnessCurve(x)
-                    )
+                    AREOLA, new StaticPhysicsConfig
+                    {
+                        baseValue = 4.80f,
+                        softnessCurve = x => (1 / 4.80f - 1) * groupSoftnessCurve(x),
+                    }
                 },
                 {
-                    NIPPLE, new StaticPhysicsConfig(
-                        4.80f,
-                        softnessCurve: x => (1 / 2.40f - 1) * groupSoftnessCurve(x)
-                    )
+                    NIPPLE, new StaticPhysicsConfig
+                    {
+                        baseValue = 4.80f,
+                        softnessCurve = x => (1 / 2.40f - 1) * groupSoftnessCurve(x),
+                    }
                 },
             };
 
@@ -295,43 +300,54 @@ namespace TittyMagic.Handlers
         private static PhysicsParameter NewDamperParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_DAMPER, side, 0, 0, 5.00f);
-            parameter.config = new StaticPhysicsConfig(
-                0.68f,
-                massCurve: x => 0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
-                softnessCurve: x => -0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
-            );
-            parameter.quicknessOffsetConfig = new StaticPhysicsConfig(
-                -0.12f,
-                massCurve: x => -0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
-                softnessCurve: x => 0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
-            );
-            parameter.slownessOffsetConfig = new StaticPhysicsConfig(
-                0.12f,
-                massCurve: x => 0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
-                softnessCurve: x => -0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f)
-            );
+            parameter.config = new StaticPhysicsConfig
+            {
+                baseValue = 0.68f,
+                massCurve = x => 0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
+                softnessCurve = x => -0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f),
+            };
+            parameter.quicknessOffsetConfig = new StaticPhysicsConfig
+            {
+                baseValue = -0.12f,
+                massCurve = x => -0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
+                softnessCurve = x => 0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f),
+            };
+            parameter.slownessOffsetConfig = new StaticPhysicsConfig
+            {
+                baseValue = 0.12f,
+                massCurve = x => 0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
+                softnessCurve = x => -0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f),
+            };
             parameter.valueFormat = "F2";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                { MAIN, new StaticPhysicsConfig(1.00f) },
                 {
-                    OUTER, new StaticPhysicsConfig(
-                        1.00f,
-                        softnessCurve: x => 0.144f * Curves.DeemphasizeMiddle(x)
-                    )
+                    MAIN, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                    }
                 },
                 {
-                    AREOLA, new StaticPhysicsConfig(
-                        1.25f,
-                        softnessCurve: x => 0.72f * Curves.DeemphasizeMiddle(x)
-                    )
+                    OUTER, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                        softnessCurve = x => 0.144f * Curves.DeemphasizeMiddle(x),
+                    }
                 },
                 {
-                    NIPPLE, new StaticPhysicsConfig(
-                        1.40f,
-                        softnessCurve: x => 0.72f * Curves.DeemphasizeMiddle(x)
-                    )
+                    AREOLA, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.25f,
+                        softnessCurve = x => 0.72f * Curves.DeemphasizeMiddle(x),
+                    }
+                },
+                {
+                    NIPPLE, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.40f,
+                        softnessCurve = x => 0.72f * Curves.DeemphasizeMiddle(x),
+                    }
                 },
             };
 
@@ -349,45 +365,54 @@ namespace TittyMagic.Handlers
         private static PhysicsParameter NewSoftVerticesMassParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_MASS, side, 0, 0.001f, 0.300f);
-            parameter.config = new StaticPhysicsConfig(
-                0.027f,
+            parameter.config = new StaticPhysicsConfig
+            {
+                baseValue = 0.027f,
                 // https://www.desmos.com/calculator/inmadsqhj2
-                softnessCurve: x => 1.00f * Curves.Exponential1(x, 2.30f, 1.74f, 1.17f),
+                softnessCurve = x => 1.00f * Curves.Exponential1(x, 2.30f, 1.74f, 1.17f),
                 // https://www.desmos.com/calculator/gsyidpluyg
-                massCurve: x => 2.67f * Curves.Exponential1(2 / 3f * x, 1.91f, 1.7f, 0.82f)
-            );
-            parameter.quicknessOffsetConfig = new StaticPhysicsConfig(
-                -0.022f,
-                softnessCurve: x => 0.50f * x
-            );
-            parameter.slownessOffsetConfig = new StaticPhysicsConfig(
-                0.066f,
-                softnessCurve: x => 0.50f * x
-            );
+                massCurve = x => 2.67f * Curves.Exponential1(2 / 3f * x, 1.91f, 1.7f, 0.82f),
+            };
+            parameter.quicknessOffsetConfig = new StaticPhysicsConfig
+            {
+                baseValue = -0.022f,
+                softnessCurve = x => 0.50f * x,
+            };
+            parameter.slownessOffsetConfig = new StaticPhysicsConfig
+            {
+                baseValue = 0.066f,
+                softnessCurve = x => 0.50f * x,
+            };
             parameter.valueFormat = "F3";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
                 {
-                    MAIN, new StaticPhysicsConfig(
-                        1.00f,
-                        softnessCurve: x => 0.094f * Curves.DeemphasizeMiddle(x)
-                    )
+                    MAIN, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                        softnessCurve = x => 0.094f * Curves.DeemphasizeMiddle(x),
+                    }
                 },
                 {
-                    OUTER, new StaticPhysicsConfig(
-                        1.00f,
-                        softnessCurve: x => -0.144f * Curves.DeemphasizeMiddle(x)
-                    )
+                    OUTER, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                        softnessCurve = x => -0.144f * Curves.DeemphasizeMiddle(x),
+                    }
                 },
                 {
-                    AREOLA, new StaticPhysicsConfig(1.00f)
+                    AREOLA, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                    }
                 },
                 {
-                    NIPPLE, new StaticPhysicsConfig(
-                        1.00f,
-                        softnessCurve: x => -0.094f * Curves.DeemphasizeMiddle(x)
-                    )
+                    NIPPLE, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                        softnessCurve = x => -0.094f * Curves.DeemphasizeMiddle(x),
+                    }
                 },
             };
 
@@ -405,20 +430,41 @@ namespace TittyMagic.Handlers
         private static PhysicsParameter NewColliderRadiusParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_COLLIDER_RADIUS, side, 0, 0, 0.060f);
-            parameter.config = new StaticPhysicsConfig(
-                0.017f,
+            parameter.config = new StaticPhysicsConfig
+            {
+                baseValue = 0.017f,
                 // https://www.desmos.com/calculator/rotof03irg
-                massCurve: x => 1.85f * Curves.Exponential1(2 / 3f * x, 1.42f, 4.25f, 1.17f),
-                softnessCurve: x => 0.20f * x
-            );
+                massCurve = x => 1.85f * Curves.Exponential1(2 / 3f * x, 1.42f, 4.25f, 1.17f),
+                softnessCurve = x => 0.20f * x,
+            };
             parameter.valueFormat = "F4";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                { MAIN, new StaticPhysicsConfig(1.00f) },
-                { OUTER, new StaticPhysicsConfig(1.00f) },
-                { AREOLA, new StaticPhysicsConfig(1.15f) },
-                { NIPPLE, new StaticPhysicsConfig(0.33f) },
+                {
+                    MAIN, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                    }
+                },
+                {
+                    OUTER, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                    }
+                },
+                {
+                    AREOLA, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.15f,
+                    }
+                },
+                {
+                    NIPPLE, new StaticPhysicsConfig
+                    {
+                        baseValue = 0.33f,
+                    }
+                },
             };
 
             foreach(string group in allGroups)
@@ -435,15 +481,38 @@ namespace TittyMagic.Handlers
         private static PhysicsParameter NewColliderAdditionalNormalOffsetParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, side, 0, -0.0050f, 0.0050f);
-            parameter.config = new StaticPhysicsConfig(0.0005f);
+            parameter.config = new StaticPhysicsConfig
+            {
+                baseValue = 0.0005f,
+            };
             parameter.valueFormat = "F4";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                { MAIN, new StaticPhysicsConfig(1.00f) },
-                { OUTER, new StaticPhysicsConfig(1.00f) },
-                { AREOLA, new StaticPhysicsConfig(1.00f) },
-                { NIPPLE, new StaticPhysicsConfig(1.00f) },
+                {
+                    MAIN, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                    }
+                },
+                {
+                    OUTER, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                    }
+                },
+                {
+                    AREOLA, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                    }
+                },
+                {
+                    NIPPLE, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                    }
+                },
             };
 
             foreach(string group in allGroups)
@@ -460,19 +529,40 @@ namespace TittyMagic.Handlers
         private static PhysicsParameter NewDistanceLimitParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_DISTANCE_LIMIT, side, 0, 0, 0.100f);
-            parameter.config = new StaticPhysicsConfig(
-                0.016f,
-                massCurve: x => 2.45f * x,
-                softnessCurve: x => 0.52f * x
-            );
+            parameter.config = new StaticPhysicsConfig
+            {
+                baseValue = 0.016f,
+                massCurve = x => 2.45f * x,
+                softnessCurve = x => 0.52f * x,
+            };
             parameter.valueFormat = "F3";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                { MAIN, new StaticPhysicsConfig(1.00f) },
-                { OUTER, new StaticPhysicsConfig(1.25f) },
-                { AREOLA, new StaticPhysicsConfig(1.25f) },
-                { NIPPLE, new StaticPhysicsConfig(1.50f) },
+                {
+                    MAIN, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                    }
+                },
+                {
+                    OUTER, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.25f,
+                    }
+                },
+                {
+                    AREOLA, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.25f,
+                    }
+                },
+                {
+                    NIPPLE, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.50f,
+                    }
+                },
             };
 
             foreach(string group in allGroups)
@@ -489,35 +579,50 @@ namespace TittyMagic.Handlers
         private static PhysicsParameter NewBackForceParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_BACK_FORCE, side, 0, 0, 50.00f);
-            parameter.config = new StaticPhysicsConfig(
-                0.40f,
-                massCurve: x => 30.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.50f, 0.88f)
-            );
-            parameter.quicknessOffsetConfig = new StaticPhysicsConfig(
-                -0.40f,
-                massCurve: x => 15.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.50f, 0.88f)
-            );
-            parameter.slownessOffsetConfig = new StaticPhysicsConfig(
-                5.00f,
-                massCurve: x => 0.70f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.25f, 0.70f)
-            );
+            parameter.config = new StaticPhysicsConfig
+            {
+                baseValue = 0.40f,
+                massCurve = x => 30.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.50f, 0.88f),
+            };
+            parameter.quicknessOffsetConfig = new StaticPhysicsConfig
+            {
+                baseValue = -0.40f,
+                massCurve = x => 15.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.50f, 0.88f),
+            };
+            parameter.slownessOffsetConfig = new StaticPhysicsConfig
+            {
+                baseValue = 5.00f,
+                massCurve = x => 0.70f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.25f, 0.70f),
+            };
             parameter.valueFormat = "F2";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                { MAIN, new StaticPhysicsConfig(1.00f) },
-                { OUTER, new StaticPhysicsConfig(1.00f) },
                 {
-                    AREOLA, new StaticPhysicsConfig(
-                        0.25f,
-                        softnessCurve: x => (1 / 0.25f - 1) * x
-                    )
+                    MAIN, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                    }
                 },
                 {
-                    NIPPLE, new StaticPhysicsConfig(
-                        0.08f,
-                        softnessCurve: x => (1 / 0.08f - 1) * x
-                    )
+                    OUTER, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                    }
+                },
+                {
+                    AREOLA, new StaticPhysicsConfig
+                    {
+                        baseValue = 0.25f,
+                        softnessCurve = x => (1 / 0.25f - 1) * x,
+                    }
+                },
+                {
+                    NIPPLE, new StaticPhysicsConfig
+                    {
+                        baseValue = 0.08f,
+                        softnessCurve = x => (1 / 0.08f - 1) * x,
+                    }
                 },
             };
 
@@ -535,15 +640,38 @@ namespace TittyMagic.Handlers
         private static PhysicsParameter NewBackForceMaxForceParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_BACK_FORCE_MAX_FORCE, side, 0, 0, 50.00f);
-            parameter.config = new StaticPhysicsConfig(50.00f);
+            parameter.config = new StaticPhysicsConfig
+            {
+                baseValue = 50.00f,
+            };
             parameter.valueFormat = "F2";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                { MAIN, new StaticPhysicsConfig(1.00f) },
-                { OUTER, new StaticPhysicsConfig(1.00f) },
-                { AREOLA, new StaticPhysicsConfig(1.00f) },
-                { NIPPLE, new StaticPhysicsConfig(1.00f) },
+                {
+                    MAIN, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                    }
+                },
+                {
+                    OUTER, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                    }
+                },
+                {
+                    AREOLA, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                    }
+                },
+                {
+                    NIPPLE, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                    }
+                },
             };
 
             foreach(string group in allGroups)
@@ -560,15 +688,38 @@ namespace TittyMagic.Handlers
         private static PhysicsParameter NewBackForceThresholdDistanceParameter(string side)
         {
             var parameter = NewPhysicsParameter(SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE, side, 0, 0, 0.030f);
-            parameter.config = new StaticPhysicsConfig(0.001f);
+            parameter.config = new StaticPhysicsConfig
+            {
+                baseValue = 0.001f,
+            };
             parameter.valueFormat = "F3";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
-                { MAIN, new StaticPhysicsConfig(1.00f) },
-                { OUTER, new StaticPhysicsConfig(1.00f) },
-                { AREOLA, new StaticPhysicsConfig(1.00f) },
-                { NIPPLE, new StaticPhysicsConfig(1.00f) },
+                {
+                    MAIN, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                    }
+                },
+                {
+                    OUTER, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                    }
+                },
+                {
+                    AREOLA, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                    }
+                },
+                {
+                    NIPPLE, new StaticPhysicsConfig
+                    {
+                        baseValue = 1.00f,
+                    }
+                },
             };
 
             foreach(string group in allGroups)
