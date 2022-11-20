@@ -92,13 +92,12 @@ namespace TittyMagic.Handlers
             };
         }
 
-        private static DynamicPhysicsConfig NewSpringConfig() => new DynamicPhysicsConfig(
-            massMultiplier: -3.0f,
-            softnessMultiplier: -12.0f,
-            applyMethod: ApplyMethod.ADDITIVE,
-            massCurve: MainPhysicsHandler.InvertMass
-        )
+        private static DynamicPhysicsConfig NewSpringConfig() => new DynamicPhysicsConfig
         {
+            massMultiplier = -3.0f,
+            softnessMultiplier = -12.0f,
+            applyMethod = ApplyMethod.ADDITIVE,
+            massCurve = MainPhysicsHandler.InvertMass,
             negative = true,
         };
 
@@ -134,50 +133,40 @@ namespace TittyMagic.Handlers
 
         private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> DamperConfigs()
         {
-            var upConfig = new DynamicPhysicsConfig(
-                massMultiplier: 0.25f,
-                softnessMultiplier: 1.00f,
-                applyMethod: ApplyMethod.ADDITIVE,
-                massCurve: MainPhysicsHandler.InvertMass
-            )
+            var upConfig = new DynamicPhysicsConfig
             {
-                negative = false,
+                massMultiplier = 0.25f,
+                softnessMultiplier = 1.00f,
+                applyMethod = ApplyMethod.ADDITIVE,
+                massCurve = MainPhysicsHandler.InvertMass,
             };
-            var backConfig = new DynamicPhysicsConfig(
-                massMultiplier: 0.25f,
-                softnessMultiplier: 1.00f,
-                applyMethod: ApplyMethod.ADDITIVE,
-                massCurve: MainPhysicsHandler.InvertMass
-            )
+            var backConfig = new DynamicPhysicsConfig
             {
-                negative = false,
+                massMultiplier = 0.25f,
+                softnessMultiplier = 1.00f,
+                applyMethod = ApplyMethod.ADDITIVE,
+                massCurve = MainPhysicsHandler.InvertMass,
             };
-            var forwardConfig = new DynamicPhysicsConfig(
-                massMultiplier: 0.25f,
-                softnessMultiplier: 1.00f,
-                applyMethod: ApplyMethod.ADDITIVE,
-                massCurve: MainPhysicsHandler.InvertMass
-            )
+            var forwardConfig = new DynamicPhysicsConfig
             {
-                negative = false,
+                massMultiplier = 0.25f,
+                softnessMultiplier = 1.00f,
+                applyMethod = ApplyMethod.ADDITIVE,
+                massCurve = MainPhysicsHandler.InvertMass,
             };
-            var leftConfig = new DynamicPhysicsConfig(
-                massMultiplier: 0.25f,
-                softnessMultiplier: 1.00f,
-                applyMethod: ApplyMethod.ADDITIVE,
-                massCurve: MainPhysicsHandler.InvertMass
-            )
+            var leftConfig = new DynamicPhysicsConfig
             {
-                negative = false,
+                massMultiplier = 0.25f,
+                softnessMultiplier = 1.00f,
+                applyMethod = ApplyMethod.ADDITIVE,
+                massCurve = MainPhysicsHandler.InvertMass,
             };
-            var rightConfig = new DynamicPhysicsConfig(
-                massMultiplier: 0.25f,
-                softnessMultiplier: 1.00f,
-                applyMethod: ApplyMethod.ADDITIVE,
-                massCurve: MainPhysicsHandler.InvertMass
-            )
+            var rightConfig = new DynamicPhysicsConfig
             {
-                negative = false,
+                massMultiplier = 0.25f,
+                softnessMultiplier = 1.00f,
+                applyMethod = ApplyMethod.ADDITIVE,
+                massCurve = MainPhysicsHandler.InvertMass,
             };
             var leftBreast = new Dictionary<string, DynamicPhysicsConfig>
             {
@@ -205,26 +194,24 @@ namespace TittyMagic.Handlers
         private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> PositionSpringZConfigs()
         {
             Func<float, float> normalizeInvertMass = x => MainPhysicsHandler.NormalizeMass(MainPhysicsHandler.InvertMass(x));
-            var backConfig = new DynamicPhysicsConfig(
-                massMultiplier: -125f,
-                softnessMultiplier: -50f,
-                applyMethod: ApplyMethod.ADDITIVE,
-                // https://www.desmos.com/calculator/po08nsvnfa
-                massCurve: x => Curves.Exponential1(normalizeInvertMass(x), 0.3f, 10f, 0.84f, a: 1.01f),
-                softnessCurve: Curves.SpringZSoftnessCurve
-            )
+            var backConfig = new DynamicPhysicsConfig
             {
+                massMultiplier = -125f,
+                softnessMultiplier = -50f,
+                applyMethod = ApplyMethod.ADDITIVE,
+                // https://www.desmos.com/calculator/po08nsvnfa
+                massCurve = x => Curves.Exponential1(normalizeInvertMass(x), 0.3f, 10f, 0.84f, a: 1.01f),
+                softnessCurve = Curves.SpringZSoftnessCurve,
                 baseMultiplier = -125f,
                 negative = true,
             };
-            var forwardConfig = new DynamicPhysicsConfig(
-                massMultiplier: -125f,
-                softnessMultiplier: -50f,
-                applyMethod: ApplyMethod.ADDITIVE,
-                massCurve: x => Curves.Exponential1(normalizeInvertMass(x), 0.3f, 10f, 0.84f, a: 1.01f),
-                softnessCurve: Curves.SpringZSoftnessCurve
-            )
+            var forwardConfig = new DynamicPhysicsConfig
             {
+                massMultiplier = -125f,
+                softnessMultiplier = -50f,
+                applyMethod = ApplyMethod.ADDITIVE,
+                massCurve = x => Curves.Exponential1(normalizeInvertMass(x), 0.3f, 10f, 0.84f, a: 1.01f),
+                softnessCurve = Curves.SpringZSoftnessCurve,
                 baseMultiplier = -125f,
                 negative = true,
             };
@@ -247,23 +234,18 @@ namespace TittyMagic.Handlers
 
         private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> TargetRotationXConfigs()
         {
-            var upConfig = new DynamicPhysicsConfig(
-                massMultiplier: 0,
-                softnessMultiplier: 11.00f,
-                applyMethod: ApplyMethod.ADDITIVE,
-                softnessCurve: Curves.TargetRotationSoftnessCurve
-            )
+            var upConfig = new DynamicPhysicsConfig
             {
+                softnessMultiplier = 11.00f,
+                applyMethod = ApplyMethod.ADDITIVE,
+                softnessCurve = Curves.TargetRotationSoftnessCurve,
                 baseMultiplier = 1.60f,
-                negative = false,
             };
-            var downConfig = new DynamicPhysicsConfig(
-                massMultiplier: 0,
-                softnessMultiplier: -9.40f,
-                applyMethod: ApplyMethod.ADDITIVE,
-                softnessCurve: Curves.TargetRotationSoftnessCurve
-            )
+            var downConfig = new DynamicPhysicsConfig
             {
+                softnessMultiplier = -9.40f,
+                applyMethod = ApplyMethod.ADDITIVE,
+                softnessCurve = Curves.TargetRotationSoftnessCurve,
                 baseMultiplier = -1.34f,
                 negative = true,
             };
@@ -286,25 +268,21 @@ namespace TittyMagic.Handlers
 
         private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> TargetRotationYConfigs()
         {
-            var leftConfig = new DynamicPhysicsConfig(
-                massMultiplier: 0,
-                softnessMultiplier: -11.00f,
-                applyMethod: ApplyMethod.ADDITIVE,
-                softnessCurve: Curves.TargetRotationSoftnessCurve
-            )
+            var leftConfig = new DynamicPhysicsConfig
             {
+                softnessMultiplier = -11.00f,
+                applyMethod = ApplyMethod.ADDITIVE,
+                softnessCurve = Curves.TargetRotationSoftnessCurve,
                 baseMultiplier = -1.60f,
                 negative = true,
             };
-            var rightConfig = new DynamicPhysicsConfig(
-                massMultiplier: 0,
-                softnessMultiplier: 16.50f,
-                applyMethod: ApplyMethod.ADDITIVE,
-                softnessCurve: Curves.TargetRotationSoftnessCurve
-            )
+            var rightConfig = new DynamicPhysicsConfig
             {
+                massMultiplier = 0,
+                softnessMultiplier = 16.50f,
+                applyMethod = ApplyMethod.ADDITIVE,
+                softnessCurve = Curves.TargetRotationSoftnessCurve,
                 baseMultiplier = 1.60f,
-                negative = false,
             };
             var leftBreast = new Dictionary<string, DynamicPhysicsConfig>
             {
@@ -324,13 +302,9 @@ namespace TittyMagic.Handlers
         }
 
         private static DynamicPhysicsConfig NewRotationZConfig() =>
-            new DynamicPhysicsConfig(
-                massMultiplier: 0,
-                softnessMultiplier: 0,
-                applyMethod: ApplyMethod.ADDITIVE
-            )
+            new DynamicPhysicsConfig
             {
-                baseMultiplier = 0,
+                applyMethod = ApplyMethod.ADDITIVE,
             };
 
         private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> TargetRotationZConfigs()

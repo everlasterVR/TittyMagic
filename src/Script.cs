@@ -17,7 +17,6 @@ namespace TittyMagic
         public static bool envIsDevelopment => VERSION.StartsWith("0.");
         public static bool personIsFemale { get; private set; }
 
-        public static GenerateDAZMorphsControlUI morphsControlUI { get; private set; }
         public static DAZCharacterSelector geometry { get; private set; }
         public static DAZSkinV2 skin { get; private set; }
 
@@ -149,7 +148,6 @@ namespace TittyMagic
 
         public override void Init()
         {
-            tittyMagic = this;
             try
             {
                 /* Used to store version in save JSON and communicate version to other plugin instances */
@@ -170,6 +168,7 @@ namespace TittyMagic
                     return;
                 }
 
+                tittyMagic = this;
                 StartCoroutine(DeferInit());
             }
             catch(Exception e)
@@ -204,20 +203,7 @@ namespace TittyMagic
                 yield return null;
             }
 
-            /* Morphs path from main dir or var package */
-            {
-                string packageId = this.GetPackageId();
-                const string path = "Custom/Atom/Person/Morphs/female/everlaster";
-
-                if(string.IsNullOrEmpty(packageId))
-                {
-                    Utils.morphsPath = $"{path}/{nameof(TittyMagic)}_dev";
-                }
-                else
-                {
-                    Utils.morphsPath = $"{packageId}:/{path}/{nameof(TittyMagic)}";
-                }
-            }
+            Utils.SetMorphPath(this.GetPackageId());
 
             const int timeout = 15;
             yield return WaitForGeometryAndSkinReady(timeout);
@@ -243,7 +229,7 @@ namespace TittyMagic
 
             _listenersCheckRunner = new FrequencyRunner(0.333f);
 
-            morphsControlUI = personIsFemale ? geometry.morphsControlUI : geometry.morphsControlUIOtherGender;
+            Utils.morphsControlUI = personIsFemale ? geometry.morphsControlUI : geometry.morphsControlUIOtherGender;
             skin = containingAtom.GetComponentInChildren<DAZCharacter>().skin;
             MainPhysicsHandler.chestRb = Utils.FindRigidbody(containingAtom, "chest");
             _chestTransform = MainPhysicsHandler.chestRb.transform;
@@ -1030,7 +1016,7 @@ namespace TittyMagic
                 VertexIndexGroup.Destroy();
                 Integration.Destroy();
                 tittyMagic = null;
-                morphsControlUI = null;
+                Utils.morphsControlUI = null;
                 geometry = null;
                 skin = null;
 

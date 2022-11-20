@@ -72,25 +72,22 @@ namespace TittyMagic.Handlers
 
         private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> CenterOfGravityConfigs()
         {
-            var backConfig = new DynamicPhysicsConfig(
-                massMultiplier: -0.130f,
-                softnessMultiplier: -0.130f,
-                applyMethod: ApplyMethod.ADDITIVE,
-                massCurve: MainPhysicsHandler.InvertMass,
-                softnessCurve: Curves.ForcePhysicsSoftnessCurve
-            )
+            var backConfig = new DynamicPhysicsConfig
             {
+                massMultiplier = -0.130f,
+                softnessMultiplier = -0.130f,
+                applyMethod = ApplyMethod.ADDITIVE,
+                massCurve = MainPhysicsHandler.InvertMass,
+                softnessCurve = Curves.ForcePhysicsSoftnessCurve,
                 negative = true,
             };
-            var forwardConfig = new DynamicPhysicsConfig(
-                massMultiplier: 0.130f,
-                softnessMultiplier: 0.130f,
-                applyMethod: ApplyMethod.ADDITIVE,
-                massCurve: MainPhysicsHandler.InvertMass,
-                softnessCurve: Curves.ForcePhysicsSoftnessCurve
-            )
+            var forwardConfig = new DynamicPhysicsConfig
             {
-                negative = false,
+                massMultiplier = 0.130f,
+                softnessMultiplier = 0.130f,
+                applyMethod = ApplyMethod.ADDITIVE,
+                massCurve = MainPhysicsHandler.InvertMass,
+                softnessCurve = Curves.ForcePhysicsSoftnessCurve,
             };
             var leftBreast = new Dictionary<string, DynamicPhysicsConfig>
             {
@@ -111,22 +108,20 @@ namespace TittyMagic.Handlers
 
         private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> PositionDamperZConfigs()
         {
-            var backConfig = new DynamicPhysicsConfig(
-                massMultiplier: 4f,
-                softnessMultiplier: -8f,
-                applyMethod: ApplyMethod.ADDITIVE,
-                softnessCurve: Curves.ForcePhysicsSoftnessCurve
-            )
+            var backConfig = new DynamicPhysicsConfig
             {
+                massMultiplier = 4f,
+                softnessMultiplier = -8f,
+                applyMethod = ApplyMethod.ADDITIVE,
+                softnessCurve = Curves.ForcePhysicsSoftnessCurve,
                 negative = true,
             };
-            var forwardConfig = new DynamicPhysicsConfig(
-                massMultiplier: 4f,
-                softnessMultiplier: -8f,
-                applyMethod: ApplyMethod.ADDITIVE,
-                softnessCurve: Curves.ForcePhysicsSoftnessCurve
-            )
+            var forwardConfig = new DynamicPhysicsConfig
             {
+                massMultiplier = 4f,
+                softnessMultiplier = -8f,
+                applyMethod = ApplyMethod.ADDITIVE,
+                softnessCurve = Curves.ForcePhysicsSoftnessCurve,
                 negative = true,
             };
             var leftBreast = new Dictionary<string, DynamicPhysicsConfig>
@@ -148,20 +143,16 @@ namespace TittyMagic.Handlers
 
         private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> SoftVerticesSpringConfigs()
         {
-            var backConfig = new DynamicPhysicsConfig(
-                massMultiplier: 0f,
-                softnessMultiplier: -30f,
-                applyMethod: ApplyMethod.ADDITIVE
-            )
+            var backConfig = new DynamicPhysicsConfig
             {
+                softnessMultiplier = -30f,
+                applyMethod = ApplyMethod.ADDITIVE,
                 negative = true,
             };
-            var forwardConfig = new DynamicPhysicsConfig(
-                massMultiplier: 0f,
-                softnessMultiplier: 40f,
-                applyMethod: ApplyMethod.ADDITIVE
-            )
+            var forwardConfig = new DynamicPhysicsConfig
             {
+                softnessMultiplier = 40f,
+                applyMethod = ApplyMethod.ADDITIVE,
                 negative = true,
             };
             var leftBreast = new Dictionary<string, DynamicPhysicsConfig>

@@ -79,14 +79,11 @@ namespace TittyMagic
         }
 
         private static DynamicPhysicsConfig NewSoftVerticesColliderRadiusConfig() =>
-            new DynamicPhysicsConfig(
-                massMultiplier: 0.0060f,
-                softnessMultiplier: 0,
-                applyMethod: ApplyMethod.ADDITIVE,
-                massCurve: x => 1.75f * Curves.InverseSmoothStep(x, 1, 0.4f, 0.7f)
-            )
+            new DynamicPhysicsConfig
             {
-                negative = false,
+                massMultiplier = 0.0060f,
+                applyMethod = ApplyMethod.ADDITIVE,
+                massCurve = x => 1.75f * Curves.InverseSmoothStep(x, 1, 0.4f, 0.7f),
             };
 
         public static void LoadSettings()

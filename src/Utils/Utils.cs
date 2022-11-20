@@ -11,7 +11,8 @@ namespace TittyMagic
 {
     public static class Utils
     {
-        public static string morphsPath { get; set; }
+        public static GenerateDAZMorphsControlUI morphsControlUI { get; set; }
+        private static string _morphsPath;
 
         public static void Log(string message)
         {
@@ -34,10 +35,23 @@ namespace TittyMagic
             return match == null ? null : atom.GetStorableByID(match) as MVRScript;
         }
 
+        public static void SetMorphPath(string packageId)
+        {
+            const string path = "Custom/Atom/Person/Morphs/female/everlaster";
+            if(string.IsNullOrEmpty(packageId))
+            {
+                _morphsPath = $"{path}/{nameof(TittyMagic)}_dev";
+            }
+            else
+            {
+                _morphsPath = $"{packageId}:/{path}/{nameof(TittyMagic)}";
+            }
+        }
+
         public static DAZMorph GetMorph(string file)
         {
-            string uid = $"{morphsPath}/{file}.vmi";
-            var dazMorph = Script.morphsControlUI.GetMorphByUid(uid);
+            string uid = $"{_morphsPath}/{file}.vmi";
+            var dazMorph = morphsControlUI.GetMorphByUid(uid);
             if(dazMorph == null)
             {
                 LogError($"Morph with uid '{uid}' not found!");

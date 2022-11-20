@@ -35,27 +35,21 @@ namespace TittyMagic.Handlers
             new Dictionary<string, DynamicPhysicsConfig>
             {
                 {
-                    SoftColliderGroup.NIPPLE, new DynamicPhysicsConfig(
-                        massMultiplier: 0.5f,
-                        softnessMultiplier: 0.0f,
-                        applyMethod: ApplyMethod.MULTIPLICATIVE,
-                        massCurve: MainPhysicsHandler.InvertMass
-                    )
+                    SoftColliderGroup.NIPPLE, new DynamicPhysicsConfig
                     {
+                        massMultiplier = 0.5f,
+                        applyMethod = ApplyMethod.MULTIPLICATIVE,
+                        massCurve = MainPhysicsHandler.InvertMass,
                         baseMultiplier = 0.5f,
-                        negative = false,
                     }
                 },
                 {
-                    SoftColliderGroup.AREOLA, new DynamicPhysicsConfig(
-                        massMultiplier: 0.25f,
-                        softnessMultiplier: 0.00f,
-                        applyMethod: ApplyMethod.MULTIPLICATIVE,
-                        massCurve: MainPhysicsHandler.InvertMass
-                    )
+                    SoftColliderGroup.AREOLA, new DynamicPhysicsConfig
                     {
+                        massMultiplier = 0.25f,
+                        applyMethod = ApplyMethod.MULTIPLICATIVE,
+                        massCurve = MainPhysicsHandler.InvertMass,
                         baseMultiplier = 0.25f,
-                        negative = false,
                     }
                 },
             };
@@ -64,27 +58,21 @@ namespace TittyMagic.Handlers
             new Dictionary<string, DynamicPhysicsConfig>
             {
                 {
-                    SoftColliderGroup.NIPPLE, new DynamicPhysicsConfig(
-                        massMultiplier: 0.5f,
-                        softnessMultiplier: 0.0f,
-                        applyMethod: ApplyMethod.MULTIPLICATIVE,
-                        massCurve: MainPhysicsHandler.InvertMass
-                    )
+                    SoftColliderGroup.NIPPLE, new DynamicPhysicsConfig
                     {
+                        massMultiplier = 0.5f,
+                        applyMethod = ApplyMethod.MULTIPLICATIVE,
+                        massCurve = MainPhysicsHandler.InvertMass,
                         baseMultiplier = 0.5f,
-                        negative = false,
                     }
                 },
                 {
-                    SoftColliderGroup.AREOLA, new DynamicPhysicsConfig(
-                        massMultiplier: 0.25f,
-                        softnessMultiplier: 0.00f,
-                        applyMethod: ApplyMethod.MULTIPLICATIVE,
-                        massCurve: MainPhysicsHandler.InvertMass
-                    )
+                    SoftColliderGroup.AREOLA, new DynamicPhysicsConfig
                     {
+                        massMultiplier = 0.25f,
+                        applyMethod = ApplyMethod.MULTIPLICATIVE,
+                        massCurve = MainPhysicsHandler.InvertMass,
                         baseMultiplier = 0.25f,
-                        negative = false,
                     }
                 },
             };

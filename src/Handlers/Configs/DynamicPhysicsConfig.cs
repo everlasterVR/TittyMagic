@@ -5,34 +5,25 @@ namespace TittyMagic.Handlers.Configs
     public class DynamicPhysicsConfig
     {
         public float baseMultiplier { get; set; }
+        public float softnessMultiplier { private get; set; }
+        public float massMultiplier { private get; set; }
+        public string applyMethod { get; set; }
+        public Func<float, float> massCurve { private get; set; }
+        public Func<float, float> softnessCurve { private get; set; }
         public bool? negative { get; set; }
-        private float softnessMultiplier { get; }
-        private float massMultiplier { get; }
-        public string applyMethod { get; }
-        private readonly Func<float, float> _massCurve;
-        private readonly Func<float, float> _softnessCurve;
 
-        public DynamicPhysicsConfig(
-            float massMultiplier,
-            float softnessMultiplier,
-            string applyMethod,
-            Func<float, float> massCurve = null,
-            Func<float, float> softnessCurve = null
-        )
+        public DynamicPhysicsConfig()
         {
-            this.massMultiplier = massMultiplier;
-            this.softnessMultiplier = softnessMultiplier;
-            this.applyMethod = applyMethod;
-            _massCurve = massCurve ?? (x => x);
-            _softnessCurve = softnessCurve ?? (x => x);
+            massCurve = x => x;
+            softnessCurve = x => x;
         }
 
         public float Calculate(float effect, float mass, float softness)
         {
             float value = effect * (
                 baseMultiplier +
-                _softnessCurve(softness) * softnessMultiplier +
-                _massCurve(mass) * massMultiplier
+                softnessCurve(softness) * softnessMultiplier +
+                massCurve(mass) * massMultiplier
             );
 
             return negative.HasValue ? LimitToRange(value, negative.Value) : value;
@@ -42,8 +33,8 @@ namespace TittyMagic.Handlers.Configs
         {
             float value = effect * (
                 baseMultiplier +
-                _softnessCurve(softness) * softnessMultiplier +
-                _massCurve(mass) * massMultiplier
+                softnessCurve(softness) * softnessMultiplier +
+                massCurve(mass) * massMultiplier
             );
 
             return negative.HasValue ? LimitToRange(value, negative.Value) : value;
