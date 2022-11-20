@@ -501,6 +501,7 @@ namespace TittyMagic.Handlers
             forwardJsf = null;
             backJsf = null;
             leftRightJsf = null;
+            targetRotationZJsf = null;
         }
     }
 }
