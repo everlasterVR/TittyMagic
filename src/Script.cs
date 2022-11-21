@@ -864,6 +864,11 @@ namespace TittyMagic
         {
             var versionRegex = new Regex(@"\.\d+$", RegexOptions.Compiled);
             string packageId = this.GetPackageId();
+            if(string.IsNullOrEmpty(packageId))
+            {
+                return;
+            }
+
             string packageName = versionRegex.Split(packageId)[0];
             foreach(var morph in Utils.morphsControlUI.morphBank1.morphs)
             {
