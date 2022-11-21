@@ -74,8 +74,6 @@ namespace TittyMagic.UI
                     }
                 );
 
-                nestedWindows.Add(new DevWindow(nameof(DevWindow), OnReturn));
-
                 openDevMorphWindowAction = new JSONStorableAction(
                     "openDevMorphWindow",
                     () =>
@@ -85,8 +83,6 @@ namespace TittyMagic.UI
                         activeNestedWindow.Rebuild();
                     }
                 );
-
-                nestedWindows.Add(new DevMorphWindow(nameof(DevMorphWindow), OnReturn));
 
                 openExperimentalWindowAction = new JSONStorableAction(
                     "openExperimentalWindow",
@@ -98,6 +94,8 @@ namespace TittyMagic.UI
                     }
                 );
 
+                nestedWindows.Add(new DevWindow(nameof(DevWindow), OnReturn));
+                nestedWindows.Add(new DevMorphWindow(nameof(DevMorphWindow), OnReturn));
                 nestedWindows.Add(new ExperimentalWindow(nameof(ExperimentalWindow), OnReturn));
             }
 

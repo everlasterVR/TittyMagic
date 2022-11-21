@@ -13,14 +13,14 @@ namespace TittyMagic.Components
         public float depthDiff { get; private set; }
 
         private Vector3 _relativePosition;
-        private Vector2 _breastAngleXBaseVector;
-        private Vector2 _breastAngleYBaseVector;
-        private float _breastDepthBase;
+        private Vector2 _angleXBaseVector;
+        private Vector2 _angleYBaseVector;
+        private float _depthBase;
 
-        protected Func<Vector3> calculateBreastRelativePosition;
-        protected Func<float> calculateBreastRelativeAngleX;
-        protected Func<float> calculateBreastRelativeAngleY;
-        protected Func<float> calculateBreastRelativeDepth;
+        protected Func<Vector3> calculateRelativePosition;
+        protected Func<float> calculateRelativeAngleX;
+        protected Func<float> calculateRelativeAngleY;
+        protected Func<float> calculateRelativeDepth;
 
         protected TrackBreast()
         {
@@ -28,25 +28,25 @@ namespace TittyMagic.Components
         }
 
         protected float CalculateXAngle() =>
-            Vector2.SignedAngle(_breastAngleXBaseVector, new Vector2(_relativePosition.z, _relativePosition.x));
+            Vector2.SignedAngle(_angleXBaseVector, new Vector2(_relativePosition.z, _relativePosition.x));
 
         protected float CalculateYAngle() =>
-            Vector2.SignedAngle(_breastAngleYBaseVector, new Vector2(_relativePosition.z, _relativePosition.y));
+            Vector2.SignedAngle(_angleYBaseVector, new Vector2(_relativePosition.z, _relativePosition.y));
 
         public void Calibrate()
         {
-            _relativePosition = calculateBreastRelativePosition();
-            _breastAngleXBaseVector = new Vector2(_relativePosition.z, _relativePosition.x);
-            _breastAngleYBaseVector = new Vector2(_relativePosition.z, _relativePosition.y);
-            _breastDepthBase = calculateBreastRelativeDepth();
+            _relativePosition = calculateRelativePosition();
+            _angleXBaseVector = new Vector2(_relativePosition.z, _relativePosition.x);
+            _angleYBaseVector = new Vector2(_relativePosition.z, _relativePosition.y);
+            _depthBase = calculateRelativeDepth();
         }
 
         public void Update()
         {
-            _relativePosition = calculateBreastRelativePosition();
-            angleX = calculateBreastRelativeAngleX();
-            angleY = calculateBreastRelativeAngleY();
-            depthDiff = _breastDepthBase - calculateBreastRelativeDepth();
+            _relativePosition = calculateRelativePosition();
+            angleX = calculateRelativeAngleX();
+            angleY = calculateRelativeAngleY();
+            depthDiff = _depthBase - calculateRelativeDepth();
         }
 
         public void Reset()

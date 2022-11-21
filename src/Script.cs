@@ -707,11 +707,6 @@ namespace TittyMagic
 
         public void StartCalibration(bool calibratesMass, bool waitsForListeners = false)
         {
-            if(_restoringFromJson)
-            {
-                return;
-            }
-
             if(_restoringFromJson || calibrationHelper.calibratingJsb.val && calibrationHelper.BlockedByInput())
             {
                 return;
@@ -719,7 +714,7 @@ namespace TittyMagic
 
             if(!enabled)
             {
-                Utils.LogMessage("Enable the plugin to calibrate it.");
+                Utils.LogMessage("Enable the plugin to calibrate physics and morphs.");
                 return;
             }
 
@@ -839,18 +834,18 @@ namespace TittyMagic
             NippleErectionHandler.Update();
             FrictionHandler.CalculateFriction();
 
-            /* Calibrate nipples tracking and colliders */
+            /* Calibrate tracking and colliders */
             {
                 _isSimulatingUprightPose = true;
                 StartCoroutine(SimulateUprightPose());
-                Action calibrateNipplesAndColliders = () =>
+                Action calibrateTrackingAndColliders = () =>
                 {
                     trackLeftBreast.Calibrate();
                     trackRightBreast.Calibrate();
                     HardColliderHandler.CalibrateColliders();
                     HardColliderHandler.SyncAllOffsets();
                 };
-                yield return calibrationHelper.WaitAndRepeat(calibrateNipplesAndColliders, 24, 0.05f);
+                yield return calibrationHelper.WaitAndRepeat(calibrateTrackingAndColliders, 24, 0.05f);
                 HardColliderHandler.SyncCollidersMass();
                 HardColliderHandler.SyncAllOffsets();
                 _isSimulatingUprightPose = false;

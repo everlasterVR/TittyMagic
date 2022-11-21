@@ -37,17 +37,17 @@ namespace TittyMagic.Components
         {
             if(softPhysicsOn)
             {
-                calculateBreastRelativePosition = () => Calc.RelativePosition(chestRb, CalculatePosition(_softVertexCenterJointRBs));
-                calculateBreastRelativeDepth = CalculateDepth;
+                calculateRelativePosition = () => Calc.RelativePosition(chestRb, CalculatePosition(_softVertexCenterJointRBs));
+                calculateRelativeDepth = CalculateDepth;
             }
             else
             {
-                calculateBreastRelativePosition = () => Calc.RelativePosition(chestRb, _nippleRb.position);
-                calculateBreastRelativeDepth = () => Calc.RelativePosition(chestRb, _pectoralRb.position).z;
+                calculateRelativePosition = () => Calc.RelativePosition(chestRb, _nippleRb.position);
+                calculateRelativeDepth = () => Calc.RelativePosition(chestRb, _pectoralRb.position).z;
             }
 
-            calculateBreastRelativeAngleX = CalculateXAngle;
-            calculateBreastRelativeAngleY = CalculateYAngle;
+            calculateRelativeAngleX = CalculateXAngle;
+            calculateRelativeAngleY = CalculateYAngle;
         }
 
         private float CalculateDepth()
