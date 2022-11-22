@@ -82,7 +82,9 @@ namespace TittyMagic.Handlers
 
         public static void UpdateMassValueAndAmounts()
         {
-            float volume = (CalculateVolume(VertexIndexGroup.leftBreast) + CalculateVolume(VertexIndexGroup.rightBreast)) / 2;
+            float leftVolume = CalculateVolume(VertexIndexGroup.leftBreast);
+            float rightVolume = CalculateVolume(VertexIndexGroup.rightBreast);
+            float volume = (leftVolume + rightVolume) / 2;
             massParameterGroup.UpdateValue(volume / 1000);
 
             /* Division by 2 is a hacky way to make the value compatible with legacy configurations for morphs and physics settings */

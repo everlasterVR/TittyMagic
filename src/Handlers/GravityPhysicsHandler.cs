@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using TittyMagic.Handlers.Configs;
 using TittyMagic.Models;
 using static TittyMagic.Script;
@@ -46,50 +47,37 @@ namespace TittyMagic.Handlers
 
         public static void LoadSettings()
         {
-            var paramGroups = MainPhysicsHandler.parameterGroups;
-            paramGroups[SPRING].SetGravityPhysicsConfigs(SpringConfigs());
-            paramGroups[DAMPER].SetGravityPhysicsConfigs(DamperConfigs());
-            paramGroups[POSITION_SPRING_Z].SetGravityPhysicsConfigs(PositionSpringZConfigs());
-            paramGroups[TARGET_ROTATION_X].SetGravityPhysicsConfigs(TargetRotationXConfigs());
-            paramGroups[TARGET_ROTATION_Y].SetGravityPhysicsConfigs(TargetRotationYConfigs());
-            paramGroups[TARGET_ROTATION_Z].SetGravityPhysicsConfigs(TargetRotationZConfigs());
-            _paramGroups = new Dictionary<string, PhysicsParameterGroup[]>();
-            _paramGroups[UP] = new[]
+            string[] directions = { UP, DOWN, FORWARD, BACK, LEFT, RIGHT };
+            var groupsByDirection = directions.ToDictionary(dir => dir, _ => new List<PhysicsParameterGroup>());
+
+            var allConfigs = new Dictionary<string, Dictionary<string, Dictionary<string, DynamicPhysicsConfig>>>();
+            allConfigs[SPRING] = SpringConfigs();
+            allConfigs[DAMPER] = DamperConfigs();
+            allConfigs[POSITION_SPRING_Z] = PositionSpringZConfigs();
+            allConfigs[TARGET_ROTATION_X] = TargetRotationXConfigs();
+            allConfigs[TARGET_ROTATION_Y] = TargetRotationYConfigs();
+            allConfigs[TARGET_ROTATION_Z] = TargetRotationZConfigs();
+
+            foreach(var kvp in allConfigs)
             {
-                paramGroups[SPRING],
-                paramGroups[DAMPER],
-                paramGroups[TARGET_ROTATION_X],
-                paramGroups[TARGET_ROTATION_Z],
-            };
-            _paramGroups[DOWN] = new[]
+                string paramName = kvp.Key;
+                var paramConfigs = kvp.Value;
+                foreach(string dir in directions)
+                {
+                    if(paramConfigs[Side.LEFT].ContainsKey(dir))
+                    {
+                        groupsByDirection[dir].Add(MainPhysicsHandler.parameterGroups[paramName]);
+                    }
+                }
+            }
+
+            string[] paramNames = { SPRING, DAMPER, POSITION_SPRING_Z, TARGET_ROTATION_X, TARGET_ROTATION_Y, TARGET_ROTATION_Z };
+            foreach(string paramName in paramNames)
             {
-                paramGroups[TARGET_ROTATION_X],
-                paramGroups[TARGET_ROTATION_Z],
-            };
-            _paramGroups[FORWARD] = new[]
-            {
-                paramGroups[SPRING],
-                paramGroups[DAMPER],
-                paramGroups[POSITION_SPRING_Z],
-            };
-            _paramGroups[BACK] = new[]
-            {
-                paramGroups[SPRING],
-                paramGroups[DAMPER],
-                paramGroups[POSITION_SPRING_Z],
-            };
-            _paramGroups[LEFT] = new[]
-            {
-                paramGroups[SPRING],
-                paramGroups[DAMPER],
-                paramGroups[TARGET_ROTATION_Y],
-            };
-            _paramGroups[RIGHT] = new[]
-            {
-                paramGroups[SPRING],
-                paramGroups[DAMPER],
-                paramGroups[TARGET_ROTATION_Y],
-            };
+                MainPhysicsHandler.parameterGroups[paramName].SetGravityPhysicsConfigs(allConfigs[paramName]);
+            }
+
+            _paramGroups = groupsByDirection.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToArray());
         }
 
         private static DynamicPhysicsConfig NewSpringConfig() => new DynamicPhysicsConfig
@@ -108,27 +96,14 @@ namespace TittyMagic.Handlers
             var forwardConfig = NewSpringConfig();
             var leftConfig = NewSpringConfig();
             var rightConfig = NewSpringConfig();
-            var leftBreast = new Dictionary<string, DynamicPhysicsConfig>
+            return ConfigPair(new Dictionary<string, DynamicPhysicsConfig>
             {
                 { UP, upConfig },
                 { BACK, backConfig },
                 { FORWARD, forwardConfig },
                 { LEFT, leftConfig },
                 { RIGHT, rightConfig },
-            };
-            var rightBreast = new Dictionary<string, DynamicPhysicsConfig>
-            {
-                { UP, upConfig },
-                { BACK, backConfig },
-                { FORWARD, forwardConfig },
-                { LEFT, leftConfig },
-                { RIGHT, rightConfig },
-            };
-            return new Dictionary<string, Dictionary<string, DynamicPhysicsConfig>>
-            {
-                { Side.LEFT, leftBreast },
-                { Side.RIGHT, rightBreast },
-            };
+            });
         }
 
         private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> DamperConfigs()
@@ -168,27 +143,14 @@ namespace TittyMagic.Handlers
                 applyMethod = ApplyMethod.ADDITIVE,
                 massCurve = MainPhysicsHandler.InvertMass,
             };
-            var leftBreast = new Dictionary<string, DynamicPhysicsConfig>
+            return ConfigPair(new Dictionary<string, DynamicPhysicsConfig>
             {
                 { UP, upConfig },
                 { BACK, backConfig },
                 { FORWARD, forwardConfig },
                 { LEFT, leftConfig },
                 { RIGHT, rightConfig },
-            };
-            var rightBreast = new Dictionary<string, DynamicPhysicsConfig>
-            {
-                { UP, upConfig },
-                { BACK, backConfig },
-                { FORWARD, forwardConfig },
-                { LEFT, leftConfig },
-                { RIGHT, rightConfig },
-            };
-            return new Dictionary<string, Dictionary<string, DynamicPhysicsConfig>>
-            {
-                { Side.LEFT, leftBreast },
-                { Side.RIGHT, rightBreast },
-            };
+            });
         }
 
         private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> PositionSpringZConfigs()
@@ -215,21 +177,11 @@ namespace TittyMagic.Handlers
                 baseMultiplier = -125f,
                 negative = true,
             };
-            var leftBreast = new Dictionary<string, DynamicPhysicsConfig>
+            return ConfigPair(new Dictionary<string, DynamicPhysicsConfig>
             {
                 { BACK, backConfig },
                 { FORWARD, forwardConfig },
-            };
-            var rightBreast = new Dictionary<string, DynamicPhysicsConfig>
-            {
-                { BACK, backConfig },
-                { FORWARD, forwardConfig },
-            };
-            return new Dictionary<string, Dictionary<string, DynamicPhysicsConfig>>
-            {
-                { Side.LEFT, leftBreast },
-                { Side.RIGHT, rightBreast },
-            };
+            });
         }
 
         private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> TargetRotationXConfigs()
@@ -249,21 +201,11 @@ namespace TittyMagic.Handlers
                 baseMultiplier = -1.34f,
                 negative = true,
             };
-            var leftBreast = new Dictionary<string, DynamicPhysicsConfig>
+            return ConfigPair(new Dictionary<string, DynamicPhysicsConfig>
             {
                 { UP, upConfig },
                 { DOWN, downConfig },
-            };
-            var rightBreast = new Dictionary<string, DynamicPhysicsConfig>
-            {
-                { UP, upConfig },
-                { DOWN, downConfig },
-            };
-            return new Dictionary<string, Dictionary<string, DynamicPhysicsConfig>>
-            {
-                { Side.LEFT, leftBreast },
-                { Side.RIGHT, rightBreast },
-            };
+            });
         }
 
         private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> TargetRotationYConfigs()
@@ -284,21 +226,11 @@ namespace TittyMagic.Handlers
                 softnessCurve = Curves.TargetRotationSoftnessCurve,
                 baseMultiplier = 1.60f,
             };
-            var leftBreast = new Dictionary<string, DynamicPhysicsConfig>
+            return ConfigPair(new Dictionary<string, DynamicPhysicsConfig>
             {
                 { LEFT, leftConfig },
                 { RIGHT, rightConfig },
-            };
-            var rightBreast = new Dictionary<string, DynamicPhysicsConfig>
-            {
-                { LEFT, leftConfig },
-                { RIGHT, rightConfig },
-            };
-            return new Dictionary<string, Dictionary<string, DynamicPhysicsConfig>>
-            {
-                { Side.LEFT, leftBreast },
-                { Side.RIGHT, rightBreast },
-            };
+            });
         }
 
         private static DynamicPhysicsConfig NewRotationZConfig() =>
@@ -309,16 +241,13 @@ namespace TittyMagic.Handlers
 
         private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> TargetRotationZConfigs()
         {
-            var leftBreast = new Dictionary<string, DynamicPhysicsConfig>
+            var configPair = ConfigPair(new Dictionary<string, DynamicPhysicsConfig>
             {
                 { UP, NewRotationZConfig() },
                 { DOWN, NewRotationZConfig() },
-            };
-            var rightBreast = new Dictionary<string, DynamicPhysicsConfig>
-            {
-                { UP, NewRotationZConfig() },
-                { DOWN, NewRotationZConfig() },
-            };
+            });
+            var leftBreast = configPair[Side.LEFT];
+            var rightBreast = configPair[Side.RIGHT];
 
             targetRotationZJsf.setCallbackFunction = value =>
             {
@@ -329,12 +258,15 @@ namespace TittyMagic.Handlers
                 rightBreast[DOWN].baseMultiplier = -rounded;
             };
 
-            return new Dictionary<string, Dictionary<string, DynamicPhysicsConfig>>
-            {
-                { Side.LEFT, leftBreast },
-                { Side.RIGHT, rightBreast },
-            };
+            return configPair;
         }
+
+        private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> ConfigPair(Dictionary<string, DynamicPhysicsConfig> leftConfig) =>
+            new Dictionary<string, Dictionary<string, DynamicPhysicsConfig>>
+            {
+                { Side.LEFT, leftConfig },
+                { Side.RIGHT, new Dictionary<string, DynamicPhysicsConfig>(leftConfig) },
+            };
 
         private static float _mass;
         private static float _softness;
