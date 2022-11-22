@@ -1,5 +1,6 @@
 // ReSharper disable UnusedMember.Global
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -14,19 +15,23 @@ namespace TittyMagic
         public static GenerateDAZMorphsControlUI morphsControlUI { get; set; }
         private static string _morphsPath;
 
-        public static void Log(string message)
+        public static void Log(params object[] args)
         {
             if(Script.envIsDevelopment)
             {
+                string message = string.Join(" ", args.Select(arg => arg.ToString()).ToArray());
                 Debug.Log(message);
             }
         }
 
-        public static void LogError(string message) => SuperController.LogError(Format(message));
+        public static void LogError(params object[] args) =>
+            SuperController.LogError(Format(args));
 
-        public static void LogMessage(string message) => SuperController.LogMessage(Format(message));
+        public static void LogMessage(params object[] args) =>
+            SuperController.LogMessage(Format(args));
 
-        private static string Format(string message) => $"{nameof(TittyMagic)} v{Script.VERSION}: {message}";
+        private static string Format(IEnumerable<object> args) =>
+            $"{nameof(TittyMagic)} {Script.VERSION}: {string.Join(" ", args.Select(arg => arg.ToString()).ToArray())}";
 
         // ReSharper disable once UnusedMember.Global
         public static MVRScript FindPluginOnAtom(Atom atom, string search)
