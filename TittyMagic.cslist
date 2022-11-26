@@ -48,6 +48,7 @@ src\Handlers\FrictionHandler.cs
 src\Handlers\GravityEffectCalc.cs
 src\Handlers\GravityOffsetMorphHandler.cs
 src\Handlers\GravityPhysicsHandler.cs
+src\Handlers\HandlerUtils.cs
 src\Handlers\HardColliderHandler.cs
 src\Handlers\MainPhysicsHandler.cs
 src\Handlers\NippleErectionHandler.cs

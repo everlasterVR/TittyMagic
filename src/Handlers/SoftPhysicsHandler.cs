@@ -6,6 +6,7 @@ using TittyMagic.Handlers.Configs;
 using TittyMagic.Models;
 using TittyMagic.UI;
 using UnityEngine;
+using static TittyMagic.Handlers.HandlerUtils;
 using static TittyMagic.ParamName;
 using static TittyMagic.Script;
 using static TittyMagic.Side;
@@ -223,18 +224,6 @@ namespace TittyMagic.Handlers
 
         #region *** Parameter setup ***
 
-        private static PhysicsParameter NewPhysicsParameter(string paramName, string side, float startingValue, float minValue, float maxValue)
-        {
-            string jsfName = $"{paramName}{(side == LEFT ? "" : side)}";
-            var valueJsf = new JSONStorableFloat($"{jsfName}Value", startingValue, minValue, maxValue);
-            return new PhysicsParameter
-            {
-                valueJsf = valueJsf,
-                baseValueJsf = new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
-                offsetJsf = tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, shouldRegister: side == LEFT),
-            };
-        }
-
         private static SoftGroupPhysicsParameter NewSoftGroupPhysicsParameter(
             string paramName,
             string side,
@@ -255,13 +244,20 @@ namespace TittyMagic.Handlers
 
         private static PhysicsParameter NewSpringParameter(string side)
         {
-            var parameter = NewPhysicsParameter(SOFT_VERTICES_SPRING, side, 0, 0, 500);
-            parameter.config = new StaticPhysicsConfig
+            string jsfName = $"{SOFT_VERTICES_SPRING}{(side == LEFT ? "" : side)}";
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0f, 0f, 500f);
+            var parameter = new PhysicsParameter
             {
-                baseValue = 120f,
-                softnessCurve = x => -0.62f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f),
+                valueJsf = valueJsf,
+                baseValueJsf = NewBaseValueJsf(jsfName, valueJsf),
+                offsetJsf = NewOffsetJsf(jsfName, valueJsf, side == LEFT),
+                config = new StaticPhysicsConfig
+                {
+                    baseValue = 120f,
+                    softnessCurve = x => -0.62f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f),
+                },
+                valueFormat = "F0",
             };
-            parameter.valueFormat = "F0";
 
             Func<float, float> groupSoftnessCurve = x => Curves.Exponential1(x, 1.90f, 1.74f, 1.17f);
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
@@ -309,26 +305,33 @@ namespace TittyMagic.Handlers
 
         private static PhysicsParameter NewDamperParameter(string side)
         {
-            var parameter = NewPhysicsParameter(SOFT_VERTICES_DAMPER, side, 0, 0, 5.00f);
-            parameter.config = new StaticPhysicsConfig
+            string jsfName = JsfName(SOFT_VERTICES_DAMPER, side);
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.00f, 0.00f, 5.00f);
+            var parameter = new PhysicsParameter
             {
-                baseValue = 0.68f,
-                massCurve = x => 0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
-                softnessCurve = x => -0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f),
+                valueJsf = valueJsf,
+                baseValueJsf = NewBaseValueJsf(jsfName, valueJsf),
+                offsetJsf = NewOffsetJsf(jsfName, valueJsf, side == LEFT),
+                config = new StaticPhysicsConfig
+                {
+                    baseValue = 0.68f,
+                    massCurve = x => 0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
+                    softnessCurve = x => -0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f),
+                },
+                quicknessOffsetConfig = new StaticPhysicsConfig
+                {
+                    baseValue = -0.12f,
+                    massCurve = x => -0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
+                    softnessCurve = x => 0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f),
+                },
+                slownessOffsetConfig = new StaticPhysicsConfig
+                {
+                    baseValue = 0.12f,
+                    massCurve = x => 0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
+                    softnessCurve = x => -0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f),
+                },
+                valueFormat = "F2",
             };
-            parameter.quicknessOffsetConfig = new StaticPhysicsConfig
-            {
-                baseValue = -0.12f,
-                massCurve = x => -0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
-                softnessCurve = x => 0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f),
-            };
-            parameter.slownessOffsetConfig = new StaticPhysicsConfig
-            {
-                baseValue = 0.12f,
-                massCurve = x => 0.40f * Curves.Exponential2(x / 1.5f, c: 0.04f, s: 0.04f),
-                softnessCurve = x => -0.50f * Curves.Exponential1(x, 1.90f, 1.74f, 1.17f),
-            };
-            parameter.valueFormat = "F2";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
@@ -369,26 +372,33 @@ namespace TittyMagic.Handlers
 
         private static PhysicsParameter NewSoftVerticesMassParameter(string side)
         {
-            var parameter = NewPhysicsParameter(SOFT_VERTICES_MASS, side, 0, 0.001f, 0.300f);
-            parameter.config = new StaticPhysicsConfig
+            string jsfName = JsfName(SOFT_VERTICES_MASS, side);
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.000f, 0.001f, 0.300f);
+            var parameter = new PhysicsParameter
             {
-                baseValue = 0.027f,
-                // https://www.desmos.com/calculator/inmadsqhj2
-                softnessCurve = x => 1.00f * Curves.Exponential1(x, 2.30f, 1.74f, 1.17f),
-                // https://www.desmos.com/calculator/gsyidpluyg
-                massCurve = x => 2.67f * Curves.Exponential1(2 / 3f * x, 1.91f, 1.7f, 0.82f),
+                valueJsf = valueJsf,
+                baseValueJsf = NewBaseValueJsf(jsfName, valueJsf),
+                offsetJsf = NewOffsetJsf(jsfName, valueJsf, side == LEFT),
+                config = new StaticPhysicsConfig
+                {
+                    baseValue = 0.027f,
+                    // https://www.desmos.com/calculator/inmadsqhj2
+                    softnessCurve = x => 1.00f * Curves.Exponential1(x, 2.30f, 1.74f, 1.17f),
+                    // https://www.desmos.com/calculator/gsyidpluyg
+                    massCurve = x => 2.67f * Curves.Exponential1(2 / 3f * x, 1.91f, 1.7f, 0.82f),
+                },
+                quicknessOffsetConfig = new StaticPhysicsConfig
+                {
+                    baseValue = -0.022f,
+                    softnessCurve = x => 0.50f * x,
+                },
+                slownessOffsetConfig = new StaticPhysicsConfig
+                {
+                    baseValue = 0.066f,
+                    softnessCurve = x => 0.50f * x,
+                },
+                valueFormat = "F3",
             };
-            parameter.quicknessOffsetConfig = new StaticPhysicsConfig
-            {
-                baseValue = -0.022f,
-                softnessCurve = x => 0.50f * x,
-            };
-            parameter.slownessOffsetConfig = new StaticPhysicsConfig
-            {
-                baseValue = 0.066f,
-                softnessCurve = x => 0.50f * x,
-            };
-            parameter.valueFormat = "F3";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
@@ -429,15 +439,22 @@ namespace TittyMagic.Handlers
 
         private static PhysicsParameter NewColliderRadiusParameter(string side)
         {
-            var parameter = NewPhysicsParameter(SOFT_VERTICES_COLLIDER_RADIUS, side, 0, 0, 0.060f);
-            parameter.config = new StaticPhysicsConfig
+            string jsfName = JsfName(SOFT_VERTICES_COLLIDER_RADIUS, side);
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.000f, 0.000f, 0.060f);
+            var parameter = new PhysicsParameter
             {
-                baseValue = 0.017f,
-                // https://www.desmos.com/calculator/rotof03irg
-                massCurve = x => 1.85f * Curves.Exponential1(2 / 3f * x, 1.42f, 4.25f, 1.17f),
-                softnessCurve = x => 0.20f * x,
+                valueJsf = valueJsf,
+                baseValueJsf = NewBaseValueJsf(jsfName, valueJsf),
+                offsetJsf = NewOffsetJsf(jsfName, valueJsf, side == LEFT),
+                config = new StaticPhysicsConfig
+                {
+                    baseValue = 0.017f,
+                    // https://www.desmos.com/calculator/rotof03irg
+                    massCurve = x => 1.85f * Curves.Exponential1(2 / 3f * x, 1.42f, 4.25f, 1.17f),
+                    softnessCurve = x => 0.20f * x,
+                },
+                valueFormat = "F4",
             };
-            parameter.valueFormat = "F4";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
@@ -470,12 +487,20 @@ namespace TittyMagic.Handlers
 
         private static PhysicsParameter NewColliderAdditionalNormalOffsetParameter(string side)
         {
-            var parameter = NewPhysicsParameter(SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, side, 0, -0.0050f, 0.0050f);
-            parameter.config = new StaticPhysicsConfig
+            string jsfName = JsfName(SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, side);
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.000f, -0.0050f, 0.0050f);
+            var parameter = new PhysicsParameter
             {
-                baseValue = 0.0005f,
+                valueJsf = valueJsf,
+                baseValueJsf = NewBaseValueJsf(jsfName, valueJsf),
+                offsetJsf = NewOffsetJsf(jsfName, valueJsf, side == LEFT),
+                config = new StaticPhysicsConfig
+                {
+                    baseValue = 0.0005f,
+                },
+                valueFormat = "F4",
             };
-            parameter.valueFormat = "F4";
+
             var groupConfigs = NewDefaultGroupConfigs();
             foreach(string group in allGroups)
             {
@@ -490,14 +515,21 @@ namespace TittyMagic.Handlers
 
         private static PhysicsParameter NewDistanceLimitParameter(string side)
         {
-            var parameter = NewPhysicsParameter(SOFT_VERTICES_DISTANCE_LIMIT, side, 0, 0, 0.100f);
-            parameter.config = new StaticPhysicsConfig
+            string jsfName = JsfName(SOFT_VERTICES_DISTANCE_LIMIT, side);
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.000f, 0.000f, 0.100f);
+            var parameter = new PhysicsParameter
             {
-                baseValue = 0.016f,
-                massCurve = x => 2.45f * x,
-                softnessCurve = x => 0.52f * x,
+                valueJsf = valueJsf,
+                baseValueJsf = NewBaseValueJsf(jsfName, valueJsf),
+                offsetJsf = NewOffsetJsf(jsfName, valueJsf, side == LEFT),
+                config = new StaticPhysicsConfig
+                {
+                    baseValue = 0.016f,
+                    massCurve = x => 2.45f * x,
+                    softnessCurve = x => 0.52f * x,
+                },
+                valueFormat = "F3",
             };
-            parameter.valueFormat = "F3";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
@@ -535,23 +567,30 @@ namespace TittyMagic.Handlers
 
         private static PhysicsParameter NewBackForceParameter(string side)
         {
-            var parameter = NewPhysicsParameter(SOFT_VERTICES_BACK_FORCE, side, 0, 0, 50.00f);
-            parameter.config = new StaticPhysicsConfig
+            string jsfName = JsfName(SOFT_VERTICES_BACK_FORCE, side);
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.00f, 0.00f, 50.00f);
+            var parameter = new PhysicsParameter
             {
-                baseValue = 0.40f,
-                massCurve = x => 30.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.50f, 0.88f),
+                valueJsf = valueJsf,
+                baseValueJsf = NewBaseValueJsf(jsfName, valueJsf),
+                offsetJsf = NewOffsetJsf(jsfName, valueJsf, side == LEFT),
+                config = new StaticPhysicsConfig
+                {
+                    baseValue = 0.40f,
+                    massCurve = x => 30.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.50f, 0.88f),
+                },
+                quicknessOffsetConfig = new StaticPhysicsConfig
+                {
+                    baseValue = -0.40f,
+                    massCurve = x => 15.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.50f, 0.88f),
+                },
+                slownessOffsetConfig = new StaticPhysicsConfig
+                {
+                    baseValue = 5.00f,
+                    massCurve = x => 0.70f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.25f, 0.70f),
+                },
+                valueFormat = "F2",
             };
-            parameter.quicknessOffsetConfig = new StaticPhysicsConfig
-            {
-                baseValue = -0.40f,
-                massCurve = x => 15.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.50f, 0.88f),
-            };
-            parameter.slownessOffsetConfig = new StaticPhysicsConfig
-            {
-                baseValue = 5.00f,
-                massCurve = x => 0.70f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.25f, 0.70f),
-            };
-            parameter.valueFormat = "F2";
 
             var groupConfigs = new Dictionary<string, StaticPhysicsConfig>
             {
@@ -586,12 +625,20 @@ namespace TittyMagic.Handlers
 
         private static PhysicsParameter NewBackForceMaxForceParameter(string side)
         {
-            var parameter = NewPhysicsParameter(SOFT_VERTICES_BACK_FORCE_MAX_FORCE, side, 0, 0, 50.00f);
-            parameter.config = new StaticPhysicsConfig
+            string jsfName = JsfName(SOFT_VERTICES_BACK_FORCE_MAX_FORCE, side);
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.00f, 0.00f, 50.00f);
+            var parameter = new PhysicsParameter
             {
-                baseValue = 50.00f,
+                valueJsf = valueJsf,
+                baseValueJsf = NewBaseValueJsf(jsfName, valueJsf),
+                offsetJsf = NewOffsetJsf(jsfName, valueJsf, side == LEFT),
+                config = new StaticPhysicsConfig
+                {
+                    baseValue = 50.00f,
+                },
+                valueFormat = "F2",
             };
-            parameter.valueFormat = "F2";
+
             var groupConfigs = NewDefaultGroupConfigs();
             foreach(string group in allGroups)
             {
@@ -606,12 +653,20 @@ namespace TittyMagic.Handlers
 
         private static PhysicsParameter NewBackForceThresholdDistanceParameter(string side)
         {
-            var parameter = NewPhysicsParameter(SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE, side, 0, 0, 0.030f);
-            parameter.config = new StaticPhysicsConfig
+            string jsfName = JsfName(SOFT_VERTICES_BACK_FORCE_THRESHOLD_DISTANCE, side);
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.00f, 0.00f, 0.030f);
+            var parameter = new PhysicsParameter
             {
-                baseValue = 0.001f,
+                valueJsf = valueJsf,
+                baseValueJsf = NewBaseValueJsf(jsfName, valueJsf),
+                offsetJsf = NewOffsetJsf(jsfName, valueJsf, side == LEFT),
+                config = new StaticPhysicsConfig
+                {
+                    baseValue = 0.001f,
+                },
+                valueFormat = "F3",
             };
-            parameter.valueFormat = "F3";
+
             var groupConfigs = NewDefaultGroupConfigs();
             foreach(string group in allGroups)
             {

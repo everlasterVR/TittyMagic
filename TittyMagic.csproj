@@ -107,6 +107,7 @@
     <Compile Include="src\Handlers\FrictionHandler.cs" />
     <Compile Include="src\Handlers\GravityEffectCalc.cs" />
     <Compile Include="src\Handlers\GravityOffsetMorphHandler.cs" />
+    <Compile Include="src\Handlers\HandlerUtils.cs" />
     <Compile Include="src\Handlers\HardColliderHandler.cs" />
     <Compile Include="src\Handlers\SoftPhysicsHandler.cs" />
     <Compile Include="src\Integration.cs" />

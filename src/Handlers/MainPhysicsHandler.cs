@@ -5,6 +5,7 @@ using System.Text;
 using TittyMagic.Handlers.Configs;
 using TittyMagic.Models;
 using UnityEngine;
+using static TittyMagic.Handlers.HandlerUtils;
 using static TittyMagic.ParamName;
 using static TittyMagic.Script;
 using static TittyMagic.Side;
@@ -151,148 +152,184 @@ namespace TittyMagic.Handlers
 
         private static MassParameter NewMassParameter(string side)
         {
-            string jsfName = $"{MASS}{(side == LEFT ? "" : side)}";
+            string jsfName = JsfName(MASS, side);
             var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.100f, 0.100f, 3.000f);
             return new MassParameter
             {
                 valueJsf = valueJsf,
-                baseValueJsf = new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
-                offsetJsf = tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, shouldRegister: side == LEFT),
+                baseValueJsf = NewBaseValueJsf(jsfName, valueJsf),
+                offsetJsf = NewOffsetJsf(jsfName, valueJsf, side == LEFT),
                 valueFormat = "F3",
                 sync = value => SyncMass(_pectoralRbs[side], value),
             };
         }
 
-        private static PhysicsParameter NewPhysicsParameter(string paramName, string side, float startingValue, float minValue, float maxValue)
+        private static PhysicsParameter NewCenterOfGravityParameter(string side)
         {
-            string jsfName = $"{paramName}{(side == LEFT ? "" : side)}";
-            var valueJsf = new JSONStorableFloat($"{jsfName}Value", startingValue, minValue, maxValue);
+            string jsfName = JsfName(CENTER_OF_GRAVITY_PERCENT, side);
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.00f, 0.00f, 1.00f);
             return new PhysicsParameter
             {
                 valueJsf = valueJsf,
-                baseValueJsf = new JSONStorableFloat($"{jsfName}BaseValue", valueJsf.val, valueJsf.min, valueJsf.max),
-                offsetJsf = tittyMagic.NewJSONStorableFloat($"{jsfName}Offset", 0, -valueJsf.max, valueJsf.max, shouldRegister: side == LEFT),
+                baseValueJsf = NewBaseValueJsf(jsfName, valueJsf),
+                offsetJsf = NewOffsetJsf(jsfName, valueJsf, side == LEFT),
+                config = new StaticPhysicsConfig
+                {
+                    baseValue = 0.60f,
+                    massCurve = x => 0.25f * x,
+                    softnessCurve = x => 0.08f * x,
+                },
+                valueFormat = "F2",
+                sync = value => SyncCenterOfGravity(_pectoralRbs[side], value),
             };
-        }
-
-        private static PhysicsParameter NewCenterOfGravityParameter(string side)
-        {
-            var parameter = NewPhysicsParameter(CENTER_OF_GRAVITY_PERCENT, side, 0, 0, 1.00f);
-            parameter.config = new StaticPhysicsConfig
-            {
-                baseValue = 0.60f,
-                massCurve = x => 0.25f * x,
-                softnessCurve = x => 0.08f * x,
-            };
-            parameter.valueFormat = "F2";
-            parameter.sync = value => SyncCenterOfGravity(_pectoralRbs[side], value);
-            return parameter;
         }
 
         private static PhysicsParameter NewSpringParameter(string side)
         {
-            var parameter = NewPhysicsParameter(SPRING, side, 10, 10, 100);
-            parameter.config = new StaticPhysicsConfig
+            string jsfName = JsfName(SPRING, side);
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 10f, 10f, 100f);
+            return new PhysicsParameter
             {
-                baseValue = 57f,
-                massCurve = x => 0.10f * x,
-                // https://www.desmos.com/calculator/nxyosar9o6
-                softnessCurve = x => -0.50f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f),
+                valueJsf = valueJsf,
+                baseValueJsf = NewBaseValueJsf(jsfName, valueJsf),
+                offsetJsf = NewOffsetJsf(jsfName, valueJsf, side == LEFT),
+                config = new StaticPhysicsConfig
+                {
+                    baseValue = 57f,
+                    massCurve = x => 0.10f * x,
+                    // https://www.desmos.com/calculator/nxyosar9o6
+                    softnessCurve = x => -0.50f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f),
+                },
+                quicknessOffsetConfig = new StaticPhysicsConfig
+                {
+                    baseValue = 24f,
+                },
+                slownessOffsetConfig = new StaticPhysicsConfig
+                {
+                    baseValue = -12f,
+                },
+                valueFormat = "F0",
+                sync = value => SyncJointSpring(_joints[side], _pectoralRbs[side], value),
             };
-            parameter.quicknessOffsetConfig = new StaticPhysicsConfig
-            {
-                baseValue = 24f,
-            };
-            parameter.slownessOffsetConfig = new StaticPhysicsConfig
-            {
-                baseValue = -12f,
-            };
-            parameter.valueFormat = "F0";
-            parameter.sync = value => SyncJointSpring(_joints[side], _pectoralRbs[side], value);
-            return parameter;
         }
 
         private static PhysicsParameter NewDamperParameter(string side)
         {
-            var parameter = NewPhysicsParameter(DAMPER, side, 0, 0, 10.00f);
-            parameter.config = new StaticPhysicsConfig
+            string jsfName = JsfName(DAMPER, side);
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.00f, 0.00f, 10.00f);
+            return new PhysicsParameter
             {
-                baseValue = 1.28f,
-                // https://www.desmos.com/calculator/y3akvzgr1s
-                massCurve = x => 1.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.30f, 0.60f),
-                // https://www.desmos.com/calculator/nxyosar9o6
-                softnessCurve = x => -0.60f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f),
+                valueJsf = valueJsf,
+                baseValueJsf = NewBaseValueJsf(jsfName, valueJsf),
+                offsetJsf = NewOffsetJsf(jsfName, valueJsf, side == LEFT),
+                config = new StaticPhysicsConfig
+                {
+                    baseValue = 1.28f,
+                    // https://www.desmos.com/calculator/y3akvzgr1s
+                    massCurve = x => 1.00f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.30f, 0.60f),
+                    // https://www.desmos.com/calculator/nxyosar9o6
+                    softnessCurve = x => -0.60f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f),
+                },
+                altConfig = new StaticPhysicsConfig
+                {
+                    baseValue = 1.10f,
+                    // https://www.desmos.com/calculator/y3akvzgr1s
+                    massCurve = x => 1.35f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.30f, 0.60f),
+                    // https://www.desmos.com/calculator/nxyosar9o6
+                    softnessCurve = x => -0.80f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f),
+                },
+                valueFormat = "F2",
+                sync = value => SyncJointDamper(_joints[side], _pectoralRbs[side], value),
             };
-            parameter.altConfig = new StaticPhysicsConfig
-            {
-                baseValue = 1.10f,
-                // https://www.desmos.com/calculator/y3akvzgr1s
-                massCurve = x => 1.35f * Curves.InverseSmoothStep(2 / 3f * x, 1.00f, 0.30f, 0.60f),
-                // https://www.desmos.com/calculator/nxyosar9o6
-                softnessCurve = x => -0.80f * Curves.InverseSmoothStep(x, 1.00f, 0.24f, 0.61f),
-            };
-            parameter.valueFormat = "F2";
-            parameter.sync = value => SyncJointDamper(_joints[side], _pectoralRbs[side], value);
-            return parameter;
         }
 
         private static PhysicsParameter NewPositionSpringZParameter(string side)
         {
-            var parameter = NewPhysicsParameter(POSITION_SPRING_Z, side, 0, 0, 1000);
-            parameter.config = new StaticPhysicsConfig
+            string jsfName = JsfName(POSITION_SPRING_Z, side);
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0f, 0f, 1000f);
+            return new PhysicsParameter
             {
-                baseValue = 720f,
-                massCurve = x => -0.14f * InvertMass(x),
-                softnessCurve = x => -0.45f * x,
+                valueJsf = valueJsf,
+                baseValueJsf = NewBaseValueJsf(jsfName, valueJsf),
+                offsetJsf = NewOffsetJsf(jsfName, valueJsf, side == LEFT),
+                config = new StaticPhysicsConfig
+                {
+                    baseValue = 720f,
+                    massCurve = x => -0.14f * InvertMass(x),
+                    softnessCurve = x => -0.45f * x,
+                },
+                valueFormat = "F0",
+                sync = value => SyncJointPositionZDriveSpring(_joints[side], _pectoralRbs[side], value),
             };
-            parameter.valueFormat = "F0";
-            parameter.sync = value => SyncJointPositionZDriveSpring(_joints[side], _pectoralRbs[side], value);
-            return parameter;
         }
 
         private static PhysicsParameter NewPositionDamperZParameter(string side)
         {
-            var parameter = NewPhysicsParameter(POSITION_DAMPER_Z, side, 0, 0, 100);
-            parameter.config = new StaticPhysicsConfig
+            string jsfName = JsfName(POSITION_DAMPER_Z, side);
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0f, 0f, 100f);
+            return new PhysicsParameter
             {
-                baseValue = 11f,
+                valueJsf = valueJsf,
+                baseValueJsf = NewBaseValueJsf(jsfName, valueJsf),
+                offsetJsf = NewOffsetJsf(jsfName, valueJsf, side == LEFT),
+                config = new StaticPhysicsConfig
+                {
+                    baseValue = 11f,
+                },
+                valueFormat = "F0",
+                sync = value => SyncJointPositionZDriveDamper(_joints[side], _pectoralRbs[side], value),
             };
-            parameter.valueFormat = "F0";
-            parameter.sync = value => SyncJointPositionZDriveDamper(_joints[side], _pectoralRbs[side], value);
-            return parameter;
         }
 
         private static PhysicsParameter NewTargetRotationYParameter(string side)
         {
-            var parameter = NewPhysicsParameter(TARGET_ROTATION_Y, side, 0, -20.00f, 20.00f);
-            parameter.config = new StaticPhysicsConfig
+            string jsfName = JsfName(TARGET_ROTATION_Y, side);
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.00f, -20.00f, 20.00f);
+            return new PhysicsParameter
             {
-                baseValue = 0.00f,
+                valueJsf = valueJsf,
+                baseValueJsf = NewBaseValueJsf(jsfName, valueJsf),
+                offsetJsf = NewOffsetJsf(jsfName, valueJsf, side == LEFT),
+                config = new StaticPhysicsConfig
+                {
+                    baseValue = 0.00f,
+                },
+                valueFormat = "F2",
             };
-            parameter.valueFormat = "F2";
-            return parameter;
         }
 
         private static PhysicsParameter NewTargetRotationXParameter(string side)
         {
-            var parameter = NewPhysicsParameter(TARGET_ROTATION_X, side, 0, -20.00f, 20.00f);
-            parameter.config = new StaticPhysicsConfig
+            string jsfName = JsfName(TARGET_ROTATION_X, side);
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.00f, -20.00f, 20.00f);
+            return new PhysicsParameter
             {
-                baseValue = 0.00f,
+                valueJsf = valueJsf,
+                baseValueJsf = NewBaseValueJsf(jsfName, valueJsf),
+                offsetJsf = NewOffsetJsf(jsfName, valueJsf, side == LEFT),
+                config = new StaticPhysicsConfig
+                {
+                    baseValue = 0.00f,
+                },
+                valueFormat = "F2",
             };
-            parameter.valueFormat = "F2";
-            return parameter;
         }
 
         private static PhysicsParameter NewTargetRotationZParameter(string side)
         {
-            var parameter = NewPhysicsParameter(TARGET_ROTATION_Z, side, 0, -30.00f, 30.00f);
-            parameter.config = new StaticPhysicsConfig
+            string jsfName = JsfName(TARGET_ROTATION_Z, side);
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.00f, -30.00f, 30.00f);
+            return new PhysicsParameter
             {
-                baseValue = 0.00f,
+                valueJsf = valueJsf,
+                baseValueJsf = NewBaseValueJsf(jsfName, valueJsf),
+                offsetJsf = NewOffsetJsf(jsfName, valueJsf, side == LEFT),
+                config = new StaticPhysicsConfig
+                {
+                    baseValue = 0.00f,
+                },
+                valueFormat = "F2",
             };
-            parameter.valueFormat = "F2";
-            return parameter;
         }
 
         private static void SetupPhysicsParameterGroups()
