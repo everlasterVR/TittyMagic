@@ -82,7 +82,7 @@ namespace TittyMagic.UI
                 var storable = new JSONStorableString("infoText", _parameterGroup.infoText);
                 var textField = tittyMagic.CreateTextField(storable);
                 textField.UItext.fontSize = 28;
-                textField.height = GetId() == ParamName.MASS ? 368 : 268;
+                textField.height = GetId() == ParamName.MASS ? 370 : 270;
                 textField.backgroundColor = Color.clear;
                 elements[storable.name] = textField;
             }

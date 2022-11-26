@@ -53,7 +53,7 @@ namespace TittyMagic.UI
         private JSONStorableString _leftDebugArea;
         private HardColliderGroup[] _hardColliderGroups;
 
-        public void UpdateLeftDebugInfo()
+        public void Update()
         {
             var sb = new StringBuilder();
             sb.Append("\n");

@@ -692,7 +692,7 @@ namespace TittyMagic
 
                 if(envIsDevelopment)
                 {
-                    (_mainWindow.GetActiveNestedWindow() as DevWindow)?.UpdateLeftDebugInfo();
+                    (_mainWindow.GetActiveNestedWindow() as DevWindow)?.Update();
                 }
             }
             catch(Exception e)
@@ -743,10 +743,7 @@ namespace TittyMagic
 
                 if(!HardColliderHandler.RigidbodiesFound())
                 {
-                    Utils.LogError(
-                        "Calibration error: collider rigidbodies not found after 5 seconds of waiting. " +
-                        "Reload the plugin, and please report a bug! <3"
-                    );
+                    Utils.LogError("Fatal calibration error: collider rigidbodies not found after 5 seconds of waiting.");
                     yield break;
                 }
             }

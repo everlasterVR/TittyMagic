@@ -44,63 +44,8 @@ namespace TittyMagic.Handlers
                 breastPhysicsMesh = (DAZPhysicsMesh) tittyMagic.containingAtom.GetStorableByID("BreastPhysicsMesh");
                 _breastPhysicsMeshFloatParamNames = breastPhysicsMesh.GetFloatParamNames();
 
-                var groups = breastPhysicsMesh.softVerticesGroups;
-                _softVerticesGroups = new Dictionary<string, Dictionary<string, DAZPhysicsMeshSoftVerticesGroup>>
-                {
-                    {
-                        LEFT, new Dictionary<string, DAZPhysicsMeshSoftVerticesGroup>
-                        {
-                            { MAIN, groups.Find(group => group.name == "left") },
-                            { OUTER, groups.Find(group => group.name == "leftouter") },
-                            { AREOLA, groups.Find(group => group.name == "leftareola") },
-                            { NIPPLE, groups.Find(group => group.name == "leftnipple") },
-                        }
-                    },
-                    {
-                        RIGHT, new Dictionary<string, DAZPhysicsMeshSoftVerticesGroup>
-                        {
-                            { MAIN, groups.Find(group => group.name == "right") },
-                            { OUTER, groups.Find(group => group.name == "rightouter") },
-                            { AREOLA, groups.Find(group => group.name == "rightareola") },
-                            { NIPPLE, groups.Find(group => group.name == "rightnipple") },
-                        }
-                    },
-                };
-                _vertexIndices = new Dictionary<string, Dictionary<string, int[]>>
-                {
-                    {
-                        LEFT, new Dictionary<string, int[]>
-                        {
-                            {
-                                MAIN,
-                                new[]
-                                {
-                                    7230, 7231, 7232, 7233, 7234, 7235, 7236, 7237, 7238, 7239, 7243, 7244, 7245,
-                                    7246, 7247, 8925, 8926, 8927, 8928, 8929, 8930, 8931, 8932, 8933, 8934, 8935,
-                                    8936, 8937, 8938, 8939, 8940, 8941, 8942, 8943, 8944, 8945, 8946, 8947, 8948,
-                                }
-                            },
-                            { OUTER, new[] { 17, 137, 2403, 2407, 2410, 2418, 2596, 7248, 8848, 8849 } },
-                            { AREOLA, new[] { 7945, 7946, 7947, 7950, 7958, 7966 } },
-                        }
-                    },
-                    {
-                        RIGHT, new Dictionary<string, int[]>
-                        {
-                            {
-                                MAIN,
-                                new[]
-                                {
-                                    17936, 17937, 17938, 17939, 17940, 17941, 17942, 17943, 17944, 17945, 17949, 17950, 17951,
-                                    17952, 17953, 19591, 19592, 19593, 19594, 19595, 19596, 19597, 19598, 19599, 19600, 19601,
-                                    19602, 19603, 19604, 19605, 19606, 19607, 19608, 19609, 19610, 19611, 19612, 19613, 19614,
-                                }
-                            },
-                            { OUTER, new[] { 10945, 11065, 13233, 13237, 13240, 13248, 13412, 17954, 19519, 19520 } },
-                            { AREOLA, new[] { 18623, 18624, 18625, 18628, 18636, 18644 } },
-                        }
-                    },
-                };
+                SetupSoftVertexGroups();
+                SetupVertexIndices();
 
                 EnableMultiplyFriction();
             }
@@ -131,6 +76,69 @@ namespace TittyMagic.Handlers
 
             _initialized = true;
         }
+
+        private static void SetupSoftVertexGroups()
+        {
+            var groups = breastPhysicsMesh.softVerticesGroups;
+            _softVerticesGroups = new Dictionary<string, Dictionary<string, DAZPhysicsMeshSoftVerticesGroup>>
+            {
+                {
+                    LEFT, new Dictionary<string, DAZPhysicsMeshSoftVerticesGroup>
+                    {
+                        { MAIN, groups.Find(group => group.name == "left") },
+                        { OUTER, groups.Find(group => group.name == "leftouter") },
+                        { AREOLA, groups.Find(group => group.name == "leftareola") },
+                        { NIPPLE, groups.Find(group => group.name == "leftnipple") },
+                    }
+                },
+                {
+                    RIGHT, new Dictionary<string, DAZPhysicsMeshSoftVerticesGroup>
+                    {
+                        { MAIN, groups.Find(group => group.name == "right") },
+                        { OUTER, groups.Find(group => group.name == "rightouter") },
+                        { AREOLA, groups.Find(group => group.name == "rightareola") },
+                        { NIPPLE, groups.Find(group => group.name == "rightnipple") },
+                    }
+                },
+            };
+        }
+
+        private static void SetupVertexIndices() =>
+            _vertexIndices = new Dictionary<string, Dictionary<string, int[]>>
+            {
+                {
+                    LEFT, new Dictionary<string, int[]>
+                    {
+                        {
+                            MAIN,
+                            new[]
+                            {
+                                7230, 7231, 7232, 7233, 7234, 7235, 7236, 7237, 7238, 7239, 7243, 7244, 7245,
+                                7246, 7247, 8925, 8926, 8927, 8928, 8929, 8930, 8931, 8932, 8933, 8934, 8935,
+                                8936, 8937, 8938, 8939, 8940, 8941, 8942, 8943, 8944, 8945, 8946, 8947, 8948,
+                            }
+                        },
+                        { OUTER, new[] { 17, 137, 2403, 2407, 2410, 2418, 2596, 7248, 8848, 8849 } },
+                        { AREOLA, new[] { 7945, 7946, 7947, 7950, 7958, 7966 } },
+                    }
+                },
+                {
+                    RIGHT, new Dictionary<string, int[]>
+                    {
+                        {
+                            MAIN,
+                            new[]
+                            {
+                                17936, 17937, 17938, 17939, 17940, 17941, 17942, 17943, 17944, 17945, 17949, 17950, 17951,
+                                17952, 17953, 19591, 19592, 19593, 19594, 19595, 19596, 19597, 19598, 19599, 19600, 19601,
+                                19602, 19603, 19604, 19605, 19606, 19607, 19608, 19609, 19610, 19611, 19612, 19613, 19614,
+                            }
+                        },
+                        { OUTER, new[] { 10945, 11065, 13233, 13237, 13240, 13248, 13412, 17954, 19519, 19520 } },
+                        { AREOLA, new[] { 18623, 18624, 18625, 18628, 18636, 18644 } },
+                    }
+                },
+            };
 
         private static void InitColliderVisualizer()
         {
