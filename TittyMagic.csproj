@@ -91,6 +91,8 @@
     <Compile Include="src\Components\UIMod.cs" />
     <Compile Include="src\Components\UnityEventsListener.cs" />
     <Compile Include="src\Components\PointerUpDownListener.cs" />
+    <Compile Include="src\Diagnostics\DrawService.cs" />
+    <Compile Include="src\Diagnostics\LineV3.cs" />
     <Compile Include="src\Extensions\ArrayExtension.cs" />
     <Compile Include="src\Extensions\AtomExtension.cs" />
     <Compile Include="src\Extensions\ListExtension.cs" />

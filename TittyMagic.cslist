@@ -30,6 +30,8 @@ src\Components\TrackFemaleBreast.cs
 src\Components\TrackFutaBreast.cs
 src\Components\UIMod.cs
 src\Components\UnityEventsListener.cs
+src\Diagnostics\DrawService.cs
+src\Diagnostics\LineV3.cs
 src\Extensions\ArrayExtension.cs
 src\Extensions\AtomExtension.cs
 src\Extensions\ListExtension.cs
