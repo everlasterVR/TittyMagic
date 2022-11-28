@@ -32,7 +32,7 @@ namespace TittyMagic
         public void Init()
         {
             _motionAnimationMaster = SuperController.singleton.motionAnimationMaster;
-            calibratingJsb = tittyMagic.NewJSONStorableBool("calibrating", false);
+            calibratingJsb = tittyMagic.NewJSONStorableBool("isCalibrating", false);
 
             freezeMotionSoundJsb = tittyMagic.NewJSONStorableBool("freezeMotionSoundWhenCalibrating", true);
             freezeMotionSoundJsb.setCallbackFunction = value =>
