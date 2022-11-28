@@ -24,6 +24,12 @@ namespace TittyMagic
             }
         }
 
+        // public static void Log(params object[] args)
+        // {
+        //     string message = string.Join(" ", args.Select(arg => arg.ToString()).ToArray());
+        //     Debug.Log($"{Script.tittyMagic.containingAtom.uid}: {nameof(TittyMagic)}\n{message}");
+        // }
+
         public static void LogError(params object[] args) =>
             SuperController.LogError(Format(args));
 

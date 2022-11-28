@@ -8,21 +8,19 @@ namespace TittyMagic
 {
     public static class Integration
     {
-        private static List<JSONStorable> _otherInstances;
-
-        public static List<JSONStorable> otherInstances => _otherInstances.Prune();
+        private static List<JSONStorable> _tittyMagicInstances = new List<JSONStorable>();
+        private static List<JSONStorable> _bootyMagicInstances = new List<JSONStorable>();
+        public static IEnumerable<JSONStorable> otherInstances => _tittyMagicInstances.Prune().Concat(_bootyMagicInstances.Prune());
 
         public static void Init()
         {
-            _otherInstances = new List<JSONStorable>();
-
-            tittyMagic.NewJSONStorableAction("Integrate", RefreshOtherPluginInstances);
-            RefreshOtherPluginInstances();
+            tittyMagic.NewJSONStorableAction("Integrate", Integrate);
+            Integrate();
 
             /* When the plugin is added to an existing atom and this method gets called during initialization,
              * other instances are told to update their knowledge on what other instances are in the network.
              */
-            foreach(var instance in _otherInstances)
+            foreach(var instance in _tittyMagicInstances.Concat(_bootyMagicInstances))
             {
                 if(instance.IsAction("Integrate"))
                 {
@@ -37,45 +35,62 @@ namespace TittyMagic
             SuperController.singleton.onAtomRemovedHandlers += OnAtomRemoved;
         }
 
-        private static void RefreshOtherPluginInstances()
+        private static void Integrate()
         {
-            _otherInstances.Prune();
-            SuperController.singleton.GetAtoms().ForEach(FindAndAddInstance);
+            _tittyMagicInstances.Prune();
+            _bootyMagicInstances.Prune();
+            GetAtomsByType("Person").ForEach(FindAndAddOtherPluginStorables);
         }
 
-        private static void FindAndAddInstance(Atom atom)
+        private static void FindAndAddOtherPluginStorables(Atom atom)
         {
-            if(atom.type != "Person" || atom.uid == tittyMagic.containingAtom.uid)
+            /* Find TittyMagic instance on atom */
+            if(atom.uid != tittyMagic.containingAtom.uid)
             {
-                return;
+                try
+                {
+                    var regex = new Regex($@"^plugin#\d+_{nameof(TittyMagic)}.{nameof(Script)}", RegexOptions.Compiled);
+                    var otherPlugin = atom.FindStorablesByRegexMatch(regex)
+                        .FirstOrDefault(storable => MinVersionStorableValue(storable, "5.1.0"));
+                    if(otherPlugin != null &&
+                        !_tittyMagicInstances.Contains(otherPlugin) &&
+                        !_tittyMagicInstances.Exists(instance => instance.containingAtom.uid == atom.uid))
+                    {
+                        _tittyMagicInstances.Add(otherPlugin);
+                    }
+                }
+                catch(Exception e)
+                {
+                    Utils.LogError($"Error finding {nameof(TittyMagic)} instance on Atom {atom.uid}: {e}");
+                }
             }
 
-            JSONStorable otherInstance = null;
+            /* Find BootyMagic instance on atom */
             try
             {
-                var regex = new Regex($@"^plugin#\d+_{nameof(TittyMagic)}.{nameof(Script)}", RegexOptions.Compiled);
-                otherInstance = atom.FindStorablesByRegexMatch(regex).FirstOrDefault(FindOtherInstanceStorable);
+                var regex = new Regex(@"^plugin#\d+_BootyMagic.Script", RegexOptions.Compiled);
+                var otherPlugin = atom.FindStorablesByRegexMatch(regex)
+                    .FirstOrDefault(storable => MinVersionStorableValue(storable, "1.0.0"));
+                if(otherPlugin != null &&
+                    !_bootyMagicInstances.Contains(otherPlugin) &&
+                    !_bootyMagicInstances.Exists(instance => instance.containingAtom.uid == atom.uid))
+                {
+                    _bootyMagicInstances.Add(otherPlugin);
+                }
             }
             catch(Exception e)
             {
-                Utils.LogError($"Error finding {nameof(TittyMagic)} instance from Atom {atom.uid}: {e}");
-            }
-
-            if(otherInstance != null &&
-                !_otherInstances.Contains(otherInstance) &&
-                !_otherInstances.Exists(instance => instance.containingAtom.uid == atom.uid))
-            {
-                _otherInstances.Add(otherInstance);
+                Utils.LogError($"Error finding BootyMagic instance on Atom {atom.uid}: {e}");
             }
         }
 
-        private static bool FindOtherInstanceStorable(JSONStorable storable)
+        private static bool MinVersionStorableValue(JSONStorable storable, string ver)
         {
             bool result = false;
-            if(storable.IsStringJSONParam("version"))
+            if(storable.IsStringJSONParam(Constant.VERSION))
             {
-                string versionString = storable.GetStringParamValue("version");
-                if(versionString == $"{VERSION}")
+                string version = storable.GetStringParamValue(Constant.VERSION);
+                if(version == $"{VERSION}")
                 {
                     result = true;
                 }
@@ -84,10 +99,7 @@ namespace TittyMagic
                     try
                     {
                         /* split version number from pre-release tag */
-                        if(new Version(versionString.Split('-')[0]) >= new Version("5.1.0"))
-                        {
-                            result = true;
-                        }
+                        result = new Version(version.Split('-')[0]) >= new Version(ver);
                     }
                     catch(Exception e)
                     {
@@ -99,22 +111,42 @@ namespace TittyMagic
             return result;
         }
 
+        private static List<Atom> GetAtomsByType(string type)
+            => SuperController.singleton.GetAtoms().Where(atom => atom.type == type).ToList();
+
         private static void OnAtomAdded(Atom atom)
         {
-            _otherInstances.Prune();
-            FindAndAddInstance(atom);
+            _tittyMagicInstances.Prune();
+            _bootyMagicInstances.Prune();
+            FindAndAddOtherPluginStorables(atom);
         }
 
         private static void OnAtomRemoved(Atom atom)
         {
-            _otherInstances.Prune().RemoveAll(instance => instance.containingAtom.uid == atom.uid);
+            _tittyMagicInstances.Prune().RemoveAll(instance => instance.containingAtom.uid == atom.uid);
+            _bootyMagicInstances.Prune().RemoveAll(instance => instance.containingAtom.uid == atom.uid);
         }
 
         public static void Destroy()
         {
-            _otherInstances = null;
+            _tittyMagicInstances = null;
+            _bootyMagicInstances = null;
             SuperController.singleton.onAtomAddedHandlers -= OnAtomAdded;
             SuperController.singleton.onAtomRemovedHandlers -= OnAtomRemoved;
+        }
+
+        public new static string ToString() =>
+            $"TittyMagics:\n{string.Join("\n", _tittyMagicInstances.Select(x => $"  {InstanceString(x)}").ToArray())}" +
+            $"\nBootyMagics:\n{string.Join("\n", _bootyMagicInstances.Select(x => $"  {InstanceString(x)}").ToArray())}";
+
+        private static string InstanceString(JSONStorable instance)
+        {
+            if(instance == null)
+            {
+                return "null";
+            }
+
+            return $"{instance.containingAtom.uid}: {instance.storeId}";
         }
     }
 }

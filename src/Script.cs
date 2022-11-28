@@ -152,7 +152,7 @@ namespace TittyMagic
             try
             {
                 /* Used to store version in save JSON and communicate version to other plugin instances */
-                var versionJss = this.NewJSONStorableString("version", "");
+                var versionJss = this.NewJSONStorableString(Constant.VERSION, "");
                 versionJss.val = $"{VERSION}";
 
                 if(containingAtom.type != "Person")
@@ -956,9 +956,9 @@ namespace TittyMagic
             /* Prevent overriding versionJss.val from JSON. Version stored in JSON just for information,
              * but could be intercepted here and used to save a "loadedFromVersion" value.
              */
-            if(jsonClass.HasKey("version"))
+            if(jsonClass.HasKey(Constant.VERSION))
             {
-                jsonClass["version"] = $"{VERSION}";
+                jsonClass[Constant.VERSION] = $"{VERSION}";
             }
 
             if(jsonClass.HasKey("forceMorphingLeftRight"))

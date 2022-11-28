@@ -62,6 +62,7 @@ src\Models\PhysicsParameterGroup.cs
 src\Models\SoftGroupPhysicsParameter.cs
 src\Static\ApplyMethod.cs
 src\Static\Direction.cs
+src\Static\Constant.cs
 src\Static\ParamName.cs
 src\Static\Side.cs
 src\Static\SoftColliderGroup.cs

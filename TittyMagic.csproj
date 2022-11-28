@@ -120,6 +120,7 @@
     <Compile Include="src\Models\SoftGroupPhysicsParameter.cs" />
     <Compile Include="src\SettingsMonitor.cs" />
     <Compile Include="src\Static\ApplyMethod.cs" />
+    <Compile Include="src\Static\Constant.cs" />
     <Compile Include="src\Static\Direction.cs" />
     <Compile Include="src\Static\Side.cs" />
     <Compile Include="src\Static\ParamName.cs" />

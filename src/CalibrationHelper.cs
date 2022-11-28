@@ -32,7 +32,7 @@ namespace TittyMagic
         public void Init()
         {
             _motionAnimationMaster = SuperController.singleton.motionAnimationMaster;
-            calibratingJsb = tittyMagic.NewJSONStorableBool("isCalibrating", false);
+            calibratingJsb = tittyMagic.NewJSONStorableBool(Constant.IS_CALIBRATING, false);
 
             freezeMotionSoundJsb = tittyMagic.NewJSONStorableBool("freezeMotionSoundWhenCalibrating", true);
             freezeMotionSoundJsb.setCallbackFunction = value =>
@@ -83,6 +83,7 @@ namespace TittyMagic
 
         public IEnumerator Begin()
         {
+            // Utils.Log(Integration.ToString());
             shouldRun = false;
             if(calibratingJsb.val)
             {
@@ -107,6 +108,7 @@ namespace TittyMagic
             /* The instance which started calibrating first has control over pausing */
             if(OtherCalibrationInProgress())
             {
+                // Utils.Log("Other calibration in progress: deferring");
                 _deferToOtherInstance = true;
             }
             else if(pauseSceneAnimationJsb.val && _playing == null)
@@ -127,16 +129,15 @@ namespace TittyMagic
             }
         }
 
-        private bool OtherCalibrationInProgress()
+        private static bool OtherCalibrationInProgress()
         {
             try
             {
                 foreach(var instance in Integration.otherInstances)
                 {
-                    if(instance != null && instance.GetBoolParamNames().Contains(calibratingJsb.name))
+                    if(instance != null && instance.GetBoolParamNames().Contains(Constant.IS_CALIBRATING))
                     {
-                        bool response = instance.GetBoolParamValue(calibratingJsb.name);
-                        if(response)
+                        if(instance.GetBoolParamValue(Constant.IS_CALIBRATING))
                         {
                             /* Another instance is currently calibrating. */
                             return true;
@@ -263,8 +264,10 @@ namespace TittyMagic
         {
             if(!_deferToOtherInstance && !_queued)
             {
+                // Utils.Log("Finish: Not deferring to other instance");
                 while(OtherCalibrationInProgress())
                 {
+                    // Utils.Log("Waiting for others to finish...");
                     yield return new WaitForSecondsRealtime(0.1f);
                 }
 
@@ -287,13 +290,12 @@ namespace TittyMagic
 
                     _playing = null;
                 }
-
-                tittyMagic.settingsMonitor.enabled = true;
             }
 
             if(!_queued)
             {
                 calibratingJsb.val = false;
+                tittyMagic.settingsMonitor.enabled = true;
             }
             else
             {
