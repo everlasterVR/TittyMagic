@@ -8,13 +8,20 @@ namespace TittyMagic
 {
     public static class Integration
     {
+        private static string _containingAtomUid;
         private static List<JSONStorable> _tittyMagicInstances = new List<JSONStorable>();
         private static List<JSONStorable> _bootyMagicInstances = new List<JSONStorable>();
         public static IEnumerable<JSONStorable> otherInstances => _tittyMagicInstances.Prune().Concat(_bootyMagicInstances.Prune());
 
+        public static JSONStorable bootyMagic => _bootyMagicInstances
+            .Prune()
+            .FirstOrDefault(instance => instance.containingAtom.uid == _containingAtomUid);
+
         public static void Init()
         {
-            tittyMagic.NewJSONStorableAction("Integrate", Integrate);
+            /* Needs to be initialized with stored uid because tittyMagic.containingAtom.uid is unreachable OnDisable */
+            _containingAtomUid = tittyMagic.containingAtom.uid;
+            tittyMagic.NewJSONStorableAction(Constant.INTEGRATE, Integrate);
             Integrate();
 
             /* When the plugin is added to an existing atom and this method gets called during initialization,
@@ -22,10 +29,7 @@ namespace TittyMagic
              */
             foreach(var instance in _tittyMagicInstances.Concat(_bootyMagicInstances))
             {
-                if(instance.IsAction("Integrate"))
-                {
-                    instance.CallAction("Integrate");
-                }
+                instance.CallActionNullSafe(Constant.INTEGRATE);
             }
 
             /* When the plugin is added as part of a new atom using e.g. scene or subscene merge load,
@@ -45,7 +49,7 @@ namespace TittyMagic
         private static void FindAndAddOtherPluginStorables(Atom atom)
         {
             /* Find TittyMagic instance on atom */
-            if(atom.uid != tittyMagic.containingAtom.uid)
+            if(atom.uid != _containingAtomUid)
             {
                 try
                 {

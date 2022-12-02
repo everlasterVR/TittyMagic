@@ -135,13 +135,10 @@ namespace TittyMagic
             {
                 foreach(var instance in Integration.otherInstances)
                 {
-                    if(instance != null && instance.GetBoolParamNames().Contains(Constant.IS_CALIBRATING))
+                    if(instance != null && instance.GetBoolParamValue(Constant.IS_CALIBRATING))
                     {
-                        if(instance.GetBoolParamValue(Constant.IS_CALIBRATING))
-                        {
-                            /* Another instance is currently calibrating. */
-                            return true;
-                        }
+                        /* Another instance is currently calibrating. */
+                        return true;
                     }
                 }
             }

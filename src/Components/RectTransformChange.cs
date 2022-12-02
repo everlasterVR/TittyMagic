@@ -8,23 +8,18 @@ namespace TittyMagic.Components
         private readonly Vector2 _originalPosition;
         private readonly Vector2 _newPosition;
 
-        public RectTransformChange(RectTransform rectTransform, Vector2 offset)
+        public RectTransformChange(RectTransform rectTransform, Vector2 originalPosition, Vector2 offset)
         {
             _rectTransform = rectTransform;
-            var position = rectTransform.anchoredPosition;
-            _originalPosition = new Vector2(position.x, position.y);
-            _newPosition = new Vector2(position.x + offset.x, position.y + offset.y);
+            _originalPosition = originalPosition;
+            _newPosition = new Vector2(_originalPosition.x + offset.x, _originalPosition.y + offset.y);
             rectTransform.anchoredPosition = _newPosition;
         }
 
-        public void Apply()
-        {
+        public void Apply() =>
             _rectTransform.anchoredPosition = _newPosition;
-        }
 
-        public void RestoreOriginal()
-        {
+        public void RestoreOriginal() =>
             _rectTransform.anchoredPosition = _originalPosition;
-        }
     }
 }

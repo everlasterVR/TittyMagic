@@ -11,15 +11,17 @@ namespace TittyMagic.Components
         private readonly List<GameObject> _inactivatedUIGameObjects = new List<GameObject>();
         private readonly List<GameObject> _customUIGameObjects = new List<GameObject>();
 
+        public string id { get; private set; }
         private Transform _container;
-        public string targetName { get; private set; }
+        private string _targetName;
         private UnityEventsListener _eventListener;
         private Func<UIMod, IEnumerator> _applyChanges;
 
-        public void Init(Transform container, string targetTransformName, Func<UIMod, IEnumerator> changesFunc)
+        public void Init(string uiModId, Transform container, string targetTransformName, Func<UIMod, IEnumerator> changesFunc)
         {
+            id = uiModId;
             _container = container;
-            targetName = targetTransformName;
+            _targetName = targetTransformName;
             _applyChanges = changesFunc;
         }
 
@@ -57,12 +59,12 @@ namespace TittyMagic.Components
             {
                 waited += 0.1f;
                 yield return new WaitForSecondsRealtime(0.1f);
-                target = _container.Find(targetName);
+                target = _container.Find(_targetName);
             }
 
             if(target == null)
             {
-                Utils.LogError($"Failed to {targetName} UI - could not find transform.");
+                Utils.LogError($"Failed to moodify {id} UI on target {_targetName} - could not find transform.");
                 yield break;
             }
 
@@ -83,8 +85,8 @@ namespace TittyMagic.Components
 
         public void AddCustomObject(GameObject go) => _customUIGameObjects.Add(go);
 
-        public void MoveTransform(Transform t, int x, int y) =>
-            _movedRects.Add(new RectTransformChange(t.GetComponent<RectTransform>(), new Vector2(x, y)));
+        public void MoveRect(Transform t, Vector2 originalPosition, Vector2 offset) =>
+            _movedRects.Add(new RectTransformChange(t.GetComponent<RectTransform>(), originalPosition, offset));
 
         public void Enable()
         {

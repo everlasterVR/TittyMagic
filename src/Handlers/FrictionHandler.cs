@@ -39,9 +39,9 @@ namespace TittyMagic
             adaptiveFrictionJsb = tittyMagic.NewJSONStorableBool("enableAdaptiveFriction", false);
             adaptiveFrictionJsb.setCallbackFunction = val =>
             {
-                if(tittyMagic.drySkinFrictionSlider != null)
+                if(tittyMagic.uiModManager.drySkinFrictionSlider != null)
                 {
-                    tittyMagic.drySkinFrictionSlider.SetActiveStyle(val);
+                    tittyMagic.uiModManager.drySkinFrictionSlider.SetActiveStyle(val, true);
                 }
 
                 CalculateFriction();
@@ -49,6 +49,8 @@ namespace TittyMagic
 
             drySkinFrictionJsf = tittyMagic.NewJSONStorableFloat("drySkinFriction", 0.750f, 0.000f, 1.000f);
             drySkinFrictionJsf.setCallbackFunction = _ => CalculateFriction();
+
+            tittyMagic.NewJSONStorableAction(Constant.CALC_FRICTION, CalculateFriction);
 
             _skinMaterialsStorable = tittyMagic.containingAtom.GetStorableByID("skin");
             if(_skinMaterialsStorable == null)
@@ -122,10 +124,18 @@ namespace TittyMagic
         private static void SetGlossAndSpecularStorables()
         {
             _glossJsf = _skinMaterialsStorable.GetFloatJSONParam("Gloss");
-            _glossJsf.setJSONCallbackFunction = _ => CalculateFriction();
+            _glossJsf.setJSONCallbackFunction = _ =>
+            {
+                Integration.bootyMagic.CallActionNullSafe(Constant.CALC_FRICTION);
+                CalculateFriction();
+            };
 
             _specularBumpinessJsf = _skinMaterialsStorable.GetFloatJSONParam("Specular Bumpiness");
-            _specularBumpinessJsf.setJSONCallbackFunction = _ => CalculateFriction();
+            _specularBumpinessJsf.setJSONCallbackFunction = _ =>
+            {
+                Integration.bootyMagic.CallActionNullSafe(Constant.CALC_FRICTION);
+                CalculateFriction();
+            };
         }
 
         /* Maximum friction that a collider can have, drops off dynamically with distance from collider's normal position */

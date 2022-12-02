@@ -34,6 +34,7 @@ src\Diagnostics\DrawService.cs
 src\Diagnostics\LineV3.cs
 src\Extensions\ArrayExtension.cs
 src\Extensions\AtomExtension.cs
+src\Extensions\JSONStorableExtension.cs
 src\Extensions\ListExtension.cs
 src\Extensions\MVRScriptExtension.cs
 src\Extensions\StringExtension.cs
@@ -69,10 +70,11 @@ src\Static\SoftColliderGroup.cs
 src\Static\VertexIndexGroup.cs
 src\BreastMorphListener.cs
 src\Bindings.cs
+src\CalibrationHelper.cs
 src\Integration.cs
 src\Script.cs
 src\SettingsMonitor.cs
-src\CalibrationHelper.cs
+src\UIModManager.cs
 src\UI\Components\NavigationButton.cs
 src\UI\Colors.cs
 src\UI\DevWindow.cs
