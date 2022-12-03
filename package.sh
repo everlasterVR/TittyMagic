@@ -48,11 +48,11 @@ cd ..
 rm -rf $work_dir
 
 # upload
-if ../scripts/mega-login.sh && ../scripts/mega-uploadandshare.sh $package_file; then
-    printf "Upload successful.\n"
-else
-    printf "Upload failed.\n"
-fi;
+#if ../scripts/mega-login.sh && ../scripts/mega-uploadandshare.sh $package_file; then
+#    printf "Upload successful.\n"
+#else
+#    printf "Upload failed.\n"
+#fi;
 
 # move archive to AddonPackages
 addon_packages_dir=../../../../AddonPackages/Self
