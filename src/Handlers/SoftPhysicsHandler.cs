@@ -440,7 +440,7 @@ namespace TittyMagic.Handlers
         private static PhysicsParameter NewColliderRadiusParameter(string side)
         {
             string jsfName = JsfName(SOFT_VERTICES_COLLIDER_RADIUS, side);
-            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.000f, 0.000f, 0.060f);
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.0000f, 0.0000f, 0.0600f);
             var parameter = new PhysicsParameter
             {
                 valueJsf = valueJsf,
@@ -448,7 +448,7 @@ namespace TittyMagic.Handlers
                 offsetJsf = NewOffsetJsf(jsfName, valueJsf, side == LEFT),
                 config = new StaticPhysicsConfig
                 {
-                    baseValue = 0.017f,
+                    baseValue = 0.0170f,
                     // https://www.desmos.com/calculator/rotof03irg
                     massCurve = x => 1.85f * Curves.Exponential1(2 / 3f * x, 1.42f, 4.25f, 1.17f),
                     softnessCurve = x => 0.20f * x,
@@ -488,7 +488,7 @@ namespace TittyMagic.Handlers
         private static PhysicsParameter NewColliderAdditionalNormalOffsetParameter(string side)
         {
             string jsfName = JsfName(SOFT_VERTICES_COLLIDER_ADDITIONAL_NORMAL_OFFSET, side);
-            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.000f, -0.0050f, 0.0050f);
+            var valueJsf = new JSONStorableFloat($"{jsfName}Value", 0.0000f, -0.0050f, 0.0050f);
             var parameter = new PhysicsParameter
             {
                 valueJsf = valueJsf,

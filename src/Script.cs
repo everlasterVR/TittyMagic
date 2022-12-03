@@ -597,7 +597,7 @@ namespace TittyMagic
 
             SoftPhysicsHandler.SyncSoftPhysics();
 
-            /* Calculate softness and quickness (in case sliders were adjusted) */
+            /* Calculate softness and quickness */
             softnessAmount = Curves.SoftnessBaseCurve(softnessJsf.val / 100f);
             quicknessAmount = 2 * quicknessJsf.val / 100 - 1;
 
