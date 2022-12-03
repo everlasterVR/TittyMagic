@@ -90,29 +90,21 @@ namespace TittyMagic
 
         private static bool MinVersionStorableValue(JSONStorable storable, string ver)
         {
-            bool result = false;
             if(storable.IsStringJSONParam(Constant.VERSION))
             {
                 string version = storable.GetStringParamValue(Constant.VERSION);
-                if(version == $"{VERSION}")
+                try
                 {
-                    result = true;
+                    /* split version number from pre-release tag */
+                    return new Version(version.Split('-')[0]) >= new Version(ver);
                 }
-                else
+                catch(Exception e)
                 {
-                    try
-                    {
-                        /* split version number from pre-release tag */
-                        result = new Version(version.Split('-')[0]) >= new Version(ver);
-                    }
-                    catch(Exception e)
-                    {
-                        //ignore error raised by Version constructor for incorrect string value
-                    }
+                    //ignore error raised by Version constructor for incorrect string value
                 }
             }
 
-            return result;
+            return false;
         }
 
         private static List<Atom> GetAtomsByType(string type)
