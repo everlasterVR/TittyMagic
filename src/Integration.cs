@@ -74,7 +74,7 @@ namespace TittyMagic
             {
                 var regex = new Regex(@"^plugin#\d+_BootyMagic.Script", RegexOptions.Compiled);
                 var otherPlugin = atom.FindStorablesByRegexMatch(regex)
-                    .FirstOrDefault(storable => MinVersionStorableValue(storable, "1.0.0"));
+                    .FirstOrDefault(storable => MinVersionStorableValue(storable, "1.0"));
                 if(otherPlugin != null &&
                     !_bootyMagicInstances.Contains(otherPlugin) &&
                     !_bootyMagicInstances.Exists(instance => instance.containingAtom.uid == atom.uid))
