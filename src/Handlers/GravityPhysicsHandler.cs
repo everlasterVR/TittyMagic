@@ -51,10 +51,10 @@ namespace TittyMagic.Handlers
             var groupsByDirection = directions.ToDictionary(dir => dir, _ => new List<PhysicsParameterGroup>());
 
             var allConfigs = new Dictionary<string, Dictionary<string, Dictionary<string, DynamicPhysicsConfig>>>();
-            allConfigs[SPRING] = SpringConfigs();
-            allConfigs[DAMPER] = DamperConfigs();
-            allConfigs[POSITION_SPRING_Z] = PositionSpringZConfigs();
-            allConfigs[TARGET_ROTATION_X] = TargetRotationXConfigs();
+            allConfigs[SPRING] = ConfigPair(NewSpringConfigs(), NewSpringConfigs());
+            allConfigs[DAMPER] = ConfigPair(NewDamperConfigs(), NewDamperConfigs());
+            allConfigs[POSITION_SPRING_Z] = ConfigPair(NewPositionSpringZConfigs(), NewPositionSpringZConfigs());
+            allConfigs[TARGET_ROTATION_X] = ConfigPair(NewRotationXConfigs(), NewRotationXConfigs());
             allConfigs[TARGET_ROTATION_Y] = TargetRotationYConfigs();
             allConfigs[TARGET_ROTATION_Z] = TargetRotationZConfigs();
 
@@ -89,22 +89,15 @@ namespace TittyMagic.Handlers
             negative = true,
         };
 
-        private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> SpringConfigs()
-        {
-            var upConfig = NewSpringConfig();
-            var backConfig = NewSpringConfig();
-            var forwardConfig = NewSpringConfig();
-            var leftConfig = NewSpringConfig();
-            var rightConfig = NewSpringConfig();
-            return ConfigPair(new Dictionary<string, DynamicPhysicsConfig>
+        private static Dictionary<string, DynamicPhysicsConfig> NewSpringConfigs() =>
+            new Dictionary<string, DynamicPhysicsConfig>
             {
-                { UP, upConfig },
-                { BACK, backConfig },
-                { FORWARD, forwardConfig },
-                { LEFT, leftConfig },
-                { RIGHT, rightConfig },
-            });
-        }
+                { UP, NewSpringConfig() },
+                { BACK, NewSpringConfig() },
+                { FORWARD, NewSpringConfig() },
+                { LEFT, NewSpringConfig() },
+                { RIGHT, NewSpringConfig() },
+            };
 
         private static DynamicPhysicsConfig NewDamperConfig() => new DynamicPhysicsConfig
         {
@@ -114,136 +107,163 @@ namespace TittyMagic.Handlers
             massCurve = MainPhysicsHandler.InvertMass,
         };
 
-        private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> DamperConfigs()
-        {
-            var upConfig = NewDamperConfig();
-            var backConfig = NewDamperConfig();
-            var forwardConfig = NewDamperConfig();
-            var leftConfig = NewDamperConfig();
-            var rightConfig = NewDamperConfig();
-            return ConfigPair(new Dictionary<string, DynamicPhysicsConfig>
+        private static Dictionary<string, DynamicPhysicsConfig> NewDamperConfigs() =>
+            new Dictionary<string, DynamicPhysicsConfig>
             {
-                { UP, upConfig },
-                { BACK, backConfig },
-                { FORWARD, forwardConfig },
-                { LEFT, leftConfig },
-                { RIGHT, rightConfig },
-            });
-        }
+                { UP, NewDamperConfig() },
+                { BACK, NewDamperConfig() },
+                { FORWARD, NewDamperConfig() },
+                { LEFT, NewDamperConfig() },
+                { RIGHT, NewDamperConfig() },
+            };
 
-        private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> PositionSpringZConfigs()
+        private static Dictionary<string, DynamicPhysicsConfig> NewPositionSpringZConfigs()
         {
             Func<float, float> normalizeInvertMass = x => MainPhysicsHandler.NormalizeMass(MainPhysicsHandler.InvertMass(x));
-            var backConfig = new DynamicPhysicsConfig
+            return new Dictionary<string, DynamicPhysicsConfig>
             {
-                massMultiplier = -125f,
-                softnessMultiplier = -50f,
-                applyMethod = ApplyMethod.ADDITIVE,
-                // https://www.desmos.com/calculator/po08nsvnfa
-                massCurve = x => Curves.Exponential1(normalizeInvertMass(x), 0.3f, 10f, 0.84f, a: 1.01f),
-                softnessCurve = Curves.SpringZSoftnessCurve,
-                baseMultiplier = -125f,
-                negative = true,
+                {
+                    BACK, new DynamicPhysicsConfig
+                    {
+                        massMultiplier = -125f,
+                        softnessMultiplier = -50f,
+                        applyMethod = ApplyMethod.ADDITIVE,
+                        // https://www.desmos.com/calculator/po08nsvnfa
+                        massCurve = x => Curves.Exponential1(normalizeInvertMass(x), 0.3f, 10f, 0.84f, a: 1.01f),
+                        softnessCurve = Curves.SpringZSoftnessCurve,
+                        baseMultiplier = -125f,
+                        negative = true,
+                    }
+                },
+                {
+                    FORWARD, new DynamicPhysicsConfig
+                    {
+                        massMultiplier = -125f,
+                        softnessMultiplier = -50f,
+                        applyMethod = ApplyMethod.ADDITIVE,
+                        massCurve = x => Curves.Exponential1(normalizeInvertMass(x), 0.3f, 10f, 0.84f, a: 1.01f),
+                        softnessCurve = Curves.SpringZSoftnessCurve,
+                        baseMultiplier = -125f,
+                        negative = true,
+                    }
+                },
             };
-            var forwardConfig = new DynamicPhysicsConfig
-            {
-                massMultiplier = -125f,
-                softnessMultiplier = -50f,
-                applyMethod = ApplyMethod.ADDITIVE,
-                massCurve = x => Curves.Exponential1(normalizeInvertMass(x), 0.3f, 10f, 0.84f, a: 1.01f),
-                softnessCurve = Curves.SpringZSoftnessCurve,
-                baseMultiplier = -125f,
-                negative = true,
-            };
-            return ConfigPair(new Dictionary<string, DynamicPhysicsConfig>
-            {
-                { BACK, backConfig },
-                { FORWARD, forwardConfig },
-            });
         }
 
-        private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> TargetRotationXConfigs()
-        {
-            var upConfig = new DynamicPhysicsConfig
+        private static Dictionary<string, DynamicPhysicsConfig> NewRotationXConfigs() =>
+            new Dictionary<string, DynamicPhysicsConfig>
             {
-                softnessMultiplier = 11.00f,
-                applyMethod = ApplyMethod.ADDITIVE,
-                softnessCurve = Curves.TargetRotationSoftnessCurve,
-                baseMultiplier = 1.60f,
+                {
+                    UP, new DynamicPhysicsConfig
+                    {
+                        softnessMultiplier = 11.00f,
+                        applyMethod = ApplyMethod.ADDITIVE,
+                        softnessCurve = Curves.TargetRotationSoftnessCurve,
+                        baseMultiplier = 1.60f,
+                    }
+                },
+                {
+                    DOWN, new DynamicPhysicsConfig
+                    {
+                        softnessMultiplier = -9.40f,
+                        applyMethod = ApplyMethod.ADDITIVE,
+                        softnessCurve = Curves.TargetRotationSoftnessCurve,
+                        baseMultiplier = -1.34f,
+                        negative = true,
+                    }
+                },
             };
-            var downConfig = new DynamicPhysicsConfig
-            {
-                softnessMultiplier = -9.40f,
-                applyMethod = ApplyMethod.ADDITIVE,
-                softnessCurve = Curves.TargetRotationSoftnessCurve,
-                baseMultiplier = -1.34f,
-                negative = true,
-            };
-            return ConfigPair(new Dictionary<string, DynamicPhysicsConfig>
-            {
-                { UP, upConfig },
-                { DOWN, downConfig },
-            });
-        }
 
-        private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> TargetRotationYConfigs()
-        {
-            var leftConfig = new DynamicPhysicsConfig
-            {
-                softnessMultiplier = -11.00f,
-                applyMethod = ApplyMethod.ADDITIVE,
-                softnessCurve = Curves.TargetRotationSoftnessCurve,
-                baseMultiplier = -1.60f,
-                negative = true,
-            };
-            var rightConfig = new DynamicPhysicsConfig
-            {
-                massMultiplier = 0,
-                softnessMultiplier = 16.50f,
-                applyMethod = ApplyMethod.ADDITIVE,
-                softnessCurve = Curves.TargetRotationSoftnessCurve,
-                baseMultiplier = 1.60f,
-            };
-            return ConfigPair(new Dictionary<string, DynamicPhysicsConfig>
-            {
-                { LEFT, leftConfig },
-                { RIGHT, rightConfig },
-            });
-        }
+        private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> TargetRotationYConfigs() =>
+            ConfigPair(
+                new Dictionary<string, DynamicPhysicsConfig>
+                {
+                    {
+                        LEFT, new DynamicPhysicsConfig
+                        {
+                            softnessMultiplier = -11.00f,
+                            applyMethod = ApplyMethod.ADDITIVE,
+                            softnessCurve = Curves.TargetRotationSoftnessCurve,
+                            baseMultiplier = -1.60f,
+                            negative = true,
+                        }
+                    },
+                    {
+                        RIGHT, new DynamicPhysicsConfig
+                        {
+                            softnessMultiplier = 16.50f,
+                            applyMethod = ApplyMethod.ADDITIVE,
+                            softnessCurve = Curves.TargetRotationSoftnessCurve,
+                            baseMultiplier = 1.60f,
+                        }
+                    },
+                },
+                new Dictionary<string, DynamicPhysicsConfig>
+                {
+                    {
+                        LEFT, new DynamicPhysicsConfig
+                        {
+                            softnessMultiplier = -16.50f,
+                            applyMethod = ApplyMethod.ADDITIVE,
+                            softnessCurve = Curves.TargetRotationSoftnessCurve,
+                            baseMultiplier = -1.60f,
+                            negative = true,
+                        }
+                    },
+                    {
+                        RIGHT, new DynamicPhysicsConfig
+                        {
+                            softnessMultiplier = 11.00f,
+                            applyMethod = ApplyMethod.ADDITIVE,
+                            softnessCurve = Curves.TargetRotationSoftnessCurve,
+                            baseMultiplier = 1.60f,
+                        }
+                    },
+                }
+            );
 
-        private static DynamicPhysicsConfig NewRotationZConfig() =>
-            new DynamicPhysicsConfig
+        private static Dictionary<string, DynamicPhysicsConfig> NewRotationZConfigs() =>
+            new Dictionary<string, DynamicPhysicsConfig>
             {
-                applyMethod = ApplyMethod.ADDITIVE,
+                {
+                    UP, new DynamicPhysicsConfig
+                    {
+                        applyMethod = ApplyMethod.ADDITIVE,
+                    }
+                },
+                {
+                    DOWN, new DynamicPhysicsConfig
+                    {
+                        applyMethod = ApplyMethod.ADDITIVE,
+                    }
+                },
             };
 
         private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> TargetRotationZConfigs()
         {
-            var configPair = ConfigPair(new Dictionary<string, DynamicPhysicsConfig>
-            {
-                { UP, NewRotationZConfig() },
-                { DOWN, NewRotationZConfig() },
-            });
-            var leftBreast = configPair[Side.LEFT];
-            var rightBreast = configPair[Side.RIGHT];
+            var left = NewRotationZConfigs();
+            var right = NewRotationZConfigs();
 
             targetRotationZJsf.setCallbackFunction = value =>
             {
                 float rounded = Calc.RoundToDecimals(2 * value);
-                leftBreast[UP].baseMultiplier = -rounded;
-                leftBreast[DOWN].baseMultiplier = rounded;
-                rightBreast[UP].baseMultiplier = rounded;
-                rightBreast[DOWN].baseMultiplier = -rounded;
+                left[UP].baseMultiplier = -rounded;
+                left[DOWN].baseMultiplier = rounded;
+                right[UP].baseMultiplier = rounded;
+                right[DOWN].baseMultiplier = -rounded;
             };
 
-            return configPair;
+            return ConfigPair(left, right);
         }
 
-        private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> ConfigPair(Dictionary<string, DynamicPhysicsConfig> leftConfig) =>
+        private static Dictionary<string, Dictionary<string, DynamicPhysicsConfig>> ConfigPair(
+            Dictionary<string, DynamicPhysicsConfig> left,
+            Dictionary<string, DynamicPhysicsConfig> right
+        ) =>
             new Dictionary<string, Dictionary<string, DynamicPhysicsConfig>>
             {
-                { Side.LEFT, leftConfig },
-                { Side.RIGHT, new Dictionary<string, DynamicPhysicsConfig>(leftConfig) },
+                { Side.LEFT, left },
+                { Side.RIGHT, right },
             };
 
         private static float _mass;
