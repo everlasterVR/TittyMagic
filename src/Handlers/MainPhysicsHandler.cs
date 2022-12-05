@@ -323,7 +323,7 @@ namespace TittyMagic.Handlers
             {
                 valueJsf = valueJsf,
                 baseValueJsf = NewBaseValueJsf(jsfName, valueJsf),
-                offsetJsf = NewOffsetJsf(jsfName, valueJsf, side == LEFT),
+                offsetJsf = NewOffsetJsf(jsfName, valueJsf, false),
                 config = new StaticPhysicsConfig
                 {
                     baseValue = 0.00f,
@@ -385,13 +385,13 @@ namespace TittyMagic.Handlers
             var leftXParam = NewTargetRotationXParameter(LEFT);
             var leftYParam = NewTargetRotationYParameter(LEFT);
             var leftZParam = NewTargetRotationZParameter(LEFT);
-            leftXParam.sync = x => SyncTargetRotation(LEFT, x, leftYParam.valueJsf.val, leftZParam.valueJsf.val);
+            leftXParam.sync = value => SyncTargetRotation(LEFT, value, leftYParam.valueJsf.val, leftZParam.valueJsf.val);
             //y and z have no sync callback, handled by x sync as a side effect
 
             var rightXParam = NewTargetRotationXParameter(RIGHT);
             var rightYParam = NewTargetRotationYParameter(RIGHT);
             var rightZParam = NewTargetRotationZParameter(RIGHT);
-            rightXParam.sync = x => SyncTargetRotation(RIGHT, x, rightYParam.valueJsf.val, rightZParam.valueJsf.val);
+            rightXParam.sync = value => SyncTargetRotation(RIGHT, value, rightYParam.valueJsf.val, rightZParam.valueJsf.val);
             //y and z have no sync callback, handled by x sync as a side effect
 
             var targetRotationX = new PhysicsParameterGroup
@@ -600,6 +600,8 @@ namespace TittyMagic.Handlers
             rb.WakeUp();
         }
 
+        private static Dictionary<string, int> _rotationZZeroCount;
+
         private static void SyncTargetRotation(string side, float targetRotationX, float targetRotationY, float targetRotationZ)
         {
             if(!tittyMagic.enabled)
@@ -607,26 +609,9 @@ namespace TittyMagic.Handlers
                 return;
             }
 
-            var rotation = UpdateRotationXYZ(side, targetRotationX, targetRotationY, targetRotationZ);
-            if(side == LEFT)
-            {
-                breastControl.smoothedJoint2TargetRotation = rotation;
-            }
-            else if(side == RIGHT)
-            {
-                breastControl.smoothedJoint1TargetRotation = rotation;
-            }
-
-            _dazBones[side].baseJointRotation = rotation;
-        }
-
-        private static Dictionary<string, int> _rotationZZeroCount;
-
-        private static Vector3 UpdateRotationXYZ(string side, float targetRotationX, float targetRotationY, float targetRotationZ)
-        {
-            var rotation = side == RIGHT
-                ? breastControl.smoothedJoint1TargetRotation
-                : breastControl.smoothedJoint2TargetRotation;
+            var rotation = side == LEFT
+                ? breastControl.smoothedJoint2TargetRotation
+                : breastControl.smoothedJoint1TargetRotation;
             rotation.x = -targetRotationX;
             rotation.y = -targetRotationY;
 
@@ -644,7 +629,7 @@ namespace TittyMagic.Handlers
                 _rotationZZeroCount[side] = 0;
             }
 
-            return rotation;
+            _dazBones[side].baseJointRotation = rotation;
         }
 
         #endregion *** Sync functions ***
