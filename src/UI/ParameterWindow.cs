@@ -64,17 +64,22 @@ namespace TittyMagic.UI
             }
             else
             {
-                AddSpacer("upperRightSpacer", 50, true);
+                AddSpacer("showColliderPreviewsPlaceholder", 50, true);
             }
 
             CreateHeaderTextField(new JSONStorableString("parameterHeader", _parameterGroup.displayName));
 
             /* Apply only to left breast toggle */
+            if(_parameterGroup.allowOffsetOnlyLeftBreast)
             {
                 var storable = _parameterGroup.offsetOnlyLeftBreastJsb;
                 var toggle = tittyMagic.CreateToggle(storable, true);
                 toggle.label = "Apply Only To Left Breast";
                 elements[storable.name] = toggle;
+            }
+            else
+            {
+                AddSpacer("applyOnlyToLeftBreastPlaceholder", 50, true);
             }
 
             /* Info text area */

@@ -22,6 +22,7 @@ namespace TittyMagic.Models
         public bool requiresCalibration { get; set; }
         public bool hasSoftColliderVisualization { get; set; }
         public bool rightInverted { get; set; }
+        public bool allowOffsetOnlyLeftBreast { get; set; }
         public JSONStorableBool offsetOnlyLeftBreastJsb { get; }
 
         public PhysicsParameter left { get; set; }
@@ -29,6 +30,7 @@ namespace TittyMagic.Models
 
         public PhysicsParameterGroup()
         {
+            allowOffsetOnlyLeftBreast = true;
             offsetOnlyLeftBreastJsb = new JSONStorableBool("offsetOnlyLeftBreast", false);
         }
 

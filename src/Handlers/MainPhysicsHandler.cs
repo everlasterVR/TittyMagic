@@ -418,6 +418,7 @@ namespace TittyMagic.Handlers
                 right = rightZParam,
                 requiresCalibration = true,
                 rightInverted = true, // correct but has no effect because offset not adjusted directly
+                allowOffsetOnlyLeftBreast = false,
             };
 
             massParameterGroup.SetOffsetCallbackFunctions();
