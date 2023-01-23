@@ -201,9 +201,7 @@ namespace TittyMagic
                 "BreastPhysicsMesh",
             }.Contains(storable.name));
 
-        private readonly Dictionary<Guid, Dictionary<string, bool>> _saveCollisionEnabled = new Dictionary<Guid, Dictionary<string, bool>>();
-
-        public void SetBreastsCollisionEnabled(bool value, Guid guid)
+        public void SetBreastsCollisionEnabled(bool value)
         {
             if(!personIsFemale)
             {
@@ -211,49 +209,14 @@ namespace TittyMagic
                 return;
             }
 
-            if(!value)
+            foreach(var simulator in _breastSimulators)
             {
-                try
-                {
-                    _saveCollisionEnabled[guid] = new Dictionary<string, bool>();
-                    foreach(var simulator in _breastSimulators)
-                    {
-                        _saveCollisionEnabled[guid][simulator.name] = simulator.collisionEnabled;
-                        simulator.collisionEnabled = false;
-                    }
-
-                    foreach(var storable in _breastSimulatorStorables)
-                    {
-                        _saveCollisionEnabled[guid][storable.name] = storable.collisionEnabled;
-                        storable.collisionEnabled = false;
-                    }
-                }
-                catch(Exception e)
-                {
-                    Utils.LogError($"Error disabling breasts collision: {e}");
-                }
+                simulator.collisionEnabled = value;
             }
-            else
+
+            foreach(var storable in _breastSimulatorStorables)
             {
-                try
-                {
-                    foreach(var simulator in _breastSimulators)
-                    {
-                        simulator.collisionEnabled = _saveCollisionEnabled[guid][simulator.name];
-                    }
-
-                    foreach(var storable in _breastSimulatorStorables)
-                    {
-                        storable.collisionEnabled = _saveCollisionEnabled[guid][storable.name];
-                    }
-
-                    _saveCollisionEnabled.Remove(guid);
-                }
-                catch(Exception e)
-                {
-                    Utils.LogError($"Error enabling breasts collision: {e}");
-
-                }
+                storable.collisionEnabled = value;
             }
         }
 

@@ -606,11 +606,9 @@ namespace TittyMagic
              * shape and therefore the estimated volume.
              */
 
-            Guid? collisionToggleGuid = null;
             if(calibrationHelper.disableBreastCollisionJsb.val)
             {
-                collisionToggleGuid = Guid.NewGuid();
-                calibrationHelper.SetBreastsCollisionEnabled(false, collisionToggleGuid.Value);
+                calibrationHelper.SetBreastsCollisionEnabled(false);
             }
 
             SetBreastsUseGravity(false);
@@ -656,9 +654,9 @@ namespace TittyMagic
             }
 
             SetBreastsUseGravity(true);
-            if(collisionToggleGuid.HasValue)
+            if(calibrationHelper.disableBreastCollisionJsb.val)
             {
-                calibrationHelper.SetBreastsCollisionEnabled(true, collisionToggleGuid.Value);
+                calibrationHelper.SetBreastsCollisionEnabled(containingAtom.GetStorableByID("AtomControl").GetBoolParamValue("collisionEnabled"));
             }
 
             yield return calibrationHelper.DeferFinish();
