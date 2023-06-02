@@ -2,11 +2,13 @@
 
 Improve breast physics with automatic settings, dynamic adjustments and complete customization.
 
+This plugin is superseded by Naturalis: https://hub.virtamate.com/resources/naturalis.33647
+
 **Download**: https://hub.virtamate.com/resources/tittymagic.4067/
 
 **Support me at**: https://patreon.com/everlaster
 
-## Development and contributing
+## Development
 
 ### Dependencies
 
